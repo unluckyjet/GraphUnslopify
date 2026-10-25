@@ -188,7 +188,10 @@ export const FacetSpec = z.object({
 });
 
 export const SignificanceSpec = z.object({
-  method: z.enum(["bootstrap", "ttest", "mannwhitney"]),
+  method: z.enum(["bootstrap", "ttest", "mannwhitney"]).describe(
+    "bootstrap is the historical name for a two-sided independent-sample permutation test of mean differences; " +
+    "ttest uses Welch's test and mannwhitney uses the two-sided rank test.",
+  ),
   pairs: z
     .array(z.tuple([z.string(), z.string()]))
     .min(1)

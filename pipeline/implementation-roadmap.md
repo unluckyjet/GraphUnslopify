@@ -36,3 +36,6 @@ Milestones may be split further as evidence requires. No checklist item is compl
 ## Progress
 
 - Milestone 1 pushed as `fac46c0`: singleton intervals fixed; all seven local gates passed. CI run `40210764967` passed all three jobs before milestone 2.
+
+- Milestone 2 pushed as `a9eb61b`; CI `40211285965` passed. Table intervals/highlighting and rendered text-fit checks are complete.
+- Split significance work: fix the measured raw permutation defect (spec 11) before spec 05 adjusts multiple p-values.

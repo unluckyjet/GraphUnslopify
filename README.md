@@ -203,6 +203,12 @@ with a printed caveat that overlap does not establish equivalence. Missing inter
 `unavailable`, and no winner is highlighted for that comparison. Column widths grow to fit the
 intervals rather than drawing neighboring values on top of each other.
 
+For significance brackets, the historical `method: "bootstrap"` name runs a two-sided,
+independent-sample permutation test of mean differences. Small samples enumerate all group
+assignments exactly; larger samples use independent seeded permutations and include the observed
+assignment in the p-value count. This significance test is separate from bootstrap confidence
+intervals selected by `uncertainty.kind: "ci"`.
+
 ### Writing specs in Python
 
 The MCP tools are for an agent. `graphunslopify.Figure` is the same thing for a person in a

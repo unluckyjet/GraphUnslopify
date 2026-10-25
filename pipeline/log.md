@@ -15,3 +15,4 @@ One line per state change, newest last.
 2026-09-02 22:55 spec 03 shipped: claims disclose interval overlap; alt text carries the caveat
 2026-10-25 — 10 shipped: all uncertainty kinds preserve absent singleton bounds; seven local checks passed (149 Node / 60 Python).
 2026-10-25 — 04 shipped: table intervals reuse the summarizer; honest separation/overlap highlighting; readable cells; seven local gates passed (156 Node / 60 Python).
+2026-10-25 — 11 shipped: independent significance permutations and exact small-sample tails; seven local gates passed (161 Node / 60 Python).

@@ -143,6 +143,11 @@ const fieldReferences: Rule = (spec, add) => {
   if (!columns) return;
 
   const known = new Set(columns);
+  if (spec.series_from_columns) {
+    for (const field of spec.series_from_columns.fields) known.delete(field);
+    known.add(spec.series_from_columns.series_name);
+    known.add(spec.series_from_columns.value_name);
+  }
   const refs: [string, string][] = [];
   // Some kinds compute an axis rather than reading it. That axis still needs a
   // label, so it still carries an AxisSpec, but its field names no column.
@@ -150,6 +155,17 @@ const fieldReferences: Rule = (spec, add) => {
   if (!derivedAxis(spec, "y")) refs.push(["y.field", spec.y.field]);
   if (spec.group) refs.push(["group", spec.group]);
   if (spec.facet) refs.push(["facet.by", spec.facet.by]);
+  if (spec.facet?.rows) refs.push(["facet.rows", spec.facet.rows]);
+  for (const field of spec.repeat?.fields ?? []) refs.push(["repeat.fields", field]);
+  for (const layer of spec.layers ?? []) {
+    if (layer.y) refs.push(["layer.y", layer.y]);
+    if (layer.y2) refs.push(["layer.y2", layer.y2]);
+    for (const clause of layer.filter ?? []) refs.push(["layer.filter", clause.field]);
+  }
+  if (spec.kind === "paired_difference") refs.push(["pair", spec.pair]);
+  if (spec.kind === "calibration") refs.push(["outcome", spec.outcome]);
+  if (spec.kind === "kaplan_meier") refs.push(["event", spec.event]);
+  if (spec.kind === "confusion_matrix" && spec.value) refs.push(["value", spec.value]);
   if (spec.kind === "heatmap") refs.push(["value", spec.value]);
   if (spec.kind === "line" && spec.y2) refs.push(["y2.field", spec.y2.field]);
   for (const clause of spec.filter ?? []) refs.push([`filter on ${clause.field}`, clause.field]);
@@ -161,7 +177,7 @@ const fieldReferences: Rule = (spec, add) => {
   }
 
   for (const [where, field] of refs) {
-    if (known.has(field)) continue;
+    if ((where.startsWith("filter on ") || where === "series_from_columns" ? columns.includes(field) : known.has(field))) continue;
     const guess = nearest(field, columns);
     add(
       "error",
@@ -245,7 +261,7 @@ const transforms: Rule = (spec, add) => {
     if (needsBaseline && !transform.baseline) {
       add("error", "transform_needs_baseline", `transform ${transform.kind} needs transform.baseline set.`);
     }
-    if (needsBaseline && !spec.group) {
+    if (needsBaseline && !spec.group && !spec.series_from_columns) {
       add(
         "error",
         "transform_needs_group",
@@ -268,6 +284,13 @@ const transforms: Rule = (spec, add) => {
       "series_from_columns creates the grouping column, so group must be left unset.",
     );
   }
+  const melt = spec.series_from_columns;
+  if (melt && (spec.y.field !== melt.value_name || melt.series_name === melt.value_name
+      || new Set(melt.fields).size !== melt.fields.length
+      || [melt.series_name, melt.value_name].some(name => spec.data.columns?.includes(name) && !melt.fields.includes(name)))) {
+    add("error", "invalid_series_reshape", "Wide-series output needs y.field=value_name, distinct output names and source columns, and no overwritten retained columns.");
+  }
+
 };
 
 const uncertainty: Rule = (spec, add) => {
@@ -316,7 +339,7 @@ const uncertainty: Rule = (spec, add) => {
 const faceting: Rule = (spec, add) => {
   if (!spec.facet) return;
 
-  if (spec.facet.by === spec.group) {
+  if (spec.facet.by === spec.group || spec.facet.rows === spec.group && spec.group !== undefined) {
     add(
       "error",
       "facet_by_the_group",
@@ -330,6 +353,10 @@ const faceting: Rule = (spec, add) => {
       `${spec.facet.columns} panels across a single column leaves each one very narrow.`,
     );
   }
+  if (spec.facet.rows === spec.facet.by) {
+    add("error", "facet_keys_identical", "A two-key grid needs different row and column fields.");
+  }
+
 };
 
 const annotations: Rule = (spec, add) => {
@@ -524,6 +551,33 @@ const composition: Rule = (spec, add) => {
         `kind "table" when the numbers matter more than the comparison.`,
     );
   }
+  if (spec.kind === "table" && (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break || spec.animate || spec.output.interactive)) {
+    add("error", "table_composition_unsupported", "Tables support cell summaries and static/Markdown/LaTeX output; panel, overlay, cut, animation and interactive options are not implemented.");
+  }
+  if (spec.facet && spec.repeat) {
+    add("error", "facet_repeat_conflict", "Choose row facets or repeated metrics; their combination is not implemented.");
+  }
+  if (spec.axis_break?.axis === "x") {
+    add("error", "x_break_unsupported", "Only y-axis breaks are implemented; an x break must not silently become a y break.");
+  }
+  if (spec.axis_break && (spec.axis_break.from >= spec.axis_break.to || spec[spec.axis_break.axis].limits)) {
+    add("error", "invalid_axis_break", "A cut needs from < to and cannot also set limits on the cut axis.");
+  }
+  if (spec.axis_break && (spec.facet || spec.repeat || spec.layers?.length || spec.inset)) {
+    add("error", "axis_break_composition_unsupported", "Axis breaks currently require one base panel without facets, repeats, layers or insets.");
+  }
+  if (spec.repeat && (new Set(spec.repeat.fields).size !== spec.repeat.fields.length
+      || derivedAxis(spec, "x") || derivedAxis(spec, "y")
+      || ["heatmap", "confusion_matrix", "ridgeline", "sparkline_grid"].includes(spec.kind)
+      || spec.kind === "bar" && spec.orientation === "horizontal" || spec.kind === "forest" || spec.kind === "dumbbell")) {
+    add("error", "unsupported_repeat", "Repeat needs distinct numeric y metrics on a supported vertical value axis; this kind/orientation cannot repeat metrics correctly.");
+  }
+  for (const layer of spec.layers ?? []) {
+    if (layer.mark === "band" && !layer.y2 || layer.mark === "rule" && layer.value === undefined) {
+      add("error", "incomplete_layer", "A band needs y2 and a rule needs an explicit value.");
+    }
+  }
+
 };
 
 const pairedKinds: Rule = (spec, add) => {
@@ -650,7 +704,9 @@ export function verify(spec: FigureSpec): Finding[] {
   const add: Add = (severity, code, message, fix) =>
     findings.push(fix ? { severity, code, message, fix } : { severity, code, message });
 
-  for (const rule of RULES) rule(spec, add);
+  const effective = spec.series_from_columns && !spec.group
+    ? { ...spec, group: spec.series_from_columns.series_name } : spec;
+  for (const rule of RULES) rule(rule === fieldReferences || rule === transforms ? spec : effective, add);
   return findings;
 }
 

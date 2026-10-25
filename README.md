@@ -315,7 +315,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Fifty-nine rules run on the server against the spec alone. The Python package checks the rendered
+Sixty-eight rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -531,3 +531,5 @@ describes what already happened. The data is simulated, and the alt text says so
 The typecheck passed and every test passed before I rendered that figure for the first time. The
 `Timestamp` crash was waiting on the other side of a green suite, which is the argument for the
 gallery in one sentence.
+
+Composition behavior and supported combinations are described in [composition contracts](docs/composition.md).

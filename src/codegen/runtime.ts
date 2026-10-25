@@ -73,7 +73,11 @@ def describe_panels(blocks):
         for index, (name, frame) in enumerate(blocks):
             if "REPEAT_FIELDS" in globals():
                 Y_FIELD = name
-            summary = summarise(frame) if "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame
+            if frame.empty:
+                reason = f"panel {name} has no data"
+                finding("warning", "empty_panel", reason)
+                RUN_REPORT["untested"].append(reason)
+            summary = summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame
             label = str(name) if name is not None else None
             panel = {"index": index, "name": label, "metric": Y_FIELD}
             RUN_REPORT["panels"].append(panel)
@@ -89,7 +93,7 @@ def describe_panels(blocks):
                 RUN_REPORT["claims"].append(record)
             # Keep the original single-panel description byte-for-byte where possible.
             SAMPLE_SIZE_TEXT = original_n if len(blocks) == 1 else ""
-            body = alt_text(summary)
+            body = "No data." if frame.empty else alt_text(summary)
             if len(blocks) > 1:
                 body = body.removeprefix(ENCODING_SENTENCE).strip()
                 body = f"Panel {label if label is not None else index + 1}: {body}"
@@ -113,6 +117,8 @@ def finish_report():
     for field, counts in ROW_COUNTS.get("measurements", {}).items():
         if counts["nonfinite"]:
             finding("warning", "nonfinite_measurements", f"{counts['nonfinite']} non-finite measurements in {field}")
+    if ROW_COUNTS.get("missing_plot_keys", 0):
+        finding("warning", "missing_plot_keys", f"{ROW_COUNTS['missing_plot_keys']} rows lack plotting keys")
     sizes = ROW_COUNTS.get("sample_sizes", [])
     if sizes and min(sizes) != max(sizes):
         finding("warning", "unequal_sample_sizes", "Sample sizes differ between plotted points")

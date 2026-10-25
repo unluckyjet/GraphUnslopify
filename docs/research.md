@@ -1,7 +1,7 @@
 # What people complain about, and which check answers it
 
-Every rule in this repo traces to a documented complaint rather than to taste. There are 59 of them
-on the spec and 11 on the rendered figure.
+There are 68 spec rules and 11 rendered finding categories. Visualization safeguards trace to
+documented complaints; implementation-contract guards prevent accepted options being ignored.
 This is the mapping, so a future change to a threshold has to argue with a source.
 
 One honest note on method. X and similar platforms produced almost nothing usable, a single
@@ -210,3 +210,11 @@ describes the supported PDF/PostScript font formats and subsetting. Every render
 smoke case writes a PDF, checks for an embedded FontFile2 program, and rejects
 Type 3 dictionaries. The check was exercised against a deliberately reverted
 font configuration before committing.
+
+## Composition contracts
+
+Composition guards enforce implemented behavior: two-key facets and repeat sharing
+are exercised on real figures; unsupported table/cut/panel combinations are rejected
+instead of silently dropping fields. Reshape validation distinguishes input columns
+from generated series/value columns. These are implementation correctness constraints,
+not additional claims derived from visualization literature.

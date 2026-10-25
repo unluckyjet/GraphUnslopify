@@ -9,7 +9,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { translate } from "../src/translate.ts";
@@ -115,7 +115,7 @@ const CASES: [string, Record<string, unknown>][] = [
       y: Y,
       group: "model",
       aggregation: "mean",
-      facet: { by: "dataset", rows: "split", columns: 2 },
+      facet: { by: "dataset", rows: "split", columns: 3 },
       output: { size: "double_column" },
       data: DATA,
     },
@@ -167,6 +167,12 @@ for (const [name, spec] of CASES) {
   writeFileSync(file, result.code);
   try {
     const stdout = execFileSync(python, [file], { cwd: dir, stdio: "pipe", encoding: "utf8" });
+    if (name === "nested_facet") {
+      const report = JSON.parse(readFileSync(join(dir, `${name}.report.json`), "utf8"));
+      if (report.panels.length !== 6 || !report.untested.some((item: string) => item.includes("val / Bimodal"))) {
+        throw new Error("nested facet must preserve the full 2x3 grid and disclose its empty cell");
+      }
+    }
     const disclosure: Record<string, string> = {
       axis_break: "distances across the gap are not comparable",
       inset: "corner magnifies",

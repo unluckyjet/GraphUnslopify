@@ -13,14 +13,14 @@ import { PRESETS } from "./theme.ts";
  */
 
 const OPERATORS: Record<string, (field: string, value: string) => string> = {
-  eq: (f, v) => `frame[${f}] == ${v}`,
-  ne: (f, v) => `frame[${f}] != ${v}`,
-  lt: (f, v) => `frame[${f}] < ${v}`,
-  lte: (f, v) => `frame[${f}] <= ${v}`,
-  gt: (f, v) => `frame[${f}] > ${v}`,
-  gte: (f, v) => `frame[${f}] >= ${v}`,
-  in: (f, v) => `frame[${f}].isin(${v})`,
-  not_in: (f, v) => `~frame[${f}].isin(${v})`,
+  eq: (f, v) => `block[${f}] == ${v}`,
+  ne: (f, v) => `block[${f}] != ${v}`,
+  lt: (f, v) => `block[${f}] < ${v}`,
+  lte: (f, v) => `block[${f}] <= ${v}`,
+  gt: (f, v) => `block[${f}] > ${v}`,
+  gte: (f, v) => `block[${f}] >= ${v}`,
+  in: (f, v) => `block[${f}].isin(${v})`,
+  not_in: (f, v) => `~block[${f}].isin(${v})`,
 };
 
 export function emitLayers(spec: FigureSpec, out: string[]): void {

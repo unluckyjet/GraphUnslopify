@@ -25,3 +25,4 @@ One line per state change, newest last.
 2026-10-25 — 13 shipped: versioned runtime reports, strict failure policies, per-panel claims, CLI/builder propagation, and public JSON schema; seven gates passed (203 Node / 77 Python).
 2026-10-25 — 14 shipped: scatter legend outside data, measured categorical tick layout, strict gallery CI/artifacts; negative control 13/15 → 15/15; 204 Node / 77 Python tests pass.
 2026-10-25 — 15 shipped: uniform recoverable PNG/SVG/PDF provenance, native accessible SVG descriptions, deterministic vector exports and metadata CLI; 43 artifact readbacks, unchanged pixels; 204 Node / 89 Python tests pass.
+2026-10-25 — 16 shipped: actual nested grids/repeat sharing/wide-derived series, stage-aware field guards and honest unsupported-composition errors; 211 Node / 89 Python and eight local gates pass.

@@ -116,7 +116,9 @@ export function encodingSentence(spec: FigureSpec): string {
     );
   }
 
-  if (spec.facet) parts.push(`split into one panel per ${spec.facet.by}`);
+  if (spec.facet) parts.push(spec.facet.rows
+    ? `panels arranged by ${spec.facet.by} across columns and ${spec.facet.rows} down rows`
+    : `split into one panel per ${spec.facet.by}`);
 
   if (spec.axis_break) {
     const name = spec.axis_break.axis === "x" ? "horizontal" : "vertical";

@@ -78,7 +78,7 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
   const fields = spec.repeat?.fields ?? (measure ? [measure] : []);
   const keys = spec.kind === "heatmap"
     ? [spec.x.field, spec.y.field]
-    : [spec.x.field, ...(spec.group ? [spec.group] : []), ...(spec.facet ? [spec.facet.by] : [])];
+    : [spec.x.field, ...(spec.group ? [spec.group] : []), ...(spec.facet ? [spec.facet.by, ...(spec.facet.rows ? [spec.facet.rows] : [])] : [])];
   const filters = spec.filter?.map(f => `${f.field} ${f.op} ${JSON.stringify(f.value)}`).join(" and ") || "none";
   const over = "uncertainty" in spec ? spec.uncertainty?.over : undefined;
   out.push(
@@ -92,6 +92,18 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
     `    print(f"  {ROW_COUNTS.get('after_filter', len(frame))} rows after filter (" + ${pyStr(filters)} + ")")`,
     '    if len(frame) != ROW_COUNTS.get("after_filter", len(frame)):',
     '        print(f"  {len(frame)} rows after reshape and transform")',
+  );
+  const plotKeys = [...new Set([
+    ...(!derivedAxis(spec, "x") ? [spec.x.field] : []),
+    ...(["heatmap", "confusion_matrix"].includes(spec.kind) ? [spec.y.field] : []),
+    ...(spec.group ? [spec.group] : []),
+    ...(spec.facet ? [spec.facet.by, ...(spec.facet.rows ? [spec.facet.rows] : [])] : []),
+  ])];
+  out.push(
+    `    plot_keys = [field for field in ${pyList(plotKeys)} if field in frame]`,
+    '    ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0',
+    '    if ROW_COUNTS["missing_plot_keys"]:',
+    '        print(f"warning: {ROW_COUNTS[\'missing_plot_keys\']} rows lack plotting keys and cannot be assigned to a point, panel or series")',
   );
   out.push(
     '    ROW_COUNTS["measurements"] = {}',
@@ -157,7 +169,7 @@ export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
   );
   if (over) {
     const keys = [...new Set([spec.x.field, ...(spec.group ? [spec.group] : []),
-      ...(spec.facet ? [spec.facet.by] : []), over])];
+      ...(spec.facet ? [spec.facet.by, ...(spec.facet.rows ? [spec.facet.rows] : [])] : []), over])];
     out.push(
       `    if ${pyStr(over)} not in measured:`,
       `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,

@@ -128,7 +128,7 @@ test("faceting emits panels, letters, and one legend", () => {
   const result = translated({ ...line, facet: { by: "dataset", columns: 3 } });
   assert.match(result.code, /FACET_BY = "dataset"/);
   assert.match(result.code, /def panels\(df\)/);
-  assert.match(result.code, /if index == 0:/);
+  assert.match(result.code, /if not legend_added:/);
   assert.match(result.code, /show_y = \(index % columns\) == 0/);
 });
 

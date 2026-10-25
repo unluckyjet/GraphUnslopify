@@ -66,11 +66,11 @@ function figureSize(spec: FigureSpec): [number, number] {
   return [width, height];
 }
 
-function emitPreamble(spec: FigureSpec, out: string[]): void {
+function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void {
   const preset = PRESETS[spec.style.preset];
   const venue = VENUE_RULES[spec.style.venue];
   const [width, height] = figureSize(spec);
-  const specJson = JSON.stringify(spec);
+  const specJson = JSON.stringify(sourceSpec);
   const specHash = createHash("sha256").update(specJson).digest("hex").slice(0, 16);
 
   out.push(
@@ -220,9 +220,10 @@ function emitPreamble(spec: FigureSpec, out: string[]): void {
   }
   if (spec.facet) {
     out.push(`FACET_BY = ${pyStr(spec.facet.by)}`);
+    if (spec.facet.rows) out.push(`FACET_ROWS = ${pyStr(spec.facet.rows)}`);
     out.push(`FACET_COLUMNS = ${spec.facet.columns}`);
-    out.push(`SHARE_X = ${spec.facet.share_x ? "True" : "False"}`);
-    out.push(`SHARE_Y = ${spec.facet.share_y ? "True" : "False"}`);
+    out.push(`SHARE_X = ${(spec.repeat ?? spec.facet).share_x ? "True" : "False"}`);
+    out.push(`SHARE_Y = ${(spec.repeat ?? spec.facet).share_y ? "True" : "False"}`);
   }
   if (spec.animate) {
     out.push(`ANIMATE_DURATION = ${spec.animate.duration_s}`);
@@ -325,7 +326,17 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "def panels(df):",
     '    """One entry per panel. Without faceting that is the whole frame."""',
   );
-  if (spec.facet) {
+  if (spec.facet?.rows) {
+    out.push(
+      "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
+      "    names = list(dict.fromkeys(valid[FACET_BY].tolist()))",
+      "    rows = list(dict.fromkeys(valid[FACET_ROWS].tolist()))",
+      "    if len(names) > FACET_COLUMNS:",
+      '        raise ValueError(f"nested facet has {len(names)} column levels; increase facet.columns")',
+      '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
+      "            for row in rows for name in names]",
+    );
+  } else if (spec.facet) {
     out.push(
       "    names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))",
       "    return [(name, df[df[FACET_BY] == name]) for name in names]",
@@ -333,7 +344,8 @@ function emitMain(spec: FigureSpec, out: string[]): void {
   } else {
     out.push("    return [(None, df)]");
   }
-  if (!spec.facet) out.push("", "", "SHARE_X = False", "SHARE_Y = False", "FACET_COLUMNS = 1");
+  if (!spec.facet) out.push("", "", `SHARE_X = ${spec.repeat?.share_x ? "True" : "False"}`,
+    `SHARE_Y = ${spec.repeat?.share_y ? "True" : "False"}`, "FACET_COLUMNS = 1");
 
   const letters = spec.facet?.panel_letters ?? false;
   out.push(
@@ -368,9 +380,11 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "            SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)",
     "        )",
     spec.repeat ? "    blocks = repeated_panels(df)" : "    blocks = panels(df)",
+    '    if not blocks: raise ValueError("no usable facet values in the prepared data")',
     spec.repeat
       ? "    columns = min(REPEAT_COLUMNS, len(blocks))"
-      : "    columns = min(FACET_COLUMNS, len(blocks)) if len(blocks) > 1 else 1",
+      : spec.facet?.rows ? "    columns = df.dropna(subset=[FACET_BY, FACET_ROWS])[FACET_BY].nunique()"
+        : "    columns = min(FACET_COLUMNS, len(blocks)) if len(blocks) > 1 else 1",
     "    rows = math.ceil(len(blocks) / columns)",
     "",
     "    with plt.rc_context(RC_PARAMS):",
@@ -400,14 +414,20 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "            rows,",
     "            columns,",
     "            figsize=(FIGSIZE[0], FIGSIZE[1] * rows) if rows > 1 else FIGSIZE,",
-    `            sharex=${spec.facet?.share_x ? "True" : "False"},`,
-    `            sharey=${spec.facet?.share_y ? "True" : "False"},`,
+    "            sharex=SHARE_X,",
+    "            sharey=SHARE_Y,",
     "            squeeze=False,",
     "        )",
     "        flat = list(axes.flat)",
+    "        legend_added = False",
     "        for index, (name, block) in enumerate(blocks):",
     "            ax = flat[index]",
     '            globals()["CURRENT_PANEL"] = index',
+    "            if block.empty:",
+    '                ax.text(0.5, 0.5, "No data", transform=ax.transAxes, ha="center")',
+    "                ax.set_title(str(name))",
+    "                ax.set_axis_off()",
+    "                continue",
     ...(needsMissingIntervalReport(spec) ? ['            globals()["PANEL_KEY"] = index'] : []),
     spec.repeat
       ? '            globals()["Y_FIELD"] = name'
@@ -433,8 +453,9 @@ function emitMain(spec: FigureSpec, out: string[]): void {
         ]
       : []),
     "            # One legend for the whole figure; repeating it wastes panel space.",
-    "            if index == 0:",
+    "            if not legend_added:",
     "                add_legend(fig, ax, block)",
+    "                legend_added = True",
     "        for spare in flat[len(blocks) :]:",
     "            spare.set_visible(False)",
     "",
@@ -510,8 +531,10 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
 
 export function emitPython(spec: FigureSpec): string {
   const out: string[] = [];
-  emitPreamble(spec, out);
-  emitRuntime(spec, out);
+  const sourceSpec = spec;
+  if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
+  emitPreamble(spec, out, sourceSpec);
+  emitRuntime(sourceSpec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);
   emitCounts(spec, out);

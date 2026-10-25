@@ -38,7 +38,29 @@ from typing_extensions import Self
 from .errors import SpecError
 from .transport import post as _post
 
-Kind = Literal["line", "scatter", "bar", "box", "violin", "heatmap", "table"]
+Kind = Literal[
+    "line",
+    "scatter",
+    "bar",
+    "box",
+    "violin",
+    "ecdf",
+    "raincloud",
+    "ridgeline",
+    "forest",
+    "paired_difference",
+    "slope",
+    "dumbbell",
+    "calibration",
+    "qq",
+    "kaplan_meier",
+    "scaling_fit",
+    "confusion_matrix",
+    "waterfall",
+    "sparkline_grid",
+    "heatmap",
+    "table",
+]
 
 
 def _relative_path(path: str | Path, where: Path) -> str:
@@ -59,7 +81,8 @@ class Figure:
 
     @classmethod
     def of(cls, kind: Kind, path: str | Path = "results.csv") -> Self:
-        return cls({"kind": kind, "data": {"path": str(path)}})
+        format_name = {".json": "json", ".parquet": "parquet"}.get(Path(path).suffix.lower(), "csv")
+        return cls({"kind": kind, "data": {"path": str(path), "format": format_name}})
 
     @classmethod
     def line(cls, path: str | Path = "results.csv") -> Self:
@@ -88,6 +111,62 @@ class Figure:
     @classmethod
     def table(cls, path: str | Path = "results.csv") -> Self:
         return cls.of("table", path)
+
+    @classmethod
+    def ecdf(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("ecdf", path)
+
+    @classmethod
+    def raincloud(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("raincloud", path)
+
+    @classmethod
+    def ridgeline(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("ridgeline", path)
+
+    @classmethod
+    def forest(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("forest", path)
+
+    @classmethod
+    def paired_difference(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("paired_difference", path)
+
+    @classmethod
+    def slope(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("slope", path)
+
+    @classmethod
+    def dumbbell(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("dumbbell", path)
+
+    @classmethod
+    def calibration(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("calibration", path)
+
+    @classmethod
+    def qq(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("qq", path)
+
+    @classmethod
+    def kaplan_meier(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("kaplan_meier", path)
+
+    @classmethod
+    def scaling_fit(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("scaling_fit", path)
+
+    @classmethod
+    def confusion_matrix(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("confusion_matrix", path)
+
+    @classmethod
+    def waterfall(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("waterfall", path)
+
+    @classmethod
+    def sparkline_grid(cls, path: str | Path = "results.csv") -> Self:
+        return cls.of("sparkline_grid", path)
 
     @classmethod
     def from_profile(cls, path: str | Path, rank: int = 0, api: str | None = None) -> Self:

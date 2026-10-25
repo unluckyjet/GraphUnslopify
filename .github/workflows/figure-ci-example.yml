@@ -48,6 +48,7 @@ jobs:
           manifest: paper
           extras: ''
           artifact-name: rejected-paper
+          baseline: ${{ steps.figures.outputs.report-file }}
       - name: A failed claim must fail the action and keep review evidence
         shell: python
         env:
@@ -55,12 +56,19 @@ jobs:
           EXIT_CODE: ${{ steps.rejected.outputs.exit-code }}
           REPORT: ${{ steps.rejected.outputs.report-file }}
           ARTIFACT: ${{ steps.rejected.outputs.artifact-url }}
+          CHANGED: ${{ steps.rejected.outputs.changed }}
         run: |
           import json, os
           from pathlib import Path
           assert os.environ['OUTCOME'] == 'failure'
           assert os.environ['EXIT_CODE'] == '2'
           assert os.environ['ARTIFACT'].startswith('https://github.com/')
+          assert os.environ['CHANGED'] == 'true'
           report = json.loads(Path(os.environ['REPORT']).read_text())
           assert report['status'] == 'failed'
           assert report['figures'][0]['report']['claims'][0]['verdict'] == 'fails'
+          change = report['comparison']['figures'][0]
+          assert change['fields']['claims'] is True
+          assert change['fields']['data_bytes'] is False
+          png = next(item for item in change['outputs'] if item['file'].endswith('.png'))
+          assert png['pixels_changed'] is False

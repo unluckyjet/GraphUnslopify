@@ -64,3 +64,10 @@ with their respective Python distributions.
 adds data, numeric-representation, claim, description and artifact differences. It writes aggregate
 JSON/Markdown plus individual programs, figures, logs and reports. See the repository paper-audit
 guide for the manifest contract and supported metadata-backed artifact checks.
+
+## Notebook example
+
+Install the notebook extra for JupyterLab and kernel execution. Run
+`graphunslopify notebook --output quickstart.ipynb`, then `jupyter lab quickstart.ipynb`, or add
+`--execute` to run it through the current Python environment. All 21 figure kinds have named
+Python constructors and a shared Kind typing Literal. See the repository notebook guide.

@@ -7,17 +7,46 @@ that comes out rather than that the call did not raise.
 from __future__ import annotations
 
 import json
+from typing import get_args
 
 import pytest
 
 from graphunslopify import Figure, SpecError
+from graphunslopify.build import Kind
+from graphunslopify.transport import local_request
 
 
 def test_each_constructor_sets_its_kind():
-    for name in ("line", "scatter", "bar", "box", "violin", "heatmap", "table"):
+    kinds = local_request("info")["kinds"]
+    assert set(get_args(Kind)) == set(kinds)
+    for name in kinds:
         spec = getattr(Figure, name)("data.csv").to_dict()
         assert spec["kind"] == name
         assert spec["data"]["path"] == "data.csv"
+
+
+def test_named_python_constructors_translate_all_canonical_recipes():
+    for recipe in local_request("recipes"):
+        spec = recipe["spec"]
+        figure = getattr(Figure, spec["kind"])(spec.get("data", {}).get("path", "results.csv"))
+        figure.spec["data"].update(spec.get("data", {}))
+        figure.set(**{k: v for k, v in spec.items() if k not in {"kind", "data"}})
+        assert figure.translate(api="local") == local_request("convert", spec)
+
+
+def test_builder_infers_supported_json_input_and_reads_it(tmp_path):
+    path = tmp_path / "points.json"
+    path.write_text('[{"x":1,"y":2},{"x":2,"y":3}]')
+    figure = (
+        Figure.scatter(path)
+        .x("x", "X")
+        .y("y", "Y")
+        .set(legend={"show": False})
+        .output(formats=["png"])
+    )
+    assert figure.spec["data"]["format"] == "json"
+    result = figure.render(cwd=tmp_path / "output", strict=True, api="local")
+    assert result["report"]["data"]["counts"]["read"] == 2
 
 
 def test_encoding_reaches_the_spec():

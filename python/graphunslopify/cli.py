@@ -102,6 +102,25 @@ def _doctor(_: argparse.Namespace) -> int:
         return 1
 
 
+def _notebook(args: argparse.Namespace) -> int:
+    from .notebook import create_notebook
+
+    try:
+        result = create_notebook(args.output, execute=args.execute)
+    except ImportError:
+        print(
+            json.dumps(
+                {"ok": False, "error": "Install graphunslopify[notebook] to execute notebooks"}
+            )
+        )
+        return 2
+    except (OSError, ValueError, SpecError) as problem:
+        print(json.dumps({"ok": False, "error": str(problem)}))
+        return 2
+    print(json.dumps({"ok": True, **result}))
+    return 0
+
+
 def _demo(args: argparse.Namespace) -> int:
     from .demo import write_demo
 
@@ -227,6 +246,13 @@ def _audit_init(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    notebook = commands.add_parser("notebook", help="copy the public notebook example")
+    notebook.add_argument("--output", default="graphunslopify-quickstart.ipynb")
+    notebook.add_argument(
+        "--execute", action="store_true", help="execute using the current Python environment"
+    )
+    notebook.set_defaults(handler=_notebook)
 
     audited = commands.add_parser(
         "audit", help="regenerate and verify figures from a paper manifest"

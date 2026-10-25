@@ -17,6 +17,7 @@ dev = ["pytest>=8", "jsonschema>=4"]
 interactive = ["plotly>=5.24"]
 parquet = ["pyarrow>=15"]
 statistics = ["scipy>=1.10"]
+notebook = ["jupyterlab>=4", "ipykernel>=6.29", "nbclient>=0.10"]
 
 [project.scripts]
 graphunslopify = "graphunslopify.cli:main"
@@ -25,7 +26,7 @@ graphunslopify = "graphunslopify.cli:main"
 Source = "https://github.com/unluckyjet/JSONTranslator"
 
 [tool.setuptools.package-data]
-graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json"]
+graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json", "examples/*.ipynb"]
 
 [tool.setuptools.dynamic]
 version = { attr = "graphunslopify.__version__" }
@@ -38,3 +39,6 @@ line-length = 100
 
 [tool.ruff.lint]
 extend-select = ["I", "UP", "B", "SIM", "RUF", "PLE", "PLW"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["graphunslopify"]

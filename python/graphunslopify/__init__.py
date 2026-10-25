@@ -9,7 +9,7 @@ script and it reports what a reviewer would complain about, before you submit.
     print(report)
 """
 
-from .build import Figure, SpecError
+from .build import Figure, Kind, SpecError
 from .colour import ciede2000, distance, simulate, worst_case_distance
 from .describe import profile
 from .inspect import Finding, Report, inspect_figure
@@ -19,6 +19,7 @@ from .provenance import ProvenanceError, read_provenance
 __all__ = [
     "Figure",
     "Finding",
+    "Kind",
     "ProvenanceError",
     "Report",
     "SpecError",

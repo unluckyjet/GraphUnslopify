@@ -18,3 +18,6 @@ mkdirSync("python/graphunslopify/schemas", { recursive: true });
 for (const name of ["manifest", "runtime-report", "audit-report"]) {
   copyFileSync(`docs/${name}.schema.json`, `python/graphunslopify/schemas/${name}.schema.json`);
 }
+
+mkdirSync("python/graphunslopify/examples", { recursive: true });
+copyFileSync("examples/quickstart.ipynb", "python/graphunslopify/examples/quickstart.ipynb");

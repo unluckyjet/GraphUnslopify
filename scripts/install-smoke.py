@@ -148,6 +148,15 @@ def main() -> None:
         )
     )
     assert script_audit["status"] == "passed"
+    copied = json.loads(
+        run(
+            [*cli, "notebook", "--output", str(where / "quickstart.ipynb")],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert copied["ok"] and not copied["executed"]
+    assert len(json.loads((where / "quickstart.ipynb").read_text())["cells"]) == 10
     # The SDK resolves nested relative input paths and separate output directories.
     sdk = where / "sdk.py"
     sdk.write_text(

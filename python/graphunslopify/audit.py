@@ -443,6 +443,7 @@ def audit(
     result: dict[str, Any] = {
         "schema_version": 1,
         "manifest": source.name,
+        "run_directory": run_root.relative_to(destination).as_posix(),
         "status": status,
         "figures": figures,
         "counts": {

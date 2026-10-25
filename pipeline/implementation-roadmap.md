@@ -56,3 +56,5 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 14 pushed as `dcf896e`; CI `40226605900` passed. Milestone 15 packages/licenses the local emitter and runtime, adds offline installation and actual wheel smoke checks (spec 18). Batch audit, reusable CI, integrations, editor, reference validation, naming and release remain active.
 
 - Milestone 15 pushed as `69d79ec`; CI `40229061855` passed all seven jobs, including clean Linux 3.10/3.12, macOS and Windows installs. Milestone 16 adds manifest-driven paper audits, artifact/data verification, stable comparisons and reference cases (spec 19). Reusable researcher CI is next; integrations/editor, broader numeric validation, naming and release remain active.
+
+- Milestone 16 pushed as `bddf5f8`; CI `40231304112` passed all seven jobs. Milestone 17 packages a reusable Figure CI composite action with real consumer/negative-control integration and scoped evidence staging (spec 20). Notebook/agent/editor integrations, broader references, naming/versioned release and final audit remain active.

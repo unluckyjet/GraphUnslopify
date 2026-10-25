@@ -212,6 +212,10 @@
           "type": "boolean"
         }
       }
+    },
+    "run_directory": {
+      "type": "string",
+      "pattern": "^runs/[a-f0-9]{32}$"
     }
   }
 }

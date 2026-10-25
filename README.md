@@ -17,7 +17,8 @@ translator and its Node runtime; translation and rendering work offline after in
 Use `graphunslopify render figure.json --strict --json` with your own spec and data.
 Try batch auditing with `graphunslopify audit-init graphunslopify-demo`, then
 `graphunslopify audit graphunslopify-demo --out-dir audit-output`.
-See [paper manifests and change reports](docs/paper-audits.md).
+See [paper manifests and change reports](docs/paper-audits.md) and
+[reusable Figure CI](docs/figure-ci.md) for GitHub workflows and review artifacts.
 See [installation and offline use](docs/installation.md), [Python usage](python/README.md),
 [verification policy](docs/runtime-reports.md), and the [MIT license](LICENSE).
 

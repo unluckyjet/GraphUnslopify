@@ -1,0 +1,82 @@
+name: GraphUnslopify Figure CI
+description: Regenerate a paper manifest, fail on scientific figure checks and publish review evidence.
+inputs:
+  manifest:
+    description: Manifest filename or paper directory, relative to the caller workspace.
+    default: graphunslopify.json
+  output-directory:
+    description: Local audit output directory.
+    default: .graphunslopify-audit
+  baseline:
+    description: Optional previous audit.report.json in the caller workspace.
+    default: ''
+  fail-on-warning:
+    description: Reject warnings in addition to failed or incomplete required checks.
+    default: 'false'
+  fail-on-change:
+    description: Reject changes against baseline (requires baseline).
+    default: 'false'
+  timeout:
+    description: Seconds per generated program.
+    default: '120'
+  python-version:
+    description: Supported Python version.
+    default: '3.12'
+  extras:
+    description: Comma-separated interactive, parquet, statistics extras; empty for core only.
+    default: interactive,parquet,statistics
+  artifact-name:
+    description: Unique artifact name when this action runs more than once in a job.
+    default: figure-audit
+  retention-days:
+    description: Evidence artifact retention.
+    default: '14'
+outputs:
+  report-file:
+    description: Absolute staged aggregate JSON report, empty for invalid input/setup.
+    value: ${{ steps.audit.outputs.report-file }}
+  status:
+    description: Aggregate passed, failed or incomplete verdict.
+    value: ${{ steps.audit.outputs.status }}
+  exit-code:
+    description: Selected process policy result, 0 or 2.
+    value: ${{ steps.audit.outputs.exit-code }}
+  changed:
+    description: Whether the baseline comparison found changes.
+    value: ${{ steps.audit.outputs.changed }}
+  artifact-url:
+    description: GitHub download URL for review evidence.
+    value: ${{ steps.upload.outputs.artifact-url }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install the packaged local translator
+      shell: bash
+      env:
+        FIGURE_CI_ACTION: ${{ github.action_path }}
+        FIGURE_CI_EXTRAS: ${{ inputs.extras }}
+      run: python "$FIGURE_CI_ACTION/run.py" --install
+    - name: Audit figures
+      id: audit
+      shell: bash
+      env:
+        FIGURE_CI_ACTION: ${{ github.action_path }}
+        FIGURE_CI_MANIFEST: ${{ inputs.manifest }}
+        FIGURE_CI_OUTPUT: ${{ inputs.output-directory }}
+        FIGURE_CI_BASELINE: ${{ inputs.baseline }}
+        FIGURE_CI_FAIL_ON_WARNING: ${{ inputs.fail-on-warning }}
+        FIGURE_CI_FAIL_ON_CHANGE: ${{ inputs.fail-on-change }}
+        FIGURE_CI_TIMEOUT: ${{ inputs.timeout }}
+      run: python "$FIGURE_CI_ACTION/run.py"
+    - name: Publish figures and audit evidence
+      if: ${{ always() && steps.audit.outputs.artifact-path != '' }}
+      id: upload
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.audit.outputs.artifact-path }}
+        retention-days: ${{ inputs.retention-days }}
+        if-no-files-found: error

@@ -1,0 +1,66 @@
+name: Figure CI integration
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  consumer:
+    runs-on: ubuntu-latest
+    steps:
+      # Put the tool somewhere separate, as it would be in an external caller.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: tool
+      - name: Prepare a researcher's paper workspace
+        shell: python
+        run: |
+          import shutil
+          shutil.copytree('tool/examples/paper', 'paper')
+      - uses: ./tool/.github/actions/figure-ci
+        id: figures
+        with:
+          manifest: paper
+          extras: ''
+          artifact-name: passing-paper
+      - name: Verify the consumer-facing result
+        shell: python
+        env:
+          REPORT: ${{ steps.figures.outputs.report-file }}
+        run: |
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path(os.environ['REPORT']).read_text())
+          assert report['counts'] == {'passed': 2, 'failed': 0, 'incomplete': 0}
+      - name: Reverse an explicitly checked claim
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          path = Path('paper/training.figure.json')
+          spec = json.loads(path.read_text())
+          spec['claims'][0].update(subject='base', reference='ours')
+          path.write_text(json.dumps(spec))
+      - uses: ./tool/.github/actions/figure-ci
+        id: rejected
+        continue-on-error: true
+        with:
+          manifest: paper
+          extras: ''
+          artifact-name: rejected-paper
+      - name: A failed claim must fail the action and keep review evidence
+        shell: python
+        env:
+          OUTCOME: ${{ steps.rejected.outcome }}
+          EXIT_CODE: ${{ steps.rejected.outputs.exit-code }}
+          REPORT: ${{ steps.rejected.outputs.report-file }}
+          ARTIFACT: ${{ steps.rejected.outputs.artifact-url }}
+        run: |
+          import json, os
+          from pathlib import Path
+          assert os.environ['OUTCOME'] == 'failure'
+          assert os.environ['EXIT_CODE'] == '2'
+          assert os.environ['ARTIFACT'].startswith('https://github.com/')
+          report = json.loads(Path(os.environ['REPORT']).read_text())
+          assert report['status'] == 'failed'
+          assert report['figures'][0]['report']['claims'][0]['verdict'] == 'fails'

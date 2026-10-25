@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "figures": [
+    {
+      "id": "training",
+      "spec": "training.figure.json"
+    },
+    {
+      "id": "results-table",
+      "spec": "results.figure.json"
+    }
+  ]
+}

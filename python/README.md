@@ -56,3 +56,11 @@ always yields the same findings. Reasoning and sources are in [research notes](h
 Source and versioned documentation: <https://github.com/unluckyjet/JSONTranslator>.
 MIT license. The bundled translator includes Zod's MIT license; runtime/dependency licenses ship
 with their respective Python distributions.
+
+## Paper audits
+
+`graphunslopify audit paper/ --out-dir audit-output` regenerates all figures in the directory’s
+`graphunslopify.json` manifest with strict verification. `--baseline previous/audit.report.json`
+adds data, numeric-representation, claim, description and artifact differences. It writes aggregate
+JSON/Markdown plus individual programs, figures, logs and reports. See the repository paper-audit
+guide for the manifest contract and supported metadata-backed artifact checks.

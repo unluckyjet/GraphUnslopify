@@ -9,7 +9,7 @@ User-authorized scope (2026-10-25): implement the accepted review recommendation
 - [ ] Distribution: declared license, short quickstart, versioned documentation, clean-install end-to-end test, packaged local translator and clear offline workflow, tagged GitHub releases and installable release artifacts.
 - [ ] Researcher CI: reusable GitHub workflow/action; regenerate from results; publish machine-readable audit/figure-change reports and reviewable artifacts; meaningful exit status on failures.
 - [ ] Integrations: working notebook example and agent setup, easy local configuration, broad Python-kind support; supported editor workflow documented and exercised.
-- [ ] Paper/batch auditing: manifest connecting specs/scripts/data/claims, directory execution, report aggregation, stable figure comparison including claim changes and data hashes. Clearly distinguish supported artifact types from arbitrary image interpretation.
+- [x] Paper/batch auditing: manifest connecting specs/scripts/data/claims, directory execution, report aggregation, stable figure comparison including claim changes and data hashes. Clearly distinguish supported artifact types from arbitrary image interpretation.
 - [ ] Visual workflow: working live preview, editable spec, visible diagnostics, selected justified fixes, usable export. Exercise the UI and local preview end to end.
 - [ ] Independent benchmark/reference validation: known-answer datasets and documented limits, beyond source substring assertions or file-existence checks.
 - [ ] Naming: rename GitHub repository to GraphUnslopify if available and update repository/dependency/documentation links while preserving existing local checkout and vault identity.
@@ -54,3 +54,5 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 13 pushed as `ebeafcf`; CI `40221824538` passed. Milestone 14 fixes supported HTML numerical parity, descriptions, weighted confusion counts and singleton visibility (spec 17). Next priority is licensed one-command local distribution, then audit/CI/integrations/editor/reference validation/release; keep the full scope active.
 
 - Milestone 14 pushed as `dcf896e`; CI `40226605900` passed. Milestone 15 packages/licenses the local emitter and runtime, adds offline installation and actual wheel smoke checks (spec 18). Batch audit, reusable CI, integrations, editor, reference validation, naming and release remain active.
+
+- Milestone 15 pushed as `69d79ec`; CI `40229061855` passed all seven jobs, including clean Linux 3.10/3.12, macOS and Windows installs. Milestone 16 adds manifest-driven paper audits, artifact/data verification, stable comparisons and reference cases (spec 19). Reusable researcher CI is next; integrations/editor, broader numeric validation, naming and release remain active.

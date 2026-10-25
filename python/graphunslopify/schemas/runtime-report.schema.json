@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:runtime-report:1",
+  "title": "GraphUnslopify runtime report version 1",
+  "type": "object",
+  "required": ["schema_version", "tool", "spec_hash", "spec", "status", "ok", "data", "findings", "inspection", "panels", "claims", "significance", "outputs", "skipped_outputs", "untested", "alt_text", "exit_code", "policy"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "tool": { "type": "string" },
+    "spec_hash": { "type": "string", "pattern": "^[a-f0-9]{16}$" },
+    "spec": { "type": "object" },
+    "status": { "enum": ["passed", "failed", "incomplete"] },
+    "ok": { "type": "boolean" },
+    "exit_code": { "enum": [0, 1, 2] },
+    "policy": { "type": "object", "required": ["strict", "fail_on_warning", "passed"], "properties": {
+      "strict": { "type": "boolean" }, "fail_on_warning": { "type": "boolean" }, "passed": { "type": "boolean" }
+    } },
+    "script": { "type": "object", "required": ["sha256"], "properties": { "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" } } },
+    "data": { "type": "object", "required": ["path", "sha256_prefix", "counts"], "properties": {
+      "path": { "type": "string" }, "sha256_prefix": { "type": "string" }, "counts": { "type": "object" }
+    } },
+    "findings": { "type": "array", "items": { "type": "object", "required": ["severity", "code", "message"], "properties": {
+      "severity": { "enum": ["error", "warning"] }, "code": { "type": "string" }, "message": { "type": "string" }
+    } } },
+    "inspection": { "type": "object", "required": ["available", "checked"], "properties": {
+      "available": { "type": ["boolean", "null"] }, "checked": { "type": "boolean" }
+    } },
+    "panels": { "type": "array", "items": { "type": "object", "required": ["index", "name", "metric"], "properties": {
+      "index": { "type": "integer", "minimum": 0 }, "name": { "type": ["string", "null"] }, "metric": { "type": "string" }
+    } } },
+    "claims": { "type": "array", "items": { "type": "object", "required": ["kind", "subject", "panel", "metric", "verdict", "detail", "interval_overlap"], "properties": {
+      "kind": { "type": "string" }, "subject": { "type": "string" }, "panel": { "type": "integer", "minimum": 0 },
+      "metric": { "type": "string" }, "verdict": { "enum": ["holds", "fails", "untested"] }, "detail": { "type": "string" },
+      "interval_overlap": { "type": ["array", "null"], "items": { "type": "integer", "minimum": 0 }, "minItems": 2, "maxItems": 2 }
+    } } },
+    "significance": { "type": "array", "items": { "type": "object", "required": ["panel", "pair", "status"], "properties": {
+      "panel": { "type": "integer", "minimum": 0 }, "pair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
+      "status": { "enum": ["tested", "untested"] }, "raw_p": { "type": "number", "minimum": 0, "maximum": 1 },
+      "adjusted_p": { "type": "number", "minimum": 0, "maximum": 1 }, "family_size": { "type": "integer", "minimum": 1 }
+    } } },
+    "outputs": { "type": "array", "items": { "type": "object", "required": ["path", "format", "sha256", "bytes"], "properties": {
+      "path": { "type": "string" }, "format": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "bytes": { "type": "integer", "minimum": 0 }
+    } } },
+    "skipped_outputs": { "type": "array", "items": { "type": "object", "required": ["format", "reason"], "properties": {
+      "format": { "type": "string" }, "reason": { "type": "string" }
+    } } },
+    "untested": { "type": "array", "items": { "type": "string" } },
+    "alt_text": { "type": "string" }
+  }
+}

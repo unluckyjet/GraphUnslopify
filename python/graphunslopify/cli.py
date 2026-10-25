@@ -190,9 +190,63 @@ def _version(_: argparse.Namespace) -> int:
     return 0
 
 
+def _audit(args: argparse.Namespace) -> int:
+    from .audit import audit
+
+    try:
+        result = audit(
+            args.path,
+            output=args.out_dir,
+            baseline=args.baseline,
+            fail_on_warning=args.fail_on_warning,
+            fail_on_change=args.fail_on_change,
+            timeout=args.timeout,
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result["exit_code"])
+
+
+def _audit_init(args: argparse.Namespace) -> int:
+    from .audit import discover
+
+    try:
+        manifest = discover(args.path)
+        destination = Path(args.output) if args.output else Path(args.path) / "graphunslopify.json"
+        with destination.open("x", encoding="utf8") as handle:
+            handle.write(json.dumps(manifest, indent=2) + "\n")
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps({"manifest": str(destination), "figures": len(manifest["figures"])}))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    audited = commands.add_parser(
+        "audit", help="regenerate and verify figures from a paper manifest"
+    )
+    audited.add_argument(
+        "path", nargs="?", default=".", help="manifest, or directory containing graphunslopify.json"
+    )
+    audited.add_argument("--out-dir", default=".graphunslopify-audit")
+    audited.add_argument("--baseline", help="previous audit.report.json to compare")
+    audited.add_argument("--fail-on-warning", action="store_true")
+    audited.add_argument("--fail-on-change", action="store_true")
+    audited.add_argument("--timeout", type=float, default=120, help="seconds per generated program")
+    audited.set_defaults(handler=_audit)
+
+    initialized = commands.add_parser(
+        "audit-init", help="discover figure JSON specs and write a manifest"
+    )
+    initialized.add_argument("path", nargs="?", default=".")
+    initialized.add_argument("--output")
+    initialized.set_defaults(handler=_audit_init)
 
     converted = commands.add_parser("translate", help="translate a JSON spec locally")
     converted.add_argument("spec", help="JSON file; data paths resolve beside it")

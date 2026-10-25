@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:audit-report:1",
+  "title": "GraphUnslopify audit report version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "manifest",
+    "status",
+    "figures",
+    "counts",
+    "comparison",
+    "policy",
+    "exit_code"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "manifest": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "incomplete"
+      ]
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        2
+      ]
+    },
+    "figures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "errors",
+          "warnings",
+          "report",
+          "outputs",
+          "artifacts"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "incomplete"
+            ]
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "report": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "format",
+                "sha256",
+                "bytes",
+                "pixels_sha256"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "format": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pixels_sha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "sha256",
+                "provenance_matches",
+                "pixels_match"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                },
+                "provenance_matches": {
+                  "type": "boolean"
+                },
+                "pixels_match": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": [
+        "passed",
+        "failed",
+        "incomplete"
+      ],
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "comparison": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "changed",
+        "figures"
+      ],
+      "properties": {
+        "changed": {
+          "type": "boolean"
+        },
+        "figures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "added",
+                  "removed",
+                  "changed"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "strict",
+        "fail_on_warning",
+        "fail_on_change"
+      ],
+      "properties": {
+        "strict": {
+          "const": true
+        },
+        "fail_on_warning": {
+          "type": "boolean"
+        },
+        "fail_on_change": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

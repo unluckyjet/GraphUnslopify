@@ -1,0 +1,41 @@
+{
+  "kind": "table",
+  "data": {
+    "path": "results.csv"
+  },
+  "x": {
+    "field": "epoch",
+    "label": "Epoch"
+  },
+  "y": {
+    "field": "score",
+    "label": "Score"
+  },
+  "group": "model",
+  "series_order": [
+    "base",
+    "ours"
+  ],
+  "aggregation": "mean",
+  "uncertainty": {
+    "kind": "ci",
+    "over": "seed",
+    "display": "bar"
+  },
+  "claims": [
+    {
+      "kind": "beats_everywhere",
+      "subject": "ours",
+      "reference": "base"
+    }
+  ],
+  "output": {
+    "stem": "results-table",
+    "formats": [
+      "png",
+      "pdf"
+    ],
+    "dpi": 150
+  },
+  "highlight": "best_per_row"
+}

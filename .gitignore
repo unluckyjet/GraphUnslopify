@@ -23,3 +23,6 @@ examples/*.report.json
 
 # macOS
 .DS_Store
+
+# Local paper audit evidence (raw project inputs remain in their source directories).
+.graphunslopify-audit/

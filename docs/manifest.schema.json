@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:manifest:1",
+  "title": "GraphUnslopify paper manifest version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "figures"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "figures": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"},
+          "spec": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "object"}]},
+          "script": {"type": "string", "minLength": 1},
+          "cwd": {"type": "string", "minLength": 1},
+          "data": {"type": "string", "minLength": 1},
+          "claims": {"type": "array", "items": {"type": "object"}},
+          "artifacts": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        },
+        "oneOf": [
+          {"required": ["spec"], "not": {"anyOf": [{"required": ["script"]}, {"required": ["cwd"]}]}},
+          {"required": ["script"], "not": {"anyOf": [{"required": ["spec"]}, {"required": ["claims"]}]}}
+        ]
+      }
+    }
+  }
+}

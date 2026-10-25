@@ -15,6 +15,9 @@ This creates public toy data, PNG/SVG/PDF figures, the generated Python program,
 verification report in `graphunslopify-demo/`. Python 3.10+ is required. The package supplies the
 translator and its Node runtime; translation and rendering work offline after installation.
 Use `graphunslopify render figure.json --strict --json` with your own spec and data.
+Try batch auditing with `graphunslopify audit-init graphunslopify-demo`, then
+`graphunslopify audit graphunslopify-demo --out-dir audit-output`.
+See [paper manifests and change reports](docs/paper-audits.md).
 See [installation and offline use](docs/installation.md), [Python usage](python/README.md),
 [verification policy](docs/runtime-reports.md), and the [MIT license](LICENSE).
 

@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
-dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24", "pypdf>=5", "typing_extensions>=4.4", "nodejs-wheel-binaries>=22.13.1,<25"]
+dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24", "pypdf>=5", "typing_extensions>=4.4", "nodejs-wheel-binaries>=22.13.1,<25", "jsonschema>=4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "jsonschema>=4"]
@@ -25,7 +25,7 @@ graphunslopify = "graphunslopify.cli:main"
 Source = "https://github.com/unluckyjet/JSONTranslator"
 
 [tool.setuptools.package-data]
-graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt"]
+graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json"]
 
 [tool.setuptools.dynamic]
 version = { attr = "graphunslopify.__version__" }

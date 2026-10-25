@@ -95,7 +95,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: npm ci
       - run: npm run build:translator
-      - run: git diff --exit-code -- python/graphunslopify/_translator.mjs python/graphunslopify/ZOD-LICENSE.txt python/LICENSE
+      - run: git diff --exit-code -- python/graphunslopify/_translator.mjs python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/LICENSE
       - run: python -m pip install build
       - run: python -m build python --outdir dist
       - run: python scripts/install-smoke.py

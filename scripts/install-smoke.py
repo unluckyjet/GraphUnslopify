@@ -111,6 +111,43 @@ def main() -> None:
             provenance["provenance"]["data_sha256_prefix"]
             == report["data"]["sha256_prefix"]
         )
+    run([*cli, "audit-init", str(demo)], cwd=where, env=env)
+    audited = json.loads(
+        run(
+            [*cli, "audit", str(demo), "--out-dir", str(where / "audit")],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert audited["status"] == "passed"
+    assert audited["figures"][0]["report"]["claims"][0]["verdict"] == "holds"
+    generated_script = (
+        where / "audit" / audited["figures"][0]["outputs"][0]["path"]
+    ).parent / "figure.py"
+    script_manifest = where / "script-manifest.json"
+    script_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "figures": [{"id": "script", "script": str(generated_script)}],
+            }
+        ),
+        encoding="utf8",
+    )
+    script_audit = json.loads(
+        run(
+            [
+                *cli,
+                "audit",
+                str(script_manifest),
+                "--out-dir",
+                str(where / "script audit"),
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert script_audit["status"] == "passed"
     # The SDK resolves nested relative input paths and separate output directories.
     sdk = where / "sdk.py"
     sdk.write_text(

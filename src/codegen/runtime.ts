@@ -30,6 +30,20 @@ def finding(severity, code, message):
 
 def record_output(path):
     path = Path(path)
+    if path.suffix.lower() == ".svg":
+        text = path.read_text(encoding="utf8")
+        title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
+        if f'<desc id="{description_id}">' not in text:
+            end = text.index(">", text.index("<svg "))
+            attributes = f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
+            text = text[:end] + attributes + text[end:]
+            text = text.replace("<title>", f'<title id="{title_id}">', 1)
+            description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
+            text = text.replace("</title>", "</title>\\n " + description, 1)
+            # Normalize path formatting, preserving meaningful metadata whitespace.
+            text = re.sub(r'(<path\\b[^>]*\\bd=")([^"]*)(")',
+                          lambda m: m[1] + "\\n".join(line.rstrip() for line in m[2].split("\\n")) + m[3], text)
+            path.write_text(text, encoding="utf8")
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(65536), b""):
@@ -93,6 +107,7 @@ def describe_panels(blocks):
 
 
 def finish_report():
+    RUN_REPORT["script"] = {"sha256": script_fingerprint()}
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
     for field, counts in ROW_COUNTS.get("measurements", {}).items():

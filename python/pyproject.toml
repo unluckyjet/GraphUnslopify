@@ -7,7 +7,7 @@ name = "graphunslopify"
 dynamic = ["version"]
 description = "Render-time readability and accessibility checks for matplotlib figures."
 requires-python = ">=3.10"
-dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24"]
+dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24", "pypdf>=5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "jsonschema>=4"]

@@ -223,6 +223,9 @@ summarized first, so one prolific seed cannot outweigh another. Counts then refe
 IDs. The author remains responsible for deciding whether the named units are independent;
 without an identifier the rows themselves are assumed independent.
 
+PNG, SVG and PDF carry [recoverable provenance](docs/provenance.md): the full spec, computed
+description, and data/source fingerprints. Read it with `graphunslopify provenance figure.svg`.
+
 Generated programs also write a [structured runtime report](docs/runtime-reports.md).
 Run `python figure.py --strict` or `graphunslopify check figure.py --strict --json`
 to fail on errors, failed claims, unavailable inspection, or untested required checks.

@@ -2,7 +2,7 @@
 
 Every generated program writes `<stem>.report.json`, including when rendering
 fails. The report contains a versioned specification and its hash, data-file
-hash prefix and row/sample accounting, static and rendered findings, per-panel
+hash prefix, executed-source hash and row/sample accounting, static and rendered findings, per-panel
 claim verdicts, corrected significance results, omitted checks/outputs, alt
 text, and hashes of files actually written. It contains no raw data rows.
 

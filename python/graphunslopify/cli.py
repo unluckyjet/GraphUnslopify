@@ -70,6 +70,18 @@ def _check(args: argparse.Namespace) -> int:
     return _run(args)
 
 
+def _provenance(args: argparse.Namespace) -> int:
+    from .provenance import read_provenance
+
+    try:
+        evidence = read_provenance(args.path)
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"ok": False, "error": str(problem)}))
+        return 1
+    print(json.dumps({"ok": True, "provenance": evidence}, ensure_ascii=False, indent=2))
+    return 0
+
+
 def _version(_: argparse.Namespace) -> int:
     from . import __version__
 
@@ -98,6 +110,10 @@ def build_parser() -> argparse.ArgumentParser:
             "--thumbnail", action="store_true", help="also print the PNG as base64"
         )
         ran.set_defaults(handler=handler)
+
+    provenance = commands.add_parser("provenance", help="read evidence embedded in a PNG/SVG/PDF")
+    provenance.add_argument("path")
+    provenance.set_defaults(handler=_provenance)
 
     versioned = commands.add_parser("version", help="print the package version")
     versioned.set_defaults(handler=_version)

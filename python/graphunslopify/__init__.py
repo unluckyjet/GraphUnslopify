@@ -14,10 +14,12 @@ from .colour import ciede2000, distance, simulate, worst_case_distance
 from .describe import profile
 from .inspect import Finding, Report, inspect_figure
 from .lockfile import appearance
+from .provenance import ProvenanceError, read_provenance
 
 __all__ = [
     "Figure",
     "Finding",
+    "ProvenanceError",
     "Report",
     "SpecError",
     "appearance",
@@ -25,6 +27,7 @@ __all__ = [
     "distance",
     "inspect_figure",
     "profile",
+    "read_provenance",
     "simulate",
     "worst_case_distance",
 ]

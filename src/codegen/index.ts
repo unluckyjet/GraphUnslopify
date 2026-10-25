@@ -86,8 +86,10 @@ function emitPreamble(spec: FigureSpec, out: string[]): void {
     "import contextlib",
     "import io",
     "import json",
+    "import re",
     "import sys",
     "from pathlib import Path",
+    "from xml.sax.saxutils import escape",
     "import hashlib",
     "import math",
     "",
@@ -110,6 +112,7 @@ function emitPreamble(spec: FigureSpec, out: string[]): void {
 
   out.push("RC_PARAMS = {");
   for (const [key, value] of Object.entries(preset.rc)) out.push(`    ${pyStr(key)}: ${value},`);
+  out.push(`    "svg.hashsalt": ${pyStr(specHash)},`);
   out.push("}", "");
 
   out.push(`FIGSIZE = (${width}, ${height})`);
@@ -290,11 +293,16 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "def metadata_for(fmt):",
     "    # Embedding the spec means a reviewer can recover what produced the figure.",
     "    stamp = f\"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}\"",
+    '    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,',
+    '        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),',
+    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT}, ensure_ascii=False)',
     '    if fmt == "png":',
-    '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT}',
+    '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}',
     '    if fmt == "svg":',
-    '        return {"Creator": stamp, "Description": ALT_TEXT, "Title": SPEC_HASH}',
-    '    return {"Creator": stamp, "Subject": SPEC_JSON, "Keywords": SPEC_HASH}',
+    '        return {"Creator": stamp, "Description": ALT_TEXT, "Title": FIGURE_TITLE or Path(STEM).name,',
+    '                "Identifier": SPEC_HASH, "Source": provenance, "Date": None}',
+    '    return {"Creator": stamp, "Subject": SPEC_JSON, "Keywords": provenance,',
+    '            "Title": FIGURE_TITLE or Path(STEM).name, "CreationDate": None, "ModDate": None}',
     "",
     "",
     "def check(fig):",

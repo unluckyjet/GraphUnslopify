@@ -25,6 +25,15 @@ export function emitDataFingerprint(out: string[]): void {
     "        return digest.hexdigest()[:16]",
     "    except OSError:",
     '        return "unreadable"',
+    "", "", "def script_fingerprint():",
+    "    try:",
+    '        with open(__file__, "rb") as handle:',
+    "            digest = hashlib.sha256()",
+    '            for block in iter(lambda: handle.read(65536), b""):',
+    "                digest.update(block)",
+    "        return digest.hexdigest()",
+    "    except (NameError, OSError):",
+    "        return None",
     "",
   );
 }

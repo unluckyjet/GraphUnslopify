@@ -15,6 +15,7 @@
     "policy": { "type": "object", "required": ["strict", "fail_on_warning", "passed"], "properties": {
       "strict": { "type": "boolean" }, "fail_on_warning": { "type": "boolean" }, "passed": { "type": "boolean" }
     } },
+    "script": { "type": "object", "required": ["sha256"], "properties": { "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" } } },
     "data": { "type": "object", "required": ["path", "sha256_prefix", "counts"], "properties": {
       "path": { "type": "string" }, "sha256_prefix": { "type": "string" }, "counts": { "type": "object" }
     } },

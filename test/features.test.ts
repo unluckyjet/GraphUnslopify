@@ -540,16 +540,32 @@ test("an inset counts its data once, not once with its parent", { skip: !python 
   assert.deepEqual(disclosures(out), ONE_LINE);
 });
 
-test("the count holds for every uncertainty kind that can go unmeasurable", { skip: !python }, () => {
-  // ci, sem and std all reach the same isfinite test. range and iqr do not,
-  // because min and max of one observation are finite and equal.
-  for (const kind of ["ci", "sem", "std"]) {
+test("all five uncertainty kinds disclose missing singleton intervals", { skip: !python }, () => {
+  for (const kind of ["ci", "sem", "std", "range", "iqr"]) {
     const out = runSolo({
       ...solo,
       uncertainty: { kind, over: "seed" },
       output: { stem: `solo-${kind}`, formats: ["png"], dpi: 100 },
     });
     assert.deepEqual(disclosures(out), ONE_LINE, `${kind} miscounted`);
+  }
+});
+
+test("singleton range and IQR retain missing bounds while repeated observations keep exact bounds", { skip: !python }, () => {
+  const driver = [
+    "import importlib.util, numpy as np, pandas as pd",
+    'spec = importlib.util.spec_from_file_location("figure", "figure.py")',
+    "mod = importlib.util.module_from_spec(spec)",
+    "spec.loader.exec_module(mod)",
+    'frame = pd.DataFrame({"epoch": [1, 1, 1], "accuracy": [3., 2., 6.], "model": ["solo", "repeated", "repeated"]})',
+    'summary = mod.summarise(frame).set_index("model")',
+    'assert np.isnan(summary.loc["solo", "_low"]) and np.isnan(summary.loc["solo", "_high"])',
+    'expected = (2., 6.) if mod.SPEC_JSON.find(\'"kind":"range"\') >= 0 else (3., 5.)',
+    'np.testing.assert_allclose(summary.loc["repeated", ["_low", "_high"]].to_numpy(dtype=float), expected)',
+    'print("bounds verified")',
+  ].join("\n");
+  for (const kind of ["range", "iqr"]) {
+    assert.match(runSolo({ ...solo, uncertainty: { kind } }, driver), /bounds verified/);
   }
 });
 

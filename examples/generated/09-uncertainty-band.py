@@ -152,6 +152,10 @@ def summarise(frame):
     spread = frame.groupby(keys, sort=False)[Y_FIELD]
     centre = summary[Y_FIELD].to_numpy(dtype=float)
     low, high = bootstrap_interval(frame, keys)
+    # A singleton has no measured spread, including for range and IQR.
+    counts = spread.count().to_numpy()
+    low = np.where(counts >= 2, low, np.nan)
+    high = np.where(counts >= 2, high, np.nan)
     summary["_low"] = low
     summary["_high"] = high
     return summary

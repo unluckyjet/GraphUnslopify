@@ -190,6 +190,10 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
   // measured" into "the interval is exactly zero", which draws a band pinched
   // to a hairline and reads as perfect agreement across seeds.
   out.push(
+    "    # A singleton has no measured spread, including for range and IQR.",
+    "    counts = spread.count().to_numpy()",
+    "    low = np.where(counts >= 2, low, np.nan)",
+    "    high = np.where(counts >= 2, high, np.nan)",
     '    summary["_low"] = low',
     '    summary["_high"] = high',
     "    return summary",

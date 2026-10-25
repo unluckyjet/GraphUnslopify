@@ -1,7 +1,7 @@
 ---
 id: 07
 slug: axis-break-panels-false-positive
-status: ready
+status: done
 priority: P1
 title: The render checker reports panels_disagree_on_y on every axis-break figure
 source_idea: axis-break-on-bars.md
@@ -116,3 +116,14 @@ upper and lower half of one cut axis is a real error and stays one.
   being copied, and `README.md:56-60` records why it was added: "a colourbar is an axes, so
   every heatmap looked like two panels disagreeing about their ranges." This is the same bug
   with a different artefact.
+
+## Verification (2026-10-25)
+
+Measured the real composition axis-break fixture before this change: one
+panels_disagree_on_y finding. Re-rendered and intercepted inspection afterward:
+zero such findings. The composition runner now requires inspection to run and
+rejects this false positive. Python regressions prove unmarked ranges still
+warn, marked halves still detect series colour drift, and small text still
+fails. Seven local gates passed (169 Node / 74 Python, 15 unchanged baselines,
+16 renders, 25 recipes, 7 composition cases); Ruff lint/format passed. GitHub
+CI is checked on the pushed commit. Insets and other checks were left intact.

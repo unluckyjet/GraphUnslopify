@@ -179,6 +179,10 @@ for (const [name, spec] of CASES) {
       if (!alt.includes(expected)) throw new Error(`alt text missing: ${expected}`);
       console.log(`      ${alt}`);
     }
+    if (name === "axis_break") {
+      if (!stdout.includes("figure checks:")) throw new Error("axis-break inspection did not run");
+      if (stdout.includes("panels_disagree_on_y")) throw new Error("axis break misidentified as mismatched panels");
+    }
     const produced = readdirSync(dir);
     const ok = produced.includes(`${name}.png`);
     const extras = [`${name}.md`, `${name}.tex`].filter((f) => produced.includes(f));

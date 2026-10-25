@@ -186,6 +186,8 @@ export function emitAxisBreak(spec: FigureSpec, out: string[]): void {
     "        sharex=True,",
     '        gridspec_kw={"height_ratios": [1, 1], "hspace": 0.06},',
     "    )",
+    '    upper.set_label("<axis-break>")',
+    '    lower.set_label("<axis-break>")',
     "    for ax in (upper, lower):",
     "        draw_panel(ax, df)",
     `    lower.set_ylim(top=${from})`,

@@ -358,3 +358,39 @@ def test_an_inverted_axis_still_reports_its_drawn_ticks():
 
     drawn = [t.get_text() for t in _drawn_tick_labels(ax, "y")]
     assert drawn, "an inverted axis reported no drawn ticks at all"
+
+
+def test_axis_break_halves_are_excluded_only_from_range_comparisons():
+    figure, axes = plt.subplots(2, 1)
+    for ax in axes:
+        ax.plot([1, 2], [10, 90], label="method")
+        ax.set_label("<axis-break>")
+    axes[0].set_ylim(60, 100)
+    axes[1].set_ylim(0, 30)
+    assert "panels_disagree_on_y" not in codes(figure)
+
+
+def test_unmarked_panels_still_report_different_ranges():
+    figure, axes = plt.subplots(2, 1)
+    for ax in axes:
+        ax.plot([1, 2], [10, 90], label="method")
+    axes[0].set_ylim(60, 100)
+    axes[1].set_ylim(0, 30)
+    assert "panels_disagree_on_y" in codes(figure)
+
+
+def test_axis_break_halves_still_report_series_colour_drift():
+    figure, axes = plt.subplots(2, 1)
+    for ax, colour in zip(axes, ["#0072B2", "#D55E00"], strict=True):
+        ax.plot([1, 2], [10, 90], label="method", color=colour)
+        ax.set_label("<axis-break>")
+    assert "series_colour_drifts_between_panels" in codes(figure)
+
+
+def test_axis_break_halves_still_check_small_text():
+    figure, axes = plt.subplots(2, 1)
+    for ax in axes:
+        ax.plot([1, 2], [10, 90])
+        ax.set_label("<axis-break>")
+        ax.set_xlabel("Too small", fontsize=2)
+    assert "text_too_small" in codes(figure)

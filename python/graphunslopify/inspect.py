@@ -483,8 +483,11 @@ def _check_panel_consistency(figure: Any, report: Report) -> None:
     if len(axes) < 2:
         return
 
+    # A cut axis has intentionally different ranges on its two halves. Keep
+    # these axes in the colour-drift check below, which still applies to them.
+    panels = [ax for ax in axes if ax.get_label() != "<axis-break>"]
     for name, getter in (("y", "get_ylim"), ("x", "get_xlim")):
-        spans = {tuple(round(v, 6) for v in getattr(ax, getter)()) for ax in axes}
+        spans = {tuple(round(v, 6) for v in getattr(ax, getter)()) for ax in panels}
         if len(spans) > 1:
             report.add(
                 "warning",

@@ -37,3 +37,6 @@ local check passed and nobody looked at GitHub.
 Never run bare `npm run baseline`. It hardcodes `python3`, which on Windows is a
 Store stub, and a failed run empties `examples/baseline/README.md`. Use
 `PYTHON=python npm run baseline`.
+
+When changing figure layout or gallery examples, also run `npm run gallery-check`.
+It regenerates all published examples and rejects failed or incomplete inspection.

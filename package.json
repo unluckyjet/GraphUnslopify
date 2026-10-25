@@ -14,7 +14,8 @@
     "test:python": "node --experimental-strip-types scripts/pytest.ts",
     "recipe-check": "node --experimental-strip-types scripts/recipe-check.ts",
     "compose-check": "node --experimental-strip-types scripts/compose-check.ts",
-    "queue": "node --experimental-strip-types scripts/queue.ts"
+    "queue": "node --experimental-strip-types scripts/queue.ts",
+    "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts"
   },
   "type": "module",
   "dependencies": {

@@ -352,6 +352,10 @@ def draw_panel(ax, df):
             )
 
 
+def fit_category_labels(fig, axes):
+    return
+
+
 def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
     if show_x:
         ax.set_xlabel("Learning rate")
@@ -632,6 +636,7 @@ def main():
             fig.suptitle("Hyperparameter sweep")
         else:
             flat[0].set_title("Hyperparameter sweep")
+        fit_category_labels(fig, flat)
         fig.tight_layout()
         check(fig)
         description = describe_panels(blocks)

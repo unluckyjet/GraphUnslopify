@@ -417,13 +417,13 @@ locally now, and `npm run baseline -- --check` fails if the two ever separate ag
 | --- | --- |
 | ![Line chart of test accuracy against training epoch, one series per model, ours in the foreground reaching 81.1 against baseline at 70](examples/baseline/01-training-curve.png) | ![The same four models on a logarithmic loss axis, ending between 0.281 and 0.302](examples/baseline/02-loss-log.png) |
 | `01-training-curve`, mean over seeds with the argued series in front | `02-loss-log`, log axis and median aggregation |
-| ![Single ungrouped accuracy curve running from 8.48 to 82 with no legend](examples/baseline/03-single-run.png) | ![Grouped bars of top-1 accuracy per dataset, ours highest at 51.2 and baseline lowest at 43.8](examples/baseline/04-accuracy-by-dataset.png) |
+| ![One filtered training run of ours with no legend](examples/baseline/03-single-run.png) | ![Grouped bars of top-1 accuracy per dataset, ours highest at 51.2 and baseline lowest at 43.8](examples/baseline/04-accuracy-by-dataset.png) |
 | `03-single-run`, no group, legend suppressed | `04-accuracy-by-dataset`, grouped bars with the legend below |
-| ![Horizontal bars of latency by model, ranging from 12.2 to 65.7 milliseconds](examples/baseline/05-latency-ranking.png) | ![Scatter of accuracy against latency, one marker shape per model, legend sitting over two points](examples/baseline/06-accuracy-vs-latency.png) |
+| ![Horizontal bars of median latency by model](examples/baseline/05-latency-ranking.png) | ![Scatter of accuracy against latency, one marker shape per model, legend outside the data](examples/baseline/06-accuracy-vs-latency.png) |
 | `05-latency-ranking`, horizontal bars sorted by value | `06-accuracy-vs-latency`, one marker shape per series |
 | ![Ungrouped scatter of accuracy against parameter count with a linear fit](examples/baseline/07-params-trendline.png) | ![The four training curves at double column width in the compact preset](examples/baseline/08-compact-double-column.png) |
 | `07-params-trendline`, linear fit on an ungrouped scatter | `08-compact-double-column`, compact preset at double width |
-| ![Four training curves with shaded 95 percent confidence intervals and a chance line at 25](examples/baseline/09-uncertainty-band.png) | ![Three panels of accuracy bars, one per dataset, sharing a y axis and one legend](examples/baseline/10-faceted-benchmarks.png) |
+| ![Four training curves with shaded 95 percent confidence intervals and a chance line at 25](examples/baseline/09-uncertainty-band.png) | ![Three panels of accuracy bars, one per dataset, sharing a y axis with readable category names](examples/baseline/10-faceted-benchmarks.png) |
 | `09-uncertainty-band`, bootstrap intervals and a labelled chance line | `10-faceted-benchmarks`, one panel per dataset |
 | ![Box plot of accuracy across epochs per model, values from 65.3 to 82](examples/baseline/11-seed-spread.png) | ![Heatmap of validation accuracy over learning rate and batch size, largest 82.4 at 0.001 and 32](examples/baseline/12-sweep-heatmap.png) |
 | `11-seed-spread`, distribution behind the summary | `12-sweep-heatmap`, annotated cells and a labelled colourbar |
@@ -432,8 +432,8 @@ locally now, and `npm run baseline -- --check` fails if the two ever separate ag
 | ![Simulated share price over one trading year with its 20-day rolling average, dates along the x axis](examples/baseline/15-price-and-average.png) | |
 | `15-price-and-average`, a temporal x axis | |
 
-Each alt string above is a trimmed version of the one the script itself printed, numbers kept. The
-full sentences are longer, and the scripts write them into the exported files.
+The gallery labels describe each example. The full descriptions are computed from the current
+data and embedded in the exported files.
 
 ### What the checker says about its own gallery
 
@@ -445,16 +445,14 @@ drawn. Matplotlib lays ticks on a round grid and keeps the ones past the view li
 report themselves as visible and carry a real bounding box, so the collision checks were measuring
 labels no reader can see. The checker now skips them, and `02-loss-log` is clean.
 
-Thirteen of the fifteen come back clean. The two that do not are real, and both are visible in the
-images above. `06-accuracy-vs-latency` puts the legend over two data points at roughly 49ms and 66ms.
-`10-faceted-benchmarks` overlaps "baseline" and "+augment" on the x axis of all three panels. Neither
-is new, and rendering the scripts committed before this change reproduces both. Fixing those two
-specs belongs in its own change rather than a quiet edit here.
+All fifteen now pass the strict runtime checker. The scatter legend sits below
+the axes, and crowded categorical ticks rotate only when their measured text
+boxes overlap. Names and font sizes are preserved. `npm run gallery-check`
+regenerates every example, requires real inspection and rejects failed or
+incomplete checks; GitHub CI runs it as a regression gate. Before these fixes,
+the same gate failed with `legend_covers_data` and `tick_labels_collide` on 06/10.
 
-One figure got better on its own. `06-accuracy-vs-latency` reported four findings before and reports
-one now. The two that went away are `greyscale_collision` and `series_indistinguishable`. The emitter
-had already learned to fix both by giving each series its own marker shape, and the gallery had
-simply never picked the fix up, because it was still being built from a deployment that predated it.
+The source specs, data, and generated artifacts remain together for review.
 
 ## Sixth pass, what one stock chart broke
 

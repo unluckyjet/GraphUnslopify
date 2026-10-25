@@ -14,7 +14,7 @@ import {
   emitSummarise,
   emitSummaryInput,
 } from "./data.ts";
-import { emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
+import { emitCategoryLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
 import {
   emitAxisBreak,
   emitInset,
@@ -447,6 +447,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     spec.legend.style === "box" &&
     (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
 
+  if (!outsideLegend) out.push("        fit_category_labels(fig, flat)");
   out.push(
     outsideLegend
       ? "        # tight_layout is skipped: it fights a legend anchored outside the axes."
@@ -521,6 +522,7 @@ export function emitPython(spec: FigureSpec): string {
     emitAxisBreak(spec, out);
     emitRepeat(spec, out);
   }
+  emitCategoryLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitDataFingerprint(out);

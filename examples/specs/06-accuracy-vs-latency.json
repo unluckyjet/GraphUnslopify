@@ -22,7 +22,7 @@
     "series": "ours"
   },
   "legend": {
-    "position": "lower_right"
+    "position": "outside_bottom"
   },
   "data": {
     "path": "data/benchmarks.csv",

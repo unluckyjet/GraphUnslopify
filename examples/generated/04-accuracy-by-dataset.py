@@ -395,6 +395,32 @@ def draw_panel(ax, df):
     ax.set_xticklabels([str(value) for value in categories])
 
 
+def fit_category_labels(fig, axes):
+    for rotation in (45, 90):
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        crowded = []
+        for ax in axes:
+            if not ax.get_visible():
+                continue
+            low, high = sorted(ax.get_xlim())
+            labels = [label for label in ax.get_xticklabels()
+                      if label.get_visible() and label.get_text().strip()
+                      and low <= label.get_position()[0] <= high]
+            boxes = sorted([label.get_window_extent(renderer) for label in labels], key=lambda box: box.x0)
+            if any(left.overlaps(right) for left, right in zip(boxes, boxes[1:])):
+                crowded.append(labels)
+        if not crowded:
+            return
+        for labels in crowded:
+            for label in labels:
+                label.set_rotation(rotation)
+                label.set_horizontalalignment("right" if rotation == 45 else "center")
+                label.set_verticalalignment("top")
+                label.set_rotation_mode("default")
+        fig.tight_layout()
+
+
 def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
     if show_x:
         ax.set_xlabel("Dataset")

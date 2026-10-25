@@ -1,14 +1,34 @@
-"""Recover the evidence embedded in a GraphUnslopify PNG, SVG or PDF."""
+"""Recover the evidence embedded in a GraphUnslopify PNG, SVG, PDF or HTML."""
 
 from __future__ import annotations
 
 import json
 import re
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
+
+
+class _HtmlEvidence(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.reading = False
+        self.chunks: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "script":
+            self.reading = dict(attrs).get("id") == "graphunslopify-provenance"
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self.reading = False
+
+    def handle_data(self, data):
+        if self.reading:
+            self.chunks.append(data)
 
 
 class ProvenanceError(ValueError):
@@ -65,7 +85,7 @@ def _envelope(payload: str) -> dict[str, Any]:
 def read_provenance(path: str | Path) -> dict[str, Any]:
     """Read embedded evidence; this does not authenticate it or recheck its data.
 
-    Schema 1 carries the same payload in all three formats. Legacy generated
+    Schema 1 carries the same payload in all supported formats. Legacy generated
     PNG/PDF files can recover their spec with schema 0 and explicit missing data.
     A legacy SVG without a spec cannot be recovered. No programs are executed.
     """
@@ -97,8 +117,12 @@ def read_provenance(path: str | Path) -> dict[str, Any]:
         payload = info.get("/Keywords")
         if not payload or not str(payload).lstrip().startswith("{"):
             return _legacy(info.get("/Subject"), info.get("/Creator", ""))
+    elif extension in (".html", ".htm"):
+        parsed = _HtmlEvidence()
+        parsed.feed(path.read_text(encoding="utf8"))
+        payload = "".join(parsed.chunks)
     else:
-        raise ProvenanceError("Supported provenance formats: PNG, SVG, PDF")
+        raise ProvenanceError("Supported provenance formats: PNG, SVG, PDF, HTML")
     if not payload:
         raise ProvenanceError("No GraphUnslopify provenance found")
     return _envelope(payload)

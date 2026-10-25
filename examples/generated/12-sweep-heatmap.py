@@ -205,6 +205,12 @@ def finish_report():
             finding("warning", "nonfinite_measurements", f"{counts['nonfinite']} non-finite measurements in {field}")
     if ROW_COUNTS.get("missing_plot_keys", 0):
         finding("warning", "missing_plot_keys", f"{ROW_COUNTS['missing_plot_keys']} rows lack plotting keys")
+    if ROW_COUNTS.get("finite") == 0:
+        RUN_REPORT["untested"].append("no finite measurements in the requested value field")
+    if ROW_COUNTS.get("prepared", 0) and ROW_COUNTS.get("missing_plot_keys") == ROW_COUNTS["prepared"]:
+        RUN_REPORT["untested"].append("no assignable plotting keys")
+    if ROW_COUNTS.get("unlisted_series"):
+        finding("warning", "unlisted_series_retained", "Unlisted series were retained: " + ", ".join(ROW_COUNTS["unlisted_series"]))
     sizes = ROW_COUNTS.get("sample_sizes", [])
     if sizes and min(sizes) != max(sizes):
         finding("warning", "unequal_sample_sizes", "Sample sizes differ between plotted points")
@@ -563,13 +569,12 @@ def describe_figure(frame):
     parts = []
     if SAMPLE_SIZE_TEXT:
         parts.append(SAMPLE_SIZE_TEXT)
-    values = frame[VALUE_FIELD].dropna()
-    if len(values):
-        peak = frame.loc[frame[VALUE_FIELD].idxmax()]
-        parts.append(f"Values run from {values.min():.3g} to {values.max():.3g}")
-        parts.append(
-            f"the largest is {peak[VALUE_FIELD]:.3g} at {peak[X_FIELD]}, {peak[Y_FIELD]}"
-        )
+    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="mean", sort=False)
+    values = matrix.to_numpy(dtype=float)
+    if np.isfinite(values).any():
+        row, column = np.unravel_index(np.nanargmax(values), values.shape)
+        parts.append(f"Values run from {np.nanmin(values):.3g} to {np.nanmax(values):.3g}")
+        parts.append(f"the largest is {values[row,column]:.3g} at {matrix.columns[column]}, {matrix.index[row]}")
     if not parts:
         return ""
     # Every clause is its own sentence, so a screen reader pauses between them.

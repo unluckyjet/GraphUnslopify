@@ -75,7 +75,7 @@ SPEC_JSON = "{\"title\":\"Test accuracy over training\",\"group\":\"model\",\"se
 X_AXIS_LABEL = "Training epoch"
 Y_AXIS_LABEL = "Test accuracy (%)"
 FIGURE_TITLE = "Test accuracy over training"
-ENCODING_SENTENCE = "Line chart of Test accuracy in % against Training epoch. One series per model, being baseline, +augment, +distill, ours. Ours is drawn in the foreground."
+ENCODING_SENTENCE = "Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours. Ours is drawn in the foreground."
 AUTHOR_CONTEXT = None
 CAPTION = None
 X_LABEL_PLAIN = "training epoch"
@@ -204,6 +204,12 @@ def finish_report():
             finding("warning", "nonfinite_measurements", f"{counts['nonfinite']} non-finite measurements in {field}")
     if ROW_COUNTS.get("missing_plot_keys", 0):
         finding("warning", "missing_plot_keys", f"{ROW_COUNTS['missing_plot_keys']} rows lack plotting keys")
+    if ROW_COUNTS.get("finite") == 0:
+        RUN_REPORT["untested"].append("no finite measurements in the requested value field")
+    if ROW_COUNTS.get("prepared", 0) and ROW_COUNTS.get("missing_plot_keys") == ROW_COUNTS["prepared"]:
+        RUN_REPORT["untested"].append("no assignable plotting keys")
+    if ROW_COUNTS.get("unlisted_series"):
+        finding("warning", "unlisted_series_retained", "Unlisted series were retained: " + ", ".join(ROW_COUNTS["unlisted_series"]))
     sizes = ROW_COUNTS.get("sample_sizes", [])
     if sizes and min(sizes) != max(sizes):
         finding("warning", "unequal_sample_sizes", "Sample sizes differ between plotted points")
@@ -299,6 +305,8 @@ def report_counts(frame):
     ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0
     if ROW_COUNTS["missing_plot_keys"]:
         print(f"warning: {ROW_COUNTS['missing_plot_keys']} rows lack plotting keys and cannot be assigned to a point, panel or series")
+    if SERIES_ORDER is not None and GROUP in frame:
+        ROW_COUNTS["unlisted_series"] = [str(name) for name in frame[GROUP].dropna().unique() if name not in SERIES_ORDER]
     ROW_COUNTS["measurements"] = {}
     for field in ["accuracy"]:
         if field not in frame:
@@ -357,7 +365,8 @@ def series_names(frame):
     if GROUP is None:
         return [None]
     if SERIES_ORDER is not None:
-        return [n for n in SERIES_ORDER if n in set(frame[GROUP])] or list(SERIES_ORDER)
+        observed = sorted(frame[GROUP].dropna().unique().tolist(), key=str)
+        return [n for n in SERIES_ORDER if n in observed] + [n for n in observed if n not in SERIES_ORDER]
     return sorted(frame[GROUP].dropna().unique().tolist(), key=str)
 
 
@@ -404,6 +413,7 @@ def draw_panel(ax, df):
             alpha=style["alpha"],
             zorder=style["zorder"],
             linestyle=style["linestyle"],
+            marker="o" if len(block) == 1 else None,
         )
 
 
@@ -601,21 +611,28 @@ def describe_figure(frame):
     parts = []
     if SAMPLE_SIZE_TEXT:
         parts.append(SAMPLE_SIZE_TEXT)
-    ends = {}
+    ends, absent = {}, []
+    last = frame[X_FIELD].dropna().max() if len(frame) else None
+    repeated = False
     for name in series_names(frame):
-        block = frame[frame[GROUP] == name].dropna(subset=[Y_FIELD]).sort_values(X_FIELD)
+        block = frame[(frame[GROUP] == name) & (frame[X_FIELD] == last)].dropna(subset=[Y_FIELD])
         if len(block):
-            ends[name] = (float(block[Y_FIELD].iloc[-1]), float(block[Y_FIELD].mean()))
+            ends[name] = float(block[Y_FIELD].mean())
+            repeated = repeated or len(block) > 1
+        else:
+            absent.append(str(name))
     if ends:
-        ranked = sorted(ends.items(), key=lambda kv: -kv[1][0])
+        ranked = sorted(ends.items(), key=lambda kv: -kv[1])
         best, worst = ranked[0], ranked[-1]
-        parts.append(
-            f"At the largest {X_LABEL_PLAIN}, {best[0]} is highest at {best[1][0]:.3g} "
-            f"and {worst[0]} is lowest at {worst[1][0]:.3g}"
-        )
+        location = f"At the largest {X_LABEL_PLAIN}"
+        qualifier = "mean observed values: " if repeated else ""
         if len(ranked) > 1:
-            spread = best[1][0] - worst[1][0]
-            parts.append(f"a spread of {spread:.3g}")
+            parts.append(f"{location}, {qualifier}{best[0]} is highest at {best[1]:.3g} and {worst[0]} is lowest at {worst[1]:.3g}")
+            parts.append(f"a spread of {best[1]-worst[1]:.3g}")
+        else:
+            parts.append(f"{location}, {qualifier}{best[0]} is {best[1]:.3g}")
+    if absent:
+        parts.append("No finite measurement at that x for " + ", ".join(absent))
     if not parts:
         return ""
     # Every clause is its own sentence, so a screen reader pauses between them.

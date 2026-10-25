@@ -1,6 +1,6 @@
 # What people complain about, and which check answers it
 
-There are 68 spec rules and 11 rendered finding categories. Visualization safeguards trace to
+There are 69 spec rules and 11 rendered finding categories. Visualization safeguards trace to
 documented complaints; implementation-contract guards prevent accepted options being ignored.
 This is the mapping, so a future change to a threshold has to argue with a source.
 

@@ -315,7 +315,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Sixty-eight rules run on the server against the spec alone. The Python package checks the rendered
+Sixty-nine rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -533,3 +533,6 @@ The typecheck passed and every test passed before I rendered that figure for the
 gallery in one sentence.
 
 Composition behavior and supported combinations are described in [composition contracts](docs/composition.md).
+
+[Interactive exports](docs/interactive-exports.md) share supported numeric analyses with static
+figures and embed Plotly for offline viewing. Unsupported combinations fail explicitly.

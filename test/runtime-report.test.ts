@@ -180,7 +180,7 @@ test("table rendering runs inspection and records each written format", { skip: 
 test("requested but unsupported output is reported as skipped", { skip: !python }, () => {
   const result = run(good, { kind: "box", output: { interactive: true } });
   assert.equal(result.status, 2);
-  assert.equal(result.report.status, "incomplete");
+  assert.equal(result.report.status, "failed");
   assert.ok(result.report.skipped_outputs.some(x => x.format === "html"));
 });
 

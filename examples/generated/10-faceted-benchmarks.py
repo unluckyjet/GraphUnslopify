@@ -209,6 +209,12 @@ def finish_report():
             finding("warning", "nonfinite_measurements", f"{counts['nonfinite']} non-finite measurements in {field}")
     if ROW_COUNTS.get("missing_plot_keys", 0):
         finding("warning", "missing_plot_keys", f"{ROW_COUNTS['missing_plot_keys']} rows lack plotting keys")
+    if ROW_COUNTS.get("finite") == 0:
+        RUN_REPORT["untested"].append("no finite measurements in the requested value field")
+    if ROW_COUNTS.get("prepared", 0) and ROW_COUNTS.get("missing_plot_keys") == ROW_COUNTS["prepared"]:
+        RUN_REPORT["untested"].append("no assignable plotting keys")
+    if ROW_COUNTS.get("unlisted_series"):
+        finding("warning", "unlisted_series_retained", "Unlisted series were retained: " + ", ".join(ROW_COUNTS["unlisted_series"]))
     sizes = ROW_COUNTS.get("sample_sizes", [])
     if sizes and min(sizes) != max(sizes):
         finding("warning", "unequal_sample_sizes", "Sample sizes differ between plotted points")

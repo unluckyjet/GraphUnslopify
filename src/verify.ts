@@ -1,3 +1,4 @@
+import { interactiveLimitations } from "./capabilities.ts";
 import { COMPARATIVE, NEEDS_TOLERANCE } from "./claims.ts";
 import { encodingSuggestions } from "./perception.ts";
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
@@ -541,6 +542,9 @@ const animation: Rule = (spec, add) => {
  * error, moved from the foot of the bar to its middle.
  */
 const composition: Rule = (spec, add) => {
+  if (spec.output.interactive && interactiveLimitations(spec).length) {
+    add("error", "interactive_not_supported", `Interactive export does not reproduce: ${interactiveLimitations(spec).join(", ")}. Use static output or a supported spec.`);
+  }
   if (spec.axis_break && hasCategoricalX(spec)) {
     add(
       "error",

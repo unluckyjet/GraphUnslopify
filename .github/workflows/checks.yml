@@ -35,7 +35,7 @@ jobs:
       - run: pip install ruff
       - run: ruff check python
       - run: ruff format --check python
-      - run: pip install -e "./python[dev]"
+      - run: pip install -e "./python[dev,interactive]"
       - run: python -m pytest python/tests -q
 
   render:
@@ -51,7 +51,7 @@ jobs:
           python-version: "3.12"
       - run: npm ci
       - run: pip install -r requirements.txt
-      - run: pip install -e "./python[dev]"
+      - run: pip install -e "./python[dev,interactive]"
       # The behavioural tests skip themselves without matplotlib, so the
       # typescript job above cannot run them. This is where they actually run.
       - run: npm test

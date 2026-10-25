@@ -50,7 +50,8 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
     "    if GROUP is None:",
     "        return [None]",
     "    if SERIES_ORDER is not None:",
-    "        return [n for n in SERIES_ORDER if n in set(frame[GROUP])] or list(SERIES_ORDER)",
+    "        observed = sorted(frame[GROUP].dropna().unique().tolist(), key=str)",
+    "        return [n for n in SERIES_ORDER if n in observed] + [n for n in observed if n not in SERIES_ORDER]",
     "    return sorted(frame[GROUP].dropna().unique().tolist(), key=str)",
     "",
     "",
@@ -141,7 +142,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
       `${indentLevel}    zorder=${styleExpr}["zorder"],`,
       `${indentLevel}    linestyle=${styleExpr}["linestyle"],`,
     );
-    if (spec.marker) lines.push(`${indentLevel}    marker="o",`);
+    lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
     if (spec.uncertainty && band) {
       lines.push(
@@ -1026,14 +1027,23 @@ function emitConfusionMatrix(
   out: string[],
 ): void {
   const counts = spec.value
-    ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum")'
-    : "df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc=\"size\", fill_value=0)";
+    ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0)'
+    : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0)';
+  out.push("", "def confusion_counts(df):");
+  if (spec.value) out.push(
+    "    df = df.copy()",
+    '    values = pd.to_numeric(df[VALUE_FIELD], errors="raise").to_numpy(dtype=float)',
+    "    if not np.isfinite(values).all() or np.any(values < 0) or np.any(values != np.floor(values)):",
+    '        raise ValueError("confusion counts must be finite nonnegative integers")',
+    "    df[VALUE_FIELD] = values",
+  );
   out.push(
-    "",
-    "def draw_panel(ax, df):",
     `    matrix = ${counts}`,
     "    labels = sorted(set(matrix.index) | set(matrix.columns), key=str)",
-    "    matrix = matrix.reindex(index=labels, columns=labels, fill_value=0)",
+    "    return matrix.reindex(index=labels, columns=labels, fill_value=0)",
+    "", "", "def draw_panel(ax, df):",
+    "    matrix = confusion_counts(df)",
+    "    labels = list(matrix.index)",
     "    raw = matrix.to_numpy(dtype=float)",
     "    shown = raw.copy()",
   );

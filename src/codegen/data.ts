@@ -105,6 +105,10 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
     '    if ROW_COUNTS["missing_plot_keys"]:',
     '        print(f"warning: {ROW_COUNTS[\'missing_plot_keys\']} rows lack plotting keys and cannot be assigned to a point, panel or series")',
   );
+  if (spec.group) out.push(
+    "    if SERIES_ORDER is not None and GROUP in frame:",
+    '        ROW_COUNTS["unlisted_series"] = [str(name) for name in frame[GROUP].dropna().unique() if name not in SERIES_ORDER]',
+  );
   out.push(
     '    ROW_COUNTS["measurements"] = {}',
     `    for field in ${pyList(fields)}:`,

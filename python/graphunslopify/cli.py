@@ -111,7 +111,9 @@ def build_parser() -> argparse.ArgumentParser:
         )
         ran.set_defaults(handler=handler)
 
-    provenance = commands.add_parser("provenance", help="read evidence embedded in a PNG/SVG/PDF")
+    provenance = commands.add_parser(
+        "provenance", help="read evidence embedded in a PNG/SVG/PDF/HTML"
+    )
     provenance.add_argument("path")
     provenance.set_defaults(handler=_provenance)
 

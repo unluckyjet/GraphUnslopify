@@ -1,4 +1,4 @@
-import { derivedAxis, type FigureSpec } from "./schema.ts";
+import { hasCategoricalX, derivedAxis, type FigureSpec } from "./schema.ts";
 
 /**
  * Alternative text, built from the four-level semantic model in the
@@ -78,7 +78,7 @@ export function encodingSentence(spec: FigureSpec): string {
   if (spec.group) {
     parts.push(
       spec.series_order
-        ? `one series per ${spec.group}, being ${spec.series_order.join(", ")}`
+        ? `one series per ${spec.group}, with expected order ${spec.series_order.join(", ")}`
         : `one series per ${spec.group}`,
     );
   }
@@ -115,6 +115,9 @@ export function encodingSentence(spec: FigureSpec): string {
         (line.label ? ` labelled ${line.label}` : ""),
     );
   }
+
+  if (spec.kind === "confusion_matrix") parts.push(spec.normalize === "none" ? "cells contain raw counts"
+    : `each ${spec.normalize} is normalized to sum to one when nonempty`);
 
   if (spec.facet) parts.push(spec.facet.rows
     ? `panels arranged by ${spec.facet.by} across columns and ${spec.facet.rows} down rows`
@@ -172,7 +175,7 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     // reader wants is how much of the mass sits on the diagonal and which
     // off-diagonal cell is worst.
     out.push(
-      "    counts = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc=\"size\", fill_value=0)",
+      "    counts = confusion_counts(frame)",
       "    labels = sorted(set(counts.index) | set(counts.columns), key=str)",
       "    counts = counts.reindex(index=labels, columns=labels, fill_value=0).to_numpy(dtype=float)",
       "    total = counts.sum()",
@@ -206,31 +209,37 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     );
   } else if (spec.kind === "heatmap") {
     out.push(
-      "    values = frame[VALUE_FIELD].dropna()",
-      "    if len(values):",
-      "        peak = frame.loc[frame[VALUE_FIELD].idxmax()]",
-      '        parts.append(f"Values run from {values.min():.3g} to {values.max():.3g}")',
-      "        parts.append(",
-      '            f"the largest is {peak[VALUE_FIELD]:.3g} at {peak[X_FIELD]}, {peak[Y_FIELD]}"',
-      "        )",
+      `    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc=${JSON.stringify(spec.aggregation)}, sort=False)`,
+      "    values = matrix.to_numpy(dtype=float)",
+      "    if np.isfinite(values).any():",
+      "        row, column = np.unravel_index(np.nanargmax(values), values.shape)",
+      '        parts.append(f"Values run from {np.nanmin(values):.3g} to {np.nanmax(values):.3g}")',
+      '        parts.append(f"the largest is {values[row,column]:.3g} at {matrix.columns[column]}, {matrix.index[row]}")',
     );
   } else if (grouped) {
     out.push(
-      "    ends = {}",
+      "    ends, absent = {}, []",
+      hasCategoricalX(spec) ? "    last = category_order(frame)[-1] if len(frame) else None" : "    last = frame[X_FIELD].dropna().max() if len(frame) else None",
+    );
+    // Numeric/time endpoints are shared; category endpoints follow the plotted order.
+    out.push(
+      "    repeated = False",
       "    for name in series_names(frame):",
-      "        block = frame[frame[GROUP] == name].dropna(subset=[Y_FIELD]).sort_values(X_FIELD)",
+      "        block = frame[(frame[GROUP] == name) & (frame[X_FIELD] == last)].dropna(subset=[Y_FIELD])",
       "        if len(block):",
-      "            ends[name] = (float(block[Y_FIELD].iloc[-1]), float(block[Y_FIELD].mean()))",
+      "            ends[name] = float(block[Y_FIELD].mean())",
+      "            repeated = repeated or len(block) > 1",
+      "        else:", "            absent.append(str(name))",
       "    if ends:",
-      "        ranked = sorted(ends.items(), key=lambda kv: -kv[1][0])",
+      "        ranked = sorted(ends.items(), key=lambda kv: -kv[1])",
       "        best, worst = ranked[0], ranked[-1]",
-      "        parts.append(",
-      '            f"At the largest {X_LABEL_PLAIN}, {best[0]} is highest at {best[1][0]:.3g} "',
-      '            f"and {worst[0]} is lowest at {worst[1][0]:.3g}"',
-      "        )",
+      hasCategoricalX(spec) ? '        location = f"At the final category, {last}"' : '        location = f"At the largest {X_LABEL_PLAIN}"',
+      '        qualifier = "mean observed values: " if repeated else ""',
       "        if len(ranked) > 1:",
-      "            spread = best[1][0] - worst[1][0]",
-      '            parts.append(f"a spread of {spread:.3g}")',
+      '            parts.append(f"{location}, {qualifier}{best[0]} is highest at {best[1]:.3g} and {worst[0]} is lowest at {worst[1]:.3g}")',
+      '            parts.append(f"a spread of {best[1]-worst[1]:.3g}")',
+      "        else:", '            parts.append(f"{location}, {qualifier}{best[0]} is {best[1]:.3g}")',
+      "    if absent:", '        parts.append("No finite measurement at that x for " + ", ".join(absent))',
     );
   } else {
     out.push(

@@ -1,6 +1,6 @@
 # Exported provenance
 
-PNG, SVG and PDF exports embed the same version 1 evidence envelope:
+PNG, SVG, PDF and supported HTML exports embed the same version 1 evidence envelope:
 
 - `schema_version`: 1.
 - `tool`: generator name/version.
@@ -29,6 +29,7 @@ to perform the implemented checks.
 | PNG | `GraphUnslopify` text metadata | `Description`: spec JSON; `Comment`: alt text |
 | SVG | Dublin Core `source` | `description`: alt text; `identifier`: spec hash |
 | PDF | Info dictionary `Keywords` | `Subject`: spec JSON; `Title`: figure title |
+| HTML | `graphunslopify-provenance` JSON script | Visible computed description; inline Plotly |
 
 Legacy generated PNG/PDF files can recover their specification as version 0.
 Fields that were absent remain empty/null. Old SVGs that omitted the spec cannot

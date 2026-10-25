@@ -184,6 +184,19 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
         else:
             parts.append(f"median survival is {curve['median']:.3g}")
 `.split("\n"));
+  } else if (spec.kind === "calibration") {
+    out.push(...String.raw`
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = calibration_estimate(block)
+        who = "the model" if name is None else f"model {name}"
+        parts.append(f"{who}: expected calibration error is {curve['ece']:.4g} over "
+                     f"{curve['observations']} observations in {len(curve['counts'])} of {BINS} bins")
+        parts.append(f"plotted mean predicted probabilities run from {curve['probability'].min():.3g} "
+                     f"to {curve['probability'].max():.3g}")
+        parts.append(f"observed bin frequencies run from {curve['frequency'].min():.3g} "
+                     f"to {curve['frequency'].max():.3g}")
+`.split("\n"));
   } else if (spec.kind === "confusion_matrix") {
     // Both axes are class labels, so there is no column to average. What a
     // reader wants is how much of the mass sits on the diagonal and which

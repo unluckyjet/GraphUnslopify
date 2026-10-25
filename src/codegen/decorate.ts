@@ -153,10 +153,15 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
       "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
       "        if block.empty:",
       "            continue",
+      ...(spec.kind === "calibration" ? ["        curve = calibration_estimate(block)"] : []),
       "        style = series_style(name, index, len(series_names(frame)))",
       "        ax.annotate(",
-      "            str(name),",
-      "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
+      spec.kind === "calibration"
+        ? `            f"{name} (ECE {curve['ece']:.3g})",`
+        : "            str(name),",
+      spec.kind === "calibration"
+        ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),'
+        : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
       '            va="center",',
@@ -512,7 +517,9 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
     `        ${LEGEND_LOCATIONS[spec.legend.position]},`,
   );
   if (spec.legend.position === "outside_bottom") {
-    out.push("        ncol=min(len(handles), 4),");
+    out.push(spec.kind === "calibration" && spec.facet
+      ? "        ncol=1,  # Per-panel errors need room without crossing into another legend."
+      : "        ncol=min(len(handles), 4),");
   }
   out.push("    )", "");
 }

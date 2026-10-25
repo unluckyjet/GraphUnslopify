@@ -15,8 +15,10 @@ fixtures whose expected quantities are computed independently of the emitter imp
 Inspect actual artists/tables/descriptions and exported values, not just generated substrings.
 
 Kaplan–Meier ties/domains/tails/descriptions/claim inputs now have independent hand/SciPy artist
-references and failure controls (spec 26). Reuse that evidence. Prioritize paired differences,
-calibration, QQ/scaling fits and
+references and failure controls (spec 26). Calibration probabilities/outcomes, binned ECE,
+descriptions/claims, precision and panel-specific legends now have independent hand/artist/oracle
+references and failure controls (spec 27). Reuse that evidence. Prioritize paired differences,
+QQ/scaling fits and
 categorical identifiers. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.

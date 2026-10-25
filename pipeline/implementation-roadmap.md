@@ -68,3 +68,11 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 20 pushed as `9bbf195`; general CI `40238265672` passed eight jobs and Figure CI `40238265907` passed. Downloaded browser evidence verifies all 13 workflows and actual ZIP/provenance outputs. Milestone 21 fixes confirmed literal-text LaTeX and unknown-origin disclosure defects (spec 25), split from the still-open scientific reference matrix (24). Local gates pass: 215 Node/144 Python, strict gallery 15/15, unchanged gallery pixels and real TeX/PDF round-trip.
 
 - Milestone 21 pushed as `be3649d`; general CI `40240094593` passed eight jobs and Figure CI `40240094542` passed. Downloaded Linux TeX proof preserves the literal characters/numbers. Milestone 22 fixes the independent Kaplan–Meier tie/risk-set defect and related domain/tail/description/derived-claim behavior (spec 26). All seven local gates pass (215 Node/178 Python), strict gallery 15/15 and fresh offline wheel survival render; the complete scientific matrix 24 remains open.
+
+
+- Milestone 22 pushed as bca31c0; general CI 40243611958 passed eight jobs and Figure CI
+  40243611899 passed. Milestone 23 completes calibration's input/binning/error/description/claim
+  contract (spec 27), including actual per-panel ECE legends and derived direct labels. Local
+  seven gates pass (215 Node/209 Python), strict gallery 15/15, independent hand/scikit-learn
+  points and installed offline wheel. Scientific reference matrix 24, naming/versioned release
+  and final completion audit remain open.

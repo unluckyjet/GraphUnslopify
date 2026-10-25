@@ -624,6 +624,17 @@ const survivalSemantics: Rule = (spec, add) => {
   }
 };
 
+const calibrationSemantics: Rule = (spec, add) => {
+  if (spec.kind !== "calibration") return;
+  const roles = [spec.x.field, spec.y.field, ...(spec.group ? [spec.group] : [])];
+  if (spec.transform && spec.transform.kind !== "none"
+      || spec.claims?.length && new Set(roles).size !== roles.length) {
+    add("error", "unsupported_calibration_semantics",
+      "Calibration computes frequencies from original probabilities/outcomes, so raw-y transforms are unsupported. " +
+      "Claims need distinct probability, derived frequency-output and series field names.");
+  }
+};
+
 const claims: Rule = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : undefined;
@@ -711,6 +722,7 @@ export const RULES: Rule[] = [
   composition,
   pairedKinds,
   survivalSemantics,
+  calibrationSemantics,
   claims,
   encodingChoice,
 ];

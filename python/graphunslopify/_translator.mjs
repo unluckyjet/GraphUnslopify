@@ -19572,6 +19572,19 @@ function emitAltText(spec, out) {
         else:
             parts.append(f"median survival is {curve['median']:.3g}")
 `.split("\n"));
+  } else if (spec.kind === "calibration") {
+    out.push(...String.raw`
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = calibration_estimate(block)
+        who = "the model" if name is None else f"model {name}"
+        parts.append(f"{who}: expected calibration error is {curve['ece']:.4g} over "
+                     f"{curve['observations']} observations in {len(curve['counts'])} of {BINS} bins")
+        parts.append(f"plotted mean predicted probabilities run from {curve['probability'].min():.3g} "
+                     f"to {curve['probability'].max():.3g}")
+        parts.append(f"observed bin frequencies run from {curve['frequency'].min():.3g} "
+                     f"to {curve['frequency'].max():.3g}")
+`.split("\n"));
   } else if (spec.kind === "confusion_matrix") {
     out.push(
       "    counts = confusion_counts(frame)",
@@ -20018,14 +20031,14 @@ function emitPrepare(spec, out) {
       "    )"
     );
   }
-  if (spec.kind === "kaplan_meier") {
-    body.push("    survival_input(df)");
+  if (spec.kind === "kaplan_meier" || spec.kind === "calibration") {
+    body.push(`    ${spec.kind === "kaplan_meier" ? "survival_input" : "calibration_input"}(df)`);
     if (spec.transform && spec.transform.kind !== "none") {
-      body.push('    raise ValueError("Kaplan-Meier does not apply transforms to a raw y column")');
+      body.push(`    raise ValueError(${pyStr(`${spec.kind === "kaplan_meier" ? "Kaplan-Meier" : "Calibration"} does not apply transforms to a raw y column`)})`);
     }
   }
   const transform2 = spec.transform;
-  if (spec.kind !== "kaplan_meier" && transform2 && transform2.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && transform2 && transform2.kind !== "none") {
     body.push(...transformBody(spec, transform2));
   }
   body.push("    return df");
@@ -20449,10 +20462,11 @@ function emitHelpers(spec, out) {
       "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
       "        if block.empty:",
       "            continue",
+      ...spec.kind === "calibration" ? ["        curve = calibration_estimate(block)"] : [],
       "        style = series_style(name, index, len(series_names(frame)))",
       "        ax.annotate(",
-      "            str(name),",
-      "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
+      spec.kind === "calibration" ? `            f"{name} (ECE {curve['ece']:.3g})",` : "            str(name),",
+      spec.kind === "calibration" ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),' : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
       '            va="center",',
@@ -20779,7 +20793,7 @@ function emitLegend(spec, out) {
     `        ${LEGEND_LOCATIONS[spec.legend.position]},`
   );
   if (spec.legend.position === "outside_bottom") {
-    out.push("        ncol=min(len(handles), 4),");
+    out.push(spec.kind === "calibration" && spec.facet ? "        ncol=1,  # Per-panel errors need room without crossing into another legend." : "        ncol=min(len(handles), 4),");
   }
   out.push("    )", "");
 }
@@ -21868,57 +21882,88 @@ function emitDumbbell(spec, out) {
 }
 function emitCalibration(spec, out) {
   void spec;
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    edges = np.linspace(0.0, 1.0, BINS + 1)",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        block = block.dropna(subset=[X_FIELD, OUTCOME_FIELD])",
-    "        predicted = block[X_FIELD].to_numpy(dtype=float)",
-    "        observed = block[OUTCOME_FIELD].to_numpy(dtype=float)",
-    "        if not len(predicted):",
-    "            continue",
-    "        slot = np.clip(np.digitize(predicted, edges[1:-1]), 0, BINS - 1)",
-    "        centres, rates, weights = [], [], []",
-    "        for b in range(BINS):",
-    "            here = slot == b",
-    "            if not here.any():",
-    "                continue",
-    "            centres.append(predicted[here].mean())",
-    "            rates.append(observed[here].mean())",
-    "            weights.append(here.sum())",
-    "        if not centres:",
-    "            continue",
-    "        centres = np.array(centres)",
-    "        rates = np.array(rates)",
-    "        weights = np.array(weights, dtype=float)",
-    "        ece = float(np.sum(weights * np.abs(rates - centres)) / weights.sum())",
-    "        style = series_style(name, index, len(names))",
-    "        label = None if name is None else str(name)",
-    "        ax.plot(",
-    "            centres,",
-    "            rates,",
-    '            marker="o",',
-    "            markersize=4,",
-    '            label=None if label is None else f"{label} (ECE {ece:.3f})",',
-    '            color=style["colour"],',
-    '            linewidth=style["width"],',
-    '            alpha=style["alpha"],',
-    '            zorder=style["zorder"],',
-    '            linestyle=style["linestyle"],',
-    "        )",
-    "        print(",
-    `            f"calibration: {label or 'the model'} has an expected calibration error of "`,
-    '            f"{ece:.4f} over {int(weights.sum())} predictions in {len(centres)} of {BINS} bins"',
-    "        )",
-    "    # Where a perfectly calibrated model would sit.",
-    '    ax.plot([0, 1], [0, 1], color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)',
-    "    ax.set_xlim(-0.02, 1.02)",
-    "    ax.set_ylim(-0.02, 1.02)",
-    ""
-  );
+  out.push(...String.raw`
+
+def calibration_input(frame):
+    if frame.empty:
+        raise ValueError("Calibration needs at least one observation")
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [X_FIELD, OUTCOME_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Calibration is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Calibration requires nonmissing series and panel labels")
+    predicted = pd.to_numeric(frame[X_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    observed = pd.to_numeric(frame[OUTCOME_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if not (np.isfinite(predicted) & (predicted >= 0) & (predicted <= 1)).all():
+        raise ValueError("Calibration predicted probabilities must be finite and between 0 and 1")
+    if not (np.isfinite(observed) & np.isin(observed, [0, 1])).all():
+        raise ValueError("Calibration observed outcomes must be binary 0 or 1")
+    return predicted, observed
+
+
+def calibration_estimate(frame):
+    predicted, observed = calibration_input(frame)
+    edges = np.linspace(0.0, 1.0, BINS + 1)
+    # Right-closed interior boundaries; zero belongs to the first bin.
+    slot = np.searchsorted(edges[1:-1], predicted, side="left")
+    totals = np.bincount(slot, minlength=BINS)
+    occupied = np.flatnonzero(totals)
+    counts = totals[occupied]
+    centres = np.bincount(slot, weights=predicted, minlength=BINS)[occupied] / counts
+    rates = np.bincount(slot, weights=observed, minlength=BINS)[occupied] / counts
+    ece = float(np.sum(counts * np.abs(rates - centres)) / len(predicted))
+    return {"probability": centres, "frequency": rates, "counts": counts,
+            "bin": occupied, "ece": ece, "observations": len(predicted)}
+
+
+def calibration_claim_frame(frame):
+    calibration_input(frame)
+    roles = [X_FIELD, Y_FIELD, *([GROUP] if GROUP is not None else [])]
+    if len(roles) != len(set(roles)):
+        raise ValueError("Calibration claims need distinct probability, frequency-output and series field names")
+    curves = [(name, calibration_estimate(frame if name is None else frame[frame[GROUP] == name]))
+              for name in (series_names(frame) if GROUP is not None else [None])]
+    canonical = {}
+    for number in range(BINS):
+        points = sorted({float(value) for _, curve in curves
+                         for slot, value in zip(curve["bin"], curve["probability"]) if slot == number})
+        anchor = None
+        for value in points:
+            if anchor is None or value - anchor > 1e-12:
+                anchor = value
+            canonical[number, value] = anchor
+    blocks = []
+    for name, curve in curves:
+        # Match only within-bin roundoff, independent of series/row order.
+        points = [canonical[int(slot), float(value)] for slot, value in zip(curve["bin"], curve["probability"])]
+        data = {X_FIELD: points, Y_FIELD: curve["frequency"]}
+        if GROUP is not None:
+            data[GROUP] = [name] * len(points)
+        blocks.append(pd.DataFrame(data))
+    # Meaningfully different plotted probability means remain unaligned.
+    return pd.concat(blocks, ignore_index=True)
+
+
+def draw_panel(ax, df):
+    calibration_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        block = df if name is None else df[df[GROUP] == name]
+        curve = calibration_estimate(block)
+        style = series_style(name, index, len(names))
+        label = None if name is None else str(name)
+        ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
+                label=None if label is None else f"{label} (ECE {curve['ece']:.3g})",
+                color=style["colour"], linewidth=style["width"], alpha=style["alpha"],
+                zorder=style["zorder"], linestyle=style["linestyle"])
+        who = "the model" if name is None else str(name)
+        print(f"calibration: {who} has an expected calibration error of {curve['ece']:.4g} "
+              f"over {curve['observations']} predictions in {len(curve['counts'])} of {BINS} bins")
+    ax.plot([0, 1], [0, 1], color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(-0.02, 1.02)
+`.split("\n"));
 }
 function emitQq(spec, out) {
   const quantile = spec.distribution === "normal" ? "np.sqrt(2.0) * _erfinv(2.0 * probabilities - 1.0)" : "probabilities";
@@ -23283,6 +23328,17 @@ var survivalSemantics = (spec, add) => {
     );
   }
 };
+var calibrationSemantics = (spec, add) => {
+  if (spec.kind !== "calibration") return;
+  const roles = [spec.x.field, spec.y.field, ...spec.group ? [spec.group] : []];
+  if (spec.transform && spec.transform.kind !== "none" || spec.claims?.length && new Set(roles).size !== roles.length) {
+    add(
+      "error",
+      "unsupported_calibration_semantics",
+      "Calibration computes frequencies from original probabilities/outcomes, so raw-y transforms are unsupported. Claims need distinct probability, derived frequency-output and series field names."
+    );
+  }
+};
 var claims = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : void 0;
@@ -23364,6 +23420,7 @@ var RULES = [
   composition,
   pairedKinds,
   survivalSemantics,
+  calibrationSemantics,
   claims,
   encodingChoice
 ];
@@ -23380,6 +23437,8 @@ function hasErrors(findings) {
 
 // src/codegen/runtime.ts
 function emitRuntime(spec, out) {
+  const derivedFrame = spec.kind === "kaplan_meier" ? "survival_claim_frame" : spec.kind === "calibration" ? "calibration_claim_frame" : void 0;
+  const summary = derivedFrame ? `${derivedFrame}(frame) if CLAIMS and not frame.empty else frame` : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
   out.push("", `STATIC_FINDINGS = json.loads(${pyStr(JSON.stringify(verify(spec)))})`);
   out.push(...`
 
@@ -23453,7 +23512,7 @@ def describe_panels(blocks):
                 reason = f"panel {name} has no data"
                 finding("warning", "empty_panel", reason)
                 RUN_REPORT["untested"].append(reason)
-            summary = ${spec.kind === "kaplan_meier" ? "survival_claim_frame(frame) if CLAIMS and not frame.empty else frame" : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame'}
+            summary = ${summary}
             label = str(name) if name is not None else None
             panel = {"index": index, "name": label, "metric": Y_FIELD}
             RUN_REPORT["panels"].append(panel)
@@ -23469,7 +23528,7 @@ def describe_panels(blocks):
                 RUN_REPORT["claims"].append(record)
             # Keep the original single-panel description byte-for-byte where possible.
             SAMPLE_SIZE_TEXT = original_n if len(blocks) == 1 else ""
-            body = "No data." if frame.empty else alt_text(${spec.kind === "kaplan_meier" ? "frame" : "summary"})
+            body = "No data." if frame.empty else alt_text(${derivedFrame ? "frame" : "summary"})
             if len(blocks) > 1:
                 body = body.removeprefix(ENCODING_SENTENCE).strip()
                 body = f"Panel {label if label is not None else index + 1}: {body}"
@@ -23942,10 +24001,15 @@ function emitMain(spec, out) {
       "            ax.set_ylabel(pretty(name))",
       "            ax.set_title(None)"
     ] : [],
-    "            # One legend for the whole figure; repeating it wastes panel space.",
-    "            if not legend_added:",
-    "                add_legend(fig, ax, block)",
-    "                legend_added = True",
+    ...spec.kind === "calibration" && spec.facet ? [
+      "            # Calibration errors belong to each panel's own data.",
+      "            add_legend(fig, ax, block)"
+    ] : [
+      "            # One legend for the whole figure; repeating it wastes panel space.",
+      "            if not legend_added:",
+      "                add_legend(fig, ax, block)",
+      "                legend_added = True"
+    ],
     "        for spare in flat[len(blocks) :]:",
     "            spare.set_visible(False)",
     ""

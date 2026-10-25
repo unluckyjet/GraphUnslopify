@@ -783,60 +783,89 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
 
 function emitCalibration(spec: FigureSpec & { kind: "calibration" }, out: string[]): void {
   void spec;
-  // Predicted probability against the frequency actually observed, with the
-  // diagonal a perfectly calibrated model would sit on. The bin count is
-  // printed because it decides how much miscalibration is visible.
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    edges = np.linspace(0.0, 1.0, BINS + 1)",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        block = block.dropna(subset=[X_FIELD, OUTCOME_FIELD])",
-    "        predicted = block[X_FIELD].to_numpy(dtype=float)",
-    "        observed = block[OUTCOME_FIELD].to_numpy(dtype=float)",
-    "        if not len(predicted):",
-    "            continue",
-    "        slot = np.clip(np.digitize(predicted, edges[1:-1]), 0, BINS - 1)",
-    "        centres, rates, weights = [], [], []",
-    "        for b in range(BINS):",
-    "            here = slot == b",
-    "            if not here.any():",
-    "                continue",
-    "            centres.append(predicted[here].mean())",
-    "            rates.append(observed[here].mean())",
-    "            weights.append(here.sum())",
-    "        if not centres:",
-    "            continue",
-    "        centres = np.array(centres)",
-    "        rates = np.array(rates)",
-    "        weights = np.array(weights, dtype=float)",
-    "        ece = float(np.sum(weights * np.abs(rates - centres)) / weights.sum())",
-    "        style = series_style(name, index, len(names))",
-    "        label = None if name is None else str(name)",
-    "        ax.plot(",
-    "            centres,",
-    "            rates,",
-    '            marker="o",',
-    "            markersize=4,",
-    '            label=None if label is None else f"{label} (ECE {ece:.3f})",',
-    '            color=style["colour"],',
-    '            linewidth=style["width"],',
-    '            alpha=style["alpha"],',
-    '            zorder=style["zorder"],',
-    '            linestyle=style["linestyle"],',
-    "        )",
-    "        print(",
-    '            f"calibration: {label or \'the model\'} has an expected calibration error of "',
-    '            f"{ece:.4f} over {int(weights.sum())} predictions in {len(centres)} of {BINS} bins"',
-    "        )",
-    "    # Where a perfectly calibrated model would sit.",
-    '    ax.plot([0, 1], [0, 1], color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)',
-    "    ax.set_xlim(-0.02, 1.02)",
-    "    ax.set_ylim(-0.02, 1.02)",
-    "",
-  );
+  // One binned estimate owns marks, ECE, descriptions and claim inputs.
+  out.push(...String.raw`
+
+def calibration_input(frame):
+    if frame.empty:
+        raise ValueError("Calibration needs at least one observation")
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [X_FIELD, OUTCOME_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Calibration is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Calibration requires nonmissing series and panel labels")
+    predicted = pd.to_numeric(frame[X_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    observed = pd.to_numeric(frame[OUTCOME_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if not (np.isfinite(predicted) & (predicted >= 0) & (predicted <= 1)).all():
+        raise ValueError("Calibration predicted probabilities must be finite and between 0 and 1")
+    if not (np.isfinite(observed) & np.isin(observed, [0, 1])).all():
+        raise ValueError("Calibration observed outcomes must be binary 0 or 1")
+    return predicted, observed
+
+
+def calibration_estimate(frame):
+    predicted, observed = calibration_input(frame)
+    edges = np.linspace(0.0, 1.0, BINS + 1)
+    # Right-closed interior boundaries; zero belongs to the first bin.
+    slot = np.searchsorted(edges[1:-1], predicted, side="left")
+    totals = np.bincount(slot, minlength=BINS)
+    occupied = np.flatnonzero(totals)
+    counts = totals[occupied]
+    centres = np.bincount(slot, weights=predicted, minlength=BINS)[occupied] / counts
+    rates = np.bincount(slot, weights=observed, minlength=BINS)[occupied] / counts
+    ece = float(np.sum(counts * np.abs(rates - centres)) / len(predicted))
+    return {"probability": centres, "frequency": rates, "counts": counts,
+            "bin": occupied, "ece": ece, "observations": len(predicted)}
+
+
+def calibration_claim_frame(frame):
+    calibration_input(frame)
+    roles = [X_FIELD, Y_FIELD, *([GROUP] if GROUP is not None else [])]
+    if len(roles) != len(set(roles)):
+        raise ValueError("Calibration claims need distinct probability, frequency-output and series field names")
+    curves = [(name, calibration_estimate(frame if name is None else frame[frame[GROUP] == name]))
+              for name in (series_names(frame) if GROUP is not None else [None])]
+    canonical = {}
+    for number in range(BINS):
+        points = sorted({float(value) for _, curve in curves
+                         for slot, value in zip(curve["bin"], curve["probability"]) if slot == number})
+        anchor = None
+        for value in points:
+            if anchor is None or value - anchor > 1e-12:
+                anchor = value
+            canonical[number, value] = anchor
+    blocks = []
+    for name, curve in curves:
+        # Match only within-bin roundoff, independent of series/row order.
+        points = [canonical[int(slot), float(value)] for slot, value in zip(curve["bin"], curve["probability"])]
+        data = {X_FIELD: points, Y_FIELD: curve["frequency"]}
+        if GROUP is not None:
+            data[GROUP] = [name] * len(points)
+        blocks.append(pd.DataFrame(data))
+    # Meaningfully different plotted probability means remain unaligned.
+    return pd.concat(blocks, ignore_index=True)
+
+
+def draw_panel(ax, df):
+    calibration_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        block = df if name is None else df[df[GROUP] == name]
+        curve = calibration_estimate(block)
+        style = series_style(name, index, len(names))
+        label = None if name is None else str(name)
+        ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
+                label=None if label is None else f"{label} (ECE {curve['ece']:.3g})",
+                color=style["colour"], linewidth=style["width"], alpha=style["alpha"],
+                zorder=style["zorder"], linestyle=style["linestyle"])
+        who = "the model" if name is None else str(name)
+        print(f"calibration: {who} has an expected calibration error of {curve['ece']:.4g} "
+              f"over {curve['observations']} predictions in {len(curve['counts'])} of {BINS} bins")
+    ax.plot([0, 1], [0, 1], color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(-0.02, 1.02)
+`.split("\n"));
 }
 
 function emitQq(spec: FigureSpec & { kind: "qq" }, out: string[]): void {

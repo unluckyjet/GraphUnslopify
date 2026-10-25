@@ -340,7 +340,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Seventy rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-one rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -400,6 +400,9 @@ scores 0.080 against 0.026 and sits below the diagonal all the way along.
 The Q-Q plot checks the distributional assumption before a claim rests on it. The heavy-tailed
 series bends away at both ends, and there is nothing else to read. Winitzki's approximation supplies the
 normal quantile, so this needs no scipy.
+
+Calibration validates probability/outcome domains and uses the same occupied-bin calculation for
+points, ECE, descriptions and comparisons. See [the calibration reference contract](docs/calibration-validation.md).
 
 The survival curve marks every censored record. A curve that hides them looks far more certain
 than the data supports. Tied events share the correct risk set, and numeric claims use the plotted

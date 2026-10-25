@@ -77,7 +77,7 @@ def test_tied_event_and_censor_are_invariant_to_every_row_order(emitted):
     frame = sample([1, 2], [1])
     for permutation in itertools.permutations(range(3)):
         lines, _ = plotted(emitted, frame.iloc[list(permutation)])
-        assert at(lines[0], [1])[0] == pytest.approx(2 / 3), permutation
+        assert at(lines[0], [1])[0] == pytest.approx(2 / 3, rel=0, abs=1e-12), permutation
 
 
 @pytest.mark.parametrize(
@@ -99,14 +99,16 @@ def test_real_artists_and_censor_marks_match_scipy_product_limit(emitted, observ
     assert lines[0][0][0] == 0
     assert lines[0][0][-1] == max(observed + censored)
     np.testing.assert_allclose(
-        at(lines[0], reference.quantiles), reference.probabilities, atol=1e-12
+        at(lines[0], reference.quantiles), reference.probabilities, rtol=0, atol=1e-12
     )
     assert np.all(np.diff(lines[0][1]) <= 0)
     assert np.all((lines[0][1] >= 0) & (lines[0][1] <= 1))
     if censored:
         points = np.concatenate(markers)
         assert sorted(points[:, 0]) == sorted(censored)
-        np.testing.assert_allclose(points[:, 1], reference.evaluate(points[:, 0]), atol=1e-12)
+        np.testing.assert_allclose(
+            points[:, 1], reference.evaluate(points[:, 0]), rtol=0, atol=1e-12
+        )
 
 
 @pytest.mark.parametrize(

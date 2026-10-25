@@ -453,10 +453,17 @@ function emitMain(spec: FigureSpec, out: string[]): void {
           "            ax.set_title(None)",
         ]
       : []),
-    "            # One legend for the whole figure; repeating it wastes panel space.",
-    "            if not legend_added:",
-    "                add_legend(fig, ax, block)",
-    "                legend_added = True",
+    ...(spec.kind === "calibration" && spec.facet
+      ? [
+          "            # Calibration errors belong to each panel's own data.",
+          "            add_legend(fig, ax, block)",
+        ]
+      : [
+          "            # One legend for the whole figure; repeating it wastes panel space.",
+          "            if not legend_added:",
+          "                add_legend(fig, ax, block)",
+          "                legend_added = True",
+        ]),
     "        for spare in flat[len(blocks) :]:",
     "            spare.set_visible(False)",
     "",

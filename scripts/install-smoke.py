@@ -182,6 +182,47 @@ def main() -> None:
     )
     assert "Median survival is 2" in survival["alt_text"]
     assert len(survival["outputs"]) == 2
+    # Calibration likewise derives frequencies from probabilities/binary outcomes.
+    (where / "calibration.csv").write_text(
+        "prob,flag\n0.1,0\n0.2,1\n0.6,1\n0.9,0\n", encoding="utf8"
+    )
+    calibration_spec = where / "calibration.json"
+    calibration_spec.write_text(
+        json.dumps(
+            {
+                "kind": "calibration",
+                "data": {"path": "calibration.csv"},
+                "x": {"field": "prob", "label": "Predicted probability"},
+                "y": {"field": "frequency", "label": "Observed frequency"},
+                "outcome": "flag",
+                "bins": 3,
+                "legend": {"show": False},
+                "output": {"stem": "calibration", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    calibration = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(calibration_spec),
+                "--out-dir",
+                str(where / "calibration output"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert (
+        calibration["status"] == "passed" and calibration["data"]["counts"]["read"] == 4
+    )
+    assert "expected calibration error is 0.5" in calibration["alt_text"]
+    assert "4 observations in 3 of 3 bins" in calibration["alt_text"]
+    assert len(calibration["outputs"]) == 2
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

@@ -32,3 +32,7 @@ Each completed milestone records its commit and CI result here or in the log. Ex
 11. Rename/release, verify all delivery requirements, and explain.
 
 Milestones may be split further as evidence requires. No checklist item is complete merely because a scaffold or plan exists. Publishing to third-party package registries depends on available account authorization; GitHub release artifacts must still be installable and tested.
+
+## Progress
+
+- Milestone 1 pushed as `fac46c0`: singleton intervals fixed; all seven local gates passed. CI run `40210764967` passed all three jobs before milestone 2.

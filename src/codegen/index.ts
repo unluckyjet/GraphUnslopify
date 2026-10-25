@@ -324,9 +324,9 @@ function emitMain(spec: FigureSpec, out: string[]): void {
 
   if (spec.kind === "table") {
     out.push(
-      "    table = build_table(df)",
-      "    markdown, winners = write_table(table)",
-      "    render_table_image(table, winners)",
+      "    table, low, high = build_table(df)",
+      "    markdown, winners = write_table(table, low, high)",
+      "    render_table_image(table, winners, low, high)",
       "    ALT_TEXT = ENCODING_SENTENCE",
       "    print(DISCLOSURE)",
       '    print(f"data sha256:{DATA_HASH}")',

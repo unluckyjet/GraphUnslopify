@@ -129,6 +129,7 @@ const CASES: [string, Record<string, unknown>][] = [
       group: "model",
       aggregation: "mean",
       highlight: "best_per_row",
+      uncertainty: { kind: "ci", over: "seed" },
       precision: 2,
       data: DATA,
     },

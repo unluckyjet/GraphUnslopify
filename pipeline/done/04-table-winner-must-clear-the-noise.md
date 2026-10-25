@@ -1,7 +1,7 @@
 ---
 id: 04
 slug: table-winner-must-clear-the-noise
-status: ready
+status: done
 priority: P0
 title: The table bolds a winner by idxmax alone, and its uncertainty field is dead code
 source_idea: table-highlight-inside-the-noise.md
@@ -135,3 +135,24 @@ interval in the cell, no printed tie report.
   stays unverified and is **not** load-bearing here. Do not write it into
   `docs/research.md`. The argument for this change is the dead field plus the repo's own
   stated position on discarded spread, both of which are verified.
+
+## Implementation clarification (2026-10-25)
+
+The accepted external review correctly warns that overlapping intervals are not
+proof of equivalence. Acceptance criteria referring to ties/shared best are
+implemented as explicitly **overlapping intervals / no uniquely separated leader**,
+with an equivalence caveat. Missing bounds receive no winner highlight. The
+center values and bounds are computed through the shared summarizer.
+
+## Verification (2026-10-25)
+
+156 Node tests passed without skips, including numeric answers for all five
+interval kinds, higher/lower row/column highlighting, missing intervals, overlap
+wording, and byte-identical plain markdown captured before editing. A renderer
+bounding-box check verifies interval text fits its cells; the composed table
+image was opened and inspected. All seven local gates passed (60 Python tests,
+15 unchanged baselines, 16 renders, 25 recipes, 7 composition cases).
+
+Clarification above replaces the unsupported equivalence/tie interpretation in
+the original proposed criteria; no p-values or equivalence verdicts are inferred
+from overlapping intervals. GitHub CI is checked after the milestone push.

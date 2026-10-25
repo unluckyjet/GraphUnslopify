@@ -197,6 +197,12 @@ is exact rather than estimated, so it outranks every graphical channel for readi
 spec writes markdown, LaTeX and an image, so the readme, the manuscript and the slides cannot drift
 apart, and `highlight` bolds the winner in each row or column.
 
+Set `uncertainty` on a table to show the same intervals used by charts in every cell.
+Highlighting then considers interval separation: overlapping candidates are highlighted together,
+with a printed caveat that overlap does not establish equivalence. Missing intervals are labeled
+`unavailable`, and no winner is highlighted for that comparison. Column widths grow to fit the
+intervals rather than drawing neighboring values on top of each other.
+
 ### Writing specs in Python
 
 The MCP tools are for an agent. `graphunslopify.Figure` is the same thing for a person in a

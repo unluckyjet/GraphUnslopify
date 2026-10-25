@@ -21,6 +21,8 @@ import pandas as pd
 import matplotlib.dates as mdates
 
 RC_PARAMS = {
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
     "font.size": 9,
     "axes.labelsize": 9,
     "axes.titlesize": 9,

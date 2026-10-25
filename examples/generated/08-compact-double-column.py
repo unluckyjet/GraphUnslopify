@@ -20,6 +20,8 @@ import numpy as np
 import pandas as pd
 
 RC_PARAMS = {
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
     "font.size": 8,
     "axes.labelsize": 8,
     "axes.titlesize": 8,

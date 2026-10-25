@@ -9,7 +9,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { translate } from "../src/translate.ts";
@@ -27,7 +27,7 @@ const base = {
   y: { field: "accuracy", label: "Test accuracy", unit: "%" },
   group: "model",
   data: { path: "results.csv", columns: ["epoch", "accuracy", "model"] },
-  output: { formats: ["png"], dpi: 150 },
+  output: { formats: ["png", "pdf"], dpi: 150 },
 };
 
 const CASES: [string, Record<string, unknown>][] = [
@@ -83,7 +83,16 @@ for (const [name, spec] of CASES) {
     continue;
   }
 
-  const produced = readdirSync(dir).includes(`${name}.png`);
+  const outputs = readdirSync(dir);
+  const produced = outputs.includes(`${name}.png`) && outputs.includes(`${name}.pdf`);
+  if (produced) {
+    const pdf = readFileSync(join(dir, `${name}.pdf`)).toString("latin1");
+    if (/\/Subtype\s*\/Type3\b/.test(pdf) || !/\/FontFile2\b/.test(pdf)) {
+      console.log(`FAIL  ${name}  PDF must embed TrueType fonts without Type 3 dictionaries`);
+      failures += 1;
+      continue;
+    }
+  }
   console.log(`${produced ? "PASS" : "FAIL"}  ${name}`);
   if (!produced) failures += 1;
 }

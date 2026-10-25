@@ -63,6 +63,8 @@ export const VENUE_RULES = {
 export const PRESETS = {
   paper: {
     rc: {
+      "pdf.fonttype": 42,
+      "ps.fonttype": 42,
       "font.size": 9,
       "axes.labelsize": 9,
       "axes.titlesize": 9,
@@ -80,6 +82,8 @@ export const PRESETS = {
   },
   paper_compact: {
     rc: {
+      "pdf.fonttype": 42,
+      "ps.fonttype": 42,
       "font.size": 8,
       "axes.labelsize": 8,
       "axes.titlesize": 8,

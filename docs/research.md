@@ -191,3 +191,22 @@ fixtures enumerate all 70 assignments of two four-observation samples and verify
 observed assignment in numerator and denominator, following the randomized-test
 counting explained in [SciPy's permutation documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html).
 Two-sided conventions differ; this tool explicitly uses the absolute mean gap.
+
+
+## Submission font policy
+
+| Source | Requirement recorded by the existing audit | Scope |
+| --- | --- | --- |
+| [IEEE iWEM 2026 submission page](https://attend.ieee.org/iwem-2026/paper-submission) | “Type 3 fonts (bitmaps) will not be accepted.” | One conference's submission page; the original audit recorded this quote. A fresh retrieval during implementation was blocked by robots.txt. |
+
+This is one IEEE conference's page, not the IEEE Xplore PDF specification. The
+verified claim in the original audit is that at least one IEEE venue rejects
+Type 3 fonts in submitted PDFs. The general claim about all IEEE venues is not
+verified here; consult the IEEE Author Center before making a broader claim.
+
+Both generator presets now request embedded TrueType output through
+`pdf.fonttype = 42` and `ps.fonttype = 42`. [Matplotlib's font documentation](https://matplotlib.org/stable/users/explain/text/fonts.html)
+describes the supported PDF/PostScript font formats and subsetting. Every render
+smoke case writes a PDF, checks for an embedded FontFile2 program, and rejects
+Type 3 dictionaries. The check was exercised against a deliberately reverted
+font configuration before committing.

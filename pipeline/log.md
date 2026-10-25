@@ -20,3 +20,4 @@ One line per state change, newest last.
 2026-10-25 — 06 shipped: descriptions disclose breaks, insets, labeled layers, and metric panels; real-render disclosure assertions; seven gates passed (169 Node / 70 Python).
 2026-10-25 — 07 shipped: broken-axis halves excluded only from range comparison; real false positives reduced 1 to 0; seven gates passed (169 Node / 74 Python).
 2026-10-25 — 08 shipped: row/finite/sample accounting, skipped-pair reasons, embedded descriptions, and true single-run example; seven gates passed (176 Node / 74 Python).
+2026-10-25 — 09 shipped: embedded TrueType fonts; 14 PDFs verified; negative guard rejected all 16 Type 3 cases; seven gates passed (176 Node / 74 Python).

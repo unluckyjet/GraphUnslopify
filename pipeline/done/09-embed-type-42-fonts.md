@@ -1,7 +1,7 @@
 ---
 id: 09
 slug: embed-type-42-fonts
-status: ready
+status: done
 priority: P2
 title: Every PDF this tool writes uses Type 3 fonts, which IEEE submission portals refuse
 source_idea: embed-type-42-fonts.md
@@ -134,3 +134,19 @@ The source idea priced itself honestly and I agree with its pricing: "this is a 
 fix, not an honesty fix. It does not close a way a figure can mislead a reader. It closes a
 way a correct figure gets bounced." The diff is two lines plus a check, so the ratio is
 excellent, but it does not outrank the honesty items above it.
+
+## Verification (2026-10-25)
+
+Before: all 14 committed PDFs contained Type 3; example 01 contained one Type 3
+dictionary. After: all 14 contain embedded FontFile2 programs and zero Type 3
+dictionaries. Every one of 15 generated scripts differs by exactly the two new
+rc entries. The pre-regeneration drift check failed, then passed after rebuilding.
+A negative control temporarily restored font type 3: all 16 render cases were
+rejected by the new guard (exit 1), then the good settings were restored.
+All seven local gates passed (176 Node / 74 Python, 16 PNG/PDF render cases,
+25 recipes, 7 composition cases). SVG timestamp/ID-only noise was discarded.
+
+The cited conference page could not be freshly retrieved (robots.txt/cache
+restriction); research documentation attributes its short quote to the existing
+audit and retains the narrow one-conference scope. No broader policy claim is
+made. GitHub CI is checked after pushing.

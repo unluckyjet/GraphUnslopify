@@ -16,3 +16,4 @@ One line per state change, newest last.
 2026-10-25 — 10 shipped: all uncertainty kinds preserve absent singleton bounds; seven local checks passed (149 Node / 60 Python).
 2026-10-25 — 04 shipped: table intervals reuse the summarizer; honest separation/overlap highlighting; readable cells; seven local gates passed (156 Node / 60 Python).
 2026-10-25 — 11 shipped: independent significance permutations and exact small-sample tails; seven local gates passed (161 Node / 60 Python).
+2026-10-25 — 05 shipped: default Holm and optional BH/none with reference numeric tests, raw/adjusted reporting, and opt-out warning; seven local gates passed (164 Node / 70 Python).

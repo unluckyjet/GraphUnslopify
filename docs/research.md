@@ -1,6 +1,6 @@
 # What people complain about, and which check answers it
 
-Every rule in this repo traces to a documented complaint rather than to taste. There are 47 of them
+Every rule in this repo traces to a documented complaint rather than to taste. There are 57 of them
 on the spec and 11 on the rendered figure.
 This is the mapping, so a future change to a threshold has to argue with a source.
 
@@ -168,3 +168,26 @@ worth reaching for only for the subjective residue, and so far there has not bee
 - [A Survey on Evaluation of LLM-based Agents](https://arxiv.org/html/2503.16416v2)
 - [Vega-Lite: A Grammar of Interactive Graphics](https://idl.cs.washington.edu/files/2017-VegaLite-InfoVis.pdf)
 - Machado, Oliveira and Fernandes (2009), *A Physiologically-based Model for Simulation of Color Vision Deficiency*, for the dichromacy matrices in `colour.py`.
+
+
+## Multiple comparisons and permutation reference checks
+
+Significance brackets now use Holm adjustment by default within each panel's tested
+family. Benjamini-Hochberg is an explicit exploratory alternative; opting out of
+adjustment warns when more than one pair is requested. Raw and adjusted values,
+procedure, and family size are printed. A non-significant result is not an
+assertion of equivalence.
+
+The adjustment formulas were checked against the documented
+[statsmodels procedures](https://www.statsmodels.org/stable/_modules/statsmodels/stats/multitest.html),
+then tested using hand-calculated vectors with ties, clipping, original-order
+restoration, and a family where Holm and BH make different decisions. No new
+statistical dependency is needed by generated scripts.
+
+The historically named bootstrap significance method is an absolute-mean-gap
+permutation test, separate from confidence-interval bootstrapping. Regression
+fixtures enumerate all 70 assignments of two four-observation samples and verify
+32/70 and 2/70 tails. Larger problems use fresh seeded draws and include the
+observed assignment in numerator and denominator, following the randomized-test
+counting explained in [SciPy's permutation documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html).
+Two-sided conventions differ; this tool explicitly uses the absolute mean gap.

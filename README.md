@@ -209,6 +209,12 @@ assignments exactly; larger samples use independent seeded permutations and incl
 assignment in the p-value count. This significance test is separate from bootstrap confidence
 intervals selected by `uncertainty.kind: "ci"`.
 
+Significance uses `correction: "holm"` by default across the tested pairs in each panel.
+`"benjamini_hochberg"` is available for appropriate exploratory families, and `"none"`
+explicitly opts out (with a warning for multiple pairs). The script prints raw and adjusted
+p-values, the procedure, and the number of comparisons. A non-significant result is not an
+equivalence verdict.
+
 ### Writing specs in Python
 
 The MCP tools are for an agent. `graphunslopify.Figure` is the same thing for a person in a
@@ -292,7 +298,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Fifty-six rules run on the server against the spec alone. The Python package checks the rendered
+Fifty-seven rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

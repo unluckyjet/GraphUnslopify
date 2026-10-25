@@ -408,6 +408,14 @@ const barRules: Rule = (spec, add) => {
       "Marking significance without showing spread asks the reader to trust the test blindly.",
     );
   }
+  if (spec.significance?.correction === "none" && spec.significance.pairs.length > 1) {
+    add(
+      "warning",
+      "uncorrected_multiple_comparisons",
+      `${spec.significance.pairs.length} significance pairs are tested without correction. ` +
+        "Use Holm, or choose Benjamini-Hochberg for an appropriate exploratory family.",
+    );
+  }
   if (spec.sort && spec.category_order) {
     add("warning", "sort_overrides_category_order", "category_order is ignored when sort is set.");
   }

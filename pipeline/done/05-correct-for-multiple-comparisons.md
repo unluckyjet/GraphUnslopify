@@ -1,7 +1,7 @@
 ---
 id: 05
 slug: correct-for-multiple-comparisons
-status: ready
+status: done
 priority: P0
 title: Every significance pair is tested against a flat alpha, so five categories buy ten chances at a star
 source_idea: correct-for-multiple-comparisons.md
@@ -162,3 +162,18 @@ tolerance — `claim_without_tolerance` is an **error** (`src/verify.ts:500-506`
   1 - 0.95^10 = 0.401 assumes ten independent tests under the null. Pairwise comparisons
   among five groups are not independent, so the true family-wise error rate is lower. The
   number is illustrative and must not be written into `docs/research.md` as a result.
+
+## Verification (2026-10-25)
+
+Holm defaults and explicit no-correction warnings are checked through the schema
+and verifier. Python tests execute actual emitter output against hand-calculated
+vectors with ties, clipping, original-order restoration, and differing Holm/BH
+decisions. A real null-data figure renders four adjusted n.s. comparisons; the
+same figure with correction none prints raw values and explicitly says so.
+The Python CI job installs Node dependencies so these numeric emitter checks
+execute there rather than skipping. All seven local gates passed: 164 Node,
+70 Python, 15 baselines, 16 renders, 25 recipes, and 7 composition cases. Ruff
+lint and formatting also passed. GitHub CI is checked after pushing.
+
+Adjustment families are per panel and include the pairs with usable p-values.
+The raw permutation bug was fixed separately in spec 11 before this change.

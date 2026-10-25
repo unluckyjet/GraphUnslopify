@@ -39,3 +39,6 @@ Milestones may be split further as evidence requires. No checklist item is compl
 
 - Milestone 2 pushed as `a9eb61b`; CI `40211285965` passed. Table intervals/highlighting and rendered text-fit checks are complete.
 - Split significance work: fix the measured raw permutation defect (spec 11) before spec 05 adjusts multiple p-values.
+
+- Milestone 3 pushed as `99dbfe7`; CI `40211644705` passed. Raw significance now matches exact reference tails.
+- Milestone 4 implements audited spec 05 (Holm/BH); observation accounting and runtime strict reports remain next in the reliability workstream.

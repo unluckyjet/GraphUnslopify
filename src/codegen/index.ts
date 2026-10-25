@@ -185,6 +185,7 @@ function emitPreamble(spec: FigureSpec, out: string[]): void {
   if (spec.kind === "bar" && spec.significance) {
     out.push(`SIGNIFICANCE_PAIRS = ${pyList(spec.significance.pairs.map((p) => [...p]))}`);
     out.push(`SIGNIFICANCE_ALPHA = ${spec.significance.alpha}`);
+    out.push(`SIGNIFICANCE_CORRECTION = ${pyStr(spec.significance.correction)}`);
     if (!("uncertainty" in spec && spec.uncertainty)) {
       out.push("BOOTSTRAP_SEED = 20260902", "BOOTSTRAP_DRAWS = 2000");
     }

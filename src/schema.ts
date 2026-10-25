@@ -197,6 +197,11 @@ export const SignificanceSpec = z.object({
     .min(1)
     .describe("Category pairs to compare. The script runs the test rather than assuming a result."),
   alpha: z.number().min(0.0001).max(0.2).default(0.05),
+  correction: z.enum(["none", "holm", "benjamini_hochberg"]).default("holm").describe(
+    "Adjustment across the tested pairs in each panel. Holm is the default; " +
+    "Benjamini-Hochberg suits exploratory independent/positively dependent tests. " +
+    "none explicitly retains unadjusted p-values.",
+  ),
 });
 
 export type Significance = z.infer<typeof SignificanceSpec>;

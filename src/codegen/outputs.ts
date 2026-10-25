@@ -60,6 +60,7 @@ export function emitLatex(spec: FigureSpec, out: string[]): void {
     '    path = f"{STEM}.tex"',
     '    with open(path, "w", encoding="utf8") as handle:',
     "        handle.write(body)",
+    "    record_output(path)",
     '    print(f"wrote {path}")',
     "",
   );
@@ -80,6 +81,7 @@ export function emitInteractive(spec: FigureSpec, out: string[]): void {
       "",
       "def write_interactive(frame):",
       '    print("interactive output is not implemented for this kind yet")',
+      '    skip_output("html", "interactive output is not implemented for this kind")',
       "",
     );
     return;
@@ -101,6 +103,7 @@ export function emitInteractive(spec: FigureSpec, out: string[]): void {
     "        import plotly.graph_objects as go",
     "    except ImportError:",
     '        print("plotly is not installed, so the interactive figure was skipped")',
+    '        skip_output("html", "plotly is not installed")',
     "        return",
     "",
     "    figure = go.Figure()",
@@ -158,6 +161,7 @@ export function emitInteractive(spec: FigureSpec, out: string[]): void {
   out.push(
     '    path = f"{STEM}.html"',
     '    figure.write_html(path, include_plotlyjs="cdn", full_html=True)',
+    "    record_output(path)",
     '    print(f"wrote {path}")',
     "",
   );

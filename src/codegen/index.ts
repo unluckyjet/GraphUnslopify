@@ -29,6 +29,7 @@ import {
   emitInteractive,
   emitLatex,
 } from "./outputs.ts";
+import { emitRuntime } from "./runtime.ts";
 import { pyList, pyOptStr, pyStr } from "./py.ts";
 import {
   BAND_ALPHA,
@@ -81,6 +82,12 @@ function emitPreamble(spec: FigureSpec, out: string[]): void {
     "# The spec is embedded in the exported files' metadata, so a reader can",
     "# recover exactly what produced this figure. DISCLOSURE is ready to paste",
     "# into a methods section.",
+    "import argparse",
+    "import contextlib",
+    "import io",
+    "import json",
+    "import sys",
+    "from pathlib import Path",
     "import hashlib",
     "import math",
     "",
@@ -296,9 +303,14 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "        from graphunslopify import inspect_figure",
     "    except ImportError:",
     '        print("graphunslopify not installed, skipping figure checks")',
+    '        RUN_REPORT["inspection"] = {"available": False, "checked": False}',
+    '        finding("warning", "inspection_unavailable", "Install graphunslopify to run figure inspection")',
     "        return True",
     "    report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT)",
     "    print(report)",
+    '    RUN_REPORT["inspection"] = {"available": True, "checked": True}',
+    "    for item in report.findings:",
+    "        finding(item.severity, item.code, item.message)",
     "    return report.ok",
     "",
     "",
@@ -330,14 +342,14 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     out.push(
       "    table, low, high = build_table(df)",
       "    markdown, winners = write_table(table, low, high)",
-      '    ALT_TEXT = ENCODING_SENTENCE + (f" {SAMPLE_SIZE_TEXT}." if SAMPLE_SIZE_TEXT else "")',
+      "    ALT_TEXT = describe_panels([(None, df)])",
       "    render_table_image(table, winners, low, high)",
       "    print(DISCLOSURE)",
       '    print(f"data sha256:{DATA_HASH}")',
       "",
       "",
       'if __name__ == "__main__":',
-      "    main()",
+      "    raise SystemExit(run_cli())",
     );
     return;
   }
@@ -387,6 +399,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "        flat = list(axes.flat)",
     "        for index, (name, block) in enumerate(blocks):",
     "            ax = flat[index]",
+    '            globals()["CURRENT_PANEL"] = index',
     ...(needsMissingIntervalReport(spec) ? ['            globals()["PANEL_KEY"] = index'] : []),
     spec.repeat
       ? '            globals()["Y_FIELD"] = name'
@@ -448,21 +461,15 @@ function emitMain(spec: FigureSpec, out: string[]): void {
 function emitSaveBlock(spec: FigureSpec, out: string[]): void {
   out.push(
     "        check(fig)",
-    "        summary = summarise(df) if GROUP is not None else df",
-    "        claims_hold = verify_claims(summary)",
-    "        for claim in CLAIMS:",
-    '            verdict, _ = check_claim(summary, claim)',
-    '            claim["_verdict"] = verdict',
-    '            claim["_overlap"] = _interval_overlap(summary, claim["subject"], claim.get("reference"))',
-    "        description = alt_text(summary)",
-    "        if AUTHOR_CONTEXT:",
-    '            description = f"{description} {AUTHOR_CONTEXT}"',
+    "        description = describe_panels(blocks)",
+    '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     "            meta = metadata_for(fmt)",
     "            fig.savefig(path, bbox_inches=\"tight\", metadata=meta, **({\"dpi\": DPI} if fmt == \"png\" else {}))",
+    "            record_output(path)",
     '            print(f"wrote {path}")',
   );
   if (spec.animate) {
@@ -471,6 +478,7 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
       "            write_animation(fig, flat[0], blocks[0][1])",
       "        else:",
       '            print("animation is skipped for faceted figures")',
+      '            skip_output("animation", "faceted figures are not supported")',
     );
   }
   out.push(
@@ -487,13 +495,14 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
     "",
     "",
     'if __name__ == "__main__":',
-    "    main()",
+    "    raise SystemExit(run_cli())",
   );
 }
 
 export function emitPython(spec: FigureSpec): string {
   const out: string[] = [];
   emitPreamble(spec, out);
+  emitRuntime(spec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);
   emitCounts(spec, out);

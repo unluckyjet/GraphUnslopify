@@ -52,7 +52,9 @@ export function encodingSentence(spec: FigureSpec): string {
   const kind = KIND_PHRASING[spec.kind];
   const parts: string[] = [];
 
-  if (spec.kind === "table") {
+  if (spec.repeat) {
+    parts.push(`${kind} of repeated metrics against ${axisPhrase(spec.x.label, spec.x.unit)}`);
+  } else if (spec.kind === "table") {
     parts.push(
       `${kind} of ${axisPhrase(spec.y.label, spec.y.unit)}, one row per ${spec.x.label.toLowerCase()}`,
     );
@@ -149,6 +151,7 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
   const grouped =
     Boolean(spec.group) &&
     spec.kind !== "heatmap" &&
+    spec.kind !== "table" &&
     !derivedAxis(spec, "y") &&
     !derivedAxis(spec, "x");
 

@@ -19,6 +19,7 @@ examples/*.png
 examples/*.svg
 examples/*.pdf
 examples/*.gif
+examples/*.report.json
 
 # macOS
 .DS_Store

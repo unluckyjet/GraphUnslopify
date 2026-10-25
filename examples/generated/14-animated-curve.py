@@ -6,6 +6,12 @@
 # The spec is embedded in the exported files' metadata, so a reader can
 # recover exactly what produced this figure. DISCLOSURE is ready to paste
 # into a methods section.
+import argparse
+import contextlib
+import io
+import json
+import sys
+from pathlib import Path
 import hashlib
 import math
 
@@ -87,6 +93,167 @@ DISCLOSURE = (
 )
 
 
+STATIC_FINDINGS = json.loads("[]")
+
+
+def new_report():
+    return {
+        "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
+        "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
+        "data": {}, "findings": [dict(f) for f in STATIC_FINDINGS],
+        "inspection": {"available": None, "checked": False},
+        "panels": [], "claims": [], "significance": [], "outputs": [],
+        "skipped_outputs": [], "untested": [], "alt_text": "",
+    }
+
+
+RUN_REPORT = new_report()
+CURRENT_PANEL = 0
+
+
+def finding(severity, code, message):
+    item = {"severity": severity, "code": code, "message": message}
+    if item not in RUN_REPORT["findings"]:
+        RUN_REPORT["findings"].append(item)
+
+
+def record_output(path):
+    path = Path(path)
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(65536), b""):
+            digest.update(block)
+    RUN_REPORT["outputs"].append({"path": str(path), "format": path.suffix[1:],
+                                  "sha256": digest.hexdigest(), "bytes": path.stat().st_size})
+
+
+def skip_output(kind, reason):
+    RUN_REPORT["skipped_outputs"].append({"format": kind, "reason": reason})
+    finding("warning", "output_skipped", f"{kind}: {reason}")
+
+
+def significance_result(left, right, **details):
+    item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}
+    # Insets and broken axes redraw the same logical comparison.
+    RUN_REPORT["significance"] = [old for old in RUN_REPORT["significance"]
+        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])]
+    RUN_REPORT["significance"].append(item)
+
+
+def describe_panels(blocks):
+    global Y_FIELD, SAMPLE_SIZE_TEXT
+    original_y, original_n = Y_FIELD, SAMPLE_SIZE_TEXT
+    descriptions = []
+    try:
+        for index, (name, frame) in enumerate(blocks):
+            if "REPEAT_FIELDS" in globals():
+                Y_FIELD = name
+            summary = summarise(frame) if "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame
+            label = str(name) if name is not None else None
+            panel = {"index": index, "name": label, "metric": Y_FIELD}
+            RUN_REPORT["panels"].append(panel)
+            verify_claims(summary)
+            for claim in CLAIMS:
+                verdict, detail = check_claim(summary, claim)
+                measured = _interval_overlap(summary, claim["subject"], claim.get("reference"))
+                claim["_verdict"], claim["_overlap"] = verdict, measured
+                record = {k: v for k, v in claim.items() if not k.startswith("_")}
+                record.update({"panel": index, "metric": Y_FIELD, "detail": detail,
+                               "verdict": "untested" if verdict is None else "holds" if verdict else "fails",
+                               "interval_overlap": measured})
+                RUN_REPORT["claims"].append(record)
+            # Keep the original single-panel description byte-for-byte where possible.
+            SAMPLE_SIZE_TEXT = original_n if len(blocks) == 1 else ""
+            body = alt_text(summary)
+            if len(blocks) > 1:
+                body = body.removeprefix(ENCODING_SENTENCE).strip()
+                body = f"Panel {label if label is not None else index + 1}: {body}"
+            descriptions.append(body)
+    finally:
+        Y_FIELD, SAMPLE_SIZE_TEXT = original_y, original_n
+    if len(blocks) == 1:
+        description = descriptions[0]
+    else:
+        counts = f" {original_n}." if original_n else ""
+        description = ENCODING_SENTENCE + counts + " " + " ".join(descriptions)
+    if AUTHOR_CONTEXT:
+        description += f" {AUTHOR_CONTEXT}"
+    return description
+
+
+def finish_report():
+    RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
+    RUN_REPORT["alt_text"] = ALT_TEXT
+    for field, counts in ROW_COUNTS.get("measurements", {}).items():
+        if counts["nonfinite"]:
+            finding("warning", "nonfinite_measurements", f"{counts['nonfinite']} non-finite measurements in {field}")
+    sizes = ROW_COUNTS.get("sample_sizes", [])
+    if sizes and min(sizes) != max(sizes):
+        finding("warning", "unequal_sample_sizes", "Sample sizes differ between plotted points")
+    if ROW_COUNTS.get("missing_unit_ids", 0):
+        finding("warning", "missing_unit_ids", f"{ROW_COUNTS['missing_unit_ids']} rows lack a declared unit ID")
+    if RUN_REPORT["spec"].get("uncertainty") and sizes and min(sizes) < 2:
+        RUN_REPORT["untested"].append("uncertainty: fewer than two observations at one or more points")
+        finding("warning", "uncertainty_unavailable", RUN_REPORT["untested"][-1])
+    failed = (any(f["severity"] == "error" for f in RUN_REPORT["findings"])
+              or any(c["verdict"] == "fails" for c in RUN_REPORT["claims"]))
+    incomplete = (not RUN_REPORT["inspection"]["checked"] or bool(RUN_REPORT["untested"])
+                  or bool(RUN_REPORT["skipped_outputs"])
+                  or any(c["verdict"] == "untested" for c in RUN_REPORT["claims"])
+                  or any(c["status"] == "untested" for c in RUN_REPORT["significance"]))
+    RUN_REPORT["status"] = "failed" if failed else "incomplete" if incomplete else "passed"
+    RUN_REPORT["ok"] = RUN_REPORT["status"] == "passed"
+    return RUN_REPORT
+
+
+def run_cli(argv=None):
+    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD
+    parser = argparse.ArgumentParser(description="Render this figure and write its verification evidence")
+    parser.add_argument("--strict", action="store_true", help="exit 2 for failed or untested required checks")
+    parser.add_argument("--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings")
+    parser.add_argument("--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination")
+    parser.add_argument("--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr")
+    args = parser.parse_args(argv)
+    if args.report == "-":
+        parser.error("use --json for JSON stdout; --report expects a file path")
+    RUN_REPORT = new_report()
+    DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
+    Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
+    ROW_COUNTS.clear()
+    globals().get("MISSING_INTERVALS", {}).clear()
+    logs = io.StringIO()
+    runtime_failure = False
+    try:
+        with contextlib.redirect_stdout(logs):
+            main()
+    except (Exception, SystemExit) as problem:
+        runtime_failure = True
+        finding("error", "runtime_error", str(problem) or type(problem).__name__)
+    report = finish_report()
+    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]
+                or args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"]))
+    report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
+    report["policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning,
+                        "passed": report["exit_code"] == 0}
+    encoded = json.dumps(report, indent=2, allow_nan=False) + "\n"
+    path = Path(args.report)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(encoded, encoding="utf8")
+    except OSError as problem:
+        print(f"could not write report {path}: {problem}", file=sys.stderr)
+        return 1
+    if logs.getvalue():
+        print(logs.getvalue(), end="", file=sys.stderr if args.json else sys.stdout)
+    if args.json:
+        print(encoded, end="")
+    else:
+        print(f"verification: {report['status']}; wrote {path}")
+        for item in report["findings"]:
+            if item["code"] == "runtime_error":
+                print(item["message"], file=sys.stderr)
+    return report["exit_code"]
+
 def load():
     df = pd.read_csv(DATA_PATH)
     ROW_COUNTS.clear()
@@ -111,12 +278,16 @@ def report_counts(frame):
     print(f"  {ROW_COUNTS.get('after_filter', len(frame))} rows after filter (" + "none" + ")")
     if len(frame) != ROW_COUNTS.get("after_filter", len(frame)):
         print(f"  {len(frame)} rows after reshape and transform")
-    field = "accuracy"
-    if field in frame:
+    ROW_COUNTS["measurements"] = {}
+    for field in ["accuracy"]:
+        if field not in frame:
+            continue
         finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))
-        ROW_COUNTS["finite"] = int(finite.sum())
-        ROW_COUNTS["nonfinite"] = int((~finite).sum())
-        print(f"  {int(finite.sum())} rows with a finite {field} ({int((~finite).sum())} non-finite)")
+        counts = {"finite": int(finite.sum()), "nonfinite": int((~finite).sum())}
+        ROW_COUNTS["measurements"][field] = counts
+        print(f"  {counts['finite']} rows with a finite {field} ({counts['nonfinite']} non-finite)")
+    if "accuracy" in ROW_COUNTS["measurements"]:
+        ROW_COUNTS.update(ROW_COUNTS["measurements"]["accuracy"])
     sizes = []
     keys = ["epoch", "model"]
     for field in ["accuracy"]:
@@ -254,15 +425,20 @@ def data_fingerprint():
 
 
 def _aligned(frame, subject, reference):
-    """Both series on the x values they share, in x order."""
-    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean")
-    if subject not in pivot.columns:
-        return None
-    if reference is not None and reference not in pivot.columns:
+    """Require complete, finite x coverage for the named series."""
+    if GROUP is None or Y_FIELD not in frame:
         return None
     columns = [subject] if reference is None else [subject, reference]
-    pair = pivot[columns].dropna().sort_index()
-    return pair if len(pair) else None
+    selected = frame[frame[GROUP].isin(columns)]
+    if selected.empty or selected[X_FIELD].isna().any() or selected.duplicated([X_FIELD, GROUP]).any():
+        return None
+    pivot = selected.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True)
+    if any(column not in pivot.columns for column in columns):
+        return None
+    pair = pivot[columns].sort_index()
+    if not len(pair) or not np.isfinite(pair.to_numpy(dtype=float)).all():
+        return None
+    return pair
 
 
 def _interval_overlap(frame, subject, reference):
@@ -308,11 +484,13 @@ def check_claim(frame, claim):
     tolerance = claim.get("tolerance") or 0.0
     pair = _aligned(frame, subject, reference)
     if pair is None:
-        return None, "the named series are not both in the data"
+        return None, "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements"
 
     mine = pair[subject].to_numpy(dtype=float)
     theirs = pair[reference].to_numpy(dtype=float) if reference else None
     kind = claim["kind"]
+    if kind in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges") and len(mine) < 2:
+        return None, "at least two x values are required for a trend claim"
 
     if kind == "beats_everywhere":
         losses = int(np.sum(mine <= theirs))
@@ -512,7 +690,9 @@ def write_animation(fig, ax, frame):
     except Exception as problem:
         print(f"could not write {path}: {problem}")
         print("gif output needs pillow, which ships with matplotlib")
+        skip_output("animation", str(problem))
         return
+    record_output(path)
     print(f"wrote {path}")
 
 
@@ -532,9 +712,14 @@ def check(fig):
         from graphunslopify import inspect_figure
     except ImportError:
         print("graphunslopify not installed, skipping figure checks")
+        RUN_REPORT["inspection"] = {"available": False, "checked": False}
+        finding("warning", "inspection_unavailable", "Install graphunslopify to run figure inspection")
         return True
     report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT)
     print(report)
+    RUN_REPORT["inspection"] = {"available": True, "checked": True}
+    for item in report.findings:
+        finding(item.severity, item.code, item.message)
     return report.ok
 
 
@@ -573,6 +758,7 @@ def main():
         flat = list(axes.flat)
         for index, (name, block) in enumerate(blocks):
             ax = flat[index]
+            globals()["CURRENT_PANEL"] = index
 
             draw_panel(ax, block)
 
@@ -593,26 +779,21 @@ def main():
             flat[0].set_title("Accuracy over training")
         # tight_layout is skipped: it fights a legend anchored outside the axes.
         check(fig)
-        summary = summarise(df) if GROUP is not None else df
-        claims_hold = verify_claims(summary)
-        for claim in CLAIMS:
-            verdict, _ = check_claim(summary, claim)
-            claim["_verdict"] = verdict
-            claim["_overlap"] = _interval_overlap(summary, claim["subject"], claim.get("reference"))
-        description = alt_text(summary)
-        if AUTHOR_CONTEXT:
-            description = f"{description} {AUTHOR_CONTEXT}"
+        description = describe_panels(blocks)
+        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])
         print(f"alt text: {description}")
         ALT_TEXT = description
         for fmt in FORMATS:
             path = f"{STEM}.{fmt}"
             meta = metadata_for(fmt)
             fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))
+            record_output(path)
             print(f"wrote {path}")
         if len(blocks) == 1:
             write_animation(fig, flat[0], blocks[0][1])
         else:
             print("animation is skipped for faceted figures")
+            skip_output("animation", "faceted figures are not supported")
     plt.close(fig)
 
 
@@ -623,4 +804,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(run_cli())

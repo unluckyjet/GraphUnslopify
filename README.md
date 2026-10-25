@@ -223,6 +223,12 @@ summarized first, so one prolific seed cannot outweigh another. Counts then refe
 IDs. The author remains responsible for deciding whether the named units are independent;
 without an identifier the rows themselves are assumed independent.
 
+Generated programs also write a [structured runtime report](docs/runtime-reports.md).
+Run `python figure.py --strict` or `graphunslopify check figure.py --strict --json`
+to fail on errors, failed claims, unavailable inspection, or untested required checks.
+`--fail-on-warning` additionally rejects warnings. Claims are checked per panel and
+metric; missing x coverage and one-point trends are explicitly untested.
+
 ### Writing specs in Python
 
 The MCP tools are for an agent. `graphunslopify.Figure` is the same thing for a person in a

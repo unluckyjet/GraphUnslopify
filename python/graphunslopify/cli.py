@@ -31,8 +31,17 @@ def _run(args: argparse.Namespace) -> int:
         return 1
 
     workdir = Path(args.cwd) if args.cwd else script.parent
+    command = [sys.executable, str(script.resolve())]
+    if args.strict:
+        command.append("--strict")
+    if args.fail_on_warning:
+        command.append("--fail-on-warning")
+    if args.report:
+        command.extend(["--report", args.report])
+    if args.json:
+        command.append("--json")
     completed = subprocess.run(
-        [sys.executable, str(script.resolve())],
+        command,
         cwd=workdir,
         capture_output=True,
         text=True,
@@ -76,21 +85,19 @@ def build_parser() -> argparse.ArgumentParser:
     described.add_argument("path", help="csv, parquet or json file")
     described.set_defaults(handler=_describe)
 
-    ran = commands.add_parser("run", help="run a generated script and report on the figure")
-    ran.add_argument("script", help="the .py file the translator produced")
-    ran.add_argument("--cwd", help="directory to run in, so relative data paths resolve")
-    ran.add_argument(
-        "--thumbnail",
-        action="store_true",
-        help="also print the rendered png as base64, for an agent that can look at it",
-    )
-    ran.set_defaults(handler=_run)
-
-    checked = commands.add_parser("check", help="alias for run")
-    checked.add_argument("script")
-    checked.add_argument("--cwd")
-    checked.add_argument("--thumbnail", action="store_true")
-    checked.set_defaults(handler=_check)
+    for name, handler in (("run", _run), ("check", _check)):
+        ran = commands.add_parser(name, help="run a generated script and report on the figure")
+        ran.add_argument("script", help="the .py file the translator produced")
+        ran.add_argument("--cwd", help="directory to run in, so relative data paths resolve")
+        ran.add_argument("--strict", action="store_true", help="fail on errors or untested checks")
+        ran.add_argument("--fail-on-warning", action="store_true", help="also fail on warnings")
+        ran.add_argument("--report", help="JSON report destination, relative to --cwd")
+        display = ran.add_mutually_exclusive_group()
+        display.add_argument("--json", action="store_true", help="only JSON on stdout")
+        display.add_argument(
+            "--thumbnail", action="store_true", help="also print the PNG as base64"
+        )
+        ran.set_defaults(handler=handler)
 
     versioned = commands.add_parser("version", help="print the package version")
     versioned.set_defaults(handler=_version)

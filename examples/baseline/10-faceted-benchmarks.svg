@@ -9,7 +9,7 @@
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>659ea04762dfbfad</dc:title>
     <dc:date>2026-10-25T09:52:08.230377</dc:date>
-    <dc:description>Bar chart of Top-1 accuracy in % against Model. Split into one panel per dataset. N = 1 per point. Values run from 43.8 to 82.2. The mean is 61.5.</dc:description>
+    <dc:description>Bar chart of Top-1 accuracy in % against Model. Split into one panel per dataset. n = 1 per point. Panel CIFAR-10: Values run from 71.1 to 82.2. The mean is 76.7. Panel CIFAR-100: Values run from 56.1 to 64.5. The mean is 60.2. Panel ImageNet: Values run from 43.8 to 51.2. The mean is 47.4.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>

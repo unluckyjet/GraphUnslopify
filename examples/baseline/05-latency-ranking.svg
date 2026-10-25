@@ -9,7 +9,7 @@
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>330db481e7654a68</dc:title>
     <dc:date>2026-10-25T09:52:05.549868</dc:date>
-    <dc:description>Bar chart with Latency in ms along the horizontal axis and Model listed down the vertical axis. N = 3 per point. Values run from 12.2 to 65.7. The mean is 27.7.</dc:description>
+    <dc:description>Bar chart with Latency in ms along the horizontal axis and Model listed down the vertical axis. N = 3 per point. Values run from 20.9 to 36. The mean is 27.7.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>

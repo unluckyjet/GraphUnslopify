@@ -43,11 +43,10 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     const build = OPERATORS[clause.op];
     body.push(`    df = df[${build(pyStr(clause.field), pyValue(clause.value))}]`);
   }
+  body.push('    ROW_COUNTS["after_filter"] = len(df)');
   if (spec.filter?.length) {
     body.push("    if df.empty:", '        raise SystemExit("every row was filtered out")');
   }
-  body.push('    ROW_COUNTS["after_filter"] = len(df)');
-
   const melt = spec.series_from_columns;
   if (melt) {
     body.push(
@@ -94,14 +93,19 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
     '    if len(frame) != ROW_COUNTS.get("after_filter", len(frame)):',
     '        print(f"  {len(frame)} rows after reshape and transform")',
   );
+  out.push(
+    '    ROW_COUNTS["measurements"] = {}',
+    `    for field in ${pyList(fields)}:`,
+    "        if field not in frame:", "            continue",
+    '        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))',
+    '        counts = {"finite": int(finite.sum()), "nonfinite": int((~finite).sum())}',
+    '        ROW_COUNTS["measurements"][field] = counts',
+    '        print(f"  {counts[\'finite\']} rows with a finite {field} ({counts[\'nonfinite\']} non-finite)")',
+  );
   if (measure) {
     out.push(
-      `    field = ${pyStr(measure)}`,
-      "    if field in frame:",
-      '        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))',
-      '        ROW_COUNTS["finite"] = int(finite.sum())',
-      '        ROW_COUNTS["nonfinite"] = int((~finite).sum())',
-      '        print(f"  {int(finite.sum())} rows with a finite {field} ({int((~finite).sum())} non-finite)")',
+      `    if ${pyStr(measure)} in ROW_COUNTS["measurements"]:`,
+      `        ROW_COUNTS.update(ROW_COUNTS["measurements"][${pyStr(measure)}])`,
     );
   }
   if (aggregated) {

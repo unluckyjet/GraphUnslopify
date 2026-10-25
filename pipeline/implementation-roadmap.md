@@ -47,3 +47,4 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 6 pushed as `fa686e6`; CI `40212757914` passed. Milestone 7 implements row/sample accounting (spec 08), repairs empty description metadata, and corrects the mislabeled single-run fixture.
 - Milestone 7 pushed as `61179c7`; CI `40213912302` passed. Milestone 8 implements embedded TrueType PDF/PostScript settings and a live regression guard (spec 09).
 - Milestone 8 pushed as `d775c65`; CI `40214384355` passed. Milestone 9 implements declared repeat units (spec 12); the next workstream is structured runtime/claim failure reporting.
+- Milestone 9 pushed as `80c1aab`; CI `40215286630` passed. Milestone 10 adds structured runtime evidence and strict policy (spec 13). Known gallery defects are now machine-detectable; metadata/composition fidelity and presentation cleanup remain next.

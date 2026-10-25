@@ -39,7 +39,11 @@ Kind = Literal["line", "scatter", "bar", "box", "violin", "heatmap", "table"]
 
 
 class SpecError(RuntimeError):
-    """The translator rejected the spec, or found an error in it."""
+    """The translator or renderer rejected the figure; report contains runtime evidence."""
+
+    def __init__(self, message: str, report: dict[str, Any] | None = None):
+        super().__init__(message)
+        self.report = report
 
 
 @dataclass
@@ -282,18 +286,20 @@ class Figure:
         cwd: str | Path | None = None,
         api: str = DEFAULT_API,
         strict: bool = False,
+        fail_on_warning: bool = False,
     ) -> dict[str, Any]:
         """Translate, write the script beside the data, and run it.
 
-        `strict` refuses to run when the spec has an error, which is off by
-        default because a warning is often a deliberate choice.
+        `strict` rejects static errors, failed claims, unavailable inspection,
+        and untested required checks. `fail_on_warning` also rejects warnings.
+        Both default off; the JSON report always records the actual verdict.
         """
         result = self.translate(api)
         findings = result.get("findings", [])
         errors = [f for f in findings if f.get("severity") == "error"]
         for finding in findings:
             print(f"{finding['severity'].upper()} [{finding['code']}] {finding['message']}")
-        if errors and strict:
+        if errors and (strict or fail_on_warning):
             raise SpecError(f"{len(errors)} error(s) in the spec, and strict is on")
 
         where = Path(cwd) if cwd else Path(self.spec.get("data", {}).get("path", ".")).parent
@@ -302,8 +308,16 @@ class Figure:
         script = where / f"{stem}.py"
         script.write_text(result["code"], encoding="utf8")
 
+        command = [sys.executable, str(script.resolve())]
+        if strict:
+            command.append("--strict")
+        if fail_on_warning:
+            command.append("--fail-on-warning")
+        report_path = where / f"{stem}.report.json"
+        # Do not mistake an earlier run's evidence for this execution.
+        report_path.unlink(missing_ok=True)
         completed = subprocess.run(
-            [sys.executable, str(script.resolve())],
+            command,
             cwd=where,
             capture_output=True,
             text=True,
@@ -311,9 +325,21 @@ class Figure:
         )
         if completed.stdout.strip():
             print(completed.stdout.strip())
+        report = json.loads(report_path.read_text()) if report_path.exists() else None
         if completed.returncode != 0:
-            raise SpecError(completed.stderr.strip() or "the generated script failed")
-        return {"script": script, "findings": findings, "output": completed.stdout}
+            detail = (
+                completed.stderr.strip()
+                or completed.stdout.strip()
+                or "the generated script failed"
+            )
+            raise SpecError(detail, report=report)
+        return {
+            "script": script,
+            "findings": findings,
+            "output": completed.stdout,
+            "report": report,
+            "report_path": report_path if report is not None else None,
+        }
 
 
 def _post(path: str, payload: dict[str, Any], api: str = DEFAULT_API) -> Any:

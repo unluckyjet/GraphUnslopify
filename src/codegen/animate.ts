@@ -187,7 +187,9 @@ export function emitAnimation(spec: FigureSpec, out: string[]): void {
     spec.animate.format === "mp4"
       ? '        print("mp4 needs ffmpeg on PATH. Set animate.format to \\"gif\\" to avoid it.")'
       : '        print("gif output needs pillow, which ships with matplotlib")',
+    '        skip_output("animation", str(problem))',
     "        return",
+    "    record_output(path)",
     '    print(f"wrote {path}")',
     "",
   );

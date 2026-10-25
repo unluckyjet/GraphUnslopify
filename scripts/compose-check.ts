@@ -166,7 +166,19 @@ for (const [name, spec] of CASES) {
   const file = join(dir, `${name}.py`);
   writeFileSync(file, result.code);
   try {
-    execFileSync(python, [file], { cwd: dir, stdio: "pipe", encoding: "utf8" });
+    const stdout = execFileSync(python, [file], { cwd: dir, stdio: "pipe", encoding: "utf8" });
+    const disclosure: Record<string, string> = {
+      axis_break: "distances across the gap are not comparable",
+      inset: "corner magnifies",
+      layers: "layer labelled observations",
+      repeat: "One panel per metric: accuracy, loss, latency_ms",
+    };
+    const expected = disclosure[name];
+    if (expected) {
+      const alt = stdout.split(/\r?\n/).find(line => line.startsWith("alt text:")) ?? "";
+      if (!alt.includes(expected)) throw new Error(`alt text missing: ${expected}`);
+      console.log(`      ${alt}`);
+    }
     const produced = readdirSync(dir);
     const ok = produced.includes(`${name}.png`);
     const extras = [`${name}.md`, `${name}.tex`].filter((f) => produced.includes(f));

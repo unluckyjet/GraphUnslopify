@@ -1,7 +1,7 @@
 ---
 id: 06
 slug: disclose-composition-in-alt-text
-status: ready
+status: done
 priority: P1
 title: Alt text describes a continuous axis on a figure whose axis is cut
 source_idea: disclose-composition-in-alt-text.md
@@ -137,3 +137,12 @@ not ahead of the five P0s.
 Spec 01 rejects `axis_break` on `bar`, `box` and `violin`. The example quoted above is a bar
 spec, which will be unrepresentable once spec 01 lands. Write the tests in this spec against
 `line` specs so they survive spec 01 regardless of merge order.
+
+## Verification (2026-10-25)
+
+169 Node tests passed without skips; 70 Python tests passed. Tests cover the
+exact pre-change plain description and independent composition clauses. Real
+composition renders assert and print their own break/inset/layer/repeat
+disclosures. All seven gates passed; all 15 baseline scripts remain byte
+identical because their specs use none of these composition features.
+GitHub CI is checked after the milestone push.

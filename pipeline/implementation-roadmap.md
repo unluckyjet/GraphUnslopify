@@ -42,3 +42,4 @@ Milestones may be split further as evidence requires. No checklist item is compl
 
 - Milestone 3 pushed as `99dbfe7`; CI `40211644705` passed. Raw significance now matches exact reference tails.
 - Milestone 4 implements audited spec 05 (Holm/BH); observation accounting and runtime strict reports remain next in the reliability workstream.
+- Milestone 4 pushed as `e6ec579`; CI `40212145827` passed. Milestone 5 adds composition disclosures (spec 06).

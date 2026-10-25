@@ -116,6 +116,25 @@ export function encodingSentence(spec: FigureSpec): string {
 
   if (spec.facet) parts.push(`split into one panel per ${spec.facet.by}`);
 
+  if (spec.axis_break) {
+    const name = spec.axis_break.axis === "x" ? "horizontal" : "vertical";
+    parts.push(
+      `the ${name} axis is cut between ${spec.axis_break.from} and ${spec.axis_break.to}, ` +
+        "so distances across the gap are not comparable",
+    );
+  }
+  if (spec.inset) {
+    parts.push(
+      `an inset in the ${spec.inset.corner.replaceAll("_", " ")} corner magnifies ` +
+        `x from ${spec.inset.x[0]} to ${spec.inset.x[1]} and ` +
+        `y from ${spec.inset.y[0]} to ${spec.inset.y[1]}`,
+    );
+  }
+  for (const layer of spec.layers ?? []) {
+    if (layer.label) parts.push(`a ${layer.mark} layer labelled ${layer.label} is overlaid`);
+  }
+  if (spec.repeat) parts.push(`one panel per metric: ${spec.repeat.fields.join(", ")}`);
+
   // Each clause becomes its own sentence, so a screen reader pauses between them.
   return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(". ") + ".";
 }

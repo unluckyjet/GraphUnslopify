@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="preview-token" content="__PREVIEW_TOKEN__" />
+    <title>GraphUnslopify · Figure workspace</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="eyebrow">
+          GRAPHUNSLOPIFY <span class="local">LOCAL WORKSPACE</span>
+        </div>
+        <h1>Make the figure. Check the story.</h1>
+        <p>Choose your data, describe what matters, and review the evidence.</p>
+      </div>
+      <button id="demo" class="secondary">Try sample data</button>
+    </header>
+    <main>
+      <aside class="card controls">
+        <h2>1. Data &amp; intent</h2>
+        <label class="upload"
+          >Choose data file<input
+            id="data-file"
+            type="file"
+            accept=".csv,.json,.parquet"
+        /></label>
+        <p class="muted">
+          CSV, JSON table or Parquet. Files stay on this computer.
+        </p>
+        <p id="data-summary" role="status">No data selected</p>
+        <div id="columns" class="chips"></div>
+        <label>Figure kind<select id="kind"></select></label
+        ><label>X field<select id="x-field"></select></label
+        ><label>Y field<select id="y-field"></select></label
+        ><label>Series / group<select id="group"></select></label
+        ><label
+          >Starting recipe<select id="recipe">
+            <option value="">Choose a recipe…</option>
+          </select></label
+        >
+        <p id="recipe-note" class="muted">
+          Review suggested fields, units and repeat IDs against your experiment.
+        </p>
+        <details>
+          <summary>Palette lock</summary>
+          <p class="muted">
+            Choose the lock JSON when your spec uses palette_lock.
+          </p>
+          <input
+            id="palette-file"
+            type="file"
+            accept=".json"
+            aria-label="Palette lock JSON"
+          />
+        </details>
+      </aside>
+      <section class="card editor">
+        <div class="section-head">
+          <h2>2. Figure specification</h2>
+          <button id="format" class="quiet">Format</button>
+        </div>
+        <p class="muted">
+          Edit every supported option here. Data paths bind to your chosen file.
+          A PNG is included for preview.
+        </p>
+        <label class="sr-only" for="spec">Figure specification</label
+        ><textarea
+          id="spec"
+          spellcheck="false"
+          aria-describedby="spec-help"
+        ></textarea>
+        <p id="spec-help" class="muted">
+          Kind-specific fields, claims, panels and exports follow the canonical
+          figure schema.
+        </p>
+        <div class="editor-actions">
+          <label class="check"
+            ><input id="live" type="checkbox" checked /> Live preview</label
+          ><button id="render">Render now</button>
+        </div>
+      </section>
+      <section class="card preview">
+        <div class="section-head">
+          <h2>3. Preview &amp; evidence</h2>
+          <span id="status" class="badge" role="status" aria-live="polite"
+            >Choose data</span
+          >
+        </div>
+        <div class="paper">
+          <div id="empty">
+            <strong>Your figure will appear here</strong>
+            <p>Start with sample data, or choose a local file.</p>
+          </div>
+          <img id="preview" hidden alt="Figure preview" />
+        </div>
+        <p id="counts" class="muted"></p>
+        <div id="findings" aria-live="polite"></div>
+        <div id="claims"></div>
+        <details id="description-box" hidden>
+          <summary>Accessible description</summary>
+          <p id="description"></p>
+        </details>
+        <div class="downloads">
+          <div id="files"></div>
+          <label class="check"
+            ><input id="include-data" type="checkbox" /> Include source data in
+            ZIP</label
+          ><button id="bundle" disabled>Download figure bundle</button>
+          <p class="muted">
+            Figures, Python, spec and report. Source data is included only when
+            selected.
+          </p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      Claims check the stated numeric relationship. You choose the experimental
+      units and scientific interpretation.
+    </footer>
+  </body>
+</html>

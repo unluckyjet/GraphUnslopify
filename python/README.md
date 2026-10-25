@@ -16,6 +16,11 @@ The demo creates public synthetic CSV data and PNG/SVG/PDF figures, a standalone
 and a JSON verification report. Data paths in a JSON spec resolve beside the spec file.
 `graphunslopify translate figure.json --output figure.py` emits code without rendering.
 
+`graphunslopify preview --open` launches the packaged offline browser editor. Choose data, edit a
+spec or recipe, review live strict previews and apply an offered fix. Download figures, Python,
+spec and report together; input data enters the ZIP only when explicitly selected.
+See [the local editor workflow](../docs/local-editor.md), including VS Code's integrated terminal.
+
 ```python
 from graphunslopify import Figure
 

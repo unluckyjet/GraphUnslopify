@@ -208,6 +208,32 @@ def main() -> None:
             encoding="utf8",
         )
         run([str(python), str(agent_script)], cwd=where, env=env)
+    # Exercise the installed HTTP UI and static assets outside the checkout.
+    editor_script = where / "editor-check.py"
+    editor_script.write_text(
+        "import json, threading, urllib.request\n"
+        "from graphunslopify.preview import PreviewServer\n"
+        "with PreviewServer(0) as server:\n"
+        "    thread=threading.Thread(target=server.serve_forever, daemon=True);thread.start()\n"
+        "    try:\n"
+        "        url=f'http://127.0.0.1:{server.server_address[1]}'\n"
+        "        with urllib.request.urlopen(url) as response: html=response.read()\n"
+        "        assert b'Make the figure' in html and server.state.token.encode() in html\n"
+        "        for asset in ('/app.js','/app.css'):\n"
+        "            with urllib.request.urlopen(url+asset) as response: assert len(response.read())>1000\n"
+        "        request=urllib.request.Request(url+'/api/demo',data=b'{}',headers={'X-Preview-Token':server.state.token})\n"
+        "        with urllib.request.urlopen(request) as response: demo=json.load(response)\n"
+        "        assert demo['data']['rows']==24\n"
+        "        payload={'spec':demo['spec'],'data_id':demo['data']['id'],'client':'wheel','generation':1}\n"
+        "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
+        "        with urllib.request.urlopen(request,timeout=120) as response: result=json.load(response)\n"
+        "        assert result['report']['status']=='passed'\n"
+        "        assert any(f['format']=='png' for f in result['files'])\n"
+        "    finally:\n"
+        "        server.shutdown();thread.join(5)\n",
+        encoding="utf8",
+    )
+    run([str(python), str(editor_script)], cwd=where, env=env)
     # The SDK resolves nested relative input paths and separate output directories.
     sdk = where / "sdk.py"
     sdk.write_text(

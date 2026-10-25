@@ -27,7 +27,7 @@ graphunslopify = "graphunslopify.cli:main"
 Source = "https://github.com/unluckyjet/JSONTranslator"
 
 [tool.setuptools.package-data]
-graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json", "examples/*.ipynb"]
+graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json", "examples/*.ipynb", "web/*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "graphunslopify.__version__" }

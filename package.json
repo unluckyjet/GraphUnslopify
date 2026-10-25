@@ -16,7 +16,8 @@
     "compose-check": "node --experimental-strip-types scripts/compose-check.ts",
     "queue": "node --experimental-strip-types scripts/queue.ts",
     "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts",
-    "build:translator": "node --experimental-strip-types scripts/build-translator.ts"
+    "build:translator": "node --experimental-strip-types scripts/build-translator.ts",
+    "preview-check": "node --experimental-strip-types scripts/preview-check.ts"
   },
   "type": "module",
   "dependencies": {
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/node": "^26.4.1",
     "esbuild": "^0.28.2",
+    "playwright": "^1.64.1",
     "typescript": "^7.0.2"
   },
   "private": true,

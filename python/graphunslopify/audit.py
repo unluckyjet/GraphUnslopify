@@ -129,7 +129,9 @@ def _input_data(path: Path, data_format: str) -> dict[str, Any]:
     }
 
 
-def _outputs(report: dict[str, Any], folder: Path, output_root: Path) -> list[dict[str, Any]]:
+def _outputs(
+    report: dict[str, Any], folder: Path, output_root: Path, *, require_all: bool = True
+) -> list[dict[str, Any]]:
     result = []
     for item in report.get("outputs", []):
         path = (folder / item["path"]).resolve()
@@ -162,7 +164,7 @@ def _outputs(report: dict[str, Any], folder: Path, output_root: Path) -> list[di
     if spec.get("animate"):
         expected.add(spec["animate"].get("format", "gif"))
     missing = expected - {item["format"] for item in result}
-    if missing:
+    if missing and require_all:
         raise AuditError("requested output artifacts are missing: " + ", ".join(sorted(missing)))
     return result
 

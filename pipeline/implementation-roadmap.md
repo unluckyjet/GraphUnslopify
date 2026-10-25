@@ -8,9 +8,9 @@ User-authorized scope (2026-10-25): implement the accepted review recommendation
 - [ ] Trustworthy figures: complete accessible descriptions/metadata, composition validation and panel checks, embedded PDF fonts, clean example gallery, supported export parity or explicit refusals.
 - [ ] Distribution: declared license, short quickstart, versioned documentation, clean-install end-to-end test, packaged local translator and clear offline workflow, tagged GitHub releases and installable release artifacts.
 - [x] Researcher CI: reusable GitHub workflow/action; regenerate from results; publish machine-readable audit/figure-change reports and reviewable artifacts; meaningful exit status on failures.
-- [ ] Integrations: working notebook example and agent setup, easy local configuration, broad Python-kind support; supported editor workflow documented and exercised.
+- [x] Integrations: working notebook example and agent setup, easy local configuration, broad Python-kind support; supported editor workflow documented and exercised.
 - [x] Paper/batch auditing: manifest connecting specs/scripts/data/claims, directory execution, report aggregation, stable figure comparison including claim changes and data hashes. Clearly distinguish supported artifact types from arbitrary image interpretation.
-- [ ] Visual workflow: working live preview, editable spec, visible diagnostics, selected justified fixes, usable export. Exercise the UI and local preview end to end.
+- [x] Visual workflow: working live preview, editable spec, visible diagnostics, selected justified fixes, usable export. Exercise the UI and local preview end to end.
 - [ ] Independent benchmark/reference validation: known-answer datasets and documented limits, beyond source substring assertions or file-existence checks.
 - [ ] Naming: rename GitHub repository to GraphUnslopify if available and update repository/dependency/documentation links while preserving existing local checkout and vault identity.
 - [ ] Final audit: verify each feature against actual code/runtime/artifacts/GitHub state, update Obsidian, and deliver the requested child-friendly paragraph.
@@ -62,3 +62,5 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 17 pushed as `49e1d3e`; general CI `40232270424` and real Figure CI integration `40232270444` passed. Both downloaded bundles preserve correct verdicts/artifacts and exclude CSVs; actual comparison separates changed claims/metadata from unchanged data/pixels. Milestone 18 expands all Python kinds and adds an executable packaged notebook (spec 21). Agent and live editor integrations, broader numerical references, naming and release remain active.
 
 - Milestone 18 pushed as `35bd79e`; general CI `40233714277` passed eight jobs including full notebook/kernel suites on Python 3.10/3.12; Figure CI baseline integration `40233714295` passed. Milestone 19 adds the local stdio agent bridge and configuration output (spec 22). Visual editor, broader references, naming/versioned release and completion audit remain active.
+
+- Milestone 19 pushed as `21f65e9`; general CI `40235604441` passed eight jobs and Figure CI `40235604402` passed. Milestone 20 adds the installed offline local editor, selected fixes, bounded/stale-safe previews, scoped ZIP exports and real browser/install verification (spec 23). Local gates pass: 215 Node/140 Python. Broader references, naming/versioned release and final completion audit remain active.

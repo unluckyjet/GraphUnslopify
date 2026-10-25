@@ -4,7 +4,7 @@ import { z } from "zod";
 import { FIGURE_KINDS, FigureSpec } from "./schema.ts";
 import { translate } from "./translate.ts";
 import { verify } from "./verify.ts";
-import { ProfileSchema, repair, suggestFigures } from "./suggest.ts";
+import { ProfileSchema, applyFix, repair, suggestFigures } from "./suggest.ts";
 import { designCost } from "./perception.ts";
 import { RECIPES, findRecipe } from "./recipes.ts";
 import { TOOL_VERSION } from "./codegen/theme.ts";
@@ -27,6 +27,14 @@ export function dispatch(operation: string, payload: unknown): unknown {
   if (operation === "repair") {
     const input = z.object({ spec: z.record(z.string(), z.unknown()), budget: z.number().int().min(1).max(5).default(3) }).parse(payload);
     return repair(input.spec, input.budget);
+  }
+  if (operation === "fix") {
+    const input = z.object({ spec: z.record(z.string(), z.unknown()), code: z.string() }).parse(payload);
+    const spec = FigureSpec.parse(input.spec);
+    const finding = verify(spec).find(item => item.code === input.code && item.fix);
+    if (!finding?.fix) throw new Error("This finding has no current automatic fix");
+    const repaired = applyFix(input.spec, finding.fix);
+    return { spec: repaired, applied: finding.code, patch: finding.fix };
   }
   if (operation === "validate" || operation === "score") {
     const spec = FigureSpec.parse(payload);

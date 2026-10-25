@@ -1,10 +1,4 @@
-"""Command line entry points.
-
-Two commands matter. `describe` tells an agent what is in a data file before it
-writes a spec, and `run` renders a generated script and reports what is wrong
-with the result. Between them they close the loop that otherwise requires a
-human to open a PNG and say what they see.
-"""
+"""Local data profiling, figure editing/rendering, auditing and agent integration."""
 
 from __future__ import annotations
 
@@ -131,6 +125,17 @@ def _mcp(_: argparse.Namespace) -> int:
         )
         return 2
     serve()
+    return 0
+
+
+def _preview(args: argparse.Namespace) -> int:
+    from .preview import serve_preview
+
+    try:
+        serve_preview(args.port, open_browser=args.open, max_upload_mb=args.max_upload_mb)
+    except (OSError, ValueError) as problem:
+        print(f"Could not start the local editor: {problem}", file=sys.stderr)
+        return 2
     return 0
 
 
@@ -279,6 +284,12 @@ def _audit_init(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    preview = commands.add_parser("preview", help="open a local live figure editor")
+    preview.add_argument("--port", type=int, default=8787)
+    preview.add_argument("--open", action="store_true", help="open the browser")
+    preview.add_argument("--max-upload-mb", type=int, default=100)
+    preview.set_defaults(handler=_preview)
 
     mcp = commands.add_parser("mcp", help="serve the local compiler over MCP stdio (agent extra)")
     mcp.set_defaults(handler=_mcp)

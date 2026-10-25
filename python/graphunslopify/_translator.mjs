@@ -24520,6 +24520,14 @@ function dispatch(operation, payload) {
     const input2 = external_exports.object({ spec: external_exports.record(external_exports.string(), external_exports.unknown()), budget: external_exports.number().int().min(1).max(5).default(3) }).parse(payload);
     return repair(input2.spec, input2.budget);
   }
+  if (operation === "fix") {
+    const input2 = external_exports.object({ spec: external_exports.record(external_exports.string(), external_exports.unknown()), code: external_exports.string() }).parse(payload);
+    const spec = FigureSpec.parse(input2.spec);
+    const finding = verify(spec).find((item) => item.code === input2.code && item.fix);
+    if (!finding?.fix) throw new Error("This finding has no current automatic fix");
+    const repaired = applyFix(input2.spec, finding.fix);
+    return { spec: repaired, applied: finding.code, patch: finding.fix };
+  }
   if (operation === "validate" || operation === "score") {
     const spec = FigureSpec.parse(payload);
     const findings = verify(spec);

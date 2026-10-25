@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import atexit
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -32,6 +34,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("wheel", type=Path, nargs="?")
     parser.add_argument("--work-dir", type=Path)
+    parser.add_argument(
+        "--keep-environment",
+        action="store_true",
+        help="retain the temporary venv for debugging",
+    )
+    parser.add_argument(
+        "--agent",
+        action="store_true",
+        help="also install/test the optional stdio agent bridge",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -47,6 +59,12 @@ def main() -> None:
     where = (args.work_dir or Path(tempfile.mkdtemp(prefix="gu-install-"))).resolve()
     where.mkdir(parents=True, exist_ok=True)
     virtual = where / "fresh environment"
+    if virtual.exists():
+        parser.error(
+            "the test environment already exists; choose a fresh work directory"
+        )
+    if not args.keep_environment:
+        atexit.register(shutil.rmtree, virtual, ignore_errors=True)
     venv.EnvBuilder(with_pip=True).create(virtual)
     python = virtual / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     env = os.environ.copy()
@@ -61,20 +79,34 @@ def main() -> None:
             "pip",
             "install",
             "--disable-pip-version-check",
-            str(wheel),
+            str(wheel) + ("[agent]" if args.agent else ""),
         ],
         cwd=where,
         env=env,
     )
 
-    # No network calls are allowed after installation, including subprocesses.
+    # Block external calls after installation; asyncio may use local socket pairs.
     hooks = where / "offline hooks"
     hooks.mkdir()
     (hooks / "sitecustomize.py").write_text(
-        "import socket\n"
+        "import socket, ipaddress\n"
         "def denied(*a, **k): raise RuntimeError('network disabled for installation smoke test')\n"
-        "socket.socket.connect = denied\nsocket.socket.connect_ex = denied\n"
-        "socket.create_connection = denied\n",
+        "def local(host):\n"
+        "    if host == 'localhost': return True\n"
+        "    try: return ipaddress.ip_address(host).is_loopback\n"
+        "    except ValueError: return False\n"
+        "original_connect, original_ex = socket.socket.connect, socket.socket.connect_ex\n"
+        "original_create = socket.create_connection\n"
+        "def allowed(sock, address):\n"
+        "    return local(address[0]) if isinstance(address, tuple) else sock.family == getattr(socket, 'AF_UNIX', None)\n"
+        "def connect(sock, address):\n"
+        "    return original_connect(sock, address) if allowed(sock, address) else denied()\n"
+        "def connect_ex(sock, address):\n"
+        "    return original_ex(sock, address) if allowed(sock, address) else denied()\n"
+        "def create(address, *a, **k):\n"
+        "    return original_create(address, *a, **k) if local(address[0]) else denied()\n"
+        "socket.socket.connect, socket.socket.connect_ex = connect, connect_ex\n"
+        "socket.create_connection = create\n",
         encoding="utf8",
     )
     node_hook = hooks / "offline.cjs"
@@ -157,6 +189,25 @@ def main() -> None:
     )
     assert copied["ok"] and not copied["executed"]
     assert len(json.loads((where / "quickstart.ipynb").read_text())["cells"]) == 10
+    config = json.loads(run([*cli, "mcp-config"], cwd=where, env=env))
+    assert config["mcpServers"]["graphunslopify"]["command"] == str(python)
+    if args.agent:
+        agent_script = where / "agent-check.py"
+        agent_script.write_text(
+            "import asyncio, os, sys\nfrom mcp import Client, StdioServerParameters\n"
+            "async def main():\n"
+            "    params = StdioServerParameters(command=sys.executable, args=['-m','graphunslopify.cli','mcp'], env=dict(os.environ))\n"
+            "    async with Client(params) as client:\n"
+            "        tools = await client.list_tools()\n"
+            "        assert len(tools.tools) == 7\n"
+            "        schema = await client.call_tool('get_figure_schema', {})\n"
+            "        assert len(schema.structured_content['oneOf']) == 21\n"
+            "        bad = await client.call_tool('figure_to_matplotlib', {'spec':{'kind':'unknown'}})\n"
+            "        assert bad.is_error and bad.structured_content['status'] == 'invalid_spec'\n"
+            "asyncio.run(main())\n",
+            encoding="utf8",
+        )
+        run([str(python), str(agent_script)], cwd=where, env=env)
     # The SDK resolves nested relative input paths and separate output directories.
     sdk = where / "sdk.py"
     sdk.write_text(
@@ -211,7 +262,8 @@ def main() -> None:
                 "wheel": wheel.name,
                 "python": sys.version.split()[0],
                 "translator": doctor["translator"],
-                "network": "blocked after install",
+                "network": "external connections blocked after install",
+                "agent": args.agent,
                 "work_dir": str(where),
             }
         )

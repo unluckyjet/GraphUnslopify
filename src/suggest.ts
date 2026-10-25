@@ -71,6 +71,11 @@ function axis(field: string): Record<string, unknown> {
 }
 
 export function suggestFigures(profile: Profile, limit = 3): Candidate[] {
+  const path = typeof profile.path === "string" ? profile.path : "results.csv";
+  // Profiling JSON Lines is supported, but emitting its reader is not. Do not
+  // substitute an unrelated default CSV for an unsupported source format.
+  if (/\.(jsonl|ndjson)$/i.test(path)) return [];
+  const format = /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
   const measures = profile.columns.filter((c) => c.role === "measure");
   const categories = profile.columns.filter((c) => c.role === "category");
   const ordinals = profile.columns
@@ -175,7 +180,7 @@ export function suggestFigures(profile: Profile, limit = 3): Candidate[] {
 
   const scored: Candidate[] = [];
   for (const candidate of candidates) {
-    const parsed = FigureSpec.safeParse(candidate.spec);
+    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: { path, format } });
     if (!parsed.success) continue;
     const findings = verify(parsed.data);
     if (hasErrors(findings)) continue;

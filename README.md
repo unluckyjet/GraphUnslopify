@@ -20,7 +20,7 @@ Try batch auditing with `graphunslopify audit-init graphunslopify-demo`, then
 See [paper manifests and change reports](docs/paper-audits.md) and
 [reusable Figure CI](docs/figure-ci.md) for GitHub workflows and review artifacts.
 See [installation and offline use](docs/installation.md), [executable notebooks](docs/notebooks.md),
-[Python usage](python/README.md),
+[Python usage](python/README.md), [local agent setup](docs/agents.md),
 [verification policy](docs/runtime-reports.md), and the [MIT license](LICENSE).
 
 ![Grouped horizontal bar chart of favourite ice cream flavours, split by age group](docs/first-pass.png)

@@ -71,3 +71,10 @@ Install the notebook extra for JupyterLab and kernel execution. Run
 `graphunslopify notebook --output quickstart.ipynb`, then `jupyter lab quickstart.ipynb`, or add
 `--execute` to run it through the current Python environment. All 21 figure kinds have named
 Python constructors and a shared Kind typing Literal. See the repository notebook guide.
+
+## Local MCP server
+
+Install the agent extra, then run `graphunslopify mcp-config` (or `--client codex`) to print a
+configuration for the current environment. The host launches `graphunslopify mcp` over stdio.
+Seven read-only compiler tools share the canonical emitter; data profiling/rendering remain local
+CLI operations. See the repository agent guide for setup, error semantics and protocol tests.

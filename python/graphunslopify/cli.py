@@ -121,6 +121,39 @@ def _notebook(args: argparse.Namespace) -> int:
     return 0
 
 
+def _mcp(_: argparse.Namespace) -> int:
+    try:
+        from .mcpserver import serve
+    except ImportError:
+        print(
+            "Install the graphunslopify [agent] extra to start the local MCP server",
+            file=sys.stderr,
+        )
+        return 2
+    serve()
+    return 0
+
+
+def _mcp_config(args: argparse.Namespace) -> int:
+    command_args = ["-m", "graphunslopify.cli", "mcp"]
+    if args.client == "codex":
+        print("[mcp_servers.graphunslopify]")
+        print("command = " + json.dumps(sys.executable))
+        print("args = " + json.dumps(command_args))
+    else:
+        print(
+            json.dumps(
+                {
+                    "mcpServers": {
+                        "graphunslopify": {"command": sys.executable, "args": command_args}
+                    }
+                },
+                indent=2,
+            )
+        )
+    return 0
+
+
 def _demo(args: argparse.Namespace) -> int:
     from .demo import write_demo
 
@@ -246,6 +279,14 @@ def _audit_init(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    mcp = commands.add_parser("mcp", help="serve the local compiler over MCP stdio (agent extra)")
+    mcp.set_defaults(handler=_mcp)
+    mcp_config = commands.add_parser(
+        "mcp-config", help="print client configuration without changing settings"
+    )
+    mcp_config.add_argument("--client", choices=["generic", "codex"], default="generic")
+    mcp_config.set_defaults(handler=_mcp_config)
 
     notebook = commands.add_parser("notebook", help="copy the public notebook example")
     notebook.add_argument("--output", default="graphunslopify-quickstart.ipynb")

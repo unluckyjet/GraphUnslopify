@@ -182,6 +182,10 @@ class Figure:
             raise SpecError(report.get("error", "the file could not be profiled"))
         candidates = _post("/api/suggest", {"profile": report}, api=api)
         if not candidates:
+            if Path(path).suffix.lower() in {".jsonl", ".ndjson"}:
+                raise SpecError(
+                    "Convert JSON Lines to a regular JSON table or CSV before rendering"
+                )
             raise SpecError("nothing in this file suggests a figure")
         if rank < 0 or rank >= len(candidates):
             raise SpecError(f"rank must be between 0 and {len(candidates) - 1}")

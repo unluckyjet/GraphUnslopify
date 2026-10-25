@@ -31,3 +31,17 @@ test("local schema and recipe transport expose actual supported inputs", () => {
   assert.equal(typeof local("score", recipe.spec).cost, "number");
   assert.deepEqual(local("repair", { spec: recipe.spec }).spec, local("validate", recipe.spec).resolved);
 });
+
+test("suggestions preserve the real input path and format instead of another default file", () => {
+  for (const format of ["csv", "json", "parquet"]) {
+    const path = `experiments/actual.${format}`;
+    const profile = { path, columns: [
+      { name: "epoch", role: "ordinal", distinct: 30 },
+      { name: "score", role: "measure", distinct: 50 },
+    ] };
+    const candidates = local("suggest", { profile });
+    assert.ok(candidates.length > 0);
+    for (const item of candidates) assert.deepEqual(item.spec.data, { path, format });
+    assert.deepEqual(local("suggest", { profile: { ...profile, path: "data.jsonl" } }), []);
+  }
+});

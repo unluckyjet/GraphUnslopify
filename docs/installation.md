@@ -89,7 +89,7 @@ python scripts/install-smoke.py dist/graphunslopify-0.6.0-py3-none-any.whl
 ```
 
 The smoke test creates a fresh virtual environment outside the checkout, installs the actual wheel,
-then blocks Python and Node network calls. It checks the local emitter, CLI, SDK, strict reports,
+then blocks external Python and Node connections (Python loopback remains available for runtime socket pairs). It checks the local emitter, CLI, SDK, strict reports,
 known sample counts/endpoint values, relative paths, spaces in filenames, unchanged builder specs,
 and PNG/SVG/PDF provenance. It also verifies that both network blockers reject a real connection
 attempt. The built wheel contains the emitter, project MIT license and Zod's MIT notice.
@@ -97,3 +97,7 @@ attempt. The built wheel contains the emitter, project MIT license and Zod's MIT
 After editing TypeScript source, rebuild and commit the translator. CI rejects a stale bundle.
 The Python builder and HTTP/MCP clients all use the same emitter; there is no second statistical
 or rendering implementation in the package.
+
+The installation smoke helper removes its temporary virtual environment on exit while retaining
+its public evidence files. Use `--keep-environment` for debugging; repeated runs require a fresh
+work directory. Add `--agent` to install the optional SDK and verify a real local stdio session.

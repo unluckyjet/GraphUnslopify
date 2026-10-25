@@ -24020,6 +24020,9 @@ function axis(field) {
   return unit ? { field, label: titleCase(field), unit } : { field, label: titleCase(field) };
 }
 function suggestFigures(profile, limit = 3) {
+  const path = typeof profile.path === "string" ? profile.path : "results.csv";
+  if (/\.(jsonl|ndjson)$/i.test(path)) return [];
+  const format = /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
   const measures = profile.columns.filter((c) => c.role === "measure");
   const categories = profile.columns.filter((c) => c.role === "category");
   const ordinals = profile.columns.filter((c) => c.role === "ordinal").sort((a, b) => b.distinct - a.distinct);
@@ -24104,7 +24107,7 @@ function suggestFigures(profile, limit = 3) {
   }
   const scored = [];
   for (const candidate of candidates) {
-    const parsed = FigureSpec.safeParse(candidate.spec);
+    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: { path, format } });
     if (!parsed.success) continue;
     const findings = verify(parsed.data);
     if (hasErrors(findings)) continue;

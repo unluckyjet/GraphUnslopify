@@ -327,6 +327,7 @@ Set `animate` and the same figure draws itself as a gif or an mp4.
 Set `output.interactive` and you also get a self-contained HTML figure through plotly, with hover
 and zoom, which is what a project page wants and a paper does not. Set `output.latex` and you get an
 `\includegraphics` block at the right column width with the caption and alt text already in it.
+Captions and table labels are escaped as literal text; see [text exports and disclosure](docs/text-exports.md).
 
 On manim, with evidence rather than an opinion. It does not install here, because `moderngl` and
 `glcontext` fail to build wheels without a C toolchain. Even where it installs it draws its own axes

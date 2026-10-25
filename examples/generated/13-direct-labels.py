@@ -84,8 +84,8 @@ DATA_HASH = "unknown"
 ALT_TEXT = ""
 DISCLOSURE = (
     f"This figure was produced by {TOOL} from a declarative figure "
-    f"specification (sha256:{SPEC_HASH}); the plotting code was generated, "
-    f"the underlying data were not."
+    f"specification (sha256:{SPEC_HASH}); the plotting code was generated; "
+    "the tool does not establish the origin of the supplied data."
 )
 
 

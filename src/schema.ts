@@ -335,7 +335,7 @@ const base = {
       "Context a reader needs that the data cannot supply, which is level four of the alt text " +
         "model. Levels one to three are generated. Leave this out rather than guessing.",
     ),
-  caption: z.string().min(10).optional().describe("The caption, used by the LaTeX output."),
+  caption: z.string().min(10).optional().describe("Plain-text caption, escaped as literal text in LaTeX output."),
   layers: z.array(LayerSpec).min(1).optional().describe("Extra marks over the same axes."),
   repeat: RepeatSpec.optional(),
   axis_break: BreakSpec.optional(),

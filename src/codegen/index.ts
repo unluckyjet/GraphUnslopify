@@ -28,6 +28,7 @@ import {
   emitDataFingerprint,
   emitInteractive,
   emitLatex,
+  emitLatexText,
 } from "./outputs.ts";
 import { emitRuntime } from "./runtime.ts";
 import { pyList, pyOptStr, pyStr } from "./py.ts";
@@ -265,8 +266,8 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   out.push(
     "DISCLOSURE = (",
     '    f"This figure was produced by {TOOL} from a declarative figure "',
-    '    f"specification (sha256:{SPEC_HASH}); the plotting code was generated, "',
-    '    f"the underlying data were not."',
+    '    f"specification (sha256:{SPEC_HASH}); the plotting code was generated; "',
+    '    "the tool does not establish the origin of the supplied data."',
     ")",
     "",
   );
@@ -559,6 +560,7 @@ export function emitPython(spec: FigureSpec): string {
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);
+  emitLatexText(spec, out);
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);

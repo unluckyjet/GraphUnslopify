@@ -20,9 +20,9 @@ state or enforce supported behavior and account for omitted/unmatched observatio
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.
 
-Review generated descriptions and disclosure against what the tool can establish, including the
-currently unjustified assertion about underlying data origin. Escape literal LaTeX text in
-captions/descriptions/tables and verify representative special characters. Measure final exported
+Review generated descriptions and disclosure against what the tool can establish. The concrete
+unknown-origin disclosure and literal LaTeX export defects are resolved in spec 25; reuse its actual
+compiled-text evidence. Measure final exported
 width when evaluating text legibility; improve any confirmed misleading table/context behavior.
 Split a coherent discovered defect into a small verified milestone when needed, preserving this
 contract until its matrix and known gaps are actually addressed.

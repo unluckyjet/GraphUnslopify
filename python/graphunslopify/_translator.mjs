@@ -19234,7 +19234,7 @@ var base = {
   alt_text: external_exports.string().min(20).optional().describe(
     "Context a reader needs that the data cannot supply, which is level four of the alt text model. Levels one to three are generated. Leave this out rather than guessing."
   ),
-  caption: external_exports.string().min(10).optional().describe("The caption, used by the LaTeX output."),
+  caption: external_exports.string().min(10).optional().describe("Plain-text caption, escaped as literal text in LaTeX output."),
   layers: external_exports.array(LayerSpec).min(1).optional().describe("Extra marks over the same axes."),
   repeat: RepeatSpec.optional(),
   axis_break: BreakSpec.optional(),
@@ -21078,15 +21078,15 @@ function emitTable(spec, out) {
     "    latex = [",
     '        "\\\\begin{tabular}{l" + "r" * len(columns) + "}",',
     '        "\\\\toprule",',
-    '        " & ".join([X_AXIS_LABEL] + columns) + " \\\\\\\\",',
+    '        " & ".join(latex_text(value) for value in [X_AXIS_LABEL] + columns) + " \\\\\\\\",',
     '        "\\\\midrule",',
     "    ]",
     "    for row in table.index:",
     "        cells = []",
     "        for column in table.columns:",
     "            text = table_cell(table, low, high, row, column)",
-    '            cells.append(f"\\\\textbf{{{text}}}" if (row, column) in winners else text)',
-    '        latex.append(" & ".join([str(row)] + cells) + " \\\\\\\\")',
+    '            cells.append(f"\\\\textbf{{{latex_text(text)}}}" if (row, column) in winners else latex_text(text))',
+    '        latex.append(" & ".join([latex_text(row)] + cells) + " \\\\\\\\")',
     '    latex += ["\\\\bottomrule", "\\\\end{tabular}"]',
     "",
     '    with open(f"{STEM}.md", "w", encoding="utf8") as handle:',
@@ -22424,6 +22424,32 @@ function emitAltTextConstants(spec, out) {
     `X_LABEL_PLAIN = ${pyStr(spec.x.label.toLowerCase())}`
   );
 }
+function emitLatexText(spec, out) {
+  if (!spec.output.latex && spec.kind !== "table") return;
+  const replacements = {
+    "\\": String.raw`\textbackslash{}`,
+    "{": String.raw`\{`,
+    "}": String.raw`\}`,
+    "$": String.raw`\$`,
+    "&": String.raw`\&`,
+    "#": String.raw`\#`,
+    "%": String.raw`\%`,
+    "_": String.raw`\_`,
+    "^": String.raw`\textasciicircum{}`,
+    "~": String.raw`\textasciitilde{}`,
+    "\n": " ",
+    "\r": " ",
+    "	": " "
+  };
+  out.push(
+    "",
+    "def latex_text(value):",
+    '    """Literal text; inserted escape commands are never escaped a second time."""',
+    `    replacements = json.loads(${pyStr(JSON.stringify(replacements))})`,
+    '    return "".join(replacements.get(character, character) for character in str(value))',
+    ""
+  );
+}
 function emitLatex(spec, out) {
   if (!spec.output.latex) return;
   const width = spec.output.size === "single_column" ? "\\\\columnwidth" : "\\\\textwidth";
@@ -22436,8 +22462,8 @@ function emitLatex(spec, out) {
     '        "\\\\begin{figure}[t]\\n"',
     '        "  \\\\centering\\n"',
     `        f"  \\\\includegraphics[width=${width}]{{{STEM}}}\\n"`,
-    `        f"  \\\\caption{{{CAPTION or ''}}}\\n"`,
-    '        f"  \\\\Description{{{description}}}\\n"',
+    `        f"  \\\\caption{{{latex_text(CAPTION or '')}}}\\n"`,
+    '        f"  \\\\Description{{{latex_text(description)}}}\\n"',
     '        f"  \\\\label{{fig:{STEM}}}\\n"',
     '        "\\\\end{figure}\\n"',
     "    )",
@@ -23683,8 +23709,8 @@ function emitPreamble(spec, out, sourceSpec = spec) {
   out.push(
     "DISCLOSURE = (",
     '    f"This figure was produced by {TOOL} from a declarative figure "',
-    '    f"specification (sha256:{SPEC_HASH}); the plotting code was generated, "',
-    '    f"the underlying data were not."',
+    '    f"specification (sha256:{SPEC_HASH}); the plotting code was generated; "',
+    '    "the tool does not establish the origin of the supplied data."',
     ")",
     ""
   );
@@ -23949,6 +23975,7 @@ function emitPython(spec) {
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);
+  emitLatexText(spec, out);
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);

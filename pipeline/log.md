@@ -29,3 +29,5 @@ One line per state change, newest last.
 2026-10-25 — 17 shipped: supported HTML numeric parity and offline JS, accurate endpoints/cells/count descriptions, visible singleton lines, explicit unsupported exports; real browser hover/toggle with zero network/errors; 212 Node / 105 Python and eight gates pass.
 
 - 2026-10-25: Spec 23 delivered: offline packaged local editor, live/manual strict previews, selected verifier-owned fixes, mixed panel verdicts, stale-response/empty-data negative controls, explicit dataset ZIP consent and reproduced exports; 215 Node/140 Python and browser/fresh-wheel checks pass.
+
+- 2026-10-25: Spec 25 delivered: literal LaTeX caption/description/table text and honest unknown-origin disclosure; actual compiled PDF preserves all ten special characters, numeric intervals/highlights and literal input commands. Seven gates, strict gallery, unchanged RGBA pixels and browser reproduction pass (215 Node/144 Python). Scientific reference matrix 24 remains open.

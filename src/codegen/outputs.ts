@@ -48,6 +48,23 @@ export function emitAltTextConstants(spec: FigureSpec, out: string[]): void {
   );
 }
 
+/** Escape literal author/data text once, without interpreting it as TeX source. */
+export function emitLatexText(spec: FigureSpec, out: string[]): void {
+  if (!spec.output.latex && spec.kind !== "table") return;
+  const replacements = {
+    "\\": String.raw`\textbackslash{}`,
+    "{": String.raw`\{`, "}": String.raw`\}`,
+    "$": String.raw`\$`, "&": String.raw`\&`,
+    "#": String.raw`\#`, "%": String.raw`\%`, "_": String.raw`\_`,
+    "^": String.raw`\textasciicircum{}`, "~": String.raw`\textasciitilde{}`,
+    "\n": " ", "\r": " ", "\t": " ",
+  };
+  out.push("", "def latex_text(value):",
+    '    """Literal text; inserted escape commands are never escaped a second time."""',
+    `    replacements = json.loads(${pyStr(JSON.stringify(replacements))})`,
+    '    return "".join(replacements.get(character, character) for character in str(value))', "");
+}
+
 export function emitLatex(spec: FigureSpec, out: string[]): void {
   if (!spec.output.latex) return;
   // Doubled here so the emitted Python f-string holds a single LaTeX backslash
@@ -62,8 +79,8 @@ export function emitLatex(spec: FigureSpec, out: string[]): void {
     '        "\\\\begin{figure}[t]\\n"',
     '        "  \\\\centering\\n"',
     `        f"  \\\\includegraphics[width=${width}]{{{STEM}}}\\n"`,
-    '        f"  \\\\caption{{{CAPTION or \'\'}}}\\n"',
-    '        f"  \\\\Description{{{description}}}\\n"',
+    '        f"  \\\\caption{{{latex_text(CAPTION or \'\')}}}\\n"',
+    '        f"  \\\\Description{{{latex_text(description)}}}\\n"',
     '        f"  \\\\label{{fig:{STEM}}}\\n"',
     '        "\\\\end{figure}\\n"',
     "    )",

@@ -215,6 +215,12 @@ explicitly opts out (with a warning for multiple pairs). The script prints raw a
 p-values, the procedure, and the number of comparisons. A non-significant result is not an
 equivalence verdict.
 
+Each generated script prints rows read, rows after filtering, and the number of finite
+measurements. Aggregated figures also report the observations per point, disclose unequal sample
+sizes, and include the counts in their alt text and PNG metadata. Skipped significance pairs name
+the missing data or unavailable test. These are observation counts; naming a replicate column does
+not by itself prove the observations are independent experiments.
+
 ### Writing specs in Python
 
 The MCP tools are for an agent. `graphunslopify.Figure` is the same thing for a person in a

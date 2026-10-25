@@ -9,7 +9,7 @@
     "label": "Test accuracy",
     "unit": "%"
   },
-  "aggregation": "mean",
+  "aggregation": "none",
   "marker": true,
   "legend": {
     "show": false
@@ -26,5 +26,17 @@
   },
   "output": {
     "stem": "03-single-run"
-  }
+  },
+  "filter": [
+    {
+      "field": "model",
+      "op": "eq",
+      "value": "ours"
+    },
+    {
+      "field": "seed",
+      "op": "eq",
+      "value": 0
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 ---
 id: 08
 slug: report-what-the-script-used
-status: ready
+status: done
 priority: P1
 title: The script records what it was asked to do, never what it actually used
 source_idea: report-sample-size.md, account-for-dropped-rows.md
@@ -169,3 +169,32 @@ Cut from the source ideas, deliberately:
   (Nature was named). Neither could fetch a primary policy page, and neither leaned on it.
   Do not write these into `docs/research.md`. Cumming's Rule 2 is the load-bearing citation
   for the *n* half; the repo's own stated goal is the load-bearing argument for the row half.
+
+## Fixture correction discovered during implementation
+
+The existing 03-single-run spec actually declared aggregation mean and pooled
+all models/seeds. To satisfy its documented single-run purpose and criterion 3,
+it now explicitly selects model ours / seed 0 and sets aggregation none. The
+training CSV has three seeds, not the five used by the separate README showcase;
+accounting reports the measured three for examples 01/09. PNG metadata assignment
+is repaired as a prerequisite for criterion 2 (the computed description was not
+previously assigned to ALT_TEXT).
+
+## Verification (2026-10-25)
+
+All seven local gates passed: 176 Node tests without skips, 74 Python tests,
+15 generated baseline scripts, 16 render cases, 25 recipes, and 7 composition
+cases. Three gallery inputs were checked against their physical CSV row counts.
+The band PNG metadata contains N = 3 per point; the corrected single-run PNG
+contains no summary n. A 20-row fixture with two missing values and a filter
+reports 16 retained rows, 14 finite values, and n ranging 1–2; an insufficient
+significance pair names its missing observations. Facet/repeat counts are
+checked independently of summary calls.
+
+Read back all 15 baseline PNG descriptions and compared RGB pixels against
+HEAD: only the intentionally corrected single-run figure changed visually.
+Timestamp-only regenerated PDFs were discarded except that corrected figure.
+The metadata assignment fix is the necessary exception to the original purely
+additive expectation, because without it the required PNG metadata was empty.
+Replicate independence and other local drop sites remain separate roadmap work.
+GitHub CI is checked on the pushed commit.

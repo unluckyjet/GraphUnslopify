@@ -158,6 +158,9 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     '    """Levels 2 and 3 of the alt text: the numbers and the trend."""',
     "    parts = []",
   );
+  if ("aggregation" in spec && spec.aggregation !== "none") {
+    out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
+  }
 
   if (spec.kind === "confusion_matrix") {
     // Both axes are class labels, so there is no column to average. What a

@@ -81,6 +81,8 @@ DISCLOSURE = (
 
 def load():
     df = pd.read_csv(DATA_PATH)
+    ROW_COUNTS.clear()
+    ROW_COUNTS["read"] = len(df)
     return df
 
 
@@ -88,7 +90,28 @@ def prepare(df):
     df = df[df["epoch"] >= 20]
     if df.empty:
         raise SystemExit("every row was filtered out")
+    ROW_COUNTS["after_filter"] = len(df)
     return df
+
+
+ROW_COUNTS = {}
+SAMPLE_SIZE_TEXT = ""
+
+def report_counts(frame):
+    global SAMPLE_SIZE_TEXT
+    SAMPLE_SIZE_TEXT = ""
+    ROW_COUNTS["prepared"] = len(frame)
+    print(f"data: {DATA_PATH}, sha256 {DATA_HASH}")
+    print(f"  {ROW_COUNTS.get('read', len(frame))} rows read")
+    print(f"  {ROW_COUNTS.get('after_filter', len(frame))} rows after filter (" + "epoch gte 20" + ")")
+    if len(frame) != ROW_COUNTS.get("after_filter", len(frame)):
+        print(f"  {len(frame)} rows after reshape and transform")
+    field = "accuracy"
+    if field in frame:
+        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))
+        ROW_COUNTS["finite"] = int(finite.sum())
+        ROW_COUNTS["nonfinite"] = int((~finite).sum())
+        print(f"  {int(finite.sum())} rows with a finite {field} ({int((~finite).sum())} non-finite)")
 
 
 def summarise(frame):
@@ -351,6 +374,7 @@ def main():
     global DATA_HASH, ALT_TEXT
     DATA_HASH = data_fingerprint()
     df = prepare(load())
+    report_counts(df)
     if PALETTE_LOCK is not None and GROUP is not None:
         globals()["LOCKED"] = locked_appearance(
             SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)
@@ -401,6 +425,7 @@ def main():
         if AUTHOR_CONTEXT:
             description = f"{description} {AUTHOR_CONTEXT}"
         print(f"alt text: {description}")
+        ALT_TEXT = description
         for fmt in FORMATS:
             path = f"{STEM}.{fmt}"
             meta = metadata_for(fmt)

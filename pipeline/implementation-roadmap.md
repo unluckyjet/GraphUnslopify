@@ -44,3 +44,4 @@ Milestones may be split further as evidence requires. No checklist item is compl
 - Milestone 4 implements audited spec 05 (Holm/BH); observation accounting and runtime strict reports remain next in the reliability workstream.
 - Milestone 4 pushed as `e6ec579`; CI `40212145827` passed. Milestone 5 adds composition disclosures (spec 06).
 - Milestone 5 pushed as `fcd1cd7`; CI `40212463417` passed. Milestone 6 fixes the broken-axis range-check false positive (spec 07).
+- Milestone 6 pushed as `fa686e6`; CI `40212757914` passed. Milestone 7 implements row/sample accounting (spec 08), repairs empty description metadata, and corrects the mislabeled single-run fixture.

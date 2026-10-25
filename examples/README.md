@@ -26,7 +26,7 @@ reasons. `generated/` holds the emitted Python. `baseline/` holds the rendered i
 | --- | --- |
 | `01-training-curve` | mean over seeds, emphasis, legend outside right |
 | `02-loss-log` | log y axis, median aggregation, four full-strength series |
-| `03-single-run` | no group, markers, legend suppressed |
+| `03-single-run` | one model and seed selected, no aggregation, markers, legend suppressed |
 | `04-accuracy-by-dataset` | grouped bars, emphasis, legend below as a strip |
 | `05-latency-ranking` | horizontal bars, category order, inverted y axis |
 | `06-accuracy-vs-latency` | grouped scatter, emphasis |

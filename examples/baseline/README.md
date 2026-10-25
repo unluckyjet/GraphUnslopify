@@ -8,7 +8,7 @@ Regenerate with `npm run baseline`, then look at the image diff.
 | --- | --- | --- |
 | `01-training-curve` | line | clean |
 | `02-loss-log` | line | clean |
-| `03-single-run` | line | clean |
+| `03-single-run` | line | warning:line_implies_continuity |
 | `04-accuracy-by-dataset` | bar | clean |
 | `05-latency-ranking` | bar | clean |
 | `06-accuracy-vs-latency` | scatter | clean |

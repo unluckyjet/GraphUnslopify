@@ -1,4 +1,4 @@
-import type { FigureSpec, FilterOp } from "../schema.ts";
+import { derivedAxis, type FigureSpec, type FilterOp } from "../schema.ts";
 import { pyList, pyStr, pyValue } from "./py.ts";
 import { READERS } from "./theme.ts";
 
@@ -23,6 +23,7 @@ const OPERATORS: Record<FilterOp, (field: string, value: string) => string> = {
 
 export function emitLoad(spec: FigureSpec, out: string[]): void {
   out.push("", "def load():", `    df = pd.${READERS[spec.data.format]}(DATA_PATH)`);
+  out.push('    ROW_COUNTS.clear()', '    ROW_COUNTS["read"] = len(df)');
   if (spec.x.temporal) {
     out.push(
       "    df[X_FIELD] = pd.to_datetime(df[X_FIELD])",
@@ -45,6 +46,7 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
   if (spec.filter?.length) {
     body.push("    if df.empty:", '        raise SystemExit("every row was filtered out")');
   }
+  body.push('    ROW_COUNTS["after_filter"] = len(df)');
 
   const melt = spec.series_from_columns;
   if (melt) {
@@ -67,6 +69,58 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
 
   body.push("    return df");
   out.push(...body, "");
+}
+
+/** Figure-wide accounting uses the prepared rows, before any panel is drawn. */
+export function emitCounts(spec: FigureSpec, out: string[]): void {
+  const aggregated = "aggregation" in spec && spec.aggregation !== "none";
+  const measure = spec.kind === "confusion_matrix" || derivedAxis(spec, "y")
+    ? undefined : spec.kind === "heatmap" ? spec.value : spec.y.field;
+  const fields = spec.repeat?.fields ?? (measure ? [measure] : []);
+  const keys = spec.kind === "heatmap"
+    ? [spec.x.field, spec.y.field]
+    : [spec.x.field, ...(spec.group ? [spec.group] : []), ...(spec.facet ? [spec.facet.by] : [])];
+  const filters = spec.filter?.map(f => `${f.field} ${f.op} ${JSON.stringify(f.value)}`).join(" and ") || "none";
+  out.push(
+    "", "ROW_COUNTS = {}", 'SAMPLE_SIZE_TEXT = ""', "",
+    "def report_counts(frame):",
+    "    global SAMPLE_SIZE_TEXT",
+    '    SAMPLE_SIZE_TEXT = ""',
+    '    ROW_COUNTS["prepared"] = len(frame)',
+    '    print(f"data: {DATA_PATH}, sha256 {DATA_HASH}")',
+    '    print(f"  {ROW_COUNTS.get(\'read\', len(frame))} rows read")',
+    `    print(f"  {ROW_COUNTS.get('after_filter', len(frame))} rows after filter (" + ${pyStr(filters)} + ")")`,
+    '    if len(frame) != ROW_COUNTS.get("after_filter", len(frame)):',
+    '        print(f"  {len(frame)} rows after reshape and transform")',
+  );
+  if (measure) {
+    out.push(
+      `    field = ${pyStr(measure)}`,
+      "    if field in frame:",
+      '        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))',
+      '        ROW_COUNTS["finite"] = int(finite.sum())',
+      '        ROW_COUNTS["nonfinite"] = int((~finite).sum())',
+      '        print(f"  {int(finite.sum())} rows with a finite {field} ({int((~finite).sum())} non-finite)")',
+    );
+  }
+  if (aggregated) {
+    out.push(
+      "    sizes = []",
+      `    keys = ${pyList([...new Set(keys)])}`,
+      `    for field in ${pyList(fields)}:`,
+      "        if field not in frame:", "            continue",
+      '        measured = frame.assign(_finite=np.isfinite(pd.to_numeric(frame[field], errors="coerce")).astype(int))',
+      '        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())',
+      '    ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]',
+      "    if sizes:",
+      "        low, high = int(min(sizes)), int(max(sizes))",
+      '        SAMPLE_SIZE_TEXT = f"n = {low} per point" if low == high else f"n ranges from {low} to {high} across {len(sizes)} points"',
+      '        print(f"  {SAMPLE_SIZE_TEXT}")',
+      "        if low != high:",
+      '            print("warning: sample sizes differ between groups")',
+    );
+  }
+  out.push("");
 }
 
 function transformBody(

@@ -5,6 +5,7 @@ import { emitClaimTests, CLAIM_WORDING } from "../claims.ts";
 import { emitAnimation } from "./animate.ts";
 import {
   emitBootstrap,
+  emitCounts,
   emitLoad,
   emitMissingIntervalReport,
   needsMissingIntervalReport,
@@ -321,14 +322,15 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "    global DATA_HASH, ALT_TEXT",
     "    DATA_HASH = data_fingerprint()",
     "    df = prepare(load())",
+    "    report_counts(df)",
   );
 
   if (spec.kind === "table") {
     out.push(
       "    table, low, high = build_table(df)",
       "    markdown, winners = write_table(table, low, high)",
+      '    ALT_TEXT = ENCODING_SENTENCE + (f" {SAMPLE_SIZE_TEXT}." if SAMPLE_SIZE_TEXT else "")',
       "    render_table_image(table, winners, low, high)",
-      "    ALT_TEXT = ENCODING_SENTENCE",
       "    print(DISCLOSURE)",
       '    print(f"data sha256:{DATA_HASH}")',
       "",
@@ -455,6 +457,7 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
     "        if AUTHOR_CONTEXT:",
     '            description = f"{description} {AUTHOR_CONTEXT}"',
     '        print(f"alt text: {description}")',
+    "        ALT_TEXT = description",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     "            meta = metadata_for(fmt)",
@@ -492,6 +495,7 @@ export function emitPython(spec: FigureSpec): string {
   emitPreamble(spec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);
+  emitCounts(spec, out);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
   emitSummarise(spec, out);

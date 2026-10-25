@@ -19,3 +19,4 @@ One line per state change, newest last.
 2026-10-25 — 05 shipped: default Holm and optional BH/none with reference numeric tests, raw/adjusted reporting, and opt-out warning; seven local gates passed (164 Node / 70 Python).
 2026-10-25 — 06 shipped: descriptions disclose breaks, insets, labeled layers, and metric panels; real-render disclosure assertions; seven gates passed (169 Node / 70 Python).
 2026-10-25 — 07 shipped: broken-axis halves excluded only from range comparison; real false positives reduced 1 to 0; seven gates passed (169 Node / 74 Python).
+2026-10-25 — 08 shipped: row/finite/sample accounting, skipped-pair reasons, embedded descriptions, and true single-run example; seven gates passed (176 Node / 74 Python).

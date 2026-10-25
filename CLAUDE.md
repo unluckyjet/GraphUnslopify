@@ -40,3 +40,7 @@ Store stub, and a failed run empties `examples/baseline/README.md`. Use
 
 When changing figure layout or gallery examples, also run `npm run gallery-check`.
 It regenerates all published examples and rejects failed or incomplete inspection.
+
+The Python distribution includes the local translator. After changing TypeScript source, run
+`npm run build:translator` and commit the refreshed bundle/license files. CI verifies that the
+bundle matches source and tests clean wheel installs on supported platforms.

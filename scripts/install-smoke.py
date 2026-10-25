@@ -1,0 +1,176 @@
+"""Install a built wheel in a fresh venv and exercise it outside the checkout."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import venv
+from pathlib import Path
+from zipfile import ZipFile
+
+
+def run(command: list[str], *, cwd: Path, env: dict[str, str]) -> str:
+    completed = subprocess.run(
+        command,
+        cwd=cwd,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf8",
+        check=False,
+    )
+    if completed.returncode:
+        raise RuntimeError(f"{command}:\n{completed.stdout}\n{completed.stderr}")
+    return completed.stdout
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("wheel", type=Path, nargs="?")
+    parser.add_argument("--work-dir", type=Path)
+    args = parser.parse_args()
+    if args.wheel is None:
+        candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
+        if len(candidates) != 1:
+            parser.error("pass one wheel path, or build exactly one wheel in dist/")
+        args.wheel = candidates[0]
+    wheel = args.wheel.resolve()
+    with ZipFile(wheel) as archive:
+        names = archive.namelist()
+        assert "graphunslopify/_translator.mjs" in names
+        assert "graphunslopify/ZOD-LICENSE.txt" in names
+        assert any(name.endswith("/licenses/LICENSE") for name in names)
+    where = (args.work_dir or Path(tempfile.mkdtemp(prefix="gu-install-"))).resolve()
+    where.mkdir(parents=True, exist_ok=True)
+    virtual = where / "fresh environment"
+    venv.EnvBuilder(with_pip=True).create(virtual)
+    python = virtual / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env.pop("GRAPHUNSLOPIFY_NODE", None)
+    env["GRAPHUNSLOPIFY_API"] = "local"
+    env["PYTHONIOENCODING"] = "utf-8"
+    run(
+        [
+            str(python),
+            "-m",
+            "pip",
+            "install",
+            "--disable-pip-version-check",
+            str(wheel),
+        ],
+        cwd=where,
+        env=env,
+    )
+
+    # No network calls are allowed after installation, including subprocesses.
+    hooks = where / "offline hooks"
+    hooks.mkdir()
+    (hooks / "sitecustomize.py").write_text(
+        "import socket\n"
+        "def denied(*a, **k): raise RuntimeError('network disabled for installation smoke test')\n"
+        "socket.socket.connect = denied\nsocket.socket.connect_ex = denied\n"
+        "socket.create_connection = denied\n",
+        encoding="utf8",
+    )
+    node_hook = hooks / "offline.cjs"
+    node_hook.write_text(
+        "const denied = () => { throw new Error('network disabled for installation smoke test'); };\n"
+        "require('node:net').Socket.prototype.connect = denied;\n"
+        "require('node:http').request = denied; require('node:https').request = denied;\n"
+        "require('node:dns').lookup = denied; globalThis.fetch = denied;\n",
+        encoding="utf8",
+    )
+    env["PYTHONPATH"] = str(hooks)
+    env["NODE_OPTIONS"] = "--require=" + json.dumps(node_hook.as_posix())
+    env["MPLBACKEND"] = "Agg"
+    env["MPLCONFIGDIR"] = str(where / "matplotlib")
+    cli = [str(python), "-m", "graphunslopify.cli"]
+    doctor = json.loads(run([*cli, "doctor"], cwd=where, env=env))
+    assert doctor["ok"] and len(doctor["translator"]["kinds"]) == 21
+    assert doctor["translator"]["node"].startswith(("v22.", "v24."))
+    demo = where / "paper with spaces" / "data"
+    report = json.loads(run([*cli, "demo", str(demo), "--json"], cwd=where, env=env))
+    assert report["status"] == "passed" and report["policy"]["strict"]
+    assert report["data"]["counts"]["read"] == 24
+    assert report["data"]["counts"]["sample_sizes"] == [4] * 6
+    assert report["claims"][0]["verdict"] == "holds"
+    assert "ours is highest at 56.5" in report["alt_text"]
+    for suffix in ("png", "svg", "pdf"):
+        provenance = json.loads(
+            run(
+                [*cli, "provenance", str(demo / f"figure.{suffix}")], cwd=where, env=env
+            )
+        )
+        assert provenance["ok"]
+        assert (
+            provenance["provenance"]["data_sha256_prefix"]
+            == report["data"]["sha256_prefix"]
+        )
+    # The SDK resolves nested relative input paths and separate output directories.
+    sdk = where / "sdk.py"
+    sdk.write_text(
+        "import json\nfrom pathlib import Path\nimport graphunslopify\n"
+        "from graphunslopify import Figure\n"
+        "from graphunslopify.transport import local_request\n"
+        "assert 'site-packages' in str(Path(graphunslopify.__file__))\n"
+        "assert local_request('info')['version'] == graphunslopify.__version__\n"
+        "f = Figure.line('paper with spaces/data/results.csv').x('epoch', 'Epoch').y('score', 'Score')\n"
+        "f.by('model').average_over('seed').set(legend={'position':'outside_bottom'})\n"
+        "before = f.to_dict()\nr = f.render(cwd='separate output', strict=True)\n"
+        "assert r['report']['status'] == 'passed'\nassert f.to_dict() == before\n"
+        "candidate = Figure.from_profile('paper with spaces/data/results.csv')\n"
+        "assert candidate.spec['data']['path'] == 'paper with spaces/data/results.csv'\n"
+        "assert candidate.translate()['status'] == 'translated'\n"
+        "print(json.dumps({'package':graphunslopify.__file__, 'sdk':'passed'}))\n",
+        encoding="utf8",
+    )
+    run([str(python), str(sdk)], cwd=where, env=env)
+    # Ensure the network hooks themselves work, rather than merely claiming offline mode.
+    blocked = subprocess.run(
+        [
+            str(python),
+            "-c",
+            "import socket; socket.create_connection(('example.com', 443))",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert blocked.returncode and "network disabled" in blocked.stderr
+    blocked_node = subprocess.run(
+        [
+            str(python),
+            "-m",
+            "nodejs_wheel",
+            "-e",
+            "require('node:https').get('https://example.com')",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf8",
+        check=False,
+    )
+    assert blocked_node.returncode and "network disabled" in blocked_node.stderr
+    print(
+        json.dumps(
+            {
+                "status": "passed",
+                "wheel": wheel.name,
+                "python": sys.version.split()[0],
+                "translator": doctor["translator"],
+                "network": "blocked after install",
+                "work_dir": str(where),
+            }
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

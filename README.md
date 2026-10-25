@@ -1,7 +1,22 @@
 # GraphUnslopify
 
-An MCP server that turns a JSON figure spec into matplotlib code.
+A local figure generator and verifier that turns a JSON figure spec into reviewable matplotlib code.
+It also exposes the same translator over MCP and HTTP.
 Live at [json-translator-three.vercel.app](https://json-translator-three.vercel.app).
+
+## Start locally
+
+```sh
+python -m pip install "https://github.com/unluckyjet/JSONTranslator/archive/refs/heads/main.zip#subdirectory=python"
+graphunslopify demo
+```
+
+This creates public toy data, PNG/SVG/PDF figures, the generated Python program, and a strict JSON
+verification report in `graphunslopify-demo/`. Python 3.10+ is required. The package supplies the
+translator and its Node runtime; translation and rendering work offline after installation.
+Use `graphunslopify render figure.json --strict --json` with your own spec and data.
+See [installation and offline use](docs/installation.md), [Python usage](python/README.md),
+[verification policy](docs/runtime-reports.md), and the [MIT license](LICENSE).
 
 ![Grouped horizontal bar chart of favourite ice cream flavours, split by age group](docs/first-pass.png)
 
@@ -253,10 +268,11 @@ from graphunslopify import Figure
 ```
 
 `average_over` sets the aggregation and the spread together, because doing one without the other
-throws away what a reader most needs. `render` posts the spec, writes the script beside the data and
+throws away what a reader most needs. `render` translates locally, writes the script beside the data and
 runs it, so what lands on disk is the same script an agent would have got. Nothing here
 reimplements the emitter, because two emitters drift. `Figure.from_profile` ranks candidates for a
-file and starts from the best one, so there is no guessing at all.
+file and starts from the top-ranked candidate. Column roles and units are guesses; review them
+against the experiment before using a suggestion.
 
 ## Writing a spec
 

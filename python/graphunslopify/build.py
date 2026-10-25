@@ -17,7 +17,7 @@ out on its own.
         .render()
     )
 
-`render` posts the spec to the translator, writes the script beside the data and
+`render` translates locally by default, writes the script beside the data and
 runs it, so the artefact on disk is the same script the agent would have got.
 Nothing here reimplements the emitter, because two emitters drift.
 """
@@ -25,25 +25,28 @@ Nothing here reimplements the emitter, because two emitters drift.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
-import urllib.error
-import urllib.request
+from copy import copy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal, Self
+from typing import Any, Literal
 
-DEFAULT_API = "https://json-translator-three.vercel.app"
+from typing_extensions import Self
+
+from .errors import SpecError
+from .transport import post as _post
 
 Kind = Literal["line", "scatter", "bar", "box", "violin", "heatmap", "table"]
 
 
-class SpecError(RuntimeError):
-    """The translator or renderer rejected the figure; report contains runtime evidence."""
-
-    def __init__(self, message: str, report: dict[str, Any] | None = None):
-        super().__init__(message)
-        self.report = report
+def _relative_path(path: str | Path, where: Path) -> str:
+    try:
+        return os.path.relpath(path, where)
+    except ValueError:
+        # Windows cannot express a relative path between different drives.
+        return str(Path(path).resolve())
 
 
 @dataclass
@@ -87,7 +90,7 @@ class Figure:
         return cls.of("table", path)
 
     @classmethod
-    def from_profile(cls, path: str | Path, rank: int = 0) -> Self:
+    def from_profile(cls, path: str | Path, rank: int = 0, api: str | None = None) -> Self:
         """Start from what the data suggests rather than from a guess.
 
         Profiles the file, asks the translator to rank candidate designs, and
@@ -98,10 +101,18 @@ class Figure:
         report = profile(path)
         if not report.get("ok"):
             raise SpecError(report.get("error", "the file could not be profiled"))
-        candidates = _post("/api/suggest", {"profile": report})
+        candidates = _post("/api/suggest", {"profile": report}, api=api)
         if not candidates:
             raise SpecError("nothing in this file suggests a figure")
-        return cls(dict(candidates[rank]["spec"]))
+        if rank < 0 or rank >= len(candidates):
+            raise SpecError(f"rank must be between 0 and {len(candidates) - 1}")
+        chosen = dict(candidates[rank]["spec"])
+        suffix = Path(path).suffix.lower()
+        chosen["data"] = {
+            "path": str(path),
+            "format": {".parquet": "parquet", ".json": "json"}.get(suffix, "csv"),
+        }
+        return cls(chosen)
 
     # --- encoding ---------------------------------------------------------
 
@@ -271,20 +282,20 @@ class Figure:
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.spec, indent=indent)
 
-    def translate(self, api: str = DEFAULT_API) -> dict[str, Any]:
-        """Ask the translator for the script and the findings."""
+    def translate(self, api: str | None = None) -> dict[str, Any]:
+        """Use the local translator, or an explicitly selected HTTP API."""
         result = _post("/api/convert", self.spec, api=api)
         if result.get("status") != "translated":
             raise SpecError(json.dumps(result.get("issues", result), indent=2))
         return result
 
-    def check(self, api: str = DEFAULT_API) -> list[dict[str, Any]]:
+    def check(self, api: str | None = None) -> list[dict[str, Any]]:
         return list(self.translate(api).get("findings", []))
 
     def render(
         self,
         cwd: str | Path | None = None,
-        api: str = DEFAULT_API,
+        api: str | None = None,
         strict: bool = False,
         fail_on_warning: bool = False,
     ) -> dict[str, Any]:
@@ -294,7 +305,33 @@ class Figure:
         and untested required checks. `fail_on_warning` also rejects warnings.
         Both default off; the JSON report always records the actual verdict.
         """
-        result = self.translate(api)
+        # Resolve input paths before moving to the output directory. Keep paths
+        # relative to the generated program, and do not mutate the author's spec.
+        prepared = self.to_dict()
+        data = prepared.setdefault("data", {})
+        if not isinstance(data, dict):
+            raise SpecError("data must be an object")
+        source = data.get("path", "results.csv")
+        if not isinstance(source, str):
+            raise SpecError("data.path must be text")
+        remote = "://" in source
+        source_path = Path(source).expanduser().resolve() if not remote else None
+        where = (
+            Path(cwd).expanduser().resolve()
+            if cwd
+            else (source_path.parent if source_path else Path.cwd())
+        )
+        if source_path:
+            data["path"] = _relative_path(source_path, where)
+        if prepared.get("palette_lock"):
+            if not isinstance(prepared["palette_lock"], str):
+                raise SpecError("palette_lock must be a file path")
+            prepared["palette_lock"] = _relative_path(
+                Path(prepared["palette_lock"]).expanduser().resolve(), where
+            )
+        translator = copy(self)
+        translator.spec = prepared
+        result = translator.translate(api)
         findings = result.get("findings", [])
         errors = [f for f in findings if f.get("severity") == "error"]
         for finding in findings:
@@ -302,8 +339,7 @@ class Figure:
         if errors and (strict or fail_on_warning):
             raise SpecError(f"{len(errors)} error(s) in the spec, and strict is on")
 
-        where = Path(cwd) if cwd else Path(self.spec.get("data", {}).get("path", ".")).parent
-        where = where if str(where) else Path(".")
+        where.mkdir(parents=True, exist_ok=True)
         stem = self.spec.get("output", {}).get("stem", "figure")
         script = where / f"{stem}.py"
         script.write_text(result["code"], encoding="utf8")
@@ -321,6 +357,8 @@ class Figure:
             cwd=where,
             capture_output=True,
             text=True,
+            encoding="utf8",
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
             check=False,
         )
         if completed.stdout.strip():
@@ -340,23 +378,3 @@ class Figure:
             "report": report,
             "report_path": report_path if report is not None else None,
         }
-
-
-def _post(path: str, payload: dict[str, Any], api: str = DEFAULT_API) -> Any:
-    body = json.dumps(payload).encode("utf8")
-    request = urllib.request.Request(
-        f"{api.rstrip('/')}{path}",
-        data=body,
-        headers={"content-type": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=45) as response:
-            return json.loads(response.read().decode("utf8"))
-    except urllib.error.HTTPError as problem:
-        detail = problem.read().decode("utf8", errors="replace")
-        try:
-            return json.loads(detail)
-        except json.JSONDecodeError:
-            raise SpecError(f"{problem.code} from {path}: {detail[:400]}") from problem
-    except urllib.error.URLError as problem:
-        raise SpecError(f"could not reach {api}: {problem.reason}") from problem

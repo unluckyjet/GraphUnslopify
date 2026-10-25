@@ -10,12 +10,111 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
+from .build import Figure, _relative_path
 from .describe import profile, render
+from .errors import SpecError
+from .transport import local_request
+
+
+def _load_spec(path: str) -> Figure:
+    source = Path(path).expanduser().resolve()
+    spec = json.loads(source.read_text(encoding="utf8"))
+    if not isinstance(spec, dict):
+        raise SpecError("spec must be a JSON object")
+    data = spec.get("data", {})
+    if isinstance(data, dict):
+        name = data.get("path", "results.csv")
+        if isinstance(name, str) and "://" not in name:
+            data["path"] = str((source.parent / Path(name).expanduser()).resolve())
+        spec["data"] = data
+    if isinstance(spec.get("palette_lock"), str):
+        spec["palette_lock"] = str((source.parent / spec["palette_lock"]).resolve())
+    return Figure(spec)
+
+
+def _render_spec(args: argparse.Namespace) -> int:
+    try:
+        figure = _load_spec(args.spec)
+        with contextlib.redirect_stdout(sys.stderr):
+            result = figure.render(
+                cwd=args.out_dir,
+                api=args.api,
+                strict=args.strict,
+                fail_on_warning=args.fail_on_warning,
+            )
+    except (SpecError, OSError, ValueError) as problem:
+        report = getattr(problem, "report", None)
+        if args.json:
+            print(json.dumps(report or {"status": "failed", "error": str(problem)}))
+        else:
+            print(str(problem), file=sys.stderr)
+        return int(report.get("exit_code", 2)) if report else 2
+    if args.json:
+        print(json.dumps(result["report"]))
+    else:
+        print(f"Wrote {result['script']} and {result['report_path']}")
+    return 0
+
+
+def _translate_spec(args: argparse.Namespace) -> int:
+    try:
+        figure = _load_spec(args.spec)
+        if args.output:
+            base = Path(args.output).expanduser().resolve().parent
+            data = figure.spec.get("data", {})
+            if (
+                isinstance(data, dict)
+                and isinstance(data.get("path"), str)
+                and "://" not in data["path"]
+            ):
+                data["path"] = _relative_path(data["path"], base)
+            if figure.spec.get("palette_lock"):
+                figure.spec["palette_lock"] = _relative_path(figure.spec["palette_lock"], base)
+        result = figure.translate(api=args.api)
+        if args.output and result.get("ok"):
+            destination = Path(args.output).expanduser().resolve()
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(result["code"], encoding="utf8")
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0 if result.get("ok") else 2
+    except (SpecError, OSError, ValueError) as problem:
+        print(json.dumps({"ok": False, "error": str(problem)}))
+        return 2
+
+
+def _doctor(_: argparse.Namespace) -> int:
+    from . import __version__
+
+    try:
+        info = local_request("info")
+        ok = info["version"] == __version__
+        print(json.dumps({"ok": ok, "python_package": __version__, "translator": info}))
+        return 0 if ok else 1
+    except SpecError as problem:
+        print(json.dumps({"ok": False, "error": str(problem)}))
+        return 1
+
+
+def _demo(args: argparse.Namespace) -> int:
+    from .demo import write_demo
+
+    try:
+        args.spec = str(write_demo(args.directory))
+    except (SpecError, OSError) as problem:
+        print(str(problem), file=sys.stderr)
+        return 1
+    args.out_dir = None
+    args.api = "local"
+    args.strict = True
+    args.fail_on_warning = False
+    return _render_spec(args)
 
 
 def _describe(args: argparse.Namespace) -> int:
@@ -45,6 +144,8 @@ def _run(args: argparse.Namespace) -> int:
         cwd=workdir,
         capture_output=True,
         text=True,
+        encoding="utf8",
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
         check=False,
     )
     output = completed.stdout.strip()
@@ -92,6 +193,29 @@ def _version(_: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    converted = commands.add_parser("translate", help="translate a JSON spec locally")
+    converted.add_argument("spec", help="JSON file; data paths resolve beside it")
+    converted.add_argument("--output", help="also write the generated Python script")
+    converted.add_argument("--api", help="explicit HTTP translator URL, or local")
+    converted.set_defaults(handler=_translate_spec)
+
+    generated = commands.add_parser("render", help="translate and render a JSON figure spec")
+    generated.add_argument("spec", help="JSON file; data paths resolve beside it")
+    generated.add_argument("--out-dir", help="output directory (default: beside the data)")
+    generated.add_argument("--api", help="explicit HTTP translator URL, or local")
+    generated.add_argument("--strict", action="store_true")
+    generated.add_argument("--fail-on-warning", action="store_true")
+    generated.add_argument("--json", action="store_true")
+    generated.set_defaults(handler=_render_spec)
+
+    demo = commands.add_parser("demo", help="generate and strictly verify public toy results")
+    demo.add_argument("directory", nargs="?", default="graphunslopify-demo")
+    demo.add_argument("--json", action="store_true")
+    demo.set_defaults(handler=_demo)
+
+    doctor = commands.add_parser("doctor", help="check the packaged local translator")
+    doctor.set_defaults(handler=_doctor)
 
     described = commands.add_parser("describe", help="profile a data file as JSON")
     described.add_argument("path", help="csv, parquet or json file")

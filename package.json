@@ -15,7 +15,8 @@
     "recipe-check": "node --experimental-strip-types scripts/recipe-check.ts",
     "compose-check": "node --experimental-strip-types scripts/compose-check.ts",
     "queue": "node --experimental-strip-types scripts/queue.ts",
-    "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts"
+    "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts",
+    "build:translator": "node --experimental-strip-types scripts/build-translator.ts"
   },
   "type": "module",
   "dependencies": {
@@ -24,10 +25,12 @@
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
+    "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   },
   "private": true,
   "engines": {
     "node": ">=22.6"
-  }
+  },
+  "license": "MIT"
 }

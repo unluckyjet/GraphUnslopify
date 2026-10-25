@@ -1,23 +1,31 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphunslopify"
 dynamic = ["version"]
-description = "Render-time readability and accessibility checks for matplotlib figures."
+description = "Local semantic figure generation and render-time scientific figure checks."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
-dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24", "pypdf>=5"]
+dependencies = ["matplotlib>=3.9", "pandas>=2.0", "numpy>=1.24", "pypdf>=5", "typing_extensions>=4.4", "nodejs-wheel-binaries>=22.13.1,<25"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "jsonschema>=4"]
 interactive = ["plotly>=5.24"]
+parquet = ["pyarrow>=15"]
+statistics = ["scipy>=1.10"]
 
 [project.scripts]
 graphunslopify = "graphunslopify.cli:main"
 
 [project.urls]
 Source = "https://github.com/unluckyjet/JSONTranslator"
+
+[tool.setuptools.package-data]
+graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt"]
 
 [tool.setuptools.dynamic]
 version = { attr = "graphunslopify.__version__" }

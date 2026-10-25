@@ -218,8 +218,10 @@ equivalence verdict.
 Each generated script prints rows read, rows after filtering, and the number of finite
 measurements. Aggregated figures also report the observations per point, disclose unequal sample
 sizes, and include the counts in their alt text and PNG metadata. Skipped significance pairs name
-the missing data or unavailable test. These are observation counts; naming a replicate column does
-not by itself prove the observations are independent experiments.
+the missing data or unavailable test. When `uncertainty.over` names a unit such as seed, repeated rows within that unit and point are
+summarized first, so one prolific seed cannot outweigh another. Counts then refer to those unit
+IDs. The author remains responsible for deciding whether the named units are independent;
+without an identifier the rows themselves are assumed independent.
 
 ### Writing specs in Python
 
@@ -304,7 +306,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Fifty-seven rules run on the server against the spec alone. The Python package checks the rendered
+Fifty-nine rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

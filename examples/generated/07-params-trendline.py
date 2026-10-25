@@ -112,6 +112,10 @@ def report_counts(frame):
         print(f"  {int(finite.sum())} rows with a finite {field} ({int((~finite).sum())} non-finite)")
 
 
+def summary_input(frame, field):
+    return frame
+
+
 def summarise(frame):
     return frame
 

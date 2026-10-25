@@ -81,6 +81,7 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
     ? [spec.x.field, spec.y.field]
     : [spec.x.field, ...(spec.group ? [spec.group] : []), ...(spec.facet ? [spec.facet.by] : [])];
   const filters = spec.filter?.map(f => `${f.field} ${f.op} ${JSON.stringify(f.value)}`).join(" and ") || "none";
+  const over = "uncertainty" in spec ? spec.uncertainty?.over : undefined;
   out.push(
     "", "ROW_COUNTS = {}", 'SAMPLE_SIZE_TEXT = ""', "",
     "def report_counts(frame):",
@@ -109,18 +110,59 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
       `    keys = ${pyList([...new Set(keys)])}`,
       `    for field in ${pyList(fields)}:`,
       "        if field not in frame:", "            continue",
-      '        measured = frame.assign(_finite=np.isfinite(pd.to_numeric(frame[field], errors="coerce")).astype(int))',
+      "        source = summary_input(frame, field)",
+      '        measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))',
       '        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())',
       '    ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]',
       "    if sizes:",
       "        low, high = int(min(sizes)), int(max(sizes))",
       '        SAMPLE_SIZE_TEXT = f"n = {low} per point" if low == high else f"n ranges from {low} to {high} across {len(sizes)} points"',
+      ...(over ? [`        SAMPLE_SIZE_TEXT += ${pyStr(` (unit IDs: ${over})`)}`] : []),
       '        print(f"  {SAMPLE_SIZE_TEXT}")',
       "        if low != high:",
       '            print("warning: sample sizes differ between groups")',
     );
+    if (over && measure) {
+      out.push(
+        `    unit = ${pyStr(over)}`,
+        '    ROW_COUNTS["unit_column"] = unit',
+        '    ROW_COUNTS["missing_unit_ids"] = int(frame[unit].isna().sum())',
+        `    unit_values = summary_input(frame, ${pyStr(measure)})[${pyStr(measure)}]`,
+        '    ROW_COUNTS["unit_observations"] = int(np.isfinite(unit_values).sum())',
+        '    print(f"  {ROW_COUNTS[\'unit_observations\']} unit observations after grouping repeated {unit} IDs within each point")',
+        '    if ROW_COUNTS["missing_unit_ids"]:',
+        '        print(f"warning: {ROW_COUNTS[\'missing_unit_ids\']} rows have no {unit} identifier and cannot contribute to uncertainty")',
+      );
+    }
   }
   out.push("");
+}
+
+/** Numeric summaries use finite measurements and one value per declared unit. */
+export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
+  const aggregation = "aggregation" in spec ? spec.aggregation : "none";
+  const over = "uncertainty" in spec ? spec.uncertainty?.over : undefined;
+  out.push("", "def summary_input(frame, field):");
+  if (aggregation !== "mean" && aggregation !== "median") {
+    out.push("    return frame", "");
+    return;
+  }
+  out.push(
+    "    measured = frame.copy()",
+    '    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)',
+  );
+  if (over) {
+    const keys = [...new Set([spec.x.field, ...(spec.group ? [spec.group] : []),
+      ...(spec.facet ? [spec.facet.by] : []), over])];
+    out.push(
+      `    if ${pyStr(over)} not in measured:`,
+      `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,
+      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False)[field].${aggregation}()`,
+      "    if measured.empty:",
+      `        raise ValueError(${pyStr(`no usable replicate identifiers in ${over}`)})`,
+    );
+  }
+  out.push("    return measured", "");
 }
 
 function transformBody(
@@ -188,6 +230,7 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
   }
 
   out.push(
+    "    frame = summary_input(frame, Y_FIELD)",
     "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
     "    # sort=False keeps the file's category order instead of an alphabetical one.",
     "    grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]",

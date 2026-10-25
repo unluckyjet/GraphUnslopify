@@ -255,6 +255,7 @@ function emitSignificance(significance: Significance, out: string[]): void {
     "",
     "",
     "def mark_significance(ax, df, categories, positions):",
+    "    df = summary_input(df, Y_FIELD)",
     "    index_of = {name: position for name, position in zip(categories, positions)}",
     "    reach = df[Y_FIELD].max()",
     "    step = abs(reach) * 0.06 if np.isfinite(reach) and reach else 1.0",

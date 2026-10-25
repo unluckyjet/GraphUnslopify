@@ -121,15 +121,36 @@ def report_counts(frame):
     for field in ["accuracy"]:
         if field not in frame:
             continue
-        measured = frame.assign(_finite=np.isfinite(pd.to_numeric(frame[field], errors="coerce")).astype(int))
+        source = summary_input(frame, field)
+        measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))
         sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())
     ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]
     if sizes:
         low, high = int(min(sizes)), int(max(sizes))
         SAMPLE_SIZE_TEXT = f"n = {low} per point" if low == high else f"n ranges from {low} to {high} across {len(sizes)} points"
+        SAMPLE_SIZE_TEXT += " (unit IDs: seed)"
         print(f"  {SAMPLE_SIZE_TEXT}")
         if low != high:
             print("warning: sample sizes differ between groups")
+    unit = "seed"
+    ROW_COUNTS["unit_column"] = unit
+    ROW_COUNTS["missing_unit_ids"] = int(frame[unit].isna().sum())
+    unit_values = summary_input(frame, "accuracy")["accuracy"]
+    ROW_COUNTS["unit_observations"] = int(np.isfinite(unit_values).sum())
+    print(f"  {ROW_COUNTS['unit_observations']} unit observations after grouping repeated {unit} IDs within each point")
+    if ROW_COUNTS["missing_unit_ids"]:
+        print(f"warning: {ROW_COUNTS['missing_unit_ids']} rows have no {unit} identifier and cannot contribute to uncertainty")
+
+
+def summary_input(frame, field):
+    measured = frame.copy()
+    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)
+    if "seed" not in measured:
+        raise ValueError("replicate identifier column seed is missing")
+    measured = measured.groupby(["epoch", "model", "seed"], as_index=False, sort=False)[field].mean()
+    if measured.empty:
+        raise ValueError("no usable replicate identifiers in seed")
+    return measured
 
 
 def bootstrap_interval(frame, keys):
@@ -184,6 +205,7 @@ def report_missing_interval():
 
 
 def summarise(frame):
+    frame = summary_input(frame, Y_FIELD)
     keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])
     # sort=False keeps the file's category order instead of an alphabetical one.
     grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]

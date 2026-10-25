@@ -1,6 +1,6 @@
 # What people complain about, and which check answers it
 
-Every rule in this repo traces to a documented complaint rather than to taste. There are 57 of them
+Every rule in this repo traces to a documented complaint rather than to taste. There are 59 of them
 on the spec and 11 on the rendered figure.
 This is the mapping, so a future change to a threshold has to argue with a source.
 

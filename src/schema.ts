@@ -135,7 +135,7 @@ export const UncertaintySpec = z.object({
     .string()
     .min(1)
     .optional()
-    .describe('Column the repeats vary along, such as "seed". Defaults to all repeated rows.'),
+    .describe('Identifier of units assumed independent, such as "seed". Repeated rows per unit and point are summarized first. Without it, repeated rows are assumed independent.'),
   display: z
     .enum(["band", "bar"])
     .default("band")

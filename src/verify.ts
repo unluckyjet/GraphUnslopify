@@ -281,6 +281,15 @@ const uncertainty: Rule = (spec, add) => {
       "uncertainty describes the spread around a summary, so set aggregation to mean or median.",
     );
   }
+  if (aggregation !== "none" && aggregation !== "mean" && aggregation !== "median") {
+    add("error", "uncertainty_aggregation_unsupported",
+      "Uncertainty requires a mean or median over observations; a sum or count has a different sampling meaning.");
+  }
+  const over = spec.uncertainty.over;
+  if (over && [spec.x.field, spec.group, spec.facet?.by, spec.facet?.rows].includes(over)) {
+    add("error", "replicate_matches_grouping_key",
+      "The replicate identifier must differ from x, group, and facet fields so repeats can vary within a point.");
+  }
   if (spec.uncertainty.kind === "iqr" && aggregation === "mean") {
     add(
       "warning",

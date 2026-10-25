@@ -122,7 +122,8 @@ def report_counts(frame):
     for field in ["accuracy"]:
         if field not in frame:
             continue
-        measured = frame.assign(_finite=np.isfinite(pd.to_numeric(frame[field], errors="coerce")).astype(int))
+        source = summary_input(frame, field)
+        measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))
         sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())
     ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]
     if sizes:
@@ -133,7 +134,14 @@ def report_counts(frame):
             print("warning: sample sizes differ between groups")
 
 
+def summary_input(frame, field):
+    measured = frame.copy()
+    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)
+    return measured
+
+
 def summarise(frame):
+    frame = summary_input(frame, Y_FIELD)
     keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])
     # sort=False keeps the file's category order instead of an alphabetical one.
     grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]

@@ -12,6 +12,7 @@ import {
   emitPrepare,
   emitSmooth,
   emitSummarise,
+  emitSummaryInput,
 } from "./data.ts";
 import { emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
 import {
@@ -496,6 +497,7 @@ export function emitPython(spec: FigureSpec): string {
   emitLoad(spec, out);
   emitPrepare(spec, out);
   emitCounts(spec, out);
+  emitSummaryInput(spec, out);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
   emitSummarise(spec, out);

@@ -21,3 +21,4 @@ One line per state change, newest last.
 2026-10-25 — 07 shipped: broken-axis halves excluded only from range comparison; real false positives reduced 1 to 0; seven gates passed (169 Node / 74 Python).
 2026-10-25 — 08 shipped: row/finite/sample accounting, skipped-pair reasons, embedded descriptions, and true single-run example; seven gates passed (176 Node / 74 Python).
 2026-10-25 — 09 shipped: embedded TrueType fonts; 14 PDFs verified; negative guard rejected all 16 Type 3 cases; seven gates passed (176 Node / 74 Python).
+2026-10-25 — 12 shipped: one summary per declared repeat unit, finite statistics, shared significance inputs, and unit-count disclosure; seven gates passed (186 Node / 74 Python).

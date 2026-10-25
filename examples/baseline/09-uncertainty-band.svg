@@ -9,7 +9,7 @@
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>216b8d98044e777e</dc:title>
     <dc:date>2026-10-25T09:52:07.549872</dc:date>
-    <dc:description>Line chart of Test accuracy in % against Training epoch. One series per model, being baseline, +augment, +distill, ours. Shaded 95 percent confidence intervals. Ours is drawn in the foreground. A chance line at 25 labelled chance. N = 3 per point. At the largest training epoch, ours is highest at 81.1 and baseline is lowest at 70. A spread of 11.</dc:description>
+    <dc:description>Line chart of Test accuracy in % against Training epoch. One series per model, being baseline, +augment, +distill, ours. Shaded 95 percent confidence intervals. Ours is drawn in the foreground. A chance line at 25 labelled chance. N = 3 per point (unit IDs: seed). At the largest training epoch, ours is highest at 81.1 and baseline is lowest at 70. A spread of 11.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>

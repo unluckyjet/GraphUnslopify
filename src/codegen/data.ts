@@ -61,8 +61,15 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     );
   }
 
+  if (spec.kind === "kaplan_meier") {
+    body.push("    survival_input(df)");
+    if (spec.transform && spec.transform.kind !== "none") {
+      body.push('    raise ValueError("Kaplan-Meier does not apply transforms to a raw y column")');
+    }
+  }
+
   const transform = spec.transform;
-  if (transform && transform.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && transform && transform.kind !== "none") {
     body.push(...transformBody(spec, transform));
   }
 

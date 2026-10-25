@@ -19558,7 +19558,21 @@ function emitAltText(spec, out) {
   if ("aggregation" in spec && spec.aggregation !== "none") {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
-  if (spec.kind === "confusion_matrix") {
+  if (spec.kind === "kaplan_meier") {
+    out.push(...String.raw`
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = survival_estimate(block)
+        who = "the cohort" if name is None else f"cohort {name}"
+        parts.append(f"{who}: {curve['observations']} observations, {curve['events']} events and "
+                     f"{curve['censored']} right-censored records")
+        parts.append(f"at follow-up {curve['last']:.3g}, estimated survival is {curve['survival'][-1]:.3g}")
+        if curve["median"] is None:
+            parts.append("median survival is not reached within the observed follow-up")
+        else:
+            parts.append(f"median survival is {curve['median']:.3g}")
+`.split("\n"));
+  } else if (spec.kind === "confusion_matrix") {
     out.push(
       "    counts = confusion_counts(frame)",
       "    labels = sorted(set(counts.index) | set(counts.columns), key=str)",
@@ -20004,8 +20018,14 @@ function emitPrepare(spec, out) {
       "    )"
     );
   }
+  if (spec.kind === "kaplan_meier") {
+    body.push("    survival_input(df)");
+    if (spec.transform && spec.transform.kind !== "none") {
+      body.push('    raise ValueError("Kaplan-Meier does not apply transforms to a raw y column")');
+    }
+  }
   const transform2 = spec.transform;
-  if (transform2 && transform2.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && transform2 && transform2.kind !== "none") {
     body.push(...transformBody(spec, transform2));
   }
   body.push("    return df");
@@ -21959,61 +21979,90 @@ function emitQq(spec, out) {
 }
 function emitKaplanMeier(spec, out) {
   void spec;
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        block = block.dropna(subset=[X_FIELD, EVENT_FIELD]).sort_values(X_FIELD)",
-    "        times = block[X_FIELD].to_numpy(dtype=float)",
-    "        events = block[EVENT_FIELD].to_numpy(dtype=float) > 0.5",
-    "        if not len(times):",
-    "            continue",
-    "        at_risk = len(times)",
-    "        survival = 1.0",
-    "        steps_t, steps_s = [float(times.min())], [1.0]",
-    "        censored_t, censored_s = [], []",
-    "        for position, moment in enumerate(times):",
-    "            if events[position]:",
-    "                survival *= 1.0 - 1.0 / at_risk",
-    "                steps_t.append(float(moment))",
-    "                steps_s.append(survival)",
-    "            else:",
-    "                censored_t.append(float(moment))",
-    "                censored_s.append(survival)",
-    "            at_risk -= 1",
-    "        style = series_style(name, index, len(names))",
-    "        ax.step(",
-    "            steps_t,",
-    "            steps_s,",
-    '            where="post",',
-    "            label=None if name is None else str(name),",
-    '            color=style["colour"],',
-    '            linewidth=style["width"],',
-    '            alpha=style["alpha"],',
-    '            zorder=style["zorder"],',
-    '            linestyle=style["linestyle"],',
-    "        )",
-    "        if censored_t:",
-    "            # Every censored record is marked. A survival curve that hides",
-    "            # them looks far more certain than the data supports.",
-    "            ax.scatter(",
-    "                censored_t,",
-    "                censored_s,",
-    '                marker="|",',
-    "                s=28,",
-    '                color=style["colour"],',
-    "                zorder=4,",
-    "                linewidths=1.0,",
-    "            )",
-    "        print(",
-    `            f"survival: {name or 'the cohort'} had {int(events.sum())} events and "`,
-    '            f"{int((~events).sum())} censored records out of {len(times)}"',
-    "        )",
-    "    ax.set_ylim(-0.02, 1.02)",
-    ""
-  );
+  out.push(...String.raw`
+
+def survival_input(frame):
+    if frame.empty:
+        raise ValueError("Kaplan-Meier needs at least one observation")
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [X_FIELD, EVENT_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Kaplan-Meier is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Kaplan-Meier requires nonmissing cohort and panel labels")
+    times = pd.to_numeric(frame[X_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    events = pd.to_numeric(frame[EVENT_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if not (np.isfinite(times) & (times >= 0)).all():
+        raise ValueError("Kaplan-Meier follow-up times must be finite and non-negative")
+    if not (np.isfinite(events) & np.isin(events, [0, 1])).all():
+        raise ValueError("Kaplan-Meier event indicators must be 0 (right-censored) or 1 (observed)")
+    return times, events
+
+
+def survival_estimate(frame):
+    times, events = survival_input(frame)
+    moments, inverse, totals = np.unique(times, return_inverse=True, return_counts=True)
+    deaths = np.bincount(inverse, weights=events).astype(int)
+    at_risk, survival = len(times), 1.0
+    steps_t, steps_s = [0.0], [1.0]
+    censored_t, censored_s = [], []
+    median = None
+    for moment, total, observed in zip(moments, totals, deaths):
+        survival *= 1.0 - int(observed) / at_risk
+        steps_t.append(float(moment))
+        steps_s.append(float(survival))
+        censored = int(total - observed)
+        censored_t.extend([float(moment)] * censored)
+        censored_s.extend([float(survival)] * censored)
+        # The first 50% crossing must not move one record because of roundoff.
+        if median is None and (survival <= 0.5 or np.isclose(survival, 0.5, rtol=1e-12, atol=0)):
+            median = float(moment)
+        at_risk -= int(total)
+    return {"time": np.asarray(steps_t), "survival": np.asarray(steps_s),
+            "censor_time": np.asarray(censored_t), "censor_survival": np.asarray(censored_s),
+            "observations": len(times), "events": int(events.sum()),
+            "censored": int(len(times) - events.sum()), "last": float(moments[-1]), "median": median}
+
+
+def survival_claim_frame(frame):
+    times, _ = survival_input(frame)
+    roles = [X_FIELD, Y_FIELD, *([GROUP] if GROUP is not None else [])]
+    if len(roles) != len(set(roles)):
+        raise ValueError("Kaplan-Meier claims need distinct time, survival-output and cohort field names")
+    grid = np.unique(np.concatenate(([0.0], times)))
+    blocks = []
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = survival_estimate(block)
+        values = curve["survival"][np.searchsorted(curve["time"], grid, side="right") - 1].copy()
+        # A censored cohort does not establish survival beyond its follow-up.
+        values[grid > curve["last"]] = np.nan
+        data = {X_FIELD: grid, Y_FIELD: values}
+        if GROUP is not None:
+            data[GROUP] = [name] * len(grid)
+        blocks.append(pd.DataFrame(data))
+    return pd.concat(blocks, ignore_index=True)
+
+
+def draw_panel(ax, df):
+    survival_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        block = df if name is None else df[df[GROUP] == name]
+        curve = survival_estimate(block)
+        style = series_style(name, index, len(names))
+        ax.step(curve["time"], curve["survival"], where="post",
+                label=None if name is None else str(name), color=style["colour"],
+                linewidth=style["width"], alpha=style["alpha"],
+                zorder=style["zorder"], linestyle=style["linestyle"])
+        if len(curve["censor_time"]):
+            ax.scatter(curve["censor_time"], curve["censor_survival"], marker="|", s=28,
+                       color=style["colour"], zorder=4, linewidths=1.0)
+        label = "the cohort" if name is None else str(name)
+        print(f"survival: {label} had {curve['events']} events and {curve['censored']} "
+              f"right-censored records out of {curve['observations']}")
+    ax.set_ylim(-0.02, 1.02)
+`.split("\n"));
 }
 function emitScalingFit(spec, out) {
   out.push(
@@ -23223,6 +23272,17 @@ var pairedKinds = (spec, add) => {
     );
   }
 };
+var survivalSemantics = (spec, add) => {
+  if (spec.kind !== "kaplan_meier") return;
+  const roles = [spec.x.field, spec.y.field, ...spec.group ? [spec.group] : []];
+  if (spec.transform && spec.transform.kind !== "none" || spec.claims?.length && new Set(roles).size !== roles.length) {
+    add(
+      "error",
+      "unsupported_survival_semantics",
+      "Kaplan-Meier estimates use original follow-up/event data, so raw-y transforms are unsupported. Survival claims also need distinct time, derived survival-output and cohort field names."
+    );
+  }
+};
 var claims = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : void 0;
@@ -23303,6 +23363,7 @@ var RULES = [
   animation,
   composition,
   pairedKinds,
+  survivalSemantics,
   claims,
   encodingChoice
 ];
@@ -23392,7 +23453,7 @@ def describe_panels(blocks):
                 reason = f"panel {name} has no data"
                 finding("warning", "empty_panel", reason)
                 RUN_REPORT["untested"].append(reason)
-            summary = summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame
+            summary = ${spec.kind === "kaplan_meier" ? "survival_claim_frame(frame) if CLAIMS and not frame.empty else frame" : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame'}
             label = str(name) if name is not None else None
             panel = {"index": index, "name": label, "metric": Y_FIELD}
             RUN_REPORT["panels"].append(panel)
@@ -23408,7 +23469,7 @@ def describe_panels(blocks):
                 RUN_REPORT["claims"].append(record)
             # Keep the original single-panel description byte-for-byte where possible.
             SAMPLE_SIZE_TEXT = original_n if len(blocks) == 1 else ""
-            body = "No data." if frame.empty else alt_text(summary)
+            body = "No data." if frame.empty else alt_text(${spec.kind === "kaplan_meier" ? "frame" : "summary"})
             if len(blocks) > 1:
                 body = body.removeprefix(ENCODING_SENTENCE).strip()
                 body = f"Panel {label if label is not None else index + 1}: {body}"

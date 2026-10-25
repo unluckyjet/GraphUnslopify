@@ -170,7 +170,21 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
 
-  if (spec.kind === "confusion_matrix") {
+  if (spec.kind === "kaplan_meier") {
+    out.push(...String.raw`
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = survival_estimate(block)
+        who = "the cohort" if name is None else f"cohort {name}"
+        parts.append(f"{who}: {curve['observations']} observations, {curve['events']} events and "
+                     f"{curve['censored']} right-censored records")
+        parts.append(f"at follow-up {curve['last']:.3g}, estimated survival is {curve['survival'][-1]:.3g}")
+        if curve["median"] is None:
+            parts.append("median survival is not reached within the observed follow-up")
+        else:
+            parts.append(f"median survival is {curve['median']:.3g}")
+`.split("\n"));
+  } else if (spec.kind === "confusion_matrix") {
     // Both axes are class labels, so there is no column to average. What a
     // reader wants is how much of the mass sits on the diagonal and which
     // off-diagonal cell is worst.

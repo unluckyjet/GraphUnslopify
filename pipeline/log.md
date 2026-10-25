@@ -31,3 +31,5 @@ One line per state change, newest last.
 - 2026-10-25: Spec 23 delivered: offline packaged local editor, live/manual strict previews, selected verifier-owned fixes, mixed panel verdicts, stale-response/empty-data negative controls, explicit dataset ZIP consent and reproduced exports; 215 Node/140 Python and browser/fresh-wheel checks pass.
 
 - 2026-10-25: Spec 25 delivered: literal LaTeX caption/description/table text and honest unknown-origin disclosure; actual compiled PDF preserves all ten special characters, numeric intervals/highlights and literal input commands. Seven gates, strict gallery, unchanged RGBA pixels and browser reproduction pass (215 Node/144 Python). Scientific reference matrix 24 remains open.
+
+- 2026-10-25: Spec 26 delivered: stable tied Kaplan–Meier risk sets, censor tails/markers, domain guards, survival-based descriptions/claims and median boundaries; 34 actual-artist/hand/SciPy regressions. Seven gates, strict gallery and fresh offline wheel pass (215 Node/178 Python). Broad reference matrix 24 remains active.

@@ -143,6 +143,45 @@ def main() -> None:
             provenance["provenance"]["data_sha256_prefix"]
             == report["data"]["sha256_prefix"]
         )
+    # Derived survival needs no placeholder y column or optional SciPy runtime.
+    (where / "survival.csv").write_text("time,event\n1,0\n1,1\n2,1\n", encoding="utf8")
+    survival_spec = where / "survival.json"
+    survival_spec.write_text(
+        json.dumps(
+            {
+                "kind": "kaplan_meier",
+                "data": {"path": "survival.csv"},
+                "x": {"field": "time", "label": "Follow-up"},
+                "y": {"field": "survival", "label": "Surviving fraction"},
+                "event": "event",
+                "legend": {"show": False},
+                "output": {"stem": "survival", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    survival = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(survival_spec),
+                "--out-dir",
+                str(where / "survival output"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert survival["status"] == "passed"
+    assert survival["data"]["counts"]["read"] == 3
+    assert (
+        "3 observations" in survival["alt_text"] and "2 events" in survival["alt_text"]
+    )
+    assert "Median survival is 2" in survival["alt_text"]
+    assert len(survival["outputs"]) == 2
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

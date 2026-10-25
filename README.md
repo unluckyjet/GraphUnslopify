@@ -340,7 +340,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Sixty-nine rules run on the server against the spec alone. The Python package checks the rendered
+Seventy rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -402,7 +402,8 @@ series bends away at both ends, and there is nothing else to read. Winitzki's ap
 normal quantile, so this needs no scipy.
 
 The survival curve marks every censored record. A curve that hides them looks far more certain
-than the data supports.
+than the data supports. Tied events share the correct risk set, and numeric claims use the plotted
+survival estimates; see [the survival contract and independent references](docs/survival-validation.md).
 
 The scaling fit prints the exponent and its interval instead of leaving it to be read off a log-log
 axis by eye. On data generated with an exponent of 0.14 it recovered -0.1399 plus or minus 0.0023.

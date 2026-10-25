@@ -77,7 +77,7 @@ def describe_panels(blocks):
                 reason = f"panel {name} has no data"
                 finding("warning", "empty_panel", reason)
                 RUN_REPORT["untested"].append(reason)
-            summary = summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame
+            summary = ${spec.kind === "kaplan_meier" ? "survival_claim_frame(frame) if CLAIMS and not frame.empty else frame" : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame'}
             label = str(name) if name is not None else None
             panel = {"index": index, "name": label, "metric": Y_FIELD}
             RUN_REPORT["panels"].append(panel)
@@ -93,7 +93,7 @@ def describe_panels(blocks):
                 RUN_REPORT["claims"].append(record)
             # Keep the original single-panel description byte-for-byte where possible.
             SAMPLE_SIZE_TEXT = original_n if len(blocks) == 1 else ""
-            body = "No data." if frame.empty else alt_text(summary)
+            body = "No data." if frame.empty else alt_text(${spec.kind === "kaplan_meier" ? "frame" : "summary"})
             if len(blocks) > 1:
                 body = body.removeprefix(ENCODING_SENTENCE).strip()
                 body = f"Panel {label if label is not None else index + 1}: {body}"

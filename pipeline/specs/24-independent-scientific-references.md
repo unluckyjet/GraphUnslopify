@@ -14,7 +14,9 @@ known-answer evidence where it already exists. Fill scientific/derived gaps with
 fixtures whose expected quantities are computed independently of the emitter implementation.
 Inspect actual artists/tables/descriptions and exported values, not just generated substrings.
 
-Prioritize paired differences, Kaplan–Meier censoring/ties, calibration, QQ/scaling fits and
+Kaplan–Meier ties/domains/tails/descriptions/claim inputs now have independent hand/SciPy artist
+references and failure controls (spec 26). Reuse that evidence. Prioritize paired differences,
+calibration, QQ/scaling fits and
 categorical identifiers. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.

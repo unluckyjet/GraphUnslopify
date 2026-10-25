@@ -613,6 +613,17 @@ const pairedKinds: Rule = (spec, add) => {
   }
 };
 
+const survivalSemantics: Rule = (spec, add) => {
+  if (spec.kind !== "kaplan_meier") return;
+  const roles = [spec.x.field, spec.y.field, ...(spec.group ? [spec.group] : [])];
+  if (spec.transform && spec.transform.kind !== "none"
+      || spec.claims?.length && new Set(roles).size !== roles.length) {
+    add("error", "unsupported_survival_semantics",
+      "Kaplan-Meier estimates use original follow-up/event data, so raw-y transforms are unsupported. " +
+      "Survival claims also need distinct time, derived survival-output and cohort field names.");
+  }
+};
+
 const claims: Rule = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : undefined;
@@ -699,6 +710,7 @@ export const RULES: Rule[] = [
   animation,
   composition,
   pairedKinds,
+  survivalSemantics,
   claims,
   encodingChoice,
 ];

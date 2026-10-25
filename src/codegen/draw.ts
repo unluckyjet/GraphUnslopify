@@ -902,64 +902,92 @@ function emitQq(spec: FigureSpec & { kind: "qq" }, out: string[]): void {
 
 function emitKaplanMeier(spec: FigureSpec & { kind: "kaplan_meier" }, out: string[]): void {
   void spec;
-  // The product-limit estimator. Censored records still contribute to the risk
-  // set up to the moment they leave, which is the whole reason not to just
-  // draw one minus the ECDF of the observed events.
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        block = block.dropna(subset=[X_FIELD, EVENT_FIELD]).sort_values(X_FIELD)",
-    "        times = block[X_FIELD].to_numpy(dtype=float)",
-    "        events = block[EVENT_FIELD].to_numpy(dtype=float) > 0.5",
-    "        if not len(times):",
-    "            continue",
-    "        at_risk = len(times)",
-    "        survival = 1.0",
-    "        steps_t, steps_s = [float(times.min())], [1.0]",
-    "        censored_t, censored_s = [], []",
-    "        for position, moment in enumerate(times):",
-    "            if events[position]:",
-    "                survival *= 1.0 - 1.0 / at_risk",
-    "                steps_t.append(float(moment))",
-    "                steps_s.append(survival)",
-    "            else:",
-    "                censored_t.append(float(moment))",
-    "                censored_s.append(survival)",
-    "            at_risk -= 1",
-    "        style = series_style(name, index, len(names))",
-    "        ax.step(",
-    "            steps_t,",
-    "            steps_s,",
-    '            where="post",',
-    "            label=None if name is None else str(name),",
-    '            color=style["colour"],',
-    '            linewidth=style["width"],',
-    '            alpha=style["alpha"],',
-    '            zorder=style["zorder"],',
-    '            linestyle=style["linestyle"],',
-    "        )",
-    "        if censored_t:",
-    "            # Every censored record is marked. A survival curve that hides",
-    "            # them looks far more certain than the data supports.",
-    "            ax.scatter(",
-    "                censored_t,",
-    "                censored_s,",
-    '                marker="|",',
-    "                s=28,",
-    '                color=style["colour"],',
-    "                zorder=4,",
-    "                linewidths=1.0,",
-    "            )",
-    "        print(",
-    '            f"survival: {name or \'the cohort\'} had {int(events.sum())} events and "',
-    '            f"{int((~events).sum())} censored records out of {len(times)}"',
-    "        )",
-    "    ax.set_ylim(-0.02, 1.02)",
-    "",
-  );
+  // Events at a time share the risk set just before that time; tied censors
+  // leave afterwards. One estimate owns marks, descriptions and claim inputs.
+  out.push(...String.raw`
+
+def survival_input(frame):
+    if frame.empty:
+        raise ValueError("Kaplan-Meier needs at least one observation")
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [X_FIELD, EVENT_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Kaplan-Meier is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Kaplan-Meier requires nonmissing cohort and panel labels")
+    times = pd.to_numeric(frame[X_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    events = pd.to_numeric(frame[EVENT_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if not (np.isfinite(times) & (times >= 0)).all():
+        raise ValueError("Kaplan-Meier follow-up times must be finite and non-negative")
+    if not (np.isfinite(events) & np.isin(events, [0, 1])).all():
+        raise ValueError("Kaplan-Meier event indicators must be 0 (right-censored) or 1 (observed)")
+    return times, events
+
+
+def survival_estimate(frame):
+    times, events = survival_input(frame)
+    moments, inverse, totals = np.unique(times, return_inverse=True, return_counts=True)
+    deaths = np.bincount(inverse, weights=events).astype(int)
+    at_risk, survival = len(times), 1.0
+    steps_t, steps_s = [0.0], [1.0]
+    censored_t, censored_s = [], []
+    median = None
+    for moment, total, observed in zip(moments, totals, deaths):
+        survival *= 1.0 - int(observed) / at_risk
+        steps_t.append(float(moment))
+        steps_s.append(float(survival))
+        censored = int(total - observed)
+        censored_t.extend([float(moment)] * censored)
+        censored_s.extend([float(survival)] * censored)
+        # The first 50% crossing must not move one record because of roundoff.
+        if median is None and (survival <= 0.5 or np.isclose(survival, 0.5, rtol=1e-12, atol=0)):
+            median = float(moment)
+        at_risk -= int(total)
+    return {"time": np.asarray(steps_t), "survival": np.asarray(steps_s),
+            "censor_time": np.asarray(censored_t), "censor_survival": np.asarray(censored_s),
+            "observations": len(times), "events": int(events.sum()),
+            "censored": int(len(times) - events.sum()), "last": float(moments[-1]), "median": median}
+
+
+def survival_claim_frame(frame):
+    times, _ = survival_input(frame)
+    roles = [X_FIELD, Y_FIELD, *([GROUP] if GROUP is not None else [])]
+    if len(roles) != len(set(roles)):
+        raise ValueError("Kaplan-Meier claims need distinct time, survival-output and cohort field names")
+    grid = np.unique(np.concatenate(([0.0], times)))
+    blocks = []
+    for name in series_names(frame) if GROUP is not None else [None]:
+        block = frame if name is None else frame[frame[GROUP] == name]
+        curve = survival_estimate(block)
+        values = curve["survival"][np.searchsorted(curve["time"], grid, side="right") - 1].copy()
+        # A censored cohort does not establish survival beyond its follow-up.
+        values[grid > curve["last"]] = np.nan
+        data = {X_FIELD: grid, Y_FIELD: values}
+        if GROUP is not None:
+            data[GROUP] = [name] * len(grid)
+        blocks.append(pd.DataFrame(data))
+    return pd.concat(blocks, ignore_index=True)
+
+
+def draw_panel(ax, df):
+    survival_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        block = df if name is None else df[df[GROUP] == name]
+        curve = survival_estimate(block)
+        style = series_style(name, index, len(names))
+        ax.step(curve["time"], curve["survival"], where="post",
+                label=None if name is None else str(name), color=style["colour"],
+                linewidth=style["width"], alpha=style["alpha"],
+                zorder=style["zorder"], linestyle=style["linestyle"])
+        if len(curve["censor_time"]):
+            ax.scatter(curve["censor_time"], curve["censor_survival"], marker="|", s=28,
+                       color=style["colour"], zorder=4, linewidths=1.0)
+        label = "the cohort" if name is None else str(name)
+        print(f"survival: {label} had {curve['events']} events and {curve['censored']} "
+              f"right-censored records out of {curve['observations']}")
+    ax.set_ylim(-0.02, 1.02)
+`.split("\n"));
 }
 
 function emitScalingFit(spec: FigureSpec & { kind: "scaling_fit" }, out: string[]): void {

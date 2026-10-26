@@ -56,3 +56,7 @@ illustrations had no committed input data; these fixtures replace those unreprod
 Fingerprints tie both images to these inputs and the canonical emitter. Separate artist,
 inspector, raster and offline-browser controls check cell values and annotation contrast;
 see `docs/cell-contrast.md` for the criterion and limits.
+
+Keep fixture CSV bytes LF before rendering, as required by `.gitattributes` (for Python's
+CSV writer use `lineterminator="\n"`). Git normalizes CRLF at commit time; an image rendered
+before that conversion otherwise records a data hash that cannot match a fresh checkout.

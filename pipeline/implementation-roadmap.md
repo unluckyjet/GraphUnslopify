@@ -127,3 +127,10 @@ Milestones may be split further as evidence requires. No checklist item is compl
   illustrations are refreshed; their synthetic inputs and fingerprints are committed. Full
   matrix24, categorical overlays/final export width/table context, naming/versioned release and
   final audit remain open. Both GitHub workflows must pass before the next milestone.
+
+
+- Cell32 provenance follow-up:4245d3c initially stamped CRLF fixture bytes before Git's
+  existing LF normalization. Published images are re-stamped from the committed LF CSVs
+  without changing any pixels. Explicit LF fixture controls and regeneration guidance prevent
+  repeating that mismatch. Seven gates pass again215 Node/449 Python, strict gallery15/15;
+  both workflows for the corrected revision must pass before advancing.

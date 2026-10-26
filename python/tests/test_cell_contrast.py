@@ -324,9 +324,10 @@ def test_published_cell_illustrations_match_committed_inputs_and_emitter(name, i
     result = local_request("convert", spec)
     assert result["ok"], result
     evidence = read_provenance(root / f"docs/{image}.png")
-    assert (
-        evidence["data_sha256_prefix"]
-        == hashlib.sha256((folder / f"{name}.csv").read_bytes()).hexdigest()[:16]
-    )
+    payload = (folder / f"{name}.csv").read_bytes()
+    # .gitattributes commits LF. Hashing CRLF before git add would stamp bytes
+    # that are absent from a fresh checkout even though the plotted values agree.
+    assert b"\r" not in payload, "Public fixture bytes must already use committed LF endings"
+    assert evidence["data_sha256_prefix"] == hashlib.sha256(payload).hexdigest()[:16]
     assert evidence["script_sha256"] == hashlib.sha256(result["code"].encode("utf8")).hexdigest()
     assert evidence["spec"]["annotate_cells"] is True

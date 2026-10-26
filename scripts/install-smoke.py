@@ -976,6 +976,31 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=cohorts_dir, env=env)
+    driver = where / "bar_intervals.py"
+    driver.write_text(
+        "from graphunslopify.transport import local_request\n"
+        "from graphunslopify.inspect import inspect_figure\n"
+        "import pandas as pd, matplotlib.pyplot as plt\n"
+        "from matplotlib.container import BarContainer\n"
+        "base={'kind':'bar','data':{'path':'unused.csv'},'x':{'field':'category','label':'Category'},\n"
+        "'y':{'field':'value','label':'Value'},'aggregation':'median','uncertainty':{'kind':'ci'}}\n"
+        "def module(raw):\n"
+        "    r=local_request('convert',raw); ns={'__name__':'bounds','__file__':'bounds.py'}; exec(r['code'],ns); return r,ns\n"
+        "r,m=module(base); assert r['ok']; fig,ax=plt.subplots()\n"
+        "m['draw_panel'](ax,pd.DataFrame({'category':['A']*3,'value':[1,2,9]}))\n"
+        "bar=next(c for c in ax.containers if isinstance(c,BarContainer))\n"
+        "assert list(bar.errorbar.lines[2][0].get_segments()[0][:,1])==[1,9]\n"
+        "ax.set_ylim(0,5); assert any(f.code=='bar_interval_clipped' for f in inspect_figure(fig).findings)\n"
+        "base['aggregation']='mean'; base['uncertainty']['kind']='iqr'; r,m=module(base)\n"
+        "try: m['draw_panel'](ax,pd.DataFrame({'category':['A']*5,'value':[0,0,0,0,100]}))\n"
+        "except ValueError as problem: assert 'bounds exclude the estimate' in str(problem)\n"
+        "else: raise AssertionError('detached bar interval was reflected')\n"
+        "base.update(stacked=True,group='method'); r,m=module(base)\n"
+        "assert not r['ok'] and any(f['code']=='stacked_uncertainty_unsupported' for f in r['findings'])\n"
+        "plt.close('all'); print('installed true bar bounds, clipping and stacked refusal passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=where, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

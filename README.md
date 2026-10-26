@@ -357,7 +357,7 @@ retain their original typed meaning; see [data identities and ordering](docs/dat
 
 [Uncertainty must match the estimator](docs/uncertainty-estimators.md): SEM is not used for median summaries.
 
-Eighty rules run on the server against the spec alone. The Python package checks the rendered
+Eighty-one rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

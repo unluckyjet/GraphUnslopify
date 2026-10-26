@@ -246,3 +246,13 @@ Milestones may be split further as evidence requires. No checklist item is compl
   Baseline scripts/assets and51 published PNG blobs are unchanged. Both workflows
   require verification after push. Full matrix24, naming/versioned release and
   final audit remain open.
+
+- Shared-series41 revision04d04d3: General CI40323489159 passes all eight jobs and Figure CI40323489057 passes. Both Python3.10/3.12 report795 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four installed platforms independently verify actual sparse-panel colours/patterns/values and complete shared legends offline with agent.
+
+- Milestone38 resolves bar interval fidelity/visibility (spec42):41 focused controls;
+  215 Node/833 full-suite Python plus4 additional controls, zero local skips/warnings;
+  seven gates/gallery15/15/Ruff/fresh offline wheel/agent. True1..9 bounds are retained,
+  detached intervals and unimplemented stacked uncertainty fail, and clipped stems
+  trigger strict policy with review artifacts. Baselines and51 published PNGs remain
+  unchanged. Both workflows require verification after push. Complete numerical/
+  domain matrix24, naming/versioned release and final audit remain open.

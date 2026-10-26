@@ -53,3 +53,5 @@ One line per state change, newest last.
 2026-10-26 —40 lands: estimator-specific SEM refusal with valid mean/median alternatives retained;33 controls,215 Node/764 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.
 
 2026-10-26 —41 lands: global series styles and complete scoped/shared legends for sparse panels;32 controls,215 Node/796 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.
+
+2026-10-26 —42 lands: preserve real bar interval endpoints, reject omitted stacked uncertainty and detect clipped stems;41 controls,215 Node/833 full Python plus4 added controls, seven gates/gallery15/15/offline wheel; CI required after push.

@@ -20693,9 +20693,18 @@ function emitHelpers(spec, out) {
       '    if "_low" not in block:',
       "        return None",
       "    centre = block[Y_FIELD].to_numpy(dtype=float)",
+      '    low = block["_low"].to_numpy(dtype=float)',
+      '    high = block["_high"].to_numpy(dtype=float)',
+      "    known = np.isfinite(centre) & np.isfinite(low) & np.isfinite(high)",
+      "    # Allow machine rounding only; a detached interval must never be reflected.",
+      "    tolerance = 16 * np.finfo(float).eps",
+      "    below = (centre < low) & ~np.isclose(centre, low, rtol=tolerance, atol=0)",
+      "    above = (centre > high) & ~np.isclose(centre, high, rtol=tolerance, atol=0)",
+      "    if np.any(known & (below | above)):",
+      '        raise ValueError("Bar interval bounds exclude the estimate; use median with IQR, or a forest plot/table for detached bounds.")',
       "    return np.vstack([",
-      '        np.abs(centre - block["_low"].to_numpy(dtype=float)),',
-      '        np.abs(block["_high"].to_numpy(dtype=float) - centre),',
+      "        np.maximum(centre - low, 0.0),",
+      "        np.maximum(high - centre, 0.0),",
       "    ])",
       ""
     );
@@ -21822,6 +21831,7 @@ function emitBar(spec, out) {
   );
   if (spec.group && spec.stacked) {
     out.push(
+      ...spec.uncertainty ? ['    raise ValueError("Stacked bar uncertainty is unsupported; use grouped bars to show individual intervals.")'] : [],
       "    names = series_names(frame)",
       "    running = np.zeros(len(categories))",
       "    for index, name in enumerate(names):",
@@ -23843,6 +23853,13 @@ var barRules = (spec, add) => {
   }
   if (spec.stacked && !spec.group) {
     add("error", "stacked_without_group", "Stacking needs a group column to supply the segments.");
+  }
+  if (spec.stacked && spec.uncertainty) {
+    add(
+      "error",
+      "stacked_uncertainty_unsupported",
+      "Stacked bar uncertainty is unsupported; use grouped bars to show individual intervals."
+    );
   }
   if (spec.stacked && spec.series_order && spec.series_order.length > MAX_STACK_SEGMENTS) {
     add(

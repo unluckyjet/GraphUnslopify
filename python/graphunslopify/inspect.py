@@ -457,9 +457,24 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
     # floating bars may have legitimate offsets but still must remain visible.
     bounds = axes.get_window_extent()
     clipped = 0
+    clipped_intervals = 0
     for container in axes.containers:
         if not isinstance(container, BarContainer):
             continue
+        coordinate = {"vertical": 1, "horizontal": 0}.get(container.orientation)
+        if container.errorbar is not None and coordinate is not None:
+            lower, upper = (bounds.ymin, bounds.ymax) if coordinate == 1 else (bounds.xmin, bounds.xmax)
+            for collection in container.errorbar.lines[2]:
+                if not collection.get_visible() or not collection.get_clip_on():
+                    continue
+                for segment in collection.get_segments():
+                    if not len(segment):
+                        continue
+                    display = collection.get_transform().transform(segment)[:, coordinate]
+                    if all(math.isfinite(value) for value in display) and (
+                        min(display) < lower - 1e-7 or max(display) > upper + 1e-7
+                    ):
+                        clipped_intervals += 1
         for bar in container.patches:
             if not bar.get_visible() or not bar.get_clip_on():
                 continue
@@ -480,6 +495,13 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
             "bar_mark_clipped",
             f"{clipped} bar value extents are clipped by the axes; widen the value limits "
             "so complete lengths are visible, or use a non-length-bearing mark.",
+        )
+    if clipped_intervals:
+        report.add(
+            "error",
+            "bar_interval_clipped",
+            f"{clipped_intervals} bar uncertainty intervals are clipped by the axes; widen "
+            "the value limits so both true endpoints remain visible.",
         )
 
     which = _bar_value_axis(axes)

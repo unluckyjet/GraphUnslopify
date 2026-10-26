@@ -289,6 +289,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
 
   if (spec.group && spec.stacked) {
     out.push(
+      ...(spec.uncertainty ? ['    raise ValueError("Stacked bar uncertainty is unsupported; use grouped bars to show individual intervals.")'] : []),
       "    names = series_names(frame)",
       "    running = np.zeros(len(categories))",
       "    for index, name in enumerate(names):",

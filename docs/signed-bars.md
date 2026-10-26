@@ -16,8 +16,10 @@ The existing `truncated_bar_axis` check also catches either side excluding zero.
 Floating bars may start away from zero; their full extents still need to be visible.
 A common nonzero floating origin is also permitted. Unrelated rectangles are not
 inferred to be bars, and artists with axes clipping disabled are not reported as
-clipped by that axes boundary. This is a check of standard bar bodies, not every
-custom clip path, error-bar cap, raster image or arbitrary authored transformation.
+clipped by that axes boundary. Standard bar interval stems are also checked against
+the value-axis boundary, reporting `bar_interval_clipped` even when the body is fully
+visible. This does not certify every custom clip path, cap size, raster image or
+arbitrary authored transformation.
 A logarithmic bar cannot show its zero origin; use a non-length-bearing mark when
 its full bar extent cannot be shown.
 
@@ -28,3 +30,26 @@ labels and strict positive/negative exports. The initial37 controls measured26
 failures/11 passes before the fix. Installed offline wheel checks independently
 verify actual signed magnitudes/ranges/labels and a failing clipped-limit export.
 The broader21-kind scientific reference matrix remains separate.
+
+## Preserve actual interval endpoints
+
+Bar errorbars require their interval to enclose the estimate. A mean of20 with
+quartile bounds0/0 from values0/0/0/0/100 previously drew0..40 by reflecting one
+endpoint. It now raises a clear data-dependent error: select median+IQR when that
+is the intended summary, or a forest plot/table that can show detached bounds.
+The requested estimator is never substituted. Signed widths allow only16 machine
+epsilons of relative rounding tolerance, with no absolute-unit tolerance; unknown
+bounds remain unknown. Valid asymmetric intervals retain their actual endpoints.
+
+`stacked_uncertainty_unsupported` refuses stacked bars with requested uncertainty:
+the old branch omitted intervals entirely. Grouped bars can display individual
+intervals; total-stack uncertainty would require an explicit dependence contract.
+Stacked bars without requested uncertainty remain supported.
+
+`python/tests/test_bar_intervals.py` adds41 independent controls: both orientations,
+positive/negative/rescaled detached bounds, actual bootstrap endpoints1..9,
+rounding, unavailable singleton SEM, complete/clipped stems on both sides, semantic
+and direct stacked refusal, and real strict positive/runtime/policy exports. Initial37
+controls measured26 failures/11 passes before the fix; four additional positive/inverted/
+clip-disabled controls cover retained behavior. A crop of1..9 into0..5 now retains review artifacts and exits2
+with failed status; detached intervals exit1 rather than publish false bounds.

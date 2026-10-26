@@ -429,6 +429,13 @@ const barRules: Rule = (spec, add) => {
   if (spec.stacked && !spec.group) {
     add("error", "stacked_without_group", "Stacking needs a group column to supply the segments.");
   }
+  if (spec.stacked && spec.uncertainty) {
+    add(
+      "error",
+      "stacked_uncertainty_unsupported",
+      "Stacked bar uncertainty is unsupported; use grouped bars to show individual intervals.",
+    );
+  }
   if (spec.stacked && spec.series_order && spec.series_order.length > MAX_STACK_SEGMENTS) {
     add(
       "warning",

@@ -70,9 +70,18 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     }
   }
 
+  if (spec.kind === "qq") {
+    body.push("    df = qq_input(df)");
+    if (spec.transform && !["none", "normalize"].includes(spec.transform.kind)) {
+      body.push('    raise ValueError("Q-Q raw-x transforms are unsupported; normalize observations or transform the source data explicitly")');
+    }
+  }
+
   const transform = spec.transform;
-  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none"
+      && (spec.kind !== "qq" || transform.kind === "normalize")) {
     body.push(...transformBody(spec, transform));
+    if (spec.kind === "qq") body.push("    df = qq_input(df)");
   }
 
   body.push("    return df");

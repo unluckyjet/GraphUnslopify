@@ -150,10 +150,12 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
       "def label_series_directly(ax, frame):",
       "    # A name at the end of each line beats a legend box that covers data.",
       "    for index, name in enumerate(series_names(frame)):",
-      "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
+      spec.kind === "qq" ? "        block = frame[frame[GROUP] == name]"
+        : "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
       "        if block.empty:",
       "            continue",
       ...(spec.kind === "calibration" ? ["        curve = calibration_estimate(block)"] : []),
+      ...(spec.kind === "qq" ? ["        curve = qq_estimate(block)"] : []),
       "        style = series_style(name, index, len(series_names(frame)))",
       "        ax.annotate(",
       spec.kind === "calibration"
@@ -161,7 +163,8 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
         : "            str(name),",
       spec.kind === "calibration"
         ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),'
-        : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
+        : spec.kind === "qq" ? '            xy=(curve["theoretical"][-1], curve["observed"][-1]),'
+          : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
       '            va="center",',
@@ -361,6 +364,7 @@ function emitAnnotations(spec: FigureSpec, out: string[]): void {
     "    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc=\"mean\")",
     "    if series not in pivot.columns or pivot.shape[1] < 2:",
     "        return None",
+    ...(spec.kind === "qq" ? ["    if pivot.isna().any(axis=None):", "        return None"] : []),
     "    others = pivot.drop(columns=[series]).max(axis=1)",
     "    ahead = pivot[series] > others",
     "    if not ahead.any():",
@@ -375,6 +379,12 @@ function emitAnnotations(spec: FigureSpec, out: string[]): void {
     "    for index, note in enumerate(ANNOTATIONS):",
     '        found = locate(frame, note["at"], note.get("series"))',
     "        if found is None:",
+    ...(spec.kind === "qq" ? [
+      `            reason = f"Q-Q panel {CURRENT_PANEL}, annotation {note['text']!r} has no complete derived quantile coverage"`,
+      '            finding("warning", "qq_annotation_unavailable", reason)',
+      '            if reason not in RUN_REPORT["untested"]:',
+      '                RUN_REPORT["untested"].append(reason)',
+    ] : []),
     '            print(f"  annotation {note[\'text\']!r} had nowhere to attach")',
     "            continue",
     "        x, y = found",
@@ -407,7 +417,9 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
       `        ax.set_${target}label(${pyStr(
         spec.kind === "paired_difference" && specAxis === "y"
           ? differenceLabel(axis)
-          : axisLabel(axis),
+          : spec.kind === "qq" && specAxis === "y" && spec.transform?.kind === "normalize"
+            ? `Normalized ${axis.label} (${axis.percent ? "% of observed range" : "0–1"})`
+            : axisLabel(axis),
       )})`,
     );
     if (isCategorical(spec, specAxis) || spec.kind === "heatmap") continue;
@@ -478,7 +490,8 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
     }
   }
 
-  if (spec.annotate?.length) out.push("    place_annotations(ax, frame)");
+  if (spec.annotate?.length) out.push(spec.kind === "qq"
+    ? "    place_annotations(ax, qq_claim_frame(frame))" : "    place_annotations(ax, frame)");
 
   out.push(spec.style.grid ? "    ax.grid(True, linewidth=0.4, alpha=0.5)" : "    ax.grid(False)");
   if (spec.style.despine && spec.kind !== "heatmap") {

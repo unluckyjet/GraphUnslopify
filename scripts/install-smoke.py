@@ -264,6 +264,42 @@ def main() -> None:
     assert comparison["n"] == 2 and comparison["mean"] == 5
     assert comparison["baseline_only"] == 1 and comparison["candidate_only"] == 1
     assert len(paired["outputs"]) == 2
+    (where / "qq.csv").write_text("value\n1\n2\n3\n4\n", encoding="utf8")
+    qq_spec = where / "qq.json"
+    qq_spec.write_text(
+        json.dumps(
+            {
+                "kind": "qq",
+                "data": {"path": "qq.csv"},
+                "x": {"field": "theory", "label": "Theoretical quantile"},
+                "y": {"field": "value", "label": "Sample quantile"},
+                "legend": {"show": False},
+                "output": {"stem": "qq", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    qq = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(qq_spec),
+                "--out-dir",
+                str(where / "qq output"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert qq["status"] == "passed" and "normal" in qq["alt_text"]
+    sample = qq["data"]["counts"]["qq"][0]
+    assert sample["observations"] == 4 and sample["median"] == 2.5
+    assert sample["q1"] == 1.75 and sample["q3"] == 3.25
+    assert sample["reference_line"] == "population_quartiles"
+    assert len(qq["outputs"]) == 2
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

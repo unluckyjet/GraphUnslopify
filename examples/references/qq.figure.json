@@ -1,0 +1,31 @@
+{
+  "kind": "qq",
+  "distribution": "normal",
+  "data": {
+    "path": "qq.csv"
+  },
+  "x": {
+    "field": "theoretical",
+    "label": "Theoretical quantile"
+  },
+  "y": {
+    "field": "value",
+    "label": "Sample quantile"
+  },
+  "group": "source",
+  "series_order": [
+    "Gaussian",
+    "Heavy-tailed (t3)"
+  ],
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "qq",
+    "formats": [
+      "png"
+    ],
+    "size": "single_column",
+    "dpi": 150
+  }
+}

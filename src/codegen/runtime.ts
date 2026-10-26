@@ -5,7 +5,8 @@ import { pyStr } from "./py.ts";
 /** Runtime evidence lives in each generated program, including offline copies. */
 export function emitRuntime(spec: FigureSpec, out: string[]): void {
   const derivedFrame = spec.kind === "kaplan_meier" ? "survival_claim_frame"
-    : spec.kind === "calibration" ? "calibration_claim_frame" : undefined;
+    : spec.kind === "calibration" ? "calibration_claim_frame"
+      : spec.kind === "qq" ? "qq_claim_frame" : undefined;
   const summary = derivedFrame ? `${derivedFrame}(frame) if CLAIMS and not frame.empty else frame`
     : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
 

@@ -63,6 +63,10 @@ export function encodingSentence(spec: FigureSpec): string {
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} ` +
         `across the horizontal axis and ${axisPhrase(spec.y.label, spec.y.unit)} down the vertical axis`,
     );
+  } else if (spec.kind === "qq") {
+    const sample = spec.transform?.kind === "normalize"
+      ? `normalized ${spec.y.label} (unitless observed range)` : axisPhrase(spec.y.label, spec.y.unit);
+    parts.push(`${kind} of ${sample} against ${spec.distribution} theoretical quantiles`);
   } else if (spec.kind === "paired_difference") {
     parts.push(
       `${kind} of changes in ${axisPhrase(spec.y.label, spec.y.unit === "%" ? "percentage points" : spec.y.unit)} ` +
@@ -193,6 +197,19 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
             parts.append(f"{estimate['missing_measurements']} missing measurement rows in this comparison")
         if estimate["technical_repeats"]:
             parts.append(f"{estimate['technical_repeats']} technical repeat rows were averaged within unit and condition")
+`.split("\n"));
+  } else if (spec.kind === "qq") {
+    out.push(...String.raw`
+    for name in (series_names(frame) if GROUP is not None else [None]):
+        curve = qq_estimate(frame if name is None else frame[frame[GROUP] == name])
+        who = "the sample" if name is None else str(name)
+        parts.append(f"{who}: {curve['observations']} observations with {curve['missing']} missing measurements omitted")
+        parts.append(f"sample quartiles are {curve['q1']:.3g}, {curve['median']:.3g}, {curve['q3']:.3g}")
+        parts.append(f"the {QQ_DISTRIBUTION} reference uses Blom plotting positions and a population-quartile line "
+                     f"with slope {curve['slope']:.4g} and intercept {curve['intercept']:.4g}")
+        if curve["constant"]:
+            parts.append("constant sample: distribution shape cannot be assessed")
+    parts.append("this plot is not a normality test or a test of distributional equivalence")
 `.split("\n"));
   } else if (spec.kind === "kaplan_meier") {
     out.push(...String.raw`

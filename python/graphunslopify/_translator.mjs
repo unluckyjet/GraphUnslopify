@@ -19495,6 +19495,9 @@ function encodingSentence(spec) {
     parts.push(
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} across the horizontal axis and ${axisPhrase(spec.y.label, spec.y.unit)} down the vertical axis`
     );
+  } else if (spec.kind === "qq") {
+    const sample = spec.transform?.kind === "normalize" ? `normalized ${spec.y.label} (unitless observed range)` : axisPhrase(spec.y.label, spec.y.unit);
+    parts.push(`${kind} of ${sample} against ${spec.distribution} theoretical quantiles`);
   } else if (spec.kind === "paired_difference") {
     parts.push(
       `${kind} of changes in ${axisPhrase(spec.y.label, spec.y.unit === "%" ? "percentage points" : spec.y.unit)} against ${spec.x.label}, paired by ${spec.pair} with baseline ${spec.baseline}`
@@ -19580,6 +19583,19 @@ function emitAltText(spec, out) {
             parts.append(f"{estimate['missing_measurements']} missing measurement rows in this comparison")
         if estimate["technical_repeats"]:
             parts.append(f"{estimate['technical_repeats']} technical repeat rows were averaged within unit and condition")
+`.split("\n"));
+  } else if (spec.kind === "qq") {
+    out.push(...String.raw`
+    for name in (series_names(frame) if GROUP is not None else [None]):
+        curve = qq_estimate(frame if name is None else frame[frame[GROUP] == name])
+        who = "the sample" if name is None else str(name)
+        parts.append(f"{who}: {curve['observations']} observations with {curve['missing']} missing measurements omitted")
+        parts.append(f"sample quartiles are {curve['q1']:.3g}, {curve['median']:.3g}, {curve['q3']:.3g}")
+        parts.append(f"the {QQ_DISTRIBUTION} reference uses Blom plotting positions and a population-quartile line "
+                     f"with slope {curve['slope']:.4g} and intercept {curve['intercept']:.4g}")
+        if curve["constant"]:
+            parts.append("constant sample: distribution shape cannot be assessed")
+    parts.append("this plot is not a normality test or a test of distributional equivalence")
 `.split("\n"));
   } else if (spec.kind === "kaplan_meier") {
     out.push(...String.raw`
@@ -20062,9 +20078,16 @@ function emitPrepare(spec, out) {
       body.push(`    raise ValueError(${pyStr(`${label} does not apply transforms to a raw y column`)})`);
     }
   }
+  if (spec.kind === "qq") {
+    body.push("    df = qq_input(df)");
+    if (spec.transform && !["none", "normalize"].includes(spec.transform.kind)) {
+      body.push('    raise ValueError("Q-Q raw-x transforms are unsupported; normalize observations or transform the source data explicitly")');
+    }
+  }
   const transform2 = spec.transform;
-  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform2 && transform2.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform2 && transform2.kind !== "none" && (spec.kind !== "qq" || transform2.kind === "normalize")) {
     body.push(...transformBody(spec, transform2));
+    if (spec.kind === "qq") body.push("    df = qq_input(df)");
   }
   body.push("    return df");
   out.push(...body, "");
@@ -20484,14 +20507,15 @@ function emitHelpers(spec, out) {
       "def label_series_directly(ax, frame):",
       "    # A name at the end of each line beats a legend box that covers data.",
       "    for index, name in enumerate(series_names(frame)):",
-      "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
+      spec.kind === "qq" ? "        block = frame[frame[GROUP] == name]" : "        block = frame[frame[GROUP] == name].sort_values(X_FIELD)",
       "        if block.empty:",
       "            continue",
       ...spec.kind === "calibration" ? ["        curve = calibration_estimate(block)"] : [],
+      ...spec.kind === "qq" ? ["        curve = qq_estimate(block)"] : [],
       "        style = series_style(name, index, len(series_names(frame)))",
       "        ax.annotate(",
       spec.kind === "calibration" ? `            f"{name} (ECE {curve['ece']:.3g})",` : "            str(name),",
-      spec.kind === "calibration" ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),' : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
+      spec.kind === "calibration" ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),' : spec.kind === "qq" ? '            xy=(curve["theoretical"][-1], curve["observed"][-1]),' : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
       '            va="center",',
@@ -20683,6 +20707,7 @@ function emitAnnotations(spec, out) {
     '    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean")',
     "    if series not in pivot.columns or pivot.shape[1] < 2:",
     "        return None",
+    ...spec.kind === "qq" ? ["    if pivot.isna().any(axis=None):", "        return None"] : [],
     "    others = pivot.drop(columns=[series]).max(axis=1)",
     "    ahead = pivot[series] > others",
     "    if not ahead.any():",
@@ -20697,6 +20722,12 @@ function emitAnnotations(spec, out) {
     "    for index, note in enumerate(ANNOTATIONS):",
     '        found = locate(frame, note["at"], note.get("series"))',
     "        if found is None:",
+    ...spec.kind === "qq" ? [
+      `            reason = f"Q-Q panel {CURRENT_PANEL}, annotation {note['text']!r} has no complete derived quantile coverage"`,
+      '            finding("warning", "qq_annotation_unavailable", reason)',
+      '            if reason not in RUN_REPORT["untested"]:',
+      '                RUN_REPORT["untested"].append(reason)'
+    ] : [],
     `            print(f"  annotation {note['text']!r} had nowhere to attach")`,
     "            continue",
     "        x, y = found",
@@ -20724,7 +20755,7 @@ function emitDecoratePanel(spec, out) {
     out.push(
       `    if show_${target}:`,
       `        ax.set_${target}label(${pyStr(
-        spec.kind === "paired_difference" && specAxis === "y" ? differenceLabel(axis2) : axisLabel(axis2)
+        spec.kind === "paired_difference" && specAxis === "y" ? differenceLabel(axis2) : spec.kind === "qq" && specAxis === "y" && spec.transform?.kind === "normalize" ? `Normalized ${axis2.label} (${axis2.percent ? "% of observed range" : "0\u20131"})` : axisLabel(axis2)
       )})`
     );
     if (isCategorical(spec, specAxis) || spec.kind === "heatmap") continue;
@@ -20785,7 +20816,7 @@ function emitDecoratePanel(spec, out) {
       );
     }
   }
-  if (spec.annotate?.length) out.push("    place_annotations(ax, frame)");
+  if (spec.annotate?.length) out.push(spec.kind === "qq" ? "    place_annotations(ax, qq_claim_frame(frame))" : "    place_annotations(ax, frame)");
   out.push(spec.style.grid ? "    ax.grid(True, linewidth=0.4, alpha=0.5)" : "    ax.grid(False)");
   if (spec.style.despine && spec.kind !== "heatmap") {
     out.push('    for side in ("top", "right"):', "        ax.spines[side].set_visible(False)");
@@ -22063,61 +22094,106 @@ def draw_panel(ax, df):
 `.split("\n"));
 }
 function emitQq(spec, out) {
-  const quantile = spec.distribution === "normal" ? "np.sqrt(2.0) * _erfinv(2.0 * probabilities - 1.0)" : "probabilities";
-  out.push(
-    "",
-    "def _erfinv(values):",
-    "    # Winitzki's approximation, so a Q-Q plot needs no scipy. Good to about",
-    "    # 2e-3 across the range, which is finer than the ink.",
-    "    a = 0.147",
-    "    clipped = np.clip(values, -0.999999, 0.999999)",
-    "    ln = np.log(1.0 - clipped**2)",
-    "    first = 2.0 / (np.pi * a) + ln / 2.0",
-    "    return np.sign(clipped) * np.sqrt(np.sqrt(first**2 - ln / a) - first)",
-    "",
-    "",
-    "def draw_panel(ax, df):",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        values = np.sort(block[Y_FIELD].dropna().to_numpy(dtype=float))",
-    "        if len(values) < 2:",
-    "            continue",
-    "        # Blom's plotting positions, which are the usual choice for a",
-    "        # normal Q-Q and behave at the tails.",
-    "        ranks = np.arange(1, len(values) + 1)",
-    "        probabilities = (ranks - 0.375) / (len(values) + 0.25)",
-    `        theoretical = ${quantile}`,
-    "        style = series_style(name, index, len(names))",
-    "        ax.scatter(",
-    "            theoretical,",
-    "            values,",
-    "            s=10,",
-    "            label=None if name is None else str(name),",
-    '            color=style["colour"],',
-    '            marker=style["marker"],',
-    "            alpha=0.7,",
-    "            linewidths=0,",
-    "            zorder=3,",
-    "        )",
-    "        # The line through the quartiles, which is where the points fall if",
-    "        # the assumed distribution holds.",
-    "        sample_q = np.percentile(values, [25, 75])",
-    "        theory_q = np.percentile(theoretical, [25, 75])",
-    "        if theory_q[1] > theory_q[0]:",
-    "            slope = (sample_q[1] - sample_q[0]) / (theory_q[1] - theory_q[0])",
-    "            intercept = sample_q[0] - slope * theory_q[0]",
-    "            span = np.array([theoretical.min(), theoretical.max()])",
-    "            ax.plot(",
-    "                span,",
-    "                intercept + slope * span,",
-    '                color=style["colour"],',
-    "                linewidth=0.9,",
-    "                linestyle=(0, (4, 3)),",
-    "                zorder=2,",
-    "            )",
-    ""
-  );
+  out.push("", `QQ_DISTRIBUTION = ${JSON.stringify(spec.distribution)}`);
+  out.push(...String.raw`
+
+def qq_input(frame):
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [Y_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Q-Q is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Q-Q requires nonmissing series and panel identifiers")
+    for field in labels:
+        if frame[field].map(lambda value: isinstance(value, str) and not value.strip()
+                            or isinstance(value, (float, np.floating)) and not np.isfinite(value)).any():
+            raise ValueError("Q-Q identifiers must be nonempty and finite when numeric")
+    source = frame.copy()
+    values = pd.to_numeric(source[Y_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if np.any(source[Y_FIELD].notna().to_numpy() & ~np.isfinite(values)):
+        raise ValueError("Q-Q nonmissing measurements must be finite numbers")
+    if np.isfinite(values).sum() < 2:
+        raise ValueError("Q-Q needs at least two finite observations per series and panel")
+    source[Y_FIELD] = values
+    return source
+
+
+def qq_quantiles(probabilities):
+    probabilities = np.asarray(probabilities, dtype=float)
+    if not ((probabilities > 0) & (probabilities < 1)).all():
+        raise ValueError("Q-Q plotting probabilities must be strictly between zero and one")
+    if QQ_DISTRIBUTION == "normal":
+        from statistics import NormalDist
+        reference = NormalDist()
+        return np.array([reference.inv_cdf(float(p)) for p in probabilities])
+    return probabilities.copy()
+
+
+def qq_estimate(frame):
+    source = qq_input(frame)
+    observed = np.sort(source[Y_FIELD].dropna().to_numpy(dtype=float))
+    probabilities = (np.arange(1, len(observed) + 1) - 0.375) / (len(observed) + 0.25)
+    theoretical = qq_quantiles(probabilities)
+    with np.errstate(over="ignore", invalid="ignore"):
+        q1, median, q3 = np.percentile(observed, [25, 50, 75], method="linear")
+        theory_q = qq_quantiles([0.25, 0.75])
+        slope = float((q3 - q1) / (theory_q[1] - theory_q[0]))
+        intercept = float(q1 - slope * theory_q[0])
+        axes = RUN_REPORT["spec"]
+        nonlinear = any(axes[key]["scale"] != "linear" for key in ("x", "y"))
+        line_x = np.linspace(theoretical[0], theoretical[-1], 100) if nonlinear else theoretical[[0, -1]]
+        line_y = intercept + slope * line_x
+    if not np.isfinite([q1, median, q3, slope, intercept]).all() or not np.isfinite(line_y).all():
+        raise ValueError("Q-Q derived quartiles and reference line must remain finite")
+    if axes["x"]["scale"] == "log" and np.any(theoretical <= 0):
+        raise ValueError("Q-Q log x cannot display nonpositive theoretical quantiles")
+    if axes["y"]["scale"] == "log" and (np.any(observed <= 0) or np.any(line_y <= 0)):
+        raise ValueError("Q-Q log y needs positive observations and reference-line values")
+    return {"observed": observed, "theoretical": theoretical, "probability": probabilities,
+            "q1": float(q1), "median": float(median), "q3": float(q3),
+            "slope": slope, "intercept": intercept, "line_x": line_x, "line_y": line_y,
+            "observations": len(observed), "missing": len(source) - len(observed),
+            "constant": bool(observed[0] == observed[-1])}
+
+
+def qq_claim_frame(frame):
+    roles = [X_FIELD, Y_FIELD, *([GROUP] if GROUP is not None else [])]
+    if len(roles) != len(set(roles)):
+        raise ValueError("Q-Q derived evidence needs distinct theoretical, observed and series field names")
+    blocks = []
+    for name in (series_names(frame) if GROUP is not None else [None]):
+        curve = qq_estimate(frame if name is None else frame[frame[GROUP] == name])
+        data = {X_FIELD: curve["theoretical"], Y_FIELD: curve["observed"]}
+        if GROUP is not None:
+            data[GROUP] = [name] * curve["observations"]
+        blocks.append(pd.DataFrame(data))
+    return pd.concat(blocks, ignore_index=True)
+
+
+def record_qq(curve, name):
+    record = {key: curve[key] for key in ("observations", "missing", "q1", "median", "q3", "slope", "intercept", "constant")}
+    record.update(panel=CURRENT_PANEL, series=None if name is None else str(name), metric=Y_FIELD,
+                  distribution=QQ_DISTRIBUTION, plotting_positions="Blom", reference_line="population_quartiles")
+    entries = ROW_COUNTS.setdefault("qq", [])
+    entries[:] = [item for item in entries if (item["panel"], item["series"]) != (record["panel"], record["series"])]
+    entries.append(record)
+    if curve["constant"]:
+        finding("warning", "qq_constant_sample", f"Q-Q panel {CURRENT_PANEL}, series {record['series']}: constant sample cannot assess distribution shape")
+
+
+def draw_panel(ax, df):
+    qq_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        curve = qq_estimate(df if name is None else df[df[GROUP] == name])
+        record_qq(curve, name)
+        style = series_style(name, index, len(names))
+        ax.scatter(curve["theoretical"], curve["observed"], s=10,
+                   label=None if name is None else str(name), color=style["colour"],
+                   marker=style["marker"], alpha=0.7, linewidths=0, zorder=3)
+        ax.plot(curve["line_x"], curve["line_y"], color=style["colour"], linewidth=0.9,
+                linestyle=(0, (4, 3)), zorder=2)
+`.split("\n"));
 }
 function emitKaplanMeier(spec, out) {
   void spec;
@@ -23443,6 +23519,17 @@ var calibrationSemantics = (spec, add) => {
     );
   }
 };
+var qqSemantics = (spec, add) => {
+  if (spec.kind !== "qq") return;
+  const roles = [spec.x.field, spec.y.field, ...spec.group ? [spec.group] : []];
+  if (spec.transform && !["none", "normalize"].includes(spec.transform.kind) || spec.layers?.length || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length || spec.distribution === "normal" && spec.x.scale === "log" || spec.x.temporal) {
+    add(
+      "error",
+      "unsupported_qq_semantics",
+      "Q-Q computes theoretical x quantiles. Raw-x transforms/overlays and temporal x are unsupported; normalize observed values or transform source data explicitly. Normal theoretical quantiles cannot use log x. Derived claims/annotations need distinct theoretical, observed and series field names."
+    );
+  }
+};
 var claims = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : void 0;
@@ -23525,6 +23612,7 @@ var RULES = [
   pairedKinds,
   survivalSemantics,
   calibrationSemantics,
+  qqSemantics,
   claims,
   encodingChoice
 ];
@@ -23541,7 +23629,7 @@ function hasErrors(findings) {
 
 // src/codegen/runtime.ts
 function emitRuntime(spec, out) {
-  const derivedFrame = spec.kind === "kaplan_meier" ? "survival_claim_frame" : spec.kind === "calibration" ? "calibration_claim_frame" : void 0;
+  const derivedFrame = spec.kind === "kaplan_meier" ? "survival_claim_frame" : spec.kind === "calibration" ? "calibration_claim_frame" : spec.kind === "qq" ? "qq_claim_frame" : void 0;
   const summary = derivedFrame ? `${derivedFrame}(frame) if CLAIMS and not frame.empty else frame` : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
   out.push("", `STATIC_FINDINGS = json.loads(${pyStr(JSON.stringify(verify(spec)))})`);
   out.push(...`
@@ -24105,8 +24193,8 @@ function emitMain(spec, out) {
       "            ax.set_ylabel(pretty(name))",
       "            ax.set_title(None)"
     ] : [],
-    ...spec.kind === "calibration" && spec.facet ? [
-      "            # Calibration errors belong to each panel's own data.",
+    ...spec.facet && (spec.kind === "calibration" || spec.kind === "qq" && spec.legend.style === "direct") ? [
+      spec.kind === "calibration" ? "            # Calibration errors belong to each panel's own data." : "            # Each panel owns its direct quantile labels.",
       "            add_legend(fig, ax, block)"
     ] : [
       "            # One legend for the whole figure; repeating it wastes panel space.",

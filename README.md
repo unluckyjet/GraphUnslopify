@@ -340,7 +340,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Seventy-two rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-three rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -400,6 +400,10 @@ scores 0.080 against 0.026 and sits below the diagonal all the way along.
 | ![Scaling plot on log-log axes with fitted power laws](docs/seventh-pass-scaling-fit.png) | ![Row-normalised confusion matrix over four classes](docs/seventh-pass-confusion.png) |
 
 *Checking an assumption, surviving, scaling, and confusing*
+
+Q–Q plots use accurate normal inverse probabilities and a reference through population/sample
+quartiles. They disclose missing observations and refuse undersized samples instead of verifying
+an empty plot. See [the Q–Q reference contract](docs/qq-validation.md).
 
 The Q-Q plot checks the distributional assumption before a claim rests on it. The heavy-tailed
 series bends away at both ends, and there is nothing else to read. Winitzki's approximation supplies the

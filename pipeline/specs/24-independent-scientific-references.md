@@ -19,8 +19,10 @@ references and failure controls (spec 26). Calibration probabilities/outcomes, b
 descriptions/claims, precision and panel-specific legends now have independent hand/artist/oracle
 references and failure controls (spec 27). Paired differences now share unit matching, explicit
 exclusions, mean/interval/descriptions and scoped runtime evidence with independent hand/SciPy
-artist references and failure controls (spec 28). Reuse that evidence. Prioritize QQ/scaling fits and
-categorical identifiers. Invalid domains/missing IDs must not become plausible clean figures;
+artist references and failure controls (spec 28). Q-Q normal/uniform coordinates and population-
+quartile lines, sample/domain guards and derived/scoped evidence now have hand/SciPy artist
+references and failure controls (spec 29). Reuse that evidence. Prioritize scaling fits and
+categorical identifiers, then complete the per-kind coverage map for the full inventory. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.

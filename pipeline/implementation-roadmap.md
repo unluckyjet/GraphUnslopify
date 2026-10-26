@@ -84,3 +84,12 @@ Milestones may be split further as evidence requires. No checklist item is compl
   215 Node/248 Python, all seven local gates, strict gallery 15/15, four visually inspected
   context cases and installed offline wheel. Matrix 24 still needs QQ/scaling, global
   identifiers/overlays and final exported-width/table context, plus naming/versioned release.
+
+
+- Milestone 24 pushed as 6ca5e26; general CI 40247862553 passed eight jobs and Figure CI
+  40247862602 passed. Milestone 25 completes accurate normal/uniform Q-Q quantities and
+  population-quartile references (spec 29): 48 hand/SciPy/artist/runtime/provenance cases,
+  215 Node/296 Python, all seven local gates, strict gallery 15/15, visually inspected
+  variants and refreshed published illustration with committed inputs, plus installed offline
+  wheel. The complete 21-kind scientific matrix, identifiers/overlays/export width, naming,
+  versioned release and final completion audit remain open.

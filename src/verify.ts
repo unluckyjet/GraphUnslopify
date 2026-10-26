@@ -644,6 +644,19 @@ const calibrationSemantics: Rule = (spec, add) => {
   }
 };
 
+const qqSemantics: Rule = (spec, add) => {
+  if (spec.kind !== "qq") return;
+  const roles = [spec.x.field, spec.y.field, ...(spec.group ? [spec.group] : [])];
+  if (spec.transform && !["none", "normalize"].includes(spec.transform.kind)
+      || spec.layers?.length || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length
+      || spec.distribution === "normal" && spec.x.scale === "log" || spec.x.temporal) {
+    add("error", "unsupported_qq_semantics",
+      "Q-Q computes theoretical x quantiles. Raw-x transforms/overlays and temporal x are unsupported; " +
+      "normalize observed values or transform source data explicitly. Normal theoretical quantiles cannot use log x. " +
+      "Derived claims/annotations need distinct theoretical, observed and series field names.");
+  }
+};
+
 const claims: Rule = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : undefined;
@@ -732,6 +745,7 @@ export const RULES: Rule[] = [
   pairedKinds,
   survivalSemantics,
   calibrationSemantics,
+  qqSemantics,
   claims,
   encodingChoice,
 ];

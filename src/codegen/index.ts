@@ -453,9 +453,10 @@ function emitMain(spec: FigureSpec, out: string[]): void {
           "            ax.set_title(None)",
         ]
       : []),
-    ...(spec.kind === "calibration" && spec.facet
+    ...(spec.facet && (spec.kind === "calibration" || spec.kind === "qq" && spec.legend.style === "direct")
       ? [
-          "            # Calibration errors belong to each panel's own data.",
+          spec.kind === "calibration" ? "            # Calibration errors belong to each panel's own data."
+            : "            # Each panel owns its direct quantile labels.",
           "            add_legend(fig, ax, block)",
         ]
       : [

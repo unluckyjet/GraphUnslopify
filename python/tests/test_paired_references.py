@@ -197,7 +197,7 @@ def test_description_summarizes_actual_differences_and_discloses_exclusions(emit
 
 def test_numeric_baseline_matches_its_unique_representation(tmp_path):
     module, _ = generated(tmp_path, baseline="0")
-    rows = sample().iloc[:4].replace({"condition": {"base": 0, "new": 1}})
+    rows = sample().iloc[:4].assign(condition=[0, 1, 0, 1])
     estimate = module.paired_estimates(rows)[0]
     assert estimate["condition"] == "1" and estimate["baseline"] == "0"
     np.testing.assert_array_equal(estimate["values"], [4, 6])

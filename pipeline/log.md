@@ -37,3 +37,5 @@ One line per state change, newest last.
 
 - 2026-10-26: Spec32 delivered as4245d3c plus LF-provenance correction4c1a8df:34 contrast controls,522 real offline browser labels,215 Node/449 Python; both GitHub workflows green, including eight general jobs/all four fresh-wheel platforms.
 - 2026-10-26: Spec33 delivered: supported category overlays share actual base positions, preserve raw row/value associations and shared panel levels/hidden ticks, with explicit undefined-coordinate refusals;44 focused cases,215 Node/493 Python, seven gates/strict gallery/fresh offline wheel pass. Full matrix24 remains open.
+
+- 2026-10-26: Spec34 delivered: actual static export dimensions determine manuscript font size, with explicit unknown/old-inspector evidence and preserved nominal API;37 controls,215 Node/530 Python, seven gates/strict gallery/fresh offline wheel pass. All19 baseline/public PNGs retain identical pixels/dimensions and refreshed provenance. Table35 and scientific matrix24 remain open.

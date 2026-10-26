@@ -21447,13 +21447,13 @@ function emitTable(spec, out) {
     "            for position, column in enumerate(table.columns):",
     "                if (row, column) in winners:",
     '                    drawn[index + 1, position].set_text_props(weight="bold")',
-    "        check(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     '            fig.savefig(path, bbox_inches="tight", metadata=metadata_for(fmt),',
     '                        **({"dpi": DPI} if fmt == "png" else {}))',
     "            record_output(path)",
     '            print(f"wrote {path}")',
+    "        check(fig)",
     "        plt.close(fig)",
     "        return fig"
   );
@@ -24412,9 +24412,18 @@ function emitMain(spec, out) {
     '        RUN_REPORT["inspection"] = {"available": False, "checked": False}',
     '        finding("warning", "inspection_unavailable", "Install graphunslopify to run figure inspection")',
     "        return True",
-    "    report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT)",
+    '    paths = [item["path"] for item in RUN_REPORT["outputs"] if item["format"] in {"png", "svg", "pdf"}]',
+    "    report = None",
+    "    try:",
+    "        report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT, export_paths=paths)",
+    "    except TypeError as error:",
+    '        if "export_paths" not in str(error): raise',
+    '    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"}:',
+    '        RUN_REPORT["inspection"] = {"available": True, "checked": False}',
+    '        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size inspection is unavailable in this checker")',
+    "        return False",
     "    print(report)",
-    '    RUN_REPORT["inspection"] = {"available": True, "checked": True}',
+    '    RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}',
     "    for item in report.findings:",
     "        finding(item.severity, item.code, item.message)",
     ...(spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells ? [
@@ -24582,7 +24591,6 @@ function emitMain(spec, out) {
 }
 function emitSaveBlock(spec, out) {
   out.push(
-    "        check(fig)",
     "        description = describe_panels(blocks)",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
@@ -24592,7 +24600,8 @@ function emitSaveBlock(spec, out) {
     "            meta = metadata_for(fmt)",
     '            fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))',
     "            record_output(path)",
-    '            print(f"wrote {path}")'
+    '            print(f"wrote {path}")',
+    "        check(fig)"
   );
   if (spec.animate) {
     out.push(

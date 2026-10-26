@@ -25,8 +25,10 @@ to 89mm. Generated code also fails silently: it runs, writes a valid file, and t
 | Overplotting | `overplotting` | same |
 | Silent code failure | the script runs or it does not | `scripts/render-check.ts` |
 
-`inspect_figure` takes `target_width_in`, so a 10-inch figure destined for a 3.4-inch column is
-measured at the size it will actually be printed, not the size it was drawn.
+`inspect_figure` takes `target_width_in` and optional `export_paths`. Generated workflows
+measure actual written PNG/SVG/PDF widths before calculating manuscript text size; tight crop,
+padding and external artists can change that width. Without export paths the API explicitly
+uses a nominal-canvas basis. See [the physical measurement contract](export-legibility.md).
 
 ## Series a reader cannot separate
 

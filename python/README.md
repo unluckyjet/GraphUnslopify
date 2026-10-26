@@ -39,8 +39,11 @@ Read the repository documentation for the supported combinations and limits.
 ## What it checks
 
 `text_too_small` and `text_near_minimum` measure every text element at the width the figure will
-occupy on the page. Pass `target_width_in` and a 12pt label in a 10-inch figure is correctly
-reported as 4.1pt once it is squeezed into a column.
+occupy on the page. Generated programs measure their written PNG/SVG/PDF widths, including
+tight cropping and padding, before calculating manuscript scaling. For your own figure, pass
+`target_width_in` and `export_paths=["figure.pdf"]` after saving; without paths the API uses the
+nominal canvas. Reports retain the measured widths and scale. See
+[the measurement contract and limits](../docs/export-legibility.md).
 
 `tick_labels_collide` compares neighbouring tick label bounding boxes. `legend_covers_data` counts
 plotted points falling inside the legend box. `overplotting` measures marker ink against plotting

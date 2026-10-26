@@ -71,6 +71,7 @@ than drawing something misleading.
 Annotated heatmaps and confusion matrices choose text against actual cell colours;
 strict inspection rejects low contrast. See [the criterion and verification](docs/cell-contrast.md).
 The public cell illustrations use [committed synthetic inputs](examples/references/README.md).
+Font floors use [actual exported widths](docs/export-legibility.md) at the requested manuscript width.
 
 *Made-up coffee chain data, one chart per kind*
 

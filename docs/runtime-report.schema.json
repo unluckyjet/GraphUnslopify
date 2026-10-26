@@ -23,7 +23,15 @@
       "severity": { "enum": ["error", "warning"] }, "code": { "type": "string" }, "message": { "type": "string" }
     } } },
     "inspection": { "type": "object", "required": ["available", "checked"], "properties": {
-      "available": { "type": ["boolean", "null"] }, "checked": { "type": "boolean" }
+      "available": { "type": ["boolean", "null"] }, "checked": { "type": "boolean" },
+      "measurements": { "type": "object", "required": ["basis", "nominal_width_in", "widths_in", "target_width_in", "evaluated_width_in", "text_scale"], "properties": {
+        "basis": { "enum": ["nominal", "exports", "unavailable"] },
+        "nominal_width_in": { "type": "number", "exclusiveMinimum": 0 },
+        "widths_in": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 } },
+        "target_width_in": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "evaluated_width_in": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "text_scale": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      } }
     } },
     "panels": { "type": "array", "items": { "type": "object", "required": ["index", "name", "metric"], "properties": {
       "index": { "type": "integer", "minimum": 0 }, "name": { "type": ["string", "null"] }, "metric": { "type": "string" }

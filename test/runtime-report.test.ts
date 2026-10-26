@@ -127,8 +127,12 @@ test("unavailable inspection is incomplete, never a silent strict pass", { skip:
 });
 
 const inspector = (severity: string) => ["import graphunslopify",
-  "from graphunslopify.inspect import Report, Finding",
-  `graphunslopify.inspect_figure = lambda *a, **kw: Report([Finding('${severity}', 'controlled', 'test finding')])`].join("\n");
+  "original_inspection = graphunslopify.inspect_figure",
+  "def controlled(*args, **kwargs):",
+  "    report = original_inspection(*args, **kwargs)",
+  `    report.add('${severity}', 'controlled', 'test finding')`,
+  "    return report",
+  "graphunslopify.inspect_figure = controlled"].join("\n");
 
 test("inspection errors block strict mode; warning policy is explicitly optional", { skip: !python }, () => {
   assert.equal(run(good, {}, undefined, inspector("error")).status, 2);

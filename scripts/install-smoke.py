@@ -464,6 +464,37 @@ def main() -> None:
         )
     )
     assert cell_report["status"] == "passed" and len(cell_report["outputs"]) == 2
+    physical = cell_report["inspection"]["measurements"]
+    assert physical["basis"] == "exports" and len(physical["widths_in"]) == 2
+    assert physical["evaluated_width_in"] == max(physical["widths_in"].values())
+    # A nominally readable canvas can export too wide for the requested column.
+    wide_spec = where / "wide-title.json"
+    wide = json.loads(cell_spec.read_text(encoding="utf8"))
+    wide["title"] = "A very long scientific title " * 8
+    wide["output"]["stem"] = "wide-title"
+    wide_spec.write_text(json.dumps(wide), encoding="utf8")
+    too_wide = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(wide_spec),
+            "--out-dir",
+            str(where / "wide output"),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf8",
+        check=False,
+    )
+    rejected_width = json.loads(too_wide.stdout)
+    assert too_wide.returncode == 2 and rejected_width["status"] == "failed"
+    assert rejected_width["inspection"]["measurements"]["text_scale"] < 0.5
+    assert any(f["code"] == "text_too_small" for f in rejected_width["findings"])
+    assert len(rejected_width["outputs"]) == 2
     driver = cell_dir / "cell_artists.py"
     driver.write_text(
         "import cells, matplotlib.pyplot as plt, matplotlib.colors as colors, json\n"

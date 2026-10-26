@@ -12,12 +12,18 @@ opinion, so the same figure always produces the same findings.
 from __future__ import annotations
 
 import hashlib
+import math
+import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal
+
+from pypdf.errors import PyPdfError
 
 from .cell_colour import cell_text_contrast
 from .colour import composite_over_white, relative_luminance, worst_case_distance
+from .export_size import export_width_in
 
 Severity = Literal["error", "warning"]
 
@@ -47,6 +53,7 @@ class Finding:
 @dataclass
 class Report:
     findings: list[Finding] = field(default_factory=list)
+    measurements: dict[str, Any] = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
@@ -136,11 +143,11 @@ def _check_text_size(figure: Any, report: Report, scale: float, floor: float) ->
 
     size, text = smallest
     label = text if len(text) <= 24 else text[:21] + "..."
-    if size < floor:
+    if size < floor and not math.isclose(size, floor, rel_tol=1e-12, abs_tol=1e-12):
         report.add(
             "error",
             "text_too_small",
-            f'"{label}" renders at {size:.1f}pt. Below {floor}pt is unreadable in print.',
+            f'"{label}" renders at {size!r}pt, below the required {floor}pt at the target width.',
         )
     elif size < floor + 1.0:
         report.add(
@@ -541,24 +548,71 @@ def inspect_figure(
     figure: Any,
     target_width_in: float | None = None,
     min_text_pt: float = MIN_TEXT_POINTS,
+    *,
+    export_paths: Iterable[str | Path] | None = None,
 ) -> Report:
     """Check a rendered figure and return everything wrong with it.
 
     `target_width_in` is the width the figure will occupy in the manuscript. Pass
-    it when the figure will be scaled down on the page, because a 12pt label in a
-    7in figure becomes 5.8pt once it is squeezed into a 3.4in column.
+    it when the figure will be scaled down on the page. Pass `export_paths` to
+    assess the actual PNG/SVG/PDF file widths, including tight crops/padding.
+    Without paths the calculation uses the nominal canvas, not a final export.
     """
     report = Report()
 
+    if target_width_in is not None and (not math.isfinite(target_width_in) or target_width_in <= 0):
+        raise ValueError("target_width_in must be finite and positive")
+    if not math.isfinite(min_text_pt) or min_text_pt <= 0:
+        raise ValueError("min_text_pt must be finite and positive")
+
+    figure_width = float(figure.get_size_inches()[0])
+    if not math.isfinite(figure_width) or figure_width <= 0:
+        raise ValueError("Figure width must be finite and positive")
     figure.canvas.draw()
     renderer = figure.canvas.get_renderer()
 
-    figure_width = figure.get_size_inches()[0]
-    scale = 1.0
-    if target_width_in and figure_width > 0:
-        scale = min(target_width_in / figure_width, 1.0)
+    evaluated_width = figure_width
+    widths = {}
+    basis = "nominal"
+    if export_paths is not None:
+        basis = "exports"
+        paths = list(export_paths)
+        if not paths:
+            report.add(
+                "error",
+                "export_size_unavailable",
+                "No written static exports supplied for final text-size assessment.",
+            )
+            basis = "unavailable"
+        for path in paths:
+            try:
+                widths[str(path)] = export_width_in(path)
+            except (OSError, ValueError, ET.ParseError, PyPdfError) as exc:
+                report.add(
+                    "error",
+                    "export_size_unavailable",
+                    f"Cannot establish physical width of {str(path)!r}: {exc}",
+                )
+                basis = "unavailable"
+        evaluated_width = max(widths.values()) if basis == "exports" else None
+    scale = (
+        None
+        if evaluated_width is None
+        else min(target_width_in / evaluated_width, 1.0)
+        if target_width_in is not None
+        else 1.0
+    )
+    report.measurements = {
+        "basis": basis,
+        "nominal_width_in": figure_width,
+        "widths_in": widths,
+        "target_width_in": target_width_in,
+        "evaluated_width_in": evaluated_width,
+        "text_scale": scale,
+    }
 
-    _check_text_size(figure, report, scale, min_text_pt)
+    if scale is not None:
+        _check_text_size(figure, report, scale, min_text_pt)
     for axes in figure.get_axes():
         _check_tick_collisions(axes, renderer, report)
         _check_legend_occlusion(axes, renderer, report)

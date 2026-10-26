@@ -149,3 +149,17 @@ Milestones may be split further as evidence requires. No checklist item is compl
   are unchanged. Both workflows must pass after push. Full21-kind matrix24, remaining
   general categorical contexts, final export width/table context, naming/versioned release
   and final completion audit remain open.
+
+
+- Overlay33 revision2c5208a: General40285858692 passes all eight jobs and
+  Figure40285858808 passes. Both Python3.10/3.12 report492 passed/one TeX skip, with
+  all four real TeX cases separately required/passing. All four fresh installed platforms
+  verify actual overlay category/value coordinates and lexical labels offline.
+
+- Milestone30 resolves actual exported text size (spec34):37 independent physical-file/
+  API/runtime controls,215 Node/530 Python, seven gates, strict gallery15/15 and fresh
+  offline wheel. Unknown dimensions and nominal-only/old inspectors cannot certify final
+  text size; oversized titles fail strict mode while retaining review artifacts. All19
+  baseline/public PNG pixels and dimensions are unchanged, with source/provenance refresh.
+  Both workflows must pass after push. Visible table context35, full matrix24/general
+  categorical contexts, naming/versioned release and final audit remain open.

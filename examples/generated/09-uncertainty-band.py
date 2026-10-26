@@ -939,9 +939,18 @@ def check(fig):
         RUN_REPORT["inspection"] = {"available": False, "checked": False}
         finding("warning", "inspection_unavailable", "Install graphunslopify to run figure inspection")
         return True
-    report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT)
+    paths = [item["path"] for item in RUN_REPORT["outputs"] if item["format"] in {"png", "svg", "pdf"}]
+    report = None
+    try:
+        report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT, export_paths=paths)
+    except TypeError as error:
+        if "export_paths" not in str(error): raise
+    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"}:
+        RUN_REPORT["inspection"] = {"available": True, "checked": False}
+        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size inspection is unavailable in this checker")
+        return False
     print(report)
-    RUN_REPORT["inspection"] = {"available": True, "checked": True}
+    RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}
     for item in report.findings:
         finding(item.severity, item.code, item.message)
     return report.ok
@@ -1010,7 +1019,6 @@ def main():
         else:
             flat[0].set_title("Accuracy over training, mean of three seeds")
         # tight_layout is skipped: it fights a legend anchored outside the axes.
-        check(fig)
         description = describe_panels(blocks)
         claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])
         print(f"alt text: {description}")
@@ -1021,6 +1029,7 @@ def main():
             fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))
             record_output(path)
             print(f"wrote {path}")
+        check(fig)
     plt.close(fig)
 
 

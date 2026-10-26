@@ -553,67 +553,117 @@ function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]):
 
 function emitRidgeline(spec: FigureSpec & { kind: "ridgeline" }, out: string[]): void {
   void spec;
-  // Rows of densities down the page, the measured value running across. The
-  // spec still says category on x and value on y; turning that into rows is a
-  // presentation decision and belongs here rather than in the schema.
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    categories = category_order(df)",
-    "    groups = [df[df[X_FIELD] == c][Y_FIELD].dropna().to_numpy(dtype=float) for c in categories]",
-    "    grid_lo = min((g.min() for g in groups if len(g)), default=0.0)",
-    "    grid_hi = max((g.max() for g in groups if len(g)), default=1.0)",
-    "    if not np.isfinite(grid_lo) or grid_hi <= grid_lo:",
-    "        grid_lo, grid_hi = 0.0, 1.0",
-    "    pad = 0.05 * (grid_hi - grid_lo)",
-    "    grid = np.linspace(grid_lo - pad, grid_hi + pad, 256)",
-    "    # Rows overlap by a fixed fraction of the row pitch, so a taller",
-    "    # distribution cannot silently swallow the one above it.",
-    "    for index, values in enumerate(reversed(groups)):",
-    "        base = float(index)",
-    "        if len(values) < 2 or not np.isfinite(values).any():",
-    "            continue",
-    "        density = _gaussian_density(values, grid)",
-    "        peak = density.max()",
-    "        if peak <= 0:",
-    "            continue",
-    "        height = 0.92 * density / peak",
-    "        colour = PALETTE[(len(groups) - 1 - index) % len(PALETTE)]",
-    "        ax.fill_between(grid, base, base + height, color=colour, alpha=0.62, linewidth=0, zorder=index)",
-    '        ax.plot(grid, base + height, color="white", linewidth=0.7, zorder=index)',
-    "    ax.set_yticks(np.arange(len(categories)))",
-    "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
-    "    ax.set_ylim(-0.15, len(categories) + 0.5)",
-    "",
-  );
+  out.push(...String.raw`
+
+def draw_panel(ax, df):
+    categories, grid, profiles = density_profiles(df)
+    for profile in reversed(profiles):
+        base = float(len(categories) - 1 - profile["index"])
+        colour = PALETTE[profile["index"] % len(PALETTE)]
+        record_density(profile)
+        if profile["status"] == "available":
+            height = 0.92 * profile["density"] / profile["peak"]
+            ax.fill_between(grid, base, base + height, color=colour, alpha=0.62, linewidth=0, zorder=base)
+            ax.plot(grid, base + height, color="white", linewidth=0.7, zorder=base)
+        else:
+            values = profile["values"]
+            if len(values):
+                ax.plot(values, np.full(len(values), base), marker="|", markersize=8,
+                        linestyle="none", color=colour, zorder=base)
+                ax.annotate(f"density unavailable (n={len(values)})", (float(np.median(values)), base),
+                            xytext=(0, 6), textcoords="offset points", ha="center", va="bottom",
+                            fontsize=ANNOTATION_PT - 1, parse_math=False, usetex=False)
+            else:
+                ax.text(0.5, base + 0.1, "density unavailable: no finite observations",
+                        transform=ax.get_yaxis_transform(), ha="center", fontsize=ANNOTATION_PT - 1,
+                        parse_math=False, usetex=False)
+    ax.set_yticks(np.arange(len(categories)))
+    ax.set_yticklabels([str(value) for value in reversed(categories)])
+    ax.set_ylim(-0.15, len(categories) + 0.5)
+`.trim().split("\n"), "");
 }
 
-/**
- * A Gaussian kernel density, so a ridgeline needs no scipy.
- *
- * Silverman's rule picks the bandwidth, and the script prints it, because
- * bandwidth is the one number that decides whether a distribution looks
- * bimodal.
- */
+/** Gaussian KDE with the explicit robust normal-reference bandwidth, without SciPy. */
 function emitDensityHelper(out: string[]): void {
-  out.push(
-    "",
-    "def _gaussian_density(values, grid):",
-    "    values = values[np.isfinite(values)]",
-    "    if len(values) < 2:",
-    "        return np.zeros_like(grid)",
-    "    spread = np.std(values, ddof=1)",
-    "    if spread <= 0:",
-    "        return np.zeros_like(grid)",
-    "    # Silverman's rule of thumb.",
-    "    bandwidth = 0.9 * min(spread, (np.percentile(values, 75) - np.percentile(values, 25)) / 1.349 or spread)",
-    "    bandwidth *= len(values) ** (-0.2)",
-    "    if bandwidth <= 0:",
-    "        return np.zeros_like(grid)",
-    "    offsets = (grid[:, None] - values[None, :]) / bandwidth",
-    "    return np.exp(-0.5 * offsets**2).sum(axis=1) / (len(values) * bandwidth * np.sqrt(2 * np.pi))",
-    "",
-  );
+  out.push(...String.raw`
+
+def _density_bandwidth(values):
+    values = values[np.isfinite(values)]
+    if len(values) < 2 or np.all(values == values[0]):
+        return None
+    spread = float(np.std(values, ddof=1))
+    if not np.isfinite(spread) or spread <= 0:
+        return None
+    # Robust normal-reference rule; 1.349 is the normal-distribution IQR.
+    bandwidth = 0.9 * min(spread, (np.percentile(values, 75) - np.percentile(values, 25)) / 1.349 or spread)
+    bandwidth *= len(values) ** (-0.2)
+    return float(bandwidth) if np.isfinite(bandwidth) and bandwidth > 0 else None
+
+
+def _gaussian_density(values, grid):
+    values = values[np.isfinite(values)]
+    bandwidth = _density_bandwidth(values)
+    if bandwidth is None:
+        return np.full_like(grid, np.nan, dtype=float)
+    offsets = (grid[:, None] - values[None, :]) / bandwidth
+    return np.exp(-0.5 * offsets**2).sum(axis=1) / (len(values) * bandwidth * np.sqrt(2 * np.pi))
+
+
+def density_profiles(df):
+    categories = category_order(df)
+    blocks = [df[df[X_FIELD] == category] for category in categories]
+    groups = [pd.to_numeric(block[Y_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+              for block in blocks]
+    groups = [values[np.isfinite(values)] for values in groups]
+    if not any(len(values) for values in groups):
+        raise ValueError("Ridgeline needs at least one finite measurement")
+    grid_lo = min(float(values.min()) for values in groups if len(values))
+    grid_hi = max(float(values.max()) for values in groups if len(values))
+    span = grid_hi - grid_lo
+    if not np.isfinite(span):
+        raise ValueError("Ridgeline requires a finite drawable measurement span")
+    pad = 0.05 * span if span > 0 else max(0.5, abs(grid_lo) * 0.05)
+    grid = np.linspace(grid_lo - pad, grid_hi + pad, 256)
+    if not np.isfinite(grid).all():
+        raise ValueError("Ridgeline requires a finite drawable measurement domain")
+    profiles = []
+    for index, (category, values, block) in enumerate(zip(categories, groups, blocks)):
+        if block.empty:
+            continue  # A reserved/shared category slot is not an observed failed density.
+        bandwidth = _density_bandwidth(values)
+        density = _gaussian_density(values, grid) if bandwidth is not None else None
+        peak = float(density.max()) if density is not None and np.isfinite(density).all() else None
+        available = peak is not None and peak > 0
+        reason = None if available else (
+            "no finite observations" if not len(values) else
+            "fewer than two finite observations" if len(values) < 2 else
+            "constant sample" if np.ptp(values) == 0 else
+            "automatic bandwidth unavailable" if bandwidth is None else
+            "density unresolved on the evaluation grid")
+        profiles.append({"index": index, "category": str(category), "values": values,
+                         "n": len(values), "nonfinite": len(block) - len(values),
+                         "bandwidth": bandwidth, "density": density, "peak": peak,
+                         "status": "available" if available else "unavailable", "reason": reason})
+    return categories, grid, profiles
+
+
+def record_density(profile):
+    record = {key: profile[key] for key in ("category", "n", "nonfinite", "bandwidth", "status", "reason")}
+    record.update(panel=CURRENT_PANEL, metric=Y_FIELD, kernel="Gaussian",
+                  bandwidth_method="0.9 * min(sample_sd, IQR / 1.349) * n**(-0.2)",
+                  peak_normalized=profile["status"] == "available")
+    records = ROW_COUNTS.setdefault("densities", [])
+    records[:] = [item for item in records if (item["panel"], item["metric"], item["category"]) !=
+                 (record["panel"], record["metric"], record["category"])]
+    records.append(record)
+    if record["status"] == "unavailable":
+        reason = f"density unavailable in panel {CURRENT_PANEL}, category {record['category']}: {record['reason']}"
+        finding("warning", "density_unavailable", reason)
+        if reason not in RUN_REPORT["untested"]:
+            RUN_REPORT["untested"].append(reason)
+    print(f"density {record['category']}: n={record['n']}, nonfinite={record['nonfinite']}, "
+          f"bandwidth={record['bandwidth']}, status={record['status']}; profiles are normalized to their own peak")
+`.trim().split("\n"), "");
 }
 
 function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void {

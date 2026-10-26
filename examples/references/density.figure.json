@@ -1,0 +1,32 @@
+{
+  "kind": "ridgeline",
+  "title": "Density evidence from synthetic observations",
+  "data": {
+    "path": "density.csv"
+  },
+  "x": {
+    "field": "cohort",
+    "label": "Cohort"
+  },
+  "y": {
+    "field": "value",
+    "label": "Measurement"
+  },
+  "category_order": [
+    "01",
+    "1"
+  ],
+  "legend": {
+    "show": false
+  },
+  "output": {
+    "stem": "density",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 200
+  }
+}

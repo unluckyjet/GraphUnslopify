@@ -47,3 +47,5 @@ One line per state change, newest last.
 2026-10-26 —37 lands: signed bar bounds/labels and actual-container clipping inspection;44 controls,215 Node/653 Python, seven gates/gallery15/15/offline wheel, former negative warnings resolved; CI required after push.
 
 2026-10-26 —38 lands: explicit unused-group refusals and unique post-aggregation table cells;53 controls,215 Node/706 Python, seven gates/gallery15/15/offline wheel, public table provenance refresh; CI required after push.
+
+2026-10-26 —39 lands: honest ridgeline density availability, raw-point fallback and scoped bandwidth evidence;25 controls,215 Node/731 Python, seven gates/gallery15/15/offline wheel; normal pixels identical, new intentional-incomplete public fixture; CI required after push.

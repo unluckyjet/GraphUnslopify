@@ -198,6 +198,23 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
       "        if unknown:",
       '            parts.append(f"{unknown} displayed cells have unavailable bounds")',
     );
+  } else if (spec.kind === "ridgeline") {
+    out.push("    def density_number(value):", spec.y.percent
+      ? '        return f"{value * 100:.3g}%"' : '        return f"{value:.3g}"');
+    out.push(...String.raw`
+    _, _, profiles = density_profiles(frame)
+    for profile in profiles:
+        who = profile["category"]
+        if profile["status"] == "available":
+            parts.append(f"{who}: Gaussian density uses {profile['n']} finite observations with bandwidth {profile['bandwidth']:.6g} in input measurement units, scaled to its own peak")
+        else:
+            parts.append(f"{who}: density unavailable ({profile['reason']}); {profile['n']} finite observations retained")
+            if profile["n"]:
+                values = profile["values"]
+                parts.append(f"observations range from {density_number(values.min())} to {density_number(values.max())}")
+        if profile["nonfinite"]:
+            parts.append(f"{who}: {profile['nonfinite']} nonfinite observations excluded")
+`.trimEnd().split("\n").slice(1));
   } else if (spec.kind === "scaling_fit") {
     out.push(...String.raw`
     for name in (series_names(frame) if GROUP is not None else [None]):

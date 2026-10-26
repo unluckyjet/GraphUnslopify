@@ -69,3 +69,9 @@ policy and do not establish equivalence or statistical significance. The image i
 its declared title, row heading, metric/unit and interval meaning. This replaces a historical
 table illustration whose input data were untracked. Use the same regeneration recipe with
 `table` and copy its PNG to `docs/fifth-pass-table.png`; source/data fingerprints are checked.
+
+`density.figure.json` / `density.csv` are synthetic density controls: cohort `01` has
+observations0/1/2 and cohort `1` has5/5/5. The first has an automatic Gaussian profile;
+the second retains its observations with density unavailable. Strict mode intentionally
+returns incomplete/exit2. `docs/density-evidence.png` is fingerprint-checked against
+committed LF inputs and the current emitted script. See `docs/density-validation.md`.

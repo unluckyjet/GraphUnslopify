@@ -36,7 +36,10 @@ state references (spec36). Signed bar automatic bounds, actual orientation, clip
 have44 independent controls plus installed strict failure evidence (spec37). Audit specialized
 waterfall/paired coordinates and remaining quantity/domain cases. Unused grouping on eight
 kinds and implicit averaging of duplicate unaggregated table cells are now refused with53
-independent semantic/runtime/known-estimator controls and installed failures (spec38). Invalid domains/missing IDs must not become plausible clean figures;
+independent semantic/runtime/known-estimator controls and installed failures (spec38). Ridgeline
+Gaussian profiles, unavailable automatic bandwidths, retained observations, scoped records and
+descriptions now have25 hand/SciPy/artist/domain/runtime/provenance controls (spec39). Reuse
+that evidence while completing remaining kinds/domains. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.

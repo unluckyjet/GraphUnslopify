@@ -814,6 +814,87 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=where, env=env)
+    density_spec = where / "density.json"
+    density_spec.write_text(
+        json.dumps(
+            {
+                "kind": "ridgeline",
+                "data": {"path": "density.csv"},
+                "x": {"field": "category", "label": "Category"},
+                "y": {"field": "value", "label": "Measurement"},
+                "legend": {"show": False},
+                "output": {
+                    "stem": "density",
+                    "formats": ["png"],
+                    "size": "double_column",
+                },
+            }
+        ),
+        encoding="utf8",
+    )
+    (where / "density.csv").write_text(
+        "category,value\nA,0\nA,1\nA,2\n", encoding="utf8"
+    )
+    density = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(density_spec),
+                "--out-dir",
+                str(where / "density normal"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    record = density["data"]["counts"]["densities"][0]
+    assert (
+        density["status"] == "passed"
+        and record["status"] == "available"
+        and record["n"] == 3
+    )
+    assert abs(record["bandwidth"] - 0.9 / 1.349 * 3 ** (-0.2)) < 1e-12
+    (where / "density.csv").write_text(
+        "category,value\nA,5\nA,5\nA,5\n", encoding="utf8"
+    )
+    density_dir = where / "density unavailable"
+    unavailable = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(density_spec),
+            "--out-dir",
+            str(density_dir),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    unknown = json.loads(unavailable.stdout)
+    record = unknown["data"]["counts"]["densities"][0]
+    assert unavailable.returncode == 2 and unknown["status"] == "incomplete"
+    assert unknown["outputs"] and record["bandwidth"] is None and record["n"] == 3
+    assert "density unavailable" in unknown["alt_text"].lower()
+    driver = density_dir / "density_artists.py"
+    driver.write_text(
+        "import density, matplotlib.pyplot as plt, contextlib, io, json\n"
+        "captured=[]; close=plt.close; plt.close=captured.append\n"
+        "with contextlib.redirect_stdout(io.StringIO()): density.main()\n"
+        "fig=captured[-1]; ax=fig.axes[0]\n"
+        "points=[list(map(float,line.get_xdata())) for line in ax.lines if line.get_marker()=='|']\n"
+        "assert points==[[5.,5.,5.]] and min(ax.get_xlim())<=5<=max(ax.get_xlim())\n"
+        "assert any('density unavailable' in t.get_text().lower() for t in ax.texts)\n"
+        "plt.close=close; close(fig); print('installed unavailable density retains observations')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=density_dir, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

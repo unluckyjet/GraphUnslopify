@@ -205,3 +205,21 @@ Milestones may be split further as evidence requires. No checklist item is compl
   failures exit1. Public table provenance refresh leaves all20 baseline/public PNG pixels
   and dimensions unchanged; all baseline assets remain identical. Both workflows require
   verification after push. Full matrix24, naming/versioned release and final audit remain.
+
+- Comparison-group38 revisionad07ba0: General CI40309430359 passes all eight jobs and Figure CI40309430325 passes. Both Python3.10/3.12 report705 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four installed platforms pass unused-group main refusal and duplicate-table runtime-error evidence offline with agent.
+
+- Milestone35 resolves ridgeline density evidence (spec39):25 hand/SciPy/artist/domain/
+  scoped/runtime/provenance controls,215 Node/731 Python, zero local skips/warnings,
+  seven gates/gallery15/15/Ruff/fresh offline wheel/agent. Unavailable automatic densities
+  retain observations and visible context; strict reports remain incomplete. Actual h/n/
+  nonfinite counts and peak normalization are disclosed. A normal830x493 pixel control
+  matches the old emitter exactly. Existing50 docs/baseline PNG blobs stay unchanged;
+  one new synthetic intentionally incomplete example has committed LF inputs/fingerprints.
+  Both workflows require verification after push. Full matrix24, naming/versioned release
+  and final audit remain open.
+
+- Expanded image inventory evidence: the earlier20-image check was a selected baseline/
+  fifth-pass subset. All50 tracked docs/baseline PNGs were subsequently checked across
+  d95c320→e13f864→dba728a→ad07ba0 using Git blob equality plus RGBA/dimension comparison
+  of every changed PNG; no pixels/dimensions changed. Spec39 adds a new51st PNG, rather
+  than silently refreshing an untracked-data historical example.

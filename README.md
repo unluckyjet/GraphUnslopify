@@ -73,6 +73,7 @@ strict inspection rejects low contrast. See [the criterion and verification](doc
 The public cell illustrations use [committed synthetic inputs](examples/references/README.md).
 Font floors use [actual exported widths](docs/export-legibility.md) at the requested manuscript width.
 Bars retain complete [signed value extents](docs/signed-bars.md); clipped bodies fail inspection.
+[Ridgeline density checks](docs/density-validation.md) retain observations and disclose unavailable estimates.
 
 *Made-up coffee chain data, one chart per kind*
 

@@ -43,3 +43,5 @@ One line per state change, newest last.
 2026-10-26 —35 lands: visible table context, shared percent/bounds formatting and literal exports;28 focused controls, four compiled TeX cases,215 Node/558 Python, seven gates, gallery15/15, fresh offline agent wheel; CI required after push.
 
 2026-10-26 —36 lands: shared category/value identity across nine presentations, sparse groups/colours and repeat-run metric reset;51 controls,215 Node/609 Python, seven gates/gallery15/15/offline wheel; CI required after push.
+
+2026-10-26 —37 lands: signed bar bounds/labels and actual-container clipping inspection;44 controls,215 Node/653 Python, seven gates/gallery15/15/offline wheel, former negative warnings resolved; CI required after push.

@@ -428,10 +428,10 @@ def label_bars(ax, values, positions):
             continue
         ax.text(
             position,
-            value + pad,
+            value + (pad if value >= 0 else -pad),
             f"{value:.3g}",
             ha="center",
-            va="bottom",
+            va="bottom" if value >= 0 else "top",
             fontsize=ANNOTATION_PT - 1,
         )
 
@@ -500,7 +500,8 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         ax.set_xlabel("Model")
     if show_y:
         ax.set_ylabel("Top-1 accuracy (%)")
-    ax.set_ylim(bottom=0)
+    _bar_low, _bar_high = sorted(ax.get_ylim())
+    ax.set_ylim(min(_bar_low, 0), max(_bar_high, 0))
     ax.grid(False)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)

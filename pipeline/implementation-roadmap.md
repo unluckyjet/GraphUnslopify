@@ -183,3 +183,14 @@ Milestones may be split further as evidence requires. No checklist item is compl
   with baseline10 source/provenance refresh. Both workflows require verification after push.
   Matrix24, specialized coordinates/negative-bar domains, naming/versioned release and
   final audit remain open.
+
+- Shared-category36 revisione13f864: General CI40303248511 passes all eight jobs and Figure CI40303248367 passes. Both Python3.10/3.12 report608 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four installed platforms pass actual shared categorical main values/labels offline with agent.
+
+- Milestone33 resolves signed bar visibility (spec37):44 independent controls,
+  215 Node/653 Python, zero local skips/warnings, all seven gates, gallery15/15,
+  Ruff and fresh offline installed wheel/agent. Automatic bounds preserve full signed
+  values; actual container orientation and transformed extents catch clipped bodies.
+  Negative/percentage labels are truthful; floating origins remain allowed. All20
+  baseline/public PNG pixels/dimensions stay unchanged with three source/provenance
+  refreshes. Both workflows require verification after push. Full matrix24,
+  naming/versioned release and final audit remain open.

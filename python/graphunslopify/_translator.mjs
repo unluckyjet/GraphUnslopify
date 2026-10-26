@@ -20683,11 +20683,11 @@ function emitHelpers(spec, out) {
       "        if not np.isfinite(value):",
       "            continue",
       "        ax.text(",
-      horizontal ? "            value + pad," : "            position,",
-      horizontal ? "            position," : "            value + pad,",
-      '            f"{value:.3g}",',
-      horizontal ? '            ha="left",' : '            ha="center",',
-      horizontal ? '            va="center",' : '            va="bottom",',
+      horizontal ? "            value + (pad if value >= 0 else -pad)," : "            position,",
+      horizontal ? "            position," : "            value + (pad if value >= 0 else -pad),",
+      spec.y.percent ? '            f"{value * 100:.3g}%",' : '            f"{value:.3g}",',
+      horizontal ? '            ha="left" if value >= 0 else "right",' : '            ha="center",',
+      horizontal ? '            va="center",' : '            va="bottom" if value >= 0 else "top",',
       "            fontsize=ANNOTATION_PT - 1,",
       "        )",
       ""
@@ -20971,8 +20971,10 @@ function emitDecoratePanel(spec, out) {
     }
   }
   if (spec.kind === "bar" && spec.baseline_zero && spec.y.scale !== "log") {
+    const target = plotAxis(spec, "y");
     out.push(
-      plotAxis(spec, "y") === "y" ? "    ax.set_ylim(bottom=0)" : "    ax.set_xlim(left=0)"
+      `    _bar_low, _bar_high = sorted(ax.get_${target}lim())`,
+      `    ax.set_${target}lim(min(_bar_low, 0), max(_bar_high, 0))`
     );
   }
   for (const specAxis of ["x", "y"]) {

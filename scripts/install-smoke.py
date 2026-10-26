@@ -632,6 +632,82 @@ def main() -> None:
         "labels": ["B", "01", "1"],
         "bars": [[[0, 30], [1, 10]], [[1, 11], [2, 20]]],
     }
+    # Negative/percent bar magnitudes must survive export; clipped lengths fail strict.
+    (where / "signed.csv").write_text(
+        "category,value\nB,-0.02\n01,0.08\n", encoding="utf8"
+    )
+    signed_raw = {
+        "kind": "bar",
+        "data": {"path": "signed.csv"},
+        "x": {"field": "category", "label": "Category"},
+        "y": {"field": "value", "label": "Change", "percent": True},
+        "aggregation": "mean",
+        "value_labels": True,
+        "output": {"stem": "signed", "formats": ["png"], "size": "double_column"},
+    }
+    signed_spec = where / "signed.json"
+    signed_spec.write_text(json.dumps(signed_raw), encoding="utf8")
+    signed_dir = where / "signed output"
+    signed_report = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(signed_spec),
+                "--out-dir",
+                str(signed_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert (
+        signed_report["status"] == "passed" and signed_report["inspection"]["checked"]
+    )
+    driver = signed_dir / "signed_artists.py"
+    driver.write_text(
+        "import signed, matplotlib.pyplot as plt, json, contextlib, io\n"
+        "captured=[]; close=plt.close; plt.close=captured.append\n"
+        "with contextlib.redirect_stdout(io.StringIO()): signed.main()\n"
+        "fig=captured[-1]; ax=fig.axes[0]\n"
+        "print(json.dumps({'limits': ax.get_ylim(), 'heights': [p.get_height() for p in ax.patches],\n"
+        "'labels': [t.get_text() for t in ax.texts]}))\n"
+        "plt.close=close; close(fig)\n",
+        encoding="utf8",
+    )
+    signed_artists = json.loads(
+        run([str(python), str(driver)], cwd=signed_dir, env=env)
+    )
+    assert signed_artists["limits"][0] <= -0.02 and signed_artists["limits"][1] >= 0.08
+    assert signed_artists["heights"] == [-0.02, 0.08] and signed_artists["labels"] == [
+        "-2%",
+        "8%",
+    ]
+    signed_raw["y"]["limits"] = [-0.01, 0.1]
+    signed_spec.write_text(json.dumps(signed_raw), encoding="utf8")
+    clipped = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(signed_spec),
+            "--out-dir",
+            str(where / "clipped output"),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    clipped_report = json.loads(clipped.stdout)
+    assert clipped.returncode == 2 and clipped_report["status"] == "failed"
+    assert clipped_report["outputs"] and any(
+        f["code"] == "bar_mark_clipped" for f in clipped_report["findings"]
+    )
     (where / "context.csv").write_text(
         "dataset,method,score\nA,Base,0.2\nA,Base,0.3\nA,Ours,0.8\nA,Ours,0.9\n",
         encoding="utf8",

@@ -412,29 +412,36 @@ def _check_colour_separation(axes: Any, report: Report) -> None:
 
 def _bar_value_axis(axes: Any) -> str | None:
     """Which axis carries bar length, or None when there are no bars."""
-    from matplotlib.patches import Rectangle
+    from matplotlib.container import BarContainer
 
-    bars = [p for p in axes.patches if isinstance(p, Rectangle) and p.get_visible()]
-    if not bars:
+    orientations = {
+        container.orientation
+        for container in axes.containers
+        if isinstance(container, BarContainer) and any(p.get_visible() for p in container.patches)
+    }
+    if len(orientations) != 1:
         return None
-    # A vertical bar starts on the y baseline; a horizontal one starts on x.
-    verticals = sum(1 for bar in bars if bar.get_width() < bar.get_height())
-    return "y" if verticals >= len(bars) / 2 else "x"
+    return {"vertical": "y", "horizontal": "x"}.get(orientations.pop())
 
 
 def _bars_float(axes: Any, which: str) -> bool:
-    """Whether the bars start at different places rather than a shared baseline.
+    """Whether any bar has an explicitly floating, nonzero origin.
 
     A waterfall stacks each contribution on the running total, so only the first
     and the last touch the baseline. Its bars are meant to float, and the
     truncation rule below assumes they do not: it would fire on every waterfall
     ever drawn and tell the author to do something that would destroy the chart.
     """
-    from matplotlib.patches import Rectangle
+    from matplotlib.container import BarContainer
 
-    bars = [p for p in axes.patches if isinstance(p, Rectangle) and p.get_visible()]
-    starts = {round(bar.get_y() if which == "y" else bar.get_x(), 6) for bar in bars}
-    return len(starts) > 1
+    bars = [
+        p
+        for container in axes.containers
+        if isinstance(container, BarContainer)
+        for p in container.patches
+        if p.get_visible()
+    ]
+    return any((bar.get_y() if which == "y" else bar.get_x()) != 0 for bar in bars)
 
 
 def _check_truncated_bars(axes: Any, report: Report) -> None:
@@ -444,6 +451,37 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
     this is an error rather than a matter of taste. Line charts are exempt; the
     same truncation is defensible there.
     """
+    from matplotlib.container import BarContainer
+
+    # Check actual transformed value extents before the common-baseline rule:
+    # floating bars may have legitimate offsets but still must remain visible.
+    bounds = axes.get_window_extent()
+    clipped = 0
+    for container in axes.containers:
+        if not isinstance(container, BarContainer):
+            continue
+        for bar in container.patches:
+            if not bar.get_visible() or not bar.get_clip_on():
+                continue
+            extent = bar.get_window_extent()
+            if container.orientation == "vertical":
+                low, high, lower, upper = extent.ymin, extent.ymax, bounds.ymin, bounds.ymax
+            elif container.orientation == "horizontal":
+                low, high, lower, upper = extent.xmin, extent.xmax, bounds.xmin, bounds.xmax
+            else:
+                continue
+            if all(math.isfinite(value) for value in (low, high)) and (
+                low < lower - 1e-7 or high > upper + 1e-7
+            ):
+                clipped += 1
+    if clipped:
+        report.add(
+            "error",
+            "bar_mark_clipped",
+            f"{clipped} bar value extents are clipped by the axes; widen the value limits "
+            "so complete lengths are visible, or use a non-length-bearing mark.",
+        )
+
     which = _bar_value_axis(axes)
     if which is None:
         return
@@ -451,11 +489,11 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
         return
 
     low, high = axes.get_ylim() if which == "y" else axes.get_xlim()
-    if min(low, high) > 0:
+    if min(low, high) > 0 or max(low, high) < 0:
         report.add(
             "error",
             "truncated_bar_axis",
-            f"the {which} axis starts at {low:g} rather than 0, so the bars overstate "
+            f"the {which} axis excludes zero ({low:g} to {high:g}), so the bars overstate "
             "the differences between them. Set baseline_zero, or use a line chart.",
         )
 

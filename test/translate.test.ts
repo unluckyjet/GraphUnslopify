@@ -253,6 +253,7 @@ test("a categorical bar axis gets no scale or limit calls", () => {
   assert.match(result.code, /set_xticklabels/);
 });
 
+// Signed zero-inclusive ranges are checked on real artists in test_signed_bars.py.
 test("a horizontal bar puts each label on the axis that actually shows it", () => {
   const result = translated({
     ...line,
@@ -262,7 +263,6 @@ test("a horizontal bar puts each label on the axis that actually shows it", () =
   });
   assert.match(result.code, /ax\.set_ylabel\("Training epoch"\)/);
   assert.match(result.code, /ax\.set_xlabel\("Test accuracy \(%\)"\)/);
-  assert.match(result.code, /ax\.set_xlim\(left=0\)/);
   assert.match(result.code, /ax\.set_yticklabels/);
 });
 
@@ -270,7 +270,6 @@ test("a vertical bar keeps labels on their own axes", () => {
   const result = translated({ ...line, kind: "bar", aggregation: "mean" });
   assert.match(result.code, /ax\.set_xlabel\("Training epoch"\)/);
   assert.match(result.code, /ax\.set_ylabel\("Test accuracy \(%\)"\)/);
-  assert.match(result.code, /ax\.set_ylim\(bottom=0\)/);
 });
 
 test("a horizontal bar sends the value limit to the axis that draws it", () => {

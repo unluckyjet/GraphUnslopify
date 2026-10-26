@@ -32,8 +32,9 @@ shared facets/repeats and installed artists (spec33). Physical export widths now
 text now have28 focused controls plus four real TeX cases (spec35). Complete the per-kind coverage map and
 remaining per-kind contexts for the full inventory. General shared category panels now have51
 actual-workflow controls across nine presentations, sparse density/colour and repeated-metric
-state references (spec36). Audit specialized waterfall/paired coordinates and negative-only
-bar zero-baseline behavior as part of the quantity/domain matrix. Invalid domains/missing IDs must not become plausible clean figures;
+state references (spec36). Signed bar automatic bounds, actual orientation, clipping/refusal and label semantics now
+have44 independent controls plus installed strict failure evidence (spec37). Audit specialized
+waterfall/paired coordinates and remaining quantity/domain cases. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.

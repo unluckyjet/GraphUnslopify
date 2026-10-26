@@ -223,3 +223,14 @@ Milestones may be split further as evidence requires. No checklist item is compl
   d95c320→e13f864→dba728a→ad07ba0 using Git blob equality plus RGBA/dimension comparison
   of every changed PNG; no pixels/dimensions changed. Spec39 adds a new51st PNG, rather
   than silently refreshing an untracked-data historical example.
+
+- Density39 revisionf456547: General CI40314165034 passes all eight jobs and Figure CI40314165153 passes. Both Python3.10/3.12 report730 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four fresh installed platforms verify normal density h, unavailable strict status and actual retained5/5/5 points/context offline with agent.
+
+- Milestone36 resolves median/SEM estimator mismatch (spec40):33 controls,215 Node/
+  764 Python, zero local skips/warnings, seven gates/gallery15/15/Ruff/fresh offline
+  installed wheel/agent. Four summary kinds refuse mean-standard-error widths around
+  medians in semantic and direct execution paths. Known mean SEM and median bootstrap
+  quantities retain declared unit handling; no estimator is substituted.80 direct literal
+  finding codes. Baseline scripts/assets and all51 published PNG blobs remain unchanged.
+  Both workflows require verification after push. Full matrix24, naming/versioned release
+  and final audit remain open.

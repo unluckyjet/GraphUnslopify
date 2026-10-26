@@ -895,6 +895,28 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=density_dir, env=env)
+    driver = where / "sem_estimator.py"
+    driver.write_text(
+        "from graphunslopify.transport import local_request\n"
+        "import pandas as pd, math\n"
+        "frame=pd.DataFrame({'category':[1]*3,'value':[1,2,9]})\n"
+        "base={'kind':'table','data':{'path':'unused.csv'},'x':{'field':'category','label':'Category'},\n"
+        "'y':{'field':'value','label':'Value'},'aggregation':'mean','uncertainty':{'kind':'sem'}}\n"
+        "def module(raw):\n"
+        "    r=local_request('convert',raw); ns={'__name__':'estimator','__file__':'estimator.py'}; exec(r['code'],ns); return r,ns\n"
+        "r,m=module(base); assert r['ok']; row=m['summarise'](frame).iloc[0]\n"
+        "assert row['value']==4 and abs(row['_low']-(4-math.sqrt(19/3)))<1e-12\n"
+        "base['aggregation']='median'; r,m=module(base)\n"
+        "assert not r['ok'] and any(f['code']=='median_sem_unsupported' for f in r['findings'])\n"
+        "try: m['summarise'](frame)\n"
+        "except ValueError as problem: assert 'SEM' in str(problem) and 'mean' in str(problem)\n"
+        "else: raise AssertionError('median received mean SEM')\n"
+        "base['uncertainty']['kind']='ci'; r,m=module(base); assert r['ok']; row=m['summarise'](frame).iloc[0]\n"
+        "assert row['value']==2 and row['_low']==1 and row['_high']==9\n"
+        "print('installed estimator-specific uncertainty passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=where, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

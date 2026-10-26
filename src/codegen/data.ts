@@ -349,6 +349,10 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
   const uncertainty = "uncertainty" in spec ? spec.uncertainty : undefined;
 
   out.push("", "def summarise(frame):");
+  if (aggregation === "median" && uncertainty?.kind === "sem") {
+    out.push('    raise ValueError("SEM requires a mean summary; use an explicit bootstrap CI for median uncertainty")', "");
+    return;
+  }
   if (aggregation === "none") {
     out.push("    return frame", "");
     return;

@@ -20430,6 +20430,10 @@ function emitSummarise(spec, out) {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const uncertainty2 = "uncertainty" in spec ? spec.uncertainty : void 0;
   out.push("", "def summarise(frame):");
+  if (aggregation === "median" && uncertainty2?.kind === "sem") {
+    out.push('    raise ValueError("SEM requires a mean summary; use an explicit bootstrap CI for median uncertainty")', "");
+    return;
+  }
   if (aggregation === "none") {
     out.push("    return frame", "");
     return;
@@ -23688,11 +23692,14 @@ var transforms = (spec, add) => {
 var uncertainty = (spec, add) => {
   if (!("uncertainty" in spec) || !spec.uncertainty) return;
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
+  if (aggregation === "median" && spec.uncertainty.kind === "sem") {
+    add("error", "median_sem_unsupported", "SEM here estimates standard error of the mean, not the median. Use an explicit bootstrap CI for median uncertainty, or IQR for observational spread; do not attach the mean's standard error to a median.");
+  }
   if (aggregation === "none") {
     add(
       "error",
       "uncertainty_without_aggregation",
-      "uncertainty describes the spread around a summary, so set aggregation to mean or median."
+      spec.uncertainty.kind === "sem" ? "SEM estimates uncertainty of a mean, so set aggregation to mean." : "uncertainty describes the spread around a summary, so set aggregation to mean or median."
     );
   }
   if (aggregation !== "none" && aggregation !== "mean" && aggregation !== "median") {

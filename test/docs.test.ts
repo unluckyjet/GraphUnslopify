@@ -44,6 +44,7 @@ const WORDS: Record<number, string> = {
   77: "Seventy-seven",
   78: "Seventy-eight",
   79: "Seventy-nine",
+  80: "Eighty",
 };
 
 function read(path: string): string {

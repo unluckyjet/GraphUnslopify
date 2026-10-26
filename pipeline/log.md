@@ -49,3 +49,5 @@ One line per state change, newest last.
 2026-10-26 —38 lands: explicit unused-group refusals and unique post-aggregation table cells;53 controls,215 Node/706 Python, seven gates/gallery15/15/offline wheel, public table provenance refresh; CI required after push.
 
 2026-10-26 —39 lands: honest ridgeline density availability, raw-point fallback and scoped bandwidth evidence;25 controls,215 Node/731 Python, seven gates/gallery15/15/offline wheel; normal pixels identical, new intentional-incomplete public fixture; CI required after push.
+
+2026-10-26 —40 lands: estimator-specific SEM refusal with valid mean/median alternatives retained;33 controls,215 Node/764 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.

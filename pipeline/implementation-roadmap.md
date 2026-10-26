@@ -134,3 +134,18 @@ Milestones may be split further as evidence requires. No checklist item is compl
   without changing any pixels. Explicit LF fixture controls and regeneration guidance prevent
   repeating that mismatch. Seven gates pass again215 Node/449 Python, strict gallery15/15;
   both workflows for the corrected revision must pass before advancing.
+
+
+- Cell32 corrected revision4c1a8df: General40282733042 passes all eight jobs and
+  Figure40282733211 passes. Python3.10/3.12 each448 passed/one TeX skip; render
+  separately requires/passes all four TeX cases. Downloaded offline browser proof522 labels
+  confirms the measured contrast minima; all four installed-wheel platforms pass.
+
+- Milestone29 resolves supported category overlay coordinates (spec33):44 actual-artist/
+  runtime/refusal controls,215 Node/493 Python, all seven gates, strict gallery15/15 and
+  three visually reviewed exports. Actual shared facets/repeated metrics use consistent
+  positions despite hidden ticks/missing levels. Final fresh offline wheel verifies real
+  category/value coordinates and labels, with agent passing. Tracked baseline/public assets
+  are unchanged. Both workflows must pass after push. Full21-kind matrix24, remaining
+  general categorical contexts, final export width/table context, naming/versioned release
+  and final completion audit remain open.

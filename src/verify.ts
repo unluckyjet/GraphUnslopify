@@ -1,4 +1,4 @@
-import { interactiveLimitations } from "./capabilities.ts";
+import { interactiveLimitations, layerCoordinateLimitations } from "./capabilities.ts";
 import { COMPARATIVE, NEEDS_TOLERANCE } from "./claims.ts";
 import { encodingSuggestions } from "./perception.ts";
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
@@ -543,6 +543,10 @@ const animation: Rule = (spec, add) => {
  * error, moved from the foot of the bar to its middle.
  */
 const composition: Rule = (spec, add) => {
+  const layerLimits = layerCoordinateLimitations(spec);
+  if (layerLimits.length) {
+    add("error", "unsupported_layer_coordinates", `Unsupported overlays: ${layerLimits.join("; ")}. Use a supported base axis/explicit metric or remove the overlay.`);
+  }
   if (spec.output.interactive && interactiveLimitations(spec).length) {
     add("error", "interactive_not_supported", `Interactive export does not reproduce: ${interactiveLimitations(spec).join(", ")}. Use static output or a supported spec.`);
   }
@@ -649,7 +653,7 @@ const qqSemantics: Rule = (spec, add) => {
   if (spec.kind !== "qq") return;
   const roles = [spec.x.field, spec.y.field, ...(spec.group ? [spec.group] : [])];
   if (spec.transform && !["none", "normalize"].includes(spec.transform.kind)
-      || spec.layers?.length || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length
+      || spec.layers?.some(layer => layer.mark !== "rule") || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length
       || spec.distribution === "normal" && spec.x.scale === "log" || spec.x.temporal) {
     add("error", "unsupported_qq_semantics",
       "Q-Q computes theoretical x quantiles. Raw-x transforms/overlays and temporal x are unsupported; " +

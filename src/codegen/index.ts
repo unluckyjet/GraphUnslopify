@@ -24,6 +24,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
+import { sharedCategoryOverlays } from "../capabilities.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -380,6 +381,14 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     return;
   }
   if (warnsDuplicates) out.push("    warn_duplicates(df)");
+  if (sharedCategoryOverlays(spec)) {
+    const originalOrder = "category_order" in spec ? spec.category_order : undefined;
+    out.push(
+      "    # Shared category axes need one order before any panel is drawn.",
+      `    globals()["CATEGORY_ORDER"] = ${originalOrder ? pyList(originalOrder) : "None"}`,
+      '    globals()["CATEGORY_ORDER"] = category_order(df)',
+    );
+  }
   out.push(
     "    if PALETTE_LOCK is not None and GROUP is not None:",
     "        globals()[\"LOCKED\"] = locked_appearance(",

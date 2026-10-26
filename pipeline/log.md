@@ -33,3 +33,7 @@ One line per state change, newest last.
 - 2026-10-25: Spec 25 delivered: literal LaTeX caption/description/table text and honest unknown-origin disclosure; actual compiled PDF preserves all ten special characters, numeric intervals/highlights and literal input commands. Seven gates, strict gallery, unchanged RGBA pixels and browser reproduction pass (215 Node/144 Python). Scientific reference matrix 24 remains open.
 
 - 2026-10-25: Spec 26 delivered: stable tied Kaplan–Meier risk sets, censor tails/markers, domain guards, survival-based descriptions/claims and median boundaries; 34 actual-artist/hand/SciPy regressions. Seven gates, strict gallery and fresh offline wheel pass (215 Node/178 Python). Broad reference matrix 24 remains active.
+
+
+- 2026-10-26: Spec32 delivered as4245d3c plus LF-provenance correction4c1a8df:34 contrast controls,522 real offline browser labels,215 Node/449 Python; both GitHub workflows green, including eight general jobs/all four fresh-wheel platforms.
+- 2026-10-26: Spec33 delivered: supported category overlays share actual base positions, preserve raw row/value associations and shared panel levels/hidden ticks, with explicit undefined-coordinate refusals;44 focused cases,215 Node/493 Python, seven gates/strict gallery/fresh offline wheel pass. Full matrix24 remains open.

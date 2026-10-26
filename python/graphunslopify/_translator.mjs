@@ -21053,6 +21053,37 @@ function emitCategoryLayout(spec, out) {
   );
 }
 
+// src/capabilities.ts
+function sharedCategoryOverlays(spec) {
+  return hasCategoricalX(spec) && !!spec.layers?.some((layer) => layer.mark !== "rule") && !!(spec.facet?.share_x || spec.repeat?.share_x);
+}
+function layerCoordinateLimitations(spec) {
+  if (!spec.layers?.length) return [];
+  const reasons = [];
+  if (["forest", "ridgeline", "dumbbell", "paired_difference", "heatmap", "confusion_matrix", "sparkline_grid"].includes(spec.kind) || spec.kind === "bar" && spec.orientation === "horizontal") {
+    reasons.push(`${spec.kind} does not expose a supported raw overlay coordinate system`);
+  }
+  if (["qq", "waterfall"].includes(spec.kind) && spec.layers.some((layer) => layer.mark !== "rule")) {
+    reasons.push(`${spec.kind} supports horizontal numeric-y rules, not raw x overlays`);
+  }
+  if (derivedAxis(spec, "y") && spec.layers.some((layer) => ["line", "scatter", "band"].includes(layer.mark) && !layer.y)) {
+    reasons.push("an overlay on derived y needs an explicit numeric y column");
+  }
+  return reasons;
+}
+function interactiveLimitations(spec) {
+  const reasons = [];
+  if (!["line", "scatter", "bar", "heatmap"].includes(spec.kind)) reasons.push(`kind ${spec.kind}`);
+  if (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break) reasons.push("composition");
+  if (spec.annotate?.length || spec.reference_lines?.length) reasons.push("annotations/reference lines");
+  if (spec.x.scale === "symlog" || spec.y.scale === "symlog") reasons.push("symlog scales");
+  if (spec.kind === "line" && (spec.y2 || spec.smooth)) reasons.push("secondary axes/smoothing");
+  if (spec.kind === "scatter" && (spec.trendline !== "none" || spec.frontier)) reasons.push("scatter analyses");
+  if (spec.kind === "bar" && (spec.significance || spec.stacked)) reasons.push("significance/stacked bars");
+  if (spec.kind === "heatmap" && [spec.x, spec.y].some((axis2) => axis2.scale !== "linear" || axis2.limits || axis2.percent || axis2.temporal)) reasons.push("matrix axis transforms");
+  return reasons;
+}
+
 // src/codegen/compose.ts
 var OPERATORS2 = {
   eq: (f, v) => `block[${f}] == ${v}`,
@@ -21068,6 +21099,11 @@ function emitLayers(spec, out) {
   if (!spec.layers?.length) return;
   const preset = PRESETS[spec.style.preset];
   out.push("", "def draw_layers(ax, frame):");
+  const limitations = layerCoordinateLimitations(spec);
+  if (limitations.length) {
+    out.push(`    raise ValueError(${pyStr(`Unsupported overlay coordinates: ${limitations.join("; ")}`)})`, "");
+    return;
+  }
   for (const [index, layer] of spec.layers.entries()) {
     const zorder = layer.recede ? 0 : 5;
     out.push(`    # layer ${index + 1}: ${layer.mark}`);
@@ -21075,7 +21111,26 @@ function emitLayers(spec, out) {
     for (const clause of layer.filter ?? []) {
       out.push(`    block = block[${OPERATORS2[clause.op](pyStr(clause.field), pyValue(clause.value))}]`);
     }
-    out.push("    block = block.sort_values(X_FIELD)");
+    if (layer.mark !== "rule") {
+      if (hasCategoricalX(spec)) {
+        out.push(
+          "    # The base panel owns category coordinates; no second string converter.",
+          "    labels = ax.xaxis.get_major_formatter().format_ticks(ax.get_xticks())",
+          "    if len(labels) != len(set(labels)):",
+          '        raise ValueError("Overlay needs unique plotted category labels")',
+          "    positions = dict(zip(labels, ax.get_xticks()))",
+          "    layer_x = block[X_FIELD].map(positions)",
+          "    if layer_x.isna().any():",
+          '        raise ValueError("Overlay contains categories absent from the base panel; draw/filter them explicitly")',
+          '    order = np.argsort(layer_x.to_numpy(), kind="stable")',
+          "    block = block.iloc[order]",
+          "    layer_x = layer_x.iloc[order].to_numpy(dtype=float)"
+        );
+      } else {
+        out.push("    block = block.sort_values(X_FIELD)");
+      }
+    }
+    const layerX = hasCategoricalX(spec) ? "layer_x" : "block[X_FIELD]";
     const field = layer.y ? pyStr(layer.y) : "Y_FIELD";
     const colour = `LAYER_COLOURS[${index} % len(LAYER_COLOURS)]`;
     const label = pyOptStr(layer.label);
@@ -21083,7 +21138,7 @@ function emitLayers(spec, out) {
       case "line":
         out.push(
           "    ax.plot(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
           `        linewidth=${preset.line.muted},`,
@@ -21096,7 +21151,7 @@ function emitLayers(spec, out) {
       case "scatter":
         out.push(
           "    ax.scatter(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
           `        s=${preset.marker.muted},`,
@@ -21111,7 +21166,7 @@ function emitLayers(spec, out) {
         out.push(
           "    # Ticks along the bottom, showing where the observations actually are.",
           "    ax.plot(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           "        np.full(len(block), 0.01),",
           "        transform=ax.get_xaxis_transform(),",
           '        linestyle="none",',
@@ -21127,7 +21182,7 @@ function emitLayers(spec, out) {
       case "band":
         out.push(
           "    ax.fill_between(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        block[${layer.y2 ? pyStr(layer.y2) : field}],`,
           `        color=${colour},`,
@@ -21483,7 +21538,7 @@ function emitCategories(spec, out) {
     '            raise ValueError("category_order must contain unique identifiers")',
     "        if not observed:",
     '            raise ValueError("No observed categories are available")',
-    "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]"
+    sharedCategoryOverlays(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]"
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";
@@ -22899,20 +22954,6 @@ function emitDraw(spec, out) {
 // src/codegen/cell-colour-source.ts
 var CELL_COLOUR_SOURCE = '"""Cell annotation colours shared with standalone generated programs.\n\nSample normalized image colours at the annotation anchor, composite in drawing\norder, and compare declared sRGB colours (not antialiased glyph pixels). Fully\ntransparent canvas backgrounds are assessed on white paper. This is a cell-text\ncheck, not a certificate for every mark, background, or accessibility criterion.\nKeep this module standalone: build:translator embeds it without a package import.\n"""\n\nimport matplotlib.colors as mcolors\nimport numpy as np\n\n\ndef _cell_over(rgba, background):\n    return np.asarray(rgba[:3]) * rgba[3] + np.asarray(background) * (1 - rgba[3])\n\n\ndef cell_contrast_ratio(a, b):\n    """WCAG relative-luminance ratio; compare the unrounded result to 4.5."""\n    luminances = []\n    for colour in (a, b):\n        rgb = np.asarray(colour, dtype=float)\n        linear = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)\n        luminances.append(float(linear @ np.array([0.2126, 0.7152, 0.0722])))\n    low, high = sorted(luminances)\n    return (high + 0.05) / (low + 0.05)\n\n\ndef _cell_paper(ax):\n    background = np.ones(3)\n    figures = []\n    figure = ax.figure\n    while figure is not None and figure not in figures:\n        figures.append(figure)\n        figure = figure.get_figure()\n    for figure in reversed(figures):\n        if figure.patch.get_visible():\n            background = _cell_over(figure.get_facecolor(), background)\n    if ax.axison and ax.get_frame_on() and ax.patch.get_visible():\n        background = _cell_over(ax.get_facecolor(), background)\n    return background\n\n\ndef _cell_image_layers(ax, display):\n    layers = []\n    for index, artist in enumerate(ax.get_children()):\n        if artist not in ax.images or not artist.get_visible():\n            continue\n        if artist.get_clip_on():\n            box = artist.get_clip_box()\n            if box is not None and not box.contains(*display):\n                continue\n            clip = artist.get_clip_path()\n            if clip is not None:\n                path, transform = clip.get_transformed_path_and_affine()\n                if not path.contains_point(display, transform=transform):\n                    continue\n        x, y = artist.get_transform().inverted().transform(display)\n        left, right, bottom, top = artist.get_extent()\n        fx = (x - left) / (right - left)\n        fy = (\n            (y - top) / (bottom - top)\n            if artist.origin == "upper"\n            else (y - bottom) / (top - bottom)\n        )\n        if not (0 <= fx < 1 and 0 <= fy < 1):\n            continue\n        array = artist.get_array()\n        row, column = int(fy * array.shape[0]), int(fx * array.shape[1])\n        rgba = artist.to_rgba(array[row : row + 1, column : column + 1], norm=array.ndim == 2)[\n            0, 0\n        ].copy()\n        alpha = artist.get_alpha()\n        if alpha is not None:\n            rgba[3] *= float(alpha if np.ndim(alpha) == 0 else alpha[row, column])\n        layers.append(((artist.get_zorder(), index), rgba))\n    return sorted(layers, key=lambda layer: layer[0])\n\n\ndef cell_colour_for_rgb(background):\n    """Pure black or white, whichever has greater unrounded contrast."""\n    return (\n        "black"\n        if cell_contrast_ratio((0, 0, 0), background) >= cell_contrast_ratio((1, 1, 1), background)\n        else "white"\n    )\n\n\ndef cell_text_colour(ax, x, y):\n    """Choose pure black/white against the actual image/axes background."""\n    layers = _cell_image_layers(ax, ax.transData.transform((x, y)))\n    if not layers:\n        raise ValueError("Cell text requires a visible image at its anchor")\n    background = _cell_paper(ax)\n    for _, rgba in layers:\n        background = _cell_over(rgba, background)\n    return cell_colour_for_rgb(background)\n\n\ndef cell_text_contrast(ax, text):\n    """Effective foreground/background ratio, or None outside cell images.\n\n    Handles image alpha, masks, extent/origin, text transforms/alpha/bboxes and\n    image drawing order. Outlined text needs a separate geometric assessment.\n    """\n    display = text.get_transform().transform(text.get_unitless_position())\n    layers = _cell_image_layers(ax, display)\n    if not layers:\n        return None\n    if text.get_path_effects():\n        raise NotImplementedError("Outlined cell text needs a separate contrast assessment")\n    key = (text.get_zorder(), list(ax.get_children()).index(text))\n    background = _cell_paper(ax)\n    above = []\n    for order, rgba in layers:\n        if order < key:\n            background = _cell_over(rgba, background)\n        else:\n            above.append(rgba)\n    bbox = text.get_bbox_patch()\n    if bbox is not None and bbox.get_visible() and bbox.get_fill() and bbox.contains_point(display):\n        background = _cell_over(bbox.get_facecolor(), background)\n    foreground = _cell_over(mcolors.to_rgba(text.get_color(), alpha=text.get_alpha()), background)\n    for rgba in above:\n        background = _cell_over(rgba, background)\n        foreground = _cell_over(rgba, foreground)\n    return cell_contrast_ratio(foreground, background)\n';
 
-// src/capabilities.ts
-function interactiveLimitations(spec) {
-  const reasons = [];
-  if (!["line", "scatter", "bar", "heatmap"].includes(spec.kind)) reasons.push(`kind ${spec.kind}`);
-  if (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break) reasons.push("composition");
-  if (spec.annotate?.length || spec.reference_lines?.length) reasons.push("annotations/reference lines");
-  if (spec.x.scale === "symlog" || spec.y.scale === "symlog") reasons.push("symlog scales");
-  if (spec.kind === "line" && (spec.y2 || spec.smooth)) reasons.push("secondary axes/smoothing");
-  if (spec.kind === "scatter" && (spec.trendline !== "none" || spec.frontier)) reasons.push("scatter analyses");
-  if (spec.kind === "bar" && (spec.significance || spec.stacked)) reasons.push("significance/stacked bars");
-  if (spec.kind === "heatmap" && [spec.x, spec.y].some((axis2) => axis2.scale !== "linear" || axis2.limits || axis2.percent || axis2.temporal)) reasons.push("matrix axis transforms");
-  return reasons;
-}
-
 // src/codegen/outputs.ts
 function emitDataFingerprint(out) {
   out.push(
@@ -23707,6 +23748,10 @@ var animation = (spec, add) => {
   }
 };
 var composition = (spec, add) => {
+  const layerLimits = layerCoordinateLimitations(spec);
+  if (layerLimits.length) {
+    add("error", "unsupported_layer_coordinates", `Unsupported overlays: ${layerLimits.join("; ")}. Use a supported base axis/explicit metric or remove the overlay.`);
+  }
   if (spec.output.interactive && interactiveLimitations(spec).length) {
     add("error", "interactive_not_supported", `Interactive export does not reproduce: ${interactiveLimitations(spec).join(", ")}. Use static output or a supported spec.`);
   }
@@ -23796,7 +23841,7 @@ var calibrationSemantics = (spec, add) => {
 var qqSemantics = (spec, add) => {
   if (spec.kind !== "qq") return;
   const roles = [spec.x.field, spec.y.field, ...spec.group ? [spec.group] : []];
-  if (spec.transform && !["none", "normalize"].includes(spec.transform.kind) || spec.layers?.length || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length || spec.distribution === "normal" && spec.x.scale === "log" || spec.x.temporal) {
+  if (spec.transform && !["none", "normalize"].includes(spec.transform.kind) || spec.layers?.some((layer) => layer.mark !== "rule") || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length || spec.distribution === "normal" && spec.x.scale === "log" || spec.x.temporal) {
     add(
       "error",
       "unsupported_qq_semantics",
@@ -24432,6 +24477,14 @@ function emitMain(spec, out) {
     return;
   }
   if (warnsDuplicates) out.push("    warn_duplicates(df)");
+  if (sharedCategoryOverlays(spec)) {
+    const originalOrder = "category_order" in spec ? spec.category_order : void 0;
+    out.push(
+      "    # Shared category axes need one order before any panel is drawn.",
+      `    globals()["CATEGORY_ORDER"] = ${originalOrder ? pyList(originalOrder) : "None"}`,
+      '    globals()["CATEGORY_ORDER"] = category_order(df)'
+    );
+  }
   out.push(
     "    if PALETTE_LOCK is not None and GROUP is not None:",
     '        globals()["LOCKED"] = locked_appearance(',

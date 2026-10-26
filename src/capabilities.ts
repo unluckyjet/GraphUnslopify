@@ -1,4 +1,27 @@
-import type { FigureSpec } from "./schema.ts";
+import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
+
+export function sharedCategoryOverlays(spec: FigureSpec): boolean {
+  return hasCategoricalX(spec) && !!spec.layers?.some(layer => layer.mark !== "rule")
+    && !!(spec.facet?.share_x || spec.repeat?.share_x);
+}
+
+/** Raw overlay coordinates must have a defined meaning on the base axes. */
+export function layerCoordinateLimitations(spec: FigureSpec): string[] {
+  if (!spec.layers?.length) return [];
+  const reasons: string[] = [];
+  if (["forest", "ridgeline", "dumbbell", "paired_difference", "heatmap", "confusion_matrix", "sparkline_grid"].includes(spec.kind)
+      || spec.kind === "bar" && spec.orientation === "horizontal") {
+    reasons.push(`${spec.kind} does not expose a supported raw overlay coordinate system`);
+  }
+  if (["qq", "waterfall"].includes(spec.kind) && spec.layers.some(layer => layer.mark !== "rule")) {
+    reasons.push(`${spec.kind} supports horizontal numeric-y rules, not raw x overlays`);
+  }
+  if (derivedAxis(spec, "y") && spec.layers.some(layer =>
+    ["line", "scatter", "band"].includes(layer.mark) && !layer.y)) {
+    reasons.push("an overlay on derived y needs an explicit numeric y column");
+  }
+  return reasons;
+}
 
 /** A refused export is safer than a different analysis under the same name. */
 export function interactiveLimitations(spec: FigureSpec): string[] {

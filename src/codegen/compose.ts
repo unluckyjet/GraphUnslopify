@@ -1,4 +1,5 @@
-import type { FigureSpec } from "../schema.ts";
+import { hasCategoricalX, type FigureSpec } from "../schema.ts";
+import { layerCoordinateLimitations } from "../capabilities.ts";
 import { pyList, pyOptStr, pyStr, pyValue } from "./py.ts";
 import { PRESETS } from "./theme.ts";
 
@@ -28,6 +29,11 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
   const preset = PRESETS[spec.style.preset];
 
   out.push("", "def draw_layers(ax, frame):");
+  const limitations = layerCoordinateLimitations(spec);
+  if (limitations.length) {
+    out.push(`    raise ValueError(${pyStr(`Unsupported overlay coordinates: ${limitations.join("; ")}`)})`, "");
+    return;
+  }
   for (const [index, layer] of spec.layers.entries()) {
     const zorder = layer.recede ? 0 : 5;
     out.push(`    # layer ${index + 1}: ${layer.mark}`);
@@ -35,7 +41,26 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
     for (const clause of layer.filter ?? []) {
       out.push(`    block = block[${OPERATORS[clause.op]!(pyStr(clause.field), pyValue(clause.value))}]`);
     }
-    out.push("    block = block.sort_values(X_FIELD)");
+    if (layer.mark !== "rule") {
+      if (hasCategoricalX(spec)) {
+        out.push(
+          "    # The base panel owns category coordinates; no second string converter.",
+          "    labels = ax.xaxis.get_major_formatter().format_ticks(ax.get_xticks())",
+          "    if len(labels) != len(set(labels)):",
+          '        raise ValueError("Overlay needs unique plotted category labels")',
+          "    positions = dict(zip(labels, ax.get_xticks()))",
+          "    layer_x = block[X_FIELD].map(positions)",
+          "    if layer_x.isna().any():",
+          '        raise ValueError("Overlay contains categories absent from the base panel; draw/filter them explicitly")',
+          '    order = np.argsort(layer_x.to_numpy(), kind="stable")',
+          "    block = block.iloc[order]",
+          "    layer_x = layer_x.iloc[order].to_numpy(dtype=float)",
+        );
+      } else {
+        out.push("    block = block.sort_values(X_FIELD)");
+      }
+    }
+    const layerX = hasCategoricalX(spec) ? "layer_x" : "block[X_FIELD]";
     const field = layer.y ? pyStr(layer.y) : "Y_FIELD";
     const colour = `LAYER_COLOURS[${index} % len(LAYER_COLOURS)]`;
     const label = pyOptStr(layer.label);
@@ -44,7 +69,7 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
       case "line":
         out.push(
           "    ax.plot(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
           `        linewidth=${preset.line.muted},`,
@@ -57,7 +82,7 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
       case "scatter":
         out.push(
           "    ax.scatter(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
           `        s=${preset.marker.muted},`,
@@ -72,7 +97,7 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
         out.push(
           "    # Ticks along the bottom, showing where the observations actually are.",
           "    ax.plot(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           "        np.full(len(block), 0.01),",
           "        transform=ax.get_xaxis_transform(),",
           '        linestyle="none",',
@@ -88,7 +113,7 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
       case "band":
         out.push(
           "    ax.fill_between(",
-          "        block[X_FIELD],",
+          `        ${layerX},`,
           `        block[${field}],`,
           `        block[${layer.y2 ? pyStr(layer.y2) : field}],`,
           `        color=${colour},`,

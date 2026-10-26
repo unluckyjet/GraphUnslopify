@@ -486,6 +486,61 @@ def main() -> None:
     cell_artists = json.loads(run([str(python), str(driver)], cwd=cell_dir, env=env))
     assert len(cell_artists["ratios"]) == 4 and min(cell_artists["ratios"]) >= 4.5
     assert cell_artists["negative"] == ["cell_text_low_contrast"]
+    overlay_spec = where / "overlay.json"
+    overlay_spec.write_text(
+        json.dumps(
+            {
+                "kind": "bar",
+                "aggregation": "mean",
+                "data": {"path": "cells.csv"},
+                "x": {"field": "column", "label": "Category"},
+                "y": {"field": "value", "label": "Value"},
+                "category_order": ["1", "01"],
+                "legend": {"show": False},
+                "layers": [
+                    {"mark": "line", "y": "value", "label": "Raw", "recede": False}
+                ],
+                "output": {"stem": "overlay", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    overlay_dir = where / "overlay output"
+    overlay_report = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(overlay_spec),
+                "--out-dir",
+                str(overlay_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert overlay_report["status"] == "passed" and len(overlay_report["outputs"]) == 2
+    driver = overlay_dir / "overlay_artists.py"
+    driver.write_text(
+        "import overlay, matplotlib.pyplot as plt, json\n"
+        "frame = overlay.prepare(overlay.load())\n"
+        "fig, ax = plt.subplots(); overlay.draw_panel(ax, frame); overlay.draw_layers(ax, frame)\n"
+        "print(json.dumps({'x':list(map(float,ax.lines[-1].get_xdata(orig=False))),\n"
+        "                  'y':list(map(float,ax.lines[-1].get_ydata())),\n"
+        "                  'labels':[t.get_text() for t in ax.get_xticklabels()]}))\n"
+        "plt.close(fig)\n",
+        encoding="utf8",
+    )
+    overlay_artists = json.loads(
+        run([str(python), str(driver)], cwd=overlay_dir, env=env)
+    )
+    assert overlay_artists == {
+        "x": [0, 0, 1, 1],
+        "y": [2, 4, 1, 3],
+        "labels": ["1", "01"],
+    }
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

@@ -36,3 +36,39 @@ Only standalone y breaks are implemented; x breaks and combinations of breaks
 with panels/overlays are rejected. A cut requires `from < to` and cannot also
 set explicit limits on the cut axis. Bands need an upper column; rules need a
 value. These errors prevent accepted options from silently changing meaning.
+
+## Overlay coordinates
+
+Layers draw **raw prepared rows**, after their own filters; they do not silently
+aggregate to match a base summary. Continuous x retains its actual coordinates.
+On vertical bar, box, violin, raincloud and slope charts, line/scatter/rug/band
+layers use the base panel's actual category positions. Custom or encountered order,
+lexical names such as `01` and `1`, and facet-specific levels are preserved. Rows
+are stably ordered by those plotted positions. Grouped-bar overlays sit at the
+category centre; they do not inherit individual series' offsets. Use explicit
+filters/columns when a reference should represent one series.
+
+With shared categorical x axes, the generated workflow establishes one order
+from the complete prepared data before drawing panels. Missing local levels keep
+their shared positions. Unshared panels retain their own order. The mapping reads
+the base formatter even when shared axes hide a panel's tick labels.
+
+An unknown category or ambiguous base labels fail instead of inventing a second
+categorical axis or discarding rows. User columns and row/value associations are
+preserved. Rules are horizontal numeric-y constants and need no raw x column;
+Q–Q and waterfall permit these rules while rejecting raw-x layers. Derived-y
+ECDF/calibration/survival plots need an explicit overlay y column for a line,
+scatter or band; the figure's derived output name is not an input measurement.
+
+Raw overlays on horizontal bars, forest, ridgeline, dumbbell, paired-difference,
+matrix and sparkline-grid coordinate systems are explicitly unsupported. Table
+overlays remain unsupported too. A semantic `unsupported_layer_coordinates` error
+explains the boundary, and directly running a refused layer also raises. These
+restrictions avoid plausible marks at unrelated coordinates; they do not claim
+every composition or scientific assumption has been validated.
+
+Independent actual-artist tests cover category/value associations, filtered rugs,
+band bounds, grouping/facets, unknown/ambiguous labels, derived-axis refusals,
+horizontal rules and unchanged continuous coordinates. An actual strict PNG/SVG
+render and the fresh offline wheel test exercise the same contract outside unit
+translation. Parent scientific reference matrix24 remains open.

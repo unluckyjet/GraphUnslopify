@@ -1,4 +1,5 @@
 import { hasCategoricalX, type FigureSpec, type PlottedSpec } from "../schema.ts";
+import { sharedCategoryOverlays } from "../capabilities.ts";
 import { pyStr } from "./py.ts";
 import { BAND_ALPHA, DASHED_KINDS, MARKER_KINDS, PRESETS, RAW_ALPHA } from "./theme.ts";
 import { needsMissingIntervalReport } from "./data.ts";
@@ -99,7 +100,7 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
     '            raise ValueError("category_order must contain unique identifiers")',
     "        if not observed:",
     '            raise ValueError("No observed categories are available")',
-    "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]",
+    sharedCategoryOverlays(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]",
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";

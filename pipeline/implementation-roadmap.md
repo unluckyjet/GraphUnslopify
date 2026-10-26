@@ -109,3 +109,12 @@ Milestones may be split further as evidence requires. No checklist item is compl
   numeric display references. All seven local gates pass again (215 Node/353 Python),
   strict gallery15/15, eight targeted Python3.10/Matplotlib3.10.9 cases and fresh offline
   Python3.12 wheel. The complete roadmap and ready identifier contract31 remain open.
+
+
+- Milestone 26 pushed as b532a6e and compatibility follow-up d308f36; general40255756735
+  passes all eight jobs and Figure40255756719 passes. Milestone27 resolves the shared identity
+  boundary (spec31):62 independent artist/runtime/typed/filter/snapshot controls,215 Node/
+  415 Python, all seven local gates, strict gallery15/15 and fresh offline installed artists/
+  claims/agent proof. All15 baseline PNGs and both public illustrations have unchanged pixels
+  with refreshed code/provenance. Full matrix24, cell annotation contrast32, categorical overlays,
+  final exported-width/table context, naming/versioned release and final completion audit remain.

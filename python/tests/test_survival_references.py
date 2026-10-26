@@ -260,7 +260,7 @@ def test_faceted_survival_claims_and_counts_remain_panel_scoped(tmp_path):
 def test_missing_cohort_label_is_not_silently_removed_from_the_risk_set(tmp_path):
     module, _ = generated(tmp_path, group="cohort")
     frame = sample([1, 2], [1]).assign(cohort=["A", None, "A"])
-    with pytest.raises(ValueError, match="nonmissing cohort"):
+    with pytest.raises(ValueError, match="identifier cohort"):
         module.prepare(frame)
 
 

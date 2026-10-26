@@ -277,8 +277,74 @@ def run_cli(argv=None):
                 print(item["message"], file=sys.stderr)
     return report["exit_code"]
 
+IDENTITY_FIELDS = ["model"]
+REQUIRED_IDENTITY_FIELDS = ["model"]
+IDENTITY_CONFLICTS = []
+
+
+def normalize_identities(frame, *, final=True):
+    if IDENTITY_CONFLICTS:
+        raise ValueError("Columns cannot serve both identifier and measurement roles: " + ", ".join(IDENTITY_CONFLICTS))
+    for key in ("series_order", "category_order"):
+        order = RUN_REPORT["spec"].get(key)
+        if order is not None and len(order) != len(set(order)):
+            raise ValueError(key + " must contain unique identifiers")
+    source = frame.copy()
+    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})
+    for field in IDENTITY_FIELDS:
+        if field not in source:
+            if final and field in REQUIRED_IDENTITY_FIELDS:
+                raise ValueError(f"Required identifier column {field} is missing")
+            continue
+        values = source[field].tolist()
+        if field in lexical:
+            values = [lexical[field][int(index)] for index in source.index]
+        seen = {}
+        def as_identifier(value):
+            if not pd.api.types.is_scalar(value):
+                raise ValueError(f"Identifier {field} must contain scalar values")
+            if pd.isna(value):
+                return None
+            if isinstance(value, (float, np.floating)) and not np.isfinite(value):
+                raise ValueError(f"Numeric identifier {field} must be finite")
+            text = str(value)
+            if not text.strip():
+                raise ValueError(f"Identifier {field} must be nonempty")
+            if text in seen and seen[text] != value:
+                raise ValueError(f"Distinct identifiers in {field} collide as textual name {text!r}")
+            seen[text] = value
+            return text
+        normalized = [as_identifier(value) for value in values]
+        dtype = source[field].dtype
+        if isinstance(dtype, pd.CategoricalDtype):
+            categories = [as_identifier(value) for value in dtype.categories]
+            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)
+        else:
+            source[field] = pd.Series(normalized, index=source.index, dtype=object)
+        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():
+            raise ValueError(f"Required identifier {field} is missing for retained observations")
+    return source
+
+
 def load():
-    df = pd.read_csv(DATA_PATH)
+    global DATA_HASH
+    with pd.io.common.get_handle(DATA_PATH, "rb", compression=None, is_text=False) as raw:
+        snapshot = raw.handle.read()
+        decoded = raw.compression.get("method") is not None
+    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]
+    # Keep pandas' filename-based compression behavior on the byte snapshot.
+    compression = None if decoded else pd.io.common.infer_compression(DATA_PATH, "infer")
+    with pd.io.common.get_handle(io.BytesIO(snapshot), "rb", compression=compression, is_text=False) as handle:
+        payload = handle.handle.read()
+    df = pd.read_csv(io.BytesIO(payload))
+    # Preserve names from the same bytes; filters still see the typed frame.
+    names = pd.read_csv(io.BytesIO(payload), dtype={field: "string" for field in IDENTITY_FIELDS})
+    if len(names) != len(df):
+        raise ValueError("Identifier and measurement rows do not align")
+    df = df.reset_index(drop=True)
+    df.attrs["_graphunslopify_identity_rows"] = {
+        field: names[field].to_numpy(dtype=object, na_value=None).tolist()
+        for field in IDENTITY_FIELDS if field in names}
     ROW_COUNTS.clear()
     ROW_COUNTS["read"] = len(df)
     return df
@@ -286,6 +352,7 @@ def load():
 
 def prepare(df):
     ROW_COUNTS["after_filter"] = len(df)
+    df = normalize_identities(df)
     return df
 
 
@@ -701,7 +768,6 @@ FACET_COLUMNS = 1
 
 def main():
     global DATA_HASH, ALT_TEXT
-    DATA_HASH = data_fingerprint()
     df = prepare(load())
     report_counts(df)
     if PALETTE_LOCK is not None and GROUP is not None:

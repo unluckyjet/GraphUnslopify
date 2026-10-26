@@ -1,7 +1,7 @@
 ---
 id: 31
 slug: category-identity-contract
-status: ready
+status: done
 priority: P0
 title: Preserve identifier spelling and align categorical roles without changing raw filters
 source_idea: independent reference matrix 24 confirms CSV identity loss and empty explicit category orders
@@ -54,3 +54,34 @@ Refresh affected baselines/public image fingerprints only with verified intended
 Run the seven required gates, gallery checks and fresh offline wheel smoke; visually inspect
 representative outputs, update Obsidian and inspect both GitHub workflows after the small push.
 The broader per-kind/domain/overlay/final-export-width reference matrix 24 remains open.
+
+
+## Verification
+
+After correcting the fixture helper to omit absent optional keys, the 34-case contract fails
+32 cases at d308f36 (two existing string-filter/missing-repeat cases already pass). Final 62
+references pass: actual line/bar/heatmap/table artists and cells, weighted confusion matrices,
+matched pairs/equal repeat units, nested facets, exact orders/emphasis/claims/labels/palette,
+raw filters/baseline transforms/wide reshaping, typed JSON/Parquet/direct DataFrames, missing/
+invalid/colliding IDs, ordered category metadata, large JSON integers, numeric-looking column
+headers, compressed snapshots and actual one-fetch HTTP controls. No DataFrame source mutation
+or arbitrary string casting of measurements is used. Duplicate orders and incompatible identity/
+measurement roles are explicit errors. Category order cannot silently omit observed categories.
+
+One loaded snapshot owns data hashes, typed measurements and lexical identity; JSON's literal
+view avoids numeric/date/header inference loss. Existing compressed and explicitly remote HTTP
+loading is preserved. Local input hashes match actual file bytes; reader-decoded HTTP responses
+use delivered content. Source and measurement views remain consistent even if a file changes
+between parser calls. Internal preparation owns the index correspondence before reshaping.
+
+All seven local gates pass: 215 Node/415 Python, zero skips, 15 refreshed matching baseline
+programs, 16 renders, 25 recipes/seven compositions. Ruff and strict gallery15/15 pass. All 15
+baseline PNG RGBA images and both public Q-Q/scaling illustrations have unchanged pixels;
+source fingerprints and metadata are refreshed. Four synthetic identity figures were visually
+reviewed. Fresh Python3.12.14/packaged Node24.19 wheel extracts the exact installed 01/1 line
+artists and verifies a supported claim, with external connections blocked and agent smoke passing.
+Python CI now includes parquet to execute those references, not silently skip them.
+
+Canonical Obsidian notes and reusable identity/snapshot lessons are updated; both GitHub
+workflows are inspected after the small push. Scientific matrix24 remains open. Visual review
+also confirms low-contrast heatmap text despite strict passed; spec32 tracks that separate defect.

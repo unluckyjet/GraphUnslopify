@@ -20045,6 +20045,40 @@ var DASHED_KINDS = /* @__PURE__ */ new Set([
 ]);
 var MARKER_KINDS = /* @__PURE__ */ new Set(["scatter", "qq", "scaling_fit"]);
 
+// src/identity.ts
+function requiredIdentityFields(spec) {
+  return [.../* @__PURE__ */ new Set([
+    ...spec.group ? [spec.group] : [],
+    ...spec.series_from_columns ? [spec.series_from_columns.series_name] : [],
+    ...spec.facet ? [spec.facet.by, ...spec.facet.rows ? [spec.facet.rows] : []] : [],
+    ...hasCategoricalX(spec) || ["table", "heatmap", "confusion_matrix"].includes(spec.kind) ? [spec.x.field] : [],
+    ...["heatmap", "confusion_matrix"].includes(spec.kind) ? [spec.y.field] : [],
+    ...spec.kind === "paired_difference" ? [spec.pair] : []
+  ])];
+}
+function identityFields(spec) {
+  return [.../* @__PURE__ */ new Set([
+    ...requiredIdentityFields(spec),
+    ..."uncertainty" in spec && spec.uncertainty?.over ? [spec.uncertainty.over] : []
+  ])];
+}
+function identityConflicts(spec) {
+  const categoricalX = hasCategoricalX(spec) || ["table", "heatmap", "confusion_matrix"].includes(spec.kind);
+  const categoricalY = ["heatmap", "confusion_matrix"].includes(spec.kind);
+  const numeric = /* @__PURE__ */ new Set([
+    ...!categoricalX && !derivedAxis(spec, "x") ? [spec.x.field] : [],
+    ...!categoricalY && !derivedAxis(spec, "y") ? [spec.y.field] : [],
+    ..."value" in spec && spec.value ? [spec.value] : [],
+    ...spec.kind === "calibration" ? [spec.outcome] : [],
+    ...spec.kind === "kaplan_meier" ? [spec.event] : [],
+    ...spec.repeat?.fields ?? [],
+    ...spec.layers?.map((layer) => layer.y) ?? [],
+    ...spec.kind === "line" && spec.y2 ? [spec.y2.field] : [],
+    ...spec.series_from_columns?.fields ?? []
+  ]);
+  return identityFields(spec).filter((field) => numeric.has(field));
+}
+
 // src/codegen/data.ts
 var OPERATORS = {
   eq: (f, v) => `df[${f}] == ${v}`,
@@ -20057,7 +20091,93 @@ var OPERATORS = {
   not_in: (f, v) => `~df[${f}].isin(${v})`
 };
 function emitLoad(spec, out) {
-  out.push("", "def load():", `    df = pd.${READERS[spec.data.format]}(DATA_PATH)`);
+  const identities = identityFields(spec);
+  out.push(
+    "",
+    `IDENTITY_FIELDS = ${pyList(identities)}`,
+    `REQUIRED_IDENTITY_FIELDS = ${pyList(requiredIdentityFields(spec))}`,
+    `IDENTITY_CONFLICTS = ${pyList(identityConflicts(spec))}`
+  );
+  out.push(...String.raw`
+
+def normalize_identities(frame, *, final=True):
+    if IDENTITY_CONFLICTS:
+        raise ValueError("Columns cannot serve both identifier and measurement roles: " + ", ".join(IDENTITY_CONFLICTS))
+    for key in ("series_order", "category_order"):
+        order = RUN_REPORT["spec"].get(key)
+        if order is not None and len(order) != len(set(order)):
+            raise ValueError(key + " must contain unique identifiers")
+    source = frame.copy()
+    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})
+    for field in IDENTITY_FIELDS:
+        if field not in source:
+            if final and field in REQUIRED_IDENTITY_FIELDS:
+                raise ValueError(f"Required identifier column {field} is missing")
+            continue
+        values = source[field].tolist()
+        if field in lexical:
+            values = [lexical[field][int(index)] for index in source.index]
+        seen = {}
+        def as_identifier(value):
+            if not pd.api.types.is_scalar(value):
+                raise ValueError(f"Identifier {field} must contain scalar values")
+            if pd.isna(value):
+                return None
+            if isinstance(value, (float, np.floating)) and not np.isfinite(value):
+                raise ValueError(f"Numeric identifier {field} must be finite")
+            text = str(value)
+            if not text.strip():
+                raise ValueError(f"Identifier {field} must be nonempty")
+            if text in seen and seen[text] != value:
+                raise ValueError(f"Distinct identifiers in {field} collide as textual name {text!r}")
+            seen[text] = value
+            return text
+        normalized = [as_identifier(value) for value in values]
+        dtype = source[field].dtype
+        if isinstance(dtype, pd.CategoricalDtype):
+            categories = [as_identifier(value) for value in dtype.categories]
+            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)
+        else:
+            source[field] = pd.Series(normalized, index=source.index, dtype=object)
+        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():
+            raise ValueError(f"Required identifier {field} is missing for retained observations")
+    return source
+`.split("\n"));
+  out.push(
+    "",
+    "def load():",
+    "    global DATA_HASH",
+    '    with pd.io.common.get_handle(DATA_PATH, "rb", compression=None, is_text=False) as raw:',
+    "        snapshot = raw.handle.read()",
+    '        decoded = raw.compression.get("method") is not None',
+    "    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]"
+  );
+  if (spec.data.format !== "parquet") {
+    out.push(
+      "    # Keep pandas' filename-based compression behavior on the byte snapshot.",
+      '    compression = None if decoded else pd.io.common.infer_compression(DATA_PATH, "infer")',
+      '    with pd.io.common.get_handle(io.BytesIO(snapshot), "rb", compression=compression, is_text=False) as handle:',
+      "        payload = handle.handle.read()"
+    );
+  } else out.push("    payload = snapshot");
+  out.push(`    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  if (spec.data.format === "json" || identities.length && spec.data.format === "csv") {
+    out.push(
+      "    # Preserve names from the same bytes; filters still see the typed frame.",
+      spec.data.format === "csv" ? '    names = pd.read_csv(io.BytesIO(payload), dtype={field: "string" for field in IDENTITY_FIELDS})' : "    names = pd.DataFrame(json.loads(payload), dtype=object)",
+      "    if len(names) != len(df):",
+      '        raise ValueError("Identifier and measurement rows do not align")',
+      ...spec.data.format === "json" ? [
+        "    if len(names.columns) != len(df.columns):",
+        '        raise ValueError("Identifier and measurement columns do not align")',
+        "    df.columns = names.columns"
+      ] : [],
+      "    df = df.reset_index(drop=True)",
+      '    df.attrs["_graphunslopify_identity_rows"] = {',
+      "        field: names[field].to_numpy(dtype=object, na_value=None).tolist()",
+      "        for field in IDENTITY_FIELDS if field in names}"
+    );
+  }
   out.push("    ROW_COUNTS.clear()", '    ROW_COUNTS["read"] = len(df)');
   if (spec.x.temporal) {
     out.push(
@@ -20081,6 +20201,7 @@ function emitPrepare(spec, out) {
     body.push("    if df.empty:", '        raise SystemExit("every row was filtered out")');
   }
   const melt = spec.series_from_columns;
+  body.push(`    df = normalize_identities(df${melt ? ", final=False" : ""})`);
   if (melt) {
     body.push(
       "    # Wide columns become one series each.",
@@ -20090,7 +20211,8 @@ function emitPrepare(spec, out) {
       `        value_vars=${pyList(melt.fields)},`,
       `        var_name=${pyStr(melt.series_name)},`,
       `        value_name=${pyStr(melt.value_name)},`,
-      "    )"
+      "    )",
+      "    df = normalize_identities(df)"
     );
   }
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
@@ -21150,6 +21272,11 @@ function emitTable(spec, out) {
     "        )",
     "",
     "    table = pivot(Y_FIELD)",
+    "    if GROUP is not None and SERIES_ORDER is not None:",
+    "        observed = list(table.columns)",
+    "        ordered = [name for name in SERIES_ORDER if name in observed]",
+    "        ordered += [name for name in observed if name not in SERIES_ORDER]",
+    "        table = table.reindex(columns=ordered)",
     '    low = pivot("_low").reindex_like(table) if "_low" in summary else None',
     '    high = pivot("_high").reindex_like(table) if "_high" in summary else None',
     "    return table, low, high",
@@ -21347,7 +21474,15 @@ function emitCategories(spec, out) {
   out.push(
     "",
     "def category_order(frame):",
+    "    observed = list(dict.fromkeys(frame[X_FIELD].tolist()))",
     "    if CATEGORY_ORDER is not None:",
+    "        omitted = [name for name in observed if name not in CATEGORY_ORDER]",
+    "        if omitted:",
+    '            raise ValueError("category_order omits observed categories; filter explicitly or list all identifiers: " + ", ".join(map(str, omitted)))',
+    "        if len(CATEGORY_ORDER) != len(set(CATEGORY_ORDER)):",
+    '            raise ValueError("category_order must contain unique identifiers")',
+    "        if not observed:",
+    '            raise ValueError("No observed categories are available")',
     "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]"
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
@@ -23665,6 +23800,18 @@ var scalingSemantics = (spec, add) => {
     );
   }
 };
+var identityRoles = (spec, add) => {
+  const conflicts = identityConflicts(spec);
+  if (conflicts.length) add(
+    "error",
+    "unsupported_identity_roles",
+    `Columns ${conflicts.join(", ")} have both identifier and measurement roles. Use separate source columns so names, numeric values and raw filters retain their meanings.`
+  );
+  const orders = [spec.series_order, ..."category_order" in spec ? [spec.category_order] : []];
+  if (orders.some((order) => order && new Set(order).size !== order.length)) {
+    add("error", "duplicate_identity_order", "Series and category orders must contain unique identifiers; duplicates would draw the same observations more than once.");
+  }
+};
 var claims = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : void 0;
@@ -23749,6 +23896,7 @@ var RULES = [
   calibrationSemantics,
   qqSemantics,
   scalingSemantics,
+  identityRoles,
   claims,
   encodingChoice
 ];
@@ -24246,7 +24394,6 @@ function emitMain(spec, out) {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
-    "    DATA_HASH = data_fingerprint()",
     "    df = prepare(load())",
     "    report_counts(df)"
   );

@@ -90,7 +90,15 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
   out.push(
     "",
     "def category_order(frame):",
+    "    observed = list(dict.fromkeys(frame[X_FIELD].tolist()))",
     "    if CATEGORY_ORDER is not None:",
+    "        omitted = [name for name in observed if name not in CATEGORY_ORDER]",
+    "        if omitted:",
+    '            raise ValueError("category_order omits observed categories; filter explicitly or list all identifiers: " + ", ".join(map(str, omitted)))',
+    "        if len(CATEGORY_ORDER) != len(set(CATEGORY_ORDER)):",
+    '            raise ValueError("category_order must contain unique identifiers")',
+    "        if not observed:",
+    '            raise ValueError("No observed categories are available")',
     "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]",
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {

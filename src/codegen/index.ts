@@ -355,7 +355,6 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
-    "    DATA_HASH = data_fingerprint()",
     "    df = prepare(load())",
     "    report_counts(df)",
   );

@@ -340,7 +340,10 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Seventy-four rules run on the server against the spec alone. The Python package checks the rendered
+Data names such as `01` and `1` remain distinct through grouping, claims and exports. Filters
+retain their original typed meaning; see [data identities and ordering](docs/data-identities.md).
+
+Seventy-six rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

@@ -372,6 +372,61 @@ def main() -> None:
     interval = unknown["data"]["counts"]["scaling_fits"][0]["interval"]
     assert interval["low"] is None and interval["status"] == "unavailable"
     assert "statistics" in interval["reason"] and unknown["outputs"]
+    # Installed source must preserve lexical cohort IDs and verify the actual comparison.
+    (where / "identifiers.csv").write_text(
+        "step,score,model\n1,10,01\n2,12,01\n1,20,1\n2,22,1\n", encoding="utf8"
+    )
+    identity_spec = where / "identifiers.json"
+    identity_spec.write_text(
+        json.dumps(
+            {
+                "kind": "line",
+                "data": {"path": "identifiers.csv"},
+                "x": {"field": "step", "label": "Step"},
+                "y": {"field": "score", "label": "Score"},
+                "group": "model",
+                "series_order": ["1", "01"],
+                "legend": {"position": "outside_bottom"},
+                "claims": [
+                    {"kind": "beats_everywhere", "subject": "1", "reference": "01"}
+                ],
+                "output": {"stem": "identifiers", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    identity_dir = where / "identity output"
+    identity = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(identity_spec),
+                "--out-dir",
+                str(identity_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert (
+        identity["status"] == "passed" and identity["claims"][0]["verdict"] == "holds"
+    )
+    assert identity["data"]["counts"]["read"] == 4 and len(identity["outputs"]) == 2
+    # Extract real marks from the installed emitter, independently of its claim narrative.
+    driver = identity_dir / "artists.py"
+    driver.write_text(
+        "import identifiers, matplotlib.pyplot as plt, json\n"
+        "frame = identifiers.prepare(identifiers.load())\n"
+        "fig, ax = plt.subplots(); identifiers.draw_panel(ax, frame)\n"
+        "print(json.dumps([[line.get_label(), list(map(float,line.get_ydata()))] for line in ax.lines]))\n"
+        "plt.close(fig)\n",
+        encoding="utf8",
+    )
+    artists = json.loads(run([str(python), str(driver)], cwd=identity_dir, env=env))
+    assert artists == [["1", [20, 22]], ["01", [10, 12]]]
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

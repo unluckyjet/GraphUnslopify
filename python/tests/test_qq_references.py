@@ -249,7 +249,7 @@ def test_missing_or_invalid_labels_fail_before_grouping(tmp_path, field, value):
     module, _ = generated(tmp_path, group="model", facet={"by": "site", "columns": 2})
     rows = cohorts().assign(site="first").astype(object)
     rows.iloc[0, rows.columns.get_loc(field)] = value
-    with pytest.raises(ValueError, match="Q-Q"):
+    with pytest.raises(ValueError, match=rf"[Ii]dentifier.*{field}"):
         module.prepare(rows)
 
 

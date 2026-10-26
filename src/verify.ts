@@ -2,6 +2,7 @@ import { interactiveLimitations } from "./capabilities.ts";
 import { COMPARATIVE, NEEDS_TOLERANCE } from "./claims.ts";
 import { encodingSuggestions } from "./perception.ts";
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
+import { identityConflicts } from "./identity.ts";
 
 /**
  * Checks that need only the spec, no rendering.
@@ -669,6 +670,17 @@ const scalingSemantics: Rule = (spec, add) => {
   }
 };
 
+const identityRoles: Rule = (spec, add) => {
+  const conflicts = identityConflicts(spec);
+  if (conflicts.length) add("error", "unsupported_identity_roles",
+    `Columns ${conflicts.join(", ")} have both identifier and measurement roles. ` +
+    "Use separate source columns so names, numeric values and raw filters retain their meanings.");
+  const orders = [spec.series_order, ...("category_order" in spec ? [spec.category_order] : [])];
+  if (orders.some(order => order && new Set(order).size !== order.length)) {
+    add("error", "duplicate_identity_order", "Series and category orders must contain unique identifiers; duplicates would draw the same observations more than once.");
+  }
+};
+
 const claims: Rule = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : undefined;
@@ -759,6 +771,7 @@ export const RULES: Rule[] = [
   calibrationSemantics,
   qqSemantics,
   scalingSemantics,
+  identityRoles,
   claims,
   encodingChoice,
 ];

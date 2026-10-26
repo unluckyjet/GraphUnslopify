@@ -327,7 +327,7 @@ def test_invalid_series_or_panel_labels_fail_before_grouping(tmp_path, field, va
     )
     rows = sample().assign(model="base", site="first").astype(object)
     rows.iloc[0, rows.columns.get_loc(field)] = value
-    with pytest.raises(ValueError, match="Scaling"):
+    with pytest.raises(ValueError, match=rf"[Ii]dentifier.*{field}"):
         module.prepare(rows)
 
 

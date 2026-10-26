@@ -242,7 +242,7 @@ def test_filter_runs_before_domain_validation(tmp_path):
 
 def test_missing_series_label_is_not_silently_omitted(tmp_path):
     module, _ = generated(tmp_path, group="model")
-    with pytest.raises(ValueError, match="nonmissing series"):
+    with pytest.raises(ValueError, match="identifier model"):
         module.prepare(pd.DataFrame({"prob": [0.1, 0.2], "flag": [0, 1], "model": ["A", None]}))
 
 

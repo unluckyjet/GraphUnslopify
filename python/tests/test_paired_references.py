@@ -162,7 +162,9 @@ def test_missing_measurements_have_comparison_specific_exclusion_counts(emitted)
 def test_invalid_identifiers_or_nonmissing_measurements_fail_before_pivoting(emitted, field, value):
     rows = sample().astype(object)
     rows.loc[0, field] = value
-    with pytest.raises(ValueError, match="Paired"):
+    with pytest.raises(
+        ValueError, match="Paired" if field == "score" else rf"[Ii]dentifier.*{field}"
+    ):
         emitted.prepare(rows)
     fig, ax = plt.subplots()
     try:
@@ -335,7 +337,7 @@ def test_missing_panel_identifiers_fail_before_facet_assignment(tmp_path):
     module, _ = generated(tmp_path, facet={"by": "site", "columns": 2})
     rows = sample().assign(site="first").astype(object)
     rows.loc[0, "site"] = None
-    with pytest.raises(ValueError, match="Paired"):
+    with pytest.raises(ValueError, match="identifier site"):
         module.prepare(rows)
 
 

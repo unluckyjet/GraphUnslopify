@@ -69,6 +69,14 @@ the already-correct observation-based claim behavior is retained. A narrow two-p
 also exposed off-screen minor ticks being treated as colliding text. Inspector regressions
 exclude those undrawn labels while still detecting genuine visible minor-label collisions.
 
+Python 3.10 CI also exposed genuine overlapping labels from its older Matplotlib log formatter.
+Sub-decade non-percent scaling axes now use a few major value ticks with a shared scientific
+exponent when needed; the log scale and plotted coordinates stay unchanged. Minor tick marks
+remain, with numeric labels carried by the major ticks. References cover ordinary ranges,
+crossings of a power-of-ten boundary and x near `1e-100`, checking displayed values as well as
+strict two-point rendering. The inspector regression explicitly distinguishes drawn/undrawn
+labels without assuming a particular version's default formatting.
+
 ```sh
 python -m pytest python/tests/test_scaling_references.py python/tests/test_inspect.py -q
 ```

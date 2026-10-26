@@ -102,3 +102,10 @@ Milestones may be split further as evidence requires. No checklist item is compl
   fresh offline wheel without optional SciPy. Published inputs and source/data fingerprint
   coverage are committed. The complete 21-kind matrix, CSV identifiers/overlays/final export
   width, naming/versioned release and final audit remain open.
+
+- Scaling compatibility follow-up: b532a6e's Figure CI 40254352440 passed, while general
+  40254352436 exposed genuine older-Matplotlib narrow-log labels on Python3.10. Compact
+  major ticks with a shared exponent preserve plotted values/log geometry, with four new
+  numeric display references. All seven local gates pass again (215 Node/353 Python),
+  strict gallery15/15, eight targeted Python3.10/Matplotlib3.10.9 cases and fresh offline
+  Python3.12 wheel. The complete roadmap and ready identifier contract31 remain open.

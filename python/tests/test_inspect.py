@@ -36,6 +36,21 @@ def test_offscreen_minor_log_labels_do_not_create_false_collisions():
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.plot([1, 2], [3, 6])
+    # Make hidden labels deliberately collide; keep actual tick labels short
+    # independently of the installed Matplotlib version's default log formatter.
+    from matplotlib.ticker import FuncFormatter
+
+    for axis, limits in ((ax.xaxis, ax.get_xlim()), (ax.yaxis, ax.get_ylim())):
+
+        def format_tick(value, position, limits=limits):
+            return (
+                f"undrawn overlapping minor label {value:g}"
+                if not limits[0] <= value <= limits[1]
+                else f"{value:g}"
+            )
+
+        axis.set_major_formatter(FuncFormatter(format_tick))
+        axis.set_minor_formatter(FuncFormatter(format_tick))
     fig.tight_layout()
     assert not {"labels_collide", "tick_labels_collide"} & codes(fig)
 

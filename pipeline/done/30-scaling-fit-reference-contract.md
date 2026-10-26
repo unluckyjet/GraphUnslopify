@@ -87,3 +87,22 @@ without SciPy and explicitly returns strict incomplete for a requested three-poi
 External connections are blocked after installation; the optional agent smoke passes. CI render
 installs statistics to exercise full conditional intervals. Both GitHub workflows are checked
 after pushing; the complete scientific matrix 24 and final delivery scope remain open.
+
+### Matplotlib compatibility follow-up
+
+The first push b532a6e passes Figure CI 40254352440, but general CI 40254352436 exposes real
+narrow-log tick collisions on Matplotlib 3.10/Python 3.10 (three tests and its installed-wheel
+job fail). All other six jobs pass. This is separate from undrawn-tick phantom collisions.
+Sub-decade non-percent scaling axes now use a few numeric major ticks, one fixed scientific
+exponent where needed and unlabelled minor marks; data/curve coordinates and log scales are
+unchanged. Four display-value references cover normal, boundary-crossing and very small ranges.
+The inspector regression forces its drawn/undrawn labels explicitly instead of depending on a
+version's default formatter, and the real visible-minor-collision control remains.
+
+All seven local gates pass again: 215 Node/353 Python, zero skips, 15 matching baselines,
+16 renders, 25 recipes/seven compositions; Ruff and strict gallery15/15 pass. All eight targeted
+compatibility cases also pass locally with Python3.10.22/Matplotlib3.10.9/NumPy2.2.6/pandas2.3.3.
+The refreshed published image's source/data fingerprints pass and actual plots were reviewed.
+Fresh Python3.12 wheel/no-SciPy offline/agent smoke passes again. Local managed Python3.10
+cannot create its ensurepip environment; clean Python3.10 installation remains a required
+GitHub check rather than a claimed local result. Both workflows are checked after the fix push.

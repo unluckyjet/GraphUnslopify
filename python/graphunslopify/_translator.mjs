@@ -20810,6 +20810,24 @@ function emitDecoratePanel(spec, out) {
     const target = plotAxis(spec, specAxis);
     out.push(`    ax.set_${target}lim(${axis2.limits[0]}, ${axis2.limits[1]})`);
   }
+  if (spec.kind === "scaling_fit") {
+    for (const target of ["x", "y"]) {
+      if (spec[target].scale !== "log" || spec[target].percent) continue;
+      out.push(
+        "    # Sub-decade log labels share one exponent on older and newer Matplotlib.",
+        `    _low, _high = sorted(ax.get_${target}lim())`,
+        "    if 0 < _low < _high and np.log10(_high) - np.log10(_low) < 1:",
+        "        _power = int(np.floor(np.log10(_high)))",
+        `        ax.${target}axis.set_major_locator(mticker.MaxNLocator(nbins=3, min_n_ticks=2))`,
+        "        _formatter = mticker.ScalarFormatter(useOffset=False, useMathText=True)",
+        "        _formatter.set_scientific(_power != 0)",
+        "        if _power != 0:",
+        "            _formatter.set_powerlimits((_power, _power))",
+        `        ax.${target}axis.set_major_formatter(_formatter)`,
+        `        ax.${target}axis.set_minor_formatter(mticker.NullFormatter())`
+      );
+    }
+  }
   for (const line of spec.reference_lines ?? []) {
     const style = REFERENCE_STYLES[line.meaning];
     const call = line.axis === "y" ? "axhline" : "axvline";

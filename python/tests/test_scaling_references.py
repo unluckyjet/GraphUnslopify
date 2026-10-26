@@ -88,6 +88,39 @@ def test_hand_log_parameters_errors_and_actual_curve_are_consistent(emitted):
         plt.close(fig)
 
 
+@pytest.mark.parametrize("low,high", [(1, 2), (900, 1000), (0.9, 1), (1e-100, 2e-100)])
+def test_narrow_log_ticks_use_compact_labels_and_preserve_values(emitted, low, high):
+    rows = pd.DataFrame({"scale": [low, high], "loss": [3, 6]})
+    fig, ax = plt.subplots(figsize=emitted.FIGSIZE)
+    try:
+        emitted.draw_panel(ax, rows)
+        emitted.decorate_panel(ax, rows, None)
+        fig.tight_layout()
+        fig.canvas.draw()
+        expected_power = math.floor(math.log10(max(ax.get_xlim())))
+        from matplotlib.ticker import NullFormatter
+
+        assert isinstance(ax.xaxis.get_minor_formatter(), NullFormatter)
+        assert ax.get_xscale() == "log" and ax.get_yscale() == "log"
+        for axis in (ax.xaxis, ax.yaxis):
+            lower, upper = sorted(axis.get_view_interval())
+            formatter = axis.get_major_formatter()
+            offset = formatter.get_offset().replace(chr(0x2212), "-")
+            exponent = re.search(r"10\^\{(-?\d+)\}", offset)
+            power = int(exponent.group(1)) if exponent else 0
+            if axis is ax.xaxis:
+                assert power == expected_power
+            visible = [value for value in axis.get_majorticklocs() if lower <= value <= upper]
+            assert 2 <= len(visible) <= 4
+            for value in visible:
+                text = (
+                    formatter(value).replace("$", "").replace(r"\mathdefault{", "").replace("}", "")
+                )
+                assert float(text) * 10.0**power == pytest.approx(value, rel=1e-3)
+    finally:
+        plt.close(fig)
+
+
 def test_three_point_t_interval_matches_independent_cauchy_quantile(tmp_path):
     pytest.importorskip("scipy.stats")
     module, _ = generated(tmp_path)

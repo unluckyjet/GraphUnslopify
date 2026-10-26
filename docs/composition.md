@@ -72,3 +72,30 @@ band bounds, grouping/facets, unknown/ambiguous labels, derived-axis refusals,
 horizontal rules and unchanged continuous coordinates. An actual strict PNG/SVG
 render and the fresh offline wheel test exercise the same contract outside unit
 translation. Parent scientific reference matrix24 remains open.
+
+## Shared categorical panels
+
+Shared axes use one category mapping across all participating panels, including
+categories missing from an individual panel. This covers vertical/horizontal bar,
+box, violin, raincloud, ridgeline, forest, slope and dumbbell presentations, with
+or without overlays. Sharing follows the **physical** category axis: horizontal
+bars, forest, ridgeline and dumbbell share category positions through `share_y`;
+the other listed kinds use `share_x`. An unshared category axis retains its local
+encountered or declared order. Explicit shared orders can reserve empty positions.
+
+Missing categories stay empty; they acquire no invented estimate or density.
+Box/violin/raincloud draw only groups with observations, retaining their global
+positions and category colours. Supported repeated metrics use the same mapping;
+re-running their generated module resets the original metric before sorting.
+Swapped-axis repeat layouts retain the existing `unsupported_repeat` refusal.
+Waterfall totals and paired-difference conditions have specialized coordinates;
+this contract does not reinterpret them as raw category slots.
+
+The regression probe has B=30/01=10 in one panel and1=20/01=11 in another.
+Previously, final labels1/01 made B's30 appear to belong to1. Current marks use
+B/01/1 consistently and leave missing positions blank.51 actual-workflow controls
+cover nine presentations, sharing/order options, repeated metrics, sparse density
+groups/colours and repeat-run state. The installed offline wheel independently
+checks real marks and common labels. This is category identity evidence; the full
+per-kind numerical/domain matrix remains separate. Independent numeric ranges
+can still trigger the inspector's existing panel-comparability findings.

@@ -24,7 +24,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
-import { sharedCategoryOverlays } from "../capabilities.ts";
+import { sharedCategoryAxes } from "../capabilities.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -370,6 +370,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
     "    df = prepare(load())",
     "    report_counts(df)",
   );
@@ -390,7 +391,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     return;
   }
   if (warnsDuplicates) out.push("    warn_duplicates(df)");
-  if (sharedCategoryOverlays(spec)) {
+  if (sharedCategoryAxes(spec)) {
     const originalOrder = "category_order" in spec ? spec.category_order : undefined;
     out.push(
       "    # Shared category axes need one order before any panel is drawn.",

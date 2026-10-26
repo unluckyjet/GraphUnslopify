@@ -1,3 +1,4 @@
+import { plotAxis } from "../capabilities.ts";
 import { hasCategoricalX, type AxisSpec, type FigureSpec, type Significance } from "../schema.ts";
 import { pyOptStr, pyStr } from "./py.ts";
 import { LEGEND_LOCATIONS, PRESETS, REFERENCE_STYLES } from "./theme.ts";
@@ -25,23 +26,6 @@ function differenceLabel(axis: AxisSpec): string {
   const unit = axis.unit === "%" ? "pp" : axis.unit;
   const name = `Change in ${axis.label.charAt(0).toLowerCase()}${axis.label.slice(1)}`;
   return unit ? `${name} (${unit})` : name;
-}
-
-/**
- * Which plot axis a spec axis lands on.
- *
- * Two kinds swap them. A horizontal bar lists categories up the vertical axis,
- * and a ridgeline stacks one density per category down the page with the
- * measured value running across. Both are presentation decisions the generator
- * owns, and both will label the wrong axis if this mapping forgets them.
- */
-function plotAxis(spec: FigureSpec, specAxis: "x" | "y"): "x" | "y" {
-  const swapped =
-    (spec.kind === "bar" && spec.orientation === "horizontal") ||
-    spec.kind === "ridgeline" ||
-    spec.kind === "forest" ||
-    spec.kind === "dumbbell";
-  return swapped ? (specAxis === "x" ? "y" : "x") : specAxis;
 }
 
 function isCategorical(spec: FigureSpec, specAxis: "x" | "y"): boolean {

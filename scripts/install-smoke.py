@@ -572,6 +572,66 @@ def main() -> None:
         "y": [2, 4, 1, 3],
         "labels": ["1", "01"],
     }
+    # Shared categories must remain associated with actual values without overlays.
+    (where / "shared.csv").write_text(
+        "category,value,site\nB,30,first\n01,10,first\n1,20,second\n01,11,second\n",
+        encoding="utf8",
+    )
+    shared_spec = where / "shared.json"
+    shared_spec.write_text(
+        json.dumps(
+            {
+                "kind": "bar",
+                "data": {"path": "shared.csv"},
+                "x": {"field": "category", "label": "Category"},
+                "y": {"field": "value", "label": "Value"},
+                "aggregation": "mean",
+                "legend": {"show": False},
+                "facet": {"by": "site", "columns": 1, "share_x": True, "share_y": True},
+                "output": {
+                    "stem": "shared",
+                    "formats": ["png"],
+                    "size": "double_column",
+                },
+            }
+        ),
+        encoding="utf8",
+    )
+    shared_dir = where / "shared output"
+    shared_report = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(shared_spec),
+                "--out-dir",
+                str(shared_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert shared_report["status"] == "passed" and len(shared_report["outputs"]) == 1
+    driver = shared_dir / "shared_artists.py"
+    driver.write_text(
+        "import shared, matplotlib.pyplot as plt, json, contextlib, io, math\n"
+        "captured=[]; close=plt.close; plt.close=captured.append\n"
+        "with contextlib.redirect_stdout(io.StringIO()): shared.main()\n"
+        "fig=captured[-1]\n"
+        "print(json.dumps({'labels': fig.axes[-1].xaxis.get_major_formatter().format_ticks(fig.axes[-1].get_xticks()),\n"
+        "'bars': [[[p.get_x()+p.get_width()/2,p.get_height()] for p in ax.patches if math.isfinite(p.get_height())] for ax in fig.axes]}))\n"
+        "plt.close=close; close(fig)\n",
+        encoding="utf8",
+    )
+    shared_artists = json.loads(
+        run([str(python), str(driver)], cwd=shared_dir, env=env)
+    )
+    assert shared_artists == {
+        "labels": ["B", "01", "1"],
+        "bars": [[[0, 30], [1, 10]], [[1, 11], [2, 20]]],
+    }
     (where / "context.csv").write_text(
         "dataset,method,score\nA,Base,0.2\nA,Base,0.3\nA,Ours,0.8\nA,Ours,0.9\n",
         encoding="utf8",

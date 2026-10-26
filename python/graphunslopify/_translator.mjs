@@ -20558,6 +20558,43 @@ function emitSmooth(spec, out) {
   );
 }
 
+// src/capabilities.ts
+function plotAxis(spec, specAxis) {
+  const swapped = spec.kind === "bar" && spec.orientation === "horizontal" || ["ridgeline", "forest", "dumbbell"].includes(spec.kind);
+  return swapped ? specAxis === "x" ? "y" : "x" : specAxis;
+}
+function sharedCategoryAxes(spec) {
+  if (!hasCategoricalX(spec) || ["waterfall", "paired_difference"].includes(spec.kind)) return false;
+  const axis2 = plotAxis(spec, "x");
+  return axis2 === "x" ? !!(spec.facet?.share_x || spec.repeat?.share_x) : !!(spec.facet?.share_y || spec.repeat?.share_y);
+}
+function layerCoordinateLimitations(spec) {
+  if (!spec.layers?.length) return [];
+  const reasons = [];
+  if (["forest", "ridgeline", "dumbbell", "paired_difference", "heatmap", "confusion_matrix", "sparkline_grid"].includes(spec.kind) || spec.kind === "bar" && spec.orientation === "horizontal") {
+    reasons.push(`${spec.kind} does not expose a supported raw overlay coordinate system`);
+  }
+  if (["qq", "waterfall"].includes(spec.kind) && spec.layers.some((layer) => layer.mark !== "rule")) {
+    reasons.push(`${spec.kind} supports horizontal numeric-y rules, not raw x overlays`);
+  }
+  if (derivedAxis(spec, "y") && spec.layers.some((layer) => ["line", "scatter", "band"].includes(layer.mark) && !layer.y)) {
+    reasons.push("an overlay on derived y needs an explicit numeric y column");
+  }
+  return reasons;
+}
+function interactiveLimitations(spec) {
+  const reasons = [];
+  if (!["line", "scatter", "bar", "heatmap"].includes(spec.kind)) reasons.push(`kind ${spec.kind}`);
+  if (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break) reasons.push("composition");
+  if (spec.annotate?.length || spec.reference_lines?.length) reasons.push("annotations/reference lines");
+  if (spec.x.scale === "symlog" || spec.y.scale === "symlog") reasons.push("symlog scales");
+  if (spec.kind === "line" && (spec.y2 || spec.smooth)) reasons.push("secondary axes/smoothing");
+  if (spec.kind === "scatter" && (spec.trendline !== "none" || spec.frontier)) reasons.push("scatter analyses");
+  if (spec.kind === "bar" && (spec.significance || spec.stacked)) reasons.push("significance/stacked bars");
+  if (spec.kind === "heatmap" && [spec.x, spec.y].some((axis2) => axis2.scale !== "linear" || axis2.limits || axis2.percent || axis2.temporal)) reasons.push("matrix axis transforms");
+  return reasons;
+}
+
 // src/codegen/decorate.ts
 function axisLabel(axis2) {
   return axis2.unit ? `${axis2.label} (${axis2.unit})` : axis2.label;
@@ -20566,10 +20603,6 @@ function differenceLabel(axis2) {
   const unit = axis2.unit === "%" ? "pp" : axis2.unit;
   const name = `Change in ${axis2.label.charAt(0).toLowerCase()}${axis2.label.slice(1)}`;
   return unit ? `${name} (${unit})` : name;
-}
-function plotAxis(spec, specAxis) {
-  const swapped = spec.kind === "bar" && spec.orientation === "horizontal" || spec.kind === "ridgeline" || spec.kind === "forest" || spec.kind === "dumbbell";
-  return swapped ? specAxis === "x" ? "y" : "x" : specAxis;
 }
 function isCategorical(spec, specAxis) {
   return hasCategoricalX(spec) && specAxis === "x";
@@ -21067,37 +21100,6 @@ function emitCategoryLayout(spec, out) {
     "        fig.tight_layout()",
     ""
   );
-}
-
-// src/capabilities.ts
-function sharedCategoryOverlays(spec) {
-  return hasCategoricalX(spec) && !!spec.layers?.some((layer) => layer.mark !== "rule") && !!(spec.facet?.share_x || spec.repeat?.share_x);
-}
-function layerCoordinateLimitations(spec) {
-  if (!spec.layers?.length) return [];
-  const reasons = [];
-  if (["forest", "ridgeline", "dumbbell", "paired_difference", "heatmap", "confusion_matrix", "sparkline_grid"].includes(spec.kind) || spec.kind === "bar" && spec.orientation === "horizontal") {
-    reasons.push(`${spec.kind} does not expose a supported raw overlay coordinate system`);
-  }
-  if (["qq", "waterfall"].includes(spec.kind) && spec.layers.some((layer) => layer.mark !== "rule")) {
-    reasons.push(`${spec.kind} supports horizontal numeric-y rules, not raw x overlays`);
-  }
-  if (derivedAxis(spec, "y") && spec.layers.some((layer) => ["line", "scatter", "band"].includes(layer.mark) && !layer.y)) {
-    reasons.push("an overlay on derived y needs an explicit numeric y column");
-  }
-  return reasons;
-}
-function interactiveLimitations(spec) {
-  const reasons = [];
-  if (!["line", "scatter", "bar", "heatmap"].includes(spec.kind)) reasons.push(`kind ${spec.kind}`);
-  if (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break) reasons.push("composition");
-  if (spec.annotate?.length || spec.reference_lines?.length) reasons.push("annotations/reference lines");
-  if (spec.x.scale === "symlog" || spec.y.scale === "symlog") reasons.push("symlog scales");
-  if (spec.kind === "line" && (spec.y2 || spec.smooth)) reasons.push("secondary axes/smoothing");
-  if (spec.kind === "scatter" && (spec.trendline !== "none" || spec.frontier)) reasons.push("scatter analyses");
-  if (spec.kind === "bar" && (spec.significance || spec.stacked)) reasons.push("significance/stacked bars");
-  if (spec.kind === "heatmap" && [spec.x, spec.y].some((axis2) => axis2.scale !== "linear" || axis2.limits || axis2.percent || axis2.temporal)) reasons.push("matrix axis transforms");
-  return reasons;
 }
 
 // src/codegen/compose.ts
@@ -21600,7 +21602,7 @@ function emitCategories(spec, out) {
     '            raise ValueError("category_order must contain unique identifiers")',
     "        if not observed:",
     '            raise ValueError("No observed categories are available")',
-    sharedCategoryOverlays(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]"
+    sharedCategoryAxes(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]"
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";
@@ -21848,13 +21850,20 @@ function emitBar(spec, out) {
 }
 function emitDistribution(spec, out) {
   const violin = spec.kind === "violin";
+  const shared = sharedCategoryAxes(spec);
   out.push(
     "",
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    groups = [df[df[X_FIELD] == c][Y_FIELD].dropna().to_numpy(dtype=float) for c in categories]",
-    "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
-    "    positions = np.arange(len(categories))"
+    ...shared ? [
+      "    category_positions = np.arange(len(categories))",
+      "    positions = np.array([i for i, values in enumerate(groups) if len(values)])",
+      "    groups = [values for values in groups if len(values)]"
+    ] : [
+      "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
+      "    positions = np.arange(len(categories))"
+    ]
   );
   if (violin) {
     out.push(
@@ -21866,7 +21875,7 @@ function emitDistribution(spec, out) {
       "        widths=0.7,",
       "    )",
       '    for index, body in enumerate(parts["bodies"]):',
-      "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
+      shared ? "        body.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
       "        body.set_alpha(0.55)",
       '        body.set_edgecolor("white")'
     );
@@ -21898,7 +21907,7 @@ function emitDistribution(spec, out) {
       '        flierprops={"marker": "o", "markersize": 2, "markerfacecolor": "#808080", "markeredgecolor": "none"},',
       "    )",
       '    for index, box in enumerate(drawn["boxes"]):',
-      "        box.set_facecolor(PALETTE[index % len(PALETTE)])",
+      shared ? "        box.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        box.set_facecolor(PALETTE[index % len(PALETTE)])",
       "        box.set_alpha(0.55)",
       '        box.set_edgecolor("#404040")',
       "        box.set_linewidth(0.8)"
@@ -21910,7 +21919,7 @@ function emitDistribution(spec, out) {
       "    for index, values in enumerate(groups):",
       "        spread = jitter.uniform(-0.09, 0.09, size=len(values))",
       "        ax.scatter(",
-      "            np.full(len(values), index) + spread,",
+      shared ? "            np.full(len(values), positions[index]) + spread," : "            np.full(len(values), index) + spread,",
       "            values,",
       "            s=6,",
       '            color="#303030",',
@@ -21921,7 +21930,7 @@ function emitDistribution(spec, out) {
     );
   }
   out.push(
-    "    ax.set_xticks(positions)",
+    shared ? "    ax.set_xticks(category_positions)" : "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     ""
   );
@@ -21957,14 +21966,20 @@ function emitEcdf(spec, out) {
   );
 }
 function emitRaincloud(spec, out) {
-  void spec;
+  const shared = sharedCategoryAxes(spec);
   out.push(
     "",
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    groups = [df[df[X_FIELD] == c][Y_FIELD].dropna().to_numpy(dtype=float) for c in categories]",
-    "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
-    "    positions = np.arange(len(categories))",
+    ...shared ? [
+      "    category_positions = np.arange(len(categories))",
+      "    positions = np.array([i for i, values in enumerate(groups) if len(values)])",
+      "    groups = [values for values in groups if len(values)]"
+    ] : [
+      "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
+      "    positions = np.arange(len(categories))"
+    ],
     "    parts = ax.violinplot(",
     "        groups,",
     "        positions=positions + 0.08,",
@@ -21976,7 +21991,7 @@ function emitRaincloud(spec, out) {
     "        # Clip each violin to its right half, leaving room for the rain.",
     "        vertices = body.get_paths()[0].vertices",
     "        vertices[:, 0] = np.clip(vertices[:, 0], positions[index] + 0.08, np.inf)",
-    "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
+    shared ? "        body.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
     "        body.set_alpha(0.5)",
     '        body.set_edgecolor("white")',
     "    ax.boxplot(",
@@ -21994,7 +22009,7 @@ function emitRaincloud(spec, out) {
     "    for index, values in enumerate(groups):",
     "        spread = jitter.uniform(-0.10, -0.02, size=len(values))",
     "        ax.scatter(",
-    "            np.full(len(values), index) + spread,",
+    shared ? "            np.full(len(values), positions[index]) + spread," : "            np.full(len(values), index) + spread,",
     "            values,",
     "            s=6,",
     '            color="#303030",',
@@ -22002,7 +22017,7 @@ function emitRaincloud(spec, out) {
     "            zorder=4,",
     "            linewidths=0,",
     "        )",
-    "    ax.set_xticks(positions)",
+    shared ? "    ax.set_xticks(category_positions)" : "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     ""
   );
@@ -24532,6 +24547,7 @@ function emitMain(spec, out) {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : [],
     "    df = prepare(load())",
     "    report_counts(df)"
   );
@@ -24551,7 +24567,7 @@ function emitMain(spec, out) {
     return;
   }
   if (warnsDuplicates) out.push("    warn_duplicates(df)");
-  if (sharedCategoryOverlays(spec)) {
+  if (sharedCategoryAxes(spec)) {
     const originalOrder = "category_order" in spec ? spec.category_order : void 0;
     out.push(
       "    # Shared category axes need one order before any panel is drawn.",

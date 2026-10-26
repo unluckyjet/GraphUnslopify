@@ -446,7 +446,7 @@ def category_order(frame):
             raise ValueError("category_order must contain unique identifiers")
         if not observed:
             raise ValueError("No observed categories are available")
-        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]
+        return list(CATEGORY_ORDER)
     return list(dict.fromkeys(frame[X_FIELD].tolist()))
 
 
@@ -756,6 +756,9 @@ def main():
     global DATA_HASH, ALT_TEXT
     df = prepare(load())
     report_counts(df)
+    # Shared category axes need one order before any panel is drawn.
+    globals()["CATEGORY_ORDER"] = None
+    globals()["CATEGORY_ORDER"] = category_order(df)
     if PALETTE_LOCK is not None and GROUP is not None:
         globals()["LOCKED"] = locked_appearance(
             SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)

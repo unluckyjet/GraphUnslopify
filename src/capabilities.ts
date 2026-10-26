@@ -1,8 +1,18 @@
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
 
-export function sharedCategoryOverlays(spec: FigureSpec): boolean {
-  return hasCategoricalX(spec) && !!spec.layers?.some(layer => layer.mark !== "rule")
-    && !!(spec.facet?.share_x || spec.repeat?.share_x);
+/** Map semantic input axes to their physical presentation. */
+export function plotAxis(spec: FigureSpec, specAxis: "x" | "y"): "x" | "y" {
+  const swapped = (spec.kind === "bar" && spec.orientation === "horizontal")
+    || ["ridgeline", "forest", "dumbbell"].includes(spec.kind);
+  return swapped ? (specAxis === "x" ? "y" : "x") : specAxis;
+}
+
+/** A shared categorical axis needs a single mapping, including absent local levels. */
+export function sharedCategoryAxes(spec: FigureSpec): boolean {
+  if (!hasCategoricalX(spec) || ["waterfall", "paired_difference"].includes(spec.kind)) return false;
+  const axis = plotAxis(spec, "x");
+  return axis === "x" ? !!(spec.facet?.share_x || spec.repeat?.share_x)
+    : !!(spec.facet?.share_y || spec.repeat?.share_y);
 }
 
 /** Raw overlay coordinates must have a defined meaning on the base axes. */

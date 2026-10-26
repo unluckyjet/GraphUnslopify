@@ -172,3 +172,14 @@ Milestones may be split further as evidence requires. No checklist item is compl
   fingerprints replace untracked inputs. Both workflows must pass before advancing.
   Full21-kind matrix24/general categorical contexts, naming/versioned release and final
   audit remain open.
+
+- Table35 revisiond95c320: General CI40300364215 passes all eight jobs; Figure CI40300364360 passes. Python3.10/3.12 each report557 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four fresh installed platforms pass literal visible context, percentages, actual-width and agent checks offline.
+
+- Milestone32 resolves shared categorical panel identity (spec36):51 complete-workflow
+  controls,215 Node/609 Python, seven gates, strict gallery15/15, Ruff and fresh offline
+  installed main/agent. Nine presentations preserve values/positions/colours with missing
+  categories on physically shared axes. Repeated sorting resets metric state; horizontal
+  repeat refusals remain. All20 baseline/public PNG pixels/dimensions stay identical,
+  with baseline10 source/provenance refresh. Both workflows require verification after push.
+  Matrix24, specialized coordinates/negative-bar domains, naming/versioned release and
+  final audit remain open.

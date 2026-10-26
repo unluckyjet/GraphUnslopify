@@ -1,5 +1,5 @@
 import { hasCategoricalX, type FigureSpec, type PlottedSpec } from "../schema.ts";
-import { sharedCategoryOverlays } from "../capabilities.ts";
+import { sharedCategoryAxes } from "../capabilities.ts";
 import { pyStr } from "./py.ts";
 import { BAND_ALPHA, DASHED_KINDS, MARKER_KINDS, PRESETS, RAW_ALPHA } from "./theme.ts";
 import { needsMissingIntervalReport } from "./data.ts";
@@ -100,7 +100,7 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
     '            raise ValueError("category_order must contain unique identifiers")',
     "        if not observed:",
     '            raise ValueError("No observed categories are available")',
-    sharedCategoryOverlays(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]",
+    sharedCategoryAxes(spec) ? "        return list(CATEGORY_ORDER)" : "        return [c for c in CATEGORY_ORDER if c in set(frame[X_FIELD])]",
   );
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";
@@ -364,13 +364,20 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
 
 function emitDistribution(spec: FigureSpec & { kind: "box" | "violin" }, out: string[]): void {
   const violin = spec.kind === "violin";
+  const shared = sharedCategoryAxes(spec);
   out.push(
     "",
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    groups = [df[df[X_FIELD] == c][Y_FIELD].dropna().to_numpy(dtype=float) for c in categories]",
-    "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
-    "    positions = np.arange(len(categories))",
+    ...(shared ? [
+      "    category_positions = np.arange(len(categories))",
+      "    positions = np.array([i for i, values in enumerate(groups) if len(values)])",
+      "    groups = [values for values in groups if len(values)]",
+    ] : [
+      "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
+      "    positions = np.arange(len(categories))",
+    ]),
   );
 
   if (violin) {
@@ -383,7 +390,7 @@ function emitDistribution(spec: FigureSpec & { kind: "box" | "violin" }, out: st
       "        widths=0.7,",
       "    )",
       '    for index, body in enumerate(parts["bodies"]):',
-      "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
+      shared ? "        body.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
       "        body.set_alpha(0.55)",
       '        body.set_edgecolor("white")',
     );
@@ -415,7 +422,7 @@ function emitDistribution(spec: FigureSpec & { kind: "box" | "violin" }, out: st
       '        flierprops={"marker": "o", "markersize": 2, "markerfacecolor": "#808080", "markeredgecolor": "none"},',
       "    )",
       '    for index, box in enumerate(drawn["boxes"]):',
-      "        box.set_facecolor(PALETTE[index % len(PALETTE)])",
+      shared ? "        box.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        box.set_facecolor(PALETTE[index % len(PALETTE)])",
       "        box.set_alpha(0.55)",
       '        box.set_edgecolor("#404040")',
       "        box.set_linewidth(0.8)",
@@ -428,7 +435,7 @@ function emitDistribution(spec: FigureSpec & { kind: "box" | "violin" }, out: st
       "    for index, values in enumerate(groups):",
       "        spread = jitter.uniform(-0.09, 0.09, size=len(values))",
       "        ax.scatter(",
-      "            np.full(len(values), index) + spread,",
+      shared ? "            np.full(len(values), positions[index]) + spread," : "            np.full(len(values), index) + spread,",
       "            values,",
       "            s=6,",
       '            color="#303030",',
@@ -440,7 +447,7 @@ function emitDistribution(spec: FigureSpec & { kind: "box" | "violin" }, out: st
   }
 
   out.push(
-    "    ax.set_xticks(positions)",
+    shared ? "    ax.set_xticks(category_positions)" : "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     "",
   );
@@ -483,7 +490,7 @@ function emitEcdf(spec: FigureSpec & { kind: "ecdf" }, out: string[]): void {
 }
 
 function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]): void {
-  void spec;
+  const shared = sharedCategoryAxes(spec);
   // Half a violin, a quartile box and every raw point. The cloud shows the
   // shape, the box shows the summary a reader expects, and the rain is the
   // evidence for both, so a claim resting on six observations cannot hide
@@ -493,8 +500,14 @@ function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]):
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    groups = [df[df[X_FIELD] == c][Y_FIELD].dropna().to_numpy(dtype=float) for c in categories]",
-    "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
-    "    positions = np.arange(len(categories))",
+    ...(shared ? [
+      "    category_positions = np.arange(len(categories))",
+      "    positions = np.array([i for i, values in enumerate(groups) if len(values)])",
+      "    groups = [values for values in groups if len(values)]",
+    ] : [
+      "    groups = [g if len(g) else np.array([np.nan]) for g in groups]",
+      "    positions = np.arange(len(categories))",
+    ]),
     "    parts = ax.violinplot(",
     "        groups,",
     "        positions=positions + 0.08,",
@@ -506,7 +519,7 @@ function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]):
     "        # Clip each violin to its right half, leaving room for the rain.",
     "        vertices = body.get_paths()[0].vertices",
     "        vertices[:, 0] = np.clip(vertices[:, 0], positions[index] + 0.08, np.inf)",
-    "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
+    shared ? "        body.set_facecolor(PALETTE[int(positions[index]) % len(PALETTE)])" : "        body.set_facecolor(PALETTE[index % len(PALETTE)])",
     "        body.set_alpha(0.5)",
     '        body.set_edgecolor("white")',
     "    ax.boxplot(",
@@ -524,7 +537,7 @@ function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]):
     "    for index, values in enumerate(groups):",
     "        spread = jitter.uniform(-0.10, -0.02, size=len(values))",
     "        ax.scatter(",
-    "            np.full(len(values), index) + spread,",
+    shared ? "            np.full(len(values), positions[index]) + spread," : "            np.full(len(values), index) + spread,",
     "            values,",
     "            s=6,",
     '            color="#303030",',
@@ -532,7 +545,7 @@ function emitRaincloud(spec: FigureSpec & { kind: "raincloud" }, out: string[]):
     "            zorder=4,",
     "            linewidths=0,",
     "        )",
-    "    ax.set_xticks(positions)",
+    shared ? "    ax.set_xticks(category_positions)" : "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     "",
   );

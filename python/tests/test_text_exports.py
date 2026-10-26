@@ -65,11 +65,13 @@ def exports(tmp_path_factory):
     table_spec = {
         **spec,
         "kind": "table",
+        "title": "Table title" + SPECIAL,
         "data": {"path": str(folder / "table.csv")},
         "group": "method",
         "highlight": "best_per_row",
         "aggregation": "mean",
         "x": {"field": "dataset", "label": "Dataset" + SPECIAL},
+        "y": {"field": "score", "label": "Metric" + SPECIAL, "unit": "ms"},
         "uncertainty": {"kind": "range"},
         "output": {"stem": "table_1", "formats": ["pdf"]},
     }
@@ -90,6 +92,26 @@ def exports(tmp_path_factory):
     finally:
         os.chdir(previous)
     assert (folder / "table.csv").read_bytes() == table_input
+    percent_spec = {
+        **table_spec,
+        "title": "Percentages" + SPECIAL,
+        "data": {"path": str(folder / "percent.csv")},
+        "y": {"field": "score", "label": "Accuracy", "unit": "%", "percent": True},
+        "output": {"stem": "table_percent", "formats": ["pdf"]},
+    }
+    converted = local_request("convert", percent_spec)
+    assert converted["ok"], converted
+    percent_script = folder / "table_percent.py"
+    percent_script.write_text(converted["code"], encoding="utf8")
+    percent_module = load_module(percent_script)
+    frame.assign(score=[0.2, 0.6]).to_csv(folder / "percent.csv", index=False, lineterminator="\n")
+    try:
+        os.chdir(folder)
+        percent_module.write_table(
+            *percent_module.build_table(percent_module.prepare(percent_module.load()))
+        )
+    finally:
+        os.chdir(previous)
     return folder, script, report
 
 
@@ -108,6 +130,7 @@ def test_table_headers_rows_and_highlighted_numeric_intervals_are_valid_tex(expo
     assert "Dataset" + ESCAPED in text
     assert "Method" + ESCAPED in text
     assert "Row" + ESCAPED in text
+    assert "Table title" + ESCAPED in text and "Metric" + ESCAPED in text
     assert r"\textbf{4.00 [2.00, 6.00]}" in text
 
 
@@ -137,6 +160,8 @@ def test_real_latex_compilation_preserves_special_characters_and_table_values(ex
 \input{figure_1.tex}
 \clearpage
 \input{table_1.tex}
+\clearpage
+\input{table_percent.tex}
 \end{document}
 """,
         encoding="utf8",
@@ -154,9 +179,19 @@ def test_real_latex_compilation_preserves_special_characters_and_table_values(ex
 
     text = "".join(page.extract_text() for page in PdfReader(folder / "main.pdf").pages)
     compact = re.sub(r"\s+", "", text)
-    for prefix in ("Captionliteral", "Authorliteral", "Dataset", "Method", "Row"):
+    for prefix in (
+        "Captionliteral",
+        "Authorliteral",
+        "Dataset",
+        "Method",
+        "Row",
+        "Tabletitle",
+        "Metric",
+        "Percentages",
+    ):
         assert prefix + SPECIAL in compact, text
     assert "4.00[2.00,6.00]" in compact
+    assert "40.00%[20.00%,60.00%]" in compact and "Accuracy(%)" in compact
     assert r"\input{sentinel}" in compact
     assert "INJECTED_MARKER" not in text
     print("Compiled literal-text proof:", folder / "main.pdf")

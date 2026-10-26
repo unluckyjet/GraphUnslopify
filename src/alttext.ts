@@ -47,6 +47,11 @@ function axisPhrase(label: string, unit?: string): string {
   return unit ? `${label} in ${unit}` : label;
 }
 
+/** Preserve fractional confidence percentages without binary representation noise. */
+export function confidencePercent(level: number): string {
+  return String(Number((level * 100).toPrecision(12)));
+}
+
 /** Level 1, which needs only the spec. */
 export function encodingSentence(spec: FigureSpec): string {
   const kind = KIND_PHRASING[spec.kind];
@@ -58,6 +63,7 @@ export function encodingSentence(spec: FigureSpec): string {
     parts.push(
       `${kind} of ${axisPhrase(spec.y.label, spec.y.unit)}, one row per ${spec.x.label.toLowerCase()}`,
     );
+    if (spec.y.percent) parts.push("values displayed as percentages");
   } else if (spec.kind === "heatmap") {
     parts.push(
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} ` +
@@ -87,8 +93,8 @@ export function encodingSentence(spec: FigureSpec): string {
   if (spec.group) {
     parts.push(
       spec.series_order
-        ? `one series per ${spec.group}, with expected order ${spec.series_order.join(", ")}`
-        : `one series per ${spec.group}`,
+        ? `one ${spec.kind === "table" ? "column" : "series"} per ${spec.group}, with expected order ${spec.series_order.join(", ")}`
+        : `one ${spec.kind === "table" ? "column" : "series"} per ${spec.group}`,
     );
   }
 
@@ -103,7 +109,7 @@ export function encodingSentence(spec: FigureSpec): string {
   if ("uncertainty" in spec && spec.uncertainty) {
     const wording =
       spec.uncertainty.kind === "ci"
-        ? `${Math.round(spec.uncertainty.level * 100)} percent confidence intervals`
+        ? `${confidencePercent(spec.uncertainty.level)} percent confidence intervals`
         : spec.uncertainty.kind === "sem"
           ? "standard errors"
           : spec.uncertainty.kind === "std"
@@ -112,7 +118,8 @@ export function encodingSentence(spec: FigureSpec): string {
               ? "interquartile ranges"
               : "full ranges";
     parts.push(
-      spec.uncertainty.display === "band" ? `shaded ${wording}` : `${wording} as error bars`,
+      spec.kind === "table" ? `cell bounds show ${wording} when available`
+        : spec.uncertainty.display === "band" ? `shaded ${wording}` : `${wording} as error bars`,
     );
   }
 
@@ -179,7 +186,19 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
 
-  if (spec.kind === "scaling_fit") {
+  if (spec.kind === "table") {
+    out.push(
+      '    values = pd.to_numeric(frame[Y_FIELD], errors="coerce")',
+      "    values = values[np.isfinite(values)]",
+      "    if len(values):",
+      '        parts.append(f"Displayed cells run from {table_number(values.min())} to {table_number(values.max())}")',
+      '        parts.append(f"the mean of displayed cells is {table_number(values.mean())}")',
+      '    if "_low" in frame and "_high" in frame:',
+      '        unknown = int((~np.isfinite(frame["_low"]) | ~np.isfinite(frame["_high"])).sum())',
+      "        if unknown:",
+      '            parts.append(f"{unknown} displayed cells have unavailable bounds")',
+    );
+  } else if (spec.kind === "scaling_fit") {
     out.push(...String.raw`
     for name in (series_names(frame) if GROUP is not None else [None]):
         fit = scaling_estimate(frame if name is None else frame[frame[GROUP] == name])

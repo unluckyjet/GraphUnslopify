@@ -216,9 +216,12 @@ A layer adds a mark over the figure's own x, so observations can sit over a fitt
 can show where the data actually falls. `repeat` gives one panel per named column, and each panel
 takes its own label rather than the spec's.
 
-![A three row results table with the winning value bold in each row](docs/fifth-pass-table.png)
+![Synthetic accuracy table with visible title units row heading and uncertainty-aware bold candidates](docs/fifth-pass-table.png)
 
-*The table kind, rendered as an image and written as markdown and LaTeX*
+*One table with visible context, numeric bounds and the same values in images, Markdown and LaTeX*
+
+See [table context and formatting](docs/table-context.md) for visible units, literal labels,
+percent display, unavailable bounds and the meaning of bold candidates.
 
 There is a `table` kind now, because sometimes six numbers should not be a chart. A printed number
 is exact rather than estimated, so it outranks every graphical channel for reading one value. One
@@ -348,7 +351,7 @@ rather than a fallback to the bootstrap.
 Data names such as `01` and `1` remain distinct through grouping, claims and exports. Filters
 retain their original typed meaning; see [data identities and ordering](docs/data-identities.md).
 
-Seventy-seven rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-eight rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

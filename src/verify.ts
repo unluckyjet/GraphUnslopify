@@ -560,8 +560,12 @@ const composition: Rule = (spec, add) => {
         `kind "table" when the numbers matter more than the comparison.`,
     );
   }
-  if (spec.kind === "table" && (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break || spec.animate || spec.output.interactive)) {
-    add("error", "table_composition_unsupported", "Tables support cell summaries and static/Markdown/LaTeX output; panel, overlay, cut, animation and interactive options are not implemented.");
+  if (spec.kind === "table" && (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break || spec.animate || spec.output.interactive || spec.annotate?.length || spec.reference_lines?.length || spec.emphasis)) {
+    add("error", "table_composition_unsupported", "Tables support cell summaries and static/Markdown/LaTeX output; panels, overlays, cuts, animation, interactive output, point annotations, reference lines and series emphasis are not implemented.");
+  }
+  if (spec.kind === "table" && (spec.x.scale !== "linear" || spec.y.scale !== "linear"
+      || spec.x.percent || spec.x.temporal || spec.y.temporal || spec.x.limits || spec.y.limits)) {
+    add("error", "unsupported_table_axes", "Table rows are identifiers and cells are numeric values, not plotted axes. Log scales, limits, temporal axes and percent row labels are unsupported; y.percent formats numeric cells as percentages.");
   }
   if (spec.facet && spec.repeat) {
     add("error", "facet_repeat_conflict", "Choose row facets or repeated metrics; their combination is not implemented.");

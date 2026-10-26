@@ -32,7 +32,7 @@ function run(options: Record<string, unknown>, csv: string, driver?: string) {
   return { stdout, read: (name: string) => readFileSync(join(dir, name), "utf8") };
 }
 
-test("a table without uncertainty preserves the pre-change markdown", { skip: !python }, () => {
+test("a table without uncertainty retains scalar cells and adds metric context", { skip: !python }, () => {
   const result = run({}, "dataset,score,model\nA,1,base\nA,3,ours\nB,4,base\nB,2,ours\n");
   const expected = readFileSync(new URL("fixtures/table-plain-expected.md", import.meta.url), "utf8");
   assert.equal(result.read("table.md"), expected);

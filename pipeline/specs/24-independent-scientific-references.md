@@ -28,7 +28,8 @@ raw typed filters, unit/group/category consistency, ordering and one-snapshot pr
 62 independent actual-artist/runtime controls (spec 31). Reuse that evidence. Cell annotation contrast now has34 independent artist/math/normalization/alpha/raster/inspector/
 runtime/provenance controls and522 actual offline browser labels (spec32). Supported categorical overlays now have44 actual-artist/runtime/refusal references, including
 shared facets/repeats and installed artists (spec33). Physical export widths now have37 API/runtime controls and installed strict failure evidence
-(spec34). Prioritize visible table context35, then complete the per-kind coverage map and
+(spec34). Visible table context, consistent display formatting, actual artists and literal compiled
+text now have28 focused controls plus four real TeX cases (spec35). Complete the per-kind coverage map and
 remaining general categorical contexts for the full inventory. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.

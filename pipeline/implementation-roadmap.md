@@ -163,3 +163,12 @@ Milestones may be split further as evidence requires. No checklist item is compl
   baseline/public PNG pixels and dimensions are unchanged, with source/provenance refresh.
   Both workflows must pass after push. Visible table context35, full matrix24/general
   categorical contexts, naming/versioned release and final audit remain open.
+
+- Milestone31 resolves visible table context (spec35):28 independent table controls,
+  four real TeX cases,215 Node/558 Python, seven gates, strict gallery15/15 and a fresh
+  offline installed wheel with agent. Images/Markdown/LaTeX retain title, row heading,
+  metric/unit, interval meaning and bold scope. Percent cells/bounds/descriptions agree;
+  fractional confidence labels retain meaning. Public synthetic table inputs and verified
+  fingerprints replace untracked inputs. Both workflows must pass before advancing.
+  Full21-kind matrix24/general categorical contexts, naming/versioned release and final
+  audit remain open.

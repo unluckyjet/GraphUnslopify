@@ -60,3 +60,12 @@ see `docs/cell-contrast.md` for the criterion and limits.
 Keep fixture CSV bytes LF before rendering, as required by `.gitattributes` (for Python's
 CSV writer use `lineterminator="\n"`). Git normalizes CRLF at commit time; an image rendered
 before that conversion otherwise records a data hash that cannot match a fresh checkout.
+
+`table.figure.json`/`table.csv` reproduce `docs/fifth-pass-table.png`. The 18 invented
+observations represent three datasets, two methods and three named units per cell. They
+are synthetic fractions displayed as percentages with mean ± one standard error; the unit
+names do not establish independence. Bold candidates follow the existing interval-overlap
+policy and do not establish equivalence or statistical significance. The image includes
+its declared title, row heading, metric/unit and interval meaning. This replaces a historical
+table illustration whose input data were untracked. Use the same regeneration recipe with
+`table` and copy its PNG to `docs/fifth-pass-table.png`; source/data fingerprints are checked.

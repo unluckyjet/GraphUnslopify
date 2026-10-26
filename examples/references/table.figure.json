@@ -1,0 +1,38 @@
+{
+  "kind": "table",
+  "title": "Synthetic test accuracy by dataset",
+  "x": {
+    "field": "dataset",
+    "label": "Dataset"
+  },
+  "y": {
+    "field": "accuracy",
+    "label": "Test accuracy",
+    "unit": "%",
+    "percent": true
+  },
+  "group": "model",
+  "series_order": [
+    "Base",
+    "Ours"
+  ],
+  "uncertainty": {
+    "kind": "sem",
+    "over": "seed"
+  },
+  "precision": 2,
+  "highlight": "best_per_row",
+  "data": {
+    "path": "table.csv"
+  },
+  "output": {
+    "stem": "table",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  }
+}

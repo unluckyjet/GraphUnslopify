@@ -25,6 +25,8 @@ examples/references/*.png
 examples/references/*.svg
 examples/references/*.pdf
 examples/references/*.report.json
+examples/references/*.tex
+examples/references/table.md
 
 # macOS
 .DS_Store

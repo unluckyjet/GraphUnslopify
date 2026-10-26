@@ -39,3 +39,5 @@ One line per state change, newest last.
 - 2026-10-26: Spec33 delivered: supported category overlays share actual base positions, preserve raw row/value associations and shared panel levels/hidden ticks, with explicit undefined-coordinate refusals;44 focused cases,215 Node/493 Python, seven gates/strict gallery/fresh offline wheel pass. Full matrix24 remains open.
 
 - 2026-10-26: Spec34 delivered: actual static export dimensions determine manuscript font size, with explicit unknown/old-inspector evidence and preserved nominal API;37 controls,215 Node/530 Python, seven gates/strict gallery/fresh offline wheel pass. All19 baseline/public PNGs retain identical pixels/dimensions and refreshed provenance. Table35 and scientific matrix24 remain open.
+
+2026-10-26 —35 lands: visible table context, shared percent/bounds formatting and literal exports;28 focused controls, four compiled TeX cases,215 Node/558 Python, seven gates, gallery15/15, fresh offline agent wheel; CI required after push.

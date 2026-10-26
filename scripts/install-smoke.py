@@ -572,6 +572,68 @@ def main() -> None:
         "y": [2, 4, 1, 3],
         "labels": ["1", "01"],
     }
+    (where / "context.csv").write_text(
+        "dataset,method,score\nA,Base,0.2\nA,Base,0.3\nA,Ours,0.8\nA,Ours,0.9\n",
+        encoding="utf8",
+    )
+    context_spec = where / "table-context.json"
+    context_spec.write_text(
+        json.dumps(
+            {
+                "kind": "table",
+                "title": "Installed table context",
+                "data": {"path": "context.csv"},
+                "x": {"field": "dataset", "label": "Dataset"},
+                "y": {
+                    "field": "score",
+                    "label": "Accuracy",
+                    "unit": "%",
+                    "percent": True,
+                },
+                "group": "method",
+                "uncertainty": {"kind": "range"},
+                "highlight": "best_per_row",
+                "output": {
+                    "stem": "context",
+                    "formats": ["png", "pdf"],
+                    "size": "double_column",
+                },
+            }
+        ),
+        encoding="utf8",
+    )
+    context_dir = where / "table context output"
+    context_report = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(context_spec),
+                "--out-dir",
+                str(context_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert context_report["status"] == "passed" and len(context_report["outputs"]) == 4
+    assert context_report["inspection"]["measurements"]["basis"] == "exports"
+    markdown = (context_dir / "context.md").read_text(encoding="utf8")
+    assert "Installed table context" in markdown and "Accuracy (%)" in markdown
+    assert "**85.00% [80.00%, 90.00%]**" in markdown
+    driver = context_dir / "context_text.py"
+    driver.write_text(
+        "from pypdf import PdfReader\n"
+        "text = ''.join(p.extract_text() for p in PdfReader('context.pdf').pages)\n"
+        "compact = ''.join(text.split())\n"
+        "assert 'Installedtablecontext' in compact and 'Dataset' in compact\n"
+        "assert 'Accuracy(%)' in compact and '85.00%[80.00%,90.00%]' in compact\n"
+        "print('installed visible table context passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=context_dir, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

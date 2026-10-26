@@ -19483,6 +19483,9 @@ var KIND_PHRASING = {
 function axisPhrase(label, unit) {
   return unit ? `${label} in ${unit}` : label;
 }
+function confidencePercent(level) {
+  return String(Number((level * 100).toPrecision(12)));
+}
 function encodingSentence(spec) {
   const kind = KIND_PHRASING[spec.kind];
   const parts = [];
@@ -19492,6 +19495,7 @@ function encodingSentence(spec) {
     parts.push(
       `${kind} of ${axisPhrase(spec.y.label, spec.y.unit)}, one row per ${spec.x.label.toLowerCase()}`
     );
+    if (spec.y.percent) parts.push("values displayed as percentages");
   } else if (spec.kind === "heatmap") {
     parts.push(
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} across the horizontal axis and ${axisPhrase(spec.y.label, spec.y.unit)} down the vertical axis`
@@ -19514,7 +19518,7 @@ function encodingSentence(spec) {
   }
   if (spec.group) {
     parts.push(
-      spec.series_order ? `one series per ${spec.group}, with expected order ${spec.series_order.join(", ")}` : `one series per ${spec.group}`
+      spec.series_order ? `one ${spec.kind === "table" ? "column" : "series"} per ${spec.group}, with expected order ${spec.series_order.join(", ")}` : `one ${spec.kind === "table" ? "column" : "series"} per ${spec.group}`
     );
   }
   for (const [name, axis2] of [
@@ -19525,9 +19529,9 @@ function encodingSentence(spec) {
     if (axis2.scale === "symlog") parts.push(`the ${name} axis is symmetric logarithmic`);
   }
   if ("uncertainty" in spec && spec.uncertainty) {
-    const wording = spec.uncertainty.kind === "ci" ? `${Math.round(spec.uncertainty.level * 100)} percent confidence intervals` : spec.uncertainty.kind === "sem" ? "standard errors" : spec.uncertainty.kind === "std" ? "standard deviations" : spec.uncertainty.kind === "iqr" ? "interquartile ranges" : "full ranges";
+    const wording = spec.uncertainty.kind === "ci" ? `${confidencePercent(spec.uncertainty.level)} percent confidence intervals` : spec.uncertainty.kind === "sem" ? "standard errors" : spec.uncertainty.kind === "std" ? "standard deviations" : spec.uncertainty.kind === "iqr" ? "interquartile ranges" : "full ranges";
     parts.push(
-      spec.uncertainty.display === "band" ? `shaded ${wording}` : `${wording} as error bars`
+      spec.kind === "table" ? `cell bounds show ${wording} when available` : spec.uncertainty.display === "band" ? `shaded ${wording}` : `${wording} as error bars`
     );
   }
   if (spec.emphasis) parts.push(`${spec.emphasis.series} is drawn in the foreground`);
@@ -19566,7 +19570,19 @@ function emitAltText(spec, out) {
   if ("aggregation" in spec && spec.aggregation !== "none") {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
-  if (spec.kind === "scaling_fit") {
+  if (spec.kind === "table") {
+    out.push(
+      '    values = pd.to_numeric(frame[Y_FIELD], errors="coerce")',
+      "    values = values[np.isfinite(values)]",
+      "    if len(values):",
+      '        parts.append(f"Displayed cells run from {table_number(values.min())} to {table_number(values.max())}")',
+      '        parts.append(f"the mean of displayed cells is {table_number(values.mean())}")',
+      '    if "_low" in frame and "_high" in frame:',
+      '        unknown = int((~np.isfinite(frame["_low"]) | ~np.isfinite(frame["_high"])).sum())',
+      "        if unknown:",
+      '            parts.append(f"{unknown} displayed cells have unavailable bounds")'
+    );
+  } else if (spec.kind === "scaling_fit") {
     out.push(...String.raw`
     for name in (series_names(frame) if GROUP is not None else [None]):
         fit = scaling_estimate(frame if name is None else frame[frame[GROUP] == name])
@@ -21314,6 +21330,17 @@ function emitRepeat(spec, out) {
 }
 function emitTable(spec, out) {
   const digits = spec.precision;
+  const displayed = spec.y.percent ? "value * 100" : "value";
+  const suffix = spec.y.percent ? "%" : "";
+  const intervalContext = spec.uncertainty ? {
+    std: "Cell bounds: estimate plus or minus one standard deviation",
+    sem: "Cell bounds: estimate plus or minus one standard error",
+    ci: `Cell bounds: ${confidencePercent(spec.uncertainty.level)}% bootstrap confidence intervals`,
+    iqr: "Cell bounds: interquartile ranges",
+    range: "Cell bounds: observed full ranges"
+  }[spec.uncertainty.kind] : void 0;
+  const highlightScope = spec.highlight === "best_per_row" ? "row" : "column";
+  const highlightContext = spec.highlight === "none" ? void 0 : spec.uncertainty ? `Bold: candidates by bounds per ${highlightScope}` : `Bold: ${spec.higher_is_better ? "highest" : "lowest"} observed value per ${highlightScope}`;
   out.push(
     "",
     "def build_table(df):",
@@ -21366,22 +21393,44 @@ function emitTable(spec, out) {
     "    return winners",
     "",
     "",
+    "def table_number(value):",
+    `    return f"{${displayed}:.${digits}f}${suffix}"`,
+    "",
+    "",
+    "def table_column_labels(table):",
+    "    return [Y_AXIS_LABEL] if GROUP is None else [str(value) for value in table.columns]",
+    "",
+    "",
+    "def table_context():",
+    `    return ([FIGURE_TITLE] if FIGURE_TITLE else []) + ([Y_AXIS_LABEL] if GROUP is not None else [])${intervalContext ? ` + [${pyStr(intervalContext)}]` : ""}${highlightContext ? ` + [${pyStr(highlightContext)}]` : ""}`,
+    "",
+    "",
+    "def table_markdown_text(value):",
+    "    text = escape(str(value))",
+    `    for character in ${pyStr("\\`*_[]|$#+-.!")}:`,
+    '        text = text.replace(character, "\\\\" + character)',
+    '    return text.replace("\\r\\n", "\\n").replace("\\r", "\\n").replace("\\n", "<br>")',
+    "",
+    "",
     "def table_cell(table, low, high, row, column):",
     "    value = table.loc[row, column]",
     "    if pd.isna(value):",
     '        return "-"',
-    `    text = f"{value:.${digits}f}"`,
+    "    text = table_number(value)",
     "    if low is not None and high is not None:",
     "        lo, hi = low.loc[row, column], high.loc[row, column]",
-    `        text += f" [{lo:.${digits}f}, {hi:.${digits}f}]" if np.isfinite(lo) and np.isfinite(hi) else " [unavailable]"`,
+    '        text += f" [{table_number(lo)}, {table_number(hi)}]" if np.isfinite(lo) and np.isfinite(hi) else " [unavailable]"',
     "    return text",
     "",
     "",
     "def write_table(table, low=None, high=None):",
     "    winners = mark_winners(table, low, high)",
-    "    columns = [str(c) for c in table.columns]",
-    "    markdown = [",
-    '        "| " + " | ".join([X_AXIS_LABEL] + columns) + " |",',
+    "    columns = table_column_labels(table)",
+    "    markdown = []",
+    "    for label in table_context():",
+    '        markdown.extend([table_markdown_text(label), ""])',
+    "    markdown += [",
+    '        "| " + " | ".join(table_markdown_text(label) for label in [X_AXIS_LABEL] + columns) + " |",',
     '        "| " + " | ".join(["---"] * (len(columns) + 1)) + " |",',
     "    ]",
     "    for row in table.index:",
@@ -21389,7 +21438,7 @@ function emitTable(spec, out) {
     "        for column in table.columns:",
     "            text = table_cell(table, low, high, row, column)",
     '            cells.append(f"**{text}**" if (row, column) in winners else text)',
-    '        markdown.append("| " + " | ".join([str(row)] + cells) + " |")',
+    '        markdown.append("| " + " | ".join([table_markdown_text(row)] + cells) + " |")',
     "",
     "    latex = [",
     '        "\\\\begin{tabular}{l" + "r" * len(columns) + "}",',
@@ -21397,6 +21446,8 @@ function emitTable(spec, out) {
     '        " & ".join(latex_text(value) for value in [X_AXIS_LABEL] + columns) + " \\\\\\\\",',
     '        "\\\\midrule",',
     "    ]",
+    "    for label in reversed(table_context()):",
+    String.raw`        latex.insert(2, r"\multicolumn{" + str(len(columns) + 1) + r"}{l}{" + latex_text(label) + r"} \\")`,
     "    for row in table.index:",
     "        cells = []",
     "        for column in table.columns:",
@@ -21419,8 +21470,16 @@ function emitTable(spec, out) {
     "",
     "def render_table_image(table, winners, low=None, high=None):",
     "    with plt.rc_context(RC_PARAMS):",
-    "        height = 0.32 * (len(table.index) + 2)",
+    "        context = table_context()",
+    '        line_height = (RC_PARAMS["font.size"] + 1) / 72 * 1.5',
+    "        header_height = 0.08 + len(context) * line_height",
+    "        height = 0.32 * (len(table.index) + 2) + header_height",
     "        fig, ax = plt.subplots(figsize=(FIGSIZE[0], height))",
+    "        fig.subplots_adjust(left=0.04, right=0.96, bottom=0.08, top=1 - header_height / height)",
+    "        for index, label in enumerate(context):",
+    "            fig.text(0.5, 1 - (0.04 + index * line_height) / height, label,",
+    '                     ha="center", va="top", fontsize=RC_PARAMS["font.size"] + 1,',
+    "                     parse_math=False, usetex=False)",
     '        ax.axis("off")',
     "        body = [",
     "            [table_cell(table, low, high, r, c) for c in table.columns]",
@@ -21429,10 +21488,12 @@ function emitTable(spec, out) {
     "        drawn = ax.table(",
     "            cellText=body,",
     "            rowLabels=[str(r) for r in table.index],",
-    "            colLabels=[str(c) for c in table.columns],",
+    "            colLabels=table_column_labels(table),",
     '            loc="center",',
     '            cellLoc="right",',
     "        )",
+    "        drawn.add_cell(0, -1, width=drawn[1, -1].get_width(), height=drawn[0, 0].get_height(),",
+    '                       text=X_AXIS_LABEL, loc="left")',
     "        drawn.auto_set_font_size(False)",
     '        drawn.set_fontsize(RC_PARAMS["font.size"])',
     "        drawn.scale(1, 1.35)",
@@ -21441,6 +21502,7 @@ function emitTable(spec, out) {
     "        for (row, column), cellobj in drawn.get_celld().items():",
     "            cellobj.set_linewidth(0.4)",
     '            cellobj.set_edgecolor("#cccccc")',
+    "            cellobj.set_text_props(parse_math=False, usetex=False)",
     "            if row == 0:",
     '                cellobj.set_text_props(weight="bold")',
     "        for index, row in enumerate(table.index):",
@@ -23762,8 +23824,11 @@ var composition = (spec, add) => {
       `A ${spec.kind} encodes its value as the length or extent of a mark, so cutting the ${spec.axis_break.axis} axis leaves the drawn lengths no longer proportional to the values. Put the value axis on a log scale to bring distant values together, or use kind "table" when the numbers matter more than the comparison.`
     );
   }
-  if (spec.kind === "table" && (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break || spec.animate || spec.output.interactive)) {
-    add("error", "table_composition_unsupported", "Tables support cell summaries and static/Markdown/LaTeX output; panel, overlay, cut, animation and interactive options are not implemented.");
+  if (spec.kind === "table" && (spec.facet || spec.repeat || spec.layers?.length || spec.inset || spec.axis_break || spec.animate || spec.output.interactive || spec.annotate?.length || spec.reference_lines?.length || spec.emphasis)) {
+    add("error", "table_composition_unsupported", "Tables support cell summaries and static/Markdown/LaTeX output; panels, overlays, cuts, animation, interactive output, point annotations, reference lines and series emphasis are not implemented.");
+  }
+  if (spec.kind === "table" && (spec.x.scale !== "linear" || spec.y.scale !== "linear" || spec.x.percent || spec.x.temporal || spec.y.temporal || spec.x.limits || spec.y.limits)) {
+    add("error", "unsupported_table_axes", "Table rows are identifiers and cells are numeric values, not plotted axes. Log scales, limits, temporal axes and percent row labels are unsupported; y.percent formats numeric cells as percentages.");
   }
   if (spec.facet && spec.repeat) {
     add("error", "facet_repeat_conflict", "Choose row facets or repeated metrics; their combination is not implemented.");

@@ -463,7 +463,9 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
             continue
         coordinate = {"vertical": 1, "horizontal": 0}.get(container.orientation)
         if container.errorbar is not None and coordinate is not None:
-            lower, upper = (bounds.ymin, bounds.ymax) if coordinate == 1 else (bounds.xmin, bounds.xmax)
+            lower, upper = (
+                (bounds.ymin, bounds.ymax) if coordinate == 1 else (bounds.xmin, bounds.xmax)
+            )
             for collection in container.errorbar.lines[2]:
                 if not collection.get_visible() or not collection.get_clip_on():
                     continue

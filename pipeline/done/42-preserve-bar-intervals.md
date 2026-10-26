@@ -42,3 +42,8 @@ agent and byte-identical installed translator pass. Actual installed1..9 endpoin
 failure and detached/stacked refusal are independently measured. All baseline source/assets
 and51 published PNG blobs remain unchanged. Obsidian links96 notes/0 unresolved. Both CI
 workflows require verification after push; full quantity/domain matrix24 remains open.
+
+CI follow-up: a714c03 passed Figure CI and all four installed platform jobs; both
+Python jobs stopped at Ruff formatting of one long inspector line. Wrapped that line,
+then reran all seven gates:215 Node/837 Python, zero skips/warnings, and both full
+Ruff checks (52 files) pass. No behavior/source bundle or artifact content changes.

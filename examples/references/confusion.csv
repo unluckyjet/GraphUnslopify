@@ -1,0 +1,17 @@
+actual,predicted,count
+bird,bird,83
+bird,cat,4
+bird,dog,7
+bird,fish,6
+cat,bird,5
+cat,cat,79
+cat,dog,9
+cat,fish,7
+dog,bird,7
+dog,cat,3
+dog,dog,82
+dog,fish,8
+fish,bird,3
+fish,cat,6
+fish,dog,6
+fish,fish,85

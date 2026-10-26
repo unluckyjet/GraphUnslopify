@@ -23,6 +23,7 @@ import {
   emitTable,
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
+import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -322,6 +323,10 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     '    RUN_REPORT["inspection"] = {"available": True, "checked": True}',
     "    for item in report.findings:",
     "        finding(item.severity, item.code, item.message)",
+    ...((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells ? [
+      '        if item.code == "cell_text_contrast_untested":',
+      '            RUN_REPORT["untested"].append(item.message)',
+    ] : []),
     "    return report.ok",
     "",
     "",
@@ -554,6 +559,9 @@ export function emitPython(spec: FigureSpec): string {
   emitSummarise(spec, out);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
+  if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
+    out.push("", CELL_COLOUR_SOURCE, "");
+  }
   if (spec.kind === "table") {
     emitTable(spec, out);
   } else {

@@ -46,3 +46,13 @@ hand/SciPy quantities and actual artists.
 Install `[statistics]` to reproduce the conditional t95 intervals in the scaling image metadata.
 Use the regeneration recipe above with `scaling` in place of `qq` and copy `scaling.png` to
 `docs/seventh-pass-scaling-fit.png`. Source/data fingerprints are checked for this image too.
+
+The annotated heatmap and confusion illustrations now have committed synthetic inputs too.
+`heatmap.csv` contains 20 invented cafe customer counts over five weekdays and four hours;
+`confusion.csv` contains 16 invented weighted class counts. Neither describes measured research.
+Their JSON files reproduce `docs/third-pass-heatmap.png` and `docs/seventh-pass-confusion.png`.
+Use the same regeneration recipe with `heatmap` or `confusion`. Earlier versions of these
+illustrations had no committed input data; these fixtures replace those unreproducible examples.
+Fingerprints tie both images to these inputs and the canonical emitter. Separate artist,
+inspector, raster and offline-browser controls check cell values and annotation contrast;
+see `docs/cell-contrast.md` for the criterion and limits.

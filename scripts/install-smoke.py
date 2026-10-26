@@ -427,6 +427,65 @@ def main() -> None:
     )
     artists = json.loads(run([str(python), str(driver)], cwd=identity_dir, env=env))
     assert artists == [["1", [20, 22]], ["01", [10, 12]]]
+    # The installed translator and inspector must both honor actual cell colours.
+    (where / "cells.csv").write_text(
+        "column,row,value\n01,a,1\n1,a,2\n01,b,3\n1,b,4\n", encoding="utf8"
+    )
+    cell_spec = where / "cells.json"
+    cell_spec.write_text(
+        json.dumps(
+            {
+                "kind": "heatmap",
+                "data": {"path": "cells.csv"},
+                "x": {"field": "column", "label": "Column"},
+                "y": {"field": "row", "label": "Row"},
+                "value": "value",
+                "value_label": "Value",
+                "annotate_cells": True,
+                "output": {"stem": "cells", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    cell_dir = where / "cell output"
+    cell_report = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(cell_spec),
+                "--out-dir",
+                str(cell_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert cell_report["status"] == "passed" and len(cell_report["outputs"]) == 2
+    driver = cell_dir / "cell_artists.py"
+    driver.write_text(
+        "import cells, matplotlib.pyplot as plt, matplotlib.colors as colors, json\n"
+        "from graphunslopify import inspect_figure\n"
+        "fig, ax = plt.subplots(); cells.draw_panel(ax, cells.prepare(cells.load()))\n"
+        "image = ax.images[0]; ratios = []\n"
+        "def luminance(rgb):\n"
+        "    v = [c/12.92 if c <= .04045 else ((c+.055)/1.055)**2.4 for c in rgb]\n"
+        "    return sum(c*w for c,w in zip(v,[.2126,.7152,.0722]))\n"
+        "for text in ax.texts:\n"
+        "    column,row = map(int,text.get_position())\n"
+        "    a,b = sorted([luminance(colors.to_rgb(text.get_color())),\n"
+        "                  luminance(image.to_rgba(image.get_array()[row,column])[:3])])\n"
+        "    ratios.append((b+.05)/(a+.05))\n"
+        "ax.texts[0].set_color(image.to_rgba(image.get_array()[0,0]))\n"
+        "bad = [f.code for f in inspect_figure(fig).findings if f.code == 'cell_text_low_contrast']\n"
+        "print(json.dumps({'ratios':ratios,'negative':bad})); plt.close(fig)\n",
+        encoding="utf8",
+    )
+    cell_artists = json.loads(run([str(python), str(driver)], cwd=cell_dir, env=env))
+    assert len(cell_artists["ratios"]) == 4 and min(cell_artists["ratios"]) >= 4.5
+    assert cell_artists["negative"] == ["cell_text_low_contrast"]
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

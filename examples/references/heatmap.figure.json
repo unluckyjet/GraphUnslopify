@@ -1,0 +1,26 @@
+{
+  "kind": "heatmap",
+  "title": "Synthetic cafe customers by weekday and hour",
+  "x": {
+    "field": "hour",
+    "label": "Hour of day"
+  },
+  "y": {
+    "field": "day",
+    "label": "Weekday"
+  },
+  "value": "customers",
+  "value_label": "Customers per hour",
+  "annotate_cells": true,
+  "data": {
+    "path": "heatmap.csv"
+  },
+  "output": {
+    "stem": "heatmap",
+    "formats": [
+      "png"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "confusion_matrix",
+  "x": {
+    "field": "predicted",
+    "label": "Predicted"
+  },
+  "y": {
+    "field": "actual",
+    "label": "True label"
+  },
+  "value": "count",
+  "normalize": "row",
+  "annotate_cells": true,
+  "data": {
+    "path": "confusion.csv"
+  },
+  "output": {
+    "stem": "confusion",
+    "formats": [
+      "png"
+    ],
+    "dpi": 150
+  }
+}

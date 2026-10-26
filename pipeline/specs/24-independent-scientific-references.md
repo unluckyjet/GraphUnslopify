@@ -25,8 +25,10 @@ references and failure controls (spec 29). Scaling log-space parameters, conditi
 point-only/unknown intervals, retained domains, actual curves, descriptions and scoped records now
 have independent hand/SciPy artist/runtime references (spec 30). Shared identifier spelling,
 raw typed filters, unit/group/category consistency, ordering and one-snapshot provenance now have
-62 independent actual-artist/runtime controls (spec 31). Reuse that evidence. Prioritize categorical
-overlay geometry, cell annotation contrast (spec 32), final exported-width/table context, then complete the per-kind coverage map for the full inventory. Invalid domains/missing IDs must not become plausible clean figures;
+62 independent actual-artist/runtime controls (spec 31). Reuse that evidence. Cell annotation contrast now has34 independent artist/math/normalization/alpha/raster/inspector/
+runtime/provenance controls and522 actual offline browser labels (spec32). Prioritize categorical
+overlay geometry and final exported-width/table context, then complete the per-kind coverage map
+for the full inventory. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.

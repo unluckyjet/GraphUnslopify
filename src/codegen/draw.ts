@@ -1326,7 +1326,6 @@ function emitConfusionMatrix(
     out.push(
       "    # A printed number is exact where shading is estimated, and a",
       "    # confusion matrix is usually read one cell at a time.",
-      "    threshold = (shown.max() or 1) * 0.6",
       "    for row in range(len(labels)):",
       "        for column in range(len(labels)):",
       `            text = ${
@@ -1340,7 +1339,7 @@ function emitConfusionMatrix(
       "                text,",
       '                ha="center",',
       '                va="center",',
-      '                color="white" if shown[row, column] > threshold else "#202020",',
+      "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT,",
       "            )",
     );
@@ -1470,7 +1469,7 @@ function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): voi
 
   if (spec.diverging) {
     out.push(
-      "    reach = float(np.nanmax(np.abs(values))) if np.isfinite(values).any() else 1.0",
+      "    reach = (float(np.nanmax(np.abs(values))) or 1.0) if np.isfinite(values).any() else 1.0",
       "    image = ax.imshow(",
       "        values,",
       '        aspect="auto",',
@@ -1494,9 +1493,7 @@ function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): voi
 
   if (spec.annotate_cells) {
     out.push(
-      "    # White on dark, black on light, so the number stays readable either way.",
-      "    span = np.nanmax(values) - np.nanmin(values) if np.isfinite(values).any() else 1.0",
-      "    midpoint = np.nanmin(values) + span / 2 if span else 0.0",
+      "    # Compare actual normalized cell backgrounds with pure black and white.",
       "    # One precision for every cell, so the grid reads like a table.",
       "    reach = np.nanmax(np.abs(values)) if np.isfinite(values).any() else 1.0",
       "    digits = 0 if reach >= 100 else 1 if reach >= 10 else 2 if reach >= 1 else 3",
@@ -1511,7 +1508,7 @@ function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): voi
       '                f"{cell:.{digits}f}",',
       '                ha="center",',
       '                va="center",',
-      '                color="white" if cell > midpoint else "#111111",',
+      "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT - 1,",
       "            )",
     );

@@ -118,3 +118,12 @@ Milestones may be split further as evidence requires. No checklist item is compl
   claims/agent proof. All15 baseline PNGs and both public illustrations have unchanged pixels
   with refreshed code/provenance. Full matrix24, cell annotation contrast32, categorical overlays,
   final exported-width/table context, naming/versioned release and final completion audit remain.
+
+
+- Milestone28 resolves actual-background cell annotation contrast (spec32):34 independent
+  artist/math/normalization/alpha/raster/inspector/runtime/provenance controls;215 Node/449 Python,
+  all seven local gates, strict gallery15/15 and522 actual offline browser labels. Fresh installed
+  wheel checks real cell artists and an unreadable negative control. Baseline12 and two public
+  illustrations are refreshed; their synthetic inputs and fingerprints are committed. Full
+  matrix24, categorical overlays/final export width/table context, naming/versioned release and
+  final audit remain open. Both GitHub workflows must pass before the next milestone.

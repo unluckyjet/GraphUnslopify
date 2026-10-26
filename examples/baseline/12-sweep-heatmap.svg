@@ -12,7 +12,7 @@
     <dc:description>Heatmap of validation accuracy (%), with Learning rate across the horizontal axis and Batch size down the vertical axis. N = 1 per point. Values run from 73.3 to 82.4. The largest is 82.4 at 0.001, 32.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:identifier>79c0662e7840aec1</dc:identifier>
-    <dc:source>{"schema_version": 1, "tool": "GraphUnslopify 0.6.0", "spec_hash": "79c0662e7840aec1", "data_sha256_prefix": "568abd289e98d828", "script_sha256": "9b64af6314c735ca2c3f00d8ef83c88a8245e911559af05f226c96de90c4f318", "spec": {"title": "Hyperparameter sweep", "legend": {"show": true, "position": "best", "style": "box"}, "output": {"interactive": false, "latex": false, "size": "single_column", "formats": ["png", "svg", "pdf"], "dpi": 600, "stem": "12-sweep-heatmap"}, "style": {"preset": "paper", "grid": false, "despine": true, "venue": "none"}, "data": {"path": "data/sweep.csv", "format": "csv", "columns": ["learning_rate", "batch_size", "accuracy"]}, "kind": "heatmap", "x": {"field": "learning_rate", "label": "Learning rate", "scale": "linear", "percent": false, "temporal": false}, "y": {"field": "batch_size", "label": "Batch size", "scale": "linear", "percent": false, "temporal": false}, "value": "accuracy", "value_label": "Validation accuracy (%)", "aggregation": "mean", "annotate_cells": true, "diverging": false}, "alt_text": "Heatmap of validation accuracy (%), with Learning rate across the horizontal axis and Batch size down the vertical axis. N = 1 per point. Values run from 73.3 to 82.4. The largest is 82.4 at 0.001, 32."}</dc:source>
+    <dc:source>{"schema_version": 1, "tool": "GraphUnslopify 0.6.0", "spec_hash": "79c0662e7840aec1", "data_sha256_prefix": "568abd289e98d828", "script_sha256": "4048f71888e5ede44df8d03a22bb4a355bb8a67f0234e7e0c64982457944e519", "spec": {"title": "Hyperparameter sweep", "legend": {"show": true, "position": "best", "style": "box"}, "output": {"interactive": false, "latex": false, "size": "single_column", "formats": ["png", "svg", "pdf"], "dpi": 600, "stem": "12-sweep-heatmap"}, "style": {"preset": "paper", "grid": false, "despine": true, "venue": "none"}, "data": {"path": "data/sweep.csv", "format": "csv", "columns": ["learning_rate", "batch_size", "accuracy"]}, "kind": "heatmap", "x": {"field": "learning_rate", "label": "Learning rate", "scale": "linear", "percent": false, "temporal": false}, "y": {"field": "batch_size", "label": "Batch size", "scale": "linear", "percent": false, "temporal": false}, "value": "accuracy", "value_label": "Validation accuracy (%)", "aggregation": "mean", "annotate_cells": true, "diverging": false}, "alt_text": "Heatmap of validation accuracy (%), with Learning rate across the horizontal axis and Batch size down the vertical axis. N = 1 per point. Values run from 73.3 to 82.4. The largest is 82.4 at 0.001, 32."}</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>GraphUnslopify 0.6.0 spec:79c0662e7840aec1 data:568abd289e98d828</dc:title>
@@ -732,7 +732,7 @@ L 185.867968 20.037891
    </g>
    <g id="text_11">
     <!-- 75.4 -->
-    <g style="fill: #111111" transform="translate(52.602392 37.67625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(52.602392 37.67625) scale(0.07 -0.07)">
      <defs>
       <path id="DejaVuSans-1a" d="M 525 4666
 L 3525 4666
@@ -778,7 +778,7 @@ z
    </g>
    <g id="text_12">
     <!-- 77.8 -->
-    <g style="fill: #111111" transform="translate(88.451709 37.67625) scale(0.07 -0.07)">
+    <g transform="translate(88.451709 37.67625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -787,7 +787,7 @@ z
    </g>
    <g id="text_13">
     <!-- 79.9 -->
-    <g style="fill: #ffffff" transform="translate(124.301025 37.67625) scale(0.07 -0.07)">
+    <g transform="translate(124.301025 37.67625) scale(0.07 -0.07)">
      <defs>
       <path id="DejaVuSans-1c" d="M 703 97
 L 703 672
@@ -828,7 +828,7 @@ z
    </g>
    <g id="text_14">
     <!-- 77.8 -->
-    <g style="fill: #ffffff" transform="translate(160.150341 37.67625) scale(0.07 -0.07)">
+    <g transform="translate(160.150341 37.67625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -837,7 +837,7 @@ z
    </g>
    <g id="text_15">
     <!-- 77.2 -->
-    <g style="fill: #111111" transform="translate(52.602392 69.31625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(52.602392 69.31625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -846,7 +846,7 @@ z
    </g>
    <g id="text_16">
     <!-- 79.3 -->
-    <g style="fill: #ffffff" transform="translate(88.451709 69.31625) scale(0.07 -0.07)">
+    <g transform="translate(88.451709 69.31625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1c" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -855,7 +855,7 @@ z
    </g>
    <g id="text_17">
     <!-- 82.4 -->
-    <g style="fill: #ffffff" transform="translate(124.301025 69.31625) scale(0.07 -0.07)">
+    <g transform="translate(124.301025 69.31625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1b"/>
      <use xlink:href="#DejaVuSans-15" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -864,7 +864,7 @@ z
    </g>
    <g id="text_18">
     <!-- 79.4 -->
-    <g style="fill: #ffffff" transform="translate(160.150341 69.31625) scale(0.07 -0.07)">
+    <g transform="translate(160.150341 69.31625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1c" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -873,7 +873,7 @@ z
    </g>
    <g id="text_19">
     <!-- 75.2 -->
-    <g style="fill: #111111" transform="translate(52.602392 100.95625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(52.602392 100.95625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-18" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -882,7 +882,7 @@ z
    </g>
    <g id="text_20">
     <!-- 77.9 -->
-    <g style="fill: #ffffff" transform="translate(88.451709 100.95625) scale(0.07 -0.07)">
+    <g transform="translate(88.451709 100.95625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -891,7 +891,7 @@ z
    </g>
    <g id="text_21">
     <!-- 80.0 -->
-    <g style="fill: #ffffff" transform="translate(124.301025 100.95625) scale(0.07 -0.07)">
+    <g transform="translate(124.301025 100.95625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1b"/>
      <use xlink:href="#DejaVuSans-13" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -900,7 +900,7 @@ z
    </g>
    <g id="text_22">
     <!-- 77.2 -->
-    <g style="fill: #111111" transform="translate(160.150341 100.95625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(160.150341 100.95625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -909,7 +909,7 @@ z
    </g>
    <g id="text_23">
     <!-- 73.3 -->
-    <g style="fill: #111111" transform="translate(52.602392 132.59625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(52.602392 132.59625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-16" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -918,7 +918,7 @@ z
    </g>
    <g id="text_24">
     <!-- 74.9 -->
-    <g style="fill: #111111" transform="translate(88.451709 132.59625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(88.451709 132.59625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-17" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -927,7 +927,7 @@ z
    </g>
    <g id="text_25">
     <!-- 77.7 -->
-    <g style="fill: #111111" transform="translate(124.301025 132.59625) scale(0.07 -0.07)">
+    <g transform="translate(124.301025 132.59625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-1a" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>
@@ -936,7 +936,7 @@ z
    </g>
    <g id="text_26">
     <!-- 75.0 -->
-    <g style="fill: #111111" transform="translate(160.150341 132.59625) scale(0.07 -0.07)">
+    <g style="fill: #ffffff" transform="translate(160.150341 132.59625) scale(0.07 -0.07)">
      <use xlink:href="#DejaVuSans-1a"/>
      <use xlink:href="#DejaVuSans-18" transform="translate(63.625 0)"/>
      <use xlink:href="#DejaVuSans-11" transform="translate(127.25 0)"/>

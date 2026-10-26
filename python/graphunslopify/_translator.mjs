@@ -22648,7 +22648,6 @@ function emitConfusionMatrix(spec, out) {
     out.push(
       "    # A printed number is exact where shading is estimated, and a",
       "    # confusion matrix is usually read one cell at a time.",
-      "    threshold = (shown.max() or 1) * 0.6",
       "    for row in range(len(labels)):",
       "        for column in range(len(labels)):",
       `            text = ${spec.normalize === "none" ? 'f"{int(raw[row, column])}"' : 'f"{shown[row, column]:.2f}"'}`,
@@ -22658,7 +22657,7 @@ function emitConfusionMatrix(spec, out) {
       "                text,",
       '                ha="center",',
       '                va="center",',
-      '                color="white" if shown[row, column] > threshold else "#202020",',
+      "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT,",
       "            )"
     );
@@ -22781,7 +22780,7 @@ function emitHeatmap(spec, out) {
   );
   if (spec.diverging) {
     out.push(
-      "    reach = float(np.nanmax(np.abs(values))) if np.isfinite(values).any() else 1.0",
+      "    reach = (float(np.nanmax(np.abs(values))) or 1.0) if np.isfinite(values).any() else 1.0",
       "    image = ax.imshow(",
       "        values,",
       '        aspect="auto",',
@@ -22803,9 +22802,7 @@ function emitHeatmap(spec, out) {
   );
   if (spec.annotate_cells) {
     out.push(
-      "    # White on dark, black on light, so the number stays readable either way.",
-      "    span = np.nanmax(values) - np.nanmin(values) if np.isfinite(values).any() else 1.0",
-      "    midpoint = np.nanmin(values) + span / 2 if span else 0.0",
+      "    # Compare actual normalized cell backgrounds with pure black and white.",
       "    # One precision for every cell, so the grid reads like a table.",
       "    reach = np.nanmax(np.abs(values)) if np.isfinite(values).any() else 1.0",
       "    digits = 0 if reach >= 100 else 1 if reach >= 10 else 2 if reach >= 1 else 3",
@@ -22820,7 +22817,7 @@ function emitHeatmap(spec, out) {
       '                f"{cell:.{digits}f}",',
       '                ha="center",',
       '                va="center",',
-      '                color="white" if cell > midpoint else "#111111",',
+      "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT - 1,",
       "            )"
     );
@@ -22898,6 +22895,9 @@ function emitDraw(spec, out) {
     }
   }
 }
+
+// src/codegen/cell-colour-source.ts
+var CELL_COLOUR_SOURCE = '"""Cell annotation colours shared with standalone generated programs.\n\nSample normalized image colours at the annotation anchor, composite in drawing\norder, and compare declared sRGB colours (not antialiased glyph pixels). Fully\ntransparent canvas backgrounds are assessed on white paper. This is a cell-text\ncheck, not a certificate for every mark, background, or accessibility criterion.\nKeep this module standalone: build:translator embeds it without a package import.\n"""\n\nimport matplotlib.colors as mcolors\nimport numpy as np\n\n\ndef _cell_over(rgba, background):\n    return np.asarray(rgba[:3]) * rgba[3] + np.asarray(background) * (1 - rgba[3])\n\n\ndef cell_contrast_ratio(a, b):\n    """WCAG relative-luminance ratio; compare the unrounded result to 4.5."""\n    luminances = []\n    for colour in (a, b):\n        rgb = np.asarray(colour, dtype=float)\n        linear = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)\n        luminances.append(float(linear @ np.array([0.2126, 0.7152, 0.0722])))\n    low, high = sorted(luminances)\n    return (high + 0.05) / (low + 0.05)\n\n\ndef _cell_paper(ax):\n    background = np.ones(3)\n    figures = []\n    figure = ax.figure\n    while figure is not None and figure not in figures:\n        figures.append(figure)\n        figure = figure.get_figure()\n    for figure in reversed(figures):\n        if figure.patch.get_visible():\n            background = _cell_over(figure.get_facecolor(), background)\n    if ax.axison and ax.get_frame_on() and ax.patch.get_visible():\n        background = _cell_over(ax.get_facecolor(), background)\n    return background\n\n\ndef _cell_image_layers(ax, display):\n    layers = []\n    for index, artist in enumerate(ax.get_children()):\n        if artist not in ax.images or not artist.get_visible():\n            continue\n        if artist.get_clip_on():\n            box = artist.get_clip_box()\n            if box is not None and not box.contains(*display):\n                continue\n            clip = artist.get_clip_path()\n            if clip is not None:\n                path, transform = clip.get_transformed_path_and_affine()\n                if not path.contains_point(display, transform=transform):\n                    continue\n        x, y = artist.get_transform().inverted().transform(display)\n        left, right, bottom, top = artist.get_extent()\n        fx = (x - left) / (right - left)\n        fy = (\n            (y - top) / (bottom - top)\n            if artist.origin == "upper"\n            else (y - bottom) / (top - bottom)\n        )\n        if not (0 <= fx < 1 and 0 <= fy < 1):\n            continue\n        array = artist.get_array()\n        row, column = int(fy * array.shape[0]), int(fx * array.shape[1])\n        rgba = artist.to_rgba(array[row : row + 1, column : column + 1], norm=array.ndim == 2)[\n            0, 0\n        ].copy()\n        alpha = artist.get_alpha()\n        if alpha is not None:\n            rgba[3] *= float(alpha if np.ndim(alpha) == 0 else alpha[row, column])\n        layers.append(((artist.get_zorder(), index), rgba))\n    return sorted(layers, key=lambda layer: layer[0])\n\n\ndef cell_colour_for_rgb(background):\n    """Pure black or white, whichever has greater unrounded contrast."""\n    return (\n        "black"\n        if cell_contrast_ratio((0, 0, 0), background) >= cell_contrast_ratio((1, 1, 1), background)\n        else "white"\n    )\n\n\ndef cell_text_colour(ax, x, y):\n    """Choose pure black/white against the actual image/axes background."""\n    layers = _cell_image_layers(ax, ax.transData.transform((x, y)))\n    if not layers:\n        raise ValueError("Cell text requires a visible image at its anchor")\n    background = _cell_paper(ax)\n    for _, rgba in layers:\n        background = _cell_over(rgba, background)\n    return cell_colour_for_rgb(background)\n\n\ndef cell_text_contrast(ax, text):\n    """Effective foreground/background ratio, or None outside cell images.\n\n    Handles image alpha, masks, extent/origin, text transforms/alpha/bboxes and\n    image drawing order. Outlined text needs a separate geometric assessment.\n    """\n    display = text.get_transform().transform(text.get_unitless_position())\n    layers = _cell_image_layers(ax, display)\n    if not layers:\n        return None\n    if text.get_path_effects():\n        raise NotImplementedError("Outlined cell text needs a separate contrast assessment")\n    key = (text.get_zorder(), list(ax.get_children()).index(text))\n    background = _cell_paper(ax)\n    above = []\n    for order, rgba in layers:\n        if order < key:\n            background = _cell_over(rgba, background)\n        else:\n            above.append(rgba)\n    bbox = text.get_bbox_patch()\n    if bbox is not None and bbox.get_visible() and bbox.get_fill() and bbox.contains_point(display):\n        background = _cell_over(bbox.get_facecolor(), background)\n    foreground = _cell_over(mcolors.to_rgba(text.get_color(), alpha=text.get_alpha()), background)\n    for rgba in above:\n        background = _cell_over(rgba, background)\n        foreground = _cell_over(rgba, foreground)\n    return cell_contrast_ratio(foreground, background)\n';
 
 // src/capabilities.ts
 function interactiveLimitations(spec) {
@@ -23024,15 +23024,30 @@ function emitInteractive(spec, out) {
       "    values = matrix.to_numpy(dtype=float)",
       `    colourmap = DIVERGING_MAP if ${spec.diverging ? "True" : "False"} else plt.get_cmap(SEQUENTIAL_MAP)`,
       '    options = {"colorscale": [[i / 255, mcolors.to_hex(colourmap(i / 255))] for i in range(256)]}',
-      ...spec.diverging ? ["    reach = float(np.nanmax(np.abs(values))) if np.isfinite(values).any() else 1.0", "    options.update(zmin=-reach, zmax=reach)"] : [],
+      ...spec.diverging ? ["    reach = (float(np.nanmax(np.abs(values))) or 1.0) if np.isfinite(values).any() else 1.0", "    options.update(zmin=-reach, zmax=reach)"] : [],
       ...spec.annotate_cells ? [
         "    reach = float(np.nanmax(np.abs(values))) if np.isfinite(values).any() else 1.0",
         "    digits = 0 if reach >= 100 else 1 if reach >= 10 else 2 if reach >= 1 else 3",
-        '    options["text"] = [[f"{value:.{digits}f}" if np.isfinite(value) else "" for value in row] for row in values]',
-        '    options["texttemplate"] = "%{text}"'
+        '    options["text"] = [[f"{value:.{digits}f}" if np.isfinite(value) else "" for value in row] for row in values]'
       ] : [],
       '    figure.add_trace(go.Heatmap(z=values.tolist(), x=list(map(str,matrix.columns)), y=list(map(str,matrix.index)), colorbar={"title": VALUE_LABEL}, **options))',
-      '    figure.update_yaxes(autorange="reversed")'
+      '    figure.update_xaxes(type="category")',
+      '    figure.update_yaxes(type="category", autorange="reversed")',
+      ...spec.annotate_cells ? [
+        "    from plotly.colors import sample_colorscale",
+        '    low = options.get("zmin", float(np.nanmin(values)))',
+        '    high = options.get("zmax", float(np.nanmax(values)))',
+        "    for row in range(values.shape[0]):",
+        "        for column in range(values.shape[1]):",
+        "            value = values[row, column]",
+        "            if not np.isfinite(value): continue",
+        "            fraction = float((value - low) / (high - low)) if high > low else 0.5",
+        '            rgb = sample_colorscale(options["colorscale"], [fraction], colortype="tuple")[0]',
+        "            # Category serial positions avoid Plotly coercing names such as 01 and 1.",
+        "            figure.add_annotation(x=column, y=row,",
+        '                                  text=options["text"][row][column], showarrow=False,',
+        '                                  font={"color": cell_colour_for_rgb(rgb), "size":13})'
+      ] : []
     );
   } else {
     out.push(
@@ -24357,6 +24372,10 @@ function emitMain(spec, out) {
     '    RUN_REPORT["inspection"] = {"available": True, "checked": True}',
     "    for item in report.findings:",
     "        finding(item.severity, item.code, item.message)",
+    ...(spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells ? [
+      '        if item.code == "cell_text_contrast_untested":',
+      '            RUN_REPORT["untested"].append(item.message)'
+    ] : [],
     "    return report.ok",
     "",
     "",
@@ -24561,6 +24580,9 @@ function emitPython(spec) {
   emitSummarise(spec, out);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
+  if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
+    out.push("", CELL_COLOUR_SOURCE, "");
+  }
   if (spec.kind === "table") {
     emitTable(spec, out);
   } else {

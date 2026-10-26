@@ -68,6 +68,10 @@ than drawing something misleading.
 | ![Scatter of menu price against rating with a Pareto frontier](docs/third-pass-pareto.png) | ![Stacked bars of drink units sold by store](docs/third-pass-stacked.png) |
 | ![Violin plot of the same wait times, showing the full distribution](docs/third-pass-violin.png) | ![Animated training curve drawing itself](docs/animated-curve.gif) |
 
+Annotated heatmaps and confusion matrices choose text against actual cell colours;
+strict inspection rejects low contrast. See [the criterion and verification](docs/cell-contrast.md).
+The public cell illustrations use [committed synthetic inputs](examples/references/README.md).
+
 *Made-up coffee chain data, one chart per kind*
 
 The data is invented, but each chart answers a real question rather than demonstrating a feature.

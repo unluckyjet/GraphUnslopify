@@ -79,6 +79,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - run: npx playwright install --with-deps chromium
+      - run: npm run cell-contrast-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cell-contrast-verification
+          path: /tmp/gu-cell-contrast-*/**
+          if-no-files-found: ignore
+          retention-days: 7
       - run: npm run preview-check
       - uses: actions/upload-artifact@v4
         if: always()
@@ -120,7 +128,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: npm ci
       - run: npm run build:translator
-      - run: git diff --exit-code -- python/graphunslopify/_translator.mjs python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/graphunslopify/examples python/LICENSE
+      - run: git diff --exit-code -- src/codegen/cell-colour-source.ts python/graphunslopify/_translator.mjs python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/graphunslopify/examples python/LICENSE
       - run: python -m pip install build
       - run: python -m build python --outdir dist
       - run: python scripts/install-smoke.py --agent

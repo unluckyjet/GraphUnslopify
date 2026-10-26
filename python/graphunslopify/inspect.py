@@ -16,6 +16,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from .cell_colour import cell_text_contrast
 from .colour import composite_over_white, relative_luminance, worst_case_distance
 
 Severity = Literal["error", "warning"]
@@ -517,6 +518,25 @@ def _check_panel_consistency(figure: Any, report: Report) -> None:
         )
 
 
+def _check_cell_text_contrast(axes: Any, report: Report) -> None:
+    if not axes.images:
+        return
+    for text in axes.texts:
+        if not text.get_visible() or not text.get_text().strip():
+            continue
+        try:
+            ratio = cell_text_contrast(axes, text)
+        except NotImplementedError as exc:
+            report.add("warning", "cell_text_contrast_untested", str(exc))
+            continue
+        if ratio is not None and ratio < 4.5:
+            report.add(
+                "error",
+                "cell_text_low_contrast",
+                f"Cell annotation {text.get_text()!r} has contrast {ratio!r}:1, below 4.5:1.",
+            )
+
+
 def inspect_figure(
     figure: Any,
     target_width_in: float | None = None,
@@ -544,6 +564,7 @@ def inspect_figure(
         _check_legend_occlusion(axes, renderer, report)
         _check_overplotting(axes, renderer, report)
         _check_colour_separation(axes, report)
+        _check_cell_text_contrast(axes, report)
         _check_truncated_bars(axes, report)
         _check_exaggeration(axes, report)
 

@@ -76,3 +76,11 @@ Milestones may be split further as evidence requires. No checklist item is compl
   seven gates pass (215 Node/209 Python), strict gallery 15/15, independent hand/scikit-learn
   points and installed offline wheel. Scientific reference matrix 24, naming/versioned release
   and final completion audit remain open.
+
+
+- Milestone 23 pushed as 6626fb3; general CI 40246520360 passed eight jobs and Figure CI
+  40246520307 passed. Milestone 24 completes matched-unit differences and pair-specific
+  accounting/descriptions/interval evidence (spec 28): 39 hand/SciPy/artist/runtime cases,
+  215 Node/248 Python, all seven local gates, strict gallery 15/15, four visually inspected
+  context cases and installed offline wheel. Matrix 24 still needs QQ/scaling, global
+  identifiers/overlays and final exported-width/table context, plus naming/versioned release.

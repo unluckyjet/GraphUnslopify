@@ -19495,6 +19495,10 @@ function encodingSentence(spec) {
     parts.push(
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} across the horizontal axis and ${axisPhrase(spec.y.label, spec.y.unit)} down the vertical axis`
     );
+  } else if (spec.kind === "paired_difference") {
+    parts.push(
+      `${kind} of changes in ${axisPhrase(spec.y.label, spec.y.unit === "%" ? "percentage points" : spec.y.unit)} against ${spec.x.label}, paired by ${spec.pair} with baseline ${spec.baseline}`
+    );
   } else if (spec.kind === "bar" && spec.orientation === "horizontal") {
     parts.push(
       `${kind} with ${axisPhrase(spec.y.label, spec.y.unit)} along the horizontal axis and ${spec.x.label} listed down the vertical axis`
@@ -19558,7 +19562,26 @@ function emitAltText(spec, out) {
   if ("aggregation" in spec && spec.aggregation !== "none") {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
-  if (spec.kind === "kaplan_meier") {
+  if (spec.kind === "paired_difference") {
+    out.push(...String.raw`
+    for estimate in paired_estimates(frame):
+        who = f"{estimate['condition']} minus {estimate['baseline']}"
+        if estimate["n"]:
+            parts.append(f"{who}: mean difference is {estimate['mean']:.3g} over {estimate['n']} matched pairs")
+        else:
+            parts.append(f"{who}: no complete pairs")
+        if estimate["n"] >= 2:
+            parts.append(f"95% percentile bootstrap mean interval is [{estimate['low']:.3g}, {estimate['high']:.3g}]")
+        else:
+            parts.append("interval unavailable with fewer than two matched pairs")
+        parts.append(f"of {estimate['units']} units, {estimate['baseline_only']} baseline-only, "
+                     f"{estimate['candidate_only']} candidate-only and {estimate['neither']} neither-condition units were excluded")
+        if estimate["missing_measurements"]:
+            parts.append(f"{estimate['missing_measurements']} missing measurement rows in this comparison")
+        if estimate["technical_repeats"]:
+            parts.append(f"{estimate['technical_repeats']} technical repeat rows were averaged within unit and condition")
+`.split("\n"));
+  } else if (spec.kind === "kaplan_meier") {
     out.push(...String.raw`
     for name in series_names(frame) if GROUP is not None else [None]:
         block = frame if name is None else frame[frame[GROUP] == name]
@@ -20031,14 +20054,16 @@ function emitPrepare(spec, out) {
       "    )"
     );
   }
-  if (spec.kind === "kaplan_meier" || spec.kind === "calibration") {
-    body.push(`    ${spec.kind === "kaplan_meier" ? "survival_input" : "calibration_input"}(df)`);
+  if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
+    const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
+    const label = spec.kind === "kaplan_meier" ? "Kaplan-Meier" : spec.kind === "calibration" ? "Calibration" : "Paired differences";
+    body.push(`    ${name}_input(df)`);
     if (spec.transform && spec.transform.kind !== "none") {
-      body.push(`    raise ValueError(${pyStr(`${spec.kind === "kaplan_meier" ? "Kaplan-Meier" : "Calibration"} does not apply transforms to a raw y column`)})`);
+      body.push(`    raise ValueError(${pyStr(`${label} does not apply transforms to a raw y column`)})`);
     }
   }
   const transform2 = spec.transform;
-  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && transform2 && transform2.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform2 && transform2.kind !== "none") {
     body.push(...transformBody(spec, transform2));
   }
   body.push("    return df");
@@ -21751,59 +21776,131 @@ function emitForest(spec, out) {
 }
 function emitPairedDifference(spec, out) {
   void spec;
-  out.push(
-    "",
-    "def _mean_interval(values):",
-    "    if len(values) < 2:",
-    "        return np.nan, np.nan",
-    "    rng = np.random.default_rng(PAIR_SEED)",
-    "    draws = rng.choice(values, size=(2000, len(values)), replace=True)",
-    "    return tuple(np.percentile(draws.mean(axis=1), [2.5, 97.5]))",
-    "",
-    "",
-    "def draw_panel(ax, df):",
-    '    wide = df.pivot_table(index=PAIR_FIELD, columns=X_FIELD, values=Y_FIELD, aggfunc="mean")',
-    "    if BASELINE not in wide.columns:",
-    '        raise SystemExit(f"baseline {BASELINE!r} is not a value of {X_FIELD}")',
-    "    others = [name for name in wide.columns if name != BASELINE]",
-    "    jitter = np.random.default_rng(PAIR_SEED)",
-    "    for index, other in enumerate(others):",
-    "        paired = wide[[BASELINE, other]].dropna()",
-    "        values = (paired[other] - paired[BASELINE]).to_numpy(dtype=float)",
-    "        if not len(values):",
-    "            continue",
-    "        colour = PALETTE[index % len(PALETTE)]",
-    "        spread = jitter.uniform(-0.07, 0.07, size=len(values))",
-    "        ax.scatter(",
-    "            np.full(len(values), index) + spread,",
-    "            values,",
-    "            s=10,",
-    "            color=colour,",
-    "            alpha=0.55,",
-    "            linewidths=0,",
-    "            zorder=2,",
-    "        )",
-    "        low, high = _mean_interval(values)",
-    "        if np.isfinite(low) and np.isfinite(high):",
-    "            ax.plot([index, index], [low, high], color=colour, linewidth=1.6, zorder=3)",
-    "        ax.plot(",
-    "            [index],",
-    "            [values.mean()],",
-    '            marker="o",',
-    "            markersize=6,",
-    "            color=colour,",
-    '            markeredgecolor="white",',
-    "            zorder=4,",
-    '            linestyle="none",',
-    "        )",
-    "    # Zero is where the two conditions agree, so it is the only reference a",
-    "    # difference plot needs.",
-    '    ax.axhline(0.0, color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)',
-    "    ax.set_xticks(np.arange(len(others)))",
-    '    ax.set_xticklabels([f"{name} minus {BASELINE}" for name in others])',
-    "    ax.set_xlim(-0.6, len(others) - 0.4)",
-    ""
-  );
+  out.push(...String.raw`
+
+def paired_input(frame):
+    if frame.empty:
+        raise ValueError("Paired differences need observations")
+    if GROUP is not None or CLAIMS:
+        raise ValueError("Paired differences do not support raw series groups or claims")
+    labels = [PAIR_FIELD, X_FIELD, *[field for field in (globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]]
+    missing = [field for field in [*labels, Y_FIELD] if field not in frame]
+    if missing:
+        raise ValueError("Paired differences are missing required columns: " + ", ".join(missing))
+    if frame[labels].isna().any(axis=None):
+        raise ValueError("Paired differences require nonmissing unit, condition and panel identifiers")
+    for field in labels:
+        if frame[field].map(lambda value: isinstance(value, str) and not value.strip()
+                            or isinstance(value, (float, np.floating)) and not np.isfinite(value)).any():
+            raise ValueError("Paired identifiers must be nonempty and finite when numeric")
+    source = frame.copy()
+    values = pd.to_numeric(source[Y_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if np.any(source[Y_FIELD].notna().to_numpy() & ~np.isfinite(values)):
+        raise ValueError("Paired nonmissing measurements must be finite numbers")
+    source[Y_FIELD] = values
+    return source
+
+
+def _mean_interval(values):
+    if len(values) < 2:
+        return np.nan, np.nan
+    rng = np.random.default_rng(PAIR_SEED)
+    draws = rng.choice(values, size=(2000, len(values)), replace=True)
+    return tuple(np.percentile(draws.mean(axis=1), [2.5, 97.5]))
+
+
+def paired_estimates(frame):
+    source = paired_input(frame)
+    conditions = list(source[X_FIELD].unique())
+    names = [str(value) for value in conditions]
+    if len(names) != len(set(names)):
+        raise ValueError("Paired condition names have ambiguous string representations")
+    if BASELINE not in names:
+        raise ValueError(f"Paired baseline {BASELINE!r} is not a value of {X_FIELD}")
+    source[X_FIELD] = source[X_FIELD].map(str)
+    others = sorted(name for name in names if name != BASELINE)
+    if not others:
+        raise ValueError("Paired differences need a condition other than the baseline")
+    cells = source.groupby([PAIR_FIELD, X_FIELD], observed=True)[Y_FIELD].agg(["mean", "count"])
+    if ((cells["count"] > 0) & ~np.isfinite(cells["mean"])).any():
+        raise ValueError("Paired unit means must remain finite")
+    wide = cells["mean"].unstack(X_FIELD)
+    estimates = []
+    for other in others:
+        baseline_ok, candidate_ok = wide[BASELINE].notna(), wide[other].notna()
+        complete = wide.loc[baseline_ok & candidate_ok]
+        with np.errstate(over="ignore", invalid="ignore"):
+            values = (complete[other] - complete[BASELINE]).to_numpy(dtype=float)
+            center = float(values.mean()) if len(values) else None
+        if not np.isfinite(values).all() or center is not None and not np.isfinite(center):
+            raise ValueError("Paired differences must remain finite after subtraction and averaging")
+        with np.errstate(over="ignore", invalid="ignore"):
+            low, high = _mean_interval(values)
+        if len(values) >= 2 and not np.isfinite([low, high]).all():
+            raise ValueError("Paired bootstrap interval must remain finite")
+        relevant = source[source[X_FIELD].isin([BASELINE, other])]
+        finite = relevant.dropna(subset=[Y_FIELD])
+        estimates.append({"condition": other, "baseline": BASELINE, "values": values,
+                          "mean": center, "low": low, "high": high, "n": len(values),
+                          "units": len(wide), "baseline_only": int((baseline_ok & ~candidate_ok).sum()),
+                          "candidate_only": int((~baseline_ok & candidate_ok).sum()),
+                          "neither": int((~baseline_ok & ~candidate_ok).sum()),
+                          "missing_measurements": int(relevant[Y_FIELD].isna().sum()),
+                          "technical_repeats": len(finite) - len(finite.drop_duplicates([PAIR_FIELD, X_FIELD]))})
+    if not any(estimate["n"] for estimate in estimates):
+        raise ValueError("Paired differences have no complete unit pairs")
+    return estimates
+
+
+def record_pairing(estimate):
+    record = {key: value for key, value in estimate.items() if key != "values"}
+    record.update(panel=CURRENT_PANEL, metric=Y_FIELD,
+                  interval={"method": "percentile_bootstrap_mean", "level": 0.95,
+                            "resamples": 2000, "seed": PAIR_SEED})
+    for key in ("low", "high"):
+        record[key] = float(record[key]) if np.isfinite(record[key]) else None
+    old = ROW_COUNTS.setdefault("pairing", [])
+    old[:] = [item for item in old if (item["panel"], item["condition"]) != (CURRENT_PANEL, record["condition"])]
+    old.append(record)
+    who = f"panel {CURRENT_PANEL}, {record['condition']} minus {BASELINE}"
+    if record["n"] != record["units"]:
+        finding("warning", "paired_units_excluded", f"{who}: {record['n']} of {record['units']} units have complete pairs")
+    if record["technical_repeats"]:
+        finding("warning", "paired_technical_repeats_averaged", f"{who}: {record['technical_repeats']} technical repeat rows averaged within unit/condition")
+    if record["n"] < 2:
+        reason = f"Paired {who}: interval unavailable with {record['n']} matched pairs"
+        if reason not in RUN_REPORT["untested"]:
+            RUN_REPORT["untested"].append(reason)
+        finding("warning", "paired_interval_unavailable", reason)
+    print(f"paired: {who}, n={record['n']} of {record['units']}, "
+          f"{record['baseline_only']} baseline-only, {record['candidate_only']} candidate-only, {record['neither']} neither")
+
+
+def draw_panel(ax, df):
+    estimates = paired_estimates(df)
+    jitter = np.random.default_rng(PAIR_SEED)
+    labels = []
+    for index, estimate in enumerate(estimates):
+        record_pairing(estimate)
+        values = estimate["values"]
+        counts = f"n={len(values)}" + ("; CI unavailable" if len(values) < 2 else "")
+        labels.append(f"{estimate['condition']} minus {BASELINE}\n({counts})")
+        if not len(values):
+            continue
+        colour = PALETTE[index % len(PALETTE)]
+        spread = jitter.uniform(-0.07, 0.07, size=len(values))
+        ax.scatter(np.full(len(values), index) + spread, values, s=10, color=colour,
+                   alpha=0.55, linewidths=0, zorder=2)
+        low, high = estimate["low"], estimate["high"]
+        if np.isfinite(low) and np.isfinite(high):
+            ax.plot([index, index], [low, high], color=colour, linewidth=1.6, zorder=3)
+        ax.plot([index], [estimate["mean"]], marker="o", markersize=6, color=colour,
+                markeredgecolor="white", zorder=4, linestyle="none")
+    ax.axhline(0.0, color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)
+    ax.set_xticks(np.arange(len(estimates)))
+    ax.set_xticklabels(labels)
+    ax.set_xlim(-0.6, len(estimates) - 0.4)
+`.split("\n"));
 }
 function emitSlope(spec, out) {
   void spec;
@@ -23311,9 +23408,16 @@ var pairedKinds = (spec, add) => {
   }
   if (spec.kind === "paired_difference" && spec.group) {
     add(
-      "warning",
+      "error",
       "paired_difference_group_ignored",
-      "A paired-difference plot already splits by the conditions on x, so group adds nothing and its colours will not mean what a reader expects."
+      "Paired differences compare conditions on x within unit IDs. A raw group cannot be silently ignored or used to test claims about a different quantity."
+    );
+  }
+  if (spec.kind === "paired_difference" && ((/* @__PURE__ */ new Set([spec.x.field, spec.y.field, spec.pair])).size !== 3 || spec.transform && spec.transform.kind !== "none" || spec.claims?.length || spec.layers?.length || spec.y.scale === "log")) {
+    add(
+      "error",
+      "unsupported_paired_semantics",
+      "Paired differences need distinct condition, measurement and unit fields. Raw-y transforms, series claims and raw overlays are not implemented for matched differences. Use linear or symlog y so zero and negative differences remain representable."
     );
   }
 };

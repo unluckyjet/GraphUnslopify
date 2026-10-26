@@ -641,62 +641,131 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void 
 
 function emitPairedDifference(spec: FigureSpec & { kind: "paired_difference" }, out: string[]): void {
   void spec;
-  // The differences themselves, not the two conditions side by side. A test on
-  // paired data operates on these numbers, so this is the distribution the
-  // p-value actually described. Two overlapping boxes are not.
-  out.push(
-    "",
-    "def _mean_interval(values):",
-    "    if len(values) < 2:",
-    "        return np.nan, np.nan",
-    "    rng = np.random.default_rng(PAIR_SEED)",
-    "    draws = rng.choice(values, size=(2000, len(values)), replace=True)",
-    "    return tuple(np.percentile(draws.mean(axis=1), [2.5, 97.5]))",
-    "",
-    "",
-    "def draw_panel(ax, df):",
-    '    wide = df.pivot_table(index=PAIR_FIELD, columns=X_FIELD, values=Y_FIELD, aggfunc="mean")',
-    "    if BASELINE not in wide.columns:",
-    '        raise SystemExit(f"baseline {BASELINE!r} is not a value of {X_FIELD}")',
-    "    others = [name for name in wide.columns if name != BASELINE]",
-    "    jitter = np.random.default_rng(PAIR_SEED)",
-    "    for index, other in enumerate(others):",
-    "        paired = wide[[BASELINE, other]].dropna()",
-    "        values = (paired[other] - paired[BASELINE]).to_numpy(dtype=float)",
-    "        if not len(values):",
-    "            continue",
-    "        colour = PALETTE[index % len(PALETTE)]",
-    "        spread = jitter.uniform(-0.07, 0.07, size=len(values))",
-    "        ax.scatter(",
-    "            np.full(len(values), index) + spread,",
-    "            values,",
-    "            s=10,",
-    "            color=colour,",
-    "            alpha=0.55,",
-    "            linewidths=0,",
-    "            zorder=2,",
-    "        )",
-    "        low, high = _mean_interval(values)",
-    "        if np.isfinite(low) and np.isfinite(high):",
-    "            ax.plot([index, index], [low, high], color=colour, linewidth=1.6, zorder=3)",
-    "        ax.plot(",
-    "            [index],",
-    "            [values.mean()],",
-    '            marker="o",',
-    "            markersize=6,",
-    "            color=colour,",
-    '            markeredgecolor="white",',
-    "            zorder=4,",
-    '            linestyle="none",',
-    "        )",
-    "    # Zero is where the two conditions agree, so it is the only reference a",
-    "    # difference plot needs.",
-    '    ax.axhline(0.0, color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)',
-    "    ax.set_xticks(np.arange(len(others)))",
-    '    ax.set_xticklabels([f"{name} minus {BASELINE}" for name in others])',
-    "    ax.set_xlim(-0.6, len(others) - 0.4)",
-    "",
-  );
+  out.push(...String.raw`
+
+def paired_input(frame):
+    if frame.empty:
+        raise ValueError("Paired differences need observations")
+    if GROUP is not None or CLAIMS:
+        raise ValueError("Paired differences do not support raw series groups or claims")
+    labels = [PAIR_FIELD, X_FIELD, *[field for field in (globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]]
+    missing = [field for field in [*labels, Y_FIELD] if field not in frame]
+    if missing:
+        raise ValueError("Paired differences are missing required columns: " + ", ".join(missing))
+    if frame[labels].isna().any(axis=None):
+        raise ValueError("Paired differences require nonmissing unit, condition and panel identifiers")
+    for field in labels:
+        if frame[field].map(lambda value: isinstance(value, str) and not value.strip()
+                            or isinstance(value, (float, np.floating)) and not np.isfinite(value)).any():
+            raise ValueError("Paired identifiers must be nonempty and finite when numeric")
+    source = frame.copy()
+    values = pd.to_numeric(source[Y_FIELD], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    if np.any(source[Y_FIELD].notna().to_numpy() & ~np.isfinite(values)):
+        raise ValueError("Paired nonmissing measurements must be finite numbers")
+    source[Y_FIELD] = values
+    return source
+
+
+def _mean_interval(values):
+    if len(values) < 2:
+        return np.nan, np.nan
+    rng = np.random.default_rng(PAIR_SEED)
+    draws = rng.choice(values, size=(2000, len(values)), replace=True)
+    return tuple(np.percentile(draws.mean(axis=1), [2.5, 97.5]))
+
+
+def paired_estimates(frame):
+    source = paired_input(frame)
+    conditions = list(source[X_FIELD].unique())
+    names = [str(value) for value in conditions]
+    if len(names) != len(set(names)):
+        raise ValueError("Paired condition names have ambiguous string representations")
+    if BASELINE not in names:
+        raise ValueError(f"Paired baseline {BASELINE!r} is not a value of {X_FIELD}")
+    source[X_FIELD] = source[X_FIELD].map(str)
+    others = sorted(name for name in names if name != BASELINE)
+    if not others:
+        raise ValueError("Paired differences need a condition other than the baseline")
+    cells = source.groupby([PAIR_FIELD, X_FIELD], observed=True)[Y_FIELD].agg(["mean", "count"])
+    if ((cells["count"] > 0) & ~np.isfinite(cells["mean"])).any():
+        raise ValueError("Paired unit means must remain finite")
+    wide = cells["mean"].unstack(X_FIELD)
+    estimates = []
+    for other in others:
+        baseline_ok, candidate_ok = wide[BASELINE].notna(), wide[other].notna()
+        complete = wide.loc[baseline_ok & candidate_ok]
+        with np.errstate(over="ignore", invalid="ignore"):
+            values = (complete[other] - complete[BASELINE]).to_numpy(dtype=float)
+            center = float(values.mean()) if len(values) else None
+        if not np.isfinite(values).all() or center is not None and not np.isfinite(center):
+            raise ValueError("Paired differences must remain finite after subtraction and averaging")
+        with np.errstate(over="ignore", invalid="ignore"):
+            low, high = _mean_interval(values)
+        if len(values) >= 2 and not np.isfinite([low, high]).all():
+            raise ValueError("Paired bootstrap interval must remain finite")
+        relevant = source[source[X_FIELD].isin([BASELINE, other])]
+        finite = relevant.dropna(subset=[Y_FIELD])
+        estimates.append({"condition": other, "baseline": BASELINE, "values": values,
+                          "mean": center, "low": low, "high": high, "n": len(values),
+                          "units": len(wide), "baseline_only": int((baseline_ok & ~candidate_ok).sum()),
+                          "candidate_only": int((~baseline_ok & candidate_ok).sum()),
+                          "neither": int((~baseline_ok & ~candidate_ok).sum()),
+                          "missing_measurements": int(relevant[Y_FIELD].isna().sum()),
+                          "technical_repeats": len(finite) - len(finite.drop_duplicates([PAIR_FIELD, X_FIELD]))})
+    if not any(estimate["n"] for estimate in estimates):
+        raise ValueError("Paired differences have no complete unit pairs")
+    return estimates
+
+
+def record_pairing(estimate):
+    record = {key: value for key, value in estimate.items() if key != "values"}
+    record.update(panel=CURRENT_PANEL, metric=Y_FIELD,
+                  interval={"method": "percentile_bootstrap_mean", "level": 0.95,
+                            "resamples": 2000, "seed": PAIR_SEED})
+    for key in ("low", "high"):
+        record[key] = float(record[key]) if np.isfinite(record[key]) else None
+    old = ROW_COUNTS.setdefault("pairing", [])
+    old[:] = [item for item in old if (item["panel"], item["condition"]) != (CURRENT_PANEL, record["condition"])]
+    old.append(record)
+    who = f"panel {CURRENT_PANEL}, {record['condition']} minus {BASELINE}"
+    if record["n"] != record["units"]:
+        finding("warning", "paired_units_excluded", f"{who}: {record['n']} of {record['units']} units have complete pairs")
+    if record["technical_repeats"]:
+        finding("warning", "paired_technical_repeats_averaged", f"{who}: {record['technical_repeats']} technical repeat rows averaged within unit/condition")
+    if record["n"] < 2:
+        reason = f"Paired {who}: interval unavailable with {record['n']} matched pairs"
+        if reason not in RUN_REPORT["untested"]:
+            RUN_REPORT["untested"].append(reason)
+        finding("warning", "paired_interval_unavailable", reason)
+    print(f"paired: {who}, n={record['n']} of {record['units']}, "
+          f"{record['baseline_only']} baseline-only, {record['candidate_only']} candidate-only, {record['neither']} neither")
+
+
+def draw_panel(ax, df):
+    estimates = paired_estimates(df)
+    jitter = np.random.default_rng(PAIR_SEED)
+    labels = []
+    for index, estimate in enumerate(estimates):
+        record_pairing(estimate)
+        values = estimate["values"]
+        counts = f"n={len(values)}" + ("; CI unavailable" if len(values) < 2 else "")
+        labels.append(f"{estimate['condition']} minus {BASELINE}\n({counts})")
+        if not len(values):
+            continue
+        colour = PALETTE[index % len(PALETTE)]
+        spread = jitter.uniform(-0.07, 0.07, size=len(values))
+        ax.scatter(np.full(len(values), index) + spread, values, s=10, color=colour,
+                   alpha=0.55, linewidths=0, zorder=2)
+        low, high = estimate["low"], estimate["high"]
+        if np.isfinite(low) and np.isfinite(high):
+            ax.plot([index, index], [low, high], color=colour, linewidth=1.6, zorder=3)
+        ax.plot([index], [estimate["mean"]], marker="o", markersize=6, color=colour,
+                markeredgecolor="white", zorder=4, linestyle="none")
+    ax.axhline(0.0, color="#606060", linewidth=0.9, linestyle=(0, (4, 3)), zorder=1)
+    ax.set_xticks(np.arange(len(estimates)))
+    ax.set_xticklabels(labels)
+    ax.set_xlim(-0.6, len(estimates) - 0.4)
+`.split("\n"));
 }
 
 function emitSlope(spec: FigureSpec & { kind: "slope" }, out: string[]): void {

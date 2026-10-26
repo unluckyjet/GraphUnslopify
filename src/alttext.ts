@@ -63,6 +63,11 @@ export function encodingSentence(spec: FigureSpec): string {
       `${kind} of ${spec.value_label.toLowerCase()}, with ${axisPhrase(spec.x.label, spec.x.unit)} ` +
         `across the horizontal axis and ${axisPhrase(spec.y.label, spec.y.unit)} down the vertical axis`,
     );
+  } else if (spec.kind === "paired_difference") {
+    parts.push(
+      `${kind} of changes in ${axisPhrase(spec.y.label, spec.y.unit === "%" ? "percentage points" : spec.y.unit)} ` +
+        `against ${spec.x.label}, paired by ${spec.pair} with baseline ${spec.baseline}`,
+    );
   } else if (spec.kind === "bar" && spec.orientation === "horizontal") {
     parts.push(
       `${kind} with ${axisPhrase(spec.y.label, spec.y.unit)} along the horizontal axis and ` +
@@ -170,7 +175,26 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
 
-  if (spec.kind === "kaplan_meier") {
+  if (spec.kind === "paired_difference") {
+    out.push(...String.raw`
+    for estimate in paired_estimates(frame):
+        who = f"{estimate['condition']} minus {estimate['baseline']}"
+        if estimate["n"]:
+            parts.append(f"{who}: mean difference is {estimate['mean']:.3g} over {estimate['n']} matched pairs")
+        else:
+            parts.append(f"{who}: no complete pairs")
+        if estimate["n"] >= 2:
+            parts.append(f"95% percentile bootstrap mean interval is [{estimate['low']:.3g}, {estimate['high']:.3g}]")
+        else:
+            parts.append("interval unavailable with fewer than two matched pairs")
+        parts.append(f"of {estimate['units']} units, {estimate['baseline_only']} baseline-only, "
+                     f"{estimate['candidate_only']} candidate-only and {estimate['neither']} neither-condition units were excluded")
+        if estimate["missing_measurements"]:
+            parts.append(f"{estimate['missing_measurements']} missing measurement rows in this comparison")
+        if estimate["technical_repeats"]:
+            parts.append(f"{estimate['technical_repeats']} technical repeat rows were averaged within unit and condition")
+`.split("\n"));
+  } else if (spec.kind === "kaplan_meier") {
     out.push(...String.raw`
     for name in series_names(frame) if GROUP is not None else [None]:
         block = frame if name is None else frame[frame[GROUP] == name]

@@ -340,7 +340,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Seventy-one rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-two rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -386,6 +386,10 @@ numbers, so they are the distribution the p-value described; two overlapping box
 p-value are the commonest statistical mistake in papers. Its axis reads "Change in accuracy (pp)"
 rather than "Accuracy (%)", because 2.4 here is a gain and the difference between two percentages
 is measured in points.
+
+Paired differences match unit IDs before subtracting conditions, disclose unmatched units and
+show the matched sample size. Descriptions and runtime reports use those differences and their
+bootstrap mean intervals; see [the paired reference contract](docs/paired-validation.md).
 
 The reliability diagram prints the expected calibration error per model. The overconfident one
 scores 0.080 against 0.026 and sits below the diagonal all the way along.

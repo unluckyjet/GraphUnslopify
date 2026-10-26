@@ -605,11 +605,20 @@ const pairedKinds: Rule = (spec, add) => {
 
   if (spec.kind === "paired_difference" && spec.group) {
     add(
-      "warning",
+      "error",
       "paired_difference_group_ignored",
-      "A paired-difference plot already splits by the conditions on x, so group adds nothing " +
-        "and its colours will not mean what a reader expects.",
+      "Paired differences compare conditions on x within unit IDs. A raw group cannot be " +
+        "silently ignored or used to test claims about a different quantity.",
     );
+  }
+  if (spec.kind === "paired_difference" && (
+      new Set([spec.x.field, spec.y.field, spec.pair]).size !== 3
+      || spec.transform && spec.transform.kind !== "none"
+      || spec.claims?.length || spec.layers?.length || spec.y.scale === "log")) {
+    add("error", "unsupported_paired_semantics",
+      "Paired differences need distinct condition, measurement and unit fields. " +
+      "Raw-y transforms, series claims and raw overlays are not implemented for matched differences. " +
+      "Use linear or symlog y so zero and negative differences remain representable.");
   }
 };
 

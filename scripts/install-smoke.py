@@ -223,6 +223,47 @@ def main() -> None:
     assert "expected calibration error is 0.5" in calibration["alt_text"]
     assert "4 observations in 3 of 3 bins" in calibration["alt_text"]
     assert len(calibration["outputs"]) == 2
+    (where / "paired.csv").write_text(
+        "unit,condition,score\nA,base,10\nA,new,14\nB,base,20\nB,new,26\nC,base,100\nD,new,1000\n",
+        encoding="utf8",
+    )
+    paired_spec = where / "paired.json"
+    paired_spec.write_text(
+        json.dumps(
+            {
+                "kind": "paired_difference",
+                "data": {"path": "paired.csv"},
+                "x": {"field": "condition", "label": "Condition"},
+                "y": {"field": "score", "label": "Score"},
+                "pair": "unit",
+                "baseline": "base",
+                "legend": {"show": False},
+                "output": {"stem": "paired", "formats": ["png", "svg"]},
+            }
+        ),
+        encoding="utf8",
+    )
+    paired = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(paired_spec),
+                "--out-dir",
+                str(where / "paired output"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert paired["status"] == "passed"
+    assert "mean difference is 5 over 2 matched pairs" in paired["alt_text"]
+    comparison = paired["data"]["counts"]["pairing"][0]
+    assert comparison["n"] == 2 and comparison["mean"] == 5
+    assert comparison["baseline_only"] == 1 and comparison["candidate_only"] == 1
+    assert len(paired["outputs"]) == 2
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

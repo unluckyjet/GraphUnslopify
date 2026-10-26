@@ -17,8 +17,9 @@ Inspect actual artists/tables/descriptions and exported values, not just generat
 Kaplan–Meier ties/domains/tails/descriptions/claim inputs now have independent hand/SciPy artist
 references and failure controls (spec 26). Calibration probabilities/outcomes, binned ECE,
 descriptions/claims, precision and panel-specific legends now have independent hand/artist/oracle
-references and failure controls (spec 27). Reuse that evidence. Prioritize paired differences,
-QQ/scaling fits and
+references and failure controls (spec 27). Paired differences now share unit matching, explicit
+exclusions, mean/interval/descriptions and scoped runtime evidence with independent hand/SciPy
+artist references and failure controls (spec 28). Reuse that evidence. Prioritize QQ/scaling fits and
 categorical identifiers. Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.

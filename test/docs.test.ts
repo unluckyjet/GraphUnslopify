@@ -36,6 +36,7 @@ const WORDS: Record<number, string> = {
   69: "Sixty-nine",
   70: "Seventy",
   71: "Seventy-one",
+  72: "Seventy-two",
 };
 
 function read(path: string): string {

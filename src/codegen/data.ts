@@ -61,15 +61,17 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     );
   }
 
-  if (spec.kind === "kaplan_meier" || spec.kind === "calibration") {
-    body.push(`    ${spec.kind === "kaplan_meier" ? "survival_input" : "calibration_input"}(df)`);
+  if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
+    const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
+    const label = spec.kind === "kaplan_meier" ? "Kaplan-Meier" : spec.kind === "calibration" ? "Calibration" : "Paired differences";
+    body.push(`    ${name}_input(df)`);
     if (spec.transform && spec.transform.kind !== "none") {
-      body.push(`    raise ValueError(${pyStr(`${spec.kind === "kaplan_meier" ? "Kaplan-Meier" : "Calibration"} does not apply transforms to a raw y column`)})`);
+      body.push(`    raise ValueError(${pyStr(`${label} does not apply transforms to a raw y column`)})`);
     }
   }
 
   const transform = spec.transform;
-  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && transform && transform.kind !== "none") {
+  if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none") {
     body.push(...transformBody(spec, transform));
   }
 

@@ -41,7 +41,9 @@ Gaussian profiles, unavailable automatic bandwidths, retained observations, scop
 descriptions now have25 hand/SciPy/artist/domain/runtime/provenance controls (spec39). Reuse
 that evidence while completing remaining kinds/domains. Median+SEM is now refused with33
 semantic/direct/known-mean-SEM/median-bootstrap/unit/runtime controls (spec40), preserving
-the valid estimators rather than silently changing methods. Invalid domains/missing IDs must not become plausible clean figures;
+the valid estimators rather than silently changing methods. Shared series colours/channels,
+ordinary/direct/scoped legends and sparse-panel identity now have32 full-workflow controls
+across11 grouped kinds, plus installed actual identity evidence (spec41). Invalid domains/missing IDs must not become plausible clean figures;
 state or enforce supported behavior and account for omitted/unmatched observations. Preserve
 leading-zero category identities and numeric group/order/claim consistency where supported.
 Overlays must align with actual categorical positions, or refuse unsupported combinations.

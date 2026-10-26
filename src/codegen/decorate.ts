@@ -1,4 +1,4 @@
-import { plotAxis } from "../capabilities.ts";
+import { plotAxis, sharedSeriesLegend } from "../capabilities.ts";
 import { hasCategoricalX, type AxisSpec, type FigureSpec, type Significance } from "../schema.ts";
 import { pyOptStr, pyStr } from "./py.ts";
 import { LEGEND_LOCATIONS, PRESETS, REFERENCE_STYLES } from "./theme.ts";
@@ -526,7 +526,17 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
   }
 
   out.push(
-    "    handles, labels = ax.get_legend_handles_labels()",
+    ...(sharedSeriesLegend(spec) || spec.kind === "dumbbell" ? [
+      "    by_label = {}",
+      sharedSeriesLegend(spec) ? "    for panel in fig.axes:" : "    for panel in [ax]:",
+      "        panel_handles, panel_labels = panel.get_legend_handles_labels()",
+      "        for handle, label in zip(panel_handles, panel_labels):",
+      "            by_label.setdefault(label, handle)",
+      "    desired = [str(name) for name in series_names(frame)]",
+      "    labels = [name for name in desired if name in by_label]",
+      "    labels += [label for label in by_label if label not in labels]",
+      "    handles = [by_label[label] for label in labels]",
+    ] : ["    handles, labels = ax.get_legend_handles_labels()"]),
     "    if not handles:",
     "        return",
     "    ax.legend(",

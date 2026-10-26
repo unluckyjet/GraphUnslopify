@@ -124,11 +124,11 @@ test("a band across bar categories is flagged", () => {
 
 // --- faceting -------------------------------------------------------------
 
-test("faceting emits panels, letters, and one legend", () => {
+test("faceting emits panels and letters", () => {
   const result = translated({ ...line, facet: { by: "dataset", columns: 3 } });
   assert.match(result.code, /FACET_BY = "dataset"/);
   assert.match(result.code, /def panels\(df\)/);
-  assert.match(result.code, /if not legend_added:/);
+  // Shared legend completeness/order is checked on real artists in test_shared_series.py.
   assert.match(result.code, /show_y = \(index % columns\) == 0/);
 });
 

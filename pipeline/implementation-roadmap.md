@@ -234,3 +234,15 @@ Milestones may be split further as evidence requires. No checklist item is compl
   finding codes. Baseline scripts/assets and all51 published PNG blobs remain unchanged.
   Both workflows require verification after push. Full matrix24, naming/versioned release
   and final audit remain open.
+
+- Estimator40 revision58e018f: General CI40317401432 passes all eight jobs and Figure CI40317400977 passes. Both Python3.10/3.12 report763 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four fresh installed platforms independently verify mean SEM, median bootstrap CI and median-SEM refusal offline with agent.
+
+- Milestone37 resolves sparse-panel series appearance and legend identity (spec41):
+  32 actual-workflow controls across11 grouped kinds,215 Node/796 Python, zero local
+  skips/warnings, seven gates/gallery15/15/Ruff/fresh offline installed wheel/agent.
+  Styles follow global names; ordinary shared legends include later groups/overlay
+  labels, direct labels stay panel/metric-local, and late dumbbell handles/manual
+  colours are corrected. Palette-lock channels/reuse and actual values are verified.
+  Baseline scripts/assets and51 published PNG blobs are unchanged. Both workflows
+  require verification after push. Full matrix24, naming/versioned release and
+  final audit remain open.

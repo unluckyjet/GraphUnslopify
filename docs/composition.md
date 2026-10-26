@@ -99,3 +99,27 @@ groups/colours and repeat-run state. The installed offline wheel independently
 checks real marks and common labels. This is category identity evidence; the full
 per-kind numerical/domain matrix remains separate. Independent numeric ranges
 can still trigger the inspector's existing panel-comparability findings.
+
+## Series identity across panels
+
+Grouped facets and repeated metrics choose appearance from one full-figure series
+order. Missing local groups cannot renumber another group's colour or secondary
+channel. Explicit `series_order` is respected; observed unlisted IDs remain visible
+under the existing disclosure policy. This mapping is recomputed for each `main()`
+run. Use `palette_lock` for appearance consistency between different figures or
+changing datasets; the per-figure mapping alone does not promise that persistence.
+
+An ordinary shared legend collects actual drawn handles from all panels, orders
+series consistently, and keeps extra overlay labels. A group first appearing in a
+later panel is no longer omitted. Calibration's value-specific legends stay local;
+direct labels follow each facet/repeated metric's own data. Dumbbell groups first
+appearing in a later category receive a handle too. Manual dumbbell/sparkline colour
+paths use the shared/locked series colour rather than a local subset index.
+
+The regression fixture uses literal IDs `01` and `1`: one panel has only the later
+series and another has both. Its old renderer changed the same group's colour and
+pattern; the inspector correctly rejected colour drift.32 complete-workflow checks
+cover eleven grouped kinds, ordering, sparse legends, direct labels, palette locks,
+module reuse and an actual strict PNG/SVG export. A fresh offline wheel independently
+checks actual colours/patterns, unchanged values and the complete shared legend.
+This is visual identity coverage, not the full numerical/domain matrix.

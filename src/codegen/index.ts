@@ -24,7 +24,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
-import { sharedCategoryAxes, unusedGrouping } from "../capabilities.ts";
+import { sharedCategoryAxes, sharedSeriesStyles, sharedSeriesLegend, unusedGrouping } from "../capabilities.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -135,7 +135,7 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   else if (DASHED_KINDS.has(spec.kind) || pointOnlyFit) {
     out.push(`LINE_STYLES = ${pyList(LINE_STYLES)}`);
   }
-  else if (spec.kind === "bar") out.push(`HATCHES = ${pyList(HATCHES)}`);
+  else if (spec.kind === "bar" || spec.group && ["dumbbell", "sparkline_grid"].includes(spec.kind)) out.push(`HATCHES = ${pyList(HATCHES)}`);
   out.push("");
 
   out.push(`DATA_PATH = ${pyStr(spec.data.path)}`);
@@ -277,6 +277,8 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
 }
 
 function emitMain(spec: FigureSpec, out: string[]): void {
+  const sharedLegend = sharedSeriesLegend(spec);
+  const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates =
     (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
 
@@ -401,6 +403,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     );
   }
   out.push(
+    ...(sharedSeriesStyles(spec) ? ['    globals()["SERIES_STYLE_ORDER"] = series_names(df)'] : []),
     "    if PALETTE_LOCK is not None and GROUP is not None:",
     "        globals()[\"LOCKED\"] = locked_appearance(",
     "            SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)",
@@ -445,7 +448,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "            squeeze=False,",
     "        )",
     "        flat = list(axes.flat)",
-    "        legend_added = False",
+    sharedLegend ? "        legend_ax = None" : "        legend_added = False",
     "        for index, (name, block) in enumerate(blocks):",
     "            ax = flat[index]",
     '            globals()["CURRENT_PANEL"] = index',
@@ -454,6 +457,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "                ax.set_title(str(name))",
     "                ax.set_axis_off()",
     "                continue",
+    ...(sharedLegend ? ["            if legend_ax is None:", "                legend_ax = ax"] : []),
     ...(needsMissingIntervalReport(spec) ? ['            globals()["PANEL_KEY"] = index'] : []),
     spec.repeat
       ? '            globals()["Y_FIELD"] = name'
@@ -478,14 +482,14 @@ function emitMain(spec: FigureSpec, out: string[]): void {
           "            ax.set_title(None)",
         ]
       : []),
-    ...(spec.facet && (spec.kind === "calibration" || ["qq", "scaling_fit"].includes(spec.kind) && spec.legend.style === "direct")
+    ...(scopedLegend
       ? [
           spec.kind === "calibration" ? "            # Calibration errors belong to each panel's own data."
             : spec.kind === "qq" ? "            # Each panel owns its direct quantile labels."
               : "            # Each panel owns its direct fitted-curve labels.",
           "            add_legend(fig, ax, block)",
         ]
-      : [
+      : sharedLegend ? [] : [
           "            # One legend for the whole figure; repeating it wastes panel space.",
           "            if not legend_added:",
           "                add_legend(fig, ax, block)",
@@ -493,6 +497,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
         ]),
     "        for spare in flat[len(blocks) :]:",
     "            spare.set_visible(False)",
+    ...(sharedLegend ? ["        if legend_ax is not None:", "            add_legend(fig, legend_ax, df)"] : []),
     "",
   );
 

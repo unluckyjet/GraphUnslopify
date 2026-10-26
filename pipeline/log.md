@@ -51,3 +51,5 @@ One line per state change, newest last.
 2026-10-26 —39 lands: honest ridgeline density availability, raw-point fallback and scoped bandwidth evidence;25 controls,215 Node/731 Python, seven gates/gallery15/15/offline wheel; normal pixels identical, new intentional-incomplete public fixture; CI required after push.
 
 2026-10-26 —40 lands: estimator-specific SEM refusal with valid mean/median alternatives retained;33 controls,215 Node/764 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.
+
+2026-10-26 —41 lands: global series styles and complete scoped/shared legends for sparse panels;32 controls,215 Node/796 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.

@@ -20582,6 +20582,12 @@ function emitSmooth(spec, out) {
 function unusedGrouping(spec) {
   return !!spec.group && ["box", "violin", "raincloud", "ridgeline", "forest", "heatmap", "confusion_matrix", "waterfall"].includes(spec.kind);
 }
+function sharedSeriesStyles(spec) {
+  return !!spec.group && !!(spec.facet || spec.repeat);
+}
+function sharedSeriesLegend(spec) {
+  return sharedSeriesStyles(spec) && spec.kind !== "calibration" && spec.legend.style !== "direct";
+}
 function plotAxis(spec, specAxis) {
   const swapped = spec.kind === "bar" && spec.orientation === "horizontal" || ["ridgeline", "forest", "dumbbell"].includes(spec.kind);
   return swapped ? specAxis === "x" ? "y" : "x" : specAxis;
@@ -21078,7 +21084,17 @@ function emitLegend(spec, out) {
     return;
   }
   out.push(
-    "    handles, labels = ax.get_legend_handles_labels()",
+    ...sharedSeriesLegend(spec) || spec.kind === "dumbbell" ? [
+      "    by_label = {}",
+      sharedSeriesLegend(spec) ? "    for panel in fig.axes:" : "    for panel in [ax]:",
+      "        panel_handles, panel_labels = panel.get_legend_handles_labels()",
+      "        for handle, label in zip(panel_handles, panel_labels):",
+      "            by_label.setdefault(label, handle)",
+      "    desired = [str(name) for name in series_names(frame)]",
+      "    labels = [name for name in desired if name in by_label]",
+      "    labels += [label for label in by_label if label not in labels]",
+      "    handles = [by_label[label] for label in labels]"
+    ] : ["    handles, labels = ax.get_legend_handles_labels()"],
     "    if not handles:",
     "        return",
     "    ax.legend(",
@@ -21564,6 +21580,7 @@ function emitSeriesHelpers(spec, out) {
   const channelConst = scatter ? "MARKERS" : dashed ? "LINE_STYLES" : "HATCHES";
   const channelKey = scatter ? "marker" : dashed ? "linestyle" : "hatch";
   const plain = scatter ? pyStr("o") : dashed ? pyStr("-") : pyStr("");
+  if (sharedSeriesStyles(spec)) out.push("", "SERIES_STYLE_ORDER = None", "");
   out.push(
     "",
     "def locked_appearance(names):",
@@ -21588,6 +21605,11 @@ function emitSeriesHelpers(spec, out) {
     "",
     "",
     "def series_style(name, index, total):",
+    ...sharedSeriesStyles(spec) ? [
+      "    if SERIES_STYLE_ORDER is not None:",
+      "        index = SERIES_STYLE_ORDER.index(name)",
+      "        total = len(SERIES_STYLE_ORDER)"
+    ] : [],
     "    locked = LOCKED.get(str(name)) if LOCKED else None",
     '    colour = locked["colour"] if locked else PALETTE[index % len(PALETTE)]',
     "    # Colour alone is not enough in greyscale, so add a second channel.",
@@ -22373,6 +22395,7 @@ function emitDumbbell(spec, out) {
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    names = series_names(df) if GROUP is not None else [None]",
+    "    labelled = set()",
     "    for index, category in enumerate(categories):",
     "        row = len(categories) - 1 - index",
     "        block = df[df[X_FIELD] == category]",
@@ -22388,18 +22411,20 @@ function emitDumbbell(spec, out) {
     "        for position, (name, value) in enumerate(zip(names, values)):",
     "            if not np.isfinite(value):",
     "                continue",
+    "            style = series_style(name, position, len(names))",
     "            ax.plot(",
     "                [value],",
     "                [row],",
     '                marker="o",',
     "                markersize=5.5,",
-    "                color=PALETTE[position % len(PALETTE)],",
+    '                color=style["colour"],',
     '                markeredgecolor="white",',
     "                markeredgewidth=0.6,",
     "                zorder=3,",
     '                linestyle="none",',
-    "                label=(str(name) if index == 0 and name is not None else None),",
+    "                label=(str(name) if name is not None and name not in labelled else None),",
     "            )",
+    "            labelled.add(name)",
     "    ax.set_yticks(np.arange(len(categories)))",
     "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
     "    ax.set_ylim(-0.6, len(categories) - 0.4)",
@@ -22968,10 +22993,11 @@ function emitSparklineGrid(spec, out) {
     "                1.0 / rows - 0.024,",
     "            ]",
     "        )",
+    "        style = series_style(name, index, len(names))",
     "        cell.plot(",
     "            block[X_FIELD],",
     "            block[Y_FIELD],",
-    "            color=PALETTE[index % len(PALETTE)],",
+    '            color=style["colour"],',
     "            linewidth=0.9,",
     "        )",
     "        cell.set_ylim(low - pad, high + pad)",
@@ -24412,7 +24438,7 @@ function emitPreamble(spec, out, sourceSpec = spec) {
   if (MARKER_KINDS.has(spec.kind) && !pointOnlyFit) out.push(`MARKERS = ${pyList(MARKERS)}`);
   else if (DASHED_KINDS.has(spec.kind) || pointOnlyFit) {
     out.push(`LINE_STYLES = ${pyList(LINE_STYLES)}`);
-  } else if (spec.kind === "bar") out.push(`HATCHES = ${pyList(HATCHES)}`);
+  } else if (spec.kind === "bar" || spec.group && ["dumbbell", "sparkline_grid"].includes(spec.kind)) out.push(`HATCHES = ${pyList(HATCHES)}`);
   out.push("");
   out.push(`DATA_PATH = ${pyStr(spec.data.path)}`);
   out.push(`X_FIELD = ${pyStr(spec.x.field)}`);
@@ -24545,6 +24571,8 @@ function emitPreamble(spec, out, sourceSpec = spec) {
   );
 }
 function emitMain(spec, out) {
+  const sharedLegend = sharedSeriesLegend(spec);
+  const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates = (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
   if (warnsDuplicates) {
     out.push(
@@ -24669,6 +24697,7 @@ function emitMain(spec, out) {
     );
   }
   out.push(
+    ...sharedSeriesStyles(spec) ? ['    globals()["SERIES_STYLE_ORDER"] = series_names(df)'] : [],
     "    if PALETTE_LOCK is not None and GROUP is not None:",
     '        globals()["LOCKED"] = locked_appearance(',
     "            SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)",
@@ -24707,7 +24736,7 @@ function emitMain(spec, out) {
     "            squeeze=False,",
     "        )",
     "        flat = list(axes.flat)",
-    "        legend_added = False",
+    sharedLegend ? "        legend_ax = None" : "        legend_added = False",
     "        for index, (name, block) in enumerate(blocks):",
     "            ax = flat[index]",
     '            globals()["CURRENT_PANEL"] = index',
@@ -24716,6 +24745,7 @@ function emitMain(spec, out) {
     "                ax.set_title(str(name))",
     "                ax.set_axis_off()",
     "                continue",
+    ...sharedLegend ? ["            if legend_ax is None:", "                legend_ax = ax"] : [],
     ...needsMissingIntervalReport(spec) ? ['            globals()["PANEL_KEY"] = index'] : [],
     spec.repeat ? '            globals()["Y_FIELD"] = name' : "",
     ...spec.repeat ? ["            letter_override = pretty(name)"] : [],
@@ -24732,10 +24762,10 @@ function emitMain(spec, out) {
       "            ax.set_ylabel(pretty(name))",
       "            ax.set_title(None)"
     ] : [],
-    ...spec.facet && (spec.kind === "calibration" || ["qq", "scaling_fit"].includes(spec.kind) && spec.legend.style === "direct") ? [
+    ...scopedLegend ? [
       spec.kind === "calibration" ? "            # Calibration errors belong to each panel's own data." : spec.kind === "qq" ? "            # Each panel owns its direct quantile labels." : "            # Each panel owns its direct fitted-curve labels.",
       "            add_legend(fig, ax, block)"
-    ] : [
+    ] : sharedLegend ? [] : [
       "            # One legend for the whole figure; repeating it wastes panel space.",
       "            if not legend_added:",
       "                add_legend(fig, ax, block)",
@@ -24743,6 +24773,7 @@ function emitMain(spec, out) {
     ],
     "        for spare in flat[len(blocks) :]:",
     "            spare.set_visible(False)",
+    ...sharedLegend ? ["        if legend_ax is not None:", "            add_legend(fig, legend_ax, df)"] : [],
     ""
   );
   if (spec.title) {

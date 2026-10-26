@@ -917,6 +917,65 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=where, env=env)
+    (where / "cohorts.csv").write_text(
+        "step,value,method,site\n1,3,1,first\n2,4,1,first\n1,1,01,second\n2,2,01,second\n1,3,1,second\n2,4,1,second\n",
+        encoding="utf8",
+    )
+    cohorts_spec = where / "cohorts.json"
+    cohorts_spec.write_text(
+        json.dumps(
+            {
+                "kind": "line",
+                "data": {"path": "cohorts.csv"},
+                "x": {"field": "step", "label": "Step"},
+                "y": {"field": "value", "label": "Value"},
+                "group": "method",
+                "aggregation": "mean",
+                "series_order": ["01", "1"],
+                "facet": {"by": "site", "columns": 2},
+                "legend": {"position": "outside_bottom"},
+                "output": {
+                    "stem": "cohorts",
+                    "formats": ["png"],
+                    "size": "double_column",
+                },
+            }
+        ),
+        encoding="utf8",
+    )
+    cohorts_dir = where / "cohort styles"
+    cohorts = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(cohorts_spec),
+                "--out-dir",
+                str(cohorts_dir),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert cohorts["status"] == "passed" and cohorts["inspection"]["checked"]
+    driver = cohorts_dir / "cohort_artists.py"
+    driver.write_text(
+        "import cohorts, matplotlib.pyplot as plt, contextlib, io\n"
+        "captured=[]; close=plt.close; plt.close=captured.append\n"
+        "with contextlib.redirect_stdout(io.StringIO()): cohorts.main()\n"
+        "fig=captured[-1]; first,second=fig.axes\n"
+        "def lines(ax): return {line.get_label():line for line in ax.lines if line.get_label() in {'01','1'}}\n"
+        "a,b=lines(first),lines(second)\n"
+        "assert a['1'].get_color()==b['1'].get_color() and a['1'].get_linestyle()==b['1'].get_linestyle()\n"
+        "assert list(a['1'].get_ydata())==[3,4] and list(b['01'].get_ydata())==[1,2]\n"
+        "assert [t.get_text() for t in first.get_legend().get_texts()]==['01','1']\n"
+        "assert second.get_legend() is None\n"
+        "plt.close=close; close(fig); print('installed shared series identity passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=cohorts_dir, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

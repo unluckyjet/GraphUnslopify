@@ -1,5 +1,5 @@
 import { hasCategoricalX, type FigureSpec, type PlottedSpec } from "../schema.ts";
-import { sharedCategoryAxes } from "../capabilities.ts";
+import { sharedCategoryAxes, sharedSeriesStyles } from "../capabilities.ts";
 import { pyStr } from "./py.ts";
 import { BAND_ALPHA, DASHED_KINDS, MARKER_KINDS, PRESETS, RAW_ALPHA } from "./theme.ts";
 import { needsMissingIntervalReport } from "./data.ts";
@@ -33,6 +33,7 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
   const channelConst = scatter ? "MARKERS" : dashed ? "LINE_STYLES" : "HATCHES";
   const channelKey = scatter ? "marker" : dashed ? "linestyle" : "hatch";
   const plain = scatter ? pyStr("o") : dashed ? pyStr("-") : pyStr("");
+  if (sharedSeriesStyles(spec)) out.push("", "SERIES_STYLE_ORDER = None", "");
 
   out.push(
     "",
@@ -58,6 +59,11 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
     "",
     "",
     "def series_style(name, index, total):",
+    ...(sharedSeriesStyles(spec) ? [
+      "    if SERIES_STYLE_ORDER is not None:",
+      "        index = SERIES_STYLE_ORDER.index(name)",
+      "        total = len(SERIES_STYLE_ORDER)",
+    ] : []),
     "    locked = LOCKED.get(str(name)) if LOCKED else None",
     "    colour = locked[\"colour\"] if locked else PALETTE[index % len(PALETTE)]",
     "    # Colour alone is not enough in greyscale, so add a second channel.",
@@ -889,6 +895,7 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     "def draw_panel(ax, df):",
     "    categories = category_order(df)",
     "    names = series_names(df) if GROUP is not None else [None]",
+    "    labelled = set()",
     "    for index, category in enumerate(categories):",
     "        row = len(categories) - 1 - index",
     "        block = df[df[X_FIELD] == category]",
@@ -904,18 +911,20 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     "        for position, (name, value) in enumerate(zip(names, values)):",
     "            if not np.isfinite(value):",
     "                continue",
+    "            style = series_style(name, position, len(names))",
     "            ax.plot(",
     "                [value],",
     "                [row],",
     '                marker="o",',
     "                markersize=5.5,",
-    "                color=PALETTE[position % len(PALETTE)],",
+    '                color=style["colour"],',
     '                markeredgecolor="white",',
     "                markeredgewidth=0.6,",
     "                zorder=3,",
     '                linestyle="none",',
-    "                label=(str(name) if index == 0 and name is not None else None),",
+    "                label=(str(name) if name is not None and name not in labelled else None),",
     "            )",
+    "            labelled.add(name)",
     "    ax.set_yticks(np.arange(len(categories)))",
     "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
     "    ax.set_ylim(-0.6, len(categories) - 0.4)",
@@ -1501,10 +1510,11 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "                1.0 / rows - 0.024,",
     "            ]",
     "        )",
+    "        style = series_style(name, index, len(names))",
     "        cell.plot(",
     "            block[X_FIELD],",
     "            block[Y_FIELD],",
-    "            color=PALETTE[index % len(PALETTE)],",
+    '            color=style["colour"],',
     "            linewidth=0.9,",
     "        )",
     "        cell.set_ylim(low - pad, high + pad)",

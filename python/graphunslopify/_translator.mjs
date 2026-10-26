@@ -19493,7 +19493,7 @@ function encodingSentence(spec) {
     parts.push(`${kind} of repeated metrics against ${axisPhrase(spec.x.label, spec.x.unit)}`);
   } else if (spec.kind === "table") {
     parts.push(
-      `${kind} of ${axisPhrase(spec.y.label, spec.y.unit)}, one row per ${spec.x.label.toLowerCase()}`
+      `${kind} of ${axisPhrase(spec.y.label, spec.y.unit)}, ${spec.aggregation === "none" ? "rows identified by" : "one row per"} ${spec.x.label.toLowerCase()}`
     );
     if (spec.y.percent) parts.push("values displayed as percentages");
   } else if (spec.kind === "heatmap") {
@@ -20559,6 +20559,9 @@ function emitSmooth(spec, out) {
 }
 
 // src/capabilities.ts
+function unusedGrouping(spec) {
+  return !!spec.group && ["box", "violin", "raincloud", "ridgeline", "forest", "heatmap", "confusion_matrix", "waterfall"].includes(spec.kind);
+}
 function plotAxis(spec, specAxis) {
   const swapped = spec.kind === "bar" && spec.orientation === "horizontal" || ["ridgeline", "forest", "dumbbell"].includes(spec.kind);
   return swapped ? specAxis === "x" ? "y" : "x" : specAxis;
@@ -21349,6 +21352,8 @@ function emitTable(spec, out) {
     "",
     "def build_table(df):",
     "    summary = summarise(df)",
+    "    if GROUP is not None and summary.duplicated(subset=[X_FIELD, GROUP]).any():",
+    '        raise ValueError("Duplicate table cell after requested aggregation: choose an explicit mean/median/sum/count estimator or a unique row key")',
     "",
     "    def pivot(field):",
     "        if GROUP is None:",
@@ -23869,6 +23874,9 @@ var composition = (spec, add) => {
   }
 };
 var pairedKinds = (spec, add) => {
+  if (unusedGrouping(spec)) {
+    add("error", "unsupported_grouping", `${spec.kind} does not draw separate group series. Use facets for separate comparisons, or explicitly remove group (and wide series reshaping) if pooling is intended.`);
+  }
   if ((spec.kind === "dumbbell" || spec.kind === "slope") && !spec.group) {
     add(
       "error",
@@ -24549,6 +24557,7 @@ function emitMain(spec, out) {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : [],
     ...spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : [],
     "    df = prepare(load())",
     "    report_counts(df)"

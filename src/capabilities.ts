@@ -1,5 +1,10 @@
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
 
+/** These drawing paths do not encode the declared series grouping. */
+export function unusedGrouping(spec: FigureSpec): boolean {
+  return !!spec.group && ["box", "violin", "raincloud", "ridgeline", "forest", "heatmap", "confusion_matrix", "waterfall"].includes(spec.kind);
+}
+
 /** Map semantic input axes to their physical presentation. */
 export function plotAxis(spec: FigureSpec, specAxis: "x" | "y"): "x" | "y" {
   const swapped = (spec.kind === "bar" && spec.orientation === "horizontal")

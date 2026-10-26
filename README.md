@@ -223,9 +223,11 @@ takes its own label rather than the spec's.
 
 See [table context and formatting](docs/table-context.md) for visible units, literal labels,
 percent display, unavailable bounds and the meaning of bold candidates.
+[Comparison-group boundaries](docs/comparison-groups.md) prevent silently dropped series
+and implicit averaging of unaggregated table cells.
 
-There is a `table` kind now, because sometimes six numbers should not be a chart. A printed number
-is exact rather than estimated, so it outranks every graphical channel for reading one value. One
+There is a `table` kind now, because sometimes six numbers should not be a chart. Printed values
+let readers read the reported number directly without estimating it from an axis. One
 spec writes markdown, LaTeX and an image, so the readme, the manuscript and the slides cannot drift
 apart, and `highlight` bolds the winner in each row or column.
 
@@ -352,7 +354,7 @@ rather than a fallback to the bootstrap.
 Data names such as `01` and `1` remain distinct through grouping, claims and exports. Filters
 retain their original typed meaning; see [data identities and ordering](docs/data-identities.md).
 
-Seventy-eight rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-nine rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's

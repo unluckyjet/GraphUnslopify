@@ -24,7 +24,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
-import { sharedCategoryAxes } from "../capabilities.ts";
+import { sharedCategoryAxes, unusedGrouping } from "../capabilities.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -370,6 +370,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...(unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : []),
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
     "    df = prepare(load())",
     "    report_counts(df)",

@@ -194,3 +194,14 @@ Milestones may be split further as evidence requires. No checklist item is compl
   baseline/public PNG pixels/dimensions stay unchanged with three source/provenance
   refreshes. Both workflows require verification after push. Full matrix24,
   naming/versioned release and final audit remain open.
+
+- Signed-bar37 revisiondba728a: General CI40305870292 passes all eight jobs and Figure CI40305870164 passes. Both Python3.10/3.12 report652 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four fresh installed platforms pass actual signed bars/percent labels and the clipped strict negative control offline with agent.
+
+- Milestone34 resolves unused comparison groups and implicit table aggregation (spec38):
+  53 independent controls,215 Node/706 Python, zero local skips/warnings, seven gates,
+  gallery15/15, Ruff and fresh offline installed wheel/agent. Eight unused group paths,
+  including wide-derived groups, refuse explicitly; twelve grouped implementations stay
+  accepted. Raw grouped table cells cannot silently acquire a mean; duplicate runtime
+  failures exit1. Public table provenance refresh leaves all20 baseline/public PNG pixels
+  and dimensions unchanged; all baseline assets remain identical. Both workflows require
+  verification after push. Full matrix24, naming/versioned release and final audit remain.

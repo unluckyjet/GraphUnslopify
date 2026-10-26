@@ -770,6 +770,50 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=context_dir, env=env)
+    # A raw table must not silently average duplicate cells from the installed emitter.
+    duplicate_raw = json.loads(context_spec.read_text(encoding="utf8"))
+    duplicate_raw["aggregation"] = "none"
+    duplicate_raw.pop("uncertainty")
+    context_spec.write_text(json.dumps(duplicate_raw), encoding="utf8")
+    duplicate = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(context_spec),
+            "--out-dir",
+            str(where / "duplicate cells"),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    duplicate_report = json.loads(duplicate.stdout)
+    assert duplicate.returncode == 1 and duplicate_report["status"] == "failed", (
+        duplicate.returncode,
+        duplicate_report,
+    )
+    assert any(
+        "Duplicate table cell" in f["message"] for f in duplicate_report["findings"]
+    )
+    driver = where / "group_refusal.py"
+    driver.write_text(
+        "from graphunslopify.transport import local_request\n"
+        "r=local_request('convert', {'kind':'forest','data':{'path':'absent.csv'},\n"
+        "'x':{'field':'category','label':'Category'},'y':{'field':'value','label':'Value'},\n"
+        "'group':'method','uncertainty':{'kind':'range'}})\n"
+        "assert not r['ok'] and any(f['code']=='unsupported_grouping' for f in r['findings'])\n"
+        "ns={'__name__':'refused','__file__':'refused.py'}; exec(r['code'],ns)\n"
+        "try: ns['main']()\n"
+        "except ValueError as problem: assert 'Unsupported grouping' in str(problem)\n"
+        "else: raise AssertionError('refused projection ran')\n"
+        "print('installed grouping refusal passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=where, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

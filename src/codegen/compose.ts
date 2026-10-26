@@ -288,6 +288,8 @@ export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): 
     "",
     "def build_table(df):",
     "    summary = summarise(df)",
+    "    if GROUP is not None and summary.duplicated(subset=[X_FIELD, GROUP]).any():",
+    '        raise ValueError("Duplicate table cell after requested aggregation: choose an explicit mean/median/sum/count estimator or a unique row key")',
     "",
     "    def pivot(field):",
     "        if GROUP is None:",

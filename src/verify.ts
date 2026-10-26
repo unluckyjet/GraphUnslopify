@@ -1,4 +1,4 @@
-import { interactiveLimitations, layerCoordinateLimitations } from "./capabilities.ts";
+import { interactiveLimitations, layerCoordinateLimitations, unusedGrouping } from "./capabilities.ts";
 import { COMPARATIVE, NEEDS_TOLERANCE } from "./claims.ts";
 import { encodingSuggestions } from "./perception.ts";
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
@@ -594,6 +594,9 @@ const composition: Rule = (spec, add) => {
 };
 
 const pairedKinds: Rule = (spec, add) => {
+  if (unusedGrouping(spec)) {
+    add("error", "unsupported_grouping", `${spec.kind} does not draw separate group series. Use facets for separate comparisons, or explicitly remove group (and wide series reshaping) if pooling is intended.`);
+  }
   if ((spec.kind === "dumbbell" || spec.kind === "slope") && !spec.group) {
     add(
       "error",

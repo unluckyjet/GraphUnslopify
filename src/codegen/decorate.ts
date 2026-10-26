@@ -156,6 +156,7 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
       "            continue",
       ...(spec.kind === "calibration" ? ["        curve = calibration_estimate(block)"] : []),
       ...(spec.kind === "qq" ? ["        curve = qq_estimate(block)"] : []),
+      ...(spec.kind === "scaling_fit" ? ["        curve = scaling_estimate(block)"] : []),
       "        style = series_style(name, index, len(series_names(frame)))",
       "        ax.annotate(",
       spec.kind === "calibration"
@@ -164,7 +165,8 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
       spec.kind === "calibration"
         ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),'
         : spec.kind === "qq" ? '            xy=(curve["theoretical"][-1], curve["observed"][-1]),'
-          : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
+          : spec.kind === "scaling_fit" ? '            xy=(curve["grid_x"][-1], curve["grid_y"][-1]),'
+            : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
       '            va="center",',

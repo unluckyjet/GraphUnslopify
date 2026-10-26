@@ -80,18 +80,21 @@ def _drawn_tick_labels(axes: Any, which: str) -> list[Any]:
     Limits are sorted because an inverted axis reports them high to low.
     """
     labels, limits, index = (
-        (axes.get_xticklabels(), axes.get_xlim(), 0)
+        (axes.get_xticklabels(which="both"), axes.get_xlim(), 0)
         if which == "x"
-        else (axes.get_yticklabels(), axes.get_ylim(), 1)
+        else (axes.get_yticklabels(which="both"), axes.get_ylim(), 1)
     )
     low, high = sorted(limits)
-    return [
-        label
-        for label in labels
-        if label.get_visible()
-        and (label.get_text() or "").strip()
-        and low <= label.get_position()[index] <= high
-    ]
+    return sorted(
+        [
+            label
+            for label in labels
+            if label.get_visible()
+            and (label.get_text() or "").strip()
+            and low <= label.get_position()[index] <= high
+        ],
+        key=lambda label: label.get_position()[index],
+    )
 
 
 def _undrawn_tick_ids(figure: Any) -> set[int]:
@@ -101,8 +104,8 @@ def _undrawn_tick_ids(figure: Any) -> set[int]:
     for axes in figure.get_axes():
         for which in ("x", "y"):
             drawn.update(id(label) for label in _drawn_tick_labels(axes, which))
-        every.update(id(label) for label in axes.get_xticklabels())
-        every.update(id(label) for label in axes.get_yticklabels())
+        every.update(id(label) for label in axes.get_xticklabels(which="both"))
+        every.update(id(label) for label in axes.get_yticklabels(which="both"))
     return every - drawn
 
 
@@ -180,7 +183,11 @@ def _check_text_collisions(figure: Any, renderer: Any, report: Report) -> None:
         if not axes.get_visible():
             continue
         owner = id(axes)
-        ticks = {id(t) for t in list(axes.get_xticklabels()) + list(axes.get_yticklabels())}
+        ticks = {
+            id(t)
+            for t in list(axes.get_xticklabels(which="both"))
+            + list(axes.get_yticklabels(which="both"))
+        }
         for artist in axes.findobj(Text):
             if not artist.get_visible() or not (artist.get_text() or "").strip():
                 continue

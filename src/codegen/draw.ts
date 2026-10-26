@@ -24,10 +24,11 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
   if (!spec.group && !ALWAYS_STYLED.has(spec.kind)) return;
 
   const preset = PRESETS[spec.style.preset];
-  const scatter = MARKER_KINDS.has(spec.kind);
+  const pointOnlyFit = spec.kind === "scaling_fit" && !spec.show_points;
+  const scatter = MARKER_KINDS.has(spec.kind) && !pointOnlyFit;
   const sizes = scatter ? preset.marker : preset.line;
   const key = scatter ? "size" : "width";
-  const dashed = DASHED_KINDS.has(spec.kind);
+  const dashed = DASHED_KINDS.has(spec.kind) || pointOnlyFit;
   const channelConst = scatter ? "MARKERS" : dashed ? "LINE_STYLES" : "HATCHES";
   const channelKey = scatter ? "marker" : dashed ? "linestyle" : "hatch";
   const plain = scatter ? pyStr("o") : dashed ? pyStr("-") : pyStr("");
@@ -1131,63 +1132,136 @@ def draw_panel(ax, df):
 }
 
 function emitScalingFit(spec: FigureSpec & { kind: "scaling_fit" }, out: string[]): void {
-  // A power law fitted in log space, with the exponent and its interval
-  // printed. A scaling plot whose exponent is only eyeballed off a log-log
-  // axis is the thing this replaces.
-  out.push(
-    "",
-    "def draw_panel(ax, df):",
-    "    names = series_names(df) if GROUP is not None else [None]",
-    "    for index, name in enumerate(names):",
-    "        block = df if name is None else df[df[GROUP] == name]",
-    "        block = block.dropna(subset=[X_FIELD, Y_FIELD])",
-    "        x = block[X_FIELD].to_numpy(dtype=float)",
-    "        y = block[Y_FIELD].to_numpy(dtype=float)",
-    "        usable = (x > 0) & (y > 0)",
-    "        x, y = x[usable], y[usable]",
-    "        style = series_style(name, index, len(names))",
-    "        label = None if name is None else str(name)",
-  );
-  if (spec.show_points) {
-    out.push(
-      "        ax.scatter(",
-      "            x,",
-      "            y,",
-      "            s=14,",
-      "            label=label,",
-      '            color=style["colour"],',
-      '            marker=style["marker"],',
-      "            alpha=0.75,",
-      "            linewidths=0,",
-      "            zorder=3,",
-      "        )",
-    );
-  }
-  out.push(
-    "        if len(x) < 3:",
-    "            continue",
-    "        log_x, log_y = np.log10(x), np.log10(y)",
-    "        exponent, intercept = np.polyfit(log_x, log_y, 1)",
-    "        # The standard error of the slope, so the exponent is reported with",
-    "        # the precision the data actually supports.",
-    "        residual = log_y - (exponent * log_x + intercept)",
-    "        spread = np.sum((log_x - log_x.mean()) ** 2)",
-    "        error = float(np.sqrt(np.sum(residual**2) / max(len(x) - 2, 1) / spread)) if spread > 0 else float('nan')",
-    "        grid = np.logspace(np.log10(x.min()), np.log10(x.max()), 100)",
-    "        ax.plot(",
-    "            grid,",
-    "            10.0 ** (intercept + exponent * np.log10(grid)),",
-    '            color=style["colour"],',
-    "            linewidth=1.3,",
-    "            linestyle=(0, (5, 2)),",
-    "            zorder=2,",
-    "        )",
-    "        print(",
-    '            f"scaling: {label or \'the fit\'} follows a power law with exponent "',
-    '            f"{exponent:+.4g} plus or minus {1.96 * error:.2g} over {len(x)} points"',
-    "        )",
-    "",
-  );
+  out.push("", `SCALING_INTERVAL = ${JSON.stringify(spec.interval)}`,
+    `SCALING_SHOW_POINTS = ${spec.show_points ? "True" : "False"}`);
+  out.push(...String.raw`
+
+def scaling_input(frame):
+    spec = RUN_REPORT["spec"]
+    if not SCALING_SHOW_POINTS and (CLAIMS or spec.get("annotate")):
+        raise ValueError("Scaling observation claims/annotations require visible observed points")
+    if spec["x"].get("temporal") or spec["y"].get("temporal"):
+        raise ValueError("Scaling fits require numeric axes")
+    labels = [field for field in (GROUP, globals().get("FACET_BY"), globals().get("FACET_ROWS")) if field is not None]
+    missing = [field for field in [X_FIELD, Y_FIELD, *labels] if field not in frame]
+    if missing:
+        raise ValueError("Scaling fit is missing required columns: " + ", ".join(missing))
+    if labels and frame[labels].isna().any(axis=None):
+        raise ValueError("Scaling fits require nonmissing series and panel identifiers")
+    for field in labels:
+        if frame[field].map(lambda value: isinstance(value, str) and not value.strip()
+                            or isinstance(value, (float, np.floating)) and not np.isfinite(value)).any():
+            raise ValueError("Scaling identifiers must be nonempty and finite when numeric")
+    if len(frame) < 2:
+        raise ValueError("Scaling fit needs at least two observations per series and panel")
+    source = frame.copy()
+    for field in (X_FIELD, Y_FIELD):
+        values = pd.to_numeric(source[field], errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+        if not (np.isfinite(values) & (values > 0)).all():
+            raise ValueError("Scaling retained x/y values must be finite and strictly positive")
+        source[field] = values
+    return source
+
+
+def scaling_t_critical(df):
+    try:
+        from scipy.stats import t
+    except ImportError:
+        return None
+    critical = float(t.ppf(0.975, df))
+    if not np.isfinite(critical) or critical <= 0:
+        raise ValueError("Scaling Student-t critical value is not finite and positive")
+    return critical
+
+
+def scaling_estimate(frame):
+    source = scaling_input(frame).sort_values([X_FIELD, Y_FIELD], kind="mergesort")
+    x, y = source[X_FIELD].to_numpy(dtype=float), source[Y_FIELD].to_numpy(dtype=float)
+    log_x, log_y = np.log10(x), np.log10(y)
+    mean_x = float(log_x.mean())
+    constant = bool(np.all(y == y[0]))
+    mean_y = float(log_y[0] if constant else log_y.mean())
+    dx, dy = log_x - mean_x, np.zeros_like(log_y) if constant else log_y - mean_y
+    spread = float(np.dot(dx, dx))
+    if not np.isfinite(spread) or spread <= 0:
+        raise ValueError("Scaling fit needs representable variation in log x")
+    with np.errstate(over="ignore", invalid="ignore", under="ignore"):
+        slope = float(np.dot(dx, dy) / spread)
+        intercept = float(mean_y - slope * mean_x)
+        residual = dy - slope * dx
+        residual_ss = float(np.dot(residual, residual))
+        total_ss = float(np.dot(dy, dy))
+        df = len(x) - 2
+        residual_se = float(np.sqrt(residual_ss / df)) if df > 0 else None
+        stderr = float(residual_se / np.sqrt(spread)) if df > 0 else None
+        grid_x = np.logspace(log_x.min(), log_x.max(), 100)
+        grid_x[0], grid_x[-1] = x[0], x[-1]
+        grid_y = 10.0 ** (mean_y + slope * (np.log10(grid_x) - mean_x))
+    scalars = [slope, intercept, residual_ss, total_ss, *([] if stderr is None else [stderr, residual_se])]
+    if not np.isfinite(scalars).all() or not (np.isfinite(grid_x) & (grid_x > 0)).all() or not (np.isfinite(grid_y) & (grid_y > 0)).all():
+        raise ValueError("Scaling fitted parameters and curve must remain finite and positive where required")
+    interval = {"method": "none", "level": None, "status": "not_requested", "low": None,
+                "high": None, "critical": None, "margin": None, "reason": "interval not requested"}
+    if SCALING_INTERVAL == "t95":
+        interval.update(method="student_t", level=0.95, status="unavailable")
+        if df <= 0:
+            interval["reason"] = "at least three observations are needed for residual uncertainty"
+        else:
+            critical = scaling_t_critical(df)
+            if critical is None:
+                interval["reason"] = "install graphunslopify[statistics] for the requested Student-t interval"
+            else:
+                margin = float(critical * stderr)
+                low, high = slope - margin, slope + margin
+                if not np.isfinite([low, high, margin]).all():
+                    raise ValueError("Scaling confidence bounds must remain finite")
+                interval.update(status="available", low=float(low), high=float(high), critical=critical, margin=margin, reason=None)
+    return {"x": x, "y": y, "grid_x": grid_x, "grid_y": grid_y,
+            "observations": len(x), "df": df, "slope": slope, "intercept": intercept,
+            "stderr": stderr, "residual_se": residual_se, "log_x_center": mean_x, "log_y_center": mean_y,
+            "r_squared": None if total_ss == 0 else float(max(0.0, 1.0 - residual_ss / total_ss)),
+            "constant_response": constant, "interval": interval}
+
+
+def record_scaling_fit(fit, name):
+    record = {key: value for key, value in fit.items() if key not in ("x", "y", "grid_x", "grid_y")}
+    record.update(panel=CURRENT_PANEL, series=None if name is None else str(name), metric=Y_FIELD,
+                  method="least_squares_log10")
+    entries = ROW_COUNTS.setdefault("scaling_fits", [])
+    entries[:] = [item for item in entries if (item["panel"], item["series"]) != (record["panel"], record["series"])]
+    entries.append(record)
+    who = f"Scaling panel {CURRENT_PANEL}, series {record['series']}"
+    if fit["interval"]["status"] == "unavailable":
+        reason = f"{who}: interval unavailable; {fit['interval']['reason']}"
+        if reason not in RUN_REPORT["untested"]:
+            RUN_REPORT["untested"].append(reason)
+        finding("warning", "scaling_interval_unavailable", reason)
+    if fit["stderr"] is None:
+        finding("warning", "scaling_residual_variance_unavailable", f"{who}: no residual degrees of freedom")
+
+
+def draw_panel(ax, df):
+    scaling_input(df)
+    names = series_names(df) if GROUP is not None else [None]
+    for index, name in enumerate(names):
+        fit = scaling_estimate(df if name is None else df[df[GROUP] == name])
+        record_scaling_fit(fit, name)
+        style = series_style(name, index, len(names))
+        label = None if name is None else str(name)
+        if SCALING_SHOW_POINTS:
+            ax.scatter(fit["x"], fit["y"], s=14, label=label, color=style["colour"],
+                       marker=style["marker"], alpha=0.75, linewidths=0, zorder=3)
+        ax.plot(fit["grid_x"], fit["grid_y"], color=style["colour"], linewidth=1.3,
+                label=None if SCALING_SHOW_POINTS else label,
+                linestyle=(0, (5, 2)) if SCALING_SHOW_POINTS else style["linestyle"], zorder=2)
+        text = f"scaling: {label or 'the fit'} has fitted exponent {fit['slope']:+.4g} over {fit['observations']} observations"
+        interval = fit["interval"]
+        if interval["status"] == "available":
+            text += f"; conditional 95% Student-t interval: plus or minus {interval['margin']:.4g} (df={fit['df']})"
+        else:
+            text += f"; {interval['reason']}"
+        print(text)
+`.split("\n"));
 }
 
 function emitConfusionMatrix(

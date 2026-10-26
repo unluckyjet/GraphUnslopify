@@ -31,6 +31,27 @@ def close_figures():
 pytestmark = pytest.mark.usefixtures("close_figures")
 
 
+def test_offscreen_minor_log_labels_do_not_create_false_collisions():
+    fig, ax = plt.subplots(figsize=(3.3, 2.5))
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.plot([1, 2], [3, 6])
+    fig.tight_layout()
+    assert not {"labels_collide", "tick_labels_collide"} & codes(fig)
+
+
+def test_visible_minor_tick_collisions_are_still_reported():
+    from matplotlib.ticker import FixedFormatter, FixedLocator
+
+    fig, ax = plt.subplots(figsize=(3.3, 2.5))
+    ax.set_xscale("log")
+    ax.set_xlim(1, 2)
+    ax.xaxis.set_major_locator(FixedLocator([1]))
+    ax.xaxis.set_minor_locator(FixedLocator([1.49, 1.5]))
+    ax.xaxis.set_minor_formatter(FixedFormatter(["crowded minor alpha", "crowded minor beta"]))
+    assert "tick_labels_collide" in codes(fig)
+
+
 # --- colour science -------------------------------------------------------
 
 

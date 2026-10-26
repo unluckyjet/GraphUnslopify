@@ -34,3 +34,15 @@ cp examples/references/qq.png docs/seventh-pass-qq.png
 Generated programs/images/reports in this fixture folder are development outputs; the tracked
 inputs are the JSON/CSV and the published PNG. The image fingerprint regression checks input and
 emitter correspondence, while independent numerical tests check quantities and actual artists.
+
+The scaling illustration uses 12 x values spaced uniformly in log10 from 1 to 1000 for each of
+two synthetic series. Their generating `(coefficient, exponent)` values are `(3, -0.14)` and
+`(2.7, -0.22)`, with independent log10 noise from NumPy default_rng seed 20261025, normal
+standard deviation 0.015. The committed CSV fixes the observations. Fitting noisy synthetic
+data does not establish a real-world power law or validate population interval coverage.
+See docs/scaling-validation.md and python/tests/test_scaling_references.py for independent
+hand/SciPy quantities and actual artists.
+
+Install `[statistics]` to reproduce the conditional t95 intervals in the scaling image metadata.
+Use the regeneration recipe above with `scaling` in place of `qq` and copy `scaling.png` to
+`docs/seventh-pass-scaling-fit.png`. Source/data fingerprints are checked for this image too.

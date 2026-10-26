@@ -657,6 +657,18 @@ const qqSemantics: Rule = (spec, add) => {
   }
 };
 
+const scalingSemantics: Rule = (spec, add) => {
+  if (spec.kind !== "scaling_fit") return;
+  const roles = [spec.x.field, spec.y.field, ...(spec.group ? [spec.group] : [])];
+  if (!spec.show_points && (spec.claims?.length || spec.annotate?.length)
+      || spec.transform?.kind === "normalize" || spec.x.temporal || spec.y.temporal
+      || (spec.claims?.length || spec.annotate?.length) && new Set(roles).size !== roles.length) {
+    add("error", "unsupported_scaling_semantics",
+      "Scaling claims/semantic annotations refer to observed points, so show_points must be true and field roles distinct. " +
+      "Numeric axes and strictly positive observations are required; min-max normalization creates an invalid zero.");
+  }
+};
+
 const claims: Rule = (spec, add) => {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const spread = "uncertainty" in spec ? spec.uncertainty : undefined;
@@ -746,6 +758,7 @@ export const RULES: Rule[] = [
   survivalSemantics,
   calibrationSemantics,
   qqSemantics,
+  scalingSemantics,
   claims,
   encodingChoice,
 ];

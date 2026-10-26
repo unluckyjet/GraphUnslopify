@@ -77,11 +77,14 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     }
   }
 
+  if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
+
   const transform = spec.transform;
   if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none"
       && (spec.kind !== "qq" || transform.kind === "normalize")) {
     body.push(...transformBody(spec, transform));
     if (spec.kind === "qq") body.push("    df = qq_input(df)");
+    if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
   }
 
   body.push("    return df");

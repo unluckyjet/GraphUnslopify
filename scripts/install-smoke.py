@@ -300,6 +300,78 @@ def main() -> None:
     assert sample["q1"] == 1.75 and sample["q3"] == 3.25
     assert sample["reference_line"] == "population_quartiles"
     assert len(qq["outputs"]) == 2
+    # The core wheel has no SciPy: explicit point fits work and requested CIs stay unknown.
+    scipy_present = run(
+        [
+            str(python),
+            "-c",
+            "import importlib.util; print(importlib.util.find_spec('scipy') is not None)",
+        ],
+        cwd=where,
+        env=env,
+    ).strip()
+    assert scipy_present == "False", (
+        "base installation unexpectedly includes the optional statistics dependency"
+    )
+    (where / "scaling.csv").write_text("scale,loss\n1,3\n2,6\n", encoding="utf8")
+    scaling_spec = where / "scaling.json"
+    point_spec = {
+        "kind": "scaling_fit",
+        "interval": "none",
+        "show_points": False,
+        "data": {"path": "scaling.csv"},
+        "legend": {"show": False},
+        "x": {"field": "scale", "label": "Scale", "scale": "log"},
+        "y": {"field": "loss", "label": "Loss", "scale": "log"},
+        "output": {"stem": "scaling", "formats": ["png", "svg"]},
+    }
+    scaling_spec.write_text(json.dumps(point_spec), encoding="utf8")
+    point_fit = json.loads(
+        run(
+            [
+                *cli,
+                "render",
+                str(scaling_spec),
+                "--out-dir",
+                str(where / "point fit"),
+                "--strict",
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+        )
+    )
+    assert point_fit["status"] == "passed" and len(point_fit["outputs"]) == 2
+    actual = point_fit["data"]["counts"]["scaling_fits"][0]
+    assert abs(actual["slope"] - 1) < 1e-12 and actual["stderr"] is None
+    assert actual["interval"]["status"] == "not_requested"
+    (where / "scaling.csv").write_text(
+        "scale,loss\n1,1\n10,10\n100,1000\n", encoding="utf8"
+    )
+    point_spec["interval"] = "t95"
+    scaling_spec.write_text(json.dumps(point_spec), encoding="utf8")
+    missing = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(scaling_spec),
+            "--out-dir",
+            str(where / "requested interval"),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf8",
+        check=False,
+    )
+    unknown = json.loads(missing.stdout)
+    assert missing.returncode == 2 and unknown["status"] == "incomplete"
+    interval = unknown["data"]["counts"]["scaling_fits"][0]["interval"]
+    assert interval["low"] is None and interval["status"] == "unavailable"
+    assert "statistics" in interval["reason"] and unknown["outputs"]
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

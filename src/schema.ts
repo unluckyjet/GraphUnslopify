@@ -506,6 +506,8 @@ export const ScalingFitSpec = z.object({
   ...xy,
   kind: z.literal("scaling_fit"),
   show_points: z.boolean().default(true),
+  interval: z.enum(["t95", "none"]).default("t95")
+    .describe("Conditional 95% Student-t slope interval (requires statistics extra), or an explicit point-only fit."),
 });
 
 export const ConfusionMatrixSpec = z.object({

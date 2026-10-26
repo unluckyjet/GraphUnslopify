@@ -179,7 +179,29 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     out.push("    if SAMPLE_SIZE_TEXT:", "        parts.append(SAMPLE_SIZE_TEXT)");
   }
 
-  if (spec.kind === "paired_difference") {
+  if (spec.kind === "scaling_fit") {
+    out.push(...String.raw`
+    for name in (series_names(frame) if GROUP is not None else [None]):
+        fit = scaling_estimate(frame if name is None else frame[frame[GROUP] == name])
+        who = "the fit" if name is None else str(name)
+        parts.append(f"{who}: fitted exponent is {fit['slope']:.4g} over {fit['observations']} observations")
+        parts.append(f"least squares in base-10 log space gives intercept {fit['intercept']:.4g}")
+        if fit["stderr"] is None:
+            parts.append("slope and residual standard errors are unavailable with zero residual degrees of freedom")
+        else:
+            parts.append(f"slope standard error is {fit['stderr']:.4g}, with {fit['df']} residual degrees of freedom")
+        interval = fit["interval"]
+        if interval["status"] == "available":
+            parts.append(f"conditional 95% Student-t slope interval is {fit['slope']:.4g} plus or minus {interval['margin']:.4g}")
+        elif interval["status"] == "not_requested":
+            parts.append("confidence interval not requested")
+        else:
+            parts.append("confidence interval unavailable: " + interval["reason"])
+        if fit["constant_response"]:
+            parts.append("constant response; R-squared is undefined")
+    parts.append("the fitted model and conditional intervals do not establish a power law or its error assumptions")
+`.split("\n"));
+  } else if (spec.kind === "paired_difference") {
     out.push(...String.raw`
     for estimate in paired_estimates(frame):
         who = f"{estimate['condition']} minus {estimate['baseline']}"

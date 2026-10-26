@@ -1,0 +1,33 @@
+{
+  "kind": "scaling_fit",
+  "interval": "t95",
+  "data": {
+    "path": "scaling.csv"
+  },
+  "x": {
+    "field": "scale",
+    "label": "Scale",
+    "scale": "log"
+  },
+  "y": {
+    "field": "loss",
+    "label": "Loss",
+    "scale": "log"
+  },
+  "group": "model",
+  "series_order": [
+    "Dense",
+    "Sparse"
+  ],
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "scaling",
+    "formats": [
+      "png"
+    ],
+    "size": "single_column",
+    "dpi": 150
+  }
+}

@@ -93,3 +93,12 @@ Milestones may be split further as evidence requires. No checklist item is compl
   variants and refreshed published illustration with committed inputs, plus installed offline
   wheel. The complete 21-kind scientific matrix, identifiers/overlays/export width, naming,
   versioned release and final completion audit remain open.
+
+
+- Milestone 25 pushed as 87782be; general CI 40250499570 passed eight jobs and Figure CI
+  40250499522 passed. Milestone 26 completes validated scaling fits and conditional/point-only
+  uncertainty (spec 30): 51 scaling references plus two minor-tick inspector controls, 215 Node/
+  349 Python, all seven local gates, strict gallery 15/15, four visually inspected figures and
+  fresh offline wheel without optional SciPy. Published inputs and source/data fingerprint
+  coverage are committed. The complete 21-kind matrix, CSV identifiers/overlays/final export
+  width, naming/versioned release and final audit remain open.

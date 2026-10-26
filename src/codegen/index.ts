@@ -128,8 +128,9 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   out.push(`ANNOTATION_PT = ${preset.annotation_pt}`);
   out.push(`PANEL_LETTER_PT = ${preset.panel_letter_pt}`);
   out.push(`SECOND_CHANNEL_THRESHOLD = ${SECOND_CHANNEL_THRESHOLD}`);
-  if (MARKER_KINDS.has(spec.kind)) out.push(`MARKERS = ${pyList(MARKERS)}`);
-  else if (DASHED_KINDS.has(spec.kind)) {
+  const pointOnlyFit = spec.kind === "scaling_fit" && !spec.show_points;
+  if (MARKER_KINDS.has(spec.kind) && !pointOnlyFit) out.push(`MARKERS = ${pyList(MARKERS)}`);
+  else if (DASHED_KINDS.has(spec.kind) || pointOnlyFit) {
     out.push(`LINE_STYLES = ${pyList(LINE_STYLES)}`);
   }
   else if (spec.kind === "bar") out.push(`HATCHES = ${pyList(HATCHES)}`);
@@ -453,10 +454,11 @@ function emitMain(spec: FigureSpec, out: string[]): void {
           "            ax.set_title(None)",
         ]
       : []),
-    ...(spec.facet && (spec.kind === "calibration" || spec.kind === "qq" && spec.legend.style === "direct")
+    ...(spec.facet && (spec.kind === "calibration" || ["qq", "scaling_fit"].includes(spec.kind) && spec.legend.style === "direct")
       ? [
           spec.kind === "calibration" ? "            # Calibration errors belong to each panel's own data."
-            : "            # Each panel owns its direct quantile labels.",
+            : spec.kind === "qq" ? "            # Each panel owns its direct quantile labels."
+              : "            # Each panel owns its direct fitted-curve labels.",
           "            add_legend(fig, ax, block)",
         ]
       : [

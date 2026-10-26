@@ -16,14 +16,17 @@ is not required for this source installation.
 
 From a checkout, the equivalent install is `python -m pip install ./python`.
 Install `[interactive]` for supported Plotly HTML, `[parquet]` for a Parquet reader, and
-`[statistics]` for SciPy t/Mann–Whitney tests. For example:
+`[statistics]` for SciPy t/Mann–Whitney tests and Student-t scaling-exponent confidence intervals. For example:
 
 ```sh
 python -m pip install "./python[interactive,parquet,statistics]"
 ```
 
 MP4 export additionally requires FFmpeg. Core static figures and permutation significance do
-not require those optional extras. The supported interactive combinations are documented in
+not require those optional extras. Scaling point fits work without SciPy with explicit
+`interval: "none"`; the default requested `t95` interval needs `[statistics]` and remains
+unavailable/incomplete under strict policy when that dependency or residual degrees of freedom
+are missing. See [scaling validation](scaling-validation.md). The supported interactive combinations are documented in
 [interactive-exports.md](interactive-exports.md).
 
 ## Your own figure

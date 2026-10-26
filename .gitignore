@@ -20,6 +20,11 @@ examples/*.svg
 examples/*.pdf
 examples/*.gif
 examples/*.report.json
+examples/references/*.py
+examples/references/*.png
+examples/references/*.svg
+examples/references/*.pdf
+examples/references/*.report.json
 
 # macOS
 .DS_Store

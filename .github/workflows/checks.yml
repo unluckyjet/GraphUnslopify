@@ -55,7 +55,7 @@ jobs:
           python-version: "3.12"
       - run: npm ci
       - run: pip install -r requirements.txt
-      - run: pip install -e "./python[dev,interactive]"
+      - run: pip install -e "./python[dev,interactive,statistics]"
       # The behavioural tests skip themselves without matplotlib, so the
       # typescript job above cannot run them. This is where they actually run.
       - run: npm test

@@ -340,7 +340,7 @@ rather than a fallback to the bootstrap.
 
 ## What checks the work
 
-Seventy-three rules run on the server against the spec alone. The Python package checks the rendered
+Seventy-four rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 
 It measures every text element at the width the figure will be printed and fails below the venue's
@@ -405,9 +405,9 @@ Q–Q plots use accurate normal inverse probabilities and a reference through po
 quartiles. They disclose missing observations and refuse undersized samples instead of verifying
 an empty plot. See [the Q–Q reference contract](docs/qq-validation.md).
 
-The Q-Q plot checks the distributional assumption before a claim rests on it. The heavy-tailed
-series bends away at both ends, and there is nothing else to read. Winitzki's approximation supplies the
-normal quantile, so this needs no scipy.
+The Q-Q illustration helps assess a distributional assumption before a claim rests on it. Its
+heavy-tailed series bends away at both ends. Normal quantiles use the standard-library inverse
+normal distribution, so this needs no SciPy; the image alone does not establish normality.
 
 Calibration validates probability/outcome domains and uses the same occupied-bin calculation for
 points, ECE, descriptions and comparisons. See [the calibration reference contract](docs/calibration-validation.md).
@@ -416,8 +416,10 @@ The survival curve marks every censored record. A curve that hides them looks fa
 than the data supports. Tied events share the correct risk set, and numeric claims use the plotted
 survival estimates; see [the survival contract and independent references](docs/survival-validation.md).
 
-The scaling fit prints the exponent and its interval instead of leaving it to be read off a log-log
-axis by eye. On data generated with an exponent of 0.14 it recovered -0.1399 plus or minus 0.0023.
+The scaling fit reports the exponent and a conditional Student-t interval, with an explicit
+point-only option when uncertainty is not requested. The illustration's synthetic inputs are
+committed in [examples/references](examples/references); invalid log domains and unidentifiable
+fits fail explicitly. See [the scaling reference contract](docs/scaling-validation.md).
 
 A confusion matrix is no longer a heatmap, because it makes a claim a heatmap does not.
 `normalize` has no default. Row-normalised reads as recall, column-normalised as precision, and

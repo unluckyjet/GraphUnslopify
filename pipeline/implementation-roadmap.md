@@ -6,7 +6,7 @@ User-authorized scope (2026-10-25): implement the accepted review recommendation
 
 - [x] Statistical integrity: singleton intervals, independent repeat handling, table intervals/winner wording, corrected multiple comparisons, numeric reference fixtures, row/sample accounting, explicit failed/untested claim policy.
 - [x] Trustworthy figures: complete accessible descriptions/metadata, composition validation and panel checks, embedded PDF fonts, clean example gallery, supported export parity or explicit refusals.
-- [ ] Distribution: declared license, short quickstart, versioned documentation, clean-install end-to-end test, packaged local translator and clear offline workflow, tagged GitHub releases and installable release artifacts.
+- [x] Distribution: declared license, short quickstart, versioned documentation, clean-install end-to-end test, packaged local translator and clear offline workflow, tagged GitHub releases and installable release artifacts.
 - [x] Researcher CI: reusable GitHub workflow/action; regenerate from results; publish machine-readable audit/figure-change reports and reviewable artifacts; meaningful exit status on failures.
 - [x] Integrations: working notebook example and agent setup, easy local configuration, broad Python-kind support; supported editor workflow documented and exercised.
 - [x] Paper/batch auditing: manifest connecting specs/scripts/data/claims, directory execution, report aggregation, stable figure comparison including claim changes and data hashes. Clearly distinguish supported artifact types from arbitrary image interpretation.
@@ -302,3 +302,5 @@ Milestones may be split further as evidence requires. No checklist item is compl
   pixels/dimensions match. Both candidate workflows, verified Git-snapshot artifact
   builds, actual tag/release publication and genuine downloaded wheel/sdist installs
   remain required before distribution is complete. Full final audit remains active.
+
+- Release45 verified: v0.7.0 targets7ffa1076494a93b600086054ffc5dcd3c137796c. Main General40430862411/Figure40430862382 and tag General40431685471/Figure40431685560 all pass; each General run passes all eight jobs, both Python versions955 passed/one TeX skip, render four required real TeX cases and four installed platforms. Anonymous published assets match SHA256SUMS/GitHub digests; downloaded wheel and published-sdist-built wheel each pass independent clean outside-checkout/offline-runtime/agent tests. The published sdist rebuilds the exact wheel bytes. Hosted0.7 compiler matches local source.

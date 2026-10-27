@@ -63,3 +63,5 @@ One line per state change, newest last.
 2026-10-26 —44 lands: parsed numeric views reach sorting/aggregation/artists while raw filters/lexical IDs remain intact;11 controls on both pandas versions,215 Node/956 Python, seven gates/gallery/offline wheel,52 existing PNG pixels unchanged; CI required after push.
 
 2026-10-26 —45 candidate:0.7.0 synchronized versions, versioned docs/install/action pins,215 Node/956 Python, seven gates/gallery/offline wheel. Spec remains ready until candidate CI, published assets/hashes and genuine fresh downloaded wheel/sdist proof complete.
+
+2026-10-26 Pacific —45 lands: publicv0.7.0 tag/wheel/sdist/SHA256SUMS, main+tag CI green, anonymous downloads/hash checks and separate fresh wheel/sdist installs offline with agent. Source rebuild is byte-identical. Distribution complete; final full-goal audit remains.

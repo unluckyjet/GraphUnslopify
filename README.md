@@ -7,7 +7,7 @@ Live at [json-translator-three.vercel.app](https://json-translator-three.vercel.
 ## Start locally
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/JSONTranslator/archive/refs/heads/main.zip#subdirectory=python"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/archive/refs/heads/main.zip#subdirectory=python"
 graphunslopify demo
 ```
 

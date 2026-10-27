@@ -100,3 +100,9 @@ matrix/gap claims; historical evidence is preserved in the investigation log. Va
 zero unresolved wiki links. Both GitHub workflows require verification after push.
 
 The original goal remains active through naming, versioned/tagged release and final audit.
+
+Post-push verification at2cc1b42: General CI40425926758 all eight jobs and Figure
+CI40425926764 pass. Python3.10/3.12 each944 passed/one TeX skip; render separately four
+required real TeX cases. All four installed platforms verify core quantities/unknowns/axes
+with external connections blocked and agent. Py3.10 reports28 upstream Matplotlib/NumPy
+single-bar-array deprecations; the previous pandas observed-category warning is gone.

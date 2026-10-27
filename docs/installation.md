@@ -3,7 +3,7 @@
 Python 3.10+ is required. Install from the repository without cloning it or installing npm:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/JSONTranslator/archive/refs/heads/main.zip#subdirectory=python"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/archive/refs/heads/main.zip#subdirectory=python"
 graphunslopify doctor
 graphunslopify demo
 ```

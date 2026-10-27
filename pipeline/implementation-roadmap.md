@@ -4,15 +4,15 @@ User-authorized scope (2026-10-25): implement the accepted review recommendation
 
 ## Delivery requirements and evidence
 
-- [ ] Statistical integrity: singleton intervals, independent repeat handling, table intervals/winner wording, corrected multiple comparisons, numeric reference fixtures, row/sample accounting, explicit failed/untested claim policy.
-- [ ] Trustworthy figures: complete accessible descriptions/metadata, composition validation and panel checks, embedded PDF fonts, clean example gallery, supported export parity or explicit refusals.
+- [x] Statistical integrity: singleton intervals, independent repeat handling, table intervals/winner wording, corrected multiple comparisons, numeric reference fixtures, row/sample accounting, explicit failed/untested claim policy.
+- [x] Trustworthy figures: complete accessible descriptions/metadata, composition validation and panel checks, embedded PDF fonts, clean example gallery, supported export parity or explicit refusals.
 - [ ] Distribution: declared license, short quickstart, versioned documentation, clean-install end-to-end test, packaged local translator and clear offline workflow, tagged GitHub releases and installable release artifacts.
 - [x] Researcher CI: reusable GitHub workflow/action; regenerate from results; publish machine-readable audit/figure-change reports and reviewable artifacts; meaningful exit status on failures.
 - [x] Integrations: working notebook example and agent setup, easy local configuration, broad Python-kind support; supported editor workflow documented and exercised.
 - [x] Paper/batch auditing: manifest connecting specs/scripts/data/claims, directory execution, report aggregation, stable figure comparison including claim changes and data hashes. Clearly distinguish supported artifact types from arbitrary image interpretation.
 - [x] Visual workflow: working live preview, editable spec, visible diagnostics, selected justified fixes, usable export. Exercise the UI and local preview end to end.
-- [ ] Independent benchmark/reference validation: known-answer datasets and documented limits, beyond source substring assertions or file-existence checks.
-- [ ] Naming: rename GitHub repository to GraphUnslopify if available and update repository/dependency/documentation links while preserving existing local checkout and vault identity.
+- [x] Independent benchmark/reference validation: known-answer datasets and documented limits, beyond source substring assertions or file-existence checks.
+- [x] Naming: rename GitHub repository to GraphUnslopify if available and update repository/dependency/documentation links while preserving existing local checkout and vault identity.
 - [ ] Final audit: verify each feature against actual code/runtime/artifacts/GitHub state, update Obsidian, and deliver the requested child-friendly paragraph.
 
 ## Milestones
@@ -271,3 +271,13 @@ Milestones may be split further as evidence requires. No checklist item is compl
   adds a current reproducible illustration. Canonical vault is refreshed and old
   milestones archived in the log. Both workflows require verification after push.
   Naming/versioned release and requirement-by-requirement final audit remain active.
+
+- Matrix24 revision2cc1b42: General CI40425926758 passes all eight jobs and Figure CI40425926764 passes. Both Python3.10/3.12 report944 passed/one TeX skip; render separately requires/passes all four real TeX cases. Four fresh installed platforms independently verify actual core quantities, observed categories, unknown sums, shared/log child axes/context and raw-domain refusal offline with agent.
+
+- Milestone40 aligns repository identity (spec43): GitHub rename to public
+  unluckyjet/GraphUnslopify succeeds, default main/history/origin are retained and
+  current package/docs/action/public links use the new URL. Local JSONTranslator
+  and shared-vault JsonTransalter names are preserved. Seven gates215 Node/945 Python,
+  zero local skips/warnings; Ruff53, fresh wheel Source metadata and vault97/0 links
+  pass. Both workflows require verification after push. Versioned/tagged release
+  and the original requirement-by-requirement final audit remain active.

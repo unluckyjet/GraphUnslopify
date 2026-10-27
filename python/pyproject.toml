@@ -24,7 +24,7 @@ agent = ["mcp>=2.3,<3"]
 graphunslopify = "graphunslopify.cli:main"
 
 [project.urls]
-Source = "https://github.com/unluckyjet/JSONTranslator"
+Source = "https://github.com/unluckyjet/GraphUnslopify"
 
 [tool.setuptools.package-data]
 graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json", "examples/*.ipynb", "web/*"]

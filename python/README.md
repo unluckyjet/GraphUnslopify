@@ -58,10 +58,10 @@ stays quiet when a second channel such as line style or marker already separates
 warns when a line axis is zoomed so far that a rounding error fills the frame.
 
 Every check is geometric or colorimetric. Nothing asks a model for an opinion, so the same figure
-always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/JSONTranslator/blob/main/docs/research.md).
+always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/research.md).
 
 
-Source and versioned documentation: <https://github.com/unluckyjet/JSONTranslator>.
+Source and versioned documentation: <https://github.com/unluckyjet/GraphUnslopify>.
 MIT license. The bundled translator includes Zod's MIT license; runtime/dependency licenses ship
 with their respective Python distributions.
 

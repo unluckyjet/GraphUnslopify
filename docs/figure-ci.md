@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: unluckyjet/JSONTranslator/.github/actions/figure-ci@main
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@main
         with:
           manifest: paper/graphunslopify.json
           artifact-name: paper-figures
@@ -41,7 +41,7 @@ missing outputs or invalid provenance make the action fail. Warnings remain visi
 `fail-on-warning: 'true'` to reject them. To compare with a saved audit report:
 
 ```yaml
-      - uses: unluckyjet/JSONTranslator/.github/actions/figure-ci@main
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@main
         id: figures
         with:
           manifest: paper

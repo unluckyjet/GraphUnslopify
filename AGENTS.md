@@ -2,7 +2,7 @@
 
 The shared coding vault is `/Users/shooter/Documents/Obsidian/Projects/Coding`.
 This project's notes are in `JsonTransalter/` (the user's chosen spelling;
-the repository is JSONTranslator and the product is GraphUnslopify).
+the remote repository/product is GraphUnslopify and the local checkout remains JSONTranslator).
 
 Before substantial project work, read:
 

@@ -281,3 +281,14 @@ Milestones may be split further as evidence requires. No checklist item is compl
   zero local skips/warnings; Ruff53, fresh wheel Source metadata and vault97/0 links
   pass. Both workflows require verification after push. Versioned/tagged release
   and the original requirement-by-requirement final audit remain active.
+
+- Naming43 revision3c8f35a: General CI40427095494 passes all eight jobs and Figure CI40427095521 passes. Both Python3.10/3.12 report944 passed/one TeX skip; render separately four required real TeX cases. Four installed platform jobs pass against the renamed repository; metadata/current links are verified. Local checkout/vault identities remain unchanged.
+
+- Milestone41 resolves pre-release numeric-role defect44: Parquet string x1/2/10
+  previously became categorical0/1/2 ordered1/10/2 and passed strict; parsed numeric
+  views now reach real coordinates and aggregation. Raw filters, lexical IDs,
+  unknown extension values and integer precision are preserved.11 controls pass
+  on pandas2.3/3.1;215 Node/956 Python, zero local skips/warnings; seven gates,
+  Ruff54/gallery15/15/fresh offline wheel/agent. All52 published PNG pixels/dimensions
+  match after provenance refresh. Both workflows require verification after push.
+  Versioned/tagged release and final full-goal audit remain active.

@@ -350,6 +350,9 @@ def validate_numeric_domains(frame):
         values = measured.to_numpy(dtype=float, na_value=np.nan)
         if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():
             raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")
+        if isinstance(measured.dtype, pd.api.extensions.ExtensionDtype) and measured.isna().any():
+            measured = measured.astype(object).where(measured.notna(), np.nan)
+        frame[field] = measured
 
 
 def prepare(df):

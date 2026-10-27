@@ -31,3 +31,8 @@ updates retain their reviewed revision; the current index records the new identi
 All seven gates215 Node/945 Python, zero local skips/warnings, Ruff check/format53 and vault
 links97 notes/0 unresolved pass. No emitted plot/source or image changes were needed. Both
 workflows require verification after push; versioned/tagged release and final audit remain.
+
+Post-push3c8f35a: General CI40427095494 all eight jobs and Figure CI40427095521 pass.
+Python3.10/3.12 each944 passed/one TeX skip; render four required real TeX cases. All four
+installed platforms pass under the renamed repository. Upstream3.10 warnings remain28;
+no pandas observed-default warning. Repository naming contract is complete.

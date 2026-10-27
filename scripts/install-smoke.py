@@ -1028,6 +1028,13 @@ def main() -> None:
         "try: m['prepare'](pd.DataFrame({'category':[1,float('inf')]}))\n"
         "except ValueError as problem: assert 'finite numeric' in str(problem)\n"
         "else: raise AssertionError('unplottable ECDF value accepted')\n"
+        "m=module(kind='line')\n"
+        "frame=m['prepare'](pd.DataFrame({'category':['1','2','10'],'value':['3','11','7']}))\n"
+        "fig,ax=plt.subplots(); m['draw_panel'](ax,frame)\n"
+        "assert list(ax.lines[0].get_xdata(orig=False))==[1,2,10] and list(ax.lines[0].get_ydata(orig=False))==[3,11,7]\n"
+        "m=module(kind='bar',aggregation='sum')\n"
+        "frame=m['prepare'](pd.DataFrame({'category':['01','01'],'value':['2','3']}))\n"
+        "assert m['summarise'](frame)['value'].iloc[0]==5 and frame['category'].tolist()==['01','01']\n"
         "plt.close('all'); print('installed independent core quantities/domains/scales passed')\n",
         encoding="utf8",
     )

@@ -48,6 +48,14 @@ their own stricter domain/availability contracts linked above; confusion counts 
 integer-count contract. Numerical references use explicit finite domains rather than claiming
 to validate every possible optional scale/transform combination.
 
+Numeric roles use the parsed numeric series for sorting, aggregation and plotting, including
+numbers stored as text in Parquet. Validation alone cannot prevent a plotting library from
+interpreting the original strings as category labels. Raw typed filters still run first;
+lexical identifiers are separate. Missing numeric extension values use a NumPy-missing view,
+without needlessly converting exact integer sums to floating point. Eleven additional controls
+in `test_numeric_measurement_views.py` check actual coordinates, string sums, nullable inputs,
+identifier/filter behavior and a real Parquet strict workflow. They pass on both pandas versions.
+
 A sum over observed-but-entirely-missing measurements is unknown, not0. Count retains its
 meaning as the number of nonmissing measurements. Stacked mean/raw bars need known contributions
 for each observed category and series; an absent mean cannot become a zero segment. Entirely

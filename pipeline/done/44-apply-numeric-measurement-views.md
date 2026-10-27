@@ -41,3 +41,9 @@ independently. Bundle matches source. All52 published PNG pixels/dimensions are 
 baseline and affected reference provenance refresh. Corrected probe visually reviewed, canonical
 Obsidian notes updated,98 notes/0 unresolved links. Both workflows require verification after
 push. Versioned/tagged release and final requirement audit remain active.
+
+Post-push7873237: General CI40429435553 all eight jobs and Figure CI40429435457 pass.
+Python3.10/3.12 each955 passed/one TeX skip; render four required real TeX cases. All four
+installed platforms verify numeric coordinates/sums/lexical IDs offline with agent. Combined
+119 core+numeric controls also pass under local pandas2.3.3. Hosted conversion exactly matches
+the local compiler for the synthetic healthy spec; runtime0.6.0 was observed before release.

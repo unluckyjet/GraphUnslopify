@@ -1,6 +1,6 @@
 {
   "name": "graph-unslopify",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "MCP server that turns a semantic figure spec into runnable matplotlib code.",
   "scripts": {
     "test": "node --experimental-strip-types --test \"test/**/*.test.ts\"",

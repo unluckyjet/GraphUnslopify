@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@main
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.7.0
         with:
           manifest: paper/graphunslopify.json
           artifact-name: paper-figures
@@ -41,7 +41,7 @@ missing outputs or invalid provenance make the action fail. Warnings remain visi
 `fail-on-warning: 'true'` to reject them. To compare with a saved audit report:
 
 ```yaml
-      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@main
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.7.0
         id: figures
         with:
           manifest: paper
@@ -88,3 +88,5 @@ not upload the caller's entire output directory, unrelated pre-existing files or
 Previous local runs survive. Artifact contents include generated/selected source and report metadata.
 
 Composite-action behavior follows [GitHub's action packaging documentation](https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action).
+
+The version tag fixes the action/compiler/docs release. For development you can select `@main`; pin a full reviewed commit when you need an immutable action reference. See [versioning](versioning.md).

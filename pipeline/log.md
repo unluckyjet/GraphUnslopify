@@ -61,3 +61,5 @@ One line per state change, newest last.
 2026-10-26 —43 lands: remote renamed to public GraphUnslopify with main/history retained, origin/current package/docs/action/source links updated, local/vault names preserved;215 Node/945 Python, seven gates/Ruff/metadata/link checks; CI required after push.
 
 2026-10-26 —44 lands: parsed numeric views reach sorting/aggregation/artists while raw filters/lexical IDs remain intact;11 controls on both pandas versions,215 Node/956 Python, seven gates/gallery/offline wheel,52 existing PNG pixels unchanged; CI required after push.
+
+2026-10-26 —45 candidate:0.7.0 synchronized versions, versioned docs/install/action pins,215 Node/956 Python, seven gates/gallery/offline wheel. Spec remains ready until candidate CI, published assets/hashes and genuine fresh downloaded wheel/sdist proof complete.

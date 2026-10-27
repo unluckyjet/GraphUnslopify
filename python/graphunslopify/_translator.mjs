@@ -20076,7 +20076,7 @@ var READERS = {
   parquet: "read_parquet",
   json: "read_json"
 };
-var TOOL_VERSION = "0.6.0";
+var TOOL_VERSION = "0.7.0";
 var DASHED_KINDS = /* @__PURE__ */ new Set([
   "line",
   "ecdf",

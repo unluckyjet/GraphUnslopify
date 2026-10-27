@@ -1,12 +1,14 @@
 # Notebooks and the Python builder
 
-Install the package in the Python environment used by your notebook kernel. From a checkout:
+Install the package in the Python environment used by your notebook kernel:
 
 ```sh
-python -m pip install "./python[notebook]"
+python -m pip install "graphunslopify[notebook] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
 graphunslopify notebook --output quickstart.ipynb
 jupyter lab quickstart.ipynb
 ```
+
+From a checkout, `python -m pip install "./python[notebook]"` remains supported.
 
 The notebook extra supplies JupyterLab, an IPython kernel and execution tooling. In an existing
 Jupyter or VS Code notebook environment, installing the base package in the selected kernel is

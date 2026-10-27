@@ -4,7 +4,13 @@ Translate semantic JSON into reviewable Python figures, render local data, and c
 readability and accessibility. The package includes the TypeScript translator and a Node runtime;
 translation and rendering need no hosted service after installation.
 
-From a source checkout: `python -m pip install ./python`.
+In a Python 3.10+ virtual environment:
+
+```sh
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+```
+
+From a source checkout, `python -m pip install ./python` remains supported.
 
 ```sh
 graphunslopify doctor
@@ -58,10 +64,10 @@ stays quiet when a second channel such as line style or marker already separates
 warns when a line axis is zoomed so far that a rounding error fills the frame.
 
 Every check is geometric or colorimetric. Nothing asks a model for an opinion, so the same figure
-always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/research.md).
+always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/GraphUnslopify/blob/v0.7.0/docs/research.md).
 
 
-Source and versioned documentation: <https://github.com/unluckyjet/GraphUnslopify>.
+[Source](https://github.com/unluckyjet/GraphUnslopify) · [Versioned 0.7.0 documentation](https://github.com/unluckyjet/GraphUnslopify/tree/v0.7.0/docs) · [Release assets](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0).
 MIT license. The bundled translator includes Zod's MIT license; runtime/dependency licenses ship
 with their respective Python distributions.
 

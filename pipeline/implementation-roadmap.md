@@ -292,3 +292,13 @@ Milestones may be split further as evidence requires. No checklist item is compl
   Ruff54/gallery15/15/fresh offline wheel/agent. All52 published PNG pixels/dimensions
   match after provenance refresh. Both workflows require verification after push.
   Versioned/tagged release and final full-goal audit remain active.
+
+- Numeric44 revision7873237: General CI40429435553 passes all eight jobs and Figure CI40429435457 passes. Both Python3.10/3.12 report955 passed/one TeX skip; render separately four required real TeX cases. All four fresh installed platforms verify numeric coordinates/string sums/lexical IDs offline with agent. The119 core+numeric controls also pass locally on pandas2.3.3; hosted conversion exactly matches local code for the synthetic healthy spec.
+
+- Release candidate45 synchronizes0.7.0 Python/emitter/Node versions, ships versioned
+  docs/quickstart/action pins and refreshes canonical source/provenance. Seven gates
+  215 Node/956 Python, zero local skips/warnings; Ruff54/gallery15/15/fresh0.7 offline
+  wheel/agent and bundle/license/metadata/doc-link checks pass. All52 published PNG
+  pixels/dimensions match. Both candidate workflows, verified Git-snapshot artifact
+  builds, actual tag/release publication and genuine downloaded wheel/sdist installs
+  remain required before distribution is complete. Full final audit remains active.

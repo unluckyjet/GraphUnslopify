@@ -127,7 +127,7 @@ export const READERS = {
   json: "read_json",
 } as const;
 
-export const TOOL_VERSION = "0.6.0";
+export const TOOL_VERSION = "0.7.0";
 
 /**
  * Kinds whose second channel is a dash pattern rather than a hatch or a marker.

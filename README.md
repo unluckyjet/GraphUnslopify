@@ -6,8 +6,10 @@ Live at [json-translator-three.vercel.app](https://json-translator-three.vercel.
 
 ## Start locally
 
+In a Python 3.10+ virtual environment:
+
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/archive/refs/heads/main.zip#subdirectory=python"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
 graphunslopify demo
 ```
 
@@ -18,6 +20,7 @@ Use `graphunslopify render figure.json --strict --json` with your own spec and d
 For an offline browser editor, run `graphunslopify preview --open`: select a data file, edit the
 spec, review diagnostics and offered fixes, then download figures, Python and verification evidence.
 See the [local editor workflow](docs/local-editor.md).
+[Versioned documentation and release policy](docs/versioning.md) · [0.7.0 release notes](docs/releases/0.7.0.md).
 Try batch auditing with `graphunslopify audit-init graphunslopify-demo`, then
 `graphunslopify audit graphunslopify-demo --out-dir audit-output`.
 See [paper manifests and change reports](docs/paper-audits.md) and

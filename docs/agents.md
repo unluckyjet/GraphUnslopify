@@ -1,11 +1,13 @@
 # Local agent integration
 
-Install the optional MCP SDK alongside the local compiler. From a source checkout:
+Install the optional MCP SDK alongside the local compiler in your Python environment:
 
 ```sh
-python -m pip install "./python[agent]"
+python -m pip install "graphunslopify[agent] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
 graphunslopify mcp-config
 ```
+
+From a source checkout, `python -m pip install "./python[agent]"` is equivalent.
 
 The second command prints a client JSON entry using the active Python executable. Put it in a
 client that accepts the `mcpServers` format. The executable points at the environment containing

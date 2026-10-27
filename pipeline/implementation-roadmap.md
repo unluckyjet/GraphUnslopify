@@ -13,7 +13,7 @@ User-authorized scope (2026-10-25): implement the accepted review recommendation
 - [x] Visual workflow: working live preview, editable spec, visible diagnostics, selected justified fixes, usable export. Exercise the UI and local preview end to end.
 - [x] Independent benchmark/reference validation: known-answer datasets and documented limits, beyond source substring assertions or file-existence checks.
 - [x] Naming: rename GitHub repository to GraphUnslopify if available and update repository/dependency/documentation links while preserving existing local checkout and vault identity.
-- [ ] Final audit: verify each feature against actual code/runtime/artifacts/GitHub state, update Obsidian, and deliver the requested child-friendly paragraph.
+- [x] Final audit: verify each feature against actual code/runtime/artifacts/GitHub state, update Obsidian, and deliver the requested child-friendly paragraph.
 
 ## Milestones
 
@@ -304,3 +304,5 @@ Milestones may be split further as evidence requires. No checklist item is compl
   remain required before distribution is complete. Full final audit remains active.
 
 - Release45 verified: v0.7.0 targets7ffa1076494a93b600086054ffc5dcd3c137796c. Main General40430862411/Figure40430862382 and tag General40431685471/Figure40431685560 all pass; each General run passes all eight jobs, both Python versions955 passed/one TeX skip, render four required real TeX cases and four installed platforms. Anonymous published assets match SHA256SUMS/GitHub digests; downloaded wheel and published-sdist-built wheel each pass independent clean outside-checkout/offline-runtime/agent tests. The published sdist rebuilds the exact wheel bytes. Hosted0.7 compiler matches local source.
+
+- Release-verification record b4ac69b: General40432740721 passes all eight jobs and Figure40432740734 passes. Final audit46 maps each original requirement to actual implementation, runtime evidence, public release artifacts and maintained project knowledge. The exact public pip URL also passes doctor/demo in a third clean environment. Release source remains v0.7.0/7ffa107; final documentation checks/CI are recorded with the handoff.

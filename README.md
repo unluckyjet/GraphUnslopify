@@ -360,7 +360,7 @@ retain their original typed meaning; see [data identities and ordering](docs/dat
 
 [Uncertainty must match the estimator](docs/uncertainty-estimators.md): SEM is not used for median summaries.
 
-The [scientific reference matrix](docs/scientific-validation.md) documents independent known-answer and domain evidence for all 21 figure kinds.
+The [scientific reference matrix](docs/scientific-validation.md) documents independent known-answer and domain evidence for all 21 figure kinds. The [0.7.0 delivery audit](docs/delivery-audit.md) maps the accepted roadmap to runtime checks, published distributions and explicit limits.
 
 Eighty-one rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.

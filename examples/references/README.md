@@ -75,3 +75,10 @@ observations0/1/2 and cohort `1` has5/5/5. The first has an automatic Gaussian p
 the second retains its observations with density unavailable. Strict mode intentionally
 returns incomplete/exit2. `docs/density-evidence.png` is fingerprint-checked against
 committed LF inputs and the current emitted script. See `docs/density-validation.md`.
+
+`sparklines.csv` / `sparklines.figure.json` contain four synthetic observations: a short
+segment 1..2 and a long segment 10..20, both with unit slope. They reproduce
+`docs/sparkline-shared-scales.png`, whose child panels share both axes and preserve visible
+metric/unit context. The fingerprint regression ties it to these inputs and current code;
+independent artist controls verify actual limits, values, log/explicit limits and facet sharing.
+See `docs/scientific-validation.md` for the complete21-kind numerical reference matrix.

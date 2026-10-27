@@ -342,9 +342,20 @@ def load():
     return df
 
 
+def validate_numeric_domains(frame):
+    for field in ["params_m", "accuracy"]:
+        if field not in frame:
+            continue
+        measured = pd.to_numeric(frame[field], errors="coerce")
+        values = measured.to_numpy(dtype=float, na_value=np.nan)
+        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():
+            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")
+
+
 def prepare(df):
     ROW_COUNTS["after_filter"] = len(df)
     df = normalize_identities(df)
+    validate_numeric_domains(df)
     return df
 
 
@@ -480,8 +491,8 @@ def _interval_overlap(frame, subject, reference):
     """
     if reference is None or GROUP is None or "_low" not in frame:
         return None
-    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean")
-    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean")
+    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)
+    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)
     for column in (subject, reference):
         if column not in lows.columns or column not in highs.columns:
             return None

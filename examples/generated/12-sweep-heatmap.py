@@ -351,9 +351,20 @@ def load():
     return df
 
 
+def validate_numeric_domains(frame):
+    for field in ["accuracy"]:
+        if field not in frame:
+            continue
+        measured = pd.to_numeric(frame[field], errors="coerce")
+        values = measured.to_numpy(dtype=float, na_value=np.nan)
+        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():
+            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")
+
+
 def prepare(df):
     ROW_COUNTS["after_filter"] = len(df)
     df = normalize_identities(df)
+    validate_numeric_domains(df)
     return df
 
 
@@ -390,7 +401,7 @@ def report_counts(frame):
             continue
         source = summary_input(frame, field)
         measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))
-        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())
+        sizes.extend(measured.groupby(keys, sort=False, observed=True)["_finite"].sum().tolist())
     ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]
     if sizes:
         low, high = int(min(sizes)), int(max(sizes))
@@ -410,7 +421,7 @@ def summarise(frame):
     frame = summary_input(frame, Y_FIELD)
     keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])
     # sort=False keeps the file's category order instead of an alphabetical one.
-    grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]
+    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]
     summary = grouped.mean()
     return summary
 
@@ -544,14 +555,19 @@ def cell_text_contrast(ax, text):
     return cell_contrast_ratio(foreground, background)
 
 
-def draw_panel(ax, df):
-    matrix = df.pivot_table(
+def heatmap_matrix(df):
+    return df.pivot_table(
         index=Y_FIELD,
         columns=X_FIELD,
         values=VALUE_FIELD,
         aggfunc="mean",
         sort=False,
+        observed=True, dropna=False,
     )
+
+
+def draw_panel(ax, df):
+    matrix = heatmap_matrix(df)
     values = matrix.to_numpy(dtype=float)
     image = ax.imshow(values, aspect="auto", cmap=SEQUENTIAL_MAP)
     ax.set_xticks(range(len(matrix.columns)))
@@ -647,8 +663,8 @@ def _interval_overlap(frame, subject, reference):
     """
     if reference is None or GROUP is None or "_low" not in frame:
         return None
-    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean")
-    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean")
+    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)
+    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)
     for column in (subject, reference):
         if column not in lows.columns or column not in highs.columns:
             return None
@@ -763,7 +779,7 @@ def describe_figure(frame):
     parts = []
     if SAMPLE_SIZE_TEXT:
         parts.append(SAMPLE_SIZE_TEXT)
-    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="mean", sort=False)
+    matrix = heatmap_matrix(frame)
     values = matrix.to_numpy(dtype=float)
     if np.isfinite(values).any():
         row, column = np.unravel_index(np.nanargmax(values), values.shape)

@@ -357,6 +357,8 @@ retain their original typed meaning; see [data identities and ordering](docs/dat
 
 [Uncertainty must match the estimator](docs/uncertainty-estimators.md): SEM is not used for median summaries.
 
+The [scientific reference matrix](docs/scientific-validation.md) documents independent known-answer and domain evidence for all 21 figure kinds.
+
 Eighty-one rules run on the server against the spec alone. The Python package checks the rendered
 figure, which is where the rest hide.
 

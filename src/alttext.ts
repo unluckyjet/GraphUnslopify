@@ -333,9 +333,19 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
       '            f"{low:.3g} and {high:.3g} over {len(values)} observations"',
       "        )",
     );
+  } else if (spec.kind === "waterfall") {
+    out.push(
+      "    categories, contributions, levels = waterfall_estimate(frame)",
+      "    def number(value, signed=False):",
+      spec.y.percent ? '        return f"{value * 100:+.3g}%" if signed else f"{value * 100:.3g}%"'
+        : '        return f"{value:+.3g}" if signed else f"{value:.3g}"',
+      '    parts.append(f"Start {number(START)}; final total {number(levels[-1])}")',
+      "    for category, delta, total in zip(categories, contributions, levels[1:]):",
+      '        parts.append(f"{category}: {number(delta, True)}, cumulative total {number(total)}")',
+    );
   } else if (spec.kind === "heatmap") {
     out.push(
-      `    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc=${JSON.stringify(spec.aggregation)}, sort=False)`,
+      "    matrix = heatmap_matrix(frame)",
       "    values = matrix.to_numpy(dtype=float)",
       "    if np.isfinite(values).any():",
       "        row, column = np.unravel_index(np.nanargmax(values), values.shape)",

@@ -1001,6 +1001,37 @@ def main() -> None:
         encoding="utf8",
     )
     run([str(python), str(driver)], cwd=where, env=env)
+    driver = where / "core_references.py"
+    driver.write_text(
+        "from graphunslopify.transport import local_request\n"
+        "import pandas as pd, numpy as np, matplotlib.pyplot as plt\n"
+        "base={'data':{'path':'unused.csv'},'x':{'field':'category','label':'Category'},'y':{'field':'value','label':'Value'}}\n"
+        "def module(**extra):\n"
+        "    r=local_request('convert',{**base,**extra}); assert r['ok'],r\n"
+        "    ns={'__name__':'core','__file__':'core.py'}; exec(r['code'],ns); return ns\n"
+        "m=module(kind='waterfall',start=10,category_order=['add','remove'])\n"
+        "frame=m['prepare'](pd.DataFrame({'category':['add','add','remove'],'value':[2,3,-1]}))\n"
+        "assert list(m['waterfall_estimate'](frame)[2])==[10,15,14]\n"
+        "assert 'final total 14' in m['describe_figure'](frame).lower() and 'add: +5' in m['describe_figure'](frame).lower()\n"
+        "m=module(kind='bar',aggregation='sum')\n"
+        "frame=m['prepare'](pd.DataFrame({'category':pd.Categorical(['A'],categories=['A','unused']),'value':[3]}))\n"
+        "assert m['summarise'](frame)['category'].tolist()==['A']\n"
+        "m=module(kind='table',aggregation='sum')\n"
+        "frame=m['prepare'](pd.DataFrame({'category':['missing','zero'],'value':[np.nan,0]}))\n"
+        "table,lo,hi=m['build_table'](frame); assert m['table_cell'](table,lo,hi,'missing','value')=='-' and table.loc['zero','value']==0\n"
+        "m=module(kind='sparkline_grid',group='method',x={'field':'category','label':'Category','scale':'log'})\n"
+        "frame=m['prepare'](pd.DataFrame({'category':[1,2,10,20],'value':[1,2,10,20],'method':['a','a','b','b']}))\n"
+        "fig,ax=plt.subplots(); m['draw_panel'](ax,frame); m['decorate_panel'](ax,frame,None,True,True)\n"
+        "a,b=ax.child_axes; assert a.get_xlim()==b.get_xlim() and a.get_ylim()==b.get_ylim()\n"
+        "assert a.get_xscale()==b.get_xscale()=='log' and ax.axison and ax.get_xlabel()=='Category'\n"
+        "m=module(kind='ecdf')\n"
+        "try: m['prepare'](pd.DataFrame({'category':[1,float('inf')]}))\n"
+        "except ValueError as problem: assert 'finite numeric' in str(problem)\n"
+        "else: raise AssertionError('unplottable ECDF value accepted')\n"
+        "plt.close('all'); print('installed independent core quantities/domains/scales passed')\n",
+        encoding="utf8",
+    )
+    run([str(python), str(driver)], cwd=where, env=env)
     run([*cli, "audit-init", str(demo)], cwd=where, env=env)
     audited = json.loads(
         run(

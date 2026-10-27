@@ -1,7 +1,7 @@
 import { derivedAxis, type FigureSpec, type FilterOp } from "../schema.ts";
 import { pyList, pyStr, pyValue } from "./py.ts";
 import { READERS } from "./theme.ts";
-import { identityFields, identityConflicts, requiredIdentityFields } from "../identity.ts";
+import { identityFields, identityConflicts, requiredIdentityFields, numericFields } from "../identity.ts";
 
 /**
  * The data pipeline the generated script runs before anything is drawn.
@@ -118,6 +118,22 @@ def normalize_identities(frame, *, final=True):
 }
 
 export function emitPrepare(spec: FigureSpec, out: string[]): void {
+  const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
+  if (ordinary) {
+    // Mean/median summaries already retain finite measurements with explicit counts.
+    const summarized = "aggregation" in spec && ["mean", "median"].includes(spec.aggregation)
+      ? [spec.y.field, ...(spec.repeat?.fields ?? [])] : [];
+    const numeric = numericFields(spec).filter(field => !(spec.x.temporal && field === spec.x.field)
+      && (!summarized.includes(field) || field === spec.x.field));
+    out.push("", "def validate_numeric_domains(frame):",
+      `    for field in ${pyList(numeric)}:`,
+      "        if field not in frame:", "            continue",
+      '        measured = pd.to_numeric(frame[field], errors="coerce")',
+      '        values = measured.to_numpy(dtype=float, na_value=np.nan)',
+      "        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():",
+      '            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")',
+      "");
+  }
   out.push("", "def prepare(df):");
   const body: string[] = [];
 
@@ -144,6 +160,7 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
       "    df = normalize_identities(df)",
     );
   }
+  if (ordinary) body.push("    validate_numeric_domains(df)");
 
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
     const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
@@ -169,6 +186,7 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
     body.push(...transformBody(spec, transform));
     if (spec.kind === "qq") body.push("    df = qq_input(df)");
     if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
+    if (ordinary) body.push("    validate_numeric_domains(df)");
   }
 
   body.push("    return df");
@@ -178,7 +196,7 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
 /** Figure-wide accounting uses the prepared rows, before any panel is drawn. */
 export function emitCounts(spec: FigureSpec, out: string[]): void {
   const aggregated = "aggregation" in spec && spec.aggregation !== "none";
-  const measure = spec.kind === "confusion_matrix" || derivedAxis(spec, "y")
+  const measure = spec.kind === "ecdf" ? spec.x.field : spec.kind === "confusion_matrix" || derivedAxis(spec, "y")
     ? undefined : spec.kind === "heatmap" ? spec.value : spec.y.field;
   const fields = spec.repeat?.fields ?? (measure ? [measure] : []);
   const keys = spec.kind === "heatmap"
@@ -237,7 +255,7 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
       "        if field not in frame:", "            continue",
       "        source = summary_input(frame, field)",
       '        measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))',
-      '        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())',
+      '        sizes.extend(measured.groupby(keys, sort=False, observed=True)["_finite"].sum().tolist())',
       '    ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]',
       "    if sizes:",
       "        low, high = int(min(sizes)), int(max(sizes))",
@@ -282,7 +300,7 @@ export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
     out.push(
       `    if ${pyStr(over)} not in measured:`,
       `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,
-      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False)[field].${aggregation}()`,
+      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`,
       "    if measured.empty:",
       `        raise ValueError(${pyStr(`no usable replicate identifiers in ${over}`)})`,
     );
@@ -302,7 +320,7 @@ function transformBody(
       "    order = [X_FIELD] if GROUP is None else [GROUP, X_FIELD]",
       "    df = df.sort_values(order)",
       `    key = GROUP if GROUP is not None else lambda _: 0`,
-      `    df[${value}] = df.groupby(key, sort=False)[${value}].cumsum()`,
+      `    df[${value}] = df.groupby(key, sort=False, observed=True)[${value}].cumsum()`,
     ];
   }
 
@@ -315,7 +333,7 @@ function transformBody(
       "    if GROUP is None:",
       `        df[${value}] = _unit(df[${value}])`,
       "    else:",
-      `        df[${value}] = df.groupby(GROUP, sort=False)[${value}].transform(_unit)`,
+      `        df[${value}] = df.groupby(GROUP, sort=False, observed=True)[${value}].transform(_unit)`,
     ];
   }
 
@@ -324,7 +342,7 @@ function transformBody(
     `    # Compare every series against ${pyStr(transform.baseline ?? "")}.`,
     "    reference = (",
     "        df[df[GROUP] == BASELINE_SERIES]",
-    `        .groupby(X_FIELD, sort=False)[${value}]`,
+    `        .groupby(X_FIELD, sort=False, observed=True)[${value}]`,
     "        .mean()",
     "    )",
     "    if reference.empty:",
@@ -362,8 +380,8 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
     "    frame = summary_input(frame, Y_FIELD)",
     "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
     "    # sort=False keeps the file's category order instead of an alphabetical one.",
-    "    grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]",
-    `    summary = grouped.${aggregation === "median" ? "median" : aggregation}()`,
+    "    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]",
+    `    summary = grouped.${aggregation === "median" ? "median" : aggregation}(${aggregation === "sum" ? "min_count=1" : ""})`,
   );
 
   if (!uncertainty) {
@@ -372,7 +390,7 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
   }
 
   out.push(
-    "    spread = frame.groupby(keys, sort=False)[Y_FIELD]",
+    "    spread = frame.groupby(keys, sort=False, observed=True)[Y_FIELD]",
     "    centre = summary[Y_FIELD].to_numpy(dtype=float)",
   );
 
@@ -498,7 +516,7 @@ export function emitBootstrap(spec: FigureSpec, out: string[]): void {
     "    # Percentile bootstrap, so no distributional assumption and no scipy.",
     "    rng = np.random.default_rng(BOOTSTRAP_SEED)",
     "    lows, highs = [], []",
-    "    for _, block in frame.groupby(keys, sort=False):",
+    "    for _, block in frame.groupby(keys, sort=False, observed=True):",
     "        values = block[Y_FIELD].dropna().to_numpy(dtype=float)",
     "        if len(values) < 2:",
     "            lows.append(np.nan)",

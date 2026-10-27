@@ -18946,8 +18946,8 @@ function emitClaimTests(claims2, out) {
     '    """',
     '    if reference is None or GROUP is None or "_low" not in frame:',
     "        return None",
-    '    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean")',
-    '    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean")',
+    '    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)',
+    '    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)',
     "    for column in (subject, reference):",
     "        if column not in lows.columns or column not in highs.columns:",
     "            return None",
@@ -19710,9 +19710,18 @@ function emitAltText(spec, out) {
       '            f"{low:.3g} and {high:.3g} over {len(values)} observations"',
       "        )"
     );
+  } else if (spec.kind === "waterfall") {
+    out.push(
+      "    categories, contributions, levels = waterfall_estimate(frame)",
+      "    def number(value, signed=False):",
+      spec.y.percent ? '        return f"{value * 100:+.3g}%" if signed else f"{value * 100:.3g}%"' : '        return f"{value:+.3g}" if signed else f"{value:.3g}"',
+      '    parts.append(f"Start {number(START)}; final total {number(levels[-1])}")',
+      "    for category, delta, total in zip(categories, contributions, levels[1:]):",
+      '        parts.append(f"{category}: {number(delta, True)}, cumulative total {number(total)}")'
+    );
   } else if (spec.kind === "heatmap") {
     out.push(
-      `    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc=${JSON.stringify(spec.aggregation)}, sort=False)`,
+      "    matrix = heatmap_matrix(frame)",
       "    values = matrix.to_numpy(dtype=float)",
       "    if np.isfinite(values).any():",
       "        row, column = np.unravel_index(np.nanargmax(values), values.shape)",
@@ -20094,10 +20103,10 @@ function identityFields(spec) {
     ..."uncertainty" in spec && spec.uncertainty?.over ? [spec.uncertainty.over] : []
   ])];
 }
-function identityConflicts(spec) {
+function numericFields(spec) {
   const categoricalX = hasCategoricalX(spec) || ["table", "heatmap", "confusion_matrix"].includes(spec.kind);
   const categoricalY = ["heatmap", "confusion_matrix"].includes(spec.kind);
-  const numeric = /* @__PURE__ */ new Set([
+  return [.../* @__PURE__ */ new Set([
     ...!categoricalX && !derivedAxis(spec, "x") ? [spec.x.field] : [],
     ...!categoricalY && !derivedAxis(spec, "y") ? [spec.y.field] : [],
     ..."value" in spec && spec.value ? [spec.value] : [],
@@ -20107,7 +20116,10 @@ function identityConflicts(spec) {
     ...spec.layers?.map((layer) => layer.y) ?? [],
     ...spec.kind === "line" && spec.y2 ? [spec.y2.field] : [],
     ...spec.series_from_columns?.fields ?? []
-  ]);
+  ])].filter((field) => typeof field === "string");
+}
+function identityConflicts(spec) {
+  const numeric = new Set(numericFields(spec));
   return identityFields(spec).filter((field) => numeric.has(field));
 }
 
@@ -20222,6 +20234,23 @@ def normalize_identities(frame, *, final=True):
   out.push("    return df", "");
 }
 function emitPrepare(spec, out) {
+  const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
+  if (ordinary) {
+    const summarized = "aggregation" in spec && ["mean", "median"].includes(spec.aggregation) ? [spec.y.field, ...spec.repeat?.fields ?? []] : [];
+    const numeric = numericFields(spec).filter((field) => !(spec.x.temporal && field === spec.x.field) && (!summarized.includes(field) || field === spec.x.field));
+    out.push(
+      "",
+      "def validate_numeric_domains(frame):",
+      `    for field in ${pyList(numeric)}:`,
+      "        if field not in frame:",
+      "            continue",
+      '        measured = pd.to_numeric(frame[field], errors="coerce")',
+      "        values = measured.to_numpy(dtype=float, na_value=np.nan)",
+      "        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():",
+      '            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")',
+      ""
+    );
+  }
   out.push("", "def prepare(df):");
   const body = [];
   for (const clause of spec.filter ?? []) {
@@ -20247,6 +20276,7 @@ function emitPrepare(spec, out) {
       "    df = normalize_identities(df)"
     );
   }
+  if (ordinary) body.push("    validate_numeric_domains(df)");
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
     const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
     const label = spec.kind === "kaplan_meier" ? "Kaplan-Meier" : spec.kind === "calibration" ? "Calibration" : "Paired differences";
@@ -20267,13 +20297,14 @@ function emitPrepare(spec, out) {
     body.push(...transformBody(spec, transform2));
     if (spec.kind === "qq") body.push("    df = qq_input(df)");
     if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
+    if (ordinary) body.push("    validate_numeric_domains(df)");
   }
   body.push("    return df");
   out.push(...body, "");
 }
 function emitCounts(spec, out) {
   const aggregated = "aggregation" in spec && spec.aggregation !== "none";
-  const measure = spec.kind === "confusion_matrix" || derivedAxis(spec, "y") ? void 0 : spec.kind === "heatmap" ? spec.value : spec.y.field;
+  const measure = spec.kind === "ecdf" ? spec.x.field : spec.kind === "confusion_matrix" || derivedAxis(spec, "y") ? void 0 : spec.kind === "heatmap" ? spec.value : spec.y.field;
   const fields = spec.repeat?.fields ?? (measure ? [measure] : []);
   const keys = spec.kind === "heatmap" ? [spec.x.field, spec.y.field] : [spec.x.field, ...spec.group ? [spec.group] : [], ...spec.facet ? [spec.facet.by, ...spec.facet.rows ? [spec.facet.rows] : []] : []];
   const filters = spec.filter?.map((f) => `${f.field} ${f.op} ${JSON.stringify(f.value)}`).join(" and ") || "none";
@@ -20334,7 +20365,7 @@ function emitCounts(spec, out) {
       "            continue",
       "        source = summary_input(frame, field)",
       '        measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))',
-      '        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())',
+      '        sizes.extend(measured.groupby(keys, sort=False, observed=True)["_finite"].sum().tolist())',
       '    ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]',
       "    if sizes:",
       "        low, high = int(min(sizes)), int(max(sizes))",
@@ -20381,7 +20412,7 @@ function emitSummaryInput(spec, out) {
     out.push(
       `    if ${pyStr(over)} not in measured:`,
       `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,
-      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False)[field].${aggregation}()`,
+      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`,
       "    if measured.empty:",
       `        raise ValueError(${pyStr(`no usable replicate identifiers in ${over}`)})`
     );
@@ -20396,7 +20427,7 @@ function transformBody(spec, transform2) {
       "    order = [X_FIELD] if GROUP is None else [GROUP, X_FIELD]",
       "    df = df.sort_values(order)",
       `    key = GROUP if GROUP is not None else lambda _: 0`,
-      `    df[${value}] = df.groupby(key, sort=False)[${value}].cumsum()`
+      `    df[${value}] = df.groupby(key, sort=False, observed=True)[${value}].cumsum()`
     ];
   }
   if (transform2.kind === "normalize") {
@@ -20408,7 +20439,7 @@ function transformBody(spec, transform2) {
       "    if GROUP is None:",
       `        df[${value}] = _unit(df[${value}])`,
       "    else:",
-      `        df[${value}] = df.groupby(GROUP, sort=False)[${value}].transform(_unit)`
+      `        df[${value}] = df.groupby(GROUP, sort=False, observed=True)[${value}].transform(_unit)`
     ];
   }
   const percent = transform2.kind === "percent_of_baseline";
@@ -20416,7 +20447,7 @@ function transformBody(spec, transform2) {
     `    # Compare every series against ${pyStr(transform2.baseline ?? "")}.`,
     "    reference = (",
     "        df[df[GROUP] == BASELINE_SERIES]",
-    `        .groupby(X_FIELD, sort=False)[${value}]`,
+    `        .groupby(X_FIELD, sort=False, observed=True)[${value}]`,
     "        .mean()",
     "    )",
     "    if reference.empty:",
@@ -20442,15 +20473,15 @@ function emitSummarise(spec, out) {
     "    frame = summary_input(frame, Y_FIELD)",
     "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
     "    # sort=False keeps the file's category order instead of an alphabetical one.",
-    "    grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]",
-    `    summary = grouped.${aggregation === "median" ? "median" : aggregation}()`
+    "    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]",
+    `    summary = grouped.${aggregation === "median" ? "median" : aggregation}(${aggregation === "sum" ? "min_count=1" : ""})`
   );
   if (!uncertainty2) {
     out.push("    return summary", "");
     return;
   }
   out.push(
-    "    spread = frame.groupby(keys, sort=False)[Y_FIELD]",
+    "    spread = frame.groupby(keys, sort=False, observed=True)[Y_FIELD]",
     "    centre = summary[Y_FIELD].to_numpy(dtype=float)"
   );
   switch (uncertainty2.kind) {
@@ -20552,7 +20583,7 @@ function emitBootstrap(spec, out) {
     "    # Percentile bootstrap, so no distributional assumption and no scipy.",
     "    rng = np.random.default_rng(BOOTSTRAP_SEED)",
     "    lows, highs = [], []",
-    "    for _, block in frame.groupby(keys, sort=False):",
+    "    for _, block in frame.groupby(keys, sort=False, observed=True):",
     "        values = block[Y_FIELD].dropna().to_numpy(dtype=float)",
     "        if len(values) < 2:",
     "            lows.append(np.nan)",
@@ -20939,7 +20970,7 @@ function emitAnnotations(spec, out) {
     '    """Where the named series first overtakes every other one."""',
     "    if GROUP is None or series is None:",
     "        return None",
-    '    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean")',
+    '    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", observed=True)',
     "    if series not in pivot.columns or pivot.shape[1] < 2:",
     "        return None",
     ...spec.kind === "qq" ? ["    if pivot.isna().any(axis=None):", "        return None"] : [],
@@ -21073,6 +21104,9 @@ function emitDecoratePanel(spec, out) {
   }
   if (spec.annotate?.length) out.push(spec.kind === "qq" ? "    place_annotations(ax, qq_claim_frame(frame))" : "    place_annotations(ax, frame)");
   out.push(spec.style.grid ? "    ax.grid(True, linewidth=0.4, alpha=0.5)" : "    ax.grid(False)");
+  if (spec.kind === "sparkline_grid") {
+    out.push("    ax.set_xticks([])", "    ax.set_yticks([])");
+  }
   if (spec.style.despine && spec.kind !== "heatmap") {
     out.push('    for side in ("top", "right"):', "        ax.spines[side].set_visible(False)");
   }
@@ -21404,7 +21438,7 @@ function emitTable(spec, out) {
     "        if GROUP is None:",
     "            return summary.set_index(X_FIELD)[[field]].rename(columns={field: Y_FIELD})",
     "        return summary.pivot_table(",
-    '            index=X_FIELD, columns=GROUP, values=field, aggfunc="mean", sort=False',
+    '            index=X_FIELD, columns=GROUP, values=field, aggfunc="mean", sort=False, observed=True, dropna=False',
     "        )",
     "",
     "    table = pivot(Y_FIELD)",
@@ -21647,7 +21681,7 @@ function emitSeriesHelpers(spec, out) {
   );
 }
 function emitCategories(spec, out) {
-  const sortable = spec.kind === "bar" || spec.kind === "box";
+  const sortable = spec.kind === "bar" || spec.kind === "box" || spec.kind === "dumbbell";
   out.push(
     "",
     "def category_order(frame):",
@@ -21665,7 +21699,7 @@ function emitCategories(spec, out) {
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";
     out.push(
-      "    ranked = frame.groupby(X_FIELD, sort=False)[Y_FIELD].mean()",
+      "    ranked = frame.groupby(X_FIELD, sort=False, observed=True)[Y_FIELD].mean()",
       `    return list(ranked.sort_values(ascending=${ascending}).index)`
     );
   } else if (sortable && "sort" in spec && spec.sort?.by === "category") {
@@ -21835,7 +21869,11 @@ function emitBar(spec, out) {
       "    names = series_names(frame)",
       "    running = np.zeros(len(categories))",
       "    for index, name in enumerate(names):",
-      "        block = frame[frame[GROUP] == name].set_index(X_FIELD).reindex(categories)",
+      "        observed = frame[frame[GROUP] == name].set_index(X_FIELD)",
+      "        block = observed.reindex(categories)",
+      `        required = ${["sum", "count"].includes(spec.aggregation) ? "observed.index" : "frame[X_FIELD]"}`,
+      "        if (block[Y_FIELD].isna() & block.index.isin(required)).any():",
+      '            raise ValueError("Stacked bars need known contributions for observed groups; filter unknown values or use grouped bars/table")',
       "        values = np.nan_to_num(block[Y_FIELD].to_numpy(dtype=float))",
       "        style = series_style(name, index, len(names))",
       `        ax.${plot}(`,
@@ -22851,7 +22889,7 @@ def draw_panel(ax, df):
 `.split("\n"));
 }
 function emitConfusionMatrix(spec, out) {
-  const counts = spec.value ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0)' : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0)';
+  const counts = spec.value ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0, observed=True)' : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0, observed=True)';
   out.push("", "def confusion_counts(df):");
   if (spec.value) out.push(
     "    df = df.copy()",
@@ -22921,13 +22959,23 @@ function emitWaterfall(spec, out) {
   void spec;
   out.push(
     "",
-    "def draw_panel(ax, df):",
+    "def waterfall_estimate(df):",
     "    categories = category_order(df)",
     "    contributions = [",
-    "        float(df[df[X_FIELD] == name][Y_FIELD].sum()) for name in categories",
+    "        float(df[df[X_FIELD] == name][Y_FIELD].sum(min_count=1)) for name in categories",
     "    ]",
+    "    if not np.isfinite(contributions).all():",
+    '        raise ValueError("Waterfall needs a finite contribution for every observed step")',
+    '    with np.errstate(over="ignore", invalid="ignore"):',
+    "        levels = np.r_[START, START + np.cumsum(contributions)]",
+    "    if not np.isfinite(levels).all():",
+    '        raise ValueError("Waterfall needs finite cumulative totals")',
+    "    return categories, contributions, levels",
+    "",
+    "",
+    "def draw_panel(ax, df):",
+    "    categories, contributions, levels = waterfall_estimate(df)",
     "    running = START",
-    "    levels = [START]",
     "    positions = np.arange(len(categories) + 1)",
     "    for index, (name, delta) in enumerate(zip(categories, contributions)):",
     "        bottom = min(running, running + delta)",
@@ -22950,8 +22998,7 @@ function emitWaterfall(spec, out) {
     "                linewidth=0.8,",
     "                zorder=1,",
     "            )",
-    "        running += delta",
-    "        levels.append(running)",
+    "        running = float(levels[index + 1])",
     "    # Autoscale measures the bars, not the baseline they are measured from,",
     "    # so the start line and the first bar's foot fall outside the view.",
     "    floor, ceiling = min(levels), max(levels)",
@@ -22986,12 +23033,11 @@ function emitSparklineGrid(spec, out) {
     "    rows = int(np.ceil(len(names) / columns)) if names else 1",
     "    # One shared scale across every cell. Free limits would let a flat",
     "    # series look as dramatic as a real one.",
-    "    values = df[Y_FIELD].dropna().to_numpy(dtype=float)",
-    "    low, high = (values.min(), values.max()) if len(values) else (0.0, 1.0)",
-    "    if not np.isfinite(low) or high <= low:",
-    "        low, high = low - 0.5, low + 0.5",
-    "    pad = 0.08 * (high - low)",
-    "    ax.set_axis_off()",
+    "    ax.margins(y=0.08)",
+    "    ax.set_xticks([])",
+    "    ax.set_yticks([])",
+    "    for side in ax.spines.values():",
+    "        side.set_visible(False)",
     "    for index, name in enumerate(names):",
     "        block = df[df[GROUP] == name].dropna(subset=[X_FIELD, Y_FIELD]).sort_values(X_FIELD)",
     "        row, column = divmod(index, columns)",
@@ -23001,7 +23047,7 @@ function emitSparklineGrid(spec, out) {
     "                1.0 - (row + 1) / rows + 0.012,",
     "                1.0 / columns - 0.024,",
     "                1.0 / rows - 0.024,",
-    "            ]",
+    "            ], sharex=ax, sharey=ax",
     "        )",
     "        style = series_style(name, index, len(names))",
     "        cell.plot(",
@@ -23010,7 +23056,7 @@ function emitSparklineGrid(spec, out) {
     '            color=style["colour"],',
     "            linewidth=0.9,",
     "        )",
-    "        cell.set_ylim(low - pad, high + pad)",
+    "        cell.margins(y=0.08)",
     "        cell.set_xticks([])",
     "        cell.set_yticks([])",
     "        for side in cell.spines.values():",
@@ -23022,14 +23068,19 @@ function emitSparklineGrid(spec, out) {
 function emitHeatmap(spec, out) {
   out.push(
     "",
-    "def draw_panel(ax, df):",
-    "    matrix = df.pivot_table(",
+    "def heatmap_matrix(df):",
+    "    return df.pivot_table(",
     "        index=Y_FIELD,",
     "        columns=X_FIELD,",
     "        values=VALUE_FIELD,",
-    `        aggfunc=${pyStr(spec.aggregation)},`,
+    `        aggfunc=${spec.aggregation === "sum" ? "lambda values: values.sum(min_count=1)" : pyStr(spec.aggregation)},`,
     "        sort=False,",
+    "        observed=True, dropna=False,",
     "    )",
+    "",
+    "",
+    "def draw_panel(ax, df):",
+    "    matrix = heatmap_matrix(df)",
     "    values = matrix.to_numpy(dtype=float)"
   );
   if (spec.diverging) {
@@ -23260,7 +23311,7 @@ function emitInteractive(spec, out) {
   );
   if (spec.kind === "heatmap") {
     out.push(
-      `    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc=${pyStr(spec.aggregation)}, sort=False)`,
+      "    matrix = heatmap_matrix(frame)",
       "    values = matrix.to_numpy(dtype=float)",
       `    colourmap = DIVERGING_MAP if ${spec.diverging ? "True" : "False"} else plt.get_cmap(SEQUENTIAL_MAP)`,
       '    options = {"colorscale": [[i / 255, mcolors.to_hex(colourmap(i / 255))] for i in range(256)]}',

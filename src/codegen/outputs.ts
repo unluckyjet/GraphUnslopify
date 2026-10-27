@@ -113,7 +113,7 @@ export function emitInteractive(spec: FigureSpec, out: string[]): void {
     "    figure = go.Figure()");
   if (spec.kind === "heatmap") {
     out.push(
-      `    matrix = frame.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc=${pyStr(spec.aggregation)}, sort=False)`,
+      "    matrix = heatmap_matrix(frame)",
       "    values = matrix.to_numpy(dtype=float)",
       `    colourmap = DIVERGING_MAP if ${spec.diverging ? "True" : "False"} else plt.get_cmap(SEQUENTIAL_MAP)`,
       '    options = {"colorscale": [[i / 255, mcolors.to_hex(colourmap(i / 255))] for i in range(256)]}',

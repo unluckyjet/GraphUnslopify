@@ -93,7 +93,7 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
 }
 
 function emitCategories(spec: FigureSpec, out: string[]): void {
-  const sortable = spec.kind === "bar" || spec.kind === "box";
+  const sortable = spec.kind === "bar" || spec.kind === "box" || spec.kind === "dumbbell";
   out.push(
     "",
     "def category_order(frame):",
@@ -111,7 +111,7 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
   if (sortable && "sort" in spec && spec.sort?.by === "value") {
     const ascending = spec.sort.direction === "asc" ? "True" : "False";
     out.push(
-      "    ranked = frame.groupby(X_FIELD, sort=False)[Y_FIELD].mean()",
+      "    ranked = frame.groupby(X_FIELD, sort=False, observed=True)[Y_FIELD].mean()",
       `    return list(ranked.sort_values(ascending=${ascending}).index)`,
     );
   } else if (sortable && "sort" in spec && spec.sort?.by === "category") {
@@ -293,7 +293,11 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       "    names = series_names(frame)",
       "    running = np.zeros(len(categories))",
       "    for index, name in enumerate(names):",
-      "        block = frame[frame[GROUP] == name].set_index(X_FIELD).reindex(categories)",
+      "        observed = frame[frame[GROUP] == name].set_index(X_FIELD)",
+      "        block = observed.reindex(categories)",
+      `        required = ${["sum", "count"].includes(spec.aggregation) ? "observed.index" : "frame[X_FIELD]"}`,
+      "        if (block[Y_FIELD].isna() & block.index.isin(required)).any():",
+      '            raise ValueError("Stacked bars need known contributions for observed groups; filter unknown values or use grouped bars/table")',
       "        values = np.nan_to_num(block[Y_FIELD].to_numpy(dtype=float))",
       "        style = series_style(name, index, len(names))",
       `        ax.${plot}(`,
@@ -1351,8 +1355,8 @@ function emitConfusionMatrix(
   out: string[],
 ): void {
   const counts = spec.value
-    ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0)'
-    : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0)';
+    ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0, observed=True)'
+    : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0, observed=True)';
   out.push("", "def confusion_counts(df):");
   if (spec.value) out.push(
     "    df = df.copy()",
@@ -1428,13 +1432,23 @@ function emitWaterfall(spec: FigureSpec & { kind: "waterfall" }, out: string[]):
   // the running total is printed as well as drawn.
   out.push(
     "",
-    "def draw_panel(ax, df):",
+    "def waterfall_estimate(df):",
     "    categories = category_order(df)",
     "    contributions = [",
-    "        float(df[df[X_FIELD] == name][Y_FIELD].sum()) for name in categories",
+    "        float(df[df[X_FIELD] == name][Y_FIELD].sum(min_count=1)) for name in categories",
     "    ]",
+    "    if not np.isfinite(contributions).all():",
+    '        raise ValueError("Waterfall needs a finite contribution for every observed step")',
+    '    with np.errstate(over="ignore", invalid="ignore"):',
+    "        levels = np.r_[START, START + np.cumsum(contributions)]",
+    "    if not np.isfinite(levels).all():",
+    '        raise ValueError("Waterfall needs finite cumulative totals")',
+    "    return categories, contributions, levels",
+    "",
+    "",
+    "def draw_panel(ax, df):",
+    "    categories, contributions, levels = waterfall_estimate(df)",
     "    running = START",
-    "    levels = [START]",
     "    positions = np.arange(len(categories) + 1)",
     "    for index, (name, delta) in enumerate(zip(categories, contributions)):",
     "        bottom = min(running, running + delta)",
@@ -1457,8 +1471,7 @@ function emitWaterfall(spec: FigureSpec & { kind: "waterfall" }, out: string[]):
     "                linewidth=0.8,",
     "                zorder=1,",
     "            )",
-    "        running += delta",
-    "        levels.append(running)",
+    "        running = float(levels[index + 1])",
     "    # Autoscale measures the bars, not the baseline they are measured from,",
     "    # so the start line and the first bar's foot fall outside the view.",
     "    floor, ceiling = min(levels), max(levels)",
@@ -1494,12 +1507,11 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "    rows = int(np.ceil(len(names) / columns)) if names else 1",
     "    # One shared scale across every cell. Free limits would let a flat",
     "    # series look as dramatic as a real one.",
-    "    values = df[Y_FIELD].dropna().to_numpy(dtype=float)",
-    "    low, high = (values.min(), values.max()) if len(values) else (0.0, 1.0)",
-    "    if not np.isfinite(low) or high <= low:",
-    "        low, high = low - 0.5, low + 0.5",
-    "    pad = 0.08 * (high - low)",
-    "    ax.set_axis_off()",
+    "    ax.margins(y=0.08)",
+    "    ax.set_xticks([])",
+    "    ax.set_yticks([])",
+    "    for side in ax.spines.values():",
+    "        side.set_visible(False)",
     "    for index, name in enumerate(names):",
     "        block = df[df[GROUP] == name].dropna(subset=[X_FIELD, Y_FIELD]).sort_values(X_FIELD)",
     "        row, column = divmod(index, columns)",
@@ -1509,7 +1521,7 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "                1.0 - (row + 1) / rows + 0.012,",
     "                1.0 / columns - 0.024,",
     "                1.0 / rows - 0.024,",
-    "            ]",
+    "            ], sharex=ax, sharey=ax",
     "        )",
     "        style = series_style(name, index, len(names))",
     "        cell.plot(",
@@ -1518,7 +1530,7 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     '            color=style["colour"],',
     "            linewidth=0.9,",
     "        )",
-    "        cell.set_ylim(low - pad, high + pad)",
+    "        cell.margins(y=0.08)",
     "        cell.set_xticks([])",
     "        cell.set_yticks([])",
     "        for side in cell.spines.values():",
@@ -1531,14 +1543,19 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
 function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): void {
   out.push(
     "",
-    "def draw_panel(ax, df):",
-    "    matrix = df.pivot_table(",
+    "def heatmap_matrix(df):",
+    "    return df.pivot_table(",
     "        index=Y_FIELD,",
     "        columns=X_FIELD,",
     "        values=VALUE_FIELD,",
-    `        aggfunc=${pyStr(spec.aggregation)},`,
+    `        aggfunc=${spec.aggregation === "sum" ? "lambda values: values.sum(min_count=1)" : pyStr(spec.aggregation)},`,
     "        sort=False,",
+    "        observed=True, dropna=False,",
     "    )",
+    "",
+    "",
+    "def draw_panel(ax, df):",
+    "    matrix = heatmap_matrix(df)",
     "    values = matrix.to_numpy(dtype=float)",
   );
 

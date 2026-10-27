@@ -256,3 +256,18 @@ Milestones may be split further as evidence requires. No checklist item is compl
   trigger strict policy with review artifacts. Baselines and51 published PNGs remain
   unchanged. Both workflows require verification after push. Complete numerical/
   domain matrix24, naming/versioned release and final audit remain open.
+
+- Bar-interval42 revisionf644564: General CI40326688015 passes all eight jobs and Figure CI40326687812 passes. Both Python3.10/3.12 report836 passed/one TeX skip; render separately requires/passes all four real TeX cases. All four installed platforms independently verify actual1..9 endpoints, clipped stems and detached/stacked refusal offline with agent. Full local rerun215 Node/837 Python and Ruff check/format52 files pass after correcting the initial one-line formatting miss.
+
+  CI warning accounting for42: Python3.10 additionally reports29 warnings:28 upstream Matplotlib3.10 cbook/NumPy scalar-conversion deprecations for single-bar error arrays, and one pandas2 observed-category default FutureWarning. Actual values pass; the latter also motivated the independently measured unused-category matrix case.
+
+- Milestone39 completes core independent reference matrix24:all21 actual kinds are
+  documented, six focused estimator suites reused and108 new ordinary-kind value/
+  artist/domain/workflow references pass on pandas2.3/3.1. Seven gates215 Node/
+  945 Python, zero local skips/warnings; gallery15/15/Ruff53/fresh offline wheel/agent
+  pass. Derived waterfall/heatmap, actual shared child axes/context, requested sort,
+  observed categories and unknown sums/stacked contributions are corrected. All51
+  prior published PNG pixels/dimensions match; one new committed-input sparkline
+  adds a current reproducible illustration. Canonical vault is refreshed and old
+  milestones archived in the log. Both workflows require verification after push.
+  Naming/versioned release and requirement-by-requirement final audit remain active.

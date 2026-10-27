@@ -1,7 +1,7 @@
 ---
 id: 24
 slug: independent-scientific-references
-status: ready
+status: done
 priority: P0
 title: Validate scientific quantities and input domains against independent known answers
 source_idea: accepted independent benchmark and statistical trustworthiness roadmap
@@ -65,3 +65,38 @@ contract until its matrix and known gaps are actually addressed.
 - Public validation documentation distinguishes tested behavior from remaining scientific limits.
 - Required local gates pass, relevant gallery artifacts are reviewed, Obsidian is corrected, and
   both GitHub CI workflows are checked after each small push.
+
+
+## Verified implementation (2026-10-26)
+
+`docs/scientific-validation.md` maps all21 actual kinds to independent core quantities,
+actual artists and domain/accounting evidence. Six specialized estimator suites are reused;
+`python/tests/test_core_plot_references.py` adds108 controls for the remaining fifteen kinds.
+The same108 pass under pandas3.1 and2.3.3. Hand constants, independent SciPy KDE widths,
+quartiles/whiskers/outliers, empirical steps, missing gaps, means/medians/sums/counts, matrix
+normalizations, prefix totals, actual cells/axes and strict unknown evidence are measured.
+
+Confirmed defects fixed: ignored dumbbell sorting; waterfall descriptions summarizing raw means
+instead of drawn sums/prefix totals; separately scaled/linear sparkline children and hidden unit
+labels; pandas-version phantom category zeros; invalid raw numeric domains/uncounted ECDF x;
+unknown sums becoming zero; unknown required stacked mean/raw contributions becoming zero.
+Existing finite-value mean/median cleanup and unit/exclusion accounting remain supported. A
+numeric x cannot evade validation by also serving as a summary column. Specialized estimator
+policies remain independent. Static/HTML/described heatmaps share one matrix; waterfall shares
+one estimate; child scales/limits/facet-sharing and literal context are independently checked.
+
+Seven gates215 Node/945 Python, zero local skips/warnings; Ruff check/format53 files and strict
+gallery15/15 pass. Fresh offline installed wheel/agent independently measures new quantities,
+unknown cells, observed categories, actual shared/log axes/context and invalid raw ECDF refusal;
+bundled translator bytes match. Seven published reference illustrations have committed inputs
+and current fingerprints. All51 prior published PNGs retain identical RGBA/dimensions after
+source/provenance refresh; new four-row sparkline illustration is visually reviewed.
+
+Initial fixture corrections distinguished scatter masks/marker prototypes from data polygons and
+supplied forest's required interval. The installed caption check accounts for sentence case.
+These were test corrections, not product defects. The public matrix states computation/domain
+coverage and scientific/optional-combination limits. Canonical Obsidian notes replace obsolete
+matrix/gap claims; historical evidence is preserved in the investigation log. Vault97 notes,
+zero unresolved wiki links. Both GitHub workflows require verification after push.
+
+The original goal remains active through naming, versioned/tagged release and final audit.

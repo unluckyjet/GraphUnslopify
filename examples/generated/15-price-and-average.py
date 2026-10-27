@@ -348,9 +348,20 @@ def load():
     return df
 
 
+def validate_numeric_domains(frame):
+    for field in []:
+        if field not in frame:
+            continue
+        measured = pd.to_numeric(frame[field], errors="coerce")
+        values = measured.to_numpy(dtype=float, na_value=np.nan)
+        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():
+            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")
+
+
 def prepare(df):
     ROW_COUNTS["after_filter"] = len(df)
     df = normalize_identities(df)
+    validate_numeric_domains(df)
     return df
 
 
@@ -387,7 +398,7 @@ def report_counts(frame):
             continue
         source = summary_input(frame, field)
         measured = source.assign(_finite=np.isfinite(pd.to_numeric(source[field], errors="coerce")).astype(int))
-        sizes.extend(measured.groupby(keys, sort=False)["_finite"].sum().tolist())
+        sizes.extend(measured.groupby(keys, sort=False, observed=True)["_finite"].sum().tolist())
     ROW_COUNTS["sample_sizes"] = [int(n) for n in sizes]
     if sizes:
         low, high = int(min(sizes)), int(max(sizes))
@@ -407,7 +418,7 @@ def summarise(frame):
     frame = summary_input(frame, Y_FIELD)
     keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])
     # sort=False keeps the file's category order instead of an alphabetical one.
-    grouped = frame.groupby(keys, as_index=False, sort=False)[Y_FIELD]
+    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]
     summary = grouped.mean()
     return summary
 
@@ -461,7 +472,7 @@ def crossover_point(frame, series):
     """Where the named series first overtakes every other one."""
     if GROUP is None or series is None:
         return None
-    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean")
+    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", observed=True)
     if series not in pivot.columns or pivot.shape[1] < 2:
         return None
     others = pivot.drop(columns=[series]).max(axis=1)
@@ -596,8 +607,8 @@ def _interval_overlap(frame, subject, reference):
     """
     if reference is None or GROUP is None or "_low" not in frame:
         return None
-    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean")
-    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean")
+    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)
+    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)
     for column in (subject, reference):
         if column not in lows.columns or column not in highs.columns:
             return None

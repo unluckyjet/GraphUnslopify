@@ -18,11 +18,11 @@ export function identityFields(spec: FigureSpec): string[] {
   ])];
 }
 
-/** A shared source column cannot be rewritten as text and also used as a measurement. */
-export function identityConflicts(spec: FigureSpec): string[] {
+/** Columns whose values participate in numeric computations. */
+export function numericFields(spec: FigureSpec): string[] {
   const categoricalX = hasCategoricalX(spec) || ["table", "heatmap", "confusion_matrix"].includes(spec.kind);
   const categoricalY = ["heatmap", "confusion_matrix"].includes(spec.kind);
-  const numeric = new Set([
+  return [...new Set([
     ...(!categoricalX && !derivedAxis(spec, "x") ? [spec.x.field] : []),
     ...(!categoricalY && !derivedAxis(spec, "y") ? [spec.y.field] : []),
     ...("value" in spec && spec.value ? [spec.value] : []),
@@ -32,6 +32,11 @@ export function identityConflicts(spec: FigureSpec): string[] {
     ...(spec.layers?.map(layer => layer.y) ?? []),
     ...(spec.kind === "line" && spec.y2 ? [spec.y2.field] : []),
     ...(spec.series_from_columns?.fields ?? []),
-  ]);
+  ])].filter((field): field is string => typeof field === "string");
+}
+
+/** A shared source column cannot be rewritten as text and also used as a measurement. */
+export function identityConflicts(spec: FigureSpec): string[] {
+  const numeric = new Set(numericFields(spec));
   return identityFields(spec).filter(field => numeric.has(field));
 }

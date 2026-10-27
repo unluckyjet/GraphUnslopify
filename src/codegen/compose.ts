@@ -295,7 +295,7 @@ export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): 
     "        if GROUP is None:",
     "            return summary.set_index(X_FIELD)[[field]].rename(columns={field: Y_FIELD})",
     "        return summary.pivot_table(",
-    "            index=X_FIELD, columns=GROUP, values=field, aggfunc=\"mean\", sort=False",
+    "            index=X_FIELD, columns=GROUP, values=field, aggfunc=\"mean\", sort=False, observed=True, dropna=False",
     "        )",
     "",
     "    table = pivot(Y_FIELD)",

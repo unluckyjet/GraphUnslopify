@@ -55,3 +55,5 @@ One line per state change, newest last.
 2026-10-26 —41 lands: global series styles and complete scoped/shared legends for sparse panels;32 controls,215 Node/796 Python, seven gates/gallery15/15/offline wheel, no published asset changes; CI required after push.
 
 2026-10-26 —42 lands: preserve real bar interval endpoints, reject omitted stacked uncertainty and detect clipped stems;41 controls,215 Node/833 full Python plus4 added controls, seven gates/gallery15/15/offline wheel; CI required after push.
+
+2026-10-26 —24 lands: complete21-kind core reference matrix;108 new actual quantity/domain/workflow cases, pandas2.3/3.1,215 Node/945 Python, seven gates/gallery15/15/offline wheel/agent. Corrected derived presentations, observed categories and unknown sums; CI required after push.

@@ -1,0 +1,12 @@
+{
+  "kind": "sparkline_grid",
+  "title": "One horizontal and vertical scale",
+  "data": {"path": "sparklines.csv"},
+  "x": {"field": "time", "label": "Elapsed time", "unit": "s"},
+  "y": {"field": "progress", "label": "Progress", "unit": "units"},
+  "group": "method",
+  "series_order": ["short", "long"],
+  "columns": 2,
+  "legend": {"show": false},
+  "output": {"stem": "sparklines", "formats": ["png", "svg"], "size": "double_column", "dpi": 150}
+}

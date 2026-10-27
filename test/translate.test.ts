@@ -118,7 +118,7 @@ test("an unaggregated line chart carries a runtime duplicate check", () => {
 test("an aggregated line chart groups instead of warning", () => {
   const result = translated({ ...line, aggregation: "mean" });
   assert.ok(!result.code.includes("warn_duplicates"));
-  assert.match(result.code, /groupby\(keys, as_index=False, sort=False\)\[Y_FIELD\]/);
+  assert.match(result.code, /groupby\(keys, as_index=False, sort=False, observed=True\)\[Y_FIELD\]/);
   assert.match(result.code, /summary = grouped\.mean\(\)/);
 });
 
@@ -136,7 +136,7 @@ test("recessive series keep their own colour instead of collapsing to one grey",
 
 test("aggregation keeps the file's category order", () => {
   const result = translated({ ...line, kind: "bar", aggregation: "mean" });
-  assert.match(result.code, /groupby\(keys, as_index=False, sort=False\)/);
+  assert.match(result.code, /groupby\(keys, as_index=False, sort=False, observed=True\)/);
 });
 
 test("a horizontal bar reads top to bottom", () => {

@@ -356,7 +356,7 @@ function emitAnnotations(spec: FigureSpec, out: string[]): void {
     '    """Where the named series first overtakes every other one."""',
     "    if GROUP is None or series is None:",
     "        return None",
-    "    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc=\"mean\")",
+    "    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc=\"mean\", observed=True)",
     "    if series not in pivot.columns or pivot.shape[1] < 2:",
     "        return None",
     ...(spec.kind === "qq" ? ["    if pivot.isna().any(axis=None):", "        return None"] : []),
@@ -510,6 +510,10 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
     ? "    place_annotations(ax, qq_claim_frame(frame))" : "    place_annotations(ax, frame)");
 
   out.push(spec.style.grid ? "    ax.grid(True, linewidth=0.4, alpha=0.5)" : "    ax.grid(False)");
+  if (spec.kind === "sparkline_grid") {
+    // Applying a log/temporal scale resets shared locators after the cells are drawn.
+    out.push("    ax.set_xticks([])", "    ax.set_yticks([])");
+  }
   if (spec.style.despine && spec.kind !== "heatmap") {
     out.push('    for side in ("top", "right"):', "        ax.spines[side].set_visible(False)");
   }

@@ -71,3 +71,5 @@ One line per state change, newest last.
 2026-10-28 —47 lands (follow-up item1): strict verification defaults across generated programs/CLI/SDK; explicit opt-out retains actual verdicts.217 Node/1003 Python, seven gates/gallery15/Ruff55 and two independent audits pass.52 PNG pixels unchanged. Commit/push each review-list checkpoint; exact-commit CI required before advancing.
 
 2026-10-28 —48 lands: adoption-focused synthetic pilot48 executions/three arms with honest equal assertion-baseline outcomes, repeat/installed-code provenance repairs and two independent audits; researcher protocol/template prepared, actual external validation remains open. Seven gates217 Node/1005 Python and Ruff56 pass; exact-commit CI required after push.
+
+2026-10-28 —49 lands: branded, accurate public homepage with version-correct installation and existing gallery, GitHub Pages deployment and repository identity update; desktop1440/mobile390 visual checks show loaded image/no page overflow, docs links resolve. Seven gates217 Node/1005 Python and Ruff56 pass. Verify actual site/metadata and all exact-commit workflows after push before advancing.

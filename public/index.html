@@ -1,78 +1,118 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GraphUnslopify</title>
-    <style>
-      :root { color-scheme: light dark; }
-      body {
-        margin: 0 auto;
-        padding: 3rem 1.25rem;
-        max-width: 46rem;
-        font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      }
-      code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
-      pre { padding: 0.9rem; border-radius: 6px; overflow-x: auto; background: rgba(127,127,127,0.12); }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { text-align: left; padding: 0.4rem 0.7rem 0.4rem 0; border-bottom: 1px solid rgba(127,127,127,0.3); }
-      .lede { font-size: 1.05em; }
-    </style>
-  </head>
-  <body>
-    <h1>GraphUnslopify</h1>
-    <p class="lede">
-      An MCP server that turns a semantic figure specification into runnable matplotlib code.
-    </p>
-
-    <p>
-      An agent says what the figure means. The generator decides how it is drawn. There is no
-      colour, line width, or font size anywhere in the spec, which is the point. If an agent could
-      set them, every figure in your paper would disagree with every other one.
-    </p>
-
-    <p>Your data never leaves your machine. You get back a Python script that reads your own CSV.</p>
-
-    <h2>The spec</h2>
-    <pre><code>{
-  "kind": "line",
-  "x": { "field": "epoch", "label": "Training epoch" },
-  "y": { "field": "accuracy", "label": "Test accuracy", "unit": "%" },
-  "group": "model",
-  "aggregation": "mean",
-  "series_order": ["baseline", "ours"],
-  "emphasis": { "series": "ours" }
-}</code></pre>
-
-    <p>
-      <code>series_order</code> pins colour assignment so a model keeps its colour across every
-      figure. <code>emphasis</code> names the series you are arguing for and the generator
-      foregrounds it, muting the rest. <code>aggregation</code> collapses repeated x values, which
-      is what a curve measured over several seeds needs.
-    </p>
-
-    <h2>Endpoints</h2>
-    <table>
-      <tr><th>Path</th><th>Method</th><th>Purpose</th></tr>
-      <tr><td><code>/api/mcp</code></td><td>GET, POST, DELETE</td><td>MCP Streamable HTTP</td></tr>
-      <tr><td><code>/api/convert</code></td><td>POST</td><td>Same translation without MCP, for curl</td></tr>
-      <tr><td><code><a href="/api/health">/api/health</a></code></td><td>GET</td><td>Liveness</td></tr>
-    </table>
-
-    <h2>Connect an MCP client</h2>
-    <pre><code>claude mcp add --transport http graph-unslopify \
-  https://json-translator-three.vercel.app/api/mcp</code></pre>
-
-    <h2>Or curl it</h2>
-    <pre><code>curl -X POST https://json-translator-three.vercel.app/api/convert \
-  -H 'content-type: application/json' \
-  -d '{"kind":"line",
-       "x":{"field":"epoch","label":"Epoch"},
-       "y":{"field":"acc","label":"Accuracy"}}'</code></pre>
-
-    <p>
-      Line, scatter, and bar for now. Twelve checks run on the spec before anything is drawn.
-      <a href="https://github.com/unluckyjet/GraphUnslopify">Source on GitHub</a>.
-    </p>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Create consistent scientific figures from semantic specifications, run local checks, and keep evidence with every export." />
+  <link rel="canonical" href="https://unluckyjet.github.io/GraphUnslopify/" />
+  <title>GraphUnslopify — scientific figures with checkable evidence</title>
+  <style>
+    :root { color-scheme: light; --ink: #172c35; --muted: #405c67; --accent: #075e54; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #fafbf8; font: 17px/1.65 system-ui, sans-serif; }
+    main, header, footer { max-width: 1080px; margin: auto; padding: 24px; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #cad7d3; }
+    .brand { font-size: 20px; font-weight: 750; text-decoration: none; color: var(--ink); }
+    nav { display: flex; gap: 20px; flex-wrap: wrap; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:focus-visible { outline: 3px solid #ce7300; outline-offset: 4px; }
+    .hero { padding: 54px 0 32px; max-width: 830px; }
+    .eyebrow { font-size: 14px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+    h1 { font-size: clamp(36px, 5.5vw, 60px); line-height: 1.12; letter-spacing: -.035em; margin: 16px 0 24px; }
+    h2 { font-size: 28px; line-height: 1.25; margin: 44px 0 16px; }
+    h3 { font-size: 19px; margin: 0 0 8px; }
+    p { margin: 0 0 18px; }
+    .lede { font-size: 21px; color: var(--muted); }
+    .links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 26px 0; }
+    .button { display: inline-block; background: var(--accent); color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 650; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+    .card { border-top: 3px solid #9cbbb0; padding-top: 18px; }
+    .card p, figcaption { color: var(--muted); font-size: 15px; }
+    figure { margin: 28px 0; padding: 20px; background: white; border: 1px solid #d6dfda; border-radius: 8px; }
+    img { display: block; width: 100%; max-width: 790px; height: auto; margin: auto; }
+    figcaption { margin-top: 16px; }
+    pre { background: #edf2ed; border: 1px solid #cedbd2; border-radius: 6px; padding: 18px; overflow-x: auto; font-size: 14px; line-height: 1.6; }
+    code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    pre code { overflow-wrap: normal; }
+    .note { border-left: 3px solid #b67721; padding: 12px 18px; background: #fff7e9; }
+    footer { border-top: 1px solid #cad7d3; margin-top: 48px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 650px) { .grid { grid-template-columns: 1fr; } main, header, footer { padding: 20px; } .hero { padding-top: 30px; } figure { padding: 10px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="https://unluckyjet.github.io/GraphUnslopify/">GraphUnslopify</a>
+    <nav aria-label="Main navigation">
+      <a href="#start">Get started</a>
+      <a href="https://github.com/unluckyjet/GraphUnslopify#readme">Documentation</a>
+      <a href="https://github.com/unluckyjet/GraphUnslopify">GitHub</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Local research tools · MIT licensed</div>
+      <h1>Turn research data into figures you can check.</h1>
+      <p class="lede">Describe what your figure means. Get a runnable Python script,
+        consistent exports, and a report of what was checked against the data and drawing.</p>
+      <div class="links">
+        <a class="button" href="#start">Make your first figure</a>
+        <a href="https://github.com/unluckyjet/GraphUnslopify#readme">Explore the figure gallery →</a>
+      </div>
+    </section>
+    <div class="grid">
+      <section class="card"><h3>Work with your data</h3><p>Use local CSV, JSON or Parquet.
+        The Python CLI, notebook API and local editor run on your machine. An agent can
+        also request generated code through MCP.</p></section>
+      <section class="card"><h3>Inspect the evidence</h3><p>Check declared comparisons,
+        available uncertainty, rendered geometry and readability. Keep reports, generated
+        programs and provenance alongside PNG, SVG and PDF exports.</p></section>
+      <section class="card"><h3>Review a whole project</h3><p>Regenerate a paper's figure
+        manifest, compare changes with a previous audit, and run the checks in GitHub
+        Actions before accepting an update.</p></section>
+    </div>
+    <figure>
+      <img src="https://raw.githubusercontent.com/unluckyjet/GraphUnslopify/v0.7.0/examples/baseline/01-training-curve.png"
+        alt="Four model training curves with a consistent series palette and a legend outside the data." />
+      <figcaption>A synthetic training example from the regression gallery. Twenty-one figure
+        kinds cover curves, distributions, estimates, matrices and tables; twenty-five recipes
+        provide starting specifications.</figcaption>
+    </figure>
+    <section id="start">
+      <h2>Start locally</h2>
+      <p>Python 3.10 or newer, in a virtual environment. This pinned release includes the
+        local translator and its runtime; no npm setup or server is needed.</p>
+      <pre><code>python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+graphunslopify doctor
+graphunslopify demo</code></pre>
+      <p>The demo creates a dataset, specification, Python program, verified static exports
+        and report. Then try <code>graphunslopify preview</code> for the local editor, or
+        <a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/installation.md">follow the installation guide</a>
+        to use your own data.</p>
+      <p class="note">Current development rejects failed or incomplete verification by
+        default. The pinned 0.7.0 release requires <code>--strict</code> on render/run/check
+        and <code>strict=True</code> in the Python SDK; its demo and paper audit are already strict.</p>
+    </section>
+    <section>
+      <h2>What the evidence establishes</h2>
+      <p>Static rules and local runtime checks cover supported computations and presentation
+        conditions. They cannot establish where data came from, experimental independence,
+        causal validity or the truth of an undeclared claim.</p>
+      <p>The <a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/scientific-validation.md">numerical reference matrix</a>
+        and <a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/validation/benchmark.md">three-workflow pilot</a>
+        document the engineering evidence. External researcher testing and independent
+        scientific benchmarking remain outstanding.</p>
+    </section>
+    <section>
+      <h2>Connect an agent or service</h2>
+      <p>Use <code>graphunslopify mcp</code> with the optional agent extra for local stdio.
+        The existing <a href="https://json-translator-three.vercel.app/api/health">hosted API</a>
+        also supports HTTP translation and <a href="https://json-translator-three.vercel.app/api/mcp">MCP</a>.
+        Remote translation sends your specification or profile to the service; generated
+        Python reads your data locally.</p>
+      <p><a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/agents.md">Agent integration guide</a></p>
+    </section>
+  </main>
+  <footer>GraphUnslopify · <a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/LICENSE">MIT license</a> ·
+    <a href="https://github.com/unluckyjet/GraphUnslopify/issues">Report a problem</a></footer>
+</body>
 </html>

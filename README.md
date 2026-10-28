@@ -412,7 +412,8 @@ default; optional HTTP translation receives the supplied spec/profile. What an e
 sends to its model is controlled by that host, so review what you share.
 
 [Local agent setup](docs/agents.md) ·
-[Hosted translator](https://json-translator-three.vercel.app) ·
+[Project homepage](https://unluckyjet.github.io/GraphUnslopify/) ·
+[Hosted translator API](https://json-translator-three.vercel.app/api/health) ·
 [HTTP MCP endpoint](https://json-translator-three.vercel.app/api/mcp)
 
 ### Audit a paper's figures together

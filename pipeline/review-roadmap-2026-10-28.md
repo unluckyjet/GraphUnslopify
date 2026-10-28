@@ -34,8 +34,8 @@ testing preparation), then13/14,6 and3. External results remain open until obser
 | 10 | P1 | Project-wide figure management and status/history. | Pending; reuse manifests and shared visual identity. |
 | 11 | P1 | Actionable problem/consequence/correction diagnostics. | Pending; audit existing messages and repairs. |
 | 12 | P1 | Dependency/rendering/execution environment provenance. | Pending; extend current versioned evidence envelope compatibly. |
-| 13 | P2 | GitHub repository description. | Pending live metadata verification/update. |
-| 14 | P2 | Homepage and deployment branding. | Pending current deployment/domain assessment. |
+| 13 | P2 | GitHub repository description. | Branding checkpoint49 updates the live description to scientific figure generation and checks. |
+| 14 | P2 | Homepage and deployment branding. | [Branded GitHub Pages homepage](../docs/homepage.md) and current content; legacy Vercel API remains available. Renaming that service requires Vercel access. |
 | 15 | P2 | Outdated documentation and installation references. | Pending; known stale composition/Figure CI prose is recorded in the vault. |
 | 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
 | 17 | High | Realistic comparative benchmarks with measured outcomes. | First milestone: [project-authored pilot](../docs/validation/benchmark.md),48 executions, three arms; independent held-out scientific benchmarking remains open. |

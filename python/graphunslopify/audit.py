@@ -340,7 +340,7 @@ def _audit_one(
     return record
 
 
-def compare_audits(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
+def _validate_audit_report(report: dict[str, Any], label: str) -> None:
     from importlib.resources import files
 
     from jsonschema import Draft202012Validator
@@ -348,10 +348,19 @@ def compare_audits(before: dict[str, Any], after: dict[str, Any]) -> dict[str, A
     schema = json.loads(
         files("graphunslopify").joinpath("schemas/audit-report.schema.json").read_text()
     )
-    if list(Draft202012Validator(schema).iter_errors(before)):
-        raise AuditError("baseline is not a valid version 1 audit report")
-    if len({f["id"] for f in before["figures"]}) != len(before["figures"]):
-        raise AuditError("baseline has duplicate figure IDs")
+    try:
+        _canonical(report)
+    except (ValueError, TypeError) as problem:
+        raise AuditError(f"{label} contains invalid JSON values") from problem
+    if list(Draft202012Validator(schema).iter_errors(report)):
+        raise AuditError(f"{label} is not a valid version 1 audit report")
+    if len({f["id"] for f in report["figures"]}) != len(report["figures"]):
+        raise AuditError(f"{label} has duplicate figure IDs")
+
+
+def compare_audits(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
+    _validate_audit_report(before, "baseline")
+    _validate_audit_report(after, "current report")
     old = {item["id"]: item for item in before["figures"]}
     new = {item["id"]: item for item in after["figures"]}
     changes = []
@@ -374,6 +383,7 @@ def compare_audits(before: dict[str, Any], after: dict[str, Any]) -> dict[str, A
             "findings": a.get("findings") != b.get("findings"),
             "errors": left.get("errors") != right.get("errors"),
             "warnings": left.get("warnings") != right.get("warnings"),
+            "environment": a.get("environment") != b.get("environment"),
             "published_artifacts": left.get("artifacts") != right.get("artifacts"),
         }
         outputs = []
@@ -416,11 +426,16 @@ def audit(
     fail_on_warning: bool = False,
     fail_on_change: bool = False,
     timeout: float = 120,
+    baseline_root: str | Path | None = None,
 ) -> dict[str, Any]:
     if fail_on_change and baseline is None:
         raise AuditError("--fail-on-change requires --baseline")
+    if baseline_root is not None and baseline is None:
+        raise AuditError("--baseline-root requires --baseline")
     source, manifest = load_manifest(path)
     previous = _json(Path(baseline)) if baseline else None
+    if previous is not None:
+        _validate_audit_report(previous, "baseline")
     root = source.parent
     destination = Path(output).expanduser().resolve()
     if source == destination / "audit.report.json":
@@ -447,6 +462,7 @@ def audit(
         "schema_version": 1,
         "manifest": source.name,
         "run_directory": run_root.relative_to(destination).as_posix(),
+        "artifact_root": str(destination),
         "status": status,
         "figures": figures,
         "counts": {
@@ -458,6 +474,7 @@ def audit(
             "strict": True,
             "fail_on_warning": fail_on_warning,
             "fail_on_change": fail_on_change,
+            "require_visual_comparison": previous is not None,
         },
         "exit_code": 0,
     }
@@ -469,6 +486,26 @@ def audit(
         or (fail_on_change and result["comparison"] and result["comparison"]["changed"])
         else 0
     )
+    if previous is not None:
+        from .comparison import artifact_roots, write_comparison
+
+        packet = write_comparison(
+            previous,
+            result,
+            output=run_root / "comparison",
+            before_roots=artifact_roots(previous, Path(baseline), baseline_root, destination),
+            after_roots=[destination],
+            audit_policy=True,
+        )
+        result["exit_code"] = packet["after_exit_code"]
+        result["visual_comparison"] = {
+            "html": (run_root.relative_to(destination) / "comparison/index.html").as_posix(),
+            "report": (
+                run_root.relative_to(destination) / "comparison/comparison.report.json"
+            ).as_posix(),
+            "preview_status": packet["preview_status"],
+            "exit_code": packet["exit_code"],
+        }
     (destination / "audit.report.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=True, allow_nan=False) + "\n", encoding="utf8"
     )
@@ -488,6 +525,9 @@ def audit(
         summary += [
             "",
             "## Changes",
+            "",
+            f"[Visual before/after report]({result['visual_comparison']['html']})",
+            f"Visual previews: **{result['visual_comparison']['preview_status']}**; unavailable evidence rejects acceptance.",
             "",
             "```json",
             json.dumps(result["comparison"], indent=2),

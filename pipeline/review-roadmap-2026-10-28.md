@@ -31,7 +31,7 @@ External results remain open until observed.
 | 5 | P0 | Interaction and edge-case regression coverage. | [34-case matrix](../docs/interaction-validation.md), [spec56](done/56-interaction-regressions.md): representative named-unit/estimator/missingness/panel/strict/export interactions with hand answers, actual marks and written PNG/SVG/PDF/HTML. Bounded coverage extends the complete per-kind core suite; not an exhaustive option product. |
 | 6 | P1 | Publish an installable PyPI release. | [0.8.0 published on PyPI/GitHub](../docs/releases/0.8.0-publication.json); matching hashes, downloaded-source rebuild and genuine fresh registry/agent/PDF/strict-default/offline-runtime installation verified. |
 | 7 | P1 | Easier editor controls and clearer explanations. | Pending; preserve existing live preview, strict checks and exports. |
-| 8 | P1 | Visual before/after figure comparison reports. | Pending; extend current manifest/baseline comparison. |
+| 8 | P1 | Visual before/after figure comparison reports. | [Visual comparison packets](../docs/figure-comparison.md), [spec61](done/61-visual-figure-comparison.md): automatic baseline HTML/JSON, saved-run CLI, verified PNG/SVG/PDF previews, native raster differences/blend and evidence explanations. Missing visual evidence rejects acceptance; scientific status stays explicit. Source after0.8.0; selected previews do not certify scientific or cross-format equivalence. |
 | 9 | P1 | Research-environment and experiment-tracking integrations. | Pending; build on current notebook, editor, agent and LaTeX workflows. |
 | 10 | P1 | Project-wide figure management and status/history. | Pending; reuse manifests and shared visual identity. |
 | 11 | P1 | Actionable problem/consequence/correction diagnostics. | Pending; audit existing messages and repairs. |
@@ -81,3 +81,5 @@ External results remain open until observed.
   and all60 prior PNG pixel identities pass. Fresh source-wheel agent/PDF/offline
   smoke requires report/export context parity; malformed/nonfinite or mismatched
   context is rejected. Published0.8.0 unchanged; exact pushed CI checked next.
+
+- Item8/spec61:38 new controls,222 Node/1227 Python/seven gates/Ruff72,59 focused controls and fresh offline installed source-wheel checks pass. Actual portable desktop/mobile reports, blend/passive SVG/escaping/network isolation and staged consumer evidence verified. No original figure drift. Missing previews reject acceptance while source check status remains truthful. Exact pushed main/Figure CI checked next.

@@ -67,7 +67,7 @@ a new baseline. The action never approves changes, commits files or comments on 
 | fail-on-change | false | Reject changes against a required baseline |
 | timeout | 120 | Seconds per generated program |
 | python-version | 3.12 | Python version, minimum 3.10 |
-| extras | interactive,parquet,statistics | Optional readers/backends/tests; empty for core |
+| extras | interactive,parquet,statistics | Optional readers/backends/tests; accepts pdf for PDF comparison previews; empty for core |
 | artifact-name | figure-audit | Choose a unique name for each use in a job |
 | retention-days | 14 | GitHub artifact retention |
 
@@ -89,3 +89,5 @@ Previous local runs survive. Artifact contents include generated/selected source
 Composite-action behavior follows [GitHub's action packaging documentation](https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action).
 
 The version tag fixes the action/compiler/docs release. For development you can select `@main`; pin a full reviewed commit when you need an immutable action reference. See [versioning](versioning.md).
+
+Current source after0.8.0 automatically stages [visual comparison packets](figure-comparison.md) with baseline audits, including both saved images and self-contained HTML. Missing requested visual evidence rejects acceptance. Add `pdf` to `extras` for PDF-only figure previews; the default core PNG/SVG route needs no PDF renderer.

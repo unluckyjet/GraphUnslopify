@@ -210,12 +210,47 @@
         },
         "fail_on_change": {
           "type": "boolean"
+        },
+        "require_visual_comparison": {
+          "type": "boolean"
         }
       }
     },
     "run_directory": {
       "type": "string",
       "pattern": "^runs/[a-f0-9]{32}$"
+    },
+    "artifact_root": {
+      "type": "string"
+    },
+    "visual_comparison": {
+      "type": "object",
+      "required": [
+        "html",
+        "report",
+        "preview_status",
+        "exit_code"
+      ],
+      "properties": {
+        "html": {
+          "type": "string"
+        },
+        "report": {
+          "type": "string"
+        },
+        "preview_status": {
+          "enum": [
+            "complete",
+            "partial"
+          ]
+        },
+        "exit_code": {
+          "enum": [
+            0,
+            2
+          ]
+        }
+      }
     }
   }
 }

@@ -451,8 +451,11 @@ graphunslopify audit graphunslopify-demo --out-dir audit-output
 
 Compare with an earlier audit to identify added/removed figures and changed data, numeric inputs,
 specs, descriptions, claims and outputs. PNG comparison separates file bytes from visible pixels:
-metadata can change while the picture stays identical. Other formats report byte changes without
-claiming a raster comparison.
+metadata can change while the picture stays identical. Current source after0.8.0 also creates
+[visual comparison reports](docs/figure-comparison.md): saved PNG/SVG/PDF previews, pixel
+difference maps where comparable, blend controls and explanations of changed evidence.
+Compare saved runs with `graphunslopify compare before.json after.json --out-dir comparison`.
+Missing images and unknown pixel comparisons remain explicit; validation failures stay visible.
 
 This supports source-linked figure review. Current development also provides
 [PDF review packets](docs/pdf-review.md) with page previews, text and manually selected crops

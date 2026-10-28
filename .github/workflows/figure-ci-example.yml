@@ -46,7 +46,7 @@ jobs:
         continue-on-error: true
         with:
           manifest: paper
-          extras: ''
+          extras: pdf
           artifact-name: rejected-paper
           baseline: ${{ steps.figures.outputs.report-file }}
       - name: A failed claim must fail the action and keep review evidence
@@ -72,3 +72,18 @@ jobs:
           assert change['fields']['data_bytes'] is False
           png = next(item for item in change['outputs'] if item['file'].endswith('.png'))
           assert png['pixels_changed'] is False
+
+          packet_path = Path(os.environ['REPORT']).parent / report['visual_comparison']['report']
+          packet = json.loads(packet_path.read_text())
+          assert packet['preview_status'] == 'complete'
+          assert packet['after_exit_code'] == 2
+          training = next(x for x in packet['figures'] if x['id'] == 'training')
+          assert training['metrics']['visible_pixels_changed'] == 0
+          claims = next(x for x in training['explanations'] if x['field'] == 'claims')
+          assert claims['before'][0]['verdict'] == 'holds'
+          assert claims['after'][0]['verdict'] == 'fails'
+          assert (Path(os.environ['REPORT']).parent / report['visual_comparison']['html']).is_file()
+          for figure in packet['figures']:
+              for side in ('before', 'after'):
+                  preview = figure[side]['preview']
+                  assert (packet_path.parent / preview['path']).is_file()

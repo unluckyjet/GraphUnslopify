@@ -59,6 +59,11 @@ def main() -> None:
         action="store_true",
         help="require current-source runtime environment provenance; older releases may omit it",
     )
+    parser.add_argument(
+        "--require-comparison",
+        action="store_true",
+        help="require current-source visual audit comparison; older releases may omit it",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -1295,6 +1300,23 @@ def main() -> None:
             )
         )
         assert getting_started["status"] == "passed"
+    visual_comparison = None
+    if args.require_comparison:
+        visual_comparison = json.loads(
+            run(
+                [
+                    str(python),
+                    str(
+                        Path(__file__).resolve().with_name("check-visual-comparison.py")
+                    ),
+                    "--work-dir",
+                    str(where / "visual comparison"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert visual_comparison["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1307,6 +1329,7 @@ def main() -> None:
                 "pdf": args.pdf,
                 "registry_version": args.registry_version,
                 "getting_started": getting_started,
+                "visual_comparison": visual_comparison,
                 "work_dir": str(where),
             }
         )

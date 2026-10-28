@@ -23,7 +23,7 @@ inputs:
     description: Supported Python version.
     default: '3.12'
   extras:
-    description: Comma-separated interactive, parquet, statistics extras; empty for core only.
+    description: Comma-separated interactive, parquet, statistics, pdf extras; empty for core only.
     default: interactive,parquet,statistics
   artifact-name:
     description: Unique artifact name when this action runs more than once in a job.

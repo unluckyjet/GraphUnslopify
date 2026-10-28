@@ -87,6 +87,14 @@ jobs:
           path: /tmp/gu-cell-contrast-*/**
           if-no-files-found: ignore
           retention-days: 7
+      - run: npm run comparison-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-comparison-verification
+          path: /tmp/gu-comparison-check-*/**
+          if-no-files-found: ignore
+          retention-days: 7
       - run: npm run preview-check
       - uses: actions/upload-artifact@v4
         if: always()
@@ -147,7 +155,7 @@ jobs:
       - run: git diff --exit-code -- src/codegen/cell-colour-source.ts python/graphunslopify/_translator.mjs python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/graphunslopify/examples python/LICENSE
       - run: python -m pip install build
       - run: python -m build python --outdir dist
-      - run: python scripts/install-smoke.py --agent --pdf --require-environment
+      - run: python scripts/install-smoke.py --agent --pdf --require-environment --require-comparison
       - uses: actions/upload-artifact@v4
         with:
           name: distribution-${{ matrix.os }}-py${{ matrix.python }}

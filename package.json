@@ -18,7 +18,8 @@
     "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts",
     "build:translator": "node --experimental-strip-types scripts/build-translator.ts",
     "preview-check": "node --experimental-strip-types scripts/preview-check.ts",
-    "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts"
+    "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts",
+    "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts"
   },
   "type": "module",
   "dependencies": {

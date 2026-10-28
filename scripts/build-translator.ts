@@ -27,7 +27,7 @@ const { $schema, $id, ...environmentDefinition } = environment;
 runtime.$defs = { ...runtime.$defs, environment: environmentDefinition };
 runtime.properties.environment = { $ref: "#/$defs/environment" };
 writeFileSync("docs/runtime-report.schema.json", JSON.stringify(runtime, null, 2) + "\n");
-for (const name of ["manifest", "runtime-report", "audit-report", "environment"]) {
+for (const name of ["manifest", "runtime-report", "audit-report", "environment", "comparison"]) {
   copyFileSync(`docs/${name}.schema.json`, `python/graphunslopify/schemas/${name}.schema.json`);
 }
 

@@ -257,6 +257,25 @@ def _audit(args: argparse.Namespace) -> int:
             fail_on_warning=args.fail_on_warning,
             fail_on_change=args.fail_on_change,
             timeout=args.timeout,
+            baseline_root=args.baseline_root,
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result["exit_code"])
+
+
+def _compare(args: argparse.Namespace) -> int:
+    from .comparison import compare_reports
+
+    try:
+        result = compare_reports(
+            args.before,
+            args.after,
+            output=args.out_dir,
+            before_root=args.before_root,
+            after_root=args.after_root,
         )
     except (OSError, ValueError) as problem:
         print(json.dumps({"status": "failed", "error": str(problem)}))
@@ -354,10 +373,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     audited.add_argument("--out-dir", default=".graphunslopify-audit")
     audited.add_argument("--baseline", help="previous audit.report.json to compare")
+    audited.add_argument("--baseline-root", help="artifact root for a moved baseline archive")
     audited.add_argument("--fail-on-warning", action="store_true")
     audited.add_argument("--fail-on-change", action="store_true")
     audited.add_argument("--timeout", type=float, default=120, help="seconds per generated program")
     audited.set_defaults(handler=_audit)
+
+    compared = commands.add_parser(
+        "compare", help="compare two saved audits without executing sources"
+    )
+    compared.add_argument("before")
+    compared.add_argument("after")
+    compared.add_argument("--out-dir", default="figure-comparison")
+    compared.add_argument("--before-root", help="override the before artifact root")
+    compared.add_argument("--after-root", help="override the after artifact root")
+    compared.set_defaults(handler=_compare)
 
     initialized = commands.add_parser(
         "audit-init", help="discover figure JSON specs and write a manifest"

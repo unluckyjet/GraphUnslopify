@@ -92,7 +92,7 @@ The aggregate contract is [audit-report.schema.json](audit-report.schema.json). 
 use [runtime-report.schema.json](runtime-report.schema.json).
 
 ```sh
-# Save the report before making a change; copying the JSON is sufficient for comparison.
+# Save the report before editing; retain its runs/ files for visual previews.
 cp audit-output/audit.report.json before.json
 # After changing results, specs or scripts:
 graphunslopify audit paper/ --out-dir audit-output --baseline before.json
@@ -125,3 +125,15 @@ The report's check status and selected exit policy are distinct. Use the process
 terminated and the remaining entries still run. Translation also has its own local transport
 limit. Invalid manifests/baselines return an error JSON and nonzero exit rather than a completed
 audit; always inspect the current process result before relying on an older report in that folder.
+
+## Visual before/after reports (source after0.8.0)
+
+Baseline audits now also produce [portable visual comparison packets](figure-comparison.md):
+verified saved PNG/SVG/PDF previews, native raster difference maps where comparable,
+blend controls and before/after explanations. See `visual_comparison` in the returned
+report or follow its Markdown link. Saved reports can also be reviewed with
+`graphunslopify compare before.json after.json --out-dir comparison` without executing
+programs or rereading datasets. Keep run images or supply moved archive roots;
+missing or stale files remain unavailable. The lower-level byte/pixel comparison
+above stays distinct from this selected-preview layer. Current source audits also
+compare recorded environment changes and preserve their existing strict policy.

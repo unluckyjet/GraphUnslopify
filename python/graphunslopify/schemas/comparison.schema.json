@@ -1,0 +1,545 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:comparison:1",
+  "title": "GraphUnslopify saved figure comparison version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scope",
+    "changed",
+    "before_status",
+    "after_status",
+    "before_exit_code",
+    "after_exit_code",
+    "exit_code",
+    "preview_status",
+    "pdf_raster_dpi",
+    "figures",
+    "limitations",
+    "before_policy",
+    "after_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "scope": {
+      "type": "string"
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "before_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "incomplete"
+      ]
+    },
+    "after_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "incomplete"
+      ]
+    },
+    "before_exit_code": {
+      "enum": [
+        0,
+        2
+      ]
+    },
+    "after_exit_code": {
+      "enum": [
+        0,
+        2
+      ]
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        2
+      ]
+    },
+    "preview_status": {
+      "enum": [
+        "complete",
+        "partial"
+      ]
+    },
+    "pdf_raster_dpi": {
+      "const": 144
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "before_status",
+          "after_status",
+          "before",
+          "after",
+          "metrics",
+          "difference",
+          "explanations",
+          "output_changes",
+          "visual_status",
+          "outputs_before",
+          "outputs_after"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "unchanged",
+              "changed",
+              "added",
+              "removed"
+            ]
+          },
+          "before_status": {
+            "enum": [
+              "passed",
+              "failed",
+              "incomplete",
+              null
+            ]
+          },
+          "after_status": {
+            "enum": [
+              "passed",
+              "failed",
+              "incomplete",
+              null
+            ]
+          },
+          "before": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "absent"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "format": {
+                "enum": [
+                  "png",
+                  "svg",
+                  "pdf"
+                ]
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "dimensions": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "renderer": {
+                "enum": [
+                  "pillow",
+                  "pypdfium2",
+                  "browser_svg_image"
+                ]
+              },
+              "raster_dpi": {
+                "const": 144
+              },
+              "preview": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "mime",
+                  "sha256",
+                  "bytes"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "mime": {
+                    "enum": [
+                      "image/png",
+                      "image/svg+xml"
+                    ]
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "available"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "path",
+                    "format",
+                    "sha256",
+                    "bytes",
+                    "dimensions",
+                    "renderer",
+                    "preview"
+                  ]
+                },
+                "else": {
+                  "required": [
+                    "reason"
+                  ]
+                }
+              }
+            ]
+          },
+          "after": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "available",
+                  "unavailable",
+                  "absent"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "format": {
+                "enum": [
+                  "png",
+                  "svg",
+                  "pdf"
+                ]
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "dimensions": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "renderer": {
+                "enum": [
+                  "pillow",
+                  "pypdfium2",
+                  "browser_svg_image"
+                ]
+              },
+              "raster_dpi": {
+                "const": 144
+              },
+              "preview": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "mime",
+                  "sha256",
+                  "bytes"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "mime": {
+                    "enum": [
+                      "image/png",
+                      "image/svg+xml"
+                    ]
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "available"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "path",
+                    "format",
+                    "sha256",
+                    "bytes",
+                    "dimensions",
+                    "renderer",
+                    "preview"
+                  ]
+                },
+                "else": {
+                  "required": [
+                    "reason"
+                  ]
+                }
+              }
+            ]
+          },
+          "metrics": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "total_pixels",
+              "rgba_pixels_changed",
+              "visible_pixels_changed",
+              "visible_changed_fraction",
+              "max_rgb_channel_difference",
+              "mean_absolute_rgb_channel_difference",
+              "background",
+              "channel_range",
+              "resampled"
+            ],
+            "properties": {
+              "total_pixels": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "rgba_pixels_changed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "visible_pixels_changed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "visible_changed_fraction": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "max_rgb_channel_difference": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "mean_absolute_rgb_channel_difference": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "background": {
+                "const": "white"
+              },
+              "channel_range": {
+                "const": [
+                  0,
+                  255
+                ]
+              },
+              "resampled": {
+                "const": false
+              }
+            }
+          },
+          "difference": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "mime",
+                  "sha256",
+                  "bytes"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "mime": {
+                    "enum": [
+                      "image/png",
+                      "image/svg+xml"
+                    ]
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "explanations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "message"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "output_changes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "visual_status": {
+            "enum": [
+              "added",
+              "removed",
+              "unavailable",
+              "preview_only",
+              "dimensions_changed",
+              "pixels_changed",
+              "pixels_unchanged"
+            ]
+          },
+          "outputs_before": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "outputs_after": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "before_policy": {
+      "type": "object",
+      "required": [
+        "strict",
+        "fail_on_change",
+        "fail_on_warning"
+      ],
+      "properties": {
+        "strict": {
+          "type": "boolean"
+        },
+        "fail_on_change": {
+          "type": "boolean"
+        },
+        "fail_on_warning": {
+          "type": "boolean"
+        }
+      }
+    },
+    "after_policy": {
+      "type": "object",
+      "required": [
+        "strict",
+        "fail_on_change",
+        "fail_on_warning"
+      ],
+      "properties": {
+        "strict": {
+          "type": "boolean"
+        },
+        "fail_on_change": {
+          "type": "boolean"
+        },
+        "fail_on_warning": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

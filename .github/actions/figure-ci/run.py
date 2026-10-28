@@ -22,8 +22,8 @@ def _flag(name: str) -> bool:
 def install() -> int:
     extras = os.environ.get("FIGURE_CI_EXTRAS", "interactive,parquet,statistics")
     names = [name.strip() for name in extras.split(",") if name.strip()]
-    if set(names) - {"interactive", "parquet", "statistics"}:
-        raise ValueError("extras must be interactive, parquet and/or statistics")
+    if set(names) - {"interactive", "parquet", "statistics", "pdf"}:
+        raise ValueError("extras must be interactive, parquet, statistics and/or pdf")
     source = str(Path(__file__).resolve().parents[3] / "python")
     if names:
         source += f"[{','.join(names)}]"

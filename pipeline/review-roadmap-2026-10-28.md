@@ -16,6 +16,10 @@ over the review's descriptions. Extend existing implementations where present.
 | Expansion | 3, 7 | Existing-paper inspection and editor usability. |
 | Validation | 17, 18, 19, 20 | Measured benchmarks, external feedback, real data and contribution infrastructure. |
 
+The user's subsequent 9.0/10 review explicitly prioritizes adoption evidence over
+another feature cycle. Work now starts with items17/18 (measured pilot and external
+testing preparation), then13/14,6 and3. External results remain open until observed.
+
 | Item | Priority | Target | Current state |
 | --- | --- | --- | --- |
 | 1 | P0 | Strict verification by default across generated scripts, CLI and Python builder. | Implemented: [spec47](done/47-strict-verification-default.md); explicit opt-out preserves reports. |
@@ -34,8 +38,8 @@ over the review's descriptions. Extend existing implementations where present.
 | 14 | P2 | Homepage and deployment branding. | Pending current deployment/domain assessment. |
 | 15 | P2 | Outdated documentation and installation references. | Pending; known stale composition/Figure CI prose is recorded in the vault. |
 | 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
-| 17 | P2 | Realistic comparative benchmarks with measured outcomes. | Pending; distinguish automated correctness/reproduction measures from human time/quality studies. |
-| 18 | P2 | External researchers testing their own datasets. | Requires real participants and observed feedback; internal tests are not external validation. |
+| 17 | High | Realistic comparative benchmarks with measured outcomes. | First milestone: [project-authored pilot](../docs/validation/benchmark.md),48 executions, three arms; independent held-out scientific benchmarking remains open. |
+| 18 | High | External researchers testing their own datasets. | [Protocol and recording template prepared](../docs/validation/researcher-pilot.md); real participants and observed feedback remain required. No sessions conducted. |
 | 19 | P2 | Reproducible public research-dataset examples. | Pending dataset/source/license selection and real execution. |
 | 20 | P2 | Contribution, issue, security and public roadmap infrastructure. | Pending assessment and implementation. |
 

@@ -1,0 +1,685 @@
+{
+  "schema_version": 1,
+  "study": "project-authored synthetic pilot; no external participants",
+  "created_utc": "2026-10-28T16:36:38.724975+00:00",
+  "base_revision": "2149cada9212ec808a10c8cc2e2f05581d3eb74c",
+  "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "installed_implementation": {
+    "is_checkout_package": true,
+    "sha256": {
+      "__init__.py": "1a371a511b7384671816f804c6cef32f00478a4a2545fc9436c726602b5d0aac",
+      "_translator.mjs": "3ac716bda4acd8987c2eedabda60353a2345c7585035bfd2b1bd04071e88d251",
+      "audit.py": "3744b1a977d5dd03b153547c4be2acca78ed732cd5c09700eaf974d14144ad5c",
+      "audit_worker.py": "d158ca60ff2d24093ff3d41f906713dcbfd018ab00ad9c82b3b2668564bba5a0",
+      "build.py": "43983c2b1fe24b81ec2108113043a5cb1bf7a3f386c47d3c4c07482b10a86298",
+      "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+      "cli.py": "4ae297b24f85e38d588b8457cd50697339965c73ad1985e809edf8957675cf65",
+      "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+      "demo.py": "4ec1f6f8a9543c3b4ac27ff517139ea01e314c8c625e0ef82d76370f89969685",
+      "describe.py": "385ea772f09eb17435f0486539b8f3602c80f80b4087385e51799f341821b153",
+      "errors.py": "d375e842b617ad59d90087bb1004e004af9017177de377e62ffdd4f53e94c54a",
+      "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+      "inspect.py": "ddbf65a5d79a8cf613c4961a6c424c09b8dbac97e28f106234a398509a8eb3c1",
+      "lockfile.py": "668bc1637e7c16ed1497d30ba89ceb4d05cca9ca859e5d5ad0fe910c4d65e998",
+      "mcpserver.py": "fe567f2839c97ba6e4c983375f26878d46b1796c4e390f543823eb528fd6a879",
+      "notebook.py": "706659e48104888aed55d27210a4d54f0c8ca7772dc9da594e7def5ba16e465c",
+      "preview.py": "feb3126ece25af9139ff846091169e33eba3db164ba789ca56f5181d53314f98",
+      "provenance.py": "b9a9744332f1beebaed799f4d49121052620654c63372612b60da940c80a8506",
+      "schemas/audit-report.schema.json": "9643ca5468ee71c6ab1c45736134202dd987d90e9c7f69111ca5d6635dcdbc64",
+      "schemas/manifest.schema.json": "477f867ad82a571bf7cc3eb9dcda3c4ab06db95b8272aa0e13d632d1044671d3",
+      "schemas/runtime-report.schema.json": "e4b88b42de2d327a309196e2abccb302bd3f1cb417347a2ac14bbd8e4439ee2f",
+      "transport.py": "e48979edf30e4c7b651a254327c62c3f974673ab3f44b81b6f04853c57b7a505"
+    }
+  },
+  "source_sha256": {
+    "scripts/research-benchmark.py": "003949f1140b0dcc199468f361a96c1f06a501c8dbf99e171994a57f925bf0e0",
+    "benchmarks/research/results.csv": "91994c46053187dddfaf85b6aeeb354cdeca1bbc0df86a2512ce064d5202d70e",
+    "benchmarks/research/matplotlib_baseline.py": "0604135c193d96ac981c2ffc83a9d9b723d5d73c0612cb7ed5e797548d20d64f",
+    "benchmarks/research/cases.json": "826b1380acd92232002176aa7455afdb0fb9564ae6e405d22c5d81933f3fa79a"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "graphunslopify": "0.7.0",
+    "matplotlib": "3.11.2",
+    "pandas": "3.1.0",
+    "numpy": "2.5.4"
+  },
+  "summary": {
+    "matplotlib": {
+      "valid": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "invalid": {
+        "cases": 1,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "unavailable": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "execution_error": {
+        "cases": 1,
+        "blocked": 1,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "outside_scope": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "repeat_consistency": {
+        "cases": 8,
+        "disagreements": 0
+      },
+      "pixel_reproductions": {
+        "comparable": 7,
+        "identical": 7
+      }
+    },
+    "matplotlib_assertions": {
+      "valid": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "invalid": {
+        "cases": 1,
+        "blocked": 1,
+        "confirmed_failed": 1,
+        "incomplete": 0
+      },
+      "unavailable": {
+        "cases": 2,
+        "blocked": 2,
+        "confirmed_failed": 0,
+        "incomplete": 2
+      },
+      "execution_error": {
+        "cases": 1,
+        "blocked": 1,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "outside_scope": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "repeat_consistency": {
+        "cases": 8,
+        "disagreements": 0
+      },
+      "pixel_reproductions": {
+        "comparable": 7,
+        "identical": 7
+      }
+    },
+    "graphunslopify": {
+      "valid": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "invalid": {
+        "cases": 1,
+        "blocked": 1,
+        "confirmed_failed": 1,
+        "incomplete": 0
+      },
+      "unavailable": {
+        "cases": 2,
+        "blocked": 2,
+        "confirmed_failed": 0,
+        "incomplete": 2
+      },
+      "execution_error": {
+        "cases": 1,
+        "blocked": 1,
+        "confirmed_failed": 1,
+        "incomplete": 0
+      },
+      "outside_scope": {
+        "cases": 2,
+        "blocked": 0,
+        "confirmed_failed": 0,
+        "incomplete": 0
+      },
+      "repeat_consistency": {
+        "cases": 8,
+        "disagreements": 0
+      },
+      "pixel_reproductions": {
+        "comparable": 7,
+        "identical": 7
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "clean-means",
+      "truth": "valid",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.290429,
+        0.288105
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "clean-means",
+      "truth": "valid",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.318212,
+        0.291517
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "clean-means",
+      "truth": "valid",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.521701,
+        0.52954
+      ],
+      "pixel_hashes": [
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62",
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62"
+      ]
+    },
+    {
+      "id": "clean-claim",
+      "truth": "valid",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.294838,
+        0.290684
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "clean-claim",
+      "truth": "valid",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.291548,
+        0.289759
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "clean-claim",
+      "truth": "valid",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.535165,
+        0.527591
+      ],
+      "pixel_hashes": [
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62",
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62"
+      ]
+    },
+    {
+      "id": "reversed-claim",
+      "truth": "invalid",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.290856,
+        0.296205
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "reversed-claim",
+      "truth": "invalid",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "failed",
+        "failed"
+      ],
+      "seconds": [
+        0.293352,
+        0.292623
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "reversed-claim",
+      "truth": "invalid",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "failed",
+        "failed"
+      ],
+      "seconds": [
+        0.534215,
+        0.527711
+      ],
+      "pixel_hashes": [
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62",
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62"
+      ]
+    },
+    {
+      "id": "absent-reference",
+      "truth": "unavailable",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.290629,
+        0.291383
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "absent-reference",
+      "truth": "unavailable",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "incomplete",
+        "incomplete"
+      ],
+      "seconds": [
+        0.290142,
+        0.301367
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "absent-reference",
+      "truth": "unavailable",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "incomplete",
+        "incomplete"
+      ],
+      "seconds": [
+        0.530547,
+        0.530771
+      ],
+      "pixel_hashes": [
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62",
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62"
+      ]
+    },
+    {
+      "id": "singleton-interval",
+      "truth": "unavailable",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.292138,
+        0.291511
+      ],
+      "pixel_hashes": [
+        "5527d6ae9879a62196ca1e8105a5ff9c90bb3f66f22f279383bdc543e050f20b",
+        "5527d6ae9879a62196ca1e8105a5ff9c90bb3f66f22f279383bdc543e050f20b"
+      ]
+    },
+    {
+      "id": "singleton-interval",
+      "truth": "unavailable",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "incomplete",
+        "incomplete"
+      ],
+      "seconds": [
+        0.295528,
+        0.298173
+      ],
+      "pixel_hashes": [
+        "5527d6ae9879a62196ca1e8105a5ff9c90bb3f66f22f279383bdc543e050f20b",
+        "5527d6ae9879a62196ca1e8105a5ff9c90bb3f66f22f279383bdc543e050f20b"
+      ]
+    },
+    {
+      "id": "singleton-interval",
+      "truth": "unavailable",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        2,
+        2
+      ],
+      "statuses": [
+        "incomplete",
+        "incomplete"
+      ],
+      "seconds": [
+        0.544774,
+        0.535242
+      ],
+      "pixel_hashes": [
+        "f5147eff48a9ac08773edf6266276a2af9d7698f0887b10e84b825e8ad4f26ed",
+        "f5147eff48a9ac08773edf6266276a2af9d7698f0887b10e84b825e8ad4f26ed"
+      ]
+    },
+    {
+      "id": "missing-column",
+      "truth": "execution_error",
+      "arm": "matplotlib",
+      "exit_codes": [
+        1,
+        1
+      ],
+      "statuses": [
+        "execution_error",
+        "execution_error"
+      ],
+      "seconds": [
+        0.271556,
+        0.268598
+      ],
+      "pixel_hashes": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "missing-column",
+      "truth": "execution_error",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        1,
+        1
+      ],
+      "statuses": [
+        "execution_error",
+        "execution_error"
+      ],
+      "seconds": [
+        0.271711,
+        0.268964
+      ],
+      "pixel_hashes": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "missing-column",
+      "truth": "execution_error",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        1,
+        1
+      ],
+      "statuses": [
+        "failed",
+        "failed"
+      ],
+      "seconds": [
+        0.451939,
+        0.448989
+      ],
+      "pixel_hashes": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "wrong-unit-label",
+      "truth": "outside_scope",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.302011,
+        0.296001
+      ],
+      "pixel_hashes": [
+        "1861e10b61669ecb010d179d20c063fcd8f67d646ba946305a86de4a230baa39",
+        "1861e10b61669ecb010d179d20c063fcd8f67d646ba946305a86de4a230baa39"
+      ]
+    },
+    {
+      "id": "wrong-unit-label",
+      "truth": "outside_scope",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.295024,
+        0.299263
+      ],
+      "pixel_hashes": [
+        "1861e10b61669ecb010d179d20c063fcd8f67d646ba946305a86de4a230baa39",
+        "1861e10b61669ecb010d179d20c063fcd8f67d646ba946305a86de4a230baa39"
+      ]
+    },
+    {
+      "id": "wrong-unit-label",
+      "truth": "outside_scope",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.531435,
+        0.532124
+      ],
+      "pixel_hashes": [
+        "dd83816298ad5f1990e1035ea73765fcd5ef3effe7b1e9f88ce9f936ebefb307",
+        "dd83816298ad5f1990e1035ea73765fcd5ef3effe7b1e9f88ce9f936ebefb307"
+      ]
+    },
+    {
+      "id": "unsupported-causal-interpretation",
+      "truth": "outside_scope",
+      "arm": "matplotlib",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.292489,
+        0.298449
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "unsupported-causal-interpretation",
+      "truth": "outside_scope",
+      "arm": "matplotlib_assertions",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.290084,
+        0.294669
+      ],
+      "pixel_hashes": [
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271",
+        "caae1abc56c489fa1d93c6227ff816685ee29bc6d79f233a6d00a3adb26cc271"
+      ]
+    },
+    {
+      "id": "unsupported-causal-interpretation",
+      "truth": "outside_scope",
+      "arm": "graphunslopify",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "statuses": [
+        "passed",
+        "passed"
+      ],
+      "seconds": [
+        0.529323,
+        0.527189
+      ],
+      "pixel_hashes": [
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62",
+        "77b78dd76c330c845df55db4f0c6b086b54c7d96555f84195900b05af0421a62"
+      ]
+    }
+  ],
+  "limits": [
+    "Fixed synthetic cases, selected by project authors; not independent or representative.",
+    "Render-only baseline has no semantic verification; assertion-enabled arm is a stronger comparator.",
+    "Unavailable checks are abstentions, not confirmed scientific errors.",
+    "Missing-column failures are execution checks, counted separately.",
+    "Wrong units and causal interpretation cannot be verified from supplied evidence.",
+    "Timings include process startup; no human time, quality, power or adoption claims.",
+    "Same-environment repeated PNG pixel hashes; not cross-platform or cross-tool visual equality."
+  ]
+}

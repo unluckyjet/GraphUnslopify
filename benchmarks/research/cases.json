@@ -1,0 +1,10 @@
+[
+  {"id":"clean-means","truth":"valid","note":"Two models, two epochs, two seeds; means are base=[1.5,2.5], ours=[4.5,5.5]."},
+  {"id":"clean-claim","truth":"valid","claim":{"kind":"beats_everywhere","subject":"ours","reference":"base"},"note":"The declared pointwise mean comparison is true."},
+  {"id":"reversed-claim","truth":"invalid","claim":{"kind":"beats_everywhere","subject":"base","reference":"ours"},"note":"The declared pointwise mean comparison is false at both epochs."},
+  {"id":"absent-reference","truth":"unavailable","claim":{"kind":"beats_everywhere","subject":"ours","reference":"absent"},"note":"The named reference does not exist; verification must abstain and block."},
+  {"id":"singleton-interval","truth":"unavailable","singleton":true,"interval":true,"note":"One observation per model/epoch cannot supply the requested seed interval."},
+  {"id":"missing-column","truth":"execution_error","field":"missing","note":"The requested numeric field is absent. Count separately from scientific error detection."},
+  {"id":"wrong-unit-label","truth":"outside_scope","label":"Temperature (kelvin)","note":"Values actually denote an arbitrary score. Neither renderer can infer the true measurement unit from these numbers."},
+  {"id":"unsupported-causal-interpretation","truth":"outside_scope","note":"An author might interpret the descriptive curve causally. No treatment assignment or study-design evidence is supplied; neither workflow can establish causality."}
+]

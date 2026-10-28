@@ -458,6 +458,13 @@ accepted capabilities to actual tests, public release assets and clean-install e
 The release was checked through local suites, strict gallery regeneration, real TeX/browser
 checks and clean installs on Linux, macOS and Windows.
 
+A reproducible [workflow pilot](docs/validation/benchmark.md) compares ordinary Matplotlib,
+Matplotlib with hand-written assertions and the strict local CLI. On the eight selected
+synthetic cases, the assertion-enabled baseline and GraphUnslopify catch the same false
+comparison and abstain on the same unavailable checks. This is project-authored evidence;
+independent scientific benchmarking and external researcher testing remain outstanding.
+The [researcher pilot protocol](docs/validation/researcher-pilot.md) is ready to run on real projects.
+
 These checks validate their implemented computations and presentation conditions. Data origin,
 experimental design, genuinely independent units and appropriate scientific interpretation remain
 author responsibilities. Not every optional feature can be combined; unsupported combinations

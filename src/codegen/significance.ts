@@ -15,6 +15,21 @@ def compare(left, right):
         left, right = left[np.isfinite(left)], right[np.isfinite(right)]
     if len(left) < 2 or len(right) < 2:
         return None
+    if SIGNIFICANCE_METHOD != "mannwhitney":
+        # Center before scaling: separate large means can lose small representable gaps.
+        # Paired inference is a one-sample problem on the matched differences.
+        with np.errstate(over="ignore", invalid="ignore"):
+            if paired:
+                differences = left - right
+                left, right = differences, np.zeros_like(differences)
+            else:
+                origin = left[0]
+                left, right = left - origin, right - origin
+        if not np.isfinite(left).all() or not np.isfinite(right).all():
+            return None
+        scale = max(np.max(np.abs(left)), np.max(np.abs(right)))
+        if scale:
+            left, right = left / scale, right / scale
     if SIGNIFICANCE_METHOD == "bootstrap":
         rng = np.random.default_rng(BOOTSTRAP_SEED)
         observed = left.mean() - right.mean()

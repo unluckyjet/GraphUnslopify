@@ -242,3 +242,28 @@ def test_missing_pair_ids_are_counted_in_actual_cli(tmp_path):
     assert run.returncode == 0, report
     assert report["significance"][0]["missing_pair_ids"] == 1
     assert report["significance"][0]["raw_p"] == 2 / 16
+
+
+@pytest.mark.parametrize("design", ["paired", "independent"])
+@pytest.mark.parametrize("method", ["bootstrap", "ttest"])
+def test_mean_tests_are_invariant_to_large_common_offsets_and_positive_scales(
+    tmp_path, design, method
+):
+    module, _ = generated(tmp_path, method=method, design=design)
+    a, b = np.zeros(4), np.array([2.0, 2.0, 0.0, 0.0])
+    if method == "bootstrap":
+        # Hand enumeration: paired8/16 sign patterns; independent30/70 assignments.
+        expected = 8 / 16 if design == "paired" else 30 / 70
+    else:
+        # Mean difference1, sample variance4/3, df3 give |t|sqrt(3).
+        expected = 2 * stats.t.sf(np.sqrt(3), df=3)
+    for offset, factor in [(0, 1), (1e16, 1), (1e16, 2.0**400), (0, 2.0**-400)]:
+        value = module.compare((a + offset) * factor, (b + offset) * factor)
+        assert value == pytest.approx(expected), (offset, factor, value, expected)
+
+
+@pytest.mark.parametrize("design", ["paired", "independent"])
+@pytest.mark.parametrize("method", ["bootstrap", "ttest"])
+def test_unrepresentable_finite_differences_abstain(tmp_path, design, method):
+    module, _ = generated(tmp_path, method=method, design=design)
+    assert module.compare([1e308, 1e308], [-1e308, -1e308]) is None

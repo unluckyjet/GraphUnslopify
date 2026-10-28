@@ -93,6 +93,13 @@ seeded draws with the observed assignment included, giving nonzero randomized
 p-values. This absolute-tail convention is explicit and may differ from another
 tool's two-sided convention.
 
+Mean statistics use matched differences (paired) or a shared origin (independent),
+then a bounded positive working scale. This avoids losing representable small gaps
+when observations share a very large offset, without changing drawn observations.
+Rank tests retain original values. Differences that overflow the finite working
+representation remain unavailable, so strict verification cannot certify a test.
+Regression controls include the offset/scaled variants of a hand-enumerated case.
+
 Sources: [SciPy independent t-test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html),
 [paired t-test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html),
 [Mann-Whitney](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html),

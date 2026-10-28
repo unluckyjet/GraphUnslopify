@@ -33,6 +33,7 @@ import {
   emitLatexText,
 } from "./outputs.ts";
 import { emitRuntime } from "./runtime.ts";
+import { emitEnvironment } from "./environment.ts";
 import { pyList, pyOptStr, pyStr } from "./py.ts";
 import {
   BAND_ALPHA,
@@ -307,7 +308,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "    stamp = f\"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}\"",
     '    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,',
     '        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),',
-    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT}, ensure_ascii=False)',
+    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT, "environment": capture_environment()}, ensure_ascii=False)',
     '    if fmt == "png":',
     '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}',
     '    if fmt == "svg":',
@@ -539,6 +540,7 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",
+    "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     "            meta = metadata_for(fmt)",
@@ -579,6 +581,7 @@ export function emitPython(spec: FigureSpec): string {
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
+  emitEnvironment(out);
   emitRuntime(sourceSpec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);

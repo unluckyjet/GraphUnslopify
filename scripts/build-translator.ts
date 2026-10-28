@@ -21,7 +21,13 @@ await build({
 copyFileSync("node_modules/zod/LICENSE", "python/graphunslopify/ZOD-LICENSE.txt");
 copyFileSync("LICENSE", "python/LICENSE");
 mkdirSync("python/graphunslopify/schemas", { recursive: true });
-for (const name of ["manifest", "runtime-report", "audit-report"]) {
+const environment = JSON.parse(readFileSync("docs/environment.schema.json", "utf8"));
+const runtime = JSON.parse(readFileSync("docs/runtime-report.schema.json", "utf8"));
+const { $schema, $id, ...environmentDefinition } = environment;
+runtime.$defs = { ...runtime.$defs, environment: environmentDefinition };
+runtime.properties.environment = { $ref: "#/$defs/environment" };
+writeFileSync("docs/runtime-report.schema.json", JSON.stringify(runtime, null, 2) + "\n");
+for (const name of ["manifest", "runtime-report", "audit-report", "environment"]) {
   copyFileSync(`docs/${name}.schema.json`, `python/graphunslopify/schemas/${name}.schema.json`);
 }
 

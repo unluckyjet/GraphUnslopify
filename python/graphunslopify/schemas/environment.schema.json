@@ -1,0 +1,501 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:environment:1",
+  "title": "GraphUnslopify runtime environment snapshot version1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "capture_stage",
+    "python",
+    "platform",
+    "loaded_core_versions",
+    "installed_optional_versions",
+    "rendering",
+    "execution",
+    "random_constants",
+    "unavailable"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "capture_stage": {
+      "enum": [
+        "before_export",
+        "no_export_snapshot"
+      ]
+    },
+    "python": {
+      "type": "object",
+      "required": [
+        "version",
+        "implementation",
+        "optimize",
+        "hash_randomization"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "implementation": {
+          "type": "string"
+        },
+        "optimize": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hash_randomization": {
+          "type": "boolean"
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "required": [
+        "system",
+        "machine"
+      ],
+      "properties": {
+        "system": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "machine": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "loaded_core_versions": {
+      "type": "object",
+      "required": [
+        "numpy",
+        "pandas",
+        "matplotlib",
+        "Pillow",
+        "freetype"
+      ],
+      "properties": {
+        "numpy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pandas": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "matplotlib": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Pillow": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "freetype": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "installed_optional_versions": {
+      "type": "object",
+      "required": [
+        "graphunslopify",
+        "plotly",
+        "scipy",
+        "pypdf"
+      ],
+      "properties": {
+        "graphunslopify": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "plotly": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scipy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pypdf": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "rendering": {
+      "type": "object",
+      "required": [
+        "backend",
+        "figure_inches",
+        "figure_dpi",
+        "export_dpi",
+        "target_width_in",
+        "requested_formats",
+        "requested_interactive",
+        "rc_parameters",
+        "default_font"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "type": "string"
+        },
+        "figure_inches": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "figure_dpi": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "export_dpi": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "target_width_in": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "requested_formats": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "png",
+              "svg",
+              "pdf"
+            ]
+          },
+          "minItems": 1
+        },
+        "requested_interactive": {
+          "type": "boolean"
+        },
+        "rc_parameters": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "font.family",
+            "font.size",
+            "font.style",
+            "font.weight",
+            "font.variant",
+            "font.stretch",
+            "mathtext.fontset",
+            "text.usetex",
+            "text.parse_math",
+            "svg.fonttype",
+            "pdf.fonttype",
+            "ps.fonttype",
+            "savefig.transparent",
+            "path.simplify",
+            "path.simplify_threshold",
+            "agg.path.chunksize",
+            "svg.hashsalt",
+            "savefig.facecolor",
+            "figure.facecolor",
+            "axes.facecolor"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "font.family": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "font.size": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "font.style": {
+              "type": "string"
+            },
+            "font.weight": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "font.variant": {
+              "type": "string"
+            },
+            "font.stretch": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "mathtext.fontset": {
+              "type": "string"
+            },
+            "text.usetex": {
+              "type": "boolean"
+            },
+            "text.parse_math": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "svg.fonttype": {
+              "type": "string"
+            },
+            "pdf.fonttype": {
+              "type": "integer"
+            },
+            "ps.fonttype": {
+              "type": "integer"
+            },
+            "savefig.transparent": {
+              "type": "boolean"
+            },
+            "path.simplify": {
+              "type": "boolean"
+            },
+            "path.simplify_threshold": {
+              "type": "number"
+            },
+            "agg.path.chunksize": {
+              "type": "integer"
+            },
+            "svg.hashsalt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "savefig.facecolor": {
+              "type": [
+                "string",
+                "array"
+              ],
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 4
+            },
+            "figure.facecolor": {
+              "type": [
+                "string",
+                "array"
+              ],
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 4
+            },
+            "axes.facecolor": {
+              "type": [
+                "string",
+                "array"
+              ],
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 4
+            }
+          }
+        },
+        "default_font": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "family",
+            "file",
+            "sha256"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "family": {
+              "type": "string"
+            },
+            "file": {
+              "type": "string",
+              "pattern": "^[^/\\\\]+$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "strict",
+        "fail_on_warning",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "strict": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fail_on_warning": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "source": {
+          "enum": [
+            "cli",
+            "direct_call"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "cli"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "strict": {
+                "type": "boolean"
+              },
+              "fail_on_warning": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "random_constants": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "BOOTSTRAP_SEED": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "BOOTSTRAP_DRAWS": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "POINT_JITTER_SEED": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "PAIR_SEED": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "unavailable": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "capture_stage": {
+            "const": "before_export"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "rendering": {
+            "properties": {
+              "figure_inches": {
+                "type": "array"
+              },
+              "figure_dpi": {
+                "type": "number"
+              },
+              "rc_parameters": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "rendering": {
+            "properties": {
+              "figure_inches": {
+                "type": "null"
+              },
+              "figure_dpi": {
+                "type": "null"
+              },
+              "rc_parameters": {
+                "type": "null"
+              },
+              "default_font": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

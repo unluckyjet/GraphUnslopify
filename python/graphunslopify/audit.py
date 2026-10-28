@@ -150,6 +150,7 @@ def _outputs(
                 or evidence["spec_hash"] != report["spec_hash"]
                 or evidence["data_sha256_prefix"] != report["data"]["sha256_prefix"]
                 or evidence["script_sha256"] != report.get("script", {}).get("sha256")
+                or evidence.get("environment") != report.get("environment")
             ):
                 raise AuditError(
                     f"output provenance does not match the runtime report: {path.name}"

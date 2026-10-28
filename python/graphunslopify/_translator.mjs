@@ -21829,6 +21829,7 @@ function emitTable(spec, out) {
     "            for position, column in enumerate(table.columns):",
     "                if (row, column) in winners:",
     '                    drawn[index + 1, position].set_text_props(weight="bold")',
+    "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     '            fig.savefig(path, bbox_inches="tight", metadata=metadata_for(fmt),',
@@ -23648,7 +23649,7 @@ function emitInteractive(spec, out) {
   out.push(
     '    path = f"{STEM}.html"',
     '    body = figure.to_html(include_plotlyjs=True, full_html=True, div_id=f"figure-{SPEC_HASH}")',
-    '    evidence = json.dumps({"schema_version":1, "tool":TOOL, "script_sha256":script_fingerprint(), "spec":json.loads(SPEC_JSON), "spec_hash":SPEC_HASH, "data_sha256_prefix":DATA_HASH, "alt_text":ALT_TEXT}, ensure_ascii=False).replace("<", r"\\u003c")',
+    '    evidence = json.dumps({"schema_version":1, "tool":TOOL, "script_sha256":script_fingerprint(), "spec":json.loads(SPEC_JSON), "spec_hash":SPEC_HASH, "data_sha256_prefix":DATA_HASH, "alt_text":ALT_TEXT, "environment":capture_environment()}, ensure_ascii=False).replace("<", r"\\u003c")',
     `    description = f'<p id="figure-description">{escape(ALT_TEXT)}</p><script type="application/json" id="graphunslopify-provenance">{evidence}</script>'`,
     '    before, after = body.rsplit("</body>", 1)',
     '    Path(path).write_text(before + description + "</body>" + after, encoding="utf8")',
@@ -24534,7 +24535,7 @@ def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
         "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
-        "data": {}, "findings": [dict(f) for f in STATIC_FINDINGS],
+        "data": {}, "environment": None, "findings": [dict(f) for f in STATIC_FINDINGS],
         "inspection": {"available": None, "checked": False},
         "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
         "skipped_outputs": [], "untested": [], "alt_text": "",
@@ -24637,6 +24638,8 @@ ${spec.filter?.length ? `    selection = ROW_COUNTS.get("filtering", {})
 
 
 def finish_report():
+    capture_environment()
+    RUN_REPORT.pop("_execution_policy", None)
     RUN_REPORT["script"] = {"sha256": script_fingerprint()}
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
@@ -24683,6 +24686,7 @@ def run_cli(argv=None):
     if args.report == "-":
         parser.error("use --json for JSON stdout; --report expects a file path")
     RUN_REPORT = new_report()
+    RUN_REPORT["_execution_policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning, "source": "cli"}
     DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
     Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
     ROW_COUNTS.clear()
@@ -24721,6 +24725,70 @@ def run_cli(argv=None):
     return report["exit_code"]
 
 `.trimEnd().split("\n"));
+}
+
+// src/codegen/environment.ts
+function emitEnvironment(out) {
+  out.push(...String.raw`
+
+def capture_environment(fig=None):
+    if RUN_REPORT.get("environment") is not None:
+        return RUN_REPORT["environment"]
+    import importlib.metadata as package_metadata
+    import platform
+    unavailable = []
+    def installed(name):
+        try:
+            return package_metadata.version(name)
+        except package_metadata.PackageNotFoundError:
+            return None
+        except Exception:
+            unavailable.append(name + ".version")
+            return None
+    def text(value):
+        return str(value) if value else None
+    core = {name: text(getattr(module, "__version__", None)) for name, module in
+            (("numpy", np), ("pandas", pd), ("matplotlib", matplotlib), ("Pillow", sys.modules.get("PIL")))}
+    core["freetype"] = text(getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None))
+    rc = None
+    font = None
+    if fig is not None:
+        keys = ("font.family", "font.size", "font.style", "font.weight", "font.variant", "font.stretch", "mathtext.fontset",
+                "text.usetex", "text.parse_math", "svg.fonttype", "pdf.fonttype", "ps.fonttype",
+                "savefig.transparent", "savefig.facecolor", "figure.facecolor", "axes.facecolor",
+                "path.simplify", "path.simplify_threshold", "agg.path.chunksize", "svg.hashsalt")
+        rc = {key: matplotlib.rcParams.get(key) for key in keys}
+        try:
+            from matplotlib import font_manager
+            path = Path(font_manager.findfont(font_manager.FontProperties()))
+            font = {"family": font_manager.get_font(str(path)).family_name,
+                    "file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        except Exception:
+            unavailable.append("default_font")
+    snapshot = {
+        "schema_version": 1,
+        "capture_stage": "before_export" if fig is not None else "no_export_snapshot",
+        "python": {"version": platform.python_version(), "implementation": platform.python_implementation(),
+                   "optimize": sys.flags.optimize, "hash_randomization": bool(sys.flags.hash_randomization)},
+        "platform": {"system": text(platform.system()), "machine": text(platform.machine())},
+        "loaded_core_versions": core,
+        "installed_optional_versions": {name: installed(name) for name in ("graphunslopify", "plotly", "scipy", "pypdf")},
+        "rendering": {"backend": str(matplotlib.get_backend()),
+                      "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,
+                      "figure_dpi": float(fig.dpi) if fig is not None else None,
+                      "export_dpi": DPI, "target_width_in": TARGET_WIDTH_IN,
+                      "requested_formats": list(FORMATS),
+                      "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],
+                      "rc_parameters": rc, "default_font": font},
+        "execution": dict(RUN_REPORT.get("_execution_policy", {"strict": None, "fail_on_warning": None, "source": "direct_call"})),
+        "random_constants": {key: globals()[key] for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED") if key in globals()},
+        "unavailable": unavailable,
+    }
+    # Detach mutable rc lists and normalize the stored snapshot to JSON types.
+    snapshot = json.loads(json.dumps(snapshot, allow_nan=False))
+    RUN_REPORT["environment"] = snapshot
+    return snapshot
+`.split("\n"));
 }
 
 // src/codegen/index.ts
@@ -24957,7 +25025,7 @@ function emitMain(spec, out) {
     '    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"',
     '    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,',
     '        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),',
-    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT}, ensure_ascii=False)',
+    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT, "environment": capture_environment()}, ensure_ascii=False)',
     '    if fmt == "png":',
     '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}',
     '    if fmt == "svg":',
@@ -25164,6 +25232,7 @@ function emitSaveBlock(spec, out) {
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",
+    "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     "            meta = metadata_for(fmt)",
@@ -25201,6 +25270,7 @@ function emitPython(spec) {
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
+  emitEnvironment(out);
   emitRuntime(sourceSpec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);

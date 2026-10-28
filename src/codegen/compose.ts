@@ -454,6 +454,7 @@ export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): 
     "            for position, column in enumerate(table.columns):",
     "                if (row, column) in winners:",
     "                    drawn[index + 1, position].set_text_props(weight=\"bold\")",
+    "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     "            path = f\"{STEM}.{fmt}\"",
     "            fig.savefig(path, bbox_inches=\"tight\", metadata=metadata_for(fmt),",

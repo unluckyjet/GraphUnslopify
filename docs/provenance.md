@@ -8,6 +8,7 @@ PNG, SVG, PDF and supported HTML exports embed the same version 1 evidence envel
 - `data_sha256_prefix`: first 16 hexadecimal digits of the local data SHA-256.
 - `script_sha256`: full SHA-256 of the executed source file, or null when no source file is available.
 - `alt_text`: the computed description, including counts and supported claim caveats.
+- `environment` (optional, current source after0.8.0): [runtime versions, rendering and execution context](environment.md), frozen before export and shared with its report. Older records remain readable without backfilling current-host facts.
 
 ```sh
 graphunslopify provenance figure.svg

@@ -3,66 +3,975 @@
   "$id": "urn:graphunslopify:runtime-report:1",
   "title": "GraphUnslopify runtime report version 1",
   "type": "object",
-  "required": ["schema_version", "tool", "spec_hash", "spec", "status", "ok", "data", "findings", "inspection", "panels", "claims", "significance", "outputs", "skipped_outputs", "untested", "alt_text", "exit_code", "policy"],
+  "required": [
+    "schema_version",
+    "tool",
+    "spec_hash",
+    "spec",
+    "status",
+    "ok",
+    "data",
+    "findings",
+    "inspection",
+    "panels",
+    "claims",
+    "significance",
+    "outputs",
+    "skipped_outputs",
+    "untested",
+    "alt_text",
+    "exit_code",
+    "policy"
+  ],
   "properties": {
-    "schema_version": { "const": 1 },
-    "tool": { "type": "string" },
-    "spec_hash": { "type": "string", "pattern": "^[a-f0-9]{16}$" },
-    "spec": { "type": "object" },
-    "status": { "enum": ["passed", "failed", "incomplete"] },
-    "ok": { "type": "boolean" },
-    "exit_code": { "enum": [0, 1, 2] },
-    "policy": { "type": "object", "required": ["strict", "fail_on_warning", "passed"], "properties": {
-      "strict": { "type": "boolean" }, "fail_on_warning": { "type": "boolean" }, "passed": { "type": "boolean" }
-    } },
-    "script": { "type": "object", "required": ["sha256"], "properties": { "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" } } },
-    "data": { "type": "object", "required": ["path", "sha256_prefix", "counts"], "properties": {
-      "path": { "type": "string" }, "sha256_prefix": { "type": "string" }, "counts": { "type": "object" }
-    } },
-    "findings": { "type": "array", "items": { "type": "object", "required": ["severity", "code", "message"], "properties": {
-      "severity": { "enum": ["error", "warning"] }, "code": { "type": "string" }, "message": { "type": "string" }
-    } } },
-    "inspection": { "type": "object", "required": ["available", "checked"], "properties": {
-      "available": { "type": ["boolean", "null"] }, "checked": { "type": "boolean" },
-      "measurements": { "type": "object", "required": ["basis", "nominal_width_in", "widths_in", "target_width_in", "evaluated_width_in", "text_scale"], "properties": {
-        "basis": { "enum": ["nominal", "exports", "unavailable"] },
-        "nominal_width_in": { "type": "number", "exclusiveMinimum": 0 },
-        "widths_in": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 } },
-        "target_width_in": { "type": ["number", "null"], "exclusiveMinimum": 0 },
-        "evaluated_width_in": { "type": ["number", "null"], "exclusiveMinimum": 0 },
-        "text_scale": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
-      } }
-    } },
-    "panels": { "type": "array", "items": { "type": "object", "required": ["index", "name", "metric"], "properties": {
-      "index": { "type": "integer", "minimum": 0 }, "name": { "type": ["string", "null"] }, "metric": { "type": "string" }
-    } } },
-    "claims": { "type": "array", "items": { "type": "object", "required": ["kind", "subject", "panel", "metric", "verdict", "detail", "interval_overlap"], "properties": {
-      "kind": { "type": "string" }, "subject": { "type": "string" }, "panel": { "type": "integer", "minimum": 0 },
-      "metric": { "type": "string" }, "verdict": { "enum": ["holds", "fails", "untested"] }, "detail": { "type": "string" },
-      "interval_overlap": { "type": ["array", "null"], "items": { "type": "integer", "minimum": 0 }, "minItems": 2, "maxItems": 2 }
-    } } },
-    "annotations": { "type": "array", "items": { "type": "object", "required": ["panel", "metric", "index", "region", "requested", "text", "text_verified", "status", "reason"], "properties": {
-      "panel": { "type": "integer", "minimum": 0 }, "index": { "type": "integer", "minimum": 0 },
-      "region": { "type": "integer", "minimum": 0 }, "metric": { "type": "string" },
-      "requested": { "type": "object" }, "text": { "type": "string" }, "text_verified": { "const": false },
-      "status": { "enum": ["resolved", "untested"] }, "reason": { "type": ["string", "null"] },
-      "resolved": { "type": "object", "required": ["x", "y", "key", "value", "basis"], "properties": {
-        "x": { "type": "number" }, "y": { "type": "number" }, "value": { "type": "number" },
-        "key": { "type": ["number", "string"] }, "basis": { "type": "string" }
-      } }, "snapped": { "type": "boolean" }
-    } } },
-    "significance": { "type": "array", "items": { "type": "object", "required": ["panel", "pair", "status"], "properties": {
-      "panel": { "type": "integer", "minimum": 0 }, "pair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
-      "status": { "enum": ["tested", "untested"] }, "raw_p": { "type": "number", "minimum": 0, "maximum": 1 },
-      "adjusted_p": { "type": "number", "minimum": 0, "maximum": 1 }, "family_size": { "type": "integer", "minimum": 1 }
-    } } },
-    "outputs": { "type": "array", "items": { "type": "object", "required": ["path", "format", "sha256", "bytes"], "properties": {
-      "path": { "type": "string" }, "format": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "bytes": { "type": "integer", "minimum": 0 }
-    } } },
-    "skipped_outputs": { "type": "array", "items": { "type": "object", "required": ["format", "reason"], "properties": {
-      "format": { "type": "string" }, "reason": { "type": "string" }
-    } } },
-    "untested": { "type": "array", "items": { "type": "string" } },
-    "alt_text": { "type": "string" }
+    "schema_version": {
+      "const": 1
+    },
+    "tool": {
+      "type": "string"
+    },
+    "spec_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{16}$"
+    },
+    "spec": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "incomplete"
+      ]
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "strict",
+        "fail_on_warning",
+        "passed"
+      ],
+      "properties": {
+        "strict": {
+          "type": "boolean"
+        },
+        "fail_on_warning": {
+          "type": "boolean"
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "script": {
+      "type": "object",
+      "required": [
+        "sha256"
+      ],
+      "properties": {
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256_prefix",
+        "counts"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256_prefix": {
+          "type": "string"
+        },
+        "counts": {
+          "type": "object"
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "severity",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "required": [
+        "available",
+        "checked"
+      ],
+      "properties": {
+        "available": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "checked": {
+          "type": "boolean"
+        },
+        "measurements": {
+          "type": "object",
+          "required": [
+            "basis",
+            "nominal_width_in",
+            "widths_in",
+            "target_width_in",
+            "evaluated_width_in",
+            "text_scale"
+          ],
+          "properties": {
+            "basis": {
+              "enum": [
+                "nominal",
+                "exports",
+                "unavailable"
+              ]
+            },
+            "nominal_width_in": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "widths_in": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "target_width_in": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0
+            },
+            "evaluated_width_in": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0
+            },
+            "text_scale": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "name",
+          "metric"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metric": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "subject",
+          "panel",
+          "metric",
+          "verdict",
+          "detail",
+          "interval_overlap"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "panel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "metric": {
+            "type": "string"
+          },
+          "verdict": {
+            "enum": [
+              "holds",
+              "fails",
+              "untested"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "interval_overlap": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "panel",
+          "metric",
+          "index",
+          "region",
+          "requested",
+          "text",
+          "text_verified",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "panel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "region": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "metric": {
+            "type": "string"
+          },
+          "requested": {
+            "type": "object"
+          },
+          "text": {
+            "type": "string"
+          },
+          "text_verified": {
+            "const": false
+          },
+          "status": {
+            "enum": [
+              "resolved",
+              "untested"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolved": {
+            "type": "object",
+            "required": [
+              "x",
+              "y",
+              "key",
+              "value",
+              "basis"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "value": {
+                "type": "number"
+              },
+              "key": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "basis": {
+                "type": "string"
+              }
+            }
+          },
+          "snapped": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "significance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "panel",
+          "pair",
+          "status"
+        ],
+        "properties": {
+          "panel": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pair": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "status": {
+            "enum": [
+              "tested",
+              "untested"
+            ]
+          },
+          "raw_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "adjusted_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "family_size": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "format",
+          "sha256",
+          "bytes"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "skipped_outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "format",
+          "reason"
+        ],
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "untested": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "alt_text": {
+      "type": "string"
+    },
+    "environment": {
+      "$ref": "#/$defs/environment"
+    }
+  },
+  "$defs": {
+    "environment": {
+      "title": "GraphUnslopify runtime environment snapshot version1",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "capture_stage",
+        "python",
+        "platform",
+        "loaded_core_versions",
+        "installed_optional_versions",
+        "rendering",
+        "execution",
+        "random_constants",
+        "unavailable"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "capture_stage": {
+          "enum": [
+            "before_export",
+            "no_export_snapshot"
+          ]
+        },
+        "python": {
+          "type": "object",
+          "required": [
+            "version",
+            "implementation",
+            "optimize",
+            "hash_randomization"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "implementation": {
+              "type": "string"
+            },
+            "optimize": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "hash_randomization": {
+              "type": "boolean"
+            }
+          }
+        },
+        "platform": {
+          "type": "object",
+          "required": [
+            "system",
+            "machine"
+          ],
+          "properties": {
+            "system": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "machine": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "loaded_core_versions": {
+          "type": "object",
+          "required": [
+            "numpy",
+            "pandas",
+            "matplotlib",
+            "Pillow",
+            "freetype"
+          ],
+          "properties": {
+            "numpy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pandas": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "matplotlib": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Pillow": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "freetype": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "installed_optional_versions": {
+          "type": "object",
+          "required": [
+            "graphunslopify",
+            "plotly",
+            "scipy",
+            "pypdf"
+          ],
+          "properties": {
+            "graphunslopify": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "plotly": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "scipy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pypdf": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "rendering": {
+          "type": "object",
+          "required": [
+            "backend",
+            "figure_inches",
+            "figure_dpi",
+            "export_dpi",
+            "target_width_in",
+            "requested_formats",
+            "requested_interactive",
+            "rc_parameters",
+            "default_font"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "backend": {
+              "type": "string"
+            },
+            "figure_inches": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "figure_dpi": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0
+            },
+            "export_dpi": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "target_width_in": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "requested_formats": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "png",
+                  "svg",
+                  "pdf"
+                ]
+              },
+              "minItems": 1
+            },
+            "requested_interactive": {
+              "type": "boolean"
+            },
+            "rc_parameters": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "required": [
+                "font.family",
+                "font.size",
+                "font.style",
+                "font.weight",
+                "font.variant",
+                "font.stretch",
+                "mathtext.fontset",
+                "text.usetex",
+                "text.parse_math",
+                "svg.fonttype",
+                "pdf.fonttype",
+                "ps.fonttype",
+                "savefig.transparent",
+                "path.simplify",
+                "path.simplify_threshold",
+                "agg.path.chunksize",
+                "svg.hashsalt",
+                "savefig.facecolor",
+                "figure.facecolor",
+                "axes.facecolor"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "font.family": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "font.size": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "font.style": {
+                  "type": "string"
+                },
+                "font.weight": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "font.variant": {
+                  "type": "string"
+                },
+                "font.stretch": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "mathtext.fontset": {
+                  "type": "string"
+                },
+                "text.usetex": {
+                  "type": "boolean"
+                },
+                "text.parse_math": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "svg.fonttype": {
+                  "type": "string"
+                },
+                "pdf.fonttype": {
+                  "type": "integer"
+                },
+                "ps.fonttype": {
+                  "type": "integer"
+                },
+                "savefig.transparent": {
+                  "type": "boolean"
+                },
+                "path.simplify": {
+                  "type": "boolean"
+                },
+                "path.simplify_threshold": {
+                  "type": "number"
+                },
+                "agg.path.chunksize": {
+                  "type": "integer"
+                },
+                "svg.hashsalt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "savefig.facecolor": {
+                  "type": [
+                    "string",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 4
+                },
+                "figure.facecolor": {
+                  "type": [
+                    "string",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 4
+                },
+                "axes.facecolor": {
+                  "type": [
+                    "string",
+                    "array"
+                  ],
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 4
+                }
+              }
+            },
+            "default_font": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "required": [
+                "family",
+                "file",
+                "sha256"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "family": {
+                  "type": "string"
+                },
+                "file": {
+                  "type": "string",
+                  "pattern": "^[^/\\\\]+$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "required": [
+            "strict",
+            "fail_on_warning",
+            "source"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "strict": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "fail_on_warning": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "source": {
+              "enum": [
+                "cli",
+                "direct_call"
+              ]
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "source": {
+                    "const": "cli"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "strict": {
+                    "type": "boolean"
+                  },
+                  "fail_on_warning": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "random_constants": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "BOOTSTRAP_SEED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "BOOTSTRAP_DRAWS": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "POINT_JITTER_SEED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "PAIR_SEED": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "unavailable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "capture_stage": {
+                "const": "before_export"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "rendering": {
+                "properties": {
+                  "figure_inches": {
+                    "type": "array"
+                  },
+                  "figure_dpi": {
+                    "type": "number"
+                  },
+                  "rc_parameters": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "rendering": {
+                "properties": {
+                  "figure_inches": {
+                    "type": "null"
+                  },
+                  "figure_dpi": {
+                    "type": "null"
+                  },
+                  "rc_parameters": {
+                    "type": "null"
+                  },
+                  "default_font": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

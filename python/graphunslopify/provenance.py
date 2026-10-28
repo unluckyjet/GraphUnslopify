@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import xml.etree.ElementTree as ET
+from functools import lru_cache
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,24 @@ class _HtmlEvidence(HTMLParser):
 
 class ProvenanceError(ValueError):
     """The file has missing, malformed, or unsupported embedded evidence."""
+
+
+@lru_cache(maxsize=1)
+def _environment_validator():
+    from jsonschema import Draft202012Validator
+
+    schema = json.loads(
+        (Path(__file__).with_name("schemas") / "environment.schema.json").read_text(encoding="utf8")
+    )
+    return Draft202012Validator(schema)
+
+
+def _valid_environment(value):
+    try:
+        json.dumps(value, allow_nan=False)
+    except ValueError:
+        return False
+    return _environment_validator().is_valid(value)
 
 
 def _legacy(spec_json: str | None, stamp: str, description: str = "") -> dict[str, Any]:
@@ -79,6 +98,8 @@ def _envelope(payload: str) -> dict[str, Any]:
         or not isinstance(value.get("data_sha256_prefix"), str)
     ):
         raise ProvenanceError("Incomplete embedded provenance")
+    if "environment" in value and not _valid_environment(value["environment"]):
+        raise ProvenanceError("Invalid embedded environment evidence")
     return value
 
 

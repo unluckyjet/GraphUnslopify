@@ -266,7 +266,9 @@ Optional `[interactive]`, `[parquet]` and `[statistics]` dependencies enable the
 backends, readers and statistical methods. See [installation](docs/installation.md).
 
 PNG, SVG, PDF and supported HTML carry recoverable provenance: the parsed spec, tool version,
-computed description and data/source fingerprints. Read it without running the original program:
+computed description and data/source fingerprints. Current source also records
+[dependency, font, rendering and execution context](docs/environment.md), shared with the
+runtime report. This addition requires a source installation after0.8.0. Read it without running the original program:
 
 ```sh
 graphunslopify provenance figure.svg

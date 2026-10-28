@@ -400,7 +400,8 @@ test("latex output carries the column width the size implies", () => {
 });
 
 test("the interactive backend is only emitted when asked for", () => {
-  assert.ok(!translated(line).code.includes("plotly"));
+  assert.ok(!translated(line).code.includes("import plotly.graph_objects"));
+  assert.ok(!translated(line).code.includes("def write_interactive"));
   assert.match(translated({ ...line, output: { interactive: true } }).code, /import plotly/);
 });
 

@@ -35,7 +35,7 @@ External results remain open until observed.
 | 9 | P1 | Research-environment and experiment-tracking integrations. | Pending; build on current notebook, editor, agent and LaTeX workflows. |
 | 10 | P1 | Project-wide figure management and status/history. | Pending; reuse manifests and shared visual identity. |
 | 11 | P1 | Actionable problem/consequence/correction diagnostics. | Pending; audit existing messages and repairs. |
-| 12 | P1 | Dependency/rendering/execution environment provenance. | Pending; extend current versioned evidence envelope compatibly. |
+| 12 | P1 | Dependency/rendering/execution environment provenance. | [Runtime environment evidence](../docs/environment.md), [spec60](done/60-runtime-environment-provenance.md): actual creation-time dependency/render/font/CLI/declared-seed snapshot shared by report and PNG/SVG/PDF/HTML, typed offline validation, legacy reads and audit parity. Selected context is not a full machine image or certificate; source after0.8.0. |
 | 13 | P2 | GitHub repository description. | Branding checkpoint49 updates the live description to scientific figure generation and checks. |
 | 14 | P2 | Homepage and deployment branding. | [Branded GitHub Pages homepage](../docs/homepage.md) and current content; legacy Vercel API remains available. Renaming that service requires Vercel access. |
 | 15 | P2 | Outdated documentation and installation references. | Current0.8.0 installation/versioned guides and composition/Figure CI progress prose refreshed in release preparation. |
@@ -76,3 +76,8 @@ External results remain open until observed.
 - Item5/spec56:34 combined controls,222 Node/1158 Python, seven gates/Ruff65/gallery15 pass. Tests/docs only; generated code and graphics unchanged. Exact pushed CI checked before the next review item. An empty focused-spec queue does not complete the remaining review table.
 
 - Item16/spec59: short verified guide and installed-package walkthrough, fresh actual PyPI/source-wheel offline pass/fail/pass, unchanged figures and all seven gates222 Node/1158 Python/Ruff67 pass. Exact pushed general/Figure/Pages and live page checks follow before the next item.
+
+- Item12/spec60:31 new controls,222 Node/1189 Python/seven gates/Ruff68/gallery15
+  and all60 prior PNG pixel identities pass. Fresh source-wheel agent/PDF/offline
+  smoke requires report/export context parity; malformed/nonfinite or mismatched
+  context is rejected. Published0.8.0 unchanged; exact pushed CI checked next.

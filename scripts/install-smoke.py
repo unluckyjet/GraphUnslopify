@@ -54,6 +54,11 @@ def main() -> None:
         action="store_true",
         help="also exercise optional manuscript PDF review",
     )
+    parser.add_argument(
+        "--require-environment",
+        action="store_true",
+        help="require current-source runtime environment provenance; older releases may omit it",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -165,6 +170,11 @@ def main() -> None:
     assert report["data"]["counts"]["sample_sizes"] == [4] * 6
     assert report["claims"][0]["verdict"] == "holds"
     assert "ours is highest at 56.5" in report["alt_text"]
+    if args.require_environment:
+        assert report["environment"]["schema_version"] == 1
+        assert report["environment"]["capture_stage"] == "before_export"
+        assert report["environment"]["execution"]["strict"]
+        assert report["environment"]["python"]["version"] == sys.version.split()[0]
     if args.registry_version:
         bad_spec = json.loads((demo / "figure.json").read_text())
         bad_spec["claims"] = [
@@ -230,6 +240,8 @@ def main() -> None:
             )
         )
         assert provenance["ok"]
+        if args.require_environment:
+            assert provenance["provenance"]["environment"] == report["environment"]
         assert (
             provenance["provenance"]["data_sha256_prefix"]
             == report["data"]["sha256_prefix"]

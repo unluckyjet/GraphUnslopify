@@ -17,7 +17,7 @@ def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
         "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
-        "data": {}, "findings": [dict(f) for f in STATIC_FINDINGS],
+        "data": {}, "environment": None, "findings": [dict(f) for f in STATIC_FINDINGS],
         "inspection": {"available": None, "checked": False},
         "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
         "skipped_outputs": [], "untested": [], "alt_text": "",
@@ -120,6 +120,8 @@ ${spec.filter?.length ? `    selection = ROW_COUNTS.get("filtering", {})
 
 
 def finish_report():
+    capture_environment()
+    RUN_REPORT.pop("_execution_policy", None)
     RUN_REPORT["script"] = {"sha256": script_fingerprint()}
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
@@ -166,6 +168,7 @@ def run_cli(argv=None):
     if args.report == "-":
         parser.error("use --json for JSON stdout; --report expects a file path")
     RUN_REPORT = new_report()
+    RUN_REPORT["_execution_policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning, "source": "cli"}
     DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
     Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
     ROW_COUNTS.clear()

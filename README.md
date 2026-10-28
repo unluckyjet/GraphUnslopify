@@ -71,6 +71,9 @@ a strict verification report in `graphunslopify-demo/`. `doctor` checks package/
 The package supplies its translator and Node runtime; translation and local-file rendering work
 **offline after dependencies are installed**. A source checkout can use `python -m pip install ./python`.
 
+Follow the [five-minute first-figure tour](docs/getting-started.md) for environment setup,
+a complete editable example, reading evidence, and correcting a failed check.
+
 ### Use the local editor
 
 ```sh

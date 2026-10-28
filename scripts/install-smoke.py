@@ -1268,6 +1268,21 @@ def main() -> None:
         check=False,
     )
     assert blocked_node.returncode and "network disabled" in blocked_node.stderr
+    getting_started = None
+    if tuple(map(int, doctor["python_package"].split(".")[:2])) >= (0, 8):
+        getting_started = json.loads(
+            run(
+                [
+                    str(python),
+                    str(Path(__file__).resolve().with_name("check-getting-started.py")),
+                    "--work-dir",
+                    str(where / "guided tour"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert getting_started["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1279,6 +1294,7 @@ def main() -> None:
                 "agent": args.agent,
                 "pdf": args.pdf,
                 "registry_version": args.registry_version,
+                "getting_started": getting_started,
                 "work_dir": str(where),
             }
         )

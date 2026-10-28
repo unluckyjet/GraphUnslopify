@@ -37,8 +37,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install ruff
-      - run: ruff check python .github/actions/figure-ci/run.py
-      - run: ruff format --check python .github/actions/figure-ci/run.py
+      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/install-smoke.py
+      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/install-smoke.py
       - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf]"
       - run: python -m pytest python/tests -q
 

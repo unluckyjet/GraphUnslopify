@@ -1,5 +1,8 @@
 # Install and run locally
 
+New here? Start with the [five-minute first-figure tour](getting-started.md), including
+virtual-environment setup, a complete example and a failed-check/recovery exercise.
+
 Python 3.10+ is required. In a virtual environment, install the versioned package without cloning the repository or installing npm:
 
 ```sh

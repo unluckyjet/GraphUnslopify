@@ -39,7 +39,7 @@ External results remain open until observed.
 | 13 | P2 | GitHub repository description. | Branding checkpoint49 updates the live description to scientific figure generation and checks. |
 | 14 | P2 | Homepage and deployment branding. | [Branded GitHub Pages homepage](../docs/homepage.md) and current content; legacy Vercel API remains available. Renaming that service requires Vercel access. |
 | 15 | P2 | Outdated documentation and installation references. | Current0.8.0 installation/versioned guides and composition/Figure CI progress prose refreshed in release preparation. |
-| 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
+| 16 | P2 | Minimal installation and five-minute complete tutorial. | [First-figure tour](../docs/getting-started.md), [spec59](done/59-getting-started-tour.md): platform setup, complete demo, checked outputs, false-claim/recovery and own-data path; actual public0.8.0/source-wheel offline verification, now included in installed-wheel CI. Human completion time is not measured. |
 | 17 | High | Realistic comparative benchmarks with measured outcomes. | [Synthetic pilot](../docs/validation/benchmark.md),48 executions/three arms, plus [public-paper comparison](../docs/validation/published-papers.md),32 executions/two arms. Independent held-out scientific benchmarking remains open. |
 | 18 | Deferred | External researchers testing their own datasets. | User explicitly deferred volunteers; [prepared protocol](../docs/validation/researcher-pilot.md) retained for later. Current route is public papers/datasets. No sessions conducted. |
 | 19 | High | Reproducible public research-dataset examples. | [Penguin/Iris paper-linked cases](../docs/validation/published-papers.md), pinned licensed inputs, separate calculations, actual artists and seeded faults. Full paper replication/independent external validation remain outside measured scope. |
@@ -74,3 +74,5 @@ External results remain open until observed.
 - Item4 annotation milestone58:222 Node/1124 Python, seven gates/Ruff64/gallery15,30 new controls and fresh installed offline annotation probes pass.58of60 PNGs unchanged;09/15 move to actual displayed mean/centered-window values and15 wording is corrected. Source-only; exact pushed CI checked before item5.
 
 - Item5/spec56:34 combined controls,222 Node/1158 Python, seven gates/Ruff65/gallery15 pass. Tests/docs only; generated code and graphics unchanged. Exact pushed CI checked before the next review item. An empty focused-spec queue does not complete the remaining review table.
+
+- Item16/spec59: short verified guide and installed-package walkthrough, fresh actual PyPI/source-wheel offline pass/fail/pass, unchanged figures and all seven gates222 Node/1158 Python/Ruff67 pass. Exact pushed general/Figure/Pages and live page checks follow before the next item.

@@ -10,6 +10,8 @@ In a Python 3.10+ virtual environment:
 python -m pip install graphunslopify==0.8.0
 ```
 
+For a complete first-figure walkthrough, read the [five-minute guide](https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/getting-started.md).
+
 From a source checkout, `python -m pip install ./python` remains supported.
 
 ```sh

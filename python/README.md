@@ -7,7 +7,7 @@ translation and rendering need no hosted service after installation.
 In a Python 3.10+ virtual environment:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
+python -m pip install graphunslopify==0.8.0
 ```
 
 From a source checkout, `python -m pip install ./python` remains supported.

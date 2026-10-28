@@ -1,13 +1,16 @@
 # PyPI publication
 
-Status: **Trusted Publisher configured; new0.8.0 release preparation is active**. The
-public PyPI JSON endpoint returned404 on2026-10-28. That does not reserve the
-name or prove that a future registration will be accepted. Until an upload and
-fresh registry install are verified, use the [published GitHub wheel](installation.md).
+Status: **0.8.0 published and independently installed from public PyPI** on 2026-10-28.
+The [registry](https://pypi.org/project/graphunslopify/0.8.0/) wheel/sdist hashes match
+the GitHub release. A fresh registry install passes the full offline-runtime smoke,
+agent/PDF workflows and rejection of a false claim without an explicit strict flag.
+[Machine-readable publication evidence](releases/0.8.0-publication.json) records exact
+source/CI/hash identities. The 0.7.0 tag and artifacts remain unchanged.
 
-## Connect the account once
+## Initial account setup (completed)
 
-Sign in at [PyPI's pending publisher page](https://pypi.org/manage/account/publishing/)
+These were the initial registration fields; existing-project publishers are managed
+under that project's Publishing settings. Sign in at [PyPI's pending publisher page](https://pypi.org/manage/account/publishing/)
 and register a GitHub Trusted Publisher with these exact fields:
 
 | Field | Value |
@@ -33,7 +36,7 @@ The [workflow](../.github/workflows/publish-pypi.yml) is manual, runs only from
 main and defaults to `publish=false`. Select an already published stable release:
 
 ```sh
-gh workflow run publish-pypi.yml --ref main -f release_tag=v0.7.0 -f index=testpypi -f publish=false
+gh workflow run publish-pypi.yml --ref main -f release_tag=v0.8.0 -f index=testpypi -f publish=false
 ```
 
 Its verification job resolves the exact release revision, requires the latest
@@ -46,9 +49,9 @@ The prepared distributions and `readiness.json` are retained as workflow artifac
 The local equivalent (GitHub CLI authenticated, Python with Twine installed):
 
 ```sh
-python scripts/prepare-pypi-release.py --tag v0.7.0 --out-dir /fresh/candidate
+python scripts/prepare-pypi-release.py --tag v0.8.0 --out-dir /fresh/candidate
 python -m twine check --strict /fresh/candidate/dist/*
-python scripts/install-smoke.py /fresh/candidate/dist/graphunslopify-0.7.0-py3-none-any.whl --agent
+python scripts/install-smoke.py /fresh/candidate/dist/graphunslopify-0.8.0-py3-none-any.whl --agent
 ```
 
 The helper refuses nonempty output directories. It never extracts sdist members
@@ -72,3 +75,14 @@ After an actual upload, verify the public registry's version/files/hashes, then
 install `graphunslopify==VERSION` in a fresh environment outside this checkout and
 run `graphunslopify doctor` and `graphunslopify demo`. Only then change the public
 quickstart to a simple PyPI install and record the actual publication evidence.
+
+For a genuine fresh registry installation rather than a local-wheel install:
+
+```sh
+python scripts/install-smoke.py /path/to/verified/graphunslopify-0.8.0-py3-none-any.whl --registry-version 0.8.0 --agent --pdf
+```
+
+The wheel supplies reference metadata/license checks; pip installs the pinned
+version from the public PyPI index into a new outside-checkout environment.
+Network blockers then exercise the installed package, including strict defaults.
+Keep negative controls outside folders used by later manifest discovery.

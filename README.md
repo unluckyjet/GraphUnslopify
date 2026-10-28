@@ -61,7 +61,7 @@ accepting a performance update.
 In a **Python 3.10+ virtual environment**, install the fixed 0.8.0 release:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
+python -m pip install graphunslopify==0.8.0
 graphunslopify doctor
 graphunslopify demo
 ```
@@ -556,5 +556,6 @@ Use `PYTHON=python npm run baseline` only when intentionally regenerating baseli
 baseline generation command can select the wrong interpreter.
 
 The [pipeline](pipeline/README.md) records audited improvements; [future work](docs/future.md)
-contains proposals rather than promises. Version 0.8.0 is prepared for GitHub/PyPI distribution; publication evidence is tracked in
-[the release checklist](pipeline/specs/53-release-080.md). npm registry publication is not claimed.
+contains proposals rather than promises. Version 0.8.0 is published on [PyPI](https://pypi.org/project/graphunslopify/0.8.0/) and
+[GitHub](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0);
+[publication evidence](docs/releases/0.8.0-publication.json) records verified hashes and fresh installs. npm registry publication is not claimed.

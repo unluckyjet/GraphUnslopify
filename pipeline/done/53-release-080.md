@@ -1,7 +1,7 @@
 ---
 id: 53
 slug: release-080
-status: ready
+status: done
 priority: P1
 title: Release current strict defaults and PDF review as0.8.0 on GitHub and PyPI
 source_idea: user2026-10-28 distribution review and approved Trusted Publisher connection
@@ -32,5 +32,14 @@ match0.8.0; positive controls remain passed, intentional density remains incompl
 Candidate wheel/sdist Twine pass; genuine fresh wheel+agent+PDF extra smoke passes
 with external runtime networking blocked. Four-platform distribution CI now
 exercises PDF preparation/default rejection as well. Publisher account connection
-was approved and observed; candidate/tag CI and actual release/registry publication
-remain pending, so this spec stays ready until those steps complete.
+was approved and observed. At that candidate checkpoint, tag CI and actual release/registry
+publication remained pending; the completion evidence follows.
+
+Published0.8.0 on GitHub/PyPI, sourcec3e061984bfeb980d3c77c33a402a8155ea1dfce.
+Main checks40743628639/Figure40743628457 and tag checks40743709281/Figure40743709164
+pass; upload40745193348 succeeds. Actual anonymous GitHub/registry downloads have
+identical expected hashes; downloaded sdist rebuilds byte-identical wheel. Genuine
+fresh public-registry install with agent/PDF passes offline-runtime smoke and
+false-claim rejection without --strict. All60 PNG pixels unchanged. Machine evidence
+is docs/releases/0.8.0-publication.json.0.7.0 unchanged; root/site onboarding now
+uses the actually available PyPI0.8.0 package. Final docs/checkpoint CI follows.

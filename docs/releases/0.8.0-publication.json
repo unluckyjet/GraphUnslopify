@@ -1,0 +1,39 @@
+{
+  "version": "0.8.0",
+  "verified_date": "2026-10-28",
+  "release_revision": "c3e061984bfeb980d3c77c33a402a8155ea1dfce",
+  "github_release": "https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0",
+  "pypi": "https://pypi.org/project/graphunslopify/0.8.0/",
+  "sha256": {
+    "graphunslopify-0.8.0-py3-none-any.whl": "06371cb20500bd7388b91169a92a3237a87defbdb4f5692e31c2df2b1e195b22",
+    "graphunslopify-0.8.0.tar.gz": "249207d042bd4328595086ec78b814d41a12f4f3bd65bea8a0ef4708abb14e37"
+  },
+  "ci_runs": {
+    "main_checks": 40743628639,
+    "main_figure": 40743628457,
+    "tag_checks": 40743709281,
+    "tag_figure": 40743709164,
+    "pypi_publication": 40745193348
+  },
+  "measured": {
+    "node_tests": 217,
+    "local_python_tests": 1042,
+    "existing_png_pixels_unchanged": 60,
+    "public_github_downloads_match": true,
+    "public_registry_downloads_match": true,
+    "downloaded_sdist_rebuilds_identical_wheel": true,
+    "fresh_registry_install": {
+      "status": "passed",
+      "python": "3.12.14",
+      "version": "0.8.0",
+      "agent": true,
+      "pdf": true,
+      "external_runtime_network_blocked": true,
+      "false_claim_rejected_without_strict_flag": true
+    }
+  },
+  "limits": [
+    "Public-paper examples are author-run descriptive checks, not full paper replication or independent adoption evidence.",
+    "Source-free PDF review leaves numerical/scientific verification incomplete."
+  ]
+}

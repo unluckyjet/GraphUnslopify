@@ -81,16 +81,16 @@
       <h2>Start locally</h2>
       <p>Python 3.10 or newer, in a virtual environment. This pinned release includes the
         local translator and its runtime; no npm setup or server is needed.</p>
-      <pre><code>python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+      <pre><code>python -m pip install graphunslopify==0.8.0
 graphunslopify doctor
 graphunslopify demo</code></pre>
       <p>The demo creates a dataset, specification, Python program, verified static exports
         and report. Then try <code>graphunslopify preview</code> for the local editor, or
         <a href="https://github.com/unluckyjet/GraphUnslopify/blob/main/docs/installation.md">follow the installation guide</a>
         to use your own data.</p>
-      <p class="note">Current development rejects failed or incomplete verification by
-        default. The pinned 0.7.0 release requires <code>--strict</code> on render/run/check
-        and <code>strict=True</code> in the Python SDK; its demo and paper audit are already strict.</p>
+      <p class="note">Version 0.8.0 rejects failed or incomplete verification by default.
+        Explicit <code>--no-strict</code> or <code>strict=False</code> opts out of rejection;
+        report verdicts remain unchanged. Older 0.7.0 installs require <code>--strict</code>.</p>
     </section>
     <section>
       <h2>What the evidence establishes</h2>

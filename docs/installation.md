@@ -1,9 +1,9 @@
 # Install and run locally
 
-Python 3.10+ is required. In a virtual environment, install the tagged wheel without cloning the repository or installing npm:
+Python 3.10+ is required. In a virtual environment, install the versioned package without cloning the repository or installing npm:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
+python -m pip install graphunslopify==0.8.0
 graphunslopify doctor
 graphunslopify demo
 ```
@@ -12,10 +12,11 @@ The demo writes public synthetic results, a JSON spec, PNG/SVG/PDF figures, the 
 program and a strict verification report to `graphunslopify-demo/`. It refuses to replace different
 existing demo inputs. `doctor` checks that the packaged translator and Python package version agree.
 The [0.8.0 release](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0) supplies
-a wheel, source distribution and `SHA256SUMS`. Package-registry publication is not required.
+a wheel, source distribution and `SHA256SUMS` for installation without PyPI.
 [Documentation versioning](versioning.md) explains how to match documentation to your install.
-The [PyPI publication workflow](pypi-publication.md) and account connection are prepared;
-actual0.8.0 registry upload and fresh registry-install evidence are tracked in the release checklist.
+Version 0.8.0 is also published on PyPI. Its registry files match the GitHub release hashes;
+a fresh registry install passes doctor/demo, strict-default rejection, agent/PDF and offline-runtime checks.
+See [publication evidence](releases/0.8.0-publication.json) and the [publishing workflow](pypi-publication.md).
 
 From a checkout, the equivalent install is `python -m pip install ./python`.
 Install `[interactive]` for supported Plotly HTML, `[parquet]` for a Parquet reader, and

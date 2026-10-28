@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import venv
+from email.parser import BytesParser
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -34,6 +35,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("wheel", type=Path, nargs="?")
     parser.add_argument("--work-dir", type=Path)
+    parser.add_argument(
+        "--registry-version",
+        help="install this exact version from public PyPI instead of the supplied wheel; require strict defaults",
+    )
     parser.add_argument(
         "--keep-environment",
         action="store_true",
@@ -61,6 +66,13 @@ def main() -> None:
         assert "graphunslopify/_translator.mjs" in names
         assert "graphunslopify/ZOD-LICENSE.txt" in names
         assert any(name.endswith("/licenses/LICENSE") for name in names)
+        metadata = BytesParser().parsebytes(
+            archive.read(
+                next(name for name in names if name.endswith(".dist-info/METADATA"))
+            )
+        )
+        if args.registry_version and metadata["Version"] != args.registry_version:
+            parser.error("registry version must match the supplied reference wheel")
     where = (args.work_dir or Path(tempfile.mkdtemp(prefix="gu-install-"))).resolve()
     where.mkdir(parents=True, exist_ok=True)
     virtual = where / "fresh environment"
@@ -77,6 +89,15 @@ def main() -> None:
     env.pop("GRAPHUNSLOPIFY_NODE", None)
     env["GRAPHUNSLOPIFY_API"] = "local"
     env["PYTHONIOENCODING"] = "utf-8"
+    extra = ",".join(
+        name for name, enabled in (("agent", args.agent), ("pdf", args.pdf)) if enabled
+    )
+    extra = f"[{extra}]" if extra else ""
+    requirement = (
+        f"graphunslopify{extra}=={args.registry_version}"
+        if args.registry_version
+        else str(wheel) + extra
+    )
     run(
         [
             str(python),
@@ -84,17 +105,11 @@ def main() -> None:
             "pip",
             "install",
             "--disable-pip-version-check",
-            str(wheel)
-            + (
-                "["
-                + ",".join(
-                    name
-                    for name, enabled in (("agent", args.agent), ("pdf", args.pdf))
-                    if enabled
-                )
-                + "]"
-                if args.agent or args.pdf
-                else ""
+            requirement,
+            *(
+                ["--index-url", "https://pypi.org/simple"]
+                if args.registry_version
+                else []
             ),
         ],
         cwd=where,
@@ -140,6 +155,8 @@ def main() -> None:
     cli = [str(python), "-m", "graphunslopify.cli"]
     doctor = json.loads(run([*cli, "doctor"], cwd=where, env=env))
     assert doctor["ok"] and len(doctor["translator"]["kinds"]) == 21
+    if args.registry_version:
+        assert doctor["python_package"] == args.registry_version
     assert doctor["translator"]["node"].startswith(("v22.", "v24."))
     demo = where / "paper with spaces" / "data"
     report = json.loads(run([*cli, "demo", str(demo), "--json"], cwd=where, env=env))
@@ -148,6 +165,35 @@ def main() -> None:
     assert report["data"]["counts"]["sample_sizes"] == [4] * 6
     assert report["claims"][0]["verdict"] == "holds"
     assert "ours is highest at 56.5" in report["alt_text"]
+    if args.registry_version:
+        bad_spec = json.loads((demo / "figure.json").read_text())
+        bad_spec["claims"] = [
+            {"kind": "beats_everywhere", "subject": "base", "reference": "ours"}
+        ]
+        bad_spec["data"]["path"] = str(demo / "results.csv")
+        bad = where / "false-claim.json"
+        bad.write_text(json.dumps(bad_spec))
+        rejected = subprocess.run(
+            [
+                *cli,
+                "render",
+                str(bad),
+                "--out-dir",
+                str(where / "default rejection"),
+                "--json",
+            ],
+            cwd=where,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        verdict = json.loads(rejected.stdout)
+        assert (
+            rejected.returncode == 2
+            and verdict["status"] == "failed"
+            and verdict["policy"]["strict"]
+        )
     if args.pdf:
         for prepare_only in (False, True):
             packet = where / ("pdf preparation" if prepare_only else "pdf strict")
@@ -1231,6 +1277,8 @@ def main() -> None:
                 "translator": doctor["translator"],
                 "network": "external connections blocked after install",
                 "agent": args.agent,
+                "pdf": args.pdf,
+                "registry_version": args.registry_version,
                 "work_dir": str(where),
             }
         )

@@ -1,6 +1,7 @@
 import { plotAxis, sharedSeriesLegend } from "../capabilities.ts";
-import { hasCategoricalX, type AxisSpec, type FigureSpec, type Significance } from "../schema.ts";
+import { hasCategoricalX, type AxisSpec, type FigureSpec } from "../schema.ts";
 import { pyOptStr, pyStr } from "./py.ts";
+import { emitSignificance } from "./significance.ts";
 import { LEGEND_LOCATIONS, PRESETS, REFERENCE_STYLES } from "./theme.ts";
 
 /**
@@ -133,7 +134,7 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
   }
 
   if (spec.kind === "bar" && spec.significance) {
-    emitSignificance(spec.significance, out);
+    emitSignificance(out);
   }
 
   if (spec.annotate?.length) emitAnnotations(spec, out);
@@ -172,140 +173,6 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
     );
   }
   void preset;
-}
-
-function emitSignificance(significance: Significance, out: string[]): void {
-  const method = significance.method;
-  out.push(
-    "",
-    "def compare(left, right):",
-    '    """Return a p value, or None when the test cannot run."""',
-    "    left = np.asarray(left, dtype=float)",
-    "    right = np.asarray(right, dtype=float)",
-    "    left = left[np.isfinite(left)]",
-    "    right = right[np.isfinite(right)]",
-    "    if len(left) < 2 or len(right) < 2:",
-    "        return None",
-  );
-
-  if (method === "bootstrap") {
-    out.push(
-      "    rng = np.random.default_rng(BOOTSTRAP_SEED)",
-      "    observed = left.mean() - right.mean()",
-      "    pooled = np.concatenate([left, right])",
-      "    tolerance = abs(observed) * 100 * np.finfo(float).eps",
-      "    partitions = math.comb(len(pooled), len(left))",
-      "    extreme = 0",
-      "    if partitions <= BOOTSTRAP_DRAWS:",
-      "        # Enumerate small independent-sample problems exactly.",
-      "        from itertools import combinations",
-      "        for indices in combinations(range(len(pooled)), len(left)):",
-      "            mask = np.ones(len(pooled), dtype=bool)",
-      "            mask[list(indices)] = False",
-      "            difference = pooled[list(indices)].mean() - pooled[mask].mean()",
-      "            extreme += abs(difference) >= abs(observed) - tolerance",
-      "        return float(extreme / partitions)",
-      "    # Each draw needs a fresh permutation. Permuting a transposed tiled",
-      "    # array once gave every draw the same assignment and p only 0 or 1.",
-      "    for _ in range(BOOTSTRAP_DRAWS):",
-      "        draw = rng.permutation(pooled)",
-      "        difference = draw[:len(left)].mean() - draw[len(left):].mean()",
-      "        extreme += abs(difference) >= abs(observed) - tolerance",
-      "    # Include the observed assignment: Monte Carlo p must never be zero.",
-      "    return float((extreme + 1) / (BOOTSTRAP_DRAWS + 1))",
-    );
-  } else {
-    const call =
-      method === "ttest"
-        ? "stats.ttest_ind(left, right, equal_var=False).pvalue"
-        : 'stats.mannwhitneyu(left, right, alternative="two-sided").pvalue';
-    out.push(
-      "    try:",
-      "        from scipy import stats",
-      "    except ImportError:",
-      '        print("scipy is not installed, so significance markers were skipped")',
-      "        return None",
-      `    return float(${call})`,
-    );
-  }
-
-  out.push(
-    "",
-    "",
-    "def adjust_pvalues(values, method):",
-    "    \"\"\"Adjust one panel's tested family, preserving input order.\"\"\"",
-    "    values = np.asarray(values, dtype=float)",
-    "    if values.ndim != 1 or not np.isfinite(values).all() or np.any((values < 0) | (values > 1)):",
-    "        raise ValueError(\"p-values must be finite numbers between zero and one\")",
-    "    if method not in (\"none\", \"holm\", \"benjamini_hochberg\"):",
-    "        raise ValueError(f\"unknown correction: {method}\")",
-    "    if len(values) == 0 or method == \"none\":",
-    "        return values.copy()",
-    "    order = np.argsort(values, kind=\"stable\")",
-    "    ordered = values[order]",
-    "    count = len(values)",
-    "    if method == \"holm\":",
-    "        adjusted = np.maximum.accumulate(ordered * np.arange(count, 0, -1))",
-    "    else:",
-    "        scaled = ordered * count / np.arange(1, count + 1)",
-    "        adjusted = np.minimum.accumulate(scaled[::-1])[::-1]",
-    "    result = np.empty_like(adjusted)",
-    "    result[order] = np.minimum(adjusted, 1.0)",
-    "    return result",
-  );
-
-  out.push(
-    "",
-    "",
-    "def mark_significance(ax, df, categories, positions):",
-    "    df = summary_input(df, Y_FIELD)",
-    "    index_of = {name: position for name, position in zip(categories, positions)}",
-    "    reach = df[Y_FIELD].max()",
-    "    step = abs(reach) * 0.06 if np.isfinite(reach) and reach else 1.0",
-    "    level = reach",
-    "    comparisons = []",
-    "    for left_name, right_name in SIGNIFICANCE_PAIRS:",
-    "        if left_name not in index_of or right_name not in index_of:",
-    '            print(f"significance: {left_name} vs {right_name} skipped: category absent from the data")',
-    '            significance_result(left_name, right_name, status="untested", reason="category absent from the data")',
-    "            continue",
-    "        p = compare(",
-    "            df[df[X_FIELD] == left_name][Y_FIELD],",
-    "            df[df[X_FIELD] == right_name][Y_FIELD],",
-    "        )",
-    "        if p is None or not np.isfinite(p):",
-    '            left_n = int(np.isfinite(pd.to_numeric(df.loc[df[X_FIELD] == left_name, Y_FIELD], errors="coerce")).sum())',
-    '            right_n = int(np.isfinite(pd.to_numeric(df.loc[df[X_FIELD] == right_name, Y_FIELD], errors="coerce")).sum())',
-    '            reason = "fewer than two finite observations" if min(left_n, right_n) < 2 else "test unavailable or undefined"',
-    '            print(f"significance: {left_name} vs {right_name} skipped: {reason} (n={left_n}, {right_n})")',
-    '            significance_result(left_name, right_name, status="untested", reason=reason, sample_sizes=[left_n, right_n])',
-    "            continue",
-    "        comparisons.append((left_name, right_name, p))",
-    "    adjusted = adjust_pvalues([p for _, _, p in comparisons], SIGNIFICANCE_CORRECTION)",
-    "    for (left_name, right_name, raw_p), p in zip(comparisons, adjusted):",
-    '        significance_result(left_name, right_name, status="tested", raw_p=float(raw_p), adjusted_p=float(p),',
-    '                            correction=SIGNIFICANCE_CORRECTION, family_size=len(comparisons), alpha=SIGNIFICANCE_ALPHA)',
-    "        level = level + step",
-    "        left_pos, right_pos = index_of[left_name], index_of[right_name]",
-    "        ax.plot(",
-    "            [left_pos, left_pos, right_pos, right_pos],",
-    "            [level, level + step * 0.3, level + step * 0.3, level],",
-    '            color="#404040",',
-    "            linewidth=0.8,",
-    "        )",
-    '        mark = "n.s." if p > SIGNIFICANCE_ALPHA else ("***" if p < 0.001 else "**" if p < 0.01 else "*")',
-    "        ax.text(",
-    "            (left_pos + right_pos) / 2,",
-    "            level + step * 0.35,",
-    "            mark,",
-    '            ha="center",',
-    '            va="bottom",',
-    "            fontsize=ANNOTATION_PT,",
-    "        )",
-    '        adjustment = "no correction" if SIGNIFICANCE_CORRECTION == "none" else f"{SIGNIFICANCE_CORRECTION}-adjusted p = {p:.4g}"',
-    '        print(f"  {left_name} vs {right_name}: p = {raw_p:.4g}, {adjustment} ({mark}, {len(comparisons)} comparisons)")',
-    "",
-  );
 }
 
 function emitAnnotations(spec: FigureSpec, out: string[]): void {

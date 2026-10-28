@@ -199,6 +199,10 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
     out.push("BOOTSTRAP_DRAWS = 2000");
   }
   if (spec.kind === "bar" && spec.significance) {
+    out.push(`SIGNIFICANCE_DESIGN = ${pyStr(spec.significance.design)}`);
+    out.push(`SIGNIFICANCE_METHOD = ${pyStr(spec.significance.method)}`);
+    out.push(`SIGNIFICANCE_UNIT = ${pyOptStr(spec.uncertainty?.over)}`);
+    out.push(`SIGNIFICANCE_PAIR_BY = ${pyOptStr(spec.significance.pair_by)}`);
     out.push(`SIGNIFICANCE_PAIRS = ${pyList(spec.significance.pairs.map((p) => [...p]))}`);
     out.push(`SIGNIFICANCE_ALPHA = ${spec.significance.alpha}`);
     out.push(`SIGNIFICANCE_CORRECTION = ${pyStr(spec.significance.correction)}`);

@@ -174,6 +174,9 @@ const fieldReferences: Rule = (spec, add) => {
   if ("uncertainty" in spec && spec.uncertainty?.over) {
     refs.push(["uncertainty.over", spec.uncertainty.over]);
   }
+  if (spec.kind === "bar" && spec.significance?.pair_by) {
+    refs.push(["significance.pair_by", spec.significance.pair_by]);
+  }
   for (const field of spec.series_from_columns?.fields ?? []) {
     refs.push(["series_from_columns", field]);
   }
@@ -457,6 +460,33 @@ const barRules: Rule = (spec, add) => {
       "significance_without_uncertainty",
       "Marking significance without showing spread asks the reader to trust the test blindly.",
     );
+  }
+  if (spec.significance) {
+    const test = spec.significance;
+    if (test.design === "paired" && (!test.pair_by || test.pair_by !== spec.uncertainty?.over)
+        || test.design === "independent" && test.pair_by !== undefined
+        || test.design === "paired" && test.method === "mannwhitney") {
+      add("error", "significance_design_invalid",
+        "Paired comparisons need pair_by equal to uncertainty.over and method ttest or bootstrap. Independent tests cannot use pair_by; Mann-Whitney does not model matched samples. Declare the actual design and use paired_difference for a matched-effect plot.");
+    }
+    if (spec.aggregation !== "mean" && test.method !== "mannwhitney"
+        || !["mean", "median"].includes(spec.aggregation)) {
+      add("error", "significance_estimator_mismatch",
+        "Mean-difference tests require mean bars. A rank test compares distributions, not median equality; show mean or median with its appropriate uncertainty and describe the tested null explicitly.");
+    }
+    if (spec.group || spec.stacked) {
+      add("error", "significance_group_unsupported",
+        "Category significance would pool separately drawn groups/stack segments, testing a different quantity. Filter to one cohort or facet cohorts and compare categories within each panel.");
+    }
+    const seen = new Set<string>();
+    for (const [left, right] of test.pairs) {
+      const key = JSON.stringify([left, right].sort());
+      if (left === right || seen.has(key)) {
+        add("error", "significance_pair_invalid",
+          "Each significance pair must compare two distinct categories once. Remove self-comparisons and reversed/duplicate pairs so the correction family represents distinct planned tests.");
+      }
+      seen.add(key);
+    }
   }
   if (spec.significance?.correction === "none" && spec.significance.pairs.length > 1) {
     add(

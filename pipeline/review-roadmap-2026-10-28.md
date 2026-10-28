@@ -25,7 +25,7 @@ External results remain open until observed.
 | Item | Priority | Target | Current state |
 | --- | --- | --- | --- |
 | 1 | P0 | Strict verification by default across generated scripts, CLI and Python builder. | Implemented: [spec47](done/47-strict-verification-default.md); explicit opt-out preserves reports. |
-| 2 | P0 | Broader statistical assumptions, unit/uncertainty and comparison validation. | Pending source assessment; checks cannot establish independence from IDs alone. |
+| 2 | P0 | Broader statistical assumptions, unit/uncertainty and comparison validation. | [Design-aware comparisons](../docs/comparison-design.md), [spec54](done/54-statistical-comparison-design.md): matched t/sign-flip tests, unit/assumption/exclusion records, incompatible estimator/cohort refusals and planned-family correction. IDs do not certify independence. Source additions after0.8.0. |
 | 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | [Local PDF review packets](../docs/pdf-review.md): pages/text/explicit crops, scoped incomplete reports and a real14-page manuscript probe. Automated figure interpretation/numerical reconstruction remain outside scope. |
 | 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | Pending; extend current geometric/semantic inspection. |
 | 5 | P0 | Interaction and edge-case regression coverage. | Pending; extend the existing independent reference matrix. |
@@ -60,4 +60,9 @@ External results remain open until observed.
 - Item1: strict-by-default implementation passes217 Node/1003 Python, seven gates,
   strict gallery15/15, Ruff55 and two independent audits. All52 prior PNGs retain
   identical pixels/dimensions. This is a separate checkpoint; its exact-commit CI
-  is checked after push before advancing. Remaining review items are pending.
+  is checked after push before advancing. This is historical item1 evidence; current states are in the table above.
+
+- Item2/spec54:221 Node/1056 Python, all seven gates, gallery15/Ruff61 and
+  all60 existing PNG pixel identities pass. Fresh source-wheel agent/PDF/offline
+  smoke and installed paired comparison pass. Source additions remain distinct
+  from the immutable0.8.0 registry release. Exact commit CI checked after push.

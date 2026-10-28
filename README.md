@@ -132,6 +132,11 @@ and Mann–Whitney. Holm correction is the default for multiple pairs; Benjamini
 explicit unadjusted option are also available. The historical significance method name `bootstrap`
 means a permutation test; it is separate from bootstrap confidence intervals.
 
+Current source also supports [explicit paired comparisons](docs/comparison-design.md),
+with matched unit IDs, assumption disclosures and correction over the planned family.
+These additions require a source installation; the immutable PyPI 0.8.0 release
+provides the independent comparisons above.
+
 [Declared units and data identity](docs/data-identities.md) ·
 [Estimator contracts](docs/uncertainty-estimators.md) · [Table context](docs/table-context.md)
 
@@ -452,7 +457,7 @@ See [reusable Figure CI](docs/figure-ci.md) for a consumer workflow and version-
 
 ## Verification, evidence and limits
 
-Eighty-one rules run on the server against the spec alone; the packaged local compiler uses the
+Eighty-five rules run on the server against the spec alone; the packaged local compiler uses the
 same verifier. This count follows distinct static finding codes, not every runtime check.
 Python inspection adds checks against real rendered geometry, text, colours and exported sizes.
 

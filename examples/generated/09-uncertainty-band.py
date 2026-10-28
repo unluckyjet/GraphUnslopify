@@ -444,7 +444,7 @@ def summary_input(frame, field):
 
 
 def bootstrap_interval(frame, keys):
-    # Percentile bootstrap, so no distributional assumption and no scipy.
+    # Percentile bootstrap: no parametric distribution, but resampling units must be appropriate.
     rng = np.random.default_rng(BOOTSTRAP_SEED)
     lows, highs = [], []
     for _, block in frame.groupby(keys, sort=False, observed=True):

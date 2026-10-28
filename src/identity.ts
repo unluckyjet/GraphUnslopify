@@ -15,6 +15,7 @@ export function requiredIdentityFields(spec: FigureSpec): string[] {
 export function identityFields(spec: FigureSpec): string[] {
   return [...new Set([...requiredIdentityFields(spec),
     ...("uncertainty" in spec && spec.uncertainty?.over ? [spec.uncertainty.over] : []),
+    ...(spec.kind === "bar" && spec.significance?.pair_by ? [spec.significance.pair_by] : []),
   ])];
 }
 

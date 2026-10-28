@@ -220,3 +220,15 @@ are exercised on real figures; unsupported table/cut/panel combinations are reje
 instead of silently dropping fields. Reshape validation distinguishes input columns
 from generated series/value columns. These are implementation correctness constraints,
 not additional claims derived from visualization literature.
+
+## Declared statistical design and comparison scope
+
+[Comparison design](comparison-design.md) extends independent tests with actual
+ID-matched paired t/sign-flip tests, unit/exclusion accounting and a planned
+multiple-testing family that does not shrink when comparisons are unavailable.
+SciPy's documented [paired t](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html),
+[rank-test scope](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html)
+and [permutation types](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html)
+provide the method definitions. Unit IDs, matching and a p-value cannot establish
+independence, appropriate sampling or exchangeability; records explicitly retain
+those author assumptions rather than claiming automated certification.

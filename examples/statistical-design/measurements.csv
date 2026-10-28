@@ -1,0 +1,17 @@
+condition,score,participant
+before,9,01
+before,11,01
+after,10,01
+after,12,01
+before,19,1
+before,21,1
+after,23,1
+after,25,1
+before,29,B
+before,31,B
+after,31,B
+after,33,B
+before,39,C
+before,41,C
+after,45,C
+after,47,C

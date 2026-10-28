@@ -188,9 +188,13 @@ export const FacetSpec = z.object({
 });
 
 export const SignificanceSpec = z.object({
+  design: z.enum(["independent", "paired"]).default("independent")
+    .describe("Author-declared sampling design, not a certification of independence. Paired tests match the same units across categories."),
+  pair_by: z.string().min(1).optional()
+    .describe("For paired comparisons, unit ID shared across categories. Must match uncertainty.over so bars and tests use the same technical-repeat summaries."),
   method: z.enum(["bootstrap", "ttest", "mannwhitney"]).describe(
-    "bootstrap is the historical name for a two-sided independent-sample permutation test of mean differences; " +
-    "ttest uses Welch's test and mannwhitney uses the two-sided rank test.",
+    "bootstrap is the historical name for a two-sided absolute-mean-gap permutation test (paired design uses sign flips); " +
+    "ttest uses Welch's test or paired t according to design; mannwhitney is independent-only and tests distributions, not median equality.",
   ),
   pairs: z
     .array(z.tuple([z.string(), z.string()]))

@@ -1,0 +1,42 @@
+{
+  "kind": "bar",
+  "data": {
+    "path": "measurements.csv"
+  },
+  "x": {
+    "field": "condition",
+    "label": "Condition"
+  },
+  "y": {
+    "field": "score",
+    "label": "Score"
+  },
+  "aggregation": "mean",
+  "uncertainty": {
+    "kind": "sem",
+    "over": "participant",
+    "display": "bar"
+  },
+  "significance": {
+    "design": "paired",
+    "pair_by": "participant",
+    "method": "ttest",
+    "pairs": [
+      [
+        "before",
+        "after"
+      ]
+    ]
+  },
+  "legend": {
+    "show": false
+  },
+  "output": {
+    "stem": "paired",
+    "formats": [
+      "png",
+      "svg"
+    ],
+    "dpi": 300
+  }
+}

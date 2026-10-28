@@ -1,5 +1,9 @@
 # Audit a paper's figures
 
+For a manuscript PDF without source figure specs/data, current development adds
+[PDF visual review packets](pdf-review.md). These retain incomplete numerical
+verification rather than treating extracted pictures as verified research.
+
 A manifest connects figures to their source specs or generated programs, local data and explicit
 claims. An audit regenerates every entry, runs strict runtime checks, verifies saved artifacts,
 and writes one combined report. It continues after an individual failure.

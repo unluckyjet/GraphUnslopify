@@ -26,7 +26,7 @@ External results remain open until observed.
 | --- | --- | --- | --- |
 | 1 | P0 | Strict verification by default across generated scripts, CLI and Python builder. | Implemented: [spec47](done/47-strict-verification-default.md); explicit opt-out preserves reports. |
 | 2 | P0 | Broader statistical assumptions, unit/uncertainty and comparison validation. | Pending source assessment; checks cannot establish independence from IDs alone. |
-| 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | Pending; separate visual evidence from unavailable numeric/data claims. |
+| 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | [Local PDF review packets](../docs/pdf-review.md): pages/text/explicit crops, scoped incomplete reports and a real14-page manuscript probe. Automated figure interpretation/numerical reconstruction remain outside scope. |
 | 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | Pending; extend current geometric/semantic inspection. |
 | 5 | P0 | Interaction and edge-case regression coverage. | Pending; extend the existing independent reference matrix. |
 | 6 | P1 | Publish an installable PyPI release. | [Trusted Publishing workflow and release verification](../docs/pypi-publication.md) prepared; actual upload awaits PyPI account configuration. GitHub wheel remains the verified installer. |

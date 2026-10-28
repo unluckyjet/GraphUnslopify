@@ -434,8 +434,11 @@ specs, descriptions, claims and outputs. PNG comparison separates file bytes fro
 metadata can change while the picture stays identical. Other formats report byte changes without
 claiming a raster comparison.
 
-This supports source-linked figure review; it does not interpret arbitrary paper prose or
-reconstruct unrelated figures from a PDF. See [paper manifests and change reports](docs/paper-audits.md).
+This supports source-linked figure review. Current development also provides
+[PDF review packets](docs/pdf-review.md) with page previews, text and manually selected crops
+for ordinary manuscripts; unavailable numerical/source checks stay untested. It does not
+interpret arbitrary paper claims or reconstruct their datasets.
+See [paper manifests and change reports](docs/paper-audits.md).
 
 ### Run figure checks in GitHub Actions
 

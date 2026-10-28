@@ -280,6 +280,28 @@ def _audit_init(args: argparse.Namespace) -> int:
     return 0
 
 
+def _audit_pdf(args: argparse.Namespace) -> int:
+    from .pdf_review import review_pdf
+
+    try:
+        regions = (
+            json.loads(Path(args.regions).read_text(encoding="utf8")) if args.regions else None
+        )
+        result = review_pdf(
+            args.path,
+            output=args.out_dir,
+            pages=args.pages,
+            regions=regions,
+            dpi=args.dpi,
+            prepare_only=args.prepare_only,
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result["exit_code"])
+
+
 def _verification_options(parser: argparse.ArgumentParser) -> None:
     policy = parser.add_mutually_exclusive_group()
     policy.add_argument(
@@ -343,6 +365,27 @@ def build_parser() -> argparse.ArgumentParser:
     initialized.add_argument("path", nargs="?", default=".")
     initialized.add_argument("--output")
     initialized.set_defaults(handler=_audit_init)
+
+    pdf_review = commands.add_parser(
+        "audit-pdf", help="prepare a visual review packet from an ordinary PDF"
+    )
+    pdf_review.add_argument(
+        "path", help="local PDF; prepare review without original figure source data"
+    )
+    pdf_review.add_argument("--out-dir", default="pdf-review")
+    pdf_review.add_argument(
+        "--pages", nargs="+", type=int, help="one-based pages, at most50; default all"
+    )
+    pdf_review.add_argument(
+        "--regions", help="JSON list of manually selected normalized page rectangles"
+    )
+    pdf_review.add_argument("--dpi", type=int, default=144)
+    pdf_review.add_argument(
+        "--prepare-only",
+        action="store_true",
+        help="exit0 when preparation succeeds; scientific verification stays incomplete",
+    )
+    pdf_review.set_defaults(handler=_audit_pdf)
 
     converted = commands.add_parser("translate", help="translate a JSON spec locally")
     converted.add_argument("spec", help="JSON file; data paths resolve beside it")

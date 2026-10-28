@@ -161,9 +161,15 @@ test("an annotation resolves its position at runtime, not in the spec", () => {
     ...line,
     annotate: [{ at: "max", series: "ours", text: "SOTA" }],
   });
-  assert.match(result.code, /def locate\(frame, where, series\)/);
+  assert.match(result.code, /def locate_annotation\(points, where, series, coordinate=False\)/);
   assert.match(result.code, /"at": "max"/);
   assert.ok(!result.code.includes("xytext=(3.2"));
+});
+
+test("a named annotation series requires an actual group field", () => {
+  const { group, ...single } = line;
+  const found = codes({ ...single, annotate: [{ at: "max", series: "ours", text: "Peak" }] });
+  assert.ok(found.includes("annotation_series_without_group"));
 });
 
 test("a crossover annotation needs two series", () => {

@@ -1,6 +1,7 @@
 import { plotAxis, sharedSeriesLegend } from "../capabilities.ts";
 import { hasCategoricalX, type AxisSpec, type FigureSpec } from "../schema.ts";
 import { pyOptStr, pyStr } from "./py.ts";
+import { emitAnnotations } from "./annotations.ts";
 import { emitSignificance } from "./significance.ts";
 import { LEGEND_LOCATIONS, PRESETS, REFERENCE_STYLES } from "./theme.ts";
 
@@ -175,98 +176,6 @@ export function emitHelpers(spec: FigureSpec, out: string[]): void {
   void preset;
 }
 
-function emitAnnotations(spec: FigureSpec, out: string[]): void {
-  out.push(
-    "",
-    "def as_coordinate(value):",
-    '    """A float where matplotlib wants one, and the value itself for a date.',
-    "",
-    "    np.isreal answers a different question: a Timestamp is not complex, so it",
-    '    passed a test meant to mean "is a plain number" and then failed float().',
-    '    """',
-    "    if isinstance(value, (int, float, np.integer, np.floating)):",
-    "        return float(value)",
-    "    return value",
-    "",
-    "",
-    "def locate(frame, where, series):",
-    '    """Turn a semantic position into a data point."""',
-    "    block = frame if series is None else frame[frame[GROUP] == series]",
-    "    block = block.dropna(subset=[X_FIELD, Y_FIELD]).sort_values(X_FIELD)",
-    "    if block.empty:",
-    "        return None",
-    '    if where == "max":',
-    "        row = block.loc[block[Y_FIELD].idxmax()]",
-    '    elif where == "min":',
-    "        row = block.loc[block[Y_FIELD].idxmin()]",
-    '    elif where == "first":',
-    "        row = block.iloc[0]",
-    '    elif where == "last":',
-    "        row = block.iloc[-1]",
-    '    elif where == "crossover":',
-    "        return crossover_point(frame, series)",
-    "    else:",
-    "        target = pd.to_datetime(where) if X_TEMPORAL else where",
-    "        by_distance = X_TEMPORAL or isinstance(target, (int, float, np.integer, np.floating))",
-    "        nearest = (block[X_FIELD] - target).abs().idxmin() if by_distance else None",
-    "        if nearest is None:",
-    "            match = block[block[X_FIELD] == target]",
-    "            if match.empty:",
-    "                return None",
-    "            row = match.iloc[0]",
-    "        else:",
-    "            row = block.loc[nearest]",
-    "    return as_coordinate(row[X_FIELD]), float(row[Y_FIELD])",
-    "",
-    "",
-    "def crossover_point(frame, series):",
-    '    """Where the named series first overtakes every other one."""',
-    "    if GROUP is None or series is None:",
-    "        return None",
-    "    pivot = frame.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc=\"mean\", observed=True)",
-    "    if series not in pivot.columns or pivot.shape[1] < 2:",
-    "        return None",
-    ...(spec.kind === "qq" ? ["    if pivot.isna().any(axis=None):", "        return None"] : []),
-    "    others = pivot.drop(columns=[series]).max(axis=1)",
-    "    ahead = pivot[series] > others",
-    "    if not ahead.any():",
-    "        return None",
-    "    at = ahead.idxmax()",
-    "    return as_coordinate(at), float(pivot[series].loc[at])",
-    "",
-    "",
-    "def place_annotations(ax, frame):",
-    "    # Offsets alternate so two notes near each other do not land on top.",
-    "    offsets = [(8, 10), (8, -14), (-10, 12), (-10, -16)]",
-    "    for index, note in enumerate(ANNOTATIONS):",
-    '        found = locate(frame, note["at"], note.get("series"))',
-    "        if found is None:",
-    ...(spec.kind === "qq" ? [
-      `            reason = f"Q-Q panel {CURRENT_PANEL}, annotation {note['text']!r} has no complete derived quantile coverage"`,
-      '            finding("warning", "qq_annotation_unavailable", reason)',
-      '            if reason not in RUN_REPORT["untested"]:',
-      '                RUN_REPORT["untested"].append(reason)',
-    ] : []),
-    '            print(f"  annotation {note[\'text\']!r} had nowhere to attach")',
-    "            continue",
-    "        x, y = found",
-    "        ax.annotate(",
-    '            note["text"],',
-    "            xy=(x, y),",
-    "            xytext=offsets[index % len(offsets)],",
-    '            textcoords="offset points",',
-    "            fontsize=ANNOTATION_PT,",
-    '            color="#202020",',
-    "            arrowprops={",
-    '                "arrowstyle": "-",',
-    '                "linewidth": 0.7,',
-    '                "color": "#767676",',
-    "            },",
-    "        )",
-    "",
-  );
-}
-
 export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
   out.push("", "def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):");
 
@@ -373,8 +282,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
     }
   }
 
-  if (spec.annotate?.length) out.push(spec.kind === "qq"
-    ? "    place_annotations(ax, qq_claim_frame(frame))" : "    place_annotations(ax, frame)");
+  if (spec.annotate?.length) out.push("    place_annotations(ax, frame)");
 
   out.push(spec.style.grid ? "    ax.grid(True, linewidth=0.4, alpha=0.5)" : "    ax.grid(False)");
   if (spec.kind === "sparkline_grid") {

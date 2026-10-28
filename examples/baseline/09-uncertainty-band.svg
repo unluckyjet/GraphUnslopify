@@ -12,7 +12,7 @@
     <dc:description>Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours. Shaded 95 percent confidence intervals. Ours is drawn in the foreground. A chance line at 25 labelled chance. N = 3 per point (unit IDs: seed). At the largest training epoch, ours is highest at 81.1 and baseline is lowest at 70. A spread of 11.</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:identifier>216b8d98044e777e</dc:identifier>
-    <dc:source>{"schema_version": 1, "tool": "GraphUnslopify 0.8.0", "spec_hash": "216b8d98044e777e", "data_sha256_prefix": "87b5a09a36437d98", "script_sha256": "34ae67343d9b0be7b946651946febf385db2eb76187ca8b4354949adddd2e5fd", "spec": {"title": "Accuracy over training, mean of three seeds", "group": "model", "series_order": ["baseline", "+augment", "+distill", "ours"], "emphasis": {"series": "ours"}, "reference_lines": [{"axis": "y", "value": 25, "label": "chance", "meaning": "chance"}], "annotate": [{"at": "max", "series": "ours", "text": "best"}], "legend": {"show": true, "position": "outside_right", "style": "box"}, "output": {"interactive": false, "latex": false, "size": "double_column", "formats": ["png", "svg", "pdf"], "dpi": 600, "stem": "09-uncertainty-band"}, "style": {"preset": "paper", "grid": false, "despine": true, "venue": "none"}, "data": {"path": "data/training.csv", "format": "csv", "columns": ["model", "seed", "epoch", "accuracy", "loss"]}, "x": {"field": "epoch", "label": "Training epoch", "scale": "linear", "percent": false, "temporal": false}, "y": {"field": "accuracy", "label": "Test accuracy", "unit": "%", "scale": "linear", "percent": false, "temporal": false}, "kind": "line", "marker": false, "sort_x": true, "aggregation": "mean", "uncertainty": {"kind": "ci", "level": 0.95, "over": "seed", "display": "band"}}, "alt_text": "Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours. Shaded 95 percent confidence intervals. Ours is drawn in the foreground. A chance line at 25 labelled chance. N = 3 per point (unit IDs: seed). At the largest training epoch, ours is highest at 81.1 and baseline is lowest at 70. A spread of 11."}</dc:source>
+    <dc:source>{"schema_version": 1, "tool": "GraphUnslopify 0.8.0", "spec_hash": "216b8d98044e777e", "data_sha256_prefix": "87b5a09a36437d98", "script_sha256": "0b0506022b9f88005a1026faf898ea51421b3441df568ad6a950b8e3dcc6ab3e", "spec": {"title": "Accuracy over training, mean of three seeds", "group": "model", "series_order": ["baseline", "+augment", "+distill", "ours"], "emphasis": {"series": "ours"}, "reference_lines": [{"axis": "y", "value": 25, "label": "chance", "meaning": "chance"}], "annotate": [{"at": "max", "series": "ours", "text": "best"}], "legend": {"show": true, "position": "outside_right", "style": "box"}, "output": {"interactive": false, "latex": false, "size": "double_column", "formats": ["png", "svg", "pdf"], "dpi": 600, "stem": "09-uncertainty-band"}, "style": {"preset": "paper", "grid": false, "despine": true, "venue": "none"}, "data": {"path": "data/training.csv", "format": "csv", "columns": ["model", "seed", "epoch", "accuracy", "loss"]}, "x": {"field": "epoch", "label": "Training epoch", "scale": "linear", "percent": false, "temporal": false}, "y": {"field": "accuracy", "label": "Test accuracy", "unit": "%", "scale": "linear", "percent": false, "temporal": false}, "kind": "line", "marker": false, "sort_x": true, "aggregation": "mean", "uncertainty": {"kind": "ci", "level": 0.95, "over": "seed", "display": "band"}}, "alt_text": "Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours. Shaded 95 percent confidence intervals. Ours is drawn in the foreground. A chance line at 25 labelled chance. N = 3 per point (unit IDs: seed). At the largest training epoch, ours is highest at 81.1 and baseline is lowest at 70. A spread of 11."}</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>GraphUnslopify 0.8.0 spec:216b8d98044e777e data:87b5a09a36437d98</dc:title>
@@ -1388,13 +1388,13 @@ L 410.225455 33.295394
     </g>
    </g>
    <g id="patch_5">
-    <path d="M 416.988065 25.717519
-Q 414.417414 27.58207 411.846764 29.446621
+    <path d="M 392.499036 28.35193
+Q 389.928386 30.216481 387.357736 32.081033
 " style="fill: none; stroke: #767676; stroke-width: 0.7; stroke-linecap: round"/>
    </g>
    <g id="text_19">
     <!-- best -->
-    <g style="fill: #202020" transform="translate(418.225455 20.622594) scale(0.08 -0.08)">
+    <g style="fill: #202020" transform="translate(393.736426 23.257005) scale(0.08 -0.08)">
      <defs>
       <path id="DejaVuSans-45" d="M 3116 1747
 Q 3116 2381 2855 2742

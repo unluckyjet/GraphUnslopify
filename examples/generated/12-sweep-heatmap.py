@@ -99,7 +99,7 @@ def new_report():
         "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
         "data": {}, "findings": [dict(f) for f in STATIC_FINDINGS],
         "inspection": {"available": None, "checked": False},
-        "panels": [], "claims": [], "significance": [], "outputs": [],
+        "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
         "skipped_outputs": [], "untested": [], "alt_text": "",
     }
 

@@ -73,7 +73,14 @@ def test_numeric_names_align_order_emphasis_claims_and_annotation_coordinates(tm
     frame = prepared(module)
     assert module.series_names(frame) == ["2", "1"]
     assert module.check_claim(frame, module.CLAIMS[0])[0] is True
-    assert module.locate(frame, "last", "1") == (2, 22)
+    fig, ax = plt.subplots()
+    try:
+        module.draw_panel(ax, frame)
+        module.decorate_panel(ax, frame, None)
+        assert tuple(ax.texts[-1].xy) == (2, 22)
+        assert module.RUN_REPORT["annotations"][0]["status"] == "resolved"
+    finally:
+        plt.close(fig)
     assert module.series_style("1", 1, 2)["alpha"] == 1
     assert module.series_style("2", 0, 2)["alpha"] < 1
 

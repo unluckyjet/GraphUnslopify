@@ -66,9 +66,9 @@ axis-break halves retain outside-coordinate counts without treating each half as
 accidental omission; the existing encoding narrative discloses the cut. Insets
 already have a declared zoom narrative.
 
-Annotation position/text handling is tracked separately in review milestone58;
-these visibility checks do not certify arbitrary authored prose or yet claim that
-all semantic annotation anchors resolve faithfully.
+[Annotation anchors](annotations.md) separately resolve requests against primary
+drawn marks and disclose unavailable/ambiguous targets. Neither these visibility
+checks nor arrow placement certifies arbitrary authored prose.
 
 Sources: [Matplotlib scale behavior](https://matplotlib.org/stable/api/scale_api.html)
 and [explicit view limits/autoscaling](https://matplotlib.org/stable/users/explain/axes/autoscale.html).

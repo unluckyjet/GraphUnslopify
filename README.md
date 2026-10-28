@@ -224,6 +224,11 @@ nonpositive log coordinates are errors, cropped coordinates receive review warni
 and filter exclusions and explicit view limits are disclosed. These additions require
 a source installation after 0.8.0; they do not infer whether an omission was deliberate.
 
+[Annotation anchors](docs/annotations.md) also follow the actual displayed summaries
+and coordinates. Missing, ambiguous or off-view targets cannot silently pass strict
+verification; authored annotation text remains unverified. These additions require
+the current source installation.
+
 
 | | |
 | --- | --- |
@@ -375,7 +380,7 @@ The image captions identify the examples; complete computed descriptions are emb
 | `11` The distribution behind the summary. | `12` A parameter sweep with cell values. |
 | ![The four curves labelled at the end of each line with no legend box](examples/baseline/13-direct-labels.png) | ![The same training curves drawing themselves as an animation](examples/baseline/14-animated-curve.gif) |
 | `13` Endpoint labels instead of a legend. | `14` An animated export. |
-| ![Simulated share price over one trading year with its 20-day rolling average, dates along the x axis](examples/baseline/15-price-and-average.png) |  |
+| ![Simulated share price over one trading year with its centered 20-observation rolling mean, dates along the x axis](examples/baseline/15-price-and-average.png) |  |
 | `15` Dates and a rolling average. |  |
 
 
@@ -462,7 +467,7 @@ See [reusable Figure CI](docs/figure-ci.md) for a consumer workflow and version-
 
 ## Verification, evidence and limits
 
-Eighty-five rules run on the server against the spec alone; the packaged local compiler uses the
+Eighty-six rules run on the server against the spec alone; the packaged local compiler uses the
 same verifier. This count follows distinct static finding codes, not every runtime check.
 Python inspection adds checks against real rendered geometry, text, colours and exported sizes.
 
@@ -512,7 +517,7 @@ Supported temporal line/scatter axes now parse and sort dates. The current regre
 shows the result:
 
 
-![Simulated share price for one trading year with its 20-day rolling average, dates along the x axis](examples/baseline/15-price-and-average.png)
+![Simulated share price for one trading year with its centered 20-observation rolling mean, dates along the x axis](examples/baseline/15-price-and-average.png)
 
 
 A successful typecheck and a saved PNG do not establish that a reader can interpret the figure.

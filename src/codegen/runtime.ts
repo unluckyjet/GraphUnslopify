@@ -19,7 +19,7 @@ def new_report():
         "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
         "data": {}, "findings": [dict(f) for f in STATIC_FINDINGS],
         "inspection": {"available": None, "checked": False},
-        "panels": [], "claims": [], "significance": [], "outputs": [],
+        "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
         "skipped_outputs": [], "untested": [], "alt_text": "",
     }
 
@@ -142,7 +142,7 @@ def finish_report():
     if RUN_REPORT["spec"].get("uncertainty") and sizes and min(sizes) < 2:
         RUN_REPORT["untested"].append("uncertainty: fewer than two observations at one or more points")
         finding("warning", "uncertainty_unavailable", RUN_REPORT["untested"][-1])
-    failed = (any(f["severity"] == "error" for f in RUN_REPORT["findings"])
+${spec.annotate?.length ? "    finalize_annotations()\n" : ""}    failed = (any(f["severity"] == "error" for f in RUN_REPORT["findings"])
               or any(c["verdict"] == "fails" for c in RUN_REPORT["claims"]))
     incomplete = (not RUN_REPORT["inspection"]["checked"] or bool(RUN_REPORT["untested"])
                   or bool(RUN_REPORT["skipped_outputs"])

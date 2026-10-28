@@ -41,6 +41,16 @@
       "metric": { "type": "string" }, "verdict": { "enum": ["holds", "fails", "untested"] }, "detail": { "type": "string" },
       "interval_overlap": { "type": ["array", "null"], "items": { "type": "integer", "minimum": 0 }, "minItems": 2, "maxItems": 2 }
     } } },
+    "annotations": { "type": "array", "items": { "type": "object", "required": ["panel", "metric", "index", "region", "requested", "text", "text_verified", "status", "reason"], "properties": {
+      "panel": { "type": "integer", "minimum": 0 }, "index": { "type": "integer", "minimum": 0 },
+      "region": { "type": "integer", "minimum": 0 }, "metric": { "type": "string" },
+      "requested": { "type": "object" }, "text": { "type": "string" }, "text_verified": { "const": false },
+      "status": { "enum": ["resolved", "untested"] }, "reason": { "type": ["string", "null"] },
+      "resolved": { "type": "object", "required": ["x", "y", "key", "value", "basis"], "properties": {
+        "x": { "type": "number" }, "y": { "type": "number" }, "value": { "type": "number" },
+        "key": { "type": ["number", "string"] }, "basis": { "type": "string" }
+      } }, "snapped": { "type": "boolean" }
+    } } },
     "significance": { "type": "array", "items": { "type": "object", "required": ["panel", "pair", "status"], "properties": {
       "panel": { "type": "integer", "minimum": 0 }, "pair": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 },
       "status": { "enum": ["tested", "untested"] }, "raw_p": { "type": "number", "minimum": 0, "maximum": 1 },

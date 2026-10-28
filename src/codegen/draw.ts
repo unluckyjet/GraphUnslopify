@@ -148,7 +148,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
     }
     const values = spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
     lines.push(
-      `${indentLevel}ax.plot(`,
+      `${indentLevel}${spec.annotate?.length ? "_annotation_curve, = " : ""}ax.plot(`,
       `${indentLevel}    ${source}[X_FIELD],`,
       `${indentLevel}    ${values},`,
       label ? `${indentLevel}    label=${label},` : `${indentLevel}    label=None,`,
@@ -160,6 +160,10 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
     );
     lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
+    if (spec.annotate?.length) lines.push(
+      `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
+      `${indentLevel}_annotation_curve._graphunslopify_annotation_series = ${spec.group ? "name" : "None"}`,
+    );
     if (spec.uncertainty && band) {
       lines.push(
         `${indentLevel}if "_low" in ${source}:`,
@@ -575,7 +579,8 @@ def draw_panel(ax, df):
         if profile["status"] == "available":
             height = 0.92 * profile["density"] / profile["peak"]
             ax.fill_between(grid, base, base + height, color=colour, alpha=0.62, linewidth=0, zorder=base)
-            ax.plot(grid, base + height, color="white", linewidth=0.7, zorder=base)
+${spec.annotate?.length ? '            _annotation_density, = ' : '            '}ax.plot(grid, base + height, color="white", linewidth=0.7, zorder=base)
+${spec.annotate?.length ? '            _annotation_density._graphunslopify_annotation_category = profile["category"]\n            _annotation_density._graphunslopify_annotation_base = base' : ""}
         else:
             values = profile["values"]
             if len(values):
@@ -827,6 +832,7 @@ def record_pairing(estimate):
 
 def draw_panel(ax, df):
     estimates = paired_estimates(df)
+${spec.annotate?.length ? '    ax._graphunslopify_annotation_keys = [estimate["condition"] for estimate in estimates]' : ""}
     jitter = np.random.default_rng(PAIR_SEED)
     labels = []
     for index, estimate in enumerate(estimates):
@@ -917,7 +923,7 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     "            if not np.isfinite(value):",
     "                continue",
     "            style = series_style(name, position, len(names))",
-    "            ax.plot(",
+    `            ${spec.annotate?.length ? "_annotation_mark, = " : ""}ax.plot(`,
     "                [value],",
     "                [row],",
     '                marker="o",',
@@ -929,6 +935,7 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     '                linestyle="none",',
     "                label=(str(name) if name is not None and name not in labelled else None),",
     "            )",
+    ...(spec.annotate?.length ? ["            _annotation_mark._graphunslopify_annotation_series = name"] : []),
     "            labelled.add(name)",
     "    ax.set_yticks(np.arange(len(categories)))",
     "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
@@ -1453,7 +1460,7 @@ function emitWaterfall(spec: FigureSpec & { kind: "waterfall" }, out: string[]):
     "    for index, (name, delta) in enumerate(zip(categories, contributions)):",
     "        bottom = min(running, running + delta)",
     "        colour = PALETTE[0] if delta >= 0 else PALETTE[1]",
-    "        ax.bar(",
+    `        ${spec.annotate?.length ? "_annotation_bars = " : ""}ax.bar(`,
     "            index,",
     "            abs(delta),",
     "            bottom=bottom,",
@@ -1463,6 +1470,10 @@ function emitWaterfall(spec: FigureSpec & { kind: "waterfall" }, out: string[]):
     "            linewidth=0,",
     "            zorder=2,",
     "        )",
+    ...(spec.annotate?.length ? [
+      "        _annotation_bars.patches[0]._graphunslopify_annotation_value = delta",
+      "        _annotation_bars.patches[0]._graphunslopify_annotation_end = running + delta",
+    ] : []),
     "        if index:",
     "            ax.plot(",
     "                [index - 0.69, index - 0.31],",
@@ -1679,4 +1690,5 @@ export function emitDraw(spec: PlottedSpec, out: string[]): void {
       throw new Error(`no emitter for kind ${JSON.stringify(unhandled)}`);
     }
   }
+  if (spec.annotate?.length) out.push("", "_primary_draw_panel = draw_panel", "", "def draw_panel(ax, frame):", "    _primary_draw_panel(ax, frame)", "    capture_annotation_geometry(ax, frame)", "");
 }

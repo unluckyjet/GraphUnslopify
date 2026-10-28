@@ -215,13 +215,14 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
       at: typeof note.at === "string" ? note.at : note.at.x,
       series: note.series ?? null,
       text: note.text,
+      coordinate: typeof note.at !== "string",
     }));
     out.push("ANNOTATIONS = [");
     for (const note of notes) {
       out.push(
         `    {"at": ${typeof note.at === "string" ? pyStr(note.at) : note.at}, ` +
           `"series": ${note.series === null ? "None" : pyStr(note.series)}, ` +
-          `"text": ${pyStr(note.text)}},`,
+          `"text": ${pyStr(note.text)}, "coordinate": ${note.coordinate ? "True" : "False"}},`,
       );
     }
     out.push("]");

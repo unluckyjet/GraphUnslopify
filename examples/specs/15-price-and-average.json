@@ -1,6 +1,6 @@
 {
   "kind": "line",
-  "title": "The average follows the price, it does not predict it",
+  "title": "A centered average smooths neighboring observations",
   "x": {
     "field": "date",
     "label": "Date",
@@ -24,7 +24,7 @@
   "annotate": [
     {
       "at": "min",
-      "text": "the average turns after the price does"
+      "text": "centered-average minimum"
     }
   ],
   "legend": {
@@ -42,6 +42,6 @@
     "stem": "15-price-and-average",
     "size": "double_column"
   },
-  "caption": "Simulated daily closing price for one trading year, with a 20-day rolling average.",
+  "caption": "Simulated daily closing price with a centered 20-observation rolling mean, including later observations.",
   "alt_text": "Simulated data. No real company is depicted."
 }

@@ -371,6 +371,9 @@ const faceting: Rule = (spec, add) => {
 
 const annotations: Rule = (spec, add) => {
   for (const note of spec.annotate ?? []) {
+    if (note.series && !spec.group) {
+      add("error", "annotation_series_without_group", "The annotation names a series but the figure has no group field. Declare grouping or omit series so the target identifies a rendered mark.");
+    }
     if (spec.group && !note.series) {
       add(
         "error",

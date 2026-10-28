@@ -414,6 +414,7 @@ def test_crossover_annotation_uses_the_first_aligned_derived_quantile(tmp_path):
     rows = cohorts(second=(0, 1, 4, 5))
     fig, ax = plt.subplots()
     try:
+        module.draw_panel(ax, rows)
         module.decorate_panel(ax, rows, None)
         np.testing.assert_allclose(ax.texts[0].xy, [21 / 34, 4], rtol=0, atol=1e-12)
     finally:

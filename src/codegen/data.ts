@@ -140,13 +140,22 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
   out.push("", "def prepare(df):");
   const body: string[] = [];
 
+  if (spec.filter?.length) {
+    body.push('    ROW_COUNTS["filtering"] = {"source_rows": len(df), "steps": []}');
+  }
+
   for (const clause of spec.filter ?? []) {
     const build = OPERATORS[clause.op];
+    body.push("    before = len(df)");
     body.push(`    df = df[${build(pyStr(clause.field), pyValue(clause.value))}]`);
+    body.push(`    step = json.loads(${pyStr(JSON.stringify(clause))})`,
+      '    step.update(before=before, after=len(df), removed=before - len(df))',
+      '    ROW_COUNTS["filtering"]["steps"].append(step)');
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
   if (spec.filter?.length) {
-    body.push("    if df.empty:", '        raise SystemExit("every row was filtered out")');
+    body.push('    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))',
+      "    if df.empty:", '        raise SystemExit("every row was filtered out")');
   }
   const melt = spec.series_from_columns;
   body.push(`    df = normalize_identities(df${melt ? ", final=False" : ""})`);

@@ -219,6 +219,11 @@ bar bodies and intervals, panel consistency and series identity. Colour checks c
 colour-vision deficiencies, greyscale separation and text contrast against actual matrix cells.
 Single/double-column sizes and venue presets help target the intended manuscript width.
 
+Current source adds [data-view and selection checks](docs/data-visibility.md):
+nonpositive log coordinates are errors, cropped coordinates receive review warnings,
+and filter exclusions and explicit view limits are disclosed. These additions require
+a source installation after 0.8.0; they do not infer whether an omission was deliberate.
+
 
 | | |
 | --- | --- |

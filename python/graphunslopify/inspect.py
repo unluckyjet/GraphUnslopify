@@ -19,10 +19,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+import numpy as np
 from pypdf.errors import PyPdfError
 
 from .cell_colour import cell_text_contrast
 from .colour import composite_over_white, relative_luminance, worst_case_distance
+from .data_view import inspect_data_view
 from .export_size import export_width_in
 
 Severity = Literal["error", "warning"]
@@ -304,22 +306,40 @@ def _check_overplotting(axes: Any, renderer: Any, report: Report) -> None:
     ink = 0.0
     points = 0
     for collection in axes.collections:
-        if not isinstance(collection, PathCollection) or not collection.get_visible():
+        if (
+            not isinstance(collection, PathCollection)
+            or not collection.get_visible()
+            or collection.get_alpha() == 0
+            or collection.get_offset_transform() != axes.transData
+        ):
             continue
-        offsets = collection.get_offsets()
-        points += len(offsets)
+        offsets = np.ma.asarray(collection.get_offsets(), dtype=float)
+        coordinates = np.asarray(offsets.filled(np.nan))
+        if coordinates.ndim != 2 or coordinates.shape[1] != 2:
+            continue
+        active = np.isfinite(coordinates).all(axis=1) & ~np.ma.getmaskarray(offsets).any(axis=1)
+        display = axes.transData.transform(coordinates)
+        active &= (
+            (display[:, 0] >= axes_box.xmin)
+            & (display[:, 0] <= axes_box.xmax)
+            & (display[:, 1] >= axes_box.ymin)
+            & (display[:, 1] <= axes_box.ymax)
+        )
         sizes = collection.get_sizes()
         if len(sizes) == 0:
             continue
-        mean_area = sum(sizes) / len(sizes) * dpi_scale
-        ink += mean_area * len(offsets)
+        areas = np.resize(sizes, len(coordinates))
+        active &= np.isfinite(areas) & (areas > 0)
+        points += int(active.sum())
+        ink += float(areas[active].sum()) * dpi_scale
 
     if points and ink / axes_area > MAX_INK_FRACTION:
         report.add(
             "warning",
             "overplotting",
-            f"{points} markers cover about {ink / axes_area:.0%} of the plotting area. "
-            "Points are hiding each other, so consider transparency or a summary.",
+            f"{points} in-view marker centers have nominal ink about {ink / axes_area:.0%} "
+            "of the plotting area (a density heuristic, not measured overlap). "
+            "Inspect overplotting and consider transparency or a summary.",
         )
 
 
@@ -524,23 +544,31 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
 
 def _check_exaggeration(axes: Any, report: Report) -> None:
     """A heavily zoomed axis turns a rounding error into a headline result."""
+    from matplotlib.ticker import PercentFormatter, ScalarFormatter
+
     if _bar_value_axis(axes) is not None:
         return  # bars are covered by the stricter rule above
 
-    low, high = axes.get_ylim()
-    span = abs(high - low)
-    magnitude = max(abs(low), abs(high))
-    if span <= 0 or magnitude <= 0:
-        return
+    for name in ("x", "y"):
+        if name == "x" and (
+            axes.get_xscale() != "linear"
+            or not isinstance(axes.xaxis.get_major_formatter(), (ScalarFormatter, PercentFormatter))
+        ):
+            continue  # Date origins and categorical indices are not numeric magnitudes.
+        low, high = getattr(axes, f"get_{name}lim")()
+        span = abs(high - low)
+        magnitude = max(abs(low), abs(high))
+        if span <= 0 or magnitude <= 0:
+            continue
 
-    if span / magnitude < MIN_RANGE_TO_MAGNITUDE:
-        report.add(
-            "warning",
-            "axis_exaggeration",
-            f"the y axis shows a span of {span:g} around values near {magnitude:g}, "
-            f"about {span / magnitude:.1%} of their size. Small differences will look large, "
-            "so say in the caption that the axis is zoomed.",
-        )
+        if span / magnitude < MIN_RANGE_TO_MAGNITUDE:
+            report.add(
+                "warning",
+                "axis_exaggeration",
+                f"the {name} axis shows a span of {span:g} around values near {magnitude:g}, "
+                f"about {span / magnitude:.1%} of their size. Small differences will look large, "
+                "so say in the caption that the axis is zoomed.",
+            )
 
 
 def _check_panel_consistency(figure: Any, report: Report) -> None:
@@ -671,11 +699,16 @@ def inspect_figure(
         "target_width_in": target_width_in,
         "evaluated_width_in": evaluated_width,
         "text_scale": scale,
+        "data_view": [],
     }
 
     if scale is not None:
         _check_text_size(figure, report, scale, min_text_pt)
     for axes in figure.get_axes():
+        view, findings = inspect_data_view(axes)
+        report.measurements["data_view"].append(view)
+        for severity, code, message in findings:
+            report.add(severity, code, message)
         _check_tick_collisions(axes, renderer, report)
         _check_legend_occlusion(axes, renderer, report)
         _check_overplotting(axes, renderer, report)

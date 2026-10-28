@@ -191,6 +191,9 @@ def describe_panels(blocks):
     else:
         counts = f" {original_n}." if original_n else ""
         description = ENCODING_SENTENCE + counts + " " + " ".join(descriptions)
+    selection = ROW_COUNTS.get("filtering", {})
+    if selection.get("removed_rows", 0):
+        description += f" Selected {selection['retained_rows']} of {selection['source_rows']} source rows; {selection['removed_rows']} excluded by declared filters."
     if AUTHOR_CONTEXT:
         description += f" {AUTHOR_CONTEXT}"
     return description
@@ -367,8 +370,14 @@ def validate_numeric_domains(frame):
 
 
 def prepare(df):
+    ROW_COUNTS["filtering"] = {"source_rows": len(df), "steps": []}
+    before = len(df)
     df = df[df["epoch"] >= 20]
+    step = json.loads("{\"field\":\"epoch\",\"op\":\"gte\",\"value\":20}")
+    step.update(before=before, after=len(df), removed=before - len(df))
+    ROW_COUNTS["filtering"]["steps"].append(step)
     ROW_COUNTS["after_filter"] = len(df)
+    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))
     if df.empty:
         raise SystemExit("every row was filtered out")
     df = normalize_identities(df)
@@ -714,9 +723,9 @@ def check(fig):
         report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT, export_paths=paths)
     except TypeError as error:
         if "export_paths" not in str(error): raise
-    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"}:
+    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"} or "data_view" not in report.measurements:
         RUN_REPORT["inspection"] = {"available": True, "checked": False}
-        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size inspection is unavailable in this checker")
+        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size or data-view inspection is unavailable in this checker")
         return False
     print(report)
     RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}

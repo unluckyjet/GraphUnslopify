@@ -19559,6 +19559,14 @@ function encodingSentence(spec) {
     if (layer.label) parts.push(`a ${layer.mark} layer labelled ${layer.label} is overlaid`);
   }
   if (spec.repeat) parts.push(`one panel per metric: ${spec.repeat.fields.join(", ")}`);
+  if (!["table", "heatmap", "confusion_matrix"].includes(spec.kind)) {
+    for (const [name, axis2] of [["x", spec.x], ["y", spec.y]]) {
+      if (axis2.limits && !(name === "x" && hasCategoricalX(spec))) {
+        const label = spec.repeat && name === "y" ? "Each repeated metric" : axis2.label;
+        parts.push(`${label} view is limited to ${axis2.limits[0]} through ${axis2.limits[1]} in source axis units; summary statistics describe retained data, which may extend beyond this view`);
+      }
+    }
+  }
   return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(". ") + ".";
 }
 function emitAltText(spec, out) {
@@ -20259,13 +20267,26 @@ function emitPrepare(spec, out) {
   }
   out.push("", "def prepare(df):");
   const body = [];
+  if (spec.filter?.length) {
+    body.push('    ROW_COUNTS["filtering"] = {"source_rows": len(df), "steps": []}');
+  }
   for (const clause of spec.filter ?? []) {
     const build = OPERATORS[clause.op];
+    body.push("    before = len(df)");
     body.push(`    df = df[${build(pyStr(clause.field), pyValue(clause.value))}]`);
+    body.push(
+      `    step = json.loads(${pyStr(JSON.stringify(clause))})`,
+      "    step.update(before=before, after=len(df), removed=before - len(df))",
+      '    ROW_COUNTS["filtering"]["steps"].append(step)'
+    );
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
   if (spec.filter?.length) {
-    body.push("    if df.empty:", '        raise SystemExit("every row was filtered out")');
+    body.push(
+      '    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))',
+      "    if df.empty:",
+      '        raise SystemExit("every row was filtered out")'
+    );
   }
   const melt = spec.series_from_columns;
   body.push(`    df = normalize_identities(df${melt ? ", final=False" : ""})`);
@@ -24451,7 +24472,10 @@ def describe_panels(blocks):
     else:
         counts = f" {original_n}." if original_n else ""
         description = ENCODING_SENTENCE + counts + " " + " ".join(descriptions)
-    if AUTHOR_CONTEXT:
+${spec.filter?.length ? `    selection = ROW_COUNTS.get("filtering", {})
+    if selection.get("removed_rows", 0):
+        description += f" Selected {selection['retained_rows']} of {selection['source_rows']} source rows; {selection['removed_rows']} excluded by declared filters."
+` : ""}    if AUTHOR_CONTEXT:
         description += f" {AUTHOR_CONTEXT}"
     return description
 
@@ -24801,9 +24825,9 @@ function emitMain(spec, out) {
     "        report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT, export_paths=paths)",
     "    except TypeError as error:",
     '        if "export_paths" not in str(error): raise',
-    '    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"}:',
+    '    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"} or "data_view" not in report.measurements:',
     '        RUN_REPORT["inspection"] = {"available": True, "checked": False}',
-    '        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size inspection is unavailable in this checker")',
+    '        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size or data-view inspection is unavailable in this checker")',
     "        return False",
     "    print(report)",
     '    RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}',

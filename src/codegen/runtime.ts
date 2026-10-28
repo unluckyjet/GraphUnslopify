@@ -111,7 +111,10 @@ def describe_panels(blocks):
     else:
         counts = f" {original_n}." if original_n else ""
         description = ENCODING_SENTENCE + counts + " " + " ".join(descriptions)
-    if AUTHOR_CONTEXT:
+${spec.filter?.length ? `    selection = ROW_COUNTS.get("filtering", {})
+    if selection.get("removed_rows", 0):
+        description += f" Selected {selection['retained_rows']} of {selection['source_rows']} source rows; {selection['removed_rows']} excluded by declared filters."
+` : ""}    if AUTHOR_CONTEXT:
         description += f" {AUTHOR_CONTEXT}"
     return description
 

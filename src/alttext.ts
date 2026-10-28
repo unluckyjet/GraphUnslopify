@@ -158,6 +158,16 @@ export function encodingSentence(spec: FigureSpec): string {
   }
   if (spec.repeat) parts.push(`one panel per metric: ${spec.repeat.fields.join(", ")}`);
 
+  if (!["table", "heatmap", "confusion_matrix"].includes(spec.kind)) {
+    for (const [name, axis] of [["x", spec.x], ["y", spec.y]] as const) {
+      if (axis.limits && !(name === "x" && hasCategoricalX(spec))) {
+        const label = spec.repeat && name === "y" ? "Each repeated metric" : axis.label;
+        parts.push(`${label} view is limited to ${axis.limits[0]} through ${axis.limits[1]} in source axis units; ` +
+          "summary statistics describe retained data, which may extend beyond this view");
+      }
+    }
+  }
+
   // Each clause becomes its own sentence, so a screen reader pauses between them.
   return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(". ") + ".";
 }

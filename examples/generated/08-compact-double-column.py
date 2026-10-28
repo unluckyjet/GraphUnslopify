@@ -75,7 +75,7 @@ SPEC_JSON = "{\"title\":\"Accuracy over training, double column\",\"group\":\"mo
 X_AXIS_LABEL = "Training epoch"
 Y_AXIS_LABEL = "Test accuracy (%)"
 FIGURE_TITLE = "Accuracy over training, double column"
-ENCODING_SENTENCE = "Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours."
+ENCODING_SENTENCE = "Line chart of Test accuracy in % against Training epoch. One series per model, with expected order baseline, +augment, +distill, ours. Test accuracy view is limited to 0 through 90 in source axis units; summary statistics describe retained data, which may extend beyond this view."
 AUTHOR_CONTEXT = None
 CAPTION = None
 X_LABEL_PLAIN = "training epoch"
@@ -771,9 +771,9 @@ def check(fig):
         report = inspect_figure(fig, target_width_in=TARGET_WIDTH_IN, min_text_pt=MIN_TEXT_PT, export_paths=paths)
     except TypeError as error:
         if "export_paths" not in str(error): raise
-    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"}:
+    if report is None or not getattr(report, "measurements", None) or report.measurements.get("basis") not in {"exports", "unavailable"} or "data_view" not in report.measurements:
         RUN_REPORT["inspection"] = {"available": True, "checked": False}
-        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size inspection is unavailable in this checker")
+        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size or data-view inspection is unavailable in this checker")
         return False
     print(report)
     RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}

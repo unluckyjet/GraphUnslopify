@@ -27,7 +27,7 @@ External results remain open until observed.
 | 1 | P0 | Strict verification by default across generated scripts, CLI and Python builder. | Implemented: [spec47](done/47-strict-verification-default.md); explicit opt-out preserves reports. |
 | 2 | P0 | Broader statistical assumptions, unit/uncertainty and comparison validation. | [Design-aware comparisons](../docs/comparison-design.md), [spec54](done/54-statistical-comparison-design.md): matched t/sign-flip tests, unit/assumption/exclusion records, incompatible estimator/cohort refusals and planned-family correction. IDs do not certify independence. [Large-offset stability follow-up57](done/57-comparison-numerical-stability.md) preserves equivalent test results. Source additions after0.8.0. |
 | 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | [Local PDF review packets](../docs/pdf-review.md): pages/text/explicit crops, scoped incomplete reports and a real14-page manuscript probe. Automated figure interpretation/numerical reconstruction remain outside scope. |
-| 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | Pending; extend current geometric/semantic inspection. |
+| 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | [Visibility milestone55](done/55-misleading-data-view-checks.md): log-domain errors, cropped-coordinate evidence, source-filter disclosures, corrected marker-density estimates and numeric-x zoom warnings. [Annotation resolution58](specs/58-faithful-semantic-annotations.md) remains open; item4 is partial. |
 | 5 | P0 | Interaction and edge-case regression coverage. | Pending; extend the existing independent reference matrix. |
 | 6 | P1 | Publish an installable PyPI release. | [0.8.0 published on PyPI/GitHub](../docs/releases/0.8.0-publication.json); matching hashes, downloaded-source rebuild and genuine fresh registry/agent/PDF/strict-default/offline-runtime installation verified. |
 | 7 | P1 | Easier editor controls and clearer explanations. | Pending; preserve existing live preview, strict checks and exports. |
@@ -68,3 +68,5 @@ External results remain open until observed.
   from the immutable0.8.0 registry release. Exact commit CI checked after push.
 
 - Follow-up57 repairs a measured numeric-offset counterexample:221 Node/1064 Python, seven gates/gallery15/Ruff61 and actual installed offline shifted/centered references pass. Exact pushed CI is checked before item4.
+
+- Item4 visibility milestone55:221 Node/1094 Python, all seven gates/Ruff63/gallery15, all60 existing PNG pixels unchanged and actual fresh installed offline visibility probes pass. Annotation resolution58 remains open; exact-push CI checked before advancing.

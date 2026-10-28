@@ -3,7 +3,7 @@
 Install the optional MCP SDK alongside the local compiler in your Python environment:
 
 ```sh
-python -m pip install "graphunslopify[agent] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+python -m pip install "graphunslopify[agent] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
 graphunslopify mcp-config
 ```
 

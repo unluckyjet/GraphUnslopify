@@ -7,7 +7,7 @@ translation and rendering need no hosted service after installation.
 In a Python 3.10+ virtual environment:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
 ```
 
 From a source checkout, `python -m pip install ./python` remains supported.
@@ -40,8 +40,7 @@ Select a hosted translator explicitly with `api="https://your-service"` or
 
 Current development source enables strict verification by default in `Figure.render()` and
 execution commands. Explicit `strict=False` / `--no-strict` opts out while retaining failed or
-incomplete report verdicts; warning rejection always implies strict mode. The pinned0.7.0 wheel
-retains the previous opt-in default, so keep `strict=True` / `--strict` for that release.
+incomplete report verdicts; warning rejection always implies strict mode. The pinned0.8.0 wheel uses these defaults. Older 0.7.0 installs require `strict=True` / `--strict`.
 
 Use `[interactive]` for supported self-contained Plotly HTML. Strict verification rejects failed
 or untested required checks; literal data claims are not statistical significance tests.
@@ -69,10 +68,10 @@ stays quiet when a second channel such as line style or marker already separates
 warns when a line axis is zoomed so far that a rounding error fills the frame.
 
 Every check is geometric or colorimetric. Nothing asks a model for an opinion, so the same figure
-always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/GraphUnslopify/blob/v0.7.0/docs/research.md).
+always yields the same findings. Reasoning and sources are in [research notes](https://github.com/unluckyjet/GraphUnslopify/blob/v0.8.0/docs/research.md).
 
 
-[Source](https://github.com/unluckyjet/GraphUnslopify) · [Versioned 0.7.0 documentation](https://github.com/unluckyjet/GraphUnslopify/tree/v0.7.0/docs) · [Release assets](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0).
+[Source](https://github.com/unluckyjet/GraphUnslopify) · [Versioned 0.8.0 documentation](https://github.com/unluckyjet/GraphUnslopify/tree/v0.8.0/docs) · [Release assets](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0).
 MIT license. The bundled translator includes Zod's MIT license; runtime/dependency licenses ship
 with their respective Python distributions.
 

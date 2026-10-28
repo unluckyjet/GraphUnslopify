@@ -1,6 +1,6 @@
 # PyPI publication
 
-Status: **workflow prepared; registry publication needs account setup**. The
+Status: **Trusted Publisher configured; new0.8.0 release preparation is active**. The
 public PyPI JSON endpoint returned404 on2026-10-28. That does not reserve the
 name or prove that a future registration will be accepted. Until an upload and
 fresh registry install are verified, use the [published GitHub wheel](installation.md).

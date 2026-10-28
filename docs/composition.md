@@ -71,7 +71,7 @@ Independent actual-artist tests cover category/value associations, filtered rugs
 band bounds, grouping/facets, unknown/ambiguous labels, derived-axis refusals,
 horizontal rules and unchanged continuous coordinates. An actual strict PNG/SVG
 render and the fresh offline wheel test exercise the same contract outside unit
-translation. Parent scientific reference matrix24 remains open.
+translation. The21-kind core scientific reference matrix is complete; optional combinations retain explicit limits.
 
 ## Shared categorical panels
 

@@ -38,7 +38,7 @@ External results remain open until observed.
 | 12 | P1 | Dependency/rendering/execution environment provenance. | Pending; extend current versioned evidence envelope compatibly. |
 | 13 | P2 | GitHub repository description. | Branding checkpoint49 updates the live description to scientific figure generation and checks. |
 | 14 | P2 | Homepage and deployment branding. | [Branded GitHub Pages homepage](../docs/homepage.md) and current content; legacy Vercel API remains available. Renaming that service requires Vercel access. |
-| 15 | P2 | Outdated documentation and installation references. | Pending; known stale composition/Figure CI prose is recorded in the vault. |
+| 15 | P2 | Outdated documentation and installation references. | Current0.8.0 installation/versioned guides and composition/Figure CI progress prose refreshed in release preparation. |
 | 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
 | 17 | High | Realistic comparative benchmarks with measured outcomes. | [Synthetic pilot](../docs/validation/benchmark.md),48 executions/three arms, plus [public-paper comparison](../docs/validation/published-papers.md),32 executions/two arms. Independent held-out scientific benchmarking remains open. |
 | 18 | Deferred | External researchers testing their own datasets. | User explicitly deferred volunteers; [prepared protocol](../docs/validation/researcher-pilot.md) retained for later. Current route is public papers/datasets. No sessions conducted. |

@@ -17,14 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.7.0
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.8.0
         with:
           manifest: paper/graphunslopify.json
           artifact-name: paper-figures
 ```
 
-The action currently lives on main; pin a reviewed commit for reproducible use until the tagged
-release is available. GitHub loads the action's own bundled compiler/package, while the manifest
+The action is versioned with the release; pin its full reviewed commit for immutable use. GitHub loads the action's own bundled compiler/package, while the manifest
 and data resolve in the caller's checkout. The same setup is exercised by this repository's
 [consumer integration workflow](../.github/workflows/figure-ci-example.yml): the tool is checked
 out separately, a passing paper runs, then a reversed claim must fail while still uploading evidence.
@@ -41,7 +40,7 @@ missing outputs or invalid provenance make the action fail. Warnings remain visi
 `fail-on-warning: 'true'` to reject them. To compare with a saved audit report:
 
 ```yaml
-      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.7.0
+      - uses: unluckyjet/GraphUnslopify/.github/actions/figure-ci@v0.8.0
         id: figures
         with:
           manifest: paper

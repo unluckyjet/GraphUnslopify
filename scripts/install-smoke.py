@@ -44,6 +44,11 @@ def main() -> None:
         action="store_true",
         help="also install/test the optional stdio agent bridge",
     )
+    parser.add_argument(
+        "--pdf",
+        action="store_true",
+        help="also exercise optional manuscript PDF review",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -79,7 +84,18 @@ def main() -> None:
             "pip",
             "install",
             "--disable-pip-version-check",
-            str(wheel) + ("[agent]" if args.agent else ""),
+            str(wheel)
+            + (
+                "["
+                + ",".join(
+                    name
+                    for name, enabled in (("agent", args.agent), ("pdf", args.pdf))
+                    if enabled
+                )
+                + "]"
+                if args.agent or args.pdf
+                else ""
+            ),
         ],
         cwd=where,
         env=env,
@@ -132,6 +148,35 @@ def main() -> None:
     assert report["data"]["counts"]["sample_sizes"] == [4] * 6
     assert report["claims"][0]["verdict"] == "holds"
     assert "ours is highest at 56.5" in report["alt_text"]
+    if args.pdf:
+        for prepare_only in (False, True):
+            packet = where / ("pdf preparation" if prepare_only else "pdf strict")
+            command = [
+                *cli,
+                "audit-pdf",
+                str(demo / "figure.pdf"),
+                "--pages",
+                "1",
+                "--out-dir",
+                str(packet),
+            ]
+            result = subprocess.run(
+                command + (["--prepare-only"] if prepare_only else []),
+                cwd=where,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            evidence = json.loads(result.stdout)
+            assert (
+                result.returncode == evidence["exit_code"] == (0 if prepare_only else 2)
+            ), result.stderr
+            assert (
+                evidence["status"] == "incomplete"
+                and (packet / "pdf-review.html").is_file()
+            )
+            assert all(check["status"] == "untested" for check in evidence["checks"])
     for suffix in ("png", "svg", "pdf"):
         provenance = json.loads(
             run(

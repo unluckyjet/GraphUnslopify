@@ -58,10 +58,10 @@ accepting a performance update.
 
 ### Install and try the demo
 
-In a **Python 3.10+ virtual environment**, install the fixed 0.7.0 release:
+In a **Python 3.10+ virtual environment**, install the fixed 0.8.0 release:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
 graphunslopify doctor
 graphunslopify demo
 ```
@@ -96,11 +96,11 @@ graphunslopify render path/to/figure.json --out-dir figures --strict --json
 `describe` profiles the file to help choose fields and a starting design. Review inferred roles
 and units against your experiment. Relative data paths in a JSON spec resolve beside that spec.
 Current development source defaults to strict verification; `--strict` remains accepted.
-The pinned 0.7.0 wheel above retains its opt-in default, so keep `--strict` for that release.
+Version 0.8.0 enables strict verification by default. Older 0.7.0 installations require `--strict`.
 Warnings remain visible, and `--fail-on-warning` rejects those too.
 
 See [installation and optional extras](docs/installation.md), [versioned documentation](docs/versioning.md)
-and the [0.7.0 release notes](docs/releases/0.7.0.md).
+and the [0.8.0 release notes](docs/releases/0.8.0.md).
 
 ## What it can do
 
@@ -525,7 +525,7 @@ labels outside the visible axes rather than reporting collisions with invisible 
 | Numerical validation | [Scientific references](docs/scientific-validation.md) |
 | Specialized estimator contracts | [Survival](docs/survival-validation.md) · [Calibration](docs/calibration-validation.md) · [Paired differences](docs/paired-validation.md) · [Q–Q](docs/qq-validation.md) · [Scaling](docs/scaling-validation.md) · [Density](docs/density-validation.md) |
 | Design rationale and examples | [Research](docs/research.md) · [Gallery](examples/README.md) |
-| Versions and release evidence | [Versioning](docs/versioning.md) · [Release notes](docs/releases/0.7.0.md) · [Delivery audit](docs/delivery-audit.md) |
+| Versions and release evidence | [Versioning](docs/versioning.md) · [Release notes](docs/releases/0.8.0.md) · [Delivery audit](docs/delivery-audit.md) |
 | License | [MIT](LICENSE) |
 
 ## Development
@@ -556,5 +556,5 @@ Use `PYTHON=python npm run baseline` only when intentionally regenerating baseli
 baseline generation command can select the wrong interpreter.
 
 The [pipeline](pipeline/README.md) records audited improvements; [future work](docs/future.md)
-contains proposals rather than promises. Version 0.7.0 is available as a tagged GitHub wheel/source
-release; PyPI/npm registry publication is not claimed.
+contains proposals rather than promises. Version 0.8.0 is prepared for GitHub/PyPI distribution; publication evidence is tracked in
+[the release checklist](pipeline/specs/53-release-080.md). npm registry publication is not claimed.

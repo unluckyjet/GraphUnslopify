@@ -3,7 +3,7 @@
 Python 3.10+ is required. In a virtual environment, install the tagged wheel without cloning the repository or installing npm:
 
 ```sh
-python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+python -m pip install "https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
 graphunslopify doctor
 graphunslopify demo
 ```
@@ -11,18 +11,18 @@ graphunslopify demo
 The demo writes public synthetic results, a JSON spec, PNG/SVG/PDF figures, the generated Python
 program and a strict verification report to `graphunslopify-demo/`. It refuses to replace different
 existing demo inputs. `doctor` checks that the packaged translator and Python package version agree.
-The [0.7.0 release](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0) supplies
+The [0.8.0 release](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0) supplies
 a wheel, source distribution and `SHA256SUMS`. Package-registry publication is not required.
 [Documentation versioning](versioning.md) explains how to match documentation to your install.
-The [PyPI publication workflow](pypi-publication.md) is prepared; account setup,
-actual registry upload and fresh registry-install evidence remain required.
+The [PyPI publication workflow](pypi-publication.md) and account connection are prepared;
+actual0.8.0 registry upload and fresh registry-install evidence are tracked in the release checklist.
 
 From a checkout, the equivalent install is `python -m pip install ./python`.
 Install `[interactive]` for supported Plotly HTML, `[parquet]` for a Parquet reader, and
 `[statistics]` for SciPy t/Mann–Whitney tests and Student-t scaling-exponent confidence intervals. For example:
 
 ```sh
-python -m pip install "graphunslopify[interactive,parquet,statistics] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.7.0/graphunslopify-0.7.0-py3-none-any.whl"
+python -m pip install "graphunslopify[interactive,parquet,statistics] @ https://github.com/unluckyjet/GraphUnslopify/releases/download/v0.8.0/graphunslopify-0.8.0-py3-none-any.whl"
 ```
 
 MP4 export additionally requires FFmpeg. Core static figures and permutation significance do
@@ -49,9 +49,8 @@ The SDK leaves the original spec unchanged. JSON specs can set `data.format` to 
 JSON rendering expects a regular JSON table, not JSON Lines.
 
 A failed or untested required runtime check exits nonzero with `--strict`; select
-`--fail-on-warning` to reject warnings too. The pinned **0.7.0 wheel** above retains
-the legacy opt-in default, so keep `--strict` when using that release. Current
-development source defaults to strict verification; explicit `--no-strict` or
+`--fail-on-warning` to reject warnings too. The **0.8.0 wheel** defaults to strict verification. Older 0.7.0 installations
+require explicit `--strict`. Explicit `--no-strict` or
 `Figure.render(strict=False)` opts out while preserving actual report verdicts. Read
 [runtime-reports.md](runtime-reports.md) before using reports as a submission gate.
 
@@ -77,7 +76,7 @@ Python version, then copy it to the offline machine:
 
 ```sh
 python -m pip wheel "./python[interactive]" --wheel-dir wheelhouse
-python -m pip install --no-index --find-links wheelhouse "graphunslopify[interactive]==0.7.0"
+python -m pip install --no-index --find-links wheelhouse "graphunslopify[interactive]==0.8.0"
 ```
 
 The translator defaults to `local`. `GRAPHUNSLOPIFY_API` selects an explicit HTTP service instead;
@@ -93,7 +92,7 @@ npm ci
 npm run build:translator
 python -m pip install build
 python -m build python --outdir dist
-python scripts/install-smoke.py dist/graphunslopify-0.7.0-py3-none-any.whl
+python scripts/install-smoke.py dist/graphunslopify-0.8.0-py3-none-any.whl
 ```
 
 The smoke test creates a fresh virtual environment outside the checkout, installs the actual wheel,

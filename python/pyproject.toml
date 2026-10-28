@@ -25,9 +25,10 @@ agent = ["mcp>=2.3,<3"]
 graphunslopify = "graphunslopify.cli:main"
 
 [project.urls]
+Homepage = "https://unluckyjet.github.io/GraphUnslopify/"
 Source = "https://github.com/unluckyjet/GraphUnslopify"
-Documentation = "https://github.com/unluckyjet/GraphUnslopify/tree/v0.7.0/docs"
-Changelog = "https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0"
+Documentation = "https://github.com/unluckyjet/GraphUnslopify/tree/v0.8.0/docs"
+Changelog = "https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0"
 
 [tool.setuptools.package-data]
 graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "schemas/*.json", "examples/*.ipynb", "web/*"]

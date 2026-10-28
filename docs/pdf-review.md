@@ -1,15 +1,15 @@
 # Review figures in an ordinary PDF
 
-Current development adds `audit-pdf` for existing manuscripts, including PDFs
+Version 0.8.0 adds `audit-pdf` for existing manuscripts, including PDFs
 without GraphUnslopify metadata or original figure source files. It prepares
 local page previews, extracted text and explicitly selected figure crops in an
 offline HTML packet plus a JSON evidence report. This is visual review
 preparation; numerical/source-data verification remains **incomplete**.
 
-The published0.7.0 wheel does not include this command. From a current checkout:
+The published0.7.0 wheel does not include this command. Install the optional renderer (or use `python -m pip install -e './python[pdf]'` from a checkout):
 
 ```sh
-python -m pip install -e './python[pdf]'
+python -m pip install 'graphunslopify[pdf]==0.8.0'
 graphunslopify audit-pdf paper.pdf --pages 3 8 --out-dir pdf-review
 ```
 

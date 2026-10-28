@@ -4,12 +4,12 @@ Run `graphunslopify version` to identify the installed Python release, then sele
 Git tag's documentation. `graphunslopify doctor` also checks the bundled compiler/package version.
 The package, emitter and Node metadata share one release version; tests enforce agreement.
 
-For 0.7.0:
+For 0.8.0:
 
-- [Release assets and hashes](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0)
-- [Versioned quickstart](https://github.com/unluckyjet/GraphUnslopify/blob/v0.7.0/README.md)
-- [Versioned documentation](https://github.com/unluckyjet/GraphUnslopify/tree/v0.7.0/docs)
-- [Core numerical reference matrix](https://github.com/unluckyjet/GraphUnslopify/blob/v0.7.0/docs/scientific-validation.md)
+- [Release assets and hashes](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0)
+- [Versioned quickstart](https://github.com/unluckyjet/GraphUnslopify/blob/v0.8.0/README.md)
+- [Versioned documentation](https://github.com/unluckyjet/GraphUnslopify/tree/v0.8.0/docs)
+- [Core numerical reference matrix](https://github.com/unluckyjet/GraphUnslopify/blob/v0.8.0/docs/scientific-validation.md)
 
 The wheel contains the Python runtime, local translator, schemas, notebook, editor assets and
 project/Zod licenses. Python packaging installs the platform Node runtime dependency. The source
@@ -24,7 +24,7 @@ Main-branch source/docs can change after a release. Use the matching tag for rep
 instructions and a full reviewed commit to freeze a reusable action reference. Old figure
 provenance remains readable; do not relabel historical figures as a new tool version.
 
-0.7.0 adds the locally packaged workflow and documented 21-kind core numerical/domain references,
-including explicit unknown/unsupported states and corrected actual data/presentation contracts.
-[Release notes](releases/0.7.0.md) summarize capabilities. References establish tested computation,
+0.8.0 adds strict defaults, source-free PDF review packets and public-paper data examples
+to the locally packaged21-kind workflow. Version0.7.0 retains its older opt-in strict default.
+[Release notes](releases/0.8.0.md) summarize capabilities. References establish tested computation,
 not experimental design, independence, appropriate inference or exhaustive optional combinations.

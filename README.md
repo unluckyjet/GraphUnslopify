@@ -537,7 +537,7 @@ labels outside the visible axes rather than reporting collisions with invisible 
 | Reports and strict execution | [Runtime policies](docs/runtime-reports.md) |
 | Batch review and automation | [Paper audits](docs/paper-audits.md) · [Figure CI](docs/figure-ci.md) |
 | Composition and HTML boundaries | [Composition](docs/composition.md) · [Interactive exports](docs/interactive-exports.md) |
-| Numerical validation | [Scientific references](docs/scientific-validation.md) |
+| Numerical validation | [Scientific references](docs/scientific-validation.md) · [Interaction matrix](docs/interaction-validation.md) |
 | Specialized estimator contracts | [Survival](docs/survival-validation.md) · [Calibration](docs/calibration-validation.md) · [Paired differences](docs/paired-validation.md) · [Q–Q](docs/qq-validation.md) · [Scaling](docs/scaling-validation.md) · [Density](docs/density-validation.md) |
 | Design rationale and examples | [Research](docs/research.md) · [Gallery](examples/README.md) |
 | Versions and release evidence | [Versioning](docs/versioning.md) · [Release notes](docs/releases/0.8.0.md) · [Delivery audit](docs/delivery-audit.md) |

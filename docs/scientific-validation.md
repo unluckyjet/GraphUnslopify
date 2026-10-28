@@ -95,3 +95,11 @@ using its explicit Scott factor and covariance scaling. This is distinct from th
 robust bandwidth. Native component contracts are documented by [Matplotlib violinplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.violinplot.html)
 and [boxplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.boxplot.html); fixed
 hand quartiles/outliers and independent SciPy evaluation are asserted against the actual output.
+
+
+## Cross-feature integration evidence
+
+Current source adds a [34-case interaction matrix](interaction-validation.md) across
+representative charts, named-unit aggregation/uncertainty, missingness, composition,
+strict policies and actual PNG/SVG/PDF/HTML artifacts. These combined controls extend
+the per-kind references; their explicit exclusions remain part of the contract.

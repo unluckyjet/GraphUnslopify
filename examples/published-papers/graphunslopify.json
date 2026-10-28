@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "figures": [
+    {
+      "id": "penguins-mass",
+      "spec": "penguins-mass.json"
+    },
+    {
+      "id": "iris-measurements",
+      "spec": "iris-measurements.json"
+    },
+    {
+      "id": "penguins-scatter",
+      "spec": "penguins-scatter.json"
+    },
+    {
+      "id": "iris-scatter",
+      "spec": "iris-scatter.json"
+    }
+  ]
+}

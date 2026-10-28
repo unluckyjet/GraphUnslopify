@@ -1,0 +1,56 @@
+{
+  "aggregation": "mean",
+  "uncertainty": {
+    "kind": "std",
+    "display": "bar"
+  },
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  },
+  "kind": "bar",
+  "title": "Body mass by species and recorded sex",
+  "data": {
+    "path": "../../benchmarks/papers/sources/penguins.csv"
+  },
+  "filter": [
+    {
+      "field": "sex",
+      "op": "in",
+      "value": [
+        "female",
+        "male"
+      ]
+    }
+  ],
+  "x": {
+    "field": "species",
+    "label": "Species"
+  },
+  "y": {
+    "field": "body_mass_g",
+    "label": "Body mass",
+    "unit": "g"
+  },
+  "group": "sex",
+  "series_order": [
+    "female",
+    "male"
+  ],
+  "claims": [
+    {
+      "kind": "beats_everywhere",
+      "subject": "male",
+      "reference": "female"
+    }
+  ]
+}

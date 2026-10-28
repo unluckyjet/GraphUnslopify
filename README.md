@@ -464,7 +464,10 @@ Matplotlib with hand-written assertions and the strict local CLI. On the eight s
 synthetic cases, the assertion-enabled baseline and GraphUnslopify catch the same false
 comparison and abstain on the same unavailable checks. This is project-authored evidence;
 independent scientific benchmarking and external researcher testing remain outstanding.
-The [researcher pilot protocol](docs/validation/researcher-pilot.md) is ready to run on real projects.
+The [published-paper examples](docs/validation/published-papers.md) use real penguin and Iris
+datasets with source hashes, separate numerical calculations, actual artist measurements,
+and deliberately injected claim/uncertainty faults. Volunteer sessions are deferred;
+the [prepared protocol](docs/validation/researcher-pilot.md) remains available for later.
 
 These checks validate their implemented computations and presentation conditions. Data origin,
 experimental design, genuinely independent units and appropriate scientific interpretation remain

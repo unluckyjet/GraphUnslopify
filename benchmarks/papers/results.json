@@ -1,0 +1,1279 @@
+{
+  "schema_version": 1,
+  "scope": "author-run published-data descriptive reproduction and seeded faults; not full paper replication or independent external validation",
+  "base_revision": "927f22d91e2d70dc0341d54889101f67939679d2",
+  "source_sha256": {
+    "scripts/paper-benchmark.py": "929230385032c26e170c4dd4d5d9bee90cdafa07258acd88feeea3769298ec70",
+    "scripts/prepare-paper-data.py": "c59cf3a24dc3205e783a81111f4a9843fa4fc9f95b05787db3b9fb89b6923550",
+    "scripts/research-benchmark.py": "003949f1140b0dcc199468f361a96c1f06a501c8dbf99e171994a57f925bf0e0",
+    "benchmarks/papers/reference.py": "767a1c52db09679c03fa0d26eb56ba0af3ddd53ee3983f0461d5304648a53321",
+    "benchmarks/papers/sources.json": "274315bdc5ff7df8f5f79b72e99eb8b08e27d0317ee2aa287a7827883f11fcd5",
+    "benchmarks/papers/sources/bezdekIris.data": "0fed2a99db77ec533a62dc66894d3ec6df3b58b6a8f3cf4a6b47e4086b7f97dc",
+    "benchmarks/papers/sources/iris.data": "6f608b71a7317216319b4d27b4d9bc84e6abd734eda7872b71a458569e2656c0",
+    "benchmarks/papers/sources/penguins.csv": "f204db2c753b0937caac3cb35258562c14f073e4bbc76be24b4c51ce22767a93",
+    "examples/published-papers/graphunslopify.json": "ee6152cb5610df9b287bc5d2effdb2683699a5f5146fa6711132b6cf26ff5c53",
+    "examples/published-papers/iris-measurements.json": "dc9e2fd8ca34115c35f96c4bf5a4b7237f049eac70bfeb62263cfcd08416af34",
+    "examples/published-papers/iris-scatter.json": "6b26694590d5a2df3b60403316481e8c6378bd87a3a055bd55da931a70f1b5ba",
+    "examples/published-papers/penguins-mass.json": "12e5e02be154838799dd374c9747254083ba4f709be433eba926e65a3d019b0d",
+    "examples/published-papers/penguins-scatter.json": "4686cc58a807a2cf9d45fc59893d23b3fac3ed81ef4db57347d4dfa51d69f3fc",
+    "examples/published-papers/data/iris-long.csv": "5c2d683a46ce8c10590557263a01cdb8d16a148250e16a0c182431bf7eb09296",
+    "examples/published-papers/data/iris.csv": "09d1766be79ec606b4c045059bc4b0d3e6a693b61d1cdfc6bdd45af42531df65"
+  },
+  "installed_implementation": {
+    "is_checkout_package": true,
+    "sha256": {
+      "__init__.py": "1a371a511b7384671816f804c6cef32f00478a4a2545fc9436c726602b5d0aac",
+      "_translator.mjs": "3ac716bda4acd8987c2eedabda60353a2345c7585035bfd2b1bd04071e88d251",
+      "audit.py": "3744b1a977d5dd03b153547c4be2acca78ed732cd5c09700eaf974d14144ad5c",
+      "audit_worker.py": "d158ca60ff2d24093ff3d41f906713dcbfd018ab00ad9c82b3b2668564bba5a0",
+      "build.py": "43983c2b1fe24b81ec2108113043a5cb1bf7a3f386c47d3c4c07482b10a86298",
+      "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+      "cli.py": "4ae297b24f85e38d588b8457cd50697339965c73ad1985e809edf8957675cf65",
+      "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+      "demo.py": "4ec1f6f8a9543c3b4ac27ff517139ea01e314c8c625e0ef82d76370f89969685",
+      "describe.py": "385ea772f09eb17435f0486539b8f3602c80f80b4087385e51799f341821b153",
+      "errors.py": "d375e842b617ad59d90087bb1004e004af9017177de377e62ffdd4f53e94c54a",
+      "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+      "inspect.py": "ddbf65a5d79a8cf613c4961a6c424c09b8dbac97e28f106234a398509a8eb3c1",
+      "lockfile.py": "668bc1637e7c16ed1497d30ba89ceb4d05cca9ca859e5d5ad0fe910c4d65e998",
+      "mcpserver.py": "fe567f2839c97ba6e4c983375f26878d46b1796c4e390f543823eb528fd6a879",
+      "notebook.py": "706659e48104888aed55d27210a4d54f0c8ca7772dc9da594e7def5ba16e465c",
+      "preview.py": "feb3126ece25af9139ff846091169e33eba3db164ba789ca56f5181d53314f98",
+      "provenance.py": "b9a9744332f1beebaed799f4d49121052620654c63372612b60da940c80a8506",
+      "schemas/audit-report.schema.json": "9643ca5468ee71c6ab1c45736134202dd987d90e9c7f69111ca5d6635dcdbc64",
+      "schemas/manifest.schema.json": "477f867ad82a571bf7cc3eb9dcda3c4ab06db95b8272aa0e13d632d1044671d3",
+      "schemas/runtime-report.schema.json": "e4b88b42de2d327a309196e2abccb302bd3f1cb417347a2ac14bbd8e4439ee2f",
+      "transport.py": "e48979edf30e4c7b651a254327c62c3f974673ab3f44b81b6f04853c57b7a505"
+    }
+  },
+  "environment": {
+    "python": "3.12.14",
+    "graphunslopify": "0.7.0",
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.4",
+    "pandas": "3.1.0"
+  },
+  "executions": 32,
+  "cases": [
+    {
+      "id": "penguins-mass",
+      "expected_status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "holds"
+          ]
+        },
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "holds"
+          ]
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "iris-measurements",
+      "expected_status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 600,
+          "reference_summaries": [
+            {
+              "x": "petal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 1.462,
+              "low": 1.288336003519816,
+              "high": 1.635663996480184
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 4.26,
+              "low": 3.790089022760042,
+              "high": 4.729910977239958
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 5.552,
+              "low": 5.000105304336016,
+              "high": 6.103894695663983
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 0.246,
+              "low": 0.14061441061995433,
+              "high": 0.35138558938004566
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 1.326,
+              "low": 1.128247319995456,
+              "high": 1.5237526800045442
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.026,
+              "low": 1.7513499443633325,
+              "high": 2.300650055636667
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 5.006,
+              "low": 4.653510312786549,
+              "high": 5.358489687213451
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 5.936,
+              "low": 5.419828852936137,
+              "high": 6.452171147063863
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 6.588,
+              "low": 5.952120406725568,
+              "high": 7.223879593274432
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 3.428,
+              "low": 3.0489356309037112,
+              "high": 3.8070643690962886
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 2.77,
+              "low": 2.4562016766215886,
+              "high": 3.0837983233784114
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.974,
+              "low": 2.6515033618273627,
+              "high": 3.2964966381726377
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 2.220446049250313e-16
+          },
+          "graphunslopify_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 8.881784197001252e-16
+          },
+          "pixels": {
+            "matplotlib": "c101cb80705b1a3f8699b98c96a2f1e614dc09b9105026791e3b526976712afd",
+            "graphunslopify": "1a7d871d2fb157ab36b29c46dc37addc7c6c1d239eca4c844e6c8bc94874f255"
+          },
+          "claim_verdicts": []
+        },
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 600,
+          "reference_summaries": [
+            {
+              "x": "petal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 1.462,
+              "low": 1.288336003519816,
+              "high": 1.635663996480184
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 4.26,
+              "low": 3.790089022760042,
+              "high": 4.729910977239958
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 5.552,
+              "low": 5.000105304336016,
+              "high": 6.103894695663983
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 0.246,
+              "low": 0.14061441061995433,
+              "high": 0.35138558938004566
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 1.326,
+              "low": 1.128247319995456,
+              "high": 1.5237526800045442
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.026,
+              "low": 1.7513499443633325,
+              "high": 2.300650055636667
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 5.006,
+              "low": 4.653510312786549,
+              "high": 5.358489687213451
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 5.936,
+              "low": 5.419828852936137,
+              "high": 6.452171147063863
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 6.588,
+              "low": 5.952120406725568,
+              "high": 7.223879593274432
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 3.428,
+              "low": 3.0489356309037112,
+              "high": 3.8070643690962886
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 2.77,
+              "low": 2.4562016766215886,
+              "high": 3.0837983233784114
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.974,
+              "low": 2.6515033618273627,
+              "high": 3.2964966381726377
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 2.220446049250313e-16
+          },
+          "graphunslopify_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 8.881784197001252e-16
+          },
+          "pixels": {
+            "matplotlib": "c101cb80705b1a3f8699b98c96a2f1e614dc09b9105026791e3b526976712afd",
+            "graphunslopify": "1a7d871d2fb157ab36b29c46dc37addc7c6c1d239eca4c844e6c8bc94874f255"
+          },
+          "claim_verdicts": []
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "penguins-scatter",
+      "expected_status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 342,
+          "reference_summaries": [],
+          "baseline_quantities": {
+            "artists": 342,
+            "numeric_values": 684,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 342,
+            "numeric_values": 684,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "a30f5201c84d3d47742d322275971f0ba3992a0b44add4d3b5547b16cb6beb9a",
+            "graphunslopify": "22c2105a818a955dd0443bf87a842a16cca4746bb4e82ecf6a119b14dd198859"
+          },
+          "claim_verdicts": []
+        },
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 342,
+          "reference_summaries": [],
+          "baseline_quantities": {
+            "artists": 342,
+            "numeric_values": 684,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 342,
+            "numeric_values": 684,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "a30f5201c84d3d47742d322275971f0ba3992a0b44add4d3b5547b16cb6beb9a",
+            "graphunslopify": "22c2105a818a955dd0443bf87a842a16cca4746bb4e82ecf6a119b14dd198859"
+          },
+          "claim_verdicts": []
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "iris-scatter",
+      "expected_status": "passed",
+      "attempts": [
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 150,
+          "reference_summaries": [],
+          "baseline_quantities": {
+            "artists": 150,
+            "numeric_values": 300,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 150,
+            "numeric_values": 300,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "618e4cd469db0d7646b07abae85878e07ed49cc873be7f455175c9735ad4a458",
+            "graphunslopify": "c51d4182515bf0a633ccd787af53c7f90e587e1798723e667cbef74abf7fe24b"
+          },
+          "claim_verdicts": []
+        },
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "baseline_status": "passed",
+          "baseline_exit": 0,
+          "reference_rows": 150,
+          "reference_summaries": [],
+          "baseline_quantities": {
+            "artists": 150,
+            "numeric_values": 300,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 150,
+            "numeric_values": 300,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "618e4cd469db0d7646b07abae85878e07ed49cc873be7f455175c9735ad4a458",
+            "graphunslopify": "c51d4182515bf0a633ccd787af53c7f90e587e1798723e667cbef74abf7fe24b"
+          },
+          "claim_verdicts": []
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "penguins-mass-false-claim",
+      "expected_status": "failed",
+      "attempts": [
+        {
+          "status": "failed",
+          "exit_code": 2,
+          "baseline_status": "failed",
+          "baseline_exit": 2,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "fails"
+          ]
+        },
+        {
+          "status": "failed",
+          "exit_code": 2,
+          "baseline_status": "failed",
+          "baseline_exit": 2,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "fails"
+          ]
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "iris-measurements-false-claim",
+      "expected_status": "failed",
+      "attempts": [
+        {
+          "status": "failed",
+          "exit_code": 2,
+          "baseline_status": "failed",
+          "baseline_exit": 2,
+          "reference_rows": 600,
+          "reference_summaries": [
+            {
+              "x": "petal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 1.462,
+              "low": 1.288336003519816,
+              "high": 1.635663996480184
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 4.26,
+              "low": 3.790089022760042,
+              "high": 4.729910977239958
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 5.552,
+              "low": 5.000105304336016,
+              "high": 6.103894695663983
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 0.246,
+              "low": 0.14061441061995433,
+              "high": 0.35138558938004566
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 1.326,
+              "low": 1.128247319995456,
+              "high": 1.5237526800045442
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.026,
+              "low": 1.7513499443633325,
+              "high": 2.300650055636667
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 5.006,
+              "low": 4.653510312786549,
+              "high": 5.358489687213451
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 5.936,
+              "low": 5.419828852936137,
+              "high": 6.452171147063863
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 6.588,
+              "low": 5.952120406725568,
+              "high": 7.223879593274432
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 3.428,
+              "low": 3.0489356309037112,
+              "high": 3.8070643690962886
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 2.77,
+              "low": 2.4562016766215886,
+              "high": 3.0837983233784114
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.974,
+              "low": 2.6515033618273627,
+              "high": 3.2964966381726377
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 2.220446049250313e-16
+          },
+          "graphunslopify_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 8.881784197001252e-16
+          },
+          "pixels": {
+            "matplotlib": "c101cb80705b1a3f8699b98c96a2f1e614dc09b9105026791e3b526976712afd",
+            "graphunslopify": "1a7d871d2fb157ab36b29c46dc37addc7c6c1d239eca4c844e6c8bc94874f255"
+          },
+          "claim_verdicts": [
+            "fails"
+          ]
+        },
+        {
+          "status": "failed",
+          "exit_code": 2,
+          "baseline_status": "failed",
+          "baseline_exit": 2,
+          "reference_rows": 600,
+          "reference_summaries": [
+            {
+              "x": "petal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 1.462,
+              "low": 1.288336003519816,
+              "high": 1.635663996480184
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 4.26,
+              "low": 3.790089022760042,
+              "high": 4.729910977239958
+            },
+            {
+              "x": "petal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 5.552,
+              "low": 5.000105304336016,
+              "high": 6.103894695663983
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 0.246,
+              "low": 0.14061441061995433,
+              "high": 0.35138558938004566
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 1.326,
+              "low": 1.128247319995456,
+              "high": 1.5237526800045442
+            },
+            {
+              "x": "petal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.026,
+              "low": 1.7513499443633325,
+              "high": 2.300650055636667
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 5.006,
+              "low": 4.653510312786549,
+              "high": 5.358489687213451
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 5.936,
+              "low": 5.419828852936137,
+              "high": 6.452171147063863
+            },
+            {
+              "x": "sepal length",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 6.588,
+              "low": 5.952120406725568,
+              "high": 7.223879593274432
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-setosa",
+              "n": 50,
+              "mean": 3.428,
+              "low": 3.0489356309037112,
+              "high": 3.8070643690962886
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-versicolor",
+              "n": 50,
+              "mean": 2.77,
+              "low": 2.4562016766215886,
+              "high": 3.0837983233784114
+            },
+            {
+              "x": "sepal width",
+              "group": "Iris-virginica",
+              "n": 50,
+              "mean": 2.974,
+              "low": 2.6515033618273627,
+              "high": 3.2964966381726377
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 2.220446049250313e-16
+          },
+          "graphunslopify_quantities": {
+            "artists": 12,
+            "numeric_values": 36,
+            "max_absolute_error": 8.881784197001252e-16
+          },
+          "pixels": {
+            "matplotlib": "c101cb80705b1a3f8699b98c96a2f1e614dc09b9105026791e3b526976712afd",
+            "graphunslopify": "1a7d871d2fb157ab36b29c46dc37addc7c6c1d239eca4c844e6c8bc94874f255"
+          },
+          "claim_verdicts": [
+            "fails"
+          ]
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "penguins-missing-reference",
+      "expected_status": "incomplete",
+      "attempts": [
+        {
+          "status": "incomplete",
+          "exit_code": 2,
+          "baseline_status": "incomplete",
+          "baseline_exit": 2,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "untested"
+          ]
+        },
+        {
+          "status": "incomplete",
+          "exit_code": 2,
+          "baseline_status": "incomplete",
+          "baseline_exit": 2,
+          "reference_rows": 333,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 73,
+              "mean": 3368.8356164383563,
+              "low": 3099.4555145945,
+              "high": 3638.2157182822125
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 73,
+              "mean": 4043.4931506849316,
+              "low": 3696.681597496954,
+              "high": 4390.304703872909
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 34,
+              "mean": 3527.205882352941,
+              "low": 3241.871970634634,
+              "high": 3812.539794071248
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 34,
+              "mean": 3938.970588235294,
+              "low": 3576.8330381671735,
+              "high": 4301.108138303414
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 58,
+              "mean": 4679.741379310345,
+              "low": 4398.163085667714,
+              "high": 4961.319672952976
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 61,
+              "mean": 5484.836065573771,
+              "low": 5171.67746995339,
+              "high": 5797.994661194151
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 18,
+            "max_absolute_error": 4.547473508864641e-13
+          },
+          "pixels": {
+            "matplotlib": "cb17444c02a70a864fa0f4b3f21283c97bce235f75eca9bc24cc1a3e69ac7811",
+            "graphunslopify": "d10f2700682bbeade94727a45fb8ec85b37373fadf55154faaaa0d04a2722163"
+          },
+          "claim_verdicts": [
+            "untested"
+          ]
+        }
+      ],
+      "pixels_reproduce": true
+    },
+    {
+      "id": "penguins-singleton-sd",
+      "expected_status": "incomplete",
+      "attempts": [
+        {
+          "status": "incomplete",
+          "exit_code": 2,
+          "baseline_status": "incomplete",
+          "baseline_exit": 2,
+          "reference_rows": 6,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 1,
+              "mean": 3800.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 1,
+              "mean": 3750.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 1,
+              "mean": 3500.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 1,
+              "mean": 3900.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 1,
+              "mean": 4500.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 1,
+              "mean": 5700.0,
+              "low": null,
+              "high": null
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 6,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 6,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "79a75fb737a3974f60419adf70d9d00de61885cd8d54cb0a4ff045853fe12810",
+            "graphunslopify": "bf382ecda6504a0c728927996d378c8e23d526b441e0a31307307a4118b355b2"
+          },
+          "claim_verdicts": []
+        },
+        {
+          "status": "incomplete",
+          "exit_code": 2,
+          "baseline_status": "incomplete",
+          "baseline_exit": 2,
+          "reference_rows": 6,
+          "reference_summaries": [
+            {
+              "x": "Adelie",
+              "group": "female",
+              "n": 1,
+              "mean": 3800.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Adelie",
+              "group": "male",
+              "n": 1,
+              "mean": 3750.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Chinstrap",
+              "group": "female",
+              "n": 1,
+              "mean": 3500.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Chinstrap",
+              "group": "male",
+              "n": 1,
+              "mean": 3900.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Gentoo",
+              "group": "female",
+              "n": 1,
+              "mean": 4500.0,
+              "low": null,
+              "high": null
+            },
+            {
+              "x": "Gentoo",
+              "group": "male",
+              "n": 1,
+              "mean": 5700.0,
+              "low": null,
+              "high": null
+            }
+          ],
+          "baseline_quantities": {
+            "artists": 6,
+            "numeric_values": 6,
+            "max_absolute_error": 0.0
+          },
+          "graphunslopify_quantities": {
+            "artists": 6,
+            "numeric_values": 6,
+            "max_absolute_error": 0.0
+          },
+          "pixels": {
+            "matplotlib": "79a75fb737a3974f60419adf70d9d00de61885cd8d54cb0a4ff045853fe12810",
+            "graphunslopify": "bf382ecda6504a0c728927996d378c8e23d526b441e0a31307307a4118b355b2"
+          },
+          "claim_verdicts": []
+        }
+      ],
+      "pixels_reproduce": true
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 # Researcher pilot: test usefulness on real work
 
-Status: **prepared, not conducted**. There are no external participants, feedback,
+Status: **deferred at the user's request on 2026-10-28; prepared, not conducted**.
+The current validation route is [published papers and public datasets](published-papers.md).
+There are no external participants, feedback,
 human timing results or independent scientific validation yet. This protocol is
 ready for a researcher to use on a real project; it does not require uploading
 private data. The project-authored [automated comparison](benchmark.md) answers

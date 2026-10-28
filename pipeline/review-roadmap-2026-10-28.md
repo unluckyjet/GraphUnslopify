@@ -18,7 +18,9 @@ over the review's descriptions. Extend existing implementations where present.
 
 The user's subsequent 9.0/10 review explicitly prioritizes adoption evidence over
 another feature cycle. Work now starts with items17/18 (measured pilot and external
-testing preparation), then13/14,6 and3. External results remain open until observed.
+testing preparation), then13/14,6 and3. The user subsequently deferred volunteers
+and requested papers/public datasets: item19 becomes the next validation milestone.
+External results remain open until observed.
 
 | Item | Priority | Target | Current state |
 | --- | --- | --- | --- |
@@ -38,9 +40,9 @@ testing preparation), then13/14,6 and3. External results remain open until obser
 | 14 | P2 | Homepage and deployment branding. | [Branded GitHub Pages homepage](../docs/homepage.md) and current content; legacy Vercel API remains available. Renaming that service requires Vercel access. |
 | 15 | P2 | Outdated documentation and installation references. | Pending; known stale composition/Figure CI prose is recorded in the vault. |
 | 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
-| 17 | High | Realistic comparative benchmarks with measured outcomes. | First milestone: [project-authored pilot](../docs/validation/benchmark.md),48 executions, three arms; independent held-out scientific benchmarking remains open. |
-| 18 | High | External researchers testing their own datasets. | [Protocol and recording template prepared](../docs/validation/researcher-pilot.md); real participants and observed feedback remain required. No sessions conducted. |
-| 19 | P2 | Reproducible public research-dataset examples. | Pending dataset/source/license selection and real execution. |
+| 17 | High | Realistic comparative benchmarks with measured outcomes. | [Synthetic pilot](../docs/validation/benchmark.md),48 executions/three arms, plus [public-paper comparison](../docs/validation/published-papers.md),32 executions/two arms. Independent held-out scientific benchmarking remains open. |
+| 18 | Deferred | External researchers testing their own datasets. | User explicitly deferred volunteers; [prepared protocol](../docs/validation/researcher-pilot.md) retained for later. Current route is public papers/datasets. No sessions conducted. |
+| 19 | High | Reproducible public research-dataset examples. | [Penguin/Iris paper-linked cases](../docs/validation/published-papers.md), pinned licensed inputs, separate calculations, actual artists and seeded faults. Full paper replication/independent external validation remain outside measured scope. |
 | 20 | P2 | Contribution, issue, security and public roadmap infrastructure. | Pending assessment and implementation. |
 
 ## Evidence rules

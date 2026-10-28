@@ -1,0 +1,42 @@
+{
+  "retrieved": "2026-10-28",
+  "sources": [
+    {
+      "id": "penguins",
+      "paper": "Gorman KB, Williams TD, Fraser WR (2014). Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081.",
+      "paper_url": "https://doi.org/10.1371/journal.pone.0090081",
+      "data_url": "https://raw.githubusercontent.com/allisonhorst/palmerpenguins/8957207b78d6ccd1b4654a9dd9c9041b657478ab/inst/extdata/penguins.csv",
+      "data_citation": "Horst AM, Hill AP, Gorman KB (2020). palmerpenguins. https://doi.org/10.5281/zenodo.3960218",
+      "license": "CC0-1.0",
+      "license_source": "https://allisonhorst.github.io/palmerpenguins/",
+      "file": "penguins.csv",
+      "sha256": "f204db2c753b0937caac3cb35258562c14f073e4bbc76be24b4c51ce22767a93",
+      "published_counts": {
+        "Adelie": 152,
+        "Chinstrap": 68,
+        "Gentoo": 124
+      },
+      "count_source": "Gorman et al., Statistical methods, final sample sizes. Descriptive figures here do not reproduce their GLM/PCA/model averaging."
+    },
+    {
+      "id": "iris",
+      "paper": "Fisher RA (1936). The use of multiple measurements in taxonomic problems. Annals of Eugenics 7:179\u2013188.",
+      "paper_url": "https://doi.org/10.1111/j.1469-1809.1936.tb02137.x",
+      "data_url": "https://archive.ics.uci.edu/static/public/53/iris.zip",
+      "archive_sha256": "d11fe30213d36434a0879aab7cb00ce3c812eb7ba2495874438abff7b7b762e9",
+      "data_citation": "Fisher R (1936). Iris [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C56C76",
+      "license": "CC-BY-4.0",
+      "license_source": "https://archive.ics.uci.edu/dataset/53/iris",
+      "file": "bezdekIris.data",
+      "sha256": "0fed2a99db77ec533a62dc66894d3ec6df3b58b6a8f3cf4a6b47e4086b7f97dc",
+      "comparison_file": "iris.data",
+      "comparison_sha256": "6f608b71a7317216319b4d27b4d9bc84e6abd734eda7872b71a458569e2656c0",
+      "published_counts": {
+        "Iris-setosa": 50,
+        "Iris-versicolor": 50,
+        "Iris-virginica": 50
+      },
+      "count_source": "UCI dataset information. bezdekIris.data includes documented corrections at rows35/38; original iris.data retained to demonstrate the version difference."
+    }
+  ]
+}

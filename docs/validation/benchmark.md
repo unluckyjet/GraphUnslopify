@@ -3,6 +3,8 @@
 This is a **project-authored synthetic comparison**, not an independent scientific
 benchmark, external user study or proof of better research outcomes. The
 [researcher protocol](researcher-pilot.md) defines the missing external evidence.
+Volunteer sessions are deferred at the user's request. The next measured step
+uses [published papers and public datasets](published-papers.md).
 
 ## Run it
 

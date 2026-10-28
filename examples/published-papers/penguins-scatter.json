@@ -1,0 +1,31 @@
+{
+  "kind": "scatter",
+  "title": "Bill dimensions in the Palmer penguin dataset",
+  "data": {
+    "path": "../../benchmarks/papers/sources/penguins.csv"
+  },
+  "x": {
+    "field": "bill_length_mm",
+    "label": "Bill length",
+    "unit": "mm"
+  },
+  "y": {
+    "field": "bill_depth_mm",
+    "label": "Bill depth",
+    "unit": "mm"
+  },
+  "group": "species",
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  }
+}

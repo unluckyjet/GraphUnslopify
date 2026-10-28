@@ -1,0 +1,40 @@
+{
+  "aggregation": "mean",
+  "uncertainty": {
+    "kind": "std",
+    "display": "bar"
+  },
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  },
+  "kind": "bar",
+  "title": "Iris measurements: descriptive means and SD",
+  "data": {
+    "path": "data/iris-long.csv"
+  },
+  "x": {
+    "field": "measurement",
+    "label": "Measurement"
+  },
+  "y": {
+    "field": "value",
+    "label": "Length or width",
+    "unit": "cm"
+  },
+  "group": "species",
+  "series_order": [
+    "Iris-setosa",
+    "Iris-versicolor",
+    "Iris-virginica"
+  ]
+}

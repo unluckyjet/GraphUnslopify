@@ -14,6 +14,8 @@ existing demo inputs. `doctor` checks that the packaged translator and Python pa
 The [0.7.0 release](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.7.0) supplies
 a wheel, source distribution and `SHA256SUMS`. Package-registry publication is not required.
 [Documentation versioning](versioning.md) explains how to match documentation to your install.
+The [PyPI publication workflow](pypi-publication.md) is prepared; account setup,
+actual registry upload and fresh registry-install evidence remain required.
 
 From a checkout, the equivalent install is `python -m pip install ./python`.
 Install `[interactive]` for supported Plotly HTML, `[parquet]` for a Parquet reader, and

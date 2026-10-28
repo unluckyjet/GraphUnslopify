@@ -1,0 +1,74 @@
+name: Verify or publish Python release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing published stable GitHub release tag
+        required: true
+        type: string
+      index:
+        description: Registry (requires matching Trusted Publisher)
+        type: choice
+        options: [testpypi, pypi]
+        default: testpypi
+      publish:
+        description: Upload verified files (false performs verification only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: python-publication
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install twine
+      - name: Verify published release and download exact distributions
+        run: python scripts/prepare-pypi-release.py --tag "$RELEASE_TAG" --out-dir candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+      - run: python -m twine check --strict candidate/dist/*
+      - run: python scripts/install-smoke.py candidate/dist/*.whl --agent
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-release-distributions
+          path: candidate/dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-release-readiness
+          path: candidate/readiness.json
+
+  publish:
+    if: inputs.publish && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    environment:
+      name: ${{ inputs.index }}
+      url: ${{ inputs.index == 'pypi' && 'https://pypi.org/p/graphunslopify' || 'https://test.pypi.org/p/graphunslopify' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-release-distributions
+          path: dist
+      - name: Publish using the configured Trusted Publisher
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1, reviewed 2026-10-28
+        with:
+          packages-dir: dist/
+          repository-url: ${{ inputs.index == 'pypi' && 'https://upload.pypi.org/legacy/' || 'https://test.pypi.org/legacy/' }}

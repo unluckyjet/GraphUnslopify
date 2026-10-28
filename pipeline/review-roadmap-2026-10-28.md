@@ -29,7 +29,7 @@ External results remain open until observed.
 | 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | Pending; separate visual evidence from unavailable numeric/data claims. |
 | 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | Pending; extend current geometric/semantic inspection. |
 | 5 | P0 | Interaction and edge-case regression coverage. | Pending; extend the existing independent reference matrix. |
-| 6 | P1 | Publish an installable PyPI release. | Pending package/name/account assessment and verified release artifacts. |
+| 6 | P1 | Publish an installable PyPI release. | [Trusted Publishing workflow and release verification](../docs/pypi-publication.md) prepared; actual upload awaits PyPI account configuration. GitHub wheel remains the verified installer. |
 | 7 | P1 | Easier editor controls and clearer explanations. | Pending; preserve existing live preview, strict checks and exports. |
 | 8 | P1 | Visual before/after figure comparison reports. | Pending; extend current manifest/baseline comparison. |
 | 9 | P1 | Research-environment and experiment-tracking integrations. | Pending; build on current notebook, editor, agent and LaTeX workflows. |

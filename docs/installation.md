@@ -47,8 +47,10 @@ The SDK leaves the original spec unchanged. JSON specs can set `data.format` to 
 JSON rendering expects a regular JSON table, not JSON Lines.
 
 A failed or untested required runtime check exits nonzero with `--strict`; select
-`--fail-on-warning` to reject warnings too. Default legacy rendering can still return zero after
-a failed check, so automation should select its policy explicitly. Read
+`--fail-on-warning` to reject warnings too. The pinned **0.7.0 wheel** above retains
+the legacy opt-in default, so keep `--strict` when using that release. Current
+development source defaults to strict verification; explicit `--no-strict` or
+`Figure.render(strict=False)` opts out while preserving actual report verdicts. Read
 [runtime-reports.md](runtime-reports.md) before using reports as a submission gate.
 
 `Figure.from_profile(path)` uses the local ranker and preserves the supplied source path. Roles,

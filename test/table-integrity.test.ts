@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -18,7 +18,7 @@ const base = {
   output: { stem: "table", formats: ["png"], dpi: 100, size: "double_column" },
 };
 
-function run(options: Record<string, unknown>, csv: string, driver?: string) {
+function run(options: Record<string, unknown>, csv: string, driver?: string, expectedExit = 0) {
   const dir = mkdtempSync(join(tmpdir(), "gu-table-"));
   const result = translate({ ...base, ...options });
   assert.equal(result.status, "translated");
@@ -26,10 +26,11 @@ function run(options: Record<string, unknown>, csv: string, driver?: string) {
   writeFileSync(join(dir, "table.csv"), csv);
   writeFileSync(join(dir, "figure.py"), result.code);
   if (driver) writeFileSync(join(dir, "driver.py"), driver);
-  const stdout = execFileSync(python!, [driver ? "driver.py" : "figure.py"], {
+  const completed = spawnSync(python!, [driver ? "driver.py" : "figure.py"], {
     cwd: dir, encoding: "utf8", stdio: "pipe",
   });
-  return { stdout, read: (name: string) => readFileSync(join(dir, name), "utf8") };
+  assert.equal(completed.status, expectedExit, completed.stderr || completed.stdout);
+  return { stdout: completed.stdout, read: (name: string) => readFileSync(join(dir, name), "utf8") };
 }
 
 test("a table without uncertainty retains scalar cells and adds metric context", { skip: !python }, () => {
@@ -65,10 +66,13 @@ test("column highlighting supports lower-is-better intervals", { skip: !python }
 
 test("a missing interval never silently certifies a table winner", { skip: !python }, () => {
   const result = run({ uncertainty: { kind: "range" } },
-    "dataset,score,model\nA,1,base\nA,5,ours\nA,6,ours\n");
+    "dataset,score,model\nA,1,base\nA,5,ours\nA,6,ours\n", undefined, 2);
   assert.match(result.read("table.md"), /1\.00 \[unavailable\]/);
   assert.ok(!result.read("table.md").includes("**"));
   assert.match(result.stdout, /insufficient observations/);
+  const report = JSON.parse(result.read("table.report.json"));
+  assert.equal(report.status, "incomplete");
+  assert.equal(report.policy.strict, true);
 });
 
 test("all table uncertainty kinds share the numeric summarizer", { skip: !python }, () => {

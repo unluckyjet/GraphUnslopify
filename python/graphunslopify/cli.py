@@ -188,8 +188,7 @@ def _run(args: argparse.Namespace) -> int:
 
     workdir = Path(args.cwd) if args.cwd else script.parent
     command = [sys.executable, str(script.resolve())]
-    if args.strict:
-        command.append("--strict")
+    command.append("--strict" if args.strict else "--no-strict")
     if args.fail_on_warning:
         command.append("--fail-on-warning")
     if args.report:
@@ -281,6 +280,25 @@ def _audit_init(args: argparse.Namespace) -> int:
     return 0
 
 
+def _verification_options(parser: argparse.ArgumentParser) -> None:
+    policy = parser.add_mutually_exclusive_group()
+    policy.add_argument(
+        "--strict",
+        action="store_true",
+        default=True,
+        help="reject failed or incomplete verification (default)",
+    )
+    policy.add_argument(
+        "--no-strict",
+        dest="strict",
+        action="store_false",
+        help="explicit legacy opt-out; reports still retain failed/incomplete checks",
+    )
+    parser.add_argument(
+        "--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings"
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -336,8 +354,7 @@ def build_parser() -> argparse.ArgumentParser:
     generated.add_argument("spec", help="JSON file; data paths resolve beside it")
     generated.add_argument("--out-dir", help="output directory (default: beside the data)")
     generated.add_argument("--api", help="explicit HTTP translator URL, or local")
-    generated.add_argument("--strict", action="store_true")
-    generated.add_argument("--fail-on-warning", action="store_true")
+    _verification_options(generated)
     generated.add_argument("--json", action="store_true")
     generated.set_defaults(handler=_render_spec)
 
@@ -357,8 +374,7 @@ def build_parser() -> argparse.ArgumentParser:
         ran = commands.add_parser(name, help="run a generated script and report on the figure")
         ran.add_argument("script", help="the .py file the translator produced")
         ran.add_argument("--cwd", help="directory to run in, so relative data paths resolve")
-        ran.add_argument("--strict", action="store_true", help="fail on errors or untested checks")
-        ran.add_argument("--fail-on-warning", action="store_true", help="also fail on warnings")
+        _verification_options(ran)
         ran.add_argument("--report", help="JSON report destination, relative to --cwd")
         display = ran.add_mutually_exclusive_group()
         display.add_argument("--json", action="store_true", help="only JSON on stdout")

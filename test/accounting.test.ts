@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -12,18 +12,23 @@ const python = resolvePlottingPython();
 const base = { kind: "line", x: { field: "epoch", label: "Epoch" },
   y: { field: "score", label: "Score" }, group: "model", aggregation: "mean", legend: { show: false } };
 
-function run(csv: string, options: Record<string, unknown> = {}) {
+function run(csv: string, options: Record<string, unknown> = {}, expectedExit = 0) {
   const dir = mkdtempSync(join(tmpdir(), "gu-accounting-"));
   const result = translate({ ...base, ...options, data: { path: "results.csv" },
-    output: { stem: "figure", formats: ["png"], dpi: 100 } });
+    output: { formats: ["png"], dpi: 100, ...(options.output as object ?? {}), stem: "figure" } });
   assert.ok(result.status === "translated", JSON.stringify(result));
   assert.ok(result.ok, JSON.stringify(result.findings));
   writeFileSync(join(dir, "results.csv"), csv);
   writeFileSync(join(dir, "figure.py"), result.code);
-  const output = execFileSync(python!, ["figure.py"], { cwd: dir, encoding: "utf8", stdio: "pipe" });
+  const completed = spawnSync(python!, ["figure.py"], { cwd: dir, encoding: "utf8" });
+  assert.equal(completed.status, expectedExit, completed.stderr || completed.stdout);
+  const output = completed.stdout;
+  const report = JSON.parse(readFileSync(join(dir, "figure.report.json"), "utf8"));
+  assert.equal(report.exit_code, expectedExit);
+  assert.equal(report.policy.strict, true);
   const alt = execFileSync(python!, ["-c", "from PIL import Image; print(Image.open('figure.png').info.get('Comment', ''))"],
     { cwd: dir, encoding: "utf8" }).trim();
-  return { output, alt };
+  return { output, alt, report };
 }
 
 test("uniform sample counts are printed and embedded in PNG alt text", { skip: !python }, () => {
@@ -71,8 +76,10 @@ test("repeated metrics count the observations available for each metric", { skip
 
 test("skipped significance pairs name their insufficient observations", { skip: !python }, () => {
   const result = run("model,score\nbase,1\nours,2\nours,3\n", { kind: "bar", group: undefined,
-    x: { field: "model", label: "Model" }, significance: { method: "bootstrap", pairs: [["base", "ours"]] } });
+    x: { field: "model", label: "Model" }, significance: { method: "bootstrap", pairs: [["base", "ours"]] } }, 2);
   assert.match(result.output, /base vs ours skipped: fewer than two finite observations \(n=1, 2\)/);
+  assert.equal(result.report.status, "incomplete");
+  assert.equal(result.report.significance[0].status, "untested");
 });
 
 test("three real gallery inputs report the physical CSV row count and correct summary scope", { skip: !python }, () => {

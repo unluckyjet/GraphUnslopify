@@ -303,7 +303,8 @@ def test_generated_cell_colours_work_without_the_optional_inspector_package(tmp_
         [sys.executable, str(driver)], cwd=path.parent, capture_output=True, text=True, check=False
     )
     report = json.loads(process.stdout)
-    assert process.returncode == 0 and report["status"] == "incomplete", process.stderr
+    assert process.returncode == report["exit_code"] == 2, process.stderr
+    assert report["status"] == "incomplete" and report["policy"]["strict"]
     assert not report["inspection"]["available"] and len(report["outputs"]) == 2
 
 

@@ -1,0 +1,57 @@
+# Review improvements: 2026-10-28
+
+User-provided follow-up list after the 0.7.0 delivery and README rewrite.
+This is separate from the completed [original roadmap](implementation-roadmap.md).
+Commit/push each completed item or coherent implementation milestone and check
+both CI workflows before advancing. Source and measured behavior take precedence
+over the review's descriptions. Extend existing implementations where present.
+
+## Order and checkpoints
+
+| Phase | Review items | Objective |
+| --- | --- | --- |
+| Reliability | 1, 2, 4, 5 | Safe execution defaults, defensible checks and feature interactions. |
+| Distribution | 6, 13, 14, 15, 16 | Registry distribution, identity and onboarding. |
+| Research workflows | 8, 9, 10, 11, 12 | Comparison, integration, project management, diagnostics and environments. |
+| Expansion | 3, 7 | Existing-paper inspection and editor usability. |
+| Validation | 17, 18, 19, 20 | Measured benchmarks, external feedback, real data and contribution infrastructure. |
+
+| Item | Priority | Target | Current state |
+| --- | --- | --- | --- |
+| 1 | P0 | Strict verification by default across generated scripts, CLI and Python builder. | Implemented: [spec47](done/47-strict-verification-default.md); explicit opt-out preserves reports. |
+| 2 | P0 | Broader statistical assumptions, unit/uncertainty and comparison validation. | Pending source assessment; checks cannot establish independence from IDs alone. |
+| 3 | P0 | Extract/inspect existing-paper PDF figures with source-free warnings clearly scoped. | Pending; separate visual evidence from unavailable numeric/data claims. |
+| 4 | P0 | Misleading scaling, omissions, annotations and visual exaggeration checks. | Pending; extend current geometric/semantic inspection. |
+| 5 | P0 | Interaction and edge-case regression coverage. | Pending; extend the existing independent reference matrix. |
+| 6 | P1 | Publish an installable PyPI release. | Pending package/name/account assessment and verified release artifacts. |
+| 7 | P1 | Easier editor controls and clearer explanations. | Pending; preserve existing live preview, strict checks and exports. |
+| 8 | P1 | Visual before/after figure comparison reports. | Pending; extend current manifest/baseline comparison. |
+| 9 | P1 | Research-environment and experiment-tracking integrations. | Pending; build on current notebook, editor, agent and LaTeX workflows. |
+| 10 | P1 | Project-wide figure management and status/history. | Pending; reuse manifests and shared visual identity. |
+| 11 | P1 | Actionable problem/consequence/correction diagnostics. | Pending; audit existing messages and repairs. |
+| 12 | P1 | Dependency/rendering/execution environment provenance. | Pending; extend current versioned evidence envelope compatibly. |
+| 13 | P2 | GitHub repository description. | Pending live metadata verification/update. |
+| 14 | P2 | Homepage and deployment branding. | Pending current deployment/domain assessment. |
+| 15 | P2 | Outdated documentation and installation references. | Pending; known stale composition/Figure CI prose is recorded in the vault. |
+| 16 | P2 | Minimal installation and five-minute complete tutorial. | Pending; build on the existing runnable demo and README. |
+| 17 | P2 | Realistic comparative benchmarks with measured outcomes. | Pending; distinguish automated correctness/reproduction measures from human time/quality studies. |
+| 18 | P2 | External researchers testing their own datasets. | Requires real participants and observed feedback; internal tests are not external validation. |
+| 19 | P2 | Reproducible public research-dataset examples. | Pending dataset/source/license selection and real execution. |
+| 20 | P2 | Contribution, issue, security and public roadmap infrastructure. | Pending assessment and implementation. |
+
+## Evidence rules
+
+- Record commits, exact CI runs and measured acceptance results at each checkpoint.
+- Preserve the published 0.7.0 tag/artifacts. Unreleased main behavior must not be
+  attributed to that wheel or its versioned documentation.
+- Keep credentials and private datasets out of commits and the Obsidian vault.
+- Registry access, domains, human feedback and third-party service access may
+  require external input. Prepare concrete artifacts first and report such needs
+  without inventing publication, adoption, benchmark or user-study results.
+
+## Progress
+
+- Item1: strict-by-default implementation passes217 Node/1003 Python, seven gates,
+  strict gallery15/15, Ruff55 and two independent audits. All52 prior PNGs retain
+  identical pixels/dimensions. This is a separate checkpoint; its exact-commit CI
+  is checked after push before advancing. Remaining review items are pending.

@@ -67,3 +67,5 @@ One line per state change, newest last.
 2026-10-26 Pacific —45 lands: publicv0.7.0 tag/wheel/sdist/SHA256SUMS, main+tag CI green, anonymous downloads/hash checks and separate fresh wheel/sdist installs offline with agent. Source rebuild is byte-identical. Distribution complete; final full-goal audit remains.
 
 2026-10-26 Pacific —46 lands: requirement-by-requirement delivery audit, published-asset and direct public quickstart evidence, consolidated canonical knowledge; seven gates215 Node/956 Python, Ruff54 and document links pass. Final commit CI and vault handoff stamp are checked after push before goal closure.
+
+2026-10-28 —47 lands (follow-up item1): strict verification defaults across generated programs/CLI/SDK; explicit opt-out retains actual verdicts.217 Node/1003 Python, seven gates/gallery15/Ruff55 and two independent audits pass.52 PNG pixels unchanged. Commit/push each review-list checkpoint; exact-commit CI required before advancing.

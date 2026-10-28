@@ -38,6 +38,11 @@ Select a hosted translator explicitly with `api="https://your-service"` or
 `GRAPHUNSLOPIFY_API`; use `api="local"` to override that environment setting.
 `GRAPHUNSLOPIFY_NODE` can select a specific Node executable.
 
+Current development source enables strict verification by default in `Figure.render()` and
+execution commands. Explicit `strict=False` / `--no-strict` opts out while retaining failed or
+incomplete report verdicts; warning rejection always implies strict mode. The pinned0.7.0 wheel
+retains the previous opt-in default, so keep `strict=True` / `--strict` for that release.
+
 Use `[interactive]` for supported self-contained Plotly HTML. Strict verification rejects failed
 or untested required checks; literal data claims are not statistical significance tests.
 Read the repository documentation for the supported combinations and limits.

@@ -379,14 +379,16 @@ class Figure:
         self,
         cwd: str | Path | None = None,
         api: str | None = None,
-        strict: bool = False,
+        strict: bool = True,
         fail_on_warning: bool = False,
     ) -> dict[str, Any]:
         """Translate, write the script beside the data, and run it.
 
         `strict` rejects static errors, failed claims, unavailable inspection,
         and untested required checks. `fail_on_warning` also rejects warnings.
-        Both default off; the JSON report always records the actual verdict.
+        Strict verification defaults on. Explicit `strict=False` opts out of
+        verification rejection; the report still records the actual verdict.
+        `fail_on_warning` defaults off and always implies strict verification.
         """
         # Resolve input paths before moving to the output directory. Keep paths
         # relative to the generated program, and do not mutate the author's spec.
@@ -428,8 +430,7 @@ class Figure:
         script.write_text(result["code"], encoding="utf8")
 
         command = [sys.executable, str(script.resolve())]
-        if strict:
-            command.append("--strict")
+        command.append("--strict" if strict else "--no-strict")
         if fail_on_warning:
             command.append("--fail-on-warning")
         report_path = where / f"{stem}.report.json"

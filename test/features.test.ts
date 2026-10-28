@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -453,18 +453,28 @@ function runSolo(spec: unknown, driver?: string, csv = "single-seed.csv"): strin
   writeFileSync(join(dir, csv), readFileSync(fixture(csv)));
   writeFileSync(join(dir, "figure.py"), translated(spec).code);
   if (driver) writeFileSync(join(dir, "driver.py"), driver);
-  return execFileSync(python!, [driver ? "driver.py" : "figure.py"], {
+  const completed = spawnSync(python!, [driver ? "driver.py" : "figure.py"], {
     cwd: dir,
     encoding: "utf8",
-    stdio: "pipe",
   });
+  assert.equal(completed.status, driver ? 0 : 2, completed.stderr || completed.stdout);
+  if (!driver) {
+    const stem = FigureSpec.parse(spec).output.stem;
+    const report = JSON.parse(readFileSync(join(dir, `${stem}.report.json`), "utf8"));
+    assert.equal(report.exit_code, 2);
+    assert.equal(report.ok, false);
+    assert.equal(report.policy.strict, true);
+    assert.ok(report.untested.some((reason: string) => reason.startsWith("uncertainty:")));
+    assert.ok(readFileSync(join(dir, `${stem}.png`)).length > 0);
+  }
+  return completed.stdout;
 }
 
 function disclosures(out: string): string[] {
   return out.split(/\r?\n/).filter((line) => line.startsWith("uncertainty:"));
 }
 
-test("a series with one observation per x is reported once, and the script still exits 0", { skip: !python }, () => {
+test("a singleton series is reported once and exits 2 while retaining its figure", { skip: !python }, () => {
   // Once. summarise() runs per panel and again in main for the alt text, so
   // reporting from inside it said the same thing twice.
   const out = runSolo({ ...solo, output: { stem: "solo", formats: ["png"], dpi: 100 } });

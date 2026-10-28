@@ -238,7 +238,9 @@ def finish_report():
 def run_cli(argv=None):
     global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD
     parser = argparse.ArgumentParser(description="Render this figure and write its verification evidence")
-    parser.add_argument("--strict", action="store_true", help="exit 2 for failed or untested required checks")
+    policy = parser.add_mutually_exclusive_group()
+    policy.add_argument("--strict", action="store_true", default=True, help="reject failed or incomplete verification (default)")
+    policy.add_argument("--no-strict", dest="strict", action="store_false", help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2")
     parser.add_argument("--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings")
     parser.add_argument("--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination")
     parser.add_argument("--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr")

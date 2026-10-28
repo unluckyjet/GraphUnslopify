@@ -95,8 +95,9 @@ graphunslopify render path/to/figure.json --out-dir figures --strict --json
 
 `describe` profiles the file to help choose fields and a starting design. Review inferred roles
 and units against your experiment. Relative data paths in a JSON spec resolve beside that spec.
-Use `--strict` for automation; it rejects failed or incomplete required checks. Warnings remain
-visible, and `--fail-on-warning` rejects those too.
+Current development source defaults to strict verification; `--strict` remains accepted.
+The pinned 0.7.0 wheel above retains its opt-in default, so keep `--strict` for that release.
+Warnings remain visible, and `--fail-on-warning` rejects those too.
 
 See [installation and optional extras](docs/installation.md), [versioned documentation](docs/versioning.md)
 and the [0.7.0 release notes](docs/releases/0.7.0.md).
@@ -161,8 +162,11 @@ not automatically statistically significant, causal or scientifically important.
 | `failed` | A check, claim or rendering operation failed. |
 | `incomplete` | A required check, estimate, inspection or requested output was unavailable. |
 
-Legacy default execution can return zero after a successful render despite failed checks.
-Select strict policy explicitly and inspect the current report. See [runtime reports](docs/runtime-reports.md).
+Current source rejects failed or incomplete required verification by default. Explicit
+`--no-strict` / `Figure.render(strict=False)` retains legacy exit behavior without changing
+report verdicts. Warning rejection always implies strict policy. Regenerate older scripts to
+use the new opt-out flag; released 0.7.0 still needs explicit strict mode.
+See [runtime reports](docs/runtime-reports.md).
 
 ### Compose figures and preserve visual identity
 

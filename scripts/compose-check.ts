@@ -8,7 +8,7 @@
  *   node scripts/compose-check.ts [python]
  */
 
-import { execFileSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -104,6 +104,7 @@ const CASES: [string, Record<string, unknown>][] = [
       group: "model",
       aggregation: "mean",
       axis_break: { axis: "y", from: 30, to: 60 },
+      output: { size: "double_column" },
       data: DATA,
     },
   ],
@@ -166,7 +167,23 @@ for (const [name, spec] of CASES) {
   const file = join(dir, `${name}.py`);
   writeFileSync(file, result.code);
   try {
-    const stdout = execFileSync(python, [file], { cwd: dir, stdio: "pipe", encoding: "utf8" });
+    const completed = spawnSync(python, [file], { cwd: dir, encoding: "utf8" });
+    if (completed.error) throw completed.error;
+    const stdout = completed.stdout;
+    const report = JSON.parse(readFileSync(join(dir, `${name}.report.json`), "utf8"));
+    const incomplete: Record<string, string> = {
+      nested_facet: "panel val / Bimodal has no data",
+      table: "uncertainty: fewer than two observations",
+    };
+    const reason = incomplete[name];
+    const expectedExit = reason ? 2 : 0;
+    if (completed.status !== expectedExit || report.exit_code !== expectedExit || !report.policy.strict
+        || report.status !== (reason ? "incomplete" : "passed") || !report.inspection.checked) {
+      throw new Error(`unexpected default verification: ${JSON.stringify({ exit: completed.status, status: report.status, findings: report.findings, untested: report.untested })}`);
+    }
+    if (reason && !report.untested.some((item: string) => item.includes(reason))) {
+      throw new Error(`missing expected incomplete evidence: ${reason}`);
+    }
     if (name === "nested_facet") {
       const report = JSON.parse(readFileSync(join(dir, `${name}.report.json`), "utf8"));
       if (report.panels.length !== 6 || !report.untested.some((item: string) => item.includes("val / Bimodal"))) {
@@ -192,7 +209,7 @@ for (const [name, spec] of CASES) {
     const produced = readdirSync(dir);
     const ok = produced.includes(`${name}.png`);
     const extras = [`${name}.md`, `${name}.tex`].filter((f) => produced.includes(f));
-    console.log(`${ok ? "PASS" : "FAIL"}  ${name}${extras.length ? `  also wrote ${extras.join(", ")}` : ""}`);
+    console.log(`${ok ? "PASS" : "FAIL"}  ${name}${reason ? "  expected incomplete/exit2" : ""}${extras.length ? `  also wrote ${extras.join(", ")}` : ""}`);
     if (!ok) failures += 1;
   } catch (error) {
     console.log(`FAIL  ${name}  ${failureDetail(error, 3)}`);

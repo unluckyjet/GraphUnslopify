@@ -247,7 +247,7 @@ export const RECIPES: Recipe[] = [
       y: { field: "accuracy", label: "Top-1 accuracy", unit: "%" },
       group: "model",
       frontier: { x: "min", y: "max" },
-      legend: { position: "lower_right" },
+      legend: { position: "outside_bottom" },
       data: { path: "benchmarks.csv" },
     },
   },

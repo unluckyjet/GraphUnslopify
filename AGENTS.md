@@ -20,3 +20,12 @@ Do not store secrets or private datasets in the vault.
 The vault is working memory; current code and measurements are authoritative.
 The repository's `CLAUDE.md` contains contribution/check instructions, and
 `pipeline/` remains the source of truth for its improvement queue.
+
+## Review-list checkpoints
+
+For the user's 2026-10-28 improvement list, tracked in
+`pipeline/review-roadmap-2026-10-28.md`, commit and push each completed item or
+coherent implementation milestone separately. Do not accumulate completed items
+locally. Run the required checks before each push and verify CI for that exact
+commit before advancing. Keep incomplete items and external dependencies explicit;
+never describe proposed benchmarks or external user feedback as measured results.

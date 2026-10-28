@@ -27,8 +27,8 @@ outcomes of the listed checks; they are not a scientific certification.
 
 | Execution policy | Exit code |
 | --- | --- |
-| Default | 0 after a successful render, even if a check failed; legacy behavior |
-| `--strict` | 2 for failed **or incomplete** checks |
+| Default / `--strict` | 2 for failed **or incomplete** checks |
+| Explicit `--no-strict` | 0 after a successful render even if verification failed; legacy opt-out |
 | `--fail-on-warning` | Strict mode, also returning 2 for any warning |
 | Runtime or report-write error | 1 |
 
@@ -38,6 +38,18 @@ selected warning policy rejects the run. CI should use the process exit code.
 A failure to write the report is itself a nonzero exit; no report can be promised
 at an unwritable destination. Missing core imports or a syntax error before the
 program starts are likewise process errors rather than completed reports.
+
+The current development source defaults to strict verification in generated
+programs, `graphunslopify render/run/check` and `Figure.render()`. Python callers
+can opt out with `strict=False`. Opting out changes rejection policy, never the
+recorded findings or failed/incomplete status. `--fail-on-warning` (or the Python
+option) always implies strict verification, even with an explicit opt-out.
+
+The immutable **0.7.0 release** retains its previous opt-in default: pass
+`--strict` / `strict=True` when using that wheel. Existing 0.7.0 scripts accept
+`--strict`, so the updated CLI enforces their strict implementation by default.
+Regenerate scripts with the updated compiler before using `--no-strict`; older
+scripts do not implement that flag. Select [matching versioned docs](versioning.md).
 
 Claims use the same mean/median and declared units as the displayed panel.
 Every facet and repeated metric is checked independently. Missing series,

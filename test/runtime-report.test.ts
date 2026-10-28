@@ -14,7 +14,7 @@ const base = { kind: "line", x: { field: "epoch", label: "Epoch" },
 const claim = { kind: "beats_everywhere", subject: "ours", reference: "base" };
 const good = "epoch,score,model\n1,1,base\n1,2,base\n1,4,ours\n1,5,ours\n2,2,base\n2,3,base\n2,5,ours\n2,6,ours\n";
 type Report = { schema_version: number; ok: boolean; status: string; exit_code: number;
-  policy: { passed: boolean }; spec_hash: string; spec: Record<string, unknown>;
+  policy: { passed: boolean; strict: boolean }; spec_hash: string; spec: Record<string, unknown>;
   inspection: { checked: boolean; available: boolean };
   data: { counts: { read: number; sample_sizes: number[] } };
   claims: { panel: number; verdict: string; detail: string; metric: string }[];
@@ -67,11 +67,32 @@ test("failed claims exit 2 in strict mode but remain inspectable in legacy mode"
   assert.equal(strict.status, 2);
   assert.equal(strict.report.status, "failed");
   assert.equal(strict.report.claims[0]!.verdict, "fails");
-  const legacy = run(good, options, []);
+  const legacy = run(good, options, ["--no-strict"]);
   assert.equal(legacy.status, 0);
   assert.equal(legacy.report.ok, false);
   assert.equal(legacy.report.policy.passed, true);
+  assert.equal(legacy.report.policy.strict, false);
   assert.match(legacy.stdout, /FAILS/);
+});
+
+test("bare generated programs reject failed and incomplete verification by default", { skip: !python }, () => {
+  for (const reference of ["ours", "absent"]) {
+    const result = run(good, { claims: [{ ...claim, subject: "base", reference }] }, ["--json"]);
+    assert.equal(result.status, 2);
+    assert.equal(result.report.policy.strict, true);
+    assert.equal(result.report.policy.passed, false);
+    assert.equal(result.report.status, reference === "ours" ? "failed" : "incomplete");
+  }
+  const passed = run(good, {}, []);
+  assert.equal(passed.status, 0);
+  assert.equal(passed.report.policy.strict, true);
+});
+
+test("warning rejection stays strict even with an explicit opt-out", { skip: !python }, () => {
+  const result = run(good, { claims: [{ ...claim, subject: "base", reference: "ours" }] },
+    ["--no-strict", "--fail-on-warning", "--json"]);
+  assert.equal(result.status, 2);
+  assert.equal(result.report.policy.strict, true);
 });
 
 test("missing reference data is UNTESTED and fails strict mode", { skip: !python }, () => {

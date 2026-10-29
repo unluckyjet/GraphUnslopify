@@ -190,6 +190,45 @@ def test_existing_producer_is_not_a_newly_started_implementation_session(tmp_pat
         R["begin_session"](tmp_path, "matplotlib", tmp_path / "session.jsonl")
 
 
+@pytest.mark.parametrize("changed", [None, "accuracy", "dataset_order", "minimum_text_pt"])
+def test_svg_protocol_amendment_retains_clock_and_refuses_numeric_or_case_changes(
+    tmp_path, monkeypatch, changed
+):
+    root = tmp_path / "root"
+    folder = root / "benchmarks/certified"
+    folder.mkdir(parents=True)
+    original = (ROOT / "benchmarks/certified/protocol-v1.json").read_bytes()
+    (folder / "protocol-v1.json").write_bytes(original)
+    current = folder / "protocol.json"
+    current.write_bytes(original)
+    monkeypatch.setitem(
+        R["M"],
+        "read_protocol",
+        lambda root: json.loads((root / "benchmarks/certified/protocol.json").read_text()),
+    )
+    journal = tmp_path / "events.jsonl"
+    start = R["begin_session"](root, "matplotlib", journal)
+    amended = copy.deepcopy(P)
+    if changed == "accuracy":
+        amended["accuracy"]["mean_allowance"] += " changed"
+    elif changed == "dataset_order":
+        amended["dataset_order"] = amended["dataset_order"][:-1]
+    elif changed == "minimum_text_pt":
+        amended["minimum_text_pt"] = 1
+    current.write_text(json.dumps(amended))
+    if changed:
+        with pytest.raises(ValueError, match="must not change"):
+            R["amend_session"](root, "matplotlib", journal, "Synthetic SVG correction")
+        assert len(R["journal_events"](journal)) == 1
+    else:
+        event = R["amend_session"](root, "matplotlib", journal, "Synthetic SVG correction")
+        state = R["active_session"](R["journal_events"](journal))
+        assert state["monotonic_ns"] == start["monotonic_ns"]
+        assert state["protocol_sha256"] == R["sha"](current)
+        assert event["clock_reset"] is False and event["timing_comparison_valid"] is False
+        assert state["initial_protocol_sha256"] == start["protocol_sha256"]
+
+
 def test_sentinel_is_not_credited_for_an_execution_failure():
     reference = {
         "values": {"mean": "2", "low": "1", "high": "3", "half_span": "1"},
@@ -279,8 +318,17 @@ plt.close(fig)
     record = R["run_case"](root, tmp_path / "output", entry, item, protocol)
     assert record["matches_expected"] and record["task_accepted"], record
     assert record["input_unchanged"] and record["producer_unchanged"]
+    assert (tmp_path / "output/producer-source.py").read_bytes() == producer.read_bytes()
     R["retain_case"](root, tmp_path / "output", record, item, protocol)
     assert record["artifacts_retained"]
+    pristine = copy.deepcopy(record)
+    svg = tmp_path / "output/figure.svg"
+    original_svg = svg.read_bytes()
+    svg.write_bytes(original_svg + b"\n")
+    R["retain_case"](root, tmp_path / "output", record, item, protocol)
+    assert not record["artifacts_retained"]
+    svg.write_bytes(original_svg)
+    record = pristine
     (tmp_path / "output/figure.png").unlink()
     R["retain_case"](root, tmp_path / "output", record, item, protocol)
     assert not record["artifacts_retained"] and not record["matches_expected"]

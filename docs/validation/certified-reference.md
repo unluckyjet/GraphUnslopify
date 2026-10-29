@@ -1,6 +1,6 @@
 # Frozen external reference corpus
 
-Status2026-10-29: **source preparation measured; product benchmark not run yet**.
+Status2026-10-29: **27 initial task-validation executions retained; formal72-run comparison pending**.
 This checkpoint freezes externally established answers before GraphUnslopify or
 Matplotlib outputs are evaluated. It advances review17 without turning source
 preparation into an accuracy, timing or adoption result.
@@ -65,13 +65,13 @@ repeatability controls pass. These measurements cover preparation only.
 
 ## Frozen measurement protocol
 
-[Protocol v1](../../benchmarks/certified/protocol.json) binds the complete source
+[Protocol v2](../../benchmarks/certified/protocol.json) binds the complete source
 manifest and evaluator/worker hashes. Its implementation is
 [measurement.py](../../benchmarks/certified/measurement.py); the isolated
 [save-time worker](../../scripts/measure-certified-figure.py) records the actual
 artists at each PNG/SVG/PDF export, plus final file hashes and process failure.
 Sixteen synthetic controls validate this evaluator before any NIST product output is run.
-Actual benchmark execution remains pending.
+Formal benchmark execution remains pending; the initial v1 task validations and correction are recorded below.
 
 The task has one mean marker and one observed sample-SD interval per dataset,
 with exact labels and separate original scales. All nine cases, two arms, two
@@ -154,14 +154,15 @@ from correctly detecting the deliberately missing-interval sentinel. Repeat
 agreement includes process/native statuses, and numerical summaries include the
 number of values actually measured.
 
-The producers are the next implementation checkpoint and are currently absent.
+Both producers are implemented. Their initial task validations exposed the configuration/evaluator issues documented below.
 Their interface is `--dataset ID --data CSV --out-dir EMPTY --variant mean_sd`
 (or `missing_interval`); they write `figure.py` and optional `spec.json`. Names
 are `benchmarks/certified/producers/build-matplotlib.py` and
 `build-graphunslopify.py`, avoiding Python's library-module shadowing.
 
-After runner verification, begin the Matplotlib task **before** creating its
-producer:
+The recorded construction protocol began the Matplotlib task **before** creating
+its producer (these are historical study-construction commands, not rerun commands
+for the now-existing committed producers):
 
 ```sh
 python scripts/certified-benchmark.py --begin-development matplotlib
@@ -180,7 +181,7 @@ Complete a live session on the same machine/OS boot: monotonic clock origins
 are local. Both UTC and monotonic events are retained for audit. These commands
 are the implementation protocol, not evidence that sessions ran.
 
-Once both producers exist, run the full72-execution comparison:
+After the current checkpoint passes, reproduce the full72-execution comparison with:
 
 ```sh
 python scripts/certified-benchmark.py --out-dir benchmarks/certified/.cache/comparison-1
@@ -190,3 +191,54 @@ Optional `--source-dir`/`--prepared-dir` select other verified local input cache
 Every run requires a fresh output directory and records progress/results without
 replacing prior evidence. CI will execute this comparison after the actual
 producers/results checkpoint; current runner controls use synthetic fixtures only.
+
+
+## Initial task validation and protocol revision
+
+The live Matplotlib task completed all nine clean cases on its first attempt:
+42.188505542 seconds from implementation begin to accepted nine-case verification.
+This is one familiar coding assistant's observation, not a human productivity result.
+Its conventional program reads every CSV value and uses Python statistics.mean /
+statistics.stdev before plotting, with the same external evaluator as the product.
+
+GraphUnslopify's first attempt failed all nine cases because the author supplied
+categorical dataset names to a line's numeric x domain. This is one configuration
+error repeated over nine cases, not nine independent scientific defects. The next
+producer version retains all observations and generated mean/SD computations;
+a small Python presentation adapter adds a constant numeric x position and applies
+the dataset tick label. Both unmodified translation and final adapted code are
+retained. This workflow requires that explicit adapter; it is not JSON-only.
+
+The second GraphUnslopify attempt produced numerically correct, correctly labelled
+exports on all nine cases and native passed reports. It failed v1's byte-only
+save/finalization identity check because record_output adds SVG accessibility IDs /
+description and normalizes path whitespace after Figure.savefig. PNG/PDF byte
+identities and all other physical/visibility checks passed. The evaluator's
+intermediate-stage byte rule was an incorrect proxy for this legitimate pipeline.
+
+V2 corrects only that evidence rule. Cases, variants, repeats, external answers,
+numerical allowances and physical-size gates are unchanged. Native static SVG
+may use graphic-DOM identity that preserves geometry, visible text, styles and
+provenance, while allowing the known root accessibility additions and path-space
+normalization. Unsupported dynamic/non-native structures do not get that exception.
+Raw save/final hashes and identity basis remain visible. Once finalization has
+completed, study-end retention requires exact final bytes for every format.
+Negative controls reject changed paths/view boxes, visible text, provenance and
+styles, as well as metadata-only file changes after finalization.
+
+[The original v1 protocol](../../benchmarks/certified/protocol-v1.json), all27
+initial case records, first/all failed attempts and exact producer revisions are
+retained in [development evidence](../../benchmarks/certified/development/) and
+[the append-only session log](../../benchmarks/certified/development-sessions.jsonl).
+V1 evaluator implementation is preserved at commit4b8cb8f. Historical producer
+copies match their recorded SHA256; restore their original producer path when
+replaying them rather than executing the archive copy directly.
+
+The GraphUnslopify clock continues without reset across an explicit protocol-
+revision event. Its elapsed time includes shared evaluator debugging/repair and
+waiting; it **cannot support a paired workflow-authoring-speed comparison** with
+the42.19s Matplotlib task. Retain that confound rather than subtracting unrecorded
+work or retroactively manufacturing a completion time. Fair machine timings and
+all formal outcomes will be recorded separately under the frozen v2 protocol.
+At this checkpoint the GraphUnslopify task is still open and no formal v2 comparison
+has run. Human development time and independent researcher execution are unmeasured.

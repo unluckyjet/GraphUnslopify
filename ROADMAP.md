@@ -34,8 +34,8 @@ recognition or a scientific certificate.
 
 The [frozen external-reference corpus](docs/validation/certified-reference.md) adds
 all nine NIST univariate datasets and independent certified answers for the next
-comparison. Only source preparation is measured so far; benchmark results remain
-pending.
+comparison. Initial task validations and a versioned SVG-evidence correction are recorded;
+all prior outcomes remain visible. The formal comparative benchmark is pending.
 
 The existing [public-data examples](docs/validation/published-papers.md) reproduce
 bounded descriptive quantities from Penguin/Iris data and test seeded faults.

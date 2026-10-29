@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "id": "nist-univariate-mean-sd-v1",
+  "id": "nist-univariate-mean-sd-v2",
   "source_manifest_sha256": "5c6276e0424d5eb4aa60c6df8861ff6c5f4442df6a11a35134b1a40e223e4e20",
   "dataset_order": [
     "PiDigits",
@@ -43,7 +43,7 @@
     "half_span_allowance": "Average of the two endpoint allowances; half-span is measured from actual plotted endpoints, not an underlying SD estimator.",
     "interpretation": "Engineering gates with explicit float/printed-precision context; not NIST software certification or a proof of every estimator. Retain continuous deviations and every failed/missing result."
   },
-  "quality": "Decode actual PNG/SVG/one-page PDF, require one measured save of each and unchanged final bytes. Score marker/interval presence and within-axes center/endpoints, >=2px interval and >=6pt text at 3.4in placement. Record text-overlap candidates separately for visual review; proxies do not establish human aesthetics/usefulness. Require captured PNG save-DPI and decoded DPI metadata to match the declared150dpi (metadata rounding allowance0.5dpi).",
+  "quality": "Decode actual PNG/SVG/one-page PDF, require one measured save of each and unchanged final bytes, or native static SVG graphic-DOM identity under accessibility-only additions and path whitespace normalization. Score marker/interval presence and within-axes center/endpoints, >=2px interval and >=6pt text at 3.4in placement. Record text-overlap candidates separately for visual review; proxies do not establish human aesthetics/usefulness. Require captured PNG save-DPI and decoded DPI metadata to match the declared150dpi (metadata rounding allowance0.5dpi).",
   "reproducibility": "Both repetitions must have decodable actual PNGs; compare dimensions+RGBA pixels within each arm/variant/case. Missing outputs fail comparability, never count as identical. Cross-renderer pixels need not agree.",
   "timing": "Record machine producer/build, process wall, instrumented script execution and file-save seconds separately. Do not subtract measurement overhead or infer human authoring time.",
   "development_sessions": {
@@ -56,8 +56,8 @@
   },
   "failure_policy": "Freeze protocol and measurement implementation in Git before any NIST tool-output evaluation. Retain all nine cases, variants, repeats, logs/statuses/hashes and failures. A subsequent protocol change needs a new version and retained earlier outcomes.",
   "implementation_sha256": {
-    "benchmarks/certified/measurement.py": "1e7f5e712128fd53bf11eb68f899a1d0a1a7217ac3533db6f7b4a64cd4e60378",
-    "scripts/measure-certified-figure.py": "fce0f0049066812cfb1b715f5b600036ee3f716485a05ab9e0865db0e529e2d7"
+    "benchmarks/certified/measurement.py": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+    "scripts/measure-certified-figure.py": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29"
   },
   "x_label": "Dataset",
   "title_template": "{id}: mean and sample SD",
@@ -71,5 +71,18 @@
     "NumAcc2": "Synthetic value",
     "NumAcc3": "Synthetic value",
     "NumAcc4": "Synthetic value"
+  },
+  "svg_identity": "native_graphic_dom_v2",
+  "previous_protocol": {
+    "id": "nist-univariate-mean-sd-v1",
+    "path": "benchmarks/certified/protocol-v1.json",
+    "sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+    "implementation_git_revision": "4b8cb8f3a8cc8ec3f28757c5c83d7e607f19cbbf"
+  },
+  "amendment": {
+    "reason": "V1 incorrectly rejected GraphUnslopify SVG record_output accessibility/path-whitespace postprocessing despite unchanged graphics. All v1 outcomes and producer versions are retained.",
+    "numeric_and_physical_gates": "Unchanged from v1; no dataset, variant, repeat or error threshold removed/tuned.",
+    "formal_benchmark": "No formal72-run comparison executed before this amendment. New formal comparison reruns both arms under v2.",
+    "development_timing": "GraphUnslopify clock continues without reset and includes shared evaluator repair/waiting; its elapsed time cannot support a paired workflow-authoring-speed claim."
   }
 }

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import xml.etree.ElementTree as ET
 from decimal import Decimal, localcontext
 from pathlib import Path
@@ -15,6 +16,77 @@ from matplotlib.text import Text
 from PIL import Image
 from pypdf import PdfReader
 from pypdf.errors import PyPdfError
+
+
+def svg_graphic_digest(body: bytes) -> str | None:
+    """Identity for static native SVG, allowing only its accessibility/path-space edits."""
+    namespace = "{http://www.w3.org/2000/svg}"
+    try:
+        root = ET.fromstring(body)
+    except ET.ParseError:
+        return None
+    if root.tag != namespace + "svg" or b"xml-stylesheet" in body:
+        return None
+    if any(
+        e.tag in {namespace + "script", namespace + "foreignObject"}
+        for e in root.iter()
+    ):
+        return None
+    # Native Matplotlib's sole default rule has no structural/attribute selectors.
+    # Arbitrary CSS could make accessibility additions affect rendering: abstain.
+    for style in root.iter(namespace + "style"):
+        if (
+            re.sub(r"\s+", "", style.text or "")
+            != "*{stroke-linejoin:round;stroke-linecap:butt}"
+        ):
+            return None
+    titles = [e for e in root if e.tag == namespace + "title"]
+    descriptions = [e for e in root if e.tag == namespace + "desc"]
+    if len(titles) > 1 or len(descriptions) > 1:
+        return None
+    a11y = {
+        key: root.attrib.get(key)
+        for key in ("role", "aria-labelledby", "aria-describedby")
+    }
+    if any(v is not None for v in a11y.values()):
+        if (
+            not titles
+            or not descriptions
+            or a11y["role"] != "img"
+            or a11y["aria-labelledby"] != titles[0].get("id")
+            or a11y["aria-describedby"] != descriptions[0].get("id")
+        ):
+            return None
+        for key in a11y:
+            root.attrib.pop(key, None)
+        titles[0].attrib.pop("id", None)
+    for description in descriptions:
+        root.remove(description)
+
+    def canonical(element, preserve=False):
+        preserve = preserve or element.tag in {
+            namespace + "text",
+            namespace + "tspan",
+            namespace + "metadata",
+        }
+        attrs = dict(element.attrib)
+        if element.tag == namespace + "path" and "d" in attrs:
+            attrs["d"] = " ".join(attrs["d"].split())
+        text, tail = element.text, element.tail
+        if not preserve:
+            text = text if text and text.strip() else None
+            tail = tail if tail and tail.strip() else None
+        return [
+            element.tag,
+            sorted(attrs.items()),
+            text,
+            tail,
+            [canonical(child, preserve) for child in element],
+        ]
+
+    return hashlib.sha256(
+        json.dumps(canonical(root), ensure_ascii=True).encode()
+    ).hexdigest()
 
 
 def read_protocol(root: Path) -> dict:
@@ -297,12 +369,22 @@ def export_measurements(folder: Path, snapshots: list[dict], protocol: dict) -> 
     quality = {
         "exports_decoded": not errors and len(decoded) == len(protocol["formats"])
     }
-    quality["one_measured_export_each"] = all(
-        len([s for s in snapshots if s.get("format") == suffix]) == 1
-        and next(s.get("file_sha256") for s in snapshots if s.get("format") == suffix)
-        == decoded.get(suffix, {}).get("sha256")
-        for suffix in protocol["formats"]
-    )
+    identity = {}
+    for suffix in protocol["formats"]:
+        observed = [s for s in snapshots if s.get("format") == suffix]
+        basis = None
+        if len(observed) == 1 and suffix in decoded:
+            if observed[0].get("file_sha256") == decoded[suffix]["sha256"]:
+                basis = "exact_bytes"
+            elif (
+                suffix == "svg"
+                and protocol.get("svg_identity") == "native_graphic_dom_v2"
+            ):
+                digest = svg_graphic_digest((folder / "figure.svg").read_bytes())
+                if digest and digest == observed[0].get("svg_graphic_sha256"):
+                    basis = "unchanged_native_graphic_dom_accessibility_and_path_whitespace_only"
+        identity[suffix] = basis
+    quality["one_measured_export_each"] = all(identity.values())
     if measured and png.get("width"):
         dpi = matching[0].get("export_dpi")
         valid_dpi = isinstance(dpi, (int, float)) and math.isfinite(dpi) and dpi > 0
@@ -347,6 +429,7 @@ def export_measurements(folder: Path, snapshots: list[dict], protocol: dict) -> 
         "quality_checks": quality,
         "quality_passed": all(quality.values()),
         "minimum_text_pt_at_target": minimum_pt,
+        "identity_basis": identity,
         "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured",
     }
 

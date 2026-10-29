@@ -31,6 +31,91 @@ def reference(mean="2", sd="1", tokens=None):
     )
 
 
+def test_native_svg_accessibility_and_path_whitespace_identity_keeps_graphics_strict():
+    before = b"""<svg xmlns="http://www.w3.org/2000/svg"><title>Control</title><metadata> provenance  value </metadata><defs><style>*{stroke-linejoin: round; stroke-linecap: butt}</style></defs><path d="M 0 0 \nL 1 1 \n"/><text x="0" y="1">1  2</text></svg>"""
+    after = (
+        before.replace(
+            b"<svg ",
+            b'<svg role="img" aria-labelledby="title-control" aria-describedby="description-control" ',
+            1,
+        )
+        .replace(b"<title>", b'<title id="title-control">', 1)
+        .replace(
+            b"</title>", b'</title><desc id="description-control">Accessible description</desc>', 1
+        )
+        .replace(b"0 \nL", b"0\nL")
+        .replace(b'1 \n"', b'1\n"')
+    )
+    digest = M["svg_graphic_digest"](before)
+    assert digest and digest == M["svg_graphic_digest"](after)
+    for original, changed in [
+        (b"L 1 1", b"L 1 2"),
+        (b"1  2</text>", b"1 2</text>"),
+        (b"Control</title>", b"Other</title>"),
+        (b"provenance  value", b"provenance value"),
+    ]:
+        assert M["svg_graphic_digest"](after.replace(original, changed)) != digest
+    assert (
+        M["svg_graphic_digest"](
+            after.replace(b"*{stroke-linejoin", b"svg[role=img]{stroke-linejoin")
+        )
+        is None
+    )
+    assert M["svg_graphic_digest"](after.replace(b'role="img"', b'role="other"')) is None
+
+
+@pytest.mark.parametrize("change_geometry", [False, True])
+def test_actual_worker_distinguishes_svg_accessibility_postprocessing_from_geometry(
+    tmp_path, change_geometry
+):
+    script = tmp_path / "svg-control.py"
+    script.write_text(
+        """import matplotlib.pyplot as plt
+from pathlib import Path
+import re
+fig, ax = plt.subplots(figsize=(3.4, 2.6))
+ax.errorbar([0], [2], yerr=[1], fmt="o")
+ax.set(xlabel="Synthetic", ylabel="Value", title="Synthetic worker control")
+fig.tight_layout()
+for fmt in ("png", "svg", "pdf"):
+    fig.savefig("figure."+fmt, dpi=150, bbox_inches="tight", metadata={"Title":"Control"})
+path = Path("figure.svg")
+text = path.read_text()
+end = text.index(">", text.index("<svg "))
+text = text[:end]+' role="img" aria-labelledby="title-control" aria-describedby="description-control"'+text[end:]
+text = text.replace("<title>", '<title id="title-control">', 1)
+text = text.replace("</title>", '</title>\\n <desc id="description-control">Accessible description</desc>', 1)
+text = re.sub(r'(<path\\b[^>]*\\bd=")([^\"]*)(")', lambda m: m[1]+"\\n".join(line.rstrip() for line in m[2].split("\\n"))+m[3], text)
+"""
+        + ("text = text.replace('viewBox=\"0 0', 'viewBox=\"1 0', 1)\n" if change_geometry else "")
+        + """path.write_text(text)
+plt.close(fig)
+"""
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/measure-certified-figure.py"),
+            "--script",
+            str(script),
+            "--out-dir",
+            str(tmp_path),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    record = json.loads((tmp_path / "measurement.json").read_text())
+    assert record["exports"]["quality_passed"] is not change_geometry
+    assert record["exports"]["identity_basis"]["svg"] == (
+        None
+        if change_geometry
+        else "unchanged_native_graphic_dom_accessibility_and_path_whitespace_only"
+    )
+
+
 def primitive():
     figure, axis = plt.subplots(figsize=(3.4, 2.6))
     artist = axis.errorbar([0], [2], yerr=[1], fmt="o", capsize=3)

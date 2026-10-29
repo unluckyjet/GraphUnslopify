@@ -29,10 +29,19 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--begin-development", choices=["matplotlib", "graphunslopify"])
     mode.add_argument("--development", choices=["matplotlib", "graphunslopify"])
+    mode.add_argument("--amend-development", choices=["matplotlib", "graphunslopify"])
+    parser.add_argument("--revision-reason", default="")
     args = parser.parse_args()
     runner = runpy.run_path(str(ROOT / "benchmarks/certified/runner.py"))
     try:
-        if args.begin_development:
+        if args.amend_development:
+            result = runner["amend_session"](
+                ROOT,
+                args.amend_development,
+                args.journal.resolve(),
+                args.revision_reason,
+            )
+        elif args.begin_development:
             runner["load_inputs"](
                 ROOT, args.source_dir.resolve(), args.prepared_dir.resolve()
             )

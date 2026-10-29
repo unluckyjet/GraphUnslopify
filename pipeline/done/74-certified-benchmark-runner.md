@@ -1,7 +1,7 @@
 ---
 id: 74
 slug: certified-benchmark-runner
-status: ready
+status: done
 priority: P1
 title: Retain complete comparative runs and live producer-implementation clocks
 source_idea: review2026-10-28 item17 complete benchmark error timing reproduction quality evidence and real development-task sessions
@@ -84,3 +84,6 @@ All seven gates rerun225 Node/1399 Python, zero skips/one upstream warning,
 15 baselines/16 renders/25 recipes/7 compositions.1076462's completed CI has8
 successful jobs and solely the diagnosed3.10 collection failure. Frozen73 bytes
 unchanged. Push repaired commit and verify its exact main/Figure CI before75.
+
+Exact repaired4b8cb8f3a8cc8ec3f28757c5c83d7e607f19cbbf main40852390187
+all nine jobs/Figure40852390109 passed before actual producer tasks75.

@@ -220,6 +220,9 @@ def run_case(root: Path, folder: Path, entry: dict, item: dict, protocol: dict) 
     folder.mkdir(parents=True, exist_ok=False)
     producer = producer_path(root, entry["arm"])
     producer_hash = sha(producer) if producer.is_file() else None
+    if producer_hash:
+        with (folder / "producer-source.py").open("xb") as handle:
+            handle.write(producer.read_bytes())
     reference = M["numeric_reference"](item["source"], item["values"])
     record = {
         **entry,
@@ -342,6 +345,11 @@ def retain_case(root, folder, record, item, protocol):
     retained = bool(
         checks.get("exports_decoded")
         and checks.get("one_measured_export_each")
+        and all(
+            exports["files"].get(fmt, {}).get("sha256")
+            == measured["exports"]["files"].get(fmt, {}).get("sha256")
+            for fmt in protocol["formats"]
+        )
         and unchanged(item["data"], item["csv_sha256"])
         and unchanged(item["original"], item["source"]["sha256"])
         and unchanged(producer_path(root, record["arm"]), record["producer_sha256"])
@@ -480,14 +488,30 @@ def active_session(events):
             if active:
                 raise ValueError("overlapping development sessions")
             active = event
-        elif event["event"] in {"attempt", "end"}:
+        elif event["event"] in {"attempt", "end", "protocol_revision"}:
             if (
                 not active
                 or active["session"] != event["session"]
                 or active["arm"] != event["arm"]
             ):
                 raise ValueError("development event has no matching live begin")
-            if event["event"] == "end":
+            if event["event"] == "protocol_revision":
+                if active["protocol_sha256"] != event["from_protocol_sha256"]:
+                    raise ValueError(
+                        "protocol amendment does not match the live session"
+                    )
+                active = {
+                    **active,
+                    "initial_protocol_sha256": active.get(
+                        "initial_protocol_sha256", active["protocol_sha256"]
+                    ),
+                    "protocol_sha256": event["to_protocol_sha256"],
+                    "protocol_revisions": [
+                        *active.get("protocol_revisions", []),
+                        event,
+                    ],
+                }
+            elif event["event"] == "end":
                 active = None
         else:
             raise ValueError("unknown development event")
@@ -525,6 +549,68 @@ def begin_session(root, arm, journal):
         "utc": utc(),
         "monotonic_ns": time.monotonic_ns(),
         "protocol_sha256": sha(root / "benchmarks/certified/protocol.json"),
+    }
+    append_event(journal, event)
+    return event
+
+
+def amend_session(root, arm, journal, reason):
+    """Retain the original clock and explicitly flag an SVG-evidence protocol correction."""
+    active = active_session(journal_events(journal))
+    protocol = M["read_protocol"](root)
+    previous = protocol["previous_protocol"]
+    old_path = root / previous["path"]
+    old = json.loads(old_path.read_text())
+    if (
+        not active
+        or active["arm"] != arm
+        or active["protocol_sha256"] != previous["sha256"]
+        or sha(old_path) != previous["sha256"]
+        or not reason.strip()
+    ):
+        raise ValueError(
+            "amendment requires the matching live session and retained prior protocol"
+        )
+    unchanged_keys = [
+        "source_manifest_sha256",
+        "dataset_order",
+        "arms",
+        "variants",
+        "repeats",
+        "order",
+        "formats",
+        "width_in",
+        "height_in",
+        "dpi",
+        "minimum_text_pt",
+        "minimum_interval_pixels",
+        "task",
+        "accuracy",
+        "reproducibility",
+        "timing",
+        "development_sessions",
+        "x_label",
+        "title_template",
+        "y_labels",
+    ]
+    if (
+        any(old[k] != protocol[k] for k in unchanged_keys)
+        or protocol.get("svg_identity") != "native_graphic_dom_v2"
+    ):
+        raise ValueError(
+            "this correction must not change cases, numerical/physical gates or task-clock rules"
+        )
+    event = {
+        "event": "protocol_revision",
+        "arm": arm,
+        "session": active["session"],
+        "utc": utc(),
+        "monotonic_ns": time.monotonic_ns(),
+        "from_protocol_sha256": active["protocol_sha256"],
+        "to_protocol_sha256": sha(root / "benchmarks/certified/protocol.json"),
+        "reason": reason,
+        "clock_reset": False,
+        "timing_comparison_valid": False,
     }
     append_event(journal, event)
     return event
@@ -583,6 +669,15 @@ def finish_attempt(root, arm, journal, report, output):
             **evidence,
             "seconds": (evidence["monotonic_ns"] - start["monotonic_ns"]) / 1e9,
             "producer_sha256": sha(producer_path(root, arm)),
+            "protocol_sha256": start["protocol_sha256"],
+            "initial_protocol_sha256": start.get(
+                "initial_protocol_sha256", start["protocol_sha256"]
+            ),
+            "protocol_amended_during_session": bool(start.get("protocol_revisions")),
+            "timing_comparison_valid": not bool(start.get("protocol_revisions")),
+            "timing_note": "Includes shared evaluator repair; do not compare workflow authoring speed"
+            if start.get("protocol_revisions")
+            else "One familiar AI operator, fixed order; no causal/human productivity inference",
         }
         if end["seconds"] < 0:
             raise ValueError("monotonic clock reset; retain the session as incomplete")

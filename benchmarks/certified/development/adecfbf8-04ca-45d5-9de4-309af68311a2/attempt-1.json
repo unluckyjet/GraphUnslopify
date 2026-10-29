@@ -1,0 +1,1415 @@
+{
+  "schema_version": 1,
+  "phase": "development",
+  "started_at": "2026-10-29T10:02:14.136430+00:00",
+  "protocol": {
+    "schema_version": 1,
+    "id": "nist-univariate-mean-sd-v1",
+    "source_manifest_sha256": "5c6276e0424d5eb4aa60c6df8861ff6c5f4442df6a11a35134b1a40e223e4e20",
+    "dataset_order": [
+      "PiDigits",
+      "Lottery",
+      "Lew",
+      "Mavro",
+      "Michelso",
+      "NumAcc1",
+      "NumAcc2",
+      "NumAcc3",
+      "NumAcc4"
+    ],
+    "arms": [
+      "matplotlib",
+      "graphunslopify"
+    ],
+    "variants": [
+      "mean_sd",
+      "missing_interval"
+    ],
+    "repeats": 2,
+    "order": "Dataset publisher order; first arm alternates by dataset index; reverse that order on repeat 2. Run both variants for every dataset/arm/repeat.",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "width_in": 3.4,
+    "height_in": 2.6,
+    "dpi": 150,
+    "minimum_text_pt": 6,
+    "minimum_interval_pixels": 2,
+    "task": "One circle marker at the complete-data mean with a vertical +/- sample SD interval, separate figures in original publisher units, descriptive only. Title contains dataset ID and mean/sample SD meaning; labelled axes. Missing-interval sentinel intentionally violates this same task in both arms.",
+    "accuracy": {
+      "reference": "External NIST certified mean, sample SD and their decimal endpoints. Lag1 is metadata only.",
+      "reference_quantum": "Zero for exact values; otherwise one unit in the last printed decimal place (conservative rounding/truncation allowance).",
+      "input_error": "Maximum abs(Decimal.from_float(float(token))-Decimal(token)) over the original decimal tokens.",
+      "mean_allowance": "reference_mean_quantum + input_error + 8*ulp(float(reference_mean))",
+      "endpoint_allowance": "reference_mean_quantum + reference_sd_quantum + 3*input_error + 16*ulp(float(reference_endpoint))",
+      "half_span_allowance": "Average of the two endpoint allowances; half-span is measured from actual plotted endpoints, not an underlying SD estimator.",
+      "interpretation": "Engineering gates with explicit float/printed-precision context; not NIST software certification or a proof of every estimator. Retain continuous deviations and every failed/missing result."
+    },
+    "quality": "Decode actual PNG/SVG/one-page PDF, require one measured save of each and unchanged final bytes. Score marker/interval presence and within-axes center/endpoints, >=2px interval and >=6pt text at 3.4in placement. Record text-overlap candidates separately for visual review; proxies do not establish human aesthetics/usefulness. Require captured PNG save-DPI and decoded DPI metadata to match the declared150dpi (metadata rounding allowance0.5dpi).",
+    "reproducibility": "Both repetitions must have decodable actual PNGs; compare dimensions+RGBA pixels within each arm/variant/case. Missing outputs fail comparability, never count as identical. Cross-renderer pixels need not agree.",
+    "timing": "Record machine producer/build, process wall, instrumented script execution and file-save seconds separately. Do not subtract measurement overhead or infer human authoring time.",
+    "development_sessions": {
+      "operator": "One coding assistant in this thread; unblinded, already familiar with both workflows, no human participant.",
+      "task": "Author each arm-specific producer from an absent file to verified correct clean outputs for all nine datasets, using the shared frozen measurement harness. Producer accepts dataset, CSV, output directory and missing-interval variant and writes figure.py (and its own declarative payload if any).",
+      "clock": "Append UTC/monotonic begin event before further producer-specific lookup/editing; end after first correct nine-case verification. Include failed attempts/tool/validation time. Keep all events/failed outputs; no retrospective reconstructed times.",
+      "order": "Matplotlib producer first, GraphUnslopify second. Fixed order, shared prior work and one operator prevent a causal speed/productivity claim.",
+      "shared_cost": "Report shared measurement/harness code size and preparation separately. Common prior work is excluded from per-arm sessions and must be disclosed, together with producer/payload/generated-code sizes. Prior design/familiarity time is unmeasured and excluded; session clocks cover producer implementation/revision to successful verification, not total project development.",
+      "unmeasured": "Human development time, researcher quality/usability and independent external study execution."
+    },
+    "failure_policy": "Freeze protocol and measurement implementation in Git before any NIST tool-output evaluation. Retain all nine cases, variants, repeats, logs/statuses/hashes and failures. A subsequent protocol change needs a new version and retained earlier outcomes.",
+    "implementation_sha256": {
+      "benchmarks/certified/measurement.py": "1e7f5e712128fd53bf11eb68f899a1d0a1a7217ac3533db6f7b4a64cd4e60378",
+      "scripts/measure-certified-figure.py": "fce0f0049066812cfb1b715f5b600036ee3f716485a05ab9e0865db0e529e2d7"
+    },
+    "x_label": "Dataset",
+    "title_template": "{id}: mean and sample SD",
+    "y_labels": {
+      "PiDigits": "Digit value",
+      "Lottery": "Recorded lottery value",
+      "Lew": "Beam deflection (publisher units)",
+      "Mavro": "Filter transmittance (reported scale)",
+      "Michelso": "Speed of light (million m/s)",
+      "NumAcc1": "Synthetic value",
+      "NumAcc2": "Synthetic value",
+      "NumAcc3": "Synthetic value",
+      "NumAcc4": "Synthetic value"
+    }
+  },
+  "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+  "environment": {
+    "git_head": "4b8cb8f3a8cc8ec3f28757c5c83d7e607f19cbbf",
+    "git_dirty": true,
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "versions": {
+      "graphunslopify": "0.8.0",
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "matplotlib": "3.11.2",
+      "Pillow": "13.0.0",
+      "pypdf": "6.21.2",
+      "nodejs-wheel-binaries": "24.19.0"
+    },
+    "installed_source_sha256": {
+      "__init__.py": "c14670bb0da09a0ff41e2f99219694e0c7bb7d3a5f12b56a4e62a54a483229bd",
+      "_translator.mjs": "e2f638583bec0d048aacc8848567ddebc44d67bb0ea7cf33dcbd3e97b529d627",
+      "audit.py": "9f033c0c3d495291f87a377c916b10a06deef5e54b8d7f09f56525afefbe7252",
+      "audit_worker.py": "d158ca60ff2d24093ff3d41f906713dcbfd018ab00ad9c82b3b2668564bba5a0",
+      "build.py": "d9701bd601a9cfef9a5965822f385634f66e281f14e775676285166bdb61f60c",
+      "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+      "cli.py": "4a8bbbe5482684f0dd8a357abd0eb6cc89a43a021256d18cfde810fe262b707e",
+      "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+      "comparison.py": "246ad793f3f3270ac10deb2d45cbe0dc619fba3e0905760c2e22269f276a5b29",
+      "comparison_html.py": "e8794aaa1012d7442034e23619012f836f32f2797bf071ef5fd43043331d5336",
+      "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+      "demo.py": "4ec1f6f8a9543c3b4ac27ff517139ea01e314c8c625e0ef82d76370f89969685",
+      "describe.py": "385ea772f09eb17435f0486539b8f3602c80f80b4087385e51799f341821b153",
+      "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+      "errors.py": "f9e372cbd9d2ecbd0369f08b8d8f2f742f71214874643a59d2ca3a874e8c7b88",
+      "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+      "inspect.py": "f6b53f876cb9507d3f968ff2e54df31df3404bedf5048ecc6d60d14e95d7f4aa",
+      "lockfile.py": "668bc1637e7c16ed1497d30ba89ceb4d05cca9ca859e5d5ad0fe910c4d65e998",
+      "mcpserver.py": "fe567f2839c97ba6e4c983375f26878d46b1796c4e390f543823eb528fd6a879",
+      "notebook.py": "706659e48104888aed55d27210a4d54f0c8ca7772dc9da594e7def5ba16e465c",
+      "pdf_review.py": "f6358363f1bc6eb1e73b6c3c01ea53d904fa2ff1c64859a23c12b78b345ada57",
+      "pdf_visual.py": "fc8d01fb035faae5ea88e227b54ff4a8cd60e0936ca10c2b35e6ccc5fe06b151",
+      "preview.py": "d0f185f6a61933ef4986e3e9e2f0162cf92e52455fe6ea85323a3c117c70e9b9",
+      "project.py": "ca1a1b48f669d738acfb7a093c35859b8578ff1b2573d58436f2f07268372a77",
+      "project_preview.py": "20868957a853647bcaf22a626d5af71b530a20727f3de5a76ca11067d3d112ce",
+      "provenance.py": "2e155f8169e4b9c3a9dad6224563fb7f4dbe7c79ea5e2c2a2a65970d2572b8a5",
+      "schemas/audit-report.schema.json": "c7a5f29813708ec6c1f12ba35475b206372f15d78285ddffa2aea1c57814529c",
+      "schemas/comparison.schema.json": "f8c9653040064adf15786714968c0d5ea05344ebae808b946706dd429f275032",
+      "schemas/environment.schema.json": "9b41ba2a3913e042f00617ec7f5dff23654336bcad614086d0f5e814c1bdfe3f",
+      "schemas/manifest.schema.json": "477f867ad82a571bf7cc3eb9dcda3c4ab06db95b8272aa0e13d632d1044671d3",
+      "schemas/runtime-report.schema.json": "18d085db0884a02956c9feeda894782b4cd9e752129ca358ba263e5f09fccde3",
+      "tracking.py": "152fabff04afabaf33e2b7cefb6d3802e940f9b1344ecc998a96fe3fb89dcb2b",
+      "transport.py": "e48979edf30e4c7b651a254327c62c3f974673ab3f44b81b6f04853c57b7a505",
+      "workflow.py": "b14f1609774f1142d041560b9a2787caee3dd1e88a1013c407fd7a72d662e311"
+    },
+    "common_source": {
+      "benchmarks/certified/corpus.py": {
+        "sha256": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+        "bytes": 8738,
+        "nonblank_lines": 205
+      },
+      "benchmarks/certified/measurement.py": {
+        "sha256": "1e7f5e712128fd53bf11eb68f899a1d0a1a7217ac3533db6f7b4a64cd4e60378",
+        "bytes": 14655,
+        "nonblank_lines": 340
+      },
+      "benchmarks/certified/runner.py": {
+        "sha256": "e043ac91c7f41e200bfcfaba9a5f272cbf87bec7ad6c882cc89e33ee93544faa",
+        "bytes": 26874,
+        "nonblank_lines": 702
+      },
+      "scripts/measure-certified-figure.py": {
+        "sha256": "fce0f0049066812cfb1b715f5b600036ee3f716485a05ab9e0865db0e529e2d7",
+        "bytes": 3850,
+        "nonblank_lines": 102
+      },
+      "scripts/certified-benchmark.py": {
+        "sha256": "a59785786a0ce9cc845adbdf24602f70ae8d905fd94d445234c6dcfcf33607d5",
+        "bytes": 2326,
+        "nonblank_lines": 60
+      }
+    },
+    "prior_shared_development_time": "unmeasured; excluded from live producer sessions"
+  },
+  "schedule": [
+    {
+      "dataset": "PiDigits",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "Lottery",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "NumAcc1",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "NumAcc2",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "NumAcc3",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    },
+    {
+      "dataset": "NumAcc4",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0
+    }
+  ],
+  "completed_at": "2026-10-29T10:02:18.221130+00:00",
+  "complete": true,
+  "expected_runs": 9,
+  "runs": 9,
+  "passed": false,
+  "records": [
+    {
+      "dataset": "PiDigits",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:14.160027+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "4.53480000000000",
+          "low": "1.66746093971129",
+          "high": "7.40213906028871",
+          "half_span": "2.86733906028871"
+        },
+        "absolute_allowances": {
+          "mean": "1.710542735760100185871124267578125000E-14",
+          "low": "2.35527136788005009293556213378906250000E-14",
+          "high": "3.421085471520200371742248535156250000E-14",
+          "half_span": "2.88817841970012523233890533447265625000E-14"
+        },
+        "max_input_float_error": "0",
+        "printed_quantums": {
+          "mean": "1E-14",
+          "sample_sd": "1E-14"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "3f494418bacd9fcb6e9926d50071f653c9694b604d08fea6d4de39cef9bcdf21",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.1196135000209324,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "PiDigits",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/PiDigits.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15876324998680502,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "3f494418bacd9fcb6e9926d50071f653c9694b604d08fea6d4de39cef9bcdf21",
+        "bytes": 98197,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "e6766cb62d6758ab1cd5e4e9fd06c55cd8f69c79cacddb42d72c1471fa15b1ff",
+        "bytes": 607,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.2974142919993028,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "f2a869308c0c7e5c385ef3a8e42dd7841d2aac0c78002ba7c30863bae0395afd"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/PiDigits/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "Lottery",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:14.617756+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "518.958715596330",
+          "low": "227.258988125361",
+          "high": "810.658443067299",
+          "half_span": "291.699727470969"
+        },
+        "absolute_allowances": {
+          "mean": "1.9094947017729282379150390625000E-12",
+          "low": "2.454747350886464118957519531250000E-12",
+          "high": "3.8189894035458564758300781250000E-12",
+          "half_span": "3.136868377216160297393798828125000E-12"
+        },
+        "max_input_float_error": "0",
+        "printed_quantums": {
+          "mean": "1E-12",
+          "sample_sd": "1E-12"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "5029fe180475026291be9570aeae7d84ec8cce7b887414aa4a80735ad37f9bda",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.1165633340133354,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "Lottery",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/Lottery.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15377654100302607,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "5029fe180475026291be9570aeae7d84ec8cce7b887414aa4a80735ad37f9bda",
+        "bytes": 98235,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "98664d840f77151547230e1b39fcf59455f06bf4206b2c6ae6aa52666a96281d",
+        "bytes": 616,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.29352549999020994,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "82ce4183c18608cc3d835c512a297966a33138c173ab14e4886706ae6ffe6eb0"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lottery/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:15.066601+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "-177.435000000000",
+          "low": "-454.767168044316",
+          "high": "99.897168044316",
+          "half_span": "277.332168044316"
+        },
+        "absolute_allowances": {
+          "mean": "1.227373675443232059478759765625000E-12",
+          "low": "2.90949470177292823791503906250000E-12",
+          "high": "2.2273736754432320594787597656250000E-12",
+          "half_span": "2.5684341886080801486968994140625000E-12"
+        },
+        "max_input_float_error": "0",
+        "printed_quantums": {
+          "mean": "1E-12",
+          "sample_sd": "1E-12"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "b488aba5878efc2970024b275d93441c6f07520aff641cae9b9306b0201e56ee",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11737312498735264,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "Lew",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/Lew.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15741924999747425,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "b488aba5878efc2970024b275d93441c6f07520aff641cae9b9306b0201e56ee",
+        "bytes": 98255,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "4dba2b527286079aa8d8c6f3d29bb222445c4f80d281f3f2dc33df3d0121ed68",
+        "bytes": 619,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.29468220798298717,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "77db3d22066004df30ee0a4b85b9acff29ec340bd521f01df20b254bb510f5fe"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Lew/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:15.520326+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "2.00185600000000",
+          "low": "2.001426876545996947",
+          "high": "2.002285123454003053",
+          "half_span": "0.000429123454003053"
+        },
+        "absolute_allowances": {
+          "mean": "1.3772981926886131986975669860839843750E-14",
+          "low": "1.7767232101857895031571388244628906250E-14",
+          "high": "1.7767232101857895031571388244628906250E-14",
+          "half_span": "1.7767232101857895031571388244628906250E-14"
+        },
+        "max_input_float_error": "2.2026824808563105762004852294921875E-16",
+        "printed_quantums": {
+          "mean": "1E-14",
+          "sample_sd": "1E-18"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "61f28e4a5b5dec1bcd1aea00efa9560a6ecfac83cac08eba1dd84d0cfe202f0c",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11626570799853653,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "Mavro",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/Mavro.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15463195904158056,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "61f28e4a5b5dec1bcd1aea00efa9560a6ecfac83cac08eba1dd84d0cfe202f0c",
+        "bytes": 98283,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "9d5dc3f63c239b2852a3c2ceb7fd71258269e0e3fe59aa4fdaed375a72806078",
+        "bytes": 627,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.29340366600081325,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "d90c73fc783a00237dbb2079511c96437fd4375c1a901d6e801148748e67fb85"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Mavro/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:15.969835+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "299.852400000000",
+          "low": "299.7733894521809482",
+          "high": "299.9314105478190518",
+          "half_span": "0.0790105478190518"
+        },
+        "absolute_allowances": {
+          "mean": "1.48203219193965196609497070312500E-12",
+          "low": "1.99144922493249177932739257812500E-12",
+          "high": "1.99144922493249177932739257812500E-12",
+          "half_span": "1.99144922493249177932739257812500E-12"
+        },
+        "max_input_float_error": "2.7284841053187847137451171875E-14",
+        "printed_quantums": {
+          "mean": "1E-12",
+          "sample_sd": "1E-16"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "431e435731bcc744013bfe6b628d7bf78d140e752f30ca8a5e9b8f8022430cc2",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11658025003271177,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "Michelso",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/Michelso.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15447991696419194,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "431e435731bcc744013bfe6b628d7bf78d140e752f30ca8a5e9b8f8022430cc2",
+        "bytes": 98265,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "3fe09e133c9bbdaa5db89b18eea6269053a4bab87fe757a02600117252751826",
+        "bytes": 624,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.29431608400773257,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "d9b6c929a26990ed66b0ce36faaf28b23632c4f65e1b482d6a97e6c94b4d7a6b"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/Michelso/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "NumAcc1",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:16.420085+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "10000002",
+          "low": "10000001",
+          "high": "10000003",
+          "half_span": "1"
+        },
+        "absolute_allowances": {
+          "mean": "1.490116119384765625000E-8",
+          "low": "2.980232238769531250000E-8",
+          "high": "2.980232238769531250000E-8",
+          "half_span": "2.980232238769531250000E-8"
+        },
+        "max_input_float_error": "0",
+        "printed_quantums": {
+          "mean": "0",
+          "sample_sd": "0"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "f3a501f4ced884aa682dff6538ed9165be6e2c8570d83cea48fd0807fecd1b93",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11606704199220985,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "NumAcc1",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/NumAcc1.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15438912500394508,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "f3a501f4ced884aa682dff6538ed9165be6e2c8570d83cea48fd0807fecd1b93",
+        "bytes": 98207,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "775c605bafb19b989dd7c66a22ef94ff513ad4fc5e757597578ac77d8393b163",
+        "bytes": 609,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.2937088750186376,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "8dfd03a1514ef6d01d1c0a61dbfa3c95a589777c87107e86527ce67006c643fd"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc1/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "NumAcc2",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:16.869992+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "1.2",
+          "low": "1.1",
+          "high": "1.3",
+          "half_span": "0.1"
+        },
+        "absolute_allowances": {
+          "mean": "1.8651746813702629879117012023925781250E-15",
+          "low": "3.8191672047105384990572929382324218750E-15",
+          "high": "3.8191672047105384990572929382324218750E-15",
+          "half_span": "3.8191672047105384990572929382324218750E-15"
+        },
+        "max_input_float_error": "8.8817841970012523233890533447265625E-17",
+        "printed_quantums": {
+          "mean": "0",
+          "sample_sd": "0"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "f35da57290b71efbe4b565037ee28079bdc3096192c91db6863289f6abe96c06",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11655916698509827,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "NumAcc2",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/NumAcc2.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15570608398411423,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "f35da57290b71efbe4b565037ee28079bdc3096192c91db6863289f6abe96c06",
+        "bytes": 98207,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "f5c37ffc8a23eb84942d5f527abdf1e1d541fbd141b91706fcb9c2a68a350a78",
+        "bytes": 609,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.2935137499589473,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "0e32d8a8cccafe36e2729e4f589035ecb81051ec010101947b1075b45fcb74eb"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc2/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "NumAcc3",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:17.321022+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "1000000.2",
+          "low": "1000000.1",
+          "high": "1000000.3",
+          "half_span": "0.1"
+        },
+        "absolute_allowances": {
+          "mean": "9.77888703346252441406250E-10",
+          "low": "2.002343535423278808593750E-9",
+          "high": "2.002343535423278808593750E-9",
+          "half_span": "2.002343535423278808593750E-9"
+        },
+        "max_input_float_error": "4.656612873077392578125E-11",
+        "printed_quantums": {
+          "mean": "0",
+          "sample_sd": "0"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "2a1d5efb9e15104ca02007bc397d31731962c776682f4744873081849ffa4820",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11655775003600866,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "NumAcc3",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/NumAcc3.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.1546391659649089,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "2a1d5efb9e15104ca02007bc397d31731962c776682f4744873081849ffa4820",
+        "bytes": 98207,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "28a3e896aa70a94bf1029c0408857dc20a914268f72c270986a8e9a15d90e4f2",
+        "bytes": 609,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.2948985410039313,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "edff50748f154a198bf1351fd9b3631485ed5943208c60e036248b5fe582e495"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc3/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    },
+    {
+      "dataset": "NumAcc4",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "started_at": "2026-10-29T10:02:17.772444+00:00",
+      "producer_sha256": "68deda1462069aca0c260cd756f61a5ccae5f7d3f0f7413490cf411fe3ed5aff",
+      "reference": {
+        "values": {
+          "mean": "10000000.2",
+          "low": "10000000.1",
+          "high": "10000000.3",
+          "half_span": "0.1"
+        },
+        "absolute_allowances": {
+          "mean": "1.564621925354003906250E-8",
+          "low": "3.203749656677246093750E-8",
+          "high": "3.203749656677246093750E-8",
+          "half_span": "3.203749656677246093750E-8"
+        },
+        "max_input_float_error": "7.450580596923828125E-10",
+        "printed_quantums": {
+          "mean": "0",
+          "sample_sd": "0"
+        }
+      },
+      "measurement": {
+        "schema_version": 1,
+        "script_exit_code": 1,
+        "error": null,
+        "script_sha256": "ca6689e4138ed8bcadaa0b7da10aa7a0e47dce8c0271924cdf3cd4c1d141cce3",
+        "protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "instrumented_execution_seconds": 0.11593850003555417,
+        "save_seconds": 0,
+        "snapshots": [],
+        "exports": {
+          "files": {},
+          "errors": [
+            "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.png'",
+            "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.svg'",
+            "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.pdf'"
+          ],
+          "quality_checks": {
+            "exports_decoded": false,
+            "one_measured_export_each": false,
+            "nonuniform_png": false,
+            "one_visible_point": false,
+            "one_visible_interval": false,
+            "text_at_target_width": false
+          },
+          "quality_passed": false,
+          "minimum_text_pt_at_target": null,
+          "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+        },
+        "scope": "Instrumented execution includes measurement overhead; not human development time"
+      },
+      "build": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/producers/build-graphunslopify.py",
+          "--dataset",
+          "NumAcc4",
+          "--data",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/prepared/NumAcc4.csv",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd",
+          "--variant",
+          "mean_sd"
+        ],
+        "returncode": 0,
+        "seconds": 0.15421337500447407,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script": {
+        "sha256": "ca6689e4138ed8bcadaa0b7da10aa7a0e47dce8c0271924cdf3cd4c1d141cce3",
+        "bytes": 98207,
+        "nonblank_lines": 815
+      },
+      "declarative_payload": {
+        "sha256": "20e3f4735d67055418425495a76c44a96498f28ad80371d4234e8e7b9174e2d7",
+        "bytes": 609,
+        "nonblank_lines": 34
+      },
+      "execution": {
+        "command": [
+          "/tmp/jsontranslator-vault-review-venv/bin/python",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/scripts/measure-certified-figure.py",
+          "--script",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.py",
+          "--out-dir",
+          "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd"
+        ],
+        "returncode": 1,
+        "seconds": 0.2929893329855986,
+        "timed_out": false,
+        "error": null
+      },
+      "generated_script_unchanged": true,
+      "built_in_report": {
+        "status": "failed",
+        "sha256": "4f5ef0e427d33773e6ffa1ae873352a9fd533b3d096982dea05de446cc331ee4"
+      },
+      "producer_unchanged": true,
+      "input_unchanged": true,
+      "numeric": [],
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "task_accepted": false,
+      "matches_expected": false,
+      "final_exports": {
+        "files": {},
+        "errors": [
+          "png: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.png'",
+          "svg: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.svg'",
+          "pdf: [Errno 2] No such file or directory: '/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-1/runs/0/NumAcc4/graphunslopify/mean_sd/figure.pdf'"
+        ],
+        "quality_checks": {
+          "exports_decoded": false,
+          "one_measured_export_each": false,
+          "nonuniform_png": false,
+          "one_visible_point": false,
+          "one_visible_interval": false,
+          "text_at_target_width": false
+        },
+        "quality_passed": false,
+        "minimum_text_pt_at_target": null,
+        "scope": "Export/artist/physical-size proxies only; overlap candidates require review, human aesthetics/usefulness unmeasured"
+      },
+      "artifacts_retained": false
+    }
+  ],
+  "scope": "Project-run evaluation against external NIST facts; live author clocks describe one familiar AI operator, not human or causal productivity; quality proxies are not human judgments"
+}

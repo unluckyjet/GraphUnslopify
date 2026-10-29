@@ -60,6 +60,11 @@ def main():
                     "export_dpi": dpi,
                     "save_seconds": elapsed,
                     "file_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    "svg_graphic_sha256": MEASURE["svg_graphic_digest"](
+                        path.read_bytes()
+                    )
+                    if path.suffix == ".svg"
+                    else None,
                 }
             )
         return result

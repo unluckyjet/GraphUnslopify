@@ -94,7 +94,14 @@ def main() -> None:
         action="store_true",
         help="require current-source correction guidance and package-free advice",
     )
+    parser.add_argument(
+        "--require-pdf-visual",
+        action="store_true",
+        help="require current-source physical PDF inspection (also requires --pdf)",
+    )
     args = parser.parse_args()
+    if args.require_pdf_visual and not args.pdf:
+        parser.error("--require-pdf-visual requires --pdf")
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
         if len(candidates) != 1:
@@ -1448,6 +1455,21 @@ def main() -> None:
             )
         )
         assert diagnostics["status"] == "passed"
+    pdf_visual = None
+    if args.require_pdf_visual:
+        pdf_visual = json.loads(
+            run(
+                [
+                    str(python),
+                    str(Path(__file__).resolve().with_name("check-pdf-visual.py")),
+                    "--work-dir",
+                    str(where / "pdf visual"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert pdf_visual["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1466,6 +1488,7 @@ def main() -> None:
                 "project_management": project_management,
                 "project_interface": project_interface,
                 "diagnostics": diagnostics,
+                "pdf_visual": pdf_visual,
                 "work_dir": str(where),
             }
         )

@@ -1,7 +1,7 @@
 ---
 id: 70
 slug: public-contribution-infrastructure
-status: ready
+status: done
 priority: P2
 title: Provide public contribution, issue, security and roadmap infrastructure
 source_idea: review2026-10-28 item20 contribution guidelines issue templates security policy public roadmap
@@ -46,3 +46,7 @@ source_idea: review2026-10-28 item20 contribution guidelines issue templates sec
 - Prior69 exact045dab3 main40826638872 all9/Figure40826638949 was green before70.
   The remaining PDF inspection, broader independent benchmarks and user-deferred
   trials remain explicit. Exact pushed main/Figure CI is required before advancing.
+
+Exact c99658f7c58f2078729e0b6c5d025d3cf6082e63 main40828774334 all9 and
+Figure40828774194 passed. Eight remote doc/form blobs match local, contribution/PR
+metadata is recognized, issues are enabled and private-reporting GET remains true.

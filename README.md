@@ -484,7 +484,8 @@ Compare saved runs with `graphunslopify compare before.json after.json --out-dir
 Missing images and unknown pixel comparisons remain explicit; validation failures stay visible.
 
 This supports source-linked figure review. Current development also provides
-[PDF review packets](docs/pdf-review.md) with page previews, text and manually selected crops
+[PDF review packets](docs/pdf-review.md) with page previews, text, manually selected crops,
+and source-only checks for small physical text and low-resolution embedded images
 for ordinary manuscripts; unavailable numerical/source checks stay untested. It does not
 interpret arbitrary paper claims or reconstruct their datasets.
 See [paper manifests and change reports](docs/paper-audits.md).

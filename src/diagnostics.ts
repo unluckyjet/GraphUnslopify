@@ -12,6 +12,15 @@ function family(codes: string[], consequence: string, correction: string): void 
 family(["invalid_spec"],
   "No runnable figure was translated, so the requested data and claims have not been verified.",
   "Correct the indicated field using the expected type, range or required value in the problem message. Check JSON syntax and the canonical schema, then translate and audit again.");
+family(["pdf_small_text"],
+  "Small text at the PDF's declared physical size can make axes, units, legends or qualifications unreadable. This visual warning does not establish whether the scientific result is correct.",
+  "Review the cited selection at its intended publication size. Increase source text size or the figure's physical allocation and re-export, then rerun the inspection. Check whether a flagged character is an intentional subscript; do not change the data or treat absence of warnings as readability certification.");
+family(["pdf_low_raster_resolution"],
+  "An embedded raster placement has few source pixels per physical inch, so visible detail or labels may blur. Increasing preview-render DPI cannot create missing source detail.",
+  "Inspect the cited embedded placement and its x/y pixel densities. Re-export that component from its original data at suitable resolution, or use vector output when appropriate. Do not merely upscale the existing pixels; review complex clipping and whether the component is actually part of the figure.");
+family(["pdf_visual_checks_partial"],
+  "Some selected PDF content could not be measured or the bounded scan stopped early. The measured subset cannot establish that the unexamined content is clear or scientifically valid.",
+  "Read the recorded coverage/reason, use a matching PDF renderer and a smaller or simpler source PDF if needed, and inspect the retained crop manually. Obtain vector/source material for raster-only text; keep unavailable metrics and numerical claims explicitly untested.");
 family(["axis_limits_inverted"],
   "The requested view has no increasing lower-to-upper range and cannot represent the intended coordinates.",
   "Set the lower limit below the upper limit in the stated units. If an inverted display is scientifically intended, use an explicitly supported representation rather than reversed limits.");

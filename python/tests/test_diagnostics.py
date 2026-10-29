@@ -22,18 +22,24 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_all_current_inspection_and_data_view_codes_have_guidance():
     codes = set()
-    for name in ("inspect.py", "data_view.py"):
+    for name in ("inspect.py", "data_view.py", "pdf_visual.py"):
         tree = ast.parse((ROOT / "python/graphunslopify" / name).read_text())
         for node in ast.walk(tree):
-            if not isinstance(node, ast.Call) or len(node.args) < 3:
+            if not isinstance(node, ast.Call):
                 continue
             target = (
                 node.func.attr
                 if isinstance(node.func, ast.Attribute)
                 else getattr(node.func, "id", "")
             )
-            if target in {"add", "Finding", "finding"} and isinstance(node.args[1], ast.Constant):
+            if (
+                target in {"add", "Finding", "finding"}
+                and len(node.args) >= 3
+                and isinstance(node.args[1], ast.Constant)
+            ):
                 codes.add(node.args[1].value)
+            if target == "_finding" and node.args and isinstance(node.args[0], ast.Constant):
+                codes.add(node.args[0].value)
     assert len(codes) >= 15
     assert codes <= catalog()["advice"].keys()
 

@@ -445,6 +445,8 @@ def _audit_pdf(args: argparse.Namespace) -> int:
             regions=regions,
             dpi=args.dpi,
             prepare_only=args.prepare_only,
+            min_text_pt=args.min_text_pt,
+            min_image_dpi=args.min_image_dpi,
         )
     except (OSError, ValueError) as problem:
         print(json.dumps({"status": "failed", "error": str(problem)}))
@@ -619,6 +621,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--regions", help="JSON list of manually selected normalized page rectangles"
     )
     pdf_review.add_argument("--dpi", type=int, default=144)
+    pdf_review.add_argument(
+        "--min-text-pt",
+        type=float,
+        default=6.0,
+        help="review transformed PDF text below this physical point size",
+    )
+    pdf_review.add_argument(
+        "--min-image-dpi",
+        type=float,
+        default=150.0,
+        help="review embedded raster placements below this source pixel density",
+    )
     pdf_review.add_argument(
         "--prepare-only",
         action="store_true",

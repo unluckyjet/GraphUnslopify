@@ -115,3 +115,7 @@ One line per state change, newest last.
 2026-10-28 —69 closes: exact045dab3 main40826638872 all9/Figure40826638949 pass; actual Windows distribution log confirms136-code guidance and offline failure/recovery/package-free advice.
 
 2026-10-28 —70 implementation: contribution/security/public-roadmap docs, three issue forms/PR template and ignored local venv; YAML/relative-link/setup validation and all seven gates225/1338 pass. Private reporting enabled/GET-verified. Check exact pushed CI and served GitHub community files next; PDF visual inspection, broader benchmarks and user-deferred trials remain explicit.
+
+2026-10-29 —70 closes: exactc99658f main40828774334 all9/Figure40828774194 pass; eight new remote docs/forms match and private reporting is enabled.
+
+2026-10-29 —71 implementation: source-free PDF physical text/raster metrics with25 independent controls, actual public manuscript and responsive HTML; seven gates225/1363/Ruff90/gallery15 and fresh offline installed package pass. Three reviewed codes bring catalog139;60 PNG pixel identities/52 README graphic placements unchanged. Numerical/general interpretation remains incomplete. Check exact pushed CI before the next benchmark milestone.

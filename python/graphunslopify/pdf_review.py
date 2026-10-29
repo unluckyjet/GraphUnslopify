@@ -12,6 +12,7 @@ from contextlib import closing
 from pathlib import Path
 from typing import Any
 
+from .pdf_visual import inspect_region, scan_page
 from .provenance import read_provenance
 
 
@@ -62,6 +63,56 @@ def _artifact(path: Path, image) -> dict:
     }
 
 
+def _visual_html(visual):
+    parts = ['<section aria-label="Visual measurements"><p>']
+    for check in visual["checks"]:
+        parts.append(html.escape(f"{check['name']}: {check['status']}. "))
+        if check["name"] == "text_size" and check["minimum_pt"] is not None:
+            parts.append(
+                html.escape(
+                    f"{check['characters_measured']} extracted characters, minimum {check['minimum_pt']:.3g}pt; review threshold {check['threshold_pt']:g}pt. "
+                )
+            )
+        if check["name"] == "raster_resolution" and check["minimum_dpi"] is not None:
+            parts.append(
+                html.escape(
+                    f"{check['placements_measured']} image placements, minimum {check['minimum_dpi']:.3g} source dpi; review threshold {check['threshold_dpi']:g}dpi. "
+                )
+            )
+        for reason in check["reasons"]:
+            parts.append(html.escape(reason + ". "))
+    parts.append("</p>")
+    for finding in visual["findings"]:
+        parts.append(
+            '<div class="notice"><strong>'
+            + html.escape(finding["code"])
+            + "</strong><p>"
+            + html.escape(finding["message"])
+            + "</p><p><strong>Why it matters:</strong> "
+            + html.escape(finding["consequence"])
+            + "</p><p><strong>Recommended correction:</strong> "
+            + html.escape(finding["correction"])
+            + "</p></div>"
+        )
+    for sample in visual["text_samples"]:
+        l, t, r, b = visual["selection_pixel_box"]
+        sl, st, sr, sb = sample["pixel_box"]
+        x, y = (
+            max(0, min(100, 100 * ((sl + sr) / 2 - l) / (r - l))),
+            max(0, min(100, 100 * ((st + sb) / 2 - t) / (b - t))),
+        )
+        parts.append(
+            "<p>Small-text sample: "
+            + html.escape(sample["text"])
+            + html.escape(
+                f" ({sample['minimum_pt']:.3g}pt, near {x:.0f}% across / {y:.0f}% down this selection)"
+            )
+            + "</p>"
+        )
+    parts.append("</section>")
+    return "\n".join(parts)
+
+
 def review_pdf(
     path: str | Path,
     *,
@@ -70,8 +121,10 @@ def review_pdf(
     regions: list[dict] | None = None,
     dpi: int = 144,
     prepare_only: bool = False,
+    min_text_pt: float = 6.0,
+    min_image_dpi: float = 150.0,
 ) -> dict:
-    """Render pages/explicit crops; scientific verification remains incomplete.
+    """Inspect page/crop visual metrics; scientific verification remains incomplete.
 
     No original programs are executed and no OCR, caption inference, arbitrary
     chart reconstruction or numerical claim validation is performed.
@@ -81,8 +134,12 @@ def review_pdf(
     except ImportError as problem:
         raise ValueError("Install graphunslopify[pdf] to render PDF review packets") from problem
     source = Path(path).expanduser().resolve()
+    for name, value in (("min_text_pt", min_text_pt), ("min_image_dpi", min_image_dpi)):
+        if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+            raise ValueError(f"{name} must be a finite positive number")
     if type(dpi) is not int or not 72 <= dpi <= 300:
         raise ValueError("dpi must be an integer between 72 and 300")
+    original_hash = _digest(source)
     try:
         document = pdfium.PdfDocument(source)
     except pdfium.PdfiumError as problem:
@@ -99,16 +156,37 @@ def review_pdf(
         ):
             raise ValueError("select 1-50 distinct one-based pages within this PDF")
         selections = _regions([] if regions is None else regions, selected)
+        from pypdf import PdfReader
+        from pypdf.errors import PyPdfError
+
+        units = {}
+        try:
+            reader = PdfReader(source)
+            for number in selected:
+                unit = reader.pages[number - 1].get("/UserUnit", 1)
+                if hasattr(unit, "get_object"):
+                    unit = unit.get_object()
+                if (
+                    isinstance(unit, bool)
+                    or not isinstance(unit, (int, float))
+                    or not math.isfinite(unit)
+                    or unit <= 0
+                ):
+                    raise ValueError(f"page {number} UserUnit must be a finite positive number")
+                units[number] = float(unit)
+        except (PyPdfError, IndexError, TypeError) as problem:
+            raise ValueError(
+                f"PDF physical-unit metadata could not be parsed: {problem}"
+            ) from problem
         destination = Path(output).expanduser().resolve()
         destination.mkdir(parents=True, exist_ok=True)
         if any(destination.iterdir()):
             raise ValueError(
                 "choose an empty output directory; existing review evidence is preserved"
             )
-        original_hash = _digest(source)
         report: dict[str, Any] = {
             "schema_version": 1,
-            "scope": "source-free PDF visual review preparation",
+            "scope": "source-free PDF visual metrics and review",
             "status": "incomplete",
             "exit_code": 0 if prepare_only else 2,
             "policy": {"prepare_only": prepare_only, "passed": prepare_only},
@@ -118,6 +196,7 @@ def review_pdf(
                 "version": importlib.metadata.version("pypdfium2"),
                 "dpi": dpi,
             },
+            "visual_policy": {"minimum_text_pt": min_text_pt, "minimum_image_dpi": min_image_dpi},
             "checks": [
                 {
                     "name": "source_data",
@@ -132,7 +211,7 @@ def review_pdf(
                 {
                     "name": "visual_interpretation",
                     "status": "untested",
-                    "reason": "Pages and manually selected regions require human review; no automatic chart interpretation or OCR is performed.",
+                    "reason": "Text-size/image-resolution candidates do not establish chart meaning, complex clipping/layer visibility or scientific claims; no OCR is performed.",
                 },
             ],
             "pages": [],
@@ -152,10 +231,12 @@ def review_pdf(
             for number in selected:
                 with closing(document[number - 1]) as page:
                     width, height = page.get_size()
-                    scale = dpi / 72
+                    unit = units[number]
+                    scale = dpi / 72 * unit
+                    scaled = (width * scale, height * scale)
                     if (
-                        not all(math.isfinite(v) and v > 0 for v in (width, height))
-                        or math.ceil(width * scale) * math.ceil(height * scale) > 30_000_000
+                        not all(math.isfinite(v) and v > 0 for v in (width, height, *scaled))
+                        or math.ceil(scaled[0]) * math.ceil(scaled[1]) > 30_000_000
                     ):
                         raise ValueError(
                             f"page {number} exceeds the 30-megapixel render limit; lower dpi"
@@ -163,6 +244,7 @@ def review_pdf(
                     with closing(page.render(scale=scale)) as bitmap:
                         image = bitmap.to_pil().copy()
                     try:
+                        model = scan_page(page, unit=unit, size=image.size)
                         preview = destination / f"page-{number}.png"
                         image.save(preview)
                         text_path = destination / f"page-{number}.txt"
@@ -175,7 +257,15 @@ def review_pdf(
                         report["pages"].append(
                             {
                                 "page": number,
-                                "points": [width, height],
+                                "points": [width * unit, height * unit],
+                                "canvas_units": [width, height],
+                                "unit_points": unit,
+                                "visual": inspect_region(
+                                    model,
+                                    [0, 0, image.width, image.height],
+                                    min_text_pt=min_text_pt,
+                                    min_image_dpi=min_image_dpi,
+                                ),
                                 "preview": _artifact(preview, image),
                                 "text": {
                                     "path": text_path.name,
@@ -202,6 +292,12 @@ def review_pdf(
                                         **region,
                                         "pixel_box": box,
                                         "image": _artifact(crop_path, crop),
+                                        "visual": inspect_region(
+                                            model,
+                                            box,
+                                            min_text_pt=min_text_pt,
+                                            min_image_dpi=min_image_dpi,
+                                        ),
                                     }
                                 )
                     finally:
@@ -215,8 +311,8 @@ def review_pdf(
     title = html.escape(source.name)
     parts = [
         f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PDF review: {title}</title>',
-        "<style>body{font:16px/1.6 system-ui;max-width:1000px;margin:auto;padding:24px}img{max-width:100%;height:auto}figure{margin:24px 0;border:1px solid #bbb;padding:12px}a{color:#075e54}.notice{background:#fff1d8;padding:16px}</style>",
-        f'<h1>PDF review: {title}</h1><p class="notice"><strong>Verification incomplete.</strong> This packet provides page previews, text and selected crops. Original data, numerical claims and visual interpretation remain untested.</p>',
+        "<style>body{font:16px/1.6 system-ui;max-width:1000px;margin:auto;padding:24px;overflow-wrap:anywhere}img{max-width:100%;height:auto}figure{margin:24px 0;border:1px solid #bbb;padding:12px}a{color:#075e54}.notice{background:#fff1d8;padding:16px}</style>",
+        f'<h1>PDF review: {title}</h1><p class="notice"><strong>Verification incomplete.</strong> This packet inspects extractable text size and embedded-image pixel density in pages/selected crops. Original data, numerical claims and general visual interpretation remain untested.</p>',
         '<p><a href="pdf-review.json">Machine-readable evidence</a>. Select an image to inspect its full resolution. Text extraction is not OCR; missing text is not proof of a missing label.</p><h2>Selected regions</h2>',
     ]
     for region in report["regions"]:
@@ -224,6 +320,7 @@ def review_pdf(
         parts.append(
             f'<figure><figcaption>{name} — page {region["page"]}, manually selected</figcaption><a href="{filename}"><img src="{filename}" alt="Selected region {name}"></a></figure>'
         )
+        parts.append(_visual_html(region["visual"]))
     if not report["regions"]:
         parts.append(
             "<p>No figure regions were selected. Review the pages below or supply a regions JSON file; page rendering does not locate figures automatically.</p>"
@@ -234,6 +331,7 @@ def review_pdf(
         parts.append(
             f'<details><summary>Page {entry["page"]} — text {entry["text"]["status"]}</summary><a href="{entry["text"]["path"]}">Extracted text</a><a href="{filename}"><img loading="lazy" src="{filename}" alt="Page {entry["page"]}"></a></details>'
         )
+        parts.append(_visual_html(entry["visual"]))
     parts.append("</html>")
     (destination / "pdf-review.html").write_text("\n".join(parts), encoding="utf8")
     (destination / "pdf-review.json").write_text(

@@ -149,3 +149,7 @@ This is project-authored evaluation against independent reference answers.
 Human researcher sessions remain deferred at the user's request. Neither public
 reference data nor another automated code audit substitutes for external adoption
 feedback. The broader researcher-readiness assessment remains unmeasured.
+
+A [prospective familiarized-agent follow-up](authoring-study.md) prepares four
+fresh reimplementation episodes with the unchanged nine-dataset verifier. Its
+preflight is measured; new authoring episodes have not started.

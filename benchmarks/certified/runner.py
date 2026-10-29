@@ -216,9 +216,11 @@ def assess(
     }
 
 
-def run_case(root: Path, folder: Path, entry: dict, item: dict, protocol: dict) -> dict:
+def run_case(
+    root: Path, folder: Path, entry: dict, item: dict, protocol: dict, *, producer=None
+) -> dict:
     folder.mkdir(parents=True, exist_ok=False)
-    producer = producer_path(root, entry["arm"])
+    producer = producer if producer is not None else producer_path(root, entry["arm"])
     producer_hash = sha(producer) if producer.is_file() else None
     if producer_hash:
         with (folder / "producer-source.py").open("xb") as handle:
@@ -332,7 +334,7 @@ def run_case(root: Path, folder: Path, entry: dict, item: dict, protocol: dict) 
     return record
 
 
-def retain_case(root, folder, record, item, protocol):
+def retain_case(root, folder, record, item, protocol, *, producer=None):
     """Verify files still exist at study end; retain the original case.json separately."""
     measured = record.get("measurement")
     exports = (
@@ -352,7 +354,10 @@ def retain_case(root, folder, record, item, protocol):
         )
         and unchanged(item["data"], item["csv_sha256"])
         and unchanged(item["original"], item["source"]["sha256"])
-        and unchanged(producer_path(root, record["arm"]), record["producer_sha256"])
+        and unchanged(
+            producer if producer is not None else producer_path(root, record["arm"]),
+            record["producer_sha256"],
+        )
     )
     record["artifacts_retained"] = retained
     if not retained:

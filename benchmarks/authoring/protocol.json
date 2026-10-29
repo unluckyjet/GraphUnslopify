@@ -1,0 +1,50 @@
+{
+  "id": "familiarized-nist-authoring-v1",
+  "status": "frozen-before-four-new-episodes",
+  "measurement_protocol_path": "benchmarks/certified/protocol.json",
+  "measurement_protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "sessions": [
+    {
+      "id": "round1-graphunslopify",
+      "arm": "graphunslopify",
+      "round": 1
+    },
+    {
+      "id": "round1-matplotlib",
+      "arm": "matplotlib",
+      "round": 1
+    },
+    {
+      "id": "round2-matplotlib",
+      "arm": "matplotlib",
+      "round": 2
+    },
+    {
+      "id": "round2-graphunslopify",
+      "arm": "graphunslopify",
+      "round": 2
+    }
+  ],
+  "participant": "One Codex coding assistant already familiar with both workflows, all prior code and study outcomes. No human participant, blinding, independent author or general productivity inference.",
+  "purpose": "Prospective familiarized reimplementation time after shared validator repairs, supplementing rather than replacing the original confounded implementation episodes.",
+  "task": "In a previously absent episode-specific producer, implement reusable full-data mean/sample-SD PNG/SVG/PDF figures for all nine NIST datasets in publisher order, with the exact frozen v2 labels/numerical/physical/export gates. Same --dataset/--data/--out-dir/--variant producer interface as the original study; clean mean_sd variant. Producer reads all source observations and computes summaries without reference-answer lookup.",
+  "authoring_rules": "Write new producer source after live begin; do not copy an existing producer file or use an arm-specific prepared source generator. Library APIs, documentation, remembered patterns and the already known task are allowed. Record this prior familiarity; these are not first-use timings. Format/lint source inside its episode before verification and keep it unchanged afterward.",
+  "clock": "UTC and same-host/boot monotonic begin before producer-specific lookup/editing, end only after all nine clean cases verify and exact output/source retention passes. Include failed subject attempts, tool calls, linting and validation. Do not do CI, vault maintenance, unrelated work or shared harness changes during an episode; interruption/shared repair invalidates interpretation and must be disclosed without deleting/resetting it.",
+  "order": "Round1 GraphUnslopify then Matplotlib; round2 Matplotlib then GraphUnslopify. Run all four irrespective of outcomes. These are repeated episodes by one familiar operator, not independent subjects.",
+  "preflight": "Before starting any new clock, verify both existing canonical producers on all nine datasets using the exact new producer-path route and unchanged frozen v2 verifier. Retain all18 preflight records. No new episode producer may exist before its begin.",
+  "shared_cost": "Prior design, familiarity, shared harness/validation preparation and CI outside episodes are unmeasured/excluded. Report this plus authored/payload/generated code footprints separately. Fresh processes use warm caches; total wall time is agent-task time, not CPU rendering time.",
+  "failure_policy": "No changing cases, numeric tolerances, quality gates, source data or shared implementation during live episodes. Preserve every attempt and prior v1/v2 outcome. An amended/interrupted/shared-repair episode cannot be used as a clean paired timing; no retrospective times or stopping on a favorable result.",
+  "reporting": "Retain four raw episode times, both per-round pairings, all failures, source hashes and actual outputs. A completed unamended study permits this limited familiar-agent timing description; it establishes neither causal/human productivity nor broader independent researcher benefit. Do not require GraphUnslopify to win.",
+  "previous_evidence": [
+    "benchmarks/certified/development-sessions.jsonl",
+    "benchmarks/certified/results/report.json"
+  ],
+  "implementation_sha256": {
+    "benchmarks/authoring/session.py": "d42773a5df7e907d4dc5611eb1ebcb530baa25954fd1895e16031ea3e8900afe",
+    "scripts/authoring-benchmark.py": "55513ae7dcb2c2a7d23d278ef7819a62db31a0565589ef6669f50a2845b3869e",
+    "benchmarks/certified/runner.py": "ded1190f9081524199e0648f624708a7f13880ff2ab16df4345f0d6da0812ec6",
+    "benchmarks/certified/corpus.py": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+    "benchmarks/certified/measurement.py": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+    "scripts/measure-certified-figure.py": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29"
+  }
+}

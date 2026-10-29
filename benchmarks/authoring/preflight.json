@@ -1,0 +1,35 @@
+{
+  "phase": "preflight-existing-producers",
+  "source_revision": "ceaefc4099c1ad3aaa88f8f343fc46ebdea4e456",
+  "authoring_protocol_sha256": "303b8e4395357ec976ec790532ceb052794a856405ef6bbfc2b8c8c713dc979f",
+  "passed": true,
+  "runs": 18,
+  "arms": {
+    "matplotlib": {
+      "runs": 9,
+      "passed": true,
+      "full_report_sha256": "319f779c312a5387b408df8a70a83f5c7ea7134cb814b7c396b88c957524d1a5",
+      "producer_sha256": "21c4fd422375f032ed103477254c9fcd4f02f92c6d0981fb29a13e9ae26a28f8",
+      "frozen_measurement_protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+      "runtime_unchanged": true
+    },
+    "graphunslopify": {
+      "runs": 9,
+      "passed": true,
+      "full_report_sha256": "5d2782b7ffcdc2b25a164c41ea70d7f74aa1a41be664788343d3687c2e5130e3",
+      "producer_sha256": "12f3b234822ec9116d2c80713c25fbde4eeeaa81e069c560c8a0bf0bf9e989cd",
+      "frozen_measurement_protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+      "runtime_unchanged": true
+    }
+  },
+  "scope": "Existing canonical producers only; no new live authoring episodes or authoring times yet.",
+  "source_git_dirty": true,
+  "study_implementation_sha256": {
+    "benchmarks/authoring/session.py": "d42773a5df7e907d4dc5611eb1ebcb530baa25954fd1895e16031ea3e8900afe",
+    "scripts/authoring-benchmark.py": "55513ae7dcb2c2a7d23d278ef7819a62db31a0565589ef6669f50a2845b3869e",
+    "benchmarks/certified/runner.py": "ded1190f9081524199e0648f624708a7f13880ff2ab16df4345f0d6da0812ec6",
+    "benchmarks/certified/corpus.py": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+    "benchmarks/certified/measurement.py": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+    "scripts/measure-certified-figure.py": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29"
+  }
+}

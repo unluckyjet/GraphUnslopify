@@ -272,14 +272,20 @@ def test_sentinel_is_not_credited_for_an_execution_failure():
     assert not R["assess"](entry, measurement, reference, protocol, False)["matches_expected"]
 
 
-def test_actual_synthetic_producer_worker_chain(tmp_path):
+@pytest.mark.parametrize("alternative_producer", [False, True])
+def test_actual_synthetic_producer_worker_chain(tmp_path, alternative_producer):
     root = tmp_path / "root"
     scripts = root / "scripts"
     scripts.mkdir(parents=True)
     (scripts / "measure-certified-figure.py").symlink_to(
         ROOT / "scripts/measure-certified-figure.py"
     )
-    producer = R["producer_path"](root, "matplotlib")
+    producer = (
+        root / "benchmarks/authoring/producers/synthetic.py"
+        if alternative_producer
+        else R["producer_path"](root, "matplotlib")
+    )
+    options = {"producer": producer} if alternative_producer else {}
     producer.parent.mkdir(parents=True)
     code = """import matplotlib.pyplot as plt
 fig, ax = plt.subplots(figsize=(3.4, 2.6))
@@ -315,22 +321,28 @@ plt.close(fig)
     protocol = copy.deepcopy(P)
     protocol["y_labels"]["Fixture"] = "Synthetic value"
     entry = {"dataset": "Fixture", "arm": "matplotlib", "variant": "mean_sd", "repeat": 0}
-    record = R["run_case"](root, tmp_path / "output", entry, item, protocol)
+    record = R["run_case"](root, tmp_path / "output", entry, item, protocol, **options)
     assert record["matches_expected"] and record["task_accepted"], record
     assert record["input_unchanged"] and record["producer_unchanged"]
     assert (tmp_path / "output/producer-source.py").read_bytes() == producer.read_bytes()
-    R["retain_case"](root, tmp_path / "output", record, item, protocol)
+    R["retain_case"](root, tmp_path / "output", record, item, protocol, **options)
     assert record["artifacts_retained"]
     pristine = copy.deepcopy(record)
+    original_producer = producer.read_bytes()
+    producer.write_text("# changed after verification\n")
+    changed_source = copy.deepcopy(pristine)
+    R["retain_case"](root, tmp_path / "output", changed_source, item, protocol, **options)
+    assert not changed_source["artifacts_retained"]
+    producer.write_bytes(original_producer)
     svg = tmp_path / "output/figure.svg"
     original_svg = svg.read_bytes()
     svg.write_bytes(original_svg + b"\n")
-    R["retain_case"](root, tmp_path / "output", record, item, protocol)
+    R["retain_case"](root, tmp_path / "output", record, item, protocol, **options)
     assert not record["artifacts_retained"]
     svg.write_bytes(original_svg)
     record = pristine
     (tmp_path / "output/figure.png").unlink()
-    R["retain_case"](root, tmp_path / "output", record, item, protocol)
+    R["retain_case"](root, tmp_path / "output", record, item, protocol, **options)
     assert not record["artifacts_retained"] and not record["matches_expected"]
     assert not R["M"]["reproduction"](record["final_exports"], record["final_exports"])[
         "comparable"

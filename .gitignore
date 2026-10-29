@@ -37,3 +37,4 @@ examples/references/table.md
 
 # Publisher reference inputs and local derived views are not redistributed.
 benchmarks/certified/.cache/
+benchmarks/authoring/.cache/

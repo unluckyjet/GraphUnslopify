@@ -131,3 +131,7 @@ One line per state change, newest last.
 2026-10-29 —75 partial: retain27 live task executions/producer versions (MPL9 accepted42.19s; Graph9 bad-x failures then9 numerical/native positives rejected by v1 SVG byte proxy). Version2 corrects only native SVG accessibility/path-space identity with unchanged data/numeric/physical gates; final retention stays byte-exact.43 controls on3.10/3.12, seven gates225/1406/Ruff101 pass. Graph clock continues with explicit amendment/timing-confound flag. Formal72 runs pending; verify exact corrective CI first.
 
 2026-10-29 spec75 done (bounded engineering study): complete72 NIST runs/36 development validations,216 final hashes/72 PNGs independently rechecked,36 identical repetition pairs; seven local gates225/1406/Ruff102 pass. Timing confound retained; review17 fair authoring/independent-user evidence remains open and18 deferred. Exact-push CI/artifact verification required next.
+
+2026-10-29 specs76/77 ready: preserve original invalid clocks; prospectively counterbalance four familiarized reimplementations on all9 unchanged NIST v2 cases.76 prepares frozen controller/new-source route/preflight;77 executes actual clocks/results after exact CI. No new live episode yet.
+
+2026-10-29 spec76 done (preparation only): prospective four-episode protocol bound to unchanged v2 gates, all new producers absent, actual18/18 preflight/54 exports,57 controls on real3.10.22, seven local gates225/1420/Ruff105 pass. Exact pushed CI/artifact verification precedes77 clocks.

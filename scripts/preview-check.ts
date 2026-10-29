@@ -532,6 +532,122 @@ print('Exported Python rerendered outside checkout; spec, report, data, output d
     path: join(evidence, "runtime-error.png"),
     fullPage: true,
   });
+  // A real multi-sheet workbook must not silently choose an experiment.
+  await page.setViewportSize({width: 1500, height: 1000});
+  await page.locator("#live").uncheck();
+  await page.locator("#data-file").setInputFiles(resolve("python/tests/fixtures/worksheet-experiments.xlsx"));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Choose a worksheet");
+  assert.equal(await page.locator("#worksheet").inputValue(), "");
+  assert.equal(await page.locator("#include-data-label").innerText(), "Include entire workbook (all worksheets) in ZIP");
+  assert.equal(await page.locator("#include-data").isChecked(), false);
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await page.locator("#render").click();
+  assert.equal(await page.locator("#status").innerText(), "Choose a worksheet");
+  await page.locator("#worksheet").selectOption("Measured results");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.equal((await spec()).data.sheet, "Measured results");
+  await page.locator("#kind").selectOption("bar");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  await control("title", "Native worksheet figure");
+  await control("y-unit", "points");
+  await page.locator("#render").click();
+  await verified();
+  const nativeSpec = await spec();
+  assert.equal(nativeSpec.data.format, "excel");
+  assert.equal(nativeSpec.data.sheet, "Measured results");
+  await page.locator("#include-data").uncheck();
+  await download("workbook-without-data.zip");
+  await page.locator("#include-data").check();
+  await download("workbook-with-data.zip");
+  await page.screenshot({path: join(evidence, "workbook-desktop.png"), fullPage: true});
+  await page.locator("#worksheet").selectOption("Control experiment");
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.equal((await spec()).title, "Native worksheet figure");
+  assert.equal((await spec()).data.sheet, "Control experiment");
+  const controlledResponse = page.waitForResponse(response => response.url().endsWith("/api/render"));
+  await page.locator("#render").click();
+  const controlledRun = await (await controlledResponse).json();
+  await verified();
+  assert.equal(controlledRun.report.spec.data.sheet, "Control experiment");
+  await page.locator("#worksheet").selectOption("Measured results");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  let releaseSheet!: () => void, sawSheet!: () => void, deliveredSheet!: () => void;
+  const heldSheet = new Promise<void>(resolve => releaseSheet = resolve);
+  const sheetSeen = new Promise<void>(resolve => sawSheet = resolve);
+  const sheetDelivered = new Promise<void>(resolve => deliveredSheet = resolve);
+  let heldWorksheetOnce = false;
+  await page.route("**/api/select-sheet", async route => {
+    if (!heldWorksheetOnce && route.request().postDataJSON().sheet === "Control experiment") {
+      heldWorksheetOnce = true;
+      const response = await route.fetch();
+      sawSheet();
+      await heldSheet;
+      await route.fulfill({response});
+      deliveredSheet();
+    } else await route.continue();
+  });
+  await page.locator("#worksheet").selectOption("Control experiment");
+  const sheetDeadline = async (promise: Promise<void>, label: string) => {
+    const abort = new AbortController();
+    try {
+      await Promise.race([promise, delay(30_000, undefined, {signal: abort.signal})
+        .then(() => { throw Error(label); })]);
+    } finally { abort.abort(); }
+  };
+  await sheetDeadline(sheetSeen, "Worksheet request was not intercepted");
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await page.locator("#worksheet").selectOption("Measured results");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  releaseSheet();
+  await sheetDeadline(sheetDelivered, "Held worksheet response was not delivered");
+  await delay(150);
+  await page.unroute("**/api/select-sheet");
+  assert.equal((await spec()).data.sheet, "Measured results");
+  assert.equal((await spec()).title, "Native worksheet figure");
+  assert.equal(await page.locator("#worksheet").inputValue(), "Measured results");
+  assert.match(await page.locator("#data-summary").innerText(), /Measured results.*3 rows/);
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  await page.locator("#render").click();
+  await verified();
+  await page.setViewportSize({width: 390, height: 844});
+  await page.screenshot({path: join(evidence, "workbook-mobile.png"), fullPage: true});
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
+  execFileSync(python, ["-c", `
+import importlib.util, json, pathlib, subprocess, sys, zipfile
+from graphunslopify.audit import _validate_report
+root=pathlib.Path(sys.argv[1]); original=pathlib.Path(sys.argv[2]).read_bytes()
+with zipfile.ZipFile(root/'workbook-without-data.zip') as z:
+    assert 'data.xlsx' not in z.namelist()
+with zipfile.ZipFile(root/'workbook-with-data.zip') as z:
+    assert z.read('data.xlsx')==original
+    target=root/'workbook-reproduced';z.extractall(target)
+target=target.resolve()
+specs=list(target.glob('*.figure.json'));assert len(specs)==1
+spec=json.loads(specs[0].read_text());stem=spec['output']['stem']
+report=json.loads((target/(stem+'.report.json')).read_text());_validate_report(report)
+assert spec==report['spec'] and spec['data']['sheet']=='Measured results'
+assert spec['title']=='Native worksheet figure' and spec['y']['unit']=='points'
+done=subprocess.run([sys.executable,stem+'.py','--strict','--json'],cwd=target,capture_output=True,text=True)
+assert done.returncode==0,done.stderr
+assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
+probe="""import importlib.util,matplotlib.pyplot as plt
+s=importlib.util.spec_from_file_location('workbook',(STEM+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+f=m.prepare(m.load());assert f['subject'].tolist()==['001','NA','010']
+fig,ax=plt.subplots();m.draw_panel(ax,f)
+assert dict(zip([t.get_text() for t in ax.get_xticklabels()],[p.get_height() for p in ax.patches]))=={'001':7,'NA':11,'010':13}
+plt.close(fig)
+""".replace('STEM',repr(stem))
+checked=subprocess.run([sys.executable,'-c',probe],cwd=target,capture_output=True,text=True)
+assert checked.returncode==0,checked.stderr
+assert (target/'data.xlsx').read_bytes()==original
+print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/010 identifiers')
+`, evidence, resolve("python/tests/fixtures/worksheet-experiments.xlsx")], {env, stdio: "inherit"});
+  await page.getByRole("button", {name: "Try sample data"}).click();
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.equal(await page.locator("#worksheet-box").isHidden(), true);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -564,6 +680,11 @@ print('Exported Python rerendered outside checkout; spec, report, data, output d
           "advanced settings custom labels and undo preserved",
           "invalid JSON disables form controls",
           "live native text input preserves focus",
+          "native workbook staging and explicit worksheet selection",
+          "worksheet switching preserves settings and invalidates evidence",
+          "stale worksheet selection cannot replace current data",
+          "native workbook ZIP consent and actual-artist reproduction",
+          "native workbook desktop mobile and CSV sample recovery",
         ],
       },
       null,

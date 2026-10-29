@@ -26,12 +26,16 @@
           >Choose data file<input
             id="data-file"
             type="file"
-            accept=".csv,.json,.parquet"
+            accept=".csv,.json,.parquet,.xlsx,.xlsm,.xls"
         /></label>
         <p class="muted">
-          CSV, JSON table or Parquet. Files stay on this computer.
+          CSV, JSON table, Parquet or Excel. Files stay on this computer.
         </p>
         <p id="data-summary" role="status">No data selected</p>
+        <div id="worksheet-box" hidden>
+          <label>Worksheet<select id="worksheet" aria-describedby="worksheet-help"></select></label>
+          <p id="worksheet-help" class="muted">Choose the experiment to plot. Excel uses stored values; formulas are not recalculated.</p>
+        </div>
         <div id="columns" class="chips"></div>
         <label>Figure kind<select id="kind"></select></label
         ><label>X field<select id="x-field"></select></label
@@ -119,8 +123,7 @@
         <div class="downloads">
           <div id="files"></div>
           <label class="check"
-            ><input id="include-data" type="checkbox" /> Include source data in
-            ZIP</label
+            ><input id="include-data" type="checkbox" /> <span id="include-data-label">Include source data in ZIP</span></label
           ><button id="bundle" disabled>Download figure bundle</button>
           <p class="muted">
             Figures, Python, spec and report. Source data is included only when

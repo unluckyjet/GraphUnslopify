@@ -16,3 +16,21 @@ for r, row in enumerate([["subject", "score"], ["001", 7], ["NA", 11], ["010", 1
         sheet.write(r, c, value)
 book.save("python/tests/fixtures/native-values.xls")
 ```
+
+`worksheet-experiments.xlsx` is another original synthetic fixture for editor
+selection and races. `Control experiment` contains900/910/920; `Measured results`
+contains7/11/13, both with literal text IDs001/NA/010. Regenerate using the dev-only
+openpyxl writer:
+
+```python
+from openpyxl import Workbook
+
+book = Workbook()
+book.remove(book.active)
+for name, values in [("Control experiment", [900, 910, 920]), ("Measured results", [7, 11, 13])]:
+    sheet = book.create_sheet(name)
+    sheet.append(["subject", "score"])
+    for identity, value in zip(["001", "NA", "010"], values):
+        sheet.append([identity, value])
+book.save("python/tests/fixtures/worksheet-experiments.xlsx")
+```

@@ -127,11 +127,12 @@ export function suggestFigures(profile: Profile, limit = 3): Candidate[] {
         x: axis(x),
         y: axis(y),
         ...(second ? { group: second } : {}),
+        legend: { show: Boolean(second) },
         aggregation: "mean",
-        uncertainty: { kind: "sem", display: "bar" },
+        uncertainty: { kind: "none" },
         sort: { by: "value", direction: "desc" },
       },
-      why: `${x} is categorical, so bars put the comparison on a shared baseline`,
+      why: `${x} is categorical, so bars put the comparison on a shared baseline. Choose experimental units and an uncertainty method before adding intervals.`,
     });
   }
 

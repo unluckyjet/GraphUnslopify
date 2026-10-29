@@ -18,8 +18,11 @@ works offline after dependencies are installed.
 
 ## A complete edit and review
 
-1. Select **Try sample data**, or choose a CSV, regular JSON table or Parquet file. The sample is
-   public synthetic data. Parquet needs the `[parquet]` extra. Files are read by a loopback service
+1. Select **Try sample data**, or choose a CSV, regular JSON table, Parquet or Excel file. The sample is
+   public synthetic data. Parquet needs `[parquet]`; current-source Excel needs `[excel]`.
+   For a workbook with multiple worksheets, choose the experiment explicitly before rendering.
+   Changing worksheets clears the previous preview and downloads while preserving figure settings.
+   Files are read by a loopback service
    on this computer; nothing is sent to the hosted API.
 2. Review the inferred fields and experimental units. Choose a kind, x/y fields or group. A
    canonical recipe offers a starting spec; its placeholder fields still need your own data.
@@ -44,6 +47,13 @@ works offline after dependencies are installed.
    included when the spec uses it. A PNG is explicitly added to requested formats for preview;
    the effective spec, generated program, report and provenance agree about it.
 
+For Excel the checkbox reads **Include entire workbook (all worksheets) in ZIP**.
+It includes the original workbook, including worksheets other than the selected
+experiment. Choosing a different data file resets that checkbox; choose it
+again for the new source. Formula results use stored/cached values; the editor
+does not recalculate formulas or execute macros. A unique single worksheet can be selected
+automatically. See [native Excel inputs](excel-input.md) for types and dependencies.
+
 Extract a bundle with source data to a new directory, then reproduce it there:
 
 ```sh
@@ -52,7 +62,7 @@ python figure.py --strict --json --report verification.json
 
 Replace `figure.py` with your chosen output stem. Without bundled data, place the selected data
 beside the script under the relative filename in the exported spec (`data.csv`, `data.json` or
-`data.parquet`). Keep the generated Python unchanged if comparing its embedded source digest.
+`data.parquet`, `data.xlsx`, `data.xlsm` or `data.xls`). Keep the generated Python unchanged if comparing its embedded source digest.
 Supported interactive HTML needs `[interactive]`; animations may need external encoders. Missing
 exports stay visible as errors rather than disappearing behind a successful preview.
 
@@ -66,7 +76,8 @@ figure recommendations are heuristics; row counts do not establish independent
 experimental sample sizes. Repeat discovery is bounded and reports truncation
 on wide tables. A malformed upload leaves no usable input identity or orphaned
 upload folder. These profile details require current source and do not yet change
-the editor layout or add Excel support.
+the three-pane editor layout. Current-source workbook upload adds explicit
+worksheet selection over those profiles.
 
 These additions require source after 0.8.0; the published 0.8.0 wheel retains the
 earlier editor. From a checkout, install with `python -m pip install ./python`.

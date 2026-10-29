@@ -28,6 +28,7 @@ from .demo import write_demo
 from .describe import profile
 from .errors import SpecError
 from .transport import local_request
+from .workbook import EXCEL_SUFFIXES, workbook_sheets
 
 
 class PreviewState:
@@ -42,9 +43,9 @@ class PreviewState:
 
     def upload(self, name: str, content: bytes, *, palette: bool = False) -> dict[str, Any]:
         suffix = Path(name).suffix.lower()
-        if suffix not in ({".json"} if palette else {".csv", ".json", ".parquet"}):
+        if suffix not in ({".json"} if palette else {".csv", ".json", ".parquet", *EXCEL_SUFFIXES}):
             raise ValueError(
-                "Choose a CSV, regular JSON table or Parquet file"
+                "Choose a CSV, regular JSON table, Parquet or Excel workbook"
                 if not palette
                 else "Choose a palette lock JSON file"
             )
@@ -55,6 +56,7 @@ class PreviewState:
         folder.mkdir(parents=True)
         filename = "palette.lock.json" if palette else "data" + suffix
         path = folder / filename
+        sheets: list[str] = []
         try:
             path.write_bytes(content)
             if palette:
@@ -63,8 +65,11 @@ class PreviewState:
                     raise ValueError("Palette lock must be a JSON object")
                 details = {"columns": [], "rows": None}
             else:
-                details = profile(path)
-                if not details.get("ok"):
+                sheets = workbook_sheets(path) if suffix in EXCEL_SUFFIXES else []
+                if suffix in EXCEL_SUFFIXES and not sheets:
+                    raise ValueError("This workbook has no worksheets")
+                details = None if len(sheets) > 1 else profile(path)
+                if details is not None and not details.get("ok"):
                     raise ValueError(details.get("error", "Could not read this data file"))
             # Validate the response before publishing a usable upload identity.
             json.dumps(details, allow_nan=False)
@@ -76,29 +81,63 @@ class PreviewState:
             "path": path,
             "name": Path(name).name,
             "filename": filename,
-            "format": suffix[1:],
+            "format": "excel" if suffix in EXCEL_SUFFIXES else suffix[1:],
             "palette": palette,
             "profile": details,
+            "sheets": sheets,
+            "workbook_id": identity if sheets else None,
         }
         with self.lock:
             self.uploads[identity] = record
+        return self.upload_info(record)
+
+    @staticmethod
+    def upload_info(record: dict[str, Any]) -> dict[str, Any]:
+        details = record["profile"]
         return {
-            "id": identity,
+            "id": record["id"],
             "name": record["name"],
             "format": record["format"],
-            "rows": details.get("rows"),
-            "columns": details.get("columns", []),
-            "profile": {**details, "path": filename},
+            "rows": details.get("rows") if details is not None else None,
+            "columns": details.get("columns", []) if details is not None else [],
+            "profile": {**details, "path": record["filename"]} if details is not None else None,
+            "requires_sheet": details is None,
+            "sheets": record.get("sheets", []),
+            "workbook_id": record.get("workbook_id"),
         }
+
+    def select_sheet(self, identity: str, sheet: str) -> dict[str, Any]:
+        with self.lock:
+            source = self.uploads.get(identity)
+        if source is None or source["palette"] or source["format"] != "excel":
+            raise ValueError("Choose an Excel workbook first")
+        if not isinstance(sheet, str) or sheet not in source["sheets"]:
+            raise ValueError("Choose one of this workbook's worksheet names")
+        details = profile(source["path"], sheet=sheet)
+        if not details.get("ok"):
+            raise ValueError(details.get("error", "Could not read this worksheet"))
+        json.dumps(details, allow_nan=False)
+        # A new selection never changes a previous render's input binding.
+        record = {**source, "id": uuid.uuid4().hex, "profile": details}
+        with self.lock:
+            self.uploads[record["id"]] = record
+        return self.upload_info(record)
+
+    def selected_data(self, identity: str) -> dict[str, Any]:
+        with self.lock:
+            data = self.uploads.get(identity)
+        if data is None or data["palette"]:
+            raise ValueError("Choose a data file first")
+        if data["profile"] is None:
+            raise ValueError("Choose a worksheet before using this workbook")
+        return data
 
     def prepare(
         self, payload: dict[str, Any]
     ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any] | None]:
         with self.lock:
-            data = self.uploads.get(payload.get("data_id", ""))
             palette = self.uploads.get(payload.get("palette_id", ""))
-        if data is None or data["palette"]:
-            raise ValueError("Choose a data file first")
+        data = self.selected_data(payload.get("data_id", ""))
         spec = copy.deepcopy(payload.get("spec"))
         if not isinstance(spec, dict):
             raise TypeError("The figure specification must be a JSON object")
@@ -107,6 +146,8 @@ class PreviewState:
             "format": data["format"],
             "columns": [column["name"] for column in data["profile"]["columns"]],
         }
+        if data["format"] == "excel":
+            spec["data"]["sheet"] = data["profile"]["sheet"]
         if spec.get("palette_lock"):
             if palette is None or not palette["palette"]:
                 raise ValueError("Choose a palette lock JSON file to use palette_lock")
@@ -417,13 +458,15 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 )
                 self.json({"data": uploaded, "spec": json.loads(spec_path.read_text())})
             elif route == "/api/suggest":
-                data = self.server.state.uploads.get(payload.get("data_id", ""))
-                if data is None or data["palette"]:
-                    raise ValueError("Choose a data file first")
+                data = self.server.state.selected_data(payload.get("data_id", ""))
                 self.json(
                     local_request(
                         "suggest", {"profile": {**data["profile"], "path": data["filename"]}}
                     )
+                )
+            elif route == "/api/select-sheet":
+                self.json(
+                    self.server.state.select_sheet(payload.get("data_id", ""), payload.get("sheet"))
                 )
             elif route in {"/api/validate", "/api/fix"}:
                 spec, _, _ = self.server.state.prepare(payload)

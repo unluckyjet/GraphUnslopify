@@ -6,6 +6,7 @@ const token = document.querySelector('meta[name="preview-token"]').content;
 const client = crypto.randomUUID();
 let revision = 0,
   data = null,
+  workbook = null,
   palette = null,
   latest = null,
   timer = null,
@@ -123,7 +124,8 @@ function syncFields(spec) {
 }
 function showData(info) {
   data = info;
-  $("data-summary").textContent = `${info.name} · ${info.rows} rows`;
+  const sheet = info.profile?.sheet;
+  $("data-summary").textContent = `${info.name}${sheet ? " · " + sheet : ""} · ${info.rows} rows`;
   $("columns").replaceChildren(
     ...info.columns.map((column) => {
       const span = document.createElement("span");
@@ -133,6 +135,40 @@ function showData(info) {
       return span;
     }),
   );
+}
+function showWorkbook(info) {
+  workbook = info.sheets?.length ? {
+    id: info.workbook_id || info.id, name: info.name,
+    activeSheet: info.profile?.sheet, sheets: info.sheets,
+  } : null;
+  $("worksheet-box").hidden = !workbook;
+  $("include-data-label").textContent = workbook
+    ? "Include entire workbook (all worksheets) in ZIP"
+    : "Include source data in ZIP";
+  $("worksheet").replaceChildren(
+    new Option("Choose a worksheet…", ""),
+    ...(workbook?.sheets || []).map((sheet) => new Option(sheet, sheet)),
+  );
+  $("worksheet").value = workbook?.activeSheet || "";
+}
+function bindData(spec, info) {
+  spec.data = {path: info.profile.path, format: info.format,
+    columns: info.columns.map((column) => column.name),
+    ...(info.format === "excel" ? {sheet: info.profile.sheet} : {}),
+  };
+  return spec;
+}
+async function activateData(info, operation, current, recommend = true) {
+  const suggestions = recommend ? await api("/api/suggest", {data_id: info.id}) : [];
+  if (operation !== selection) return;
+  showData(info);
+  if (workbook) workbook.activeSheet = info.profile.sheet;
+  if (revision === current && suggestions.length)
+    setSpec(bindData(suggestions[0].spec, info));
+  else {
+    try { setSpec(bindData(readSpec(), info)); } catch {}
+  }
+  schedule();
 }
 function message(text, error = true) {
   const item = document.createElement("div");
@@ -193,7 +229,7 @@ function artifact(run, name, download = false) {
 }
 async function update(force) {
   if (!data) {
-    status("Choose data");
+    status(workbook ? "Choose a worksheet" : "Choose data");
     return;
   }
   let spec;
@@ -396,9 +432,12 @@ $("data-file").onchange = async () => {
   const file = $("data-file").files[0];
   if (!file) return;
   const operation = ++selection;
+  data = null;
+  showWorkbook({});
+  $("include-data").checked = false;
+  $("columns").replaceChildren();
   invalidate();
   const current = revision;
-  data = null;
   $("data-summary").textContent = "Reading " + file.name + "…";
   status("Reading data…");
   try {
@@ -406,21 +445,44 @@ $("data-file").onchange = async () => {
       "X-Filename": encodeURIComponent(file.name),
     });
     if (operation !== selection) return;
-    showData(info);
-    const suggestions = await api("/api/suggest", { data_id: data.id });
-    if (operation !== selection) return;
-    if (revision === current && suggestions.length)
-      setSpec(suggestions[0].spec);
-    else {
-      try {
-        syncFields(readSpec());
-      } catch {}
+    showWorkbook(info);
+    if (info.requires_sheet) {
+      $("data-summary").textContent = `${info.name} · choose a worksheet`;
+      status("Choose a worksheet");
+      return;
     }
-    schedule();
+    await activateData(info, operation, current);
   } catch (error) {
     if (operation === selection) {
       message(error.message);
       status("Could not read data", "failed");
+    }
+  }
+};
+$("worksheet").onchange = async () => {
+  if (!workbook) return;
+  const source = workbook, sheet = $("worksheet").value;
+  const recommend = !source.activeSheet;
+  const operation = ++selection;
+  data = null;
+  $("columns").replaceChildren();
+  invalidate();
+  const current = revision;
+  if (!sheet) {
+    $("data-summary").textContent = `${source.name} · choose a worksheet`;
+    status("Choose a worksheet");
+    return;
+  }
+  $("data-summary").textContent = `${source.name} · reading ${sheet}…`;
+  status("Reading worksheet…");
+  try {
+    const info = await api("/api/select-sheet", {data_id: source.id, sheet});
+    if (operation !== selection || workbook !== source) return;
+    await activateData(info, operation, current, recommend);
+  } catch (error) {
+    if (operation === selection) {
+      message(error.message);
+      status("Could not read worksheet", "failed");
     }
   }
 };
@@ -444,8 +506,11 @@ $("palette-file").onchange = async () => {
 };
 $("demo").onclick = async () => {
   const operation = ++selection;
-  invalidate();
   data = null;
+  showWorkbook({});
+  $("include-data").checked = false;
+  $("columns").replaceChildren();
+  invalidate();
   status("Loading sample…");
   try {
     const demo = await api("/api/demo", {});

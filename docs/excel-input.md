@@ -53,6 +53,8 @@ draft = Figure.from_profile("experiments.xlsx", sheet="Selected results")
 Suggestions are heuristic drafts; review axes, units, experimental IDs and
 uncertainty. Known all-nonfinite measurement columns are excluded from suggested
 encodings. No observation count establishes experimental independence.
+Suggested bars leave uncertainty unset until the author chooses a method and
+experimental units; they do not automatically assume standard errors.
 
 ## Values and evidence
 
@@ -73,6 +75,16 @@ retains the selected name and environment evidence records the installed
 python-calamine version. Generated scripts use the same reader implementation as
 profiling and auditing.
 
-The browser's workbook upload/worksheet selection is the next submilestone;
-this backend checkpoint does not yet enable its file picker. See the
-[workspace roadmap](../pipeline/visual-workspace-roadmap.md).
+## Browser workflow
+
+Launch `graphunslopify preview --open`, choose the workbook and select its
+worksheet. Multi-sheet files remain staged until a name is chosen. The profile,
+suggestions, generated spec and verification all use that selection. Changing
+worksheets preserves authored settings and immediately clears previous evidence;
+a late response for an older selection cannot become current.
+
+The ZIP omits source data by default. Selecting **Include entire workbook (all
+worksheets) in ZIP** includes the original complete workbook. The exported spec
+retains the chosen worksheet for reproduction. Review other worksheets before
+sharing a bundle. The central figure layout and drag/drop explorer remain in the
+next [workspace milestone](../pipeline/visual-workspace-roadmap.md).

@@ -2,15 +2,39 @@
 
 from __future__ import annotations
 
+import io
 import json
+import subprocess
+import sys
 import threading
 import urllib.error
 import urllib.request
 from pathlib import Path
+from zipfile import ZipFile
 
 import pytest
 
 from graphunslopify import preview
+
+
+@pytest.fixture
+def native_workbook():
+    pytest.importorskip("python_calamine")
+    return (Path(__file__).parent / "fixtures/worksheet-experiments.xlsx").read_bytes()
+
+
+def upload_workbook(editor, content):
+    status, body = request(
+        editor, "/api/upload", content, headers={"X-Filename": "experiments.xlsx"}
+    )
+    assert status == 200, body
+    return json.loads(body)
+
+
+def select_workbook(editor, uploaded, sheet):
+    status, body = request(editor, "/api/select-sheet", {"data_id": uploaded["id"], "sheet": sheet})
+    assert status == 200, body
+    return json.loads(body)
 
 
 @pytest.fixture
@@ -135,6 +159,124 @@ def test_failed_upload_leaves_no_published_identity_or_orphaned_files(
     with pytest.raises((ValueError, TypeError)):
         editor.state.upload(filename, content, palette=palette)
     assert editor.state.uploads == before and set(folder.iterdir()) == existing
+
+
+def test_workbook_staging_requires_selection_and_existing_auth(editor, native_workbook):
+    uploaded = upload_workbook(editor, native_workbook)
+    assert uploaded["requires_sheet"] and uploaded["profile"] is None
+    assert uploaded["sheets"] == ["Control experiment", "Measured results"]
+    assert uploaded["columns"] == [] and uploaded["rows"] is None
+    payload = {"data_id": uploaded["id"], "sheet": "Measured results"}
+    assert request(editor, "/api/select-sheet", payload, token=False)[0] == 403
+    assert (
+        request(editor, "/api/select-sheet", payload, headers={"Origin": "https://example.org"})[0]
+        == 403
+    )
+    for route in ["/api/suggest", "/api/validate"]:
+        code, body = request(editor, route, {"data_id": uploaded["id"], "spec": {}})
+        assert code == 400 and b"Choose a worksheet" in body
+    for sheet in ["../other.xlsx", "", None, 0]:
+        assert (
+            request(editor, "/api/select-sheet", {"data_id": uploaded["id"], "sheet": sheet})[0]
+            == 400
+        )
+    assert len(editor.state.uploads) == 1
+    assert editor.state.uploads[uploaded["id"]]["path"].read_bytes() == native_workbook
+
+
+def test_worksheet_selections_have_immutable_owned_bindings(editor, native_workbook):
+    uploaded = upload_workbook(editor, native_workbook)
+    measured = select_workbook(editor, uploaded, "Measured results")
+    control = select_workbook(editor, uploaded, "Control experiment")
+    assert len({uploaded["id"], measured["id"], control["id"]}) == 3
+    assert measured["workbook_id"] == control["workbook_id"] == uploaded["id"]
+    assert measured["profile"]["path"] == "data.xlsx" and measured["format"] == "excel"
+    for selected, expected in [(measured, 31 / 3), (control, 910)]:
+        assert next(c for c in selected["columns"] if c["name"] == "score")[
+            "mean"
+        ] == pytest.approx(expected)
+    prepared, _, _ = editor.state.prepare(
+        {
+            "data_id": measured["id"],
+            "spec": {"data": {"sheet": "Control experiment", "path": "/private/other.xlsx"}},
+        }
+    )
+    assert prepared["data"] == {
+        "path": "data.xlsx",
+        "format": "excel",
+        "columns": ["subject", "score"],
+        "sheet": "Measured results",
+    }
+    candidates = json.loads(request(editor, "/api/suggest", {"data_id": measured["id"]})[1])
+    assert candidates and all(
+        item["spec"]["data"]["sheet"] == "Measured results" for item in candidates
+    )
+    assert editor.state.uploads[uploaded["id"]]["profile"] is None
+    assert editor.state.uploads[measured["id"]]["profile"]["sheet"] == "Measured results"
+
+
+def test_native_workbook_render_bundle_consent_and_extracted_reproduction(
+    editor, native_workbook, tmp_path
+):
+    uploaded = upload_workbook(editor, native_workbook)
+    selected = select_workbook(editor, uploaded, "Measured results")
+    spec = {
+        "kind": "bar",
+        "x": {"field": "subject", "label": "Subject"},
+        "y": {"field": "score", "label": "Score", "unit": "points"},
+        "aggregation": "none",
+        "legend": {"show": False},
+        "output": {"stem": "experiment", "formats": ["png", "svg", "pdf"], "dpi": 100},
+    }
+    code, body = request(
+        editor,
+        "/api/render",
+        {"data_id": selected["id"], "spec": spec, "client": "worksheet-proof", "generation": 1},
+    )
+    result = json.loads(body)
+    assert code == 200 and result["exit_code"] == 0, result
+    assert result["report"]["spec"]["data"]["sheet"] == "Measured results"
+    with ZipFile(io.BytesIO(request(editor, f"/bundle/{result['run_id']}")[1])) as archive:
+        assert "data.xlsx" not in archive.namelist()
+    with ZipFile(
+        io.BytesIO(request(editor, f"/bundle/{result['run_id']}?data=true")[1])
+    ) as archive:
+        assert archive.read("data.xlsx") == native_workbook
+        assert all(Path(name).name == name for name in archive.namelist())
+        archive.extractall(tmp_path)
+    again = subprocess.run(
+        [sys.executable, "experiment.py", "--strict", "--json"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+    assert again.returncode == 0, again.stderr
+    report = json.loads(again.stdout)
+    assert report["spec_hash"] == result["report"]["spec_hash"]
+    assert report["data"]["sha256_prefix"] == result["report"]["data"]["sha256_prefix"]
+    assert (tmp_path / "data.xlsx").read_bytes() == native_workbook
+
+
+def test_single_worksheet_legacy_upload_is_ready_and_csv_cannot_select_sheets(editor):
+    pytest.importorskip("python_calamine")
+    content = (Path(__file__).parent / "fixtures/native-values.xls").read_bytes()
+    code, body = request(editor, "/api/upload", content, headers={"X-Filename": "legacy.xls"})
+    result = json.loads(body)
+    assert code == 200 and not result["requires_sheet"]
+    assert result["profile"]["sheet"] == "Measurements" and result["sheets"] == ["Measurements"]
+    csv = json.loads(
+        request(editor, "/api/upload", b"x,y\n1,2\n", headers={"X-Filename": "data.csv"})[1]
+    )
+    assert request(editor, "/api/select-sheet", {"data_id": csv["id"], "sheet": "Sheet"})[0] == 400
+
+
+def test_invalid_workbook_leaves_no_published_or_orphaned_upload(editor):
+    pytest.importorskip("python_calamine")
+    code, _ = request(editor, "/api/upload", b"not a workbook", headers={"X-Filename": "bad.xlsx"})
+    assert code == 400 and not editor.state.uploads
+    assert list((editor.state.root / "uploads").iterdir()) == []
 
 
 def test_static_failure_blocks_execution_and_fixes_are_verifier_owned(editor, monkeypatch):

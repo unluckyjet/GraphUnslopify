@@ -55,7 +55,7 @@ jobs:
           python-version: "3.12"
       - run: npm ci
       - run: pip install -r requirements.txt
-      - run: pip install -e "./python[dev,interactive,statistics]"
+      - run: pip install -e "./python[dev,interactive,statistics,excel]"
       # The behavioural tests skip themselves without matplotlib, so the
       # typescript job above cannot run them. This is where they actually run.
       - run: npm test
@@ -206,9 +206,11 @@ jobs:
       - run: git diff --exit-code -- src/codegen/cell-colour-source.ts python/graphunslopify/_translator.mjs python/graphunslopify/diagnostics.json python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/graphunslopify/examples python/LICENSE
       - run: python -m pip install build
       - run: python -m build python --outdir dist
-      - run: python scripts/install-smoke.py --agent --pdf --excel --require-environment --require-comparison --require-workflow --tracking --require-editor-controls --require-project --require-project-interface --require-diagnostics --require-pdf-visual
+      - run: python scripts/install-smoke.py --work-dir "${{ runner.temp }}/gu-installed-check" --agent --pdf --excel --require-environment --require-comparison --require-workflow --tracking --require-editor-controls --require-project --require-project-interface --require-diagnostics --require-pdf-visual
       - uses: actions/upload-artifact@v4
         with:
           name: distribution-${{ matrix.os }}-py${{ matrix.python }}
-          path: dist/*
+          path: |
+            dist/*
+            ${{ runner.temp }}/gu-installed-check/native Excel/**
           retention-days: 7

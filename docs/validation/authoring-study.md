@@ -1,9 +1,23 @@
 # Familiarized agent authoring-time study
 
-Status 2026-10-29: protocol/controller and an actual 18-case preflight are prepared.
-The four new implementation episodes have **not started**; there are no new
-creation-time results yet. Freeze and verify this checkpoint on GitHub before
-starting any clock.
+Status 2026-10-29: **first pair complete; second reverse-order pair pending**.
+Preregistration c98fc52 passed exact main40871787084 all9/Figure40871786787 before
+any new clock. The same nine-dataset task/unchanged v2 gates remain frozen.
+
+| Episode | Familiarized agent-task seconds | Accepted cases | Attempts |
+| --- | ---: | ---: | ---: |
+| Round1 GraphUnslopify | 21.744921709 | 9/9 | 1 |
+| Round1 Matplotlib | 16.953347625 | 9/9 | 1 |
+
+These are two observations from one already-familiar coding assistant. The
+mandatory second pair remains unexecuted; no general productivity advantage or
+complete four-episode result is claimed. All54 final export hashes/18 decoded
+PNGs and source/runtime identities were reread; UTC/monotonic intervals agree
+within0.001s. Both episodes ended before report/CI/vault work resumed.
+
+[Raw session events](../../benchmarks/authoring/sessions.jsonl),
+[first-pair audited summary](../../benchmarks/authoring/round1-summary.json),
+[retained full attempts](../../benchmarks/authoring/development/).
 
 The [NIST comparison](certified-benchmark.md) measured numerical errors,
 reproducibility, machine timing and physical export proxies. Its first authoring
@@ -100,3 +114,29 @@ subjects or blinded judgments. Warm caches and tool latency are part of the
 recorded conditions. A completed unamended study would support these bounded
 agent-task observations; it would not establish human productivity or adoption.
 Numerical/physical proxies do not substitute for human aesthetic ratings.
+
+
+## Replay completed implementations
+
+```sh
+python scripts/replay-authoring.py --out-dir benchmarks/authoring/.cache/replay-new
+```
+
+The replay verifies historical event/report/producer identities and runs every
+completed producer through all nine original tasks without creating new clocks.
+Historical authoring seconds remain historical values. A partial completed prefix
+can pass replay while `study_complete` remains false; it does not finish the
+mandatory four episodes. CI retains actual replay outputs alongside preflight
+artifacts. This separate postprocessing script changes no frozen acceptance code.
+
+
+## First-pair original exports
+
+Unmodified actual PNGs; Mavro is observed filter transmittance, NumAcc4 is a
+generated numerical challenge. Selected Mavro Matplotlib and NumAcc4 Graph images
+were visually inspected; the1e7 offset means the displayed0.2 is10000000.2.
+
+| Case | Matplotlib | GraphUnslopify |
+| --- | --- | --- |
+| Mavro | ![Mavro Matplotlib](../../benchmarks/authoring/figures/round1-Mavro-matplotlib.png) | ![Mavro GraphUnslopify](../../benchmarks/authoring/figures/round1-Mavro-graphunslopify.png) |
+| NumAcc4 | ![NumAcc4 Matplotlib](../../benchmarks/authoring/figures/round1-NumAcc4-matplotlib.png) | ![NumAcc4 GraphUnslopify](../../benchmarks/authoring/figures/round1-NumAcc4-graphunslopify.png) |

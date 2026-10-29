@@ -135,3 +135,5 @@ One line per state change, newest last.
 2026-10-29 specs76/77 ready: preserve original invalid clocks; prospectively counterbalance four familiarized reimplementations on all9 unchanged NIST v2 cases.76 prepares frozen controller/new-source route/preflight;77 executes actual clocks/results after exact CI. No new live episode yet.
 
 2026-10-29 spec76 done (preparation only): prospective four-episode protocol bound to unchanged v2 gates, all new producers absent, actual18/18 preflight/54 exports,57 controls on real3.10.22, seven local gates225/1420/Ruff105 pass. Exact pushed CI/artifact verification precedes77 clocks.
+
+2026-10-29 spec77 first pair checkpoint:Graph21.744921709s/Mpl16.953347625s,9/9 each first attempt;54 final hashes/18 PNGs/source and clock math rechecked,18-case replay passes.225/1420/seven gates/Ruff108 pass. Source protocol303b8e43/controller/core unchanged. Commit/push/exact CI/replay verification precedes mandatory reverse pair;2of4 study incomplete, no new release/human claim.

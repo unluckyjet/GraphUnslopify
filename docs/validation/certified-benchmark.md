@@ -152,4 +152,5 @@ feedback. The broader researcher-readiness assessment remains unmeasured.
 
 A [prospective familiarized-agent follow-up](authoring-study.md) prepares four
 fresh reimplementation episodes with the unchanged nine-dataset verifier. Its
-preflight is measured; new authoring episodes have not started.
+preflight is measured and the first two episodes completed; the mandatory
+reverse-order pair remains pending.

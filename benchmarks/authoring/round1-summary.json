@@ -1,0 +1,40 @@
+{
+  "phase": "partial-familiarized-authoring-study",
+  "completed_episodes": 2,
+  "planned_episodes": 4,
+  "protocol_sha256": "303b8e4395357ec976ec790532ceb052794a856405ef6bbfc2b8c8c713dc979f",
+  "preregistered_revision": "c98fc52283cedde79dfcd52888178236a3822050",
+  "preregistered_checks_run": 40871787084,
+  "preregistered_figure_run": 40871786787,
+  "episodes": [
+    {
+      "slot": "round1-graphunslopify",
+      "arm": "graphunslopify",
+      "seconds": 21.744921709,
+      "utc_elapsed_seconds": 21.745134,
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "aa88299ca5df5bc8a91af3d1acdcab2d099dfd0d0e4c737fa2710e7fbdc5bc23",
+      "authored_bytes": 3073,
+      "authored_nonblank_lines": 72,
+      "report": "benchmarks/authoring/development/7699dc76-d50e-41ef-beca-cb1234a23ac2/attempt-1.json",
+      "report_sha256": "6905ad508a5bb603aca02a7200262f0f042d4ba051040f14073b517cb5779ad7"
+    },
+    {
+      "slot": "round1-matplotlib",
+      "arm": "matplotlib",
+      "seconds": 16.953347625,
+      "utc_elapsed_seconds": 16.953525,
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "118579803d37b702ea41fb49ebef91fd1f1123deee29f9c5b9940c46aa525cfe",
+      "authored_bytes": 2733,
+      "authored_nonblank_lines": 62,
+      "report": "benchmarks/authoring/development/5b9b250f-49cb-46d4-87dc-b2e91d66a061/attempt-1.json",
+      "report_sha256": "9032a9112cd6374bac024da18e400dc181bf2e18d9faeaf1d17d30e410cf1264"
+    }
+  ],
+  "verified_final_files": 54,
+  "verified_decoded_pngs": 18,
+  "scope": "Two first-round familiarized AI episodes only; no causal/human productivity claim; second reverse-order pair remains mandatory."
+}

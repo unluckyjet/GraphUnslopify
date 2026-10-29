@@ -30,3 +30,25 @@ source_idea: review2026-10-28 item17 measured development time with all previous
    verify exact main/Figure CI and downloaded replay evidence before advancing.
    Update Obsidian and original review scope from measured evidence; audit the
    whole original list before claiming the goal complete.18 remains user-deferred.
+
+
+## First-pair checkpoint (2026-10-29)
+
+Prerequisitec98fc52 exact main40871787084 all9/Figure40871786787 and downloaded
+actual18-case preflight54 hashes/18 PNGs verified before any new clock. New source
+files/journal absent, all frozen implementation bytes unchanged.
+
+Graph first:21.744921709s,9/9 accepted on first attempt; producer aa88299c.
+Matplotlib second:16.953347625s,9/9 accepted on first attempt; producer11857980.
+UTC elapsed agrees within0.001s. No shared edits/docs/CI/vault work inside clocks.
+Both code files linted/formatted before their verification. All54 final export
+hashes/18 PNGs and actual source/runtime fingerprints independently reread.
+
+Both full attempts and raw begin/attempt/end events retained in
+`benchmarks/authoring/`; partial2-of4 summary labels the study incomplete. New
+post-stage replay script executes all completed producers without inventing
+creation times; actual local18-case first-pair replay passes. Source protocol/
+controller/CLI/worker/numeric/physical rules are unchanged. Second pair remains
+mandatory. Run seven gates/push/exact CI/artifact check before advancing.
+
+First-pair final local gates:225 Node/1420 Python, zero skips/one upstream warning, all seven commands and Ruff108 pass. Actual local18-case completed-producer replay passes. Four original PNG copies retained; representative Mavro Mpl/NumAcc4 Graph visually inspected, correct/readable. All clock/source/protocol hashes unchanged; no live clock. Push/verify exact CI and downloaded18-case replay before reverse pair. Spec remains ready/incomplete2of4.

@@ -37,8 +37,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install ruff
-      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py benchmarks/authoring benchmarks/certified/producers
-      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py benchmarks/authoring benchmarks/certified/producers
+      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py benchmarks/authoring benchmarks/certified/producers
+      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py benchmarks/authoring benchmarks/certified/producers
       - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf,tracking]"
       - run: python -m pytest python/tests -q
 
@@ -144,11 +144,14 @@ jobs:
       - run: python scripts/certified-benchmark.py --source-dir /tmp/gu-certified-source-cache --prepared-dir /tmp/gu-certified-source-preparation --out-dir /tmp/gu-certified-benchmark
       - run: python scripts/publish-certified-results.py --report /tmp/gu-certified-benchmark/results.json --out-dir /tmp/gu-certified-publication
       - run: python scripts/authoring-benchmark.py --preflight --source-dir /tmp/gu-certified-source-cache --prepared-dir /tmp/gu-certified-source-preparation --out-dir /tmp/gu-authoring-preflight
+      - run: python scripts/replay-authoring.py --source-dir /tmp/gu-certified-source-cache --prepared-dir /tmp/gu-certified-source-preparation --out-dir /tmp/gu-authoring-replay
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: authoring-study-evidence
-          path: /tmp/gu-authoring-preflight/**
+          path: |
+            /tmp/gu-authoring-preflight/**
+            /tmp/gu-authoring-replay/**
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/upload-artifact@v4

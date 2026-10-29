@@ -34,3 +34,6 @@ examples/references/table.md
 
 # Local paper audit evidence (raw project inputs remain in their source directories).
 .graphunslopify-audit/
+
+# Publisher reference inputs and local derived views are not redistributed.
+benchmarks/certified/.cache/

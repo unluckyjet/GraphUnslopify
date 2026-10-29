@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "collection": "NIST StRD univariate summary statistics, all nine datasets",
+  "retrieved": "2026-10-29",
+  "publisher": "National Institute of Standards and Technology",
+  "collection_url": "https://www.itl.nist.gov/div898/strd/univ/homepage.html",
+  "doi": "https://doi.org/10.18434/T43G6C",
+  "dataset_order": [
+    "PiDigits",
+    "Lottery",
+    "Lew",
+    "Mavro",
+    "Michelso",
+    "NumAcc1",
+    "NumAcc2",
+    "NumAcc3",
+    "NumAcc4"
+  ],
+  "selection_rule": "Entire published nine-dataset univariate collection; no product outputs evaluated before this freeze.",
+  "transport_user_agent": "GraphUnslopify-benchmark/0.8 (scientific software validation; public StRD data)",
+  "data_redistributed": false,
+  "sources": [
+    {
+      "id": "PiDigits",
+      "file": "PiDigits.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/PiDigits.dat",
+      "sha256": "e9421a2f4c0a31c505099332b4d22e507e808953c3c57bddae9226f25587d7d2",
+      "bytes": 46441,
+      "observations": 5000,
+      "nist_source_class": "observed",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "4.53480000000000",
+          "exact": false
+        },
+        "sample_sd": {
+          "value": "2.86733906028871",
+          "exact": false
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.00355099287237972",
+          "exact": false
+        }
+      }
+    },
+    {
+      "id": "Lottery",
+      "file": "Lottery.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/Lottery.dat",
+      "sha256": "956cb33392ee28683aa7978326fc356d1461e4a3b0e5a69d317fd481d02d6255",
+      "bytes": 3750,
+      "observations": 218,
+      "nist_source_class": "observed",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "518.958715596330",
+          "exact": false
+        },
+        "sample_sd": {
+          "value": "291.699727470969",
+          "exact": false
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.120948622967393",
+          "exact": false
+        }
+      }
+    },
+    {
+      "id": "Lew",
+      "file": "Lew.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/Lew.dat",
+      "sha256": "081b231f686d01fa00247b8072909206947c8321bd62e060d9aaae5f4866c44e",
+      "bytes": 3518,
+      "observations": 200,
+      "nist_source_class": "observed",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "-177.435000000000",
+          "exact": false
+        },
+        "sample_sd": {
+          "value": "277.332168044316",
+          "exact": false
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.307304800605679",
+          "exact": false
+        }
+      }
+    },
+    {
+      "id": "Mavro",
+      "file": "Mavro.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/Mavro.dat",
+      "sha256": "6b967538d6a607fdf30df054c6fbf4ca6bfb4fa6dc2ecbe613d4f93237a0b1dd",
+      "bytes": 2187,
+      "observations": 50,
+      "nist_source_class": "observed",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "2.00185600000000",
+          "exact": false
+        },
+        "sample_sd": {
+          "value": "0.000429123454003053",
+          "exact": false
+        },
+        "lag1_autocorrelation": {
+          "value": "0.937989183438248",
+          "exact": false
+        }
+      }
+    },
+    {
+      "id": "Michelso",
+      "file": "Michelso.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/Michelso.dat",
+      "sha256": "68cad435641539ca020adafb4c9a6b7fcc4fefe1d6ab8f2af8fb858d4f1b12ab",
+      "bytes": 2349,
+      "observations": 100,
+      "nist_source_class": "observed",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "299.852400000000",
+          "exact": false
+        },
+        "sample_sd": {
+          "value": "0.0790105478190518",
+          "exact": false
+        },
+        "lag1_autocorrelation": {
+          "value": "0.535199668621283",
+          "exact": false
+        }
+      }
+    },
+    {
+      "id": "NumAcc1",
+      "file": "NumAcc1.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/NumAcc1.dat",
+      "sha256": "ce7c7a0fc6d7cedd0d5e1f9911afb9337544be6836730beb9968ca0a4571d375",
+      "bytes": 1840,
+      "observations": 3,
+      "nist_source_class": "generated",
+      "difficulty": "lower",
+      "certified": {
+        "mean": {
+          "value": "10000002",
+          "exact": true
+        },
+        "sample_sd": {
+          "value": "1",
+          "exact": true
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.5",
+          "exact": true
+        }
+      }
+    },
+    {
+      "id": "NumAcc2",
+      "file": "NumAcc2.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/NumAcc2.dat",
+      "sha256": "5be29522dfbe299541f0ec98ec1c22a51a5587bf06561ba21a92c209fb7ef0f9",
+      "bytes": 11794,
+      "observations": 1001,
+      "nist_source_class": "generated",
+      "difficulty": "average",
+      "certified": {
+        "mean": {
+          "value": "1.2",
+          "exact": true
+        },
+        "sample_sd": {
+          "value": "0.1",
+          "exact": true
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.999",
+          "exact": true
+        }
+      }
+    },
+    {
+      "id": "NumAcc3",
+      "file": "NumAcc3.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/NumAcc3.dat",
+      "sha256": "66df1b96596735936f37fd889e7c1c6ce998eb2b523bfc46c98ec1737e992aec",
+      "bytes": 14830,
+      "observations": 1001,
+      "nist_source_class": "generated",
+      "difficulty": "average",
+      "certified": {
+        "mean": {
+          "value": "1000000.2",
+          "exact": true
+        },
+        "sample_sd": {
+          "value": "0.1",
+          "exact": true
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.999",
+          "exact": true
+        }
+      }
+    },
+    {
+      "id": "NumAcc4",
+      "file": "NumAcc4.dat",
+      "url": "https://www.itl.nist.gov/div898/strd/univ/data/NumAcc4.dat",
+      "sha256": "ca310dc767f5130f980f8280bbe69e26ba414a4d85a89fc11b6c767b828e5fe4",
+      "bytes": 15765,
+      "observations": 1001,
+      "nist_source_class": "generated",
+      "difficulty": "higher",
+      "certified": {
+        "mean": {
+          "value": "10000000.2",
+          "exact": true
+        },
+        "sample_sd": {
+          "value": "0.1",
+          "exact": true
+        },
+        "lag1_autocorrelation": {
+          "value": "-0.999",
+          "exact": true
+        }
+      }
+    }
+  ]
+}

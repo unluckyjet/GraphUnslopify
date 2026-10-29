@@ -32,6 +32,11 @@ recognition or a scientific certificate.
 | High | Broader external scientific benchmarking. | Realistic tasks, independently established answers, fair Matplotlib comparators, measured errors, timing, reproducibility and defined figure-quality checks. Current synthetic/public-paper comparisons are author-run; no independent evaluation or human development-time advantage is established. |
 | Deferred by user | Researchers testing their own projects. | Actual external sessions and recorded feedback when this work is resumed. The prepared protocol is not a completed user study; the current requested route uses public papers/datasets. |
 
+The [frozen external-reference corpus](docs/validation/certified-reference.md) adds
+all nine NIST univariate datasets and independent certified answers for the next
+comparison. Only source preparation is measured so far; benchmark results remain
+pending.
+
 The existing [public-data examples](docs/validation/published-papers.md) reproduce
 bounded descriptive quantities from Penguin/Iris data and test seeded faults.
 They do not reproduce the full papers or establish adoption. The

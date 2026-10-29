@@ -37,8 +37,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install ruff
-      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py
-      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py
+      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py
+      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py
       - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf,tracking]"
       - run: python -m pytest python/tests -q
 
@@ -139,6 +139,16 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ./python
       - run: python scripts/paper-benchmark.py --out-dir /tmp/gu-published-papers
+      - run: python scripts/prepare-certified-data.py --source-dir /tmp/gu-certified-source-cache --out-dir /tmp/gu-certified-source-preparation --download
+      - run: python scripts/prepare-certified-data.py --source-dir /tmp/gu-certified-source-cache --out-dir /tmp/gu-certified-source-preparation-offline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: certified-reference-preparation
+          path: |
+            /tmp/gu-certified-source-preparation/preparation.json
+            /tmp/gu-certified-source-preparation-offline/preparation.json
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

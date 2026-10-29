@@ -119,3 +119,5 @@ One line per state change, newest last.
 2026-10-29 —70 closes: exactc99658f main40828774334 all9/Figure40828774194 pass; eight new remote docs/forms match and private reporting is enabled.
 
 2026-10-29 —71 implementation: source-free PDF physical text/raster metrics with25 independent controls, actual public manuscript and responsive HTML; seven gates225/1363/Ruff90/gallery15 and fresh offline installed package pass. Three reviewed codes bring catalog139;60 PNG pixel identities/52 README graphic placements unchanged. Numerical/general interpretation remains incomplete. Check exact pushed CI before the next benchmark milestone.
+
+2026-10-29 —72 implementation: all nine NIST univariate sources/8574 observations pinned with independent certified answers, bounded explicit-download/offline preparation and metadata-only CI artifacts. Real online/offline bytes/order/hash parity,11 controls, seven gates225/1374/Ruff93 pass. No product metrics yet; verify exact pushed CI before benchmark73. Review17 remains open,18 deferred.

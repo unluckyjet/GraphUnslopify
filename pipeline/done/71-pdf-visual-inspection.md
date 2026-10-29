@@ -1,7 +1,7 @@
 ---
 id: 71
 slug: pdf-visual-inspection
-status: ready
+status: done
 priority: P0
 title: Inspect physical text size and raster resolution in extracted PDF figures
 source_idea: review2026-10-28 item3 extracting and inspecting figures from PDFs with visual versus source-data checks distinguished
@@ -62,3 +62,6 @@ source_idea: review2026-10-28 item3 extracting and inspecting figures from PDFs 
   all four installed CI variants now require this proof. No new PyPI release.
 - Prior70 exact c99658f main40828774334 all9/Figure40828774194 passed before71.
   Exact new pushed main/Figure CI must pass before benchmarking advances.
+
+Exact e8c6f7d695b3c43c2088bbfacf3357c7e6f4f1e6 main40835074311 all9 and
+Figure40835074261 passed before certified-reference corpus72.

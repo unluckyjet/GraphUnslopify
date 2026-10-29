@@ -141,3 +141,52 @@ and its required metrics have evidence. This frozen corpus is an independent
 reference, while study design/execution remain project-authored. The existing
 [synthetic pilot](benchmark.md) and [public-paper comparison](published-papers.md)
 retain their own scopes and measured results.
+
+
+## Runner and live producer tasks
+
+The [runner](../../scripts/certified-benchmark.py) validates prepared CSVs against
+all original pinned observations, then schedules every case. It retains separate
+build/execution logs, external numeric/label/quality decisions, native
+GraphUnslopify report status, per-file identities and source/environment hashes.
+Study-end rechecks reject deleted/changed files; execution failures are distinct
+from correctly detecting the deliberately missing-interval sentinel. Repeat
+agreement includes process/native statuses, and numerical summaries include the
+number of values actually measured.
+
+The producers are the next implementation checkpoint and are currently absent.
+Their interface is `--dataset ID --data CSV --out-dir EMPTY --variant mean_sd`
+(or `missing_interval`); they write `figure.py` and optional `spec.json`. Names
+are `benchmarks/certified/producers/build-matplotlib.py` and
+`build-graphunslopify.py`, avoiding Python's library-module shadowing.
+
+After runner verification, begin the Matplotlib task **before** creating its
+producer:
+
+```sh
+python scripts/certified-benchmark.py --begin-development matplotlib
+# Implement the producer under the fixed protocol, then verify all nine clean cases.
+python scripts/certified-benchmark.py --development matplotlib --out-dir benchmarks/certified/.cache/matplotlib-attempt-1
+```
+
+Failed attempts stay in fresh output folders; the original session clock keeps
+running. A successful nine-case verification appends an end event. Repeat with
+`graphunslopify` only after the Matplotlib task finishes. The tracked
+`benchmarks/certified/development-sessions.jsonl` and
+`benchmarks/certified/development/` metadata preserve live UTC/monotonic events and
+all verification reports. Observation data and full local run folders stay in the
+ignored cache; metadata contains reference facts/measurements rather than raw rows.
+Complete a live session on the same machine/OS boot: monotonic clock origins
+are local. Both UTC and monotonic events are retained for audit. These commands
+are the implementation protocol, not evidence that sessions ran.
+
+Once both producers exist, run the full72-execution comparison:
+
+```sh
+python scripts/certified-benchmark.py --out-dir benchmarks/certified/.cache/comparison-1
+```
+
+Optional `--source-dir`/`--prepared-dir` select other verified local input caches.
+Every run requires a fresh output directory and records progress/results without
+replacing prior evidence. CI will execute this comparison after the actual
+producers/results checkpoint; current runner controls use synthetic fixtures only.

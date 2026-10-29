@@ -1,7 +1,7 @@
 ---
 id: 73
 slug: frozen-benchmark-measurement
-status: ready
+status: done
 priority: P1
 title: Freeze external-reference measurements before evaluating plotting workflows
 source_idea: review2026-10-28 item17 measured errors development time reproducibility figure quality with immutable prior rules
@@ -52,3 +52,6 @@ All seven local gates pass:225 Node/1390 Python, zero skips/one upstream
 MLflow/SQLAlchemy warning;15 baselines/16 renders/25 recipes/7 compositions.
 Ruff check/format96 pass. No NIST plotting outputs have been evaluated. Exact
 pushed main/Figure CI must pass before producer authoring/evaluation.
+
+Exact4b2ed9728bf624a9de6fc851b56435d0111e196c main40844509236 all9 and
+Figure40844509180 passed before common runner74. Frozen files remain unchanged.

@@ -44,7 +44,7 @@ export function emitSeriesHelpers(spec: FigureSpec, out: string[]): void {
     "    try:",
     "        from graphunslopify.lockfile import appearance",
     "    except ImportError:",
-    '        print("graphunslopify is not installed, so palette_lock was ignored")',
+    '        print(diagnostic_text("palette_lock_unavailable", "The lockfile appearance helper is unavailable, so palette_lock was ignored."))',
     "        return None",
     "    return appearance(PALETTE_LOCK, [str(n) for n in names])",
     "",

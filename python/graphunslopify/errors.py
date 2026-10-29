@@ -8,6 +8,13 @@ from typing import Any
 class SpecError(RuntimeError):
     """A spec or renderer was rejected; report contains available runtime evidence."""
 
-    def __init__(self, message: str, report: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        message: str,
+        report: dict[str, Any] | None = None,
+        *,
+        diagnostics: list[dict] | None = None,
+    ):
         super().__init__(message)
         self.report = report
+        self.diagnostics = diagnostics

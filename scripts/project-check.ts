@@ -141,6 +141,7 @@ try {
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
   const failed = await audit("failed");
   assert.ok((await page.locator("#checks").innerText()).includes("fails"));
+  assert.match(await page.locator("#checks").innerText(), /Why it matters:[\s\S]*Recommended correction:/);
   await page.locator("#show-comparison").click();
   await page.waitForFunction(() => document.querySelector("#comparison")?.hidden === false);
   assert.equal(await page.locator("#comparison img").count(), 3);

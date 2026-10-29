@@ -1,6 +1,7 @@
 import { emitPython } from "./codegen/index.ts";
 import { FigureSpec } from "./schema.ts";
 import { hasErrors, verify, type Finding } from "./verify.ts";
+import { explainSpecIssue, type DiagnosticAdvice } from "./diagnostics.ts";
 
 /**
  * The one entry point. Parse, check, emit.
@@ -10,7 +11,7 @@ import { hasErrors, verify, type Finding } from "./verify.ts";
  * reads the user's own file, so results stay on the machine that produced them.
  */
 
-export type SpecIssue = { path: string; message: string };
+export type SpecIssue = { path: string; message: string } & DiagnosticAdvice;
 
 export type TranslateResult =
   | {
@@ -41,10 +42,9 @@ export function translate(input: unknown): TranslateResult {
   if (!parsed.success) {
     return {
       status: "invalid_spec",
-      issues: parsed.error.issues.map((issue) => ({
-        path: issue.path.length > 0 ? issue.path.join(".") : "(root)",
-        message: issue.message,
-      })),
+      issues: parsed.error.issues.map((issue) => explainSpecIssue(
+        issue.path.length > 0 ? issue.path.join(".") : "(root)", issue.message,
+      )),
     };
   }
 

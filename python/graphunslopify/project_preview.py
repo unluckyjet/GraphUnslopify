@@ -316,6 +316,7 @@ class ProjectHandler(PreviewHandler):
             "/project.css": "project.css",
             "/app.css": "app.css",
             "/controls.js": "controls.js",
+            "/diagnostics.js": "diagnostics.js",
         }
         if not self.allowed(token=route not in assets):
             self.json({"error": "This local project request is not authorized"}, 403)
@@ -342,8 +343,14 @@ class ProjectHandler(PreviewHandler):
             if route == "/api/state":
                 self.json(state.snapshot())
             elif route == "/api/info":
+                from .diagnostics import catalog
+
                 self.json(
-                    {"schema": local_request("schema"), "shared_schema": _shared_schema().schema}
+                    {
+                        "schema": local_request("schema"),
+                        "shared_schema": _shared_schema().schema,
+                        "diagnostics": catalog(),
+                    }
                 )
             elif route == "/api/figure":
                 self.json(project_figure(state.source, value("id")))

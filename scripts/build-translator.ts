@@ -1,6 +1,7 @@
 /** Ship the same emitter in a wheel; users need no npm install or HTTP service. */
 import { build } from "esbuild";
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { DIAGNOSTIC_ADVICE, UNKNOWN_DIAGNOSTIC } from "../src/diagnostics.ts";
 
 // One implementation serves installed inspection and package-free generated plots.
 const cellColour = readFileSync("python/graphunslopify/cell_colour.py", "utf8").replace(/\r\n/g, "\n");
@@ -20,6 +21,8 @@ await build({
 });
 copyFileSync("node_modules/zod/LICENSE", "python/graphunslopify/ZOD-LICENSE.txt");
 copyFileSync("LICENSE", "python/LICENSE");
+writeFileSync("python/graphunslopify/diagnostics.json",
+  JSON.stringify({ advice: DIAGNOSTIC_ADVICE, unknown: UNKNOWN_DIAGNOSTIC }, null, 2) + "\n");
 mkdirSync("python/graphunslopify/schemas", { recursive: true });
 const environment = JSON.parse(readFileSync("docs/environment.schema.json", "utf8"));
 const runtime = JSON.parse(readFileSync("docs/runtime-report.schema.json", "utf8"));

@@ -3,6 +3,7 @@ import { COMPARATIVE, NEEDS_TOLERANCE } from "./claims.ts";
 import { encodingSuggestions } from "./perception.ts";
 import { derivedAxis, hasCategoricalX, type FigureSpec } from "./schema.ts";
 import { identityConflicts } from "./identity.ts";
+import { explainFinding, type DiagnosticAdvice } from "./diagnostics.ts";
 
 /**
  * Checks that need only the spec, no rendering.
@@ -25,7 +26,7 @@ export type Finding = {
    * failing to act on it, which is a solvable interface problem.
    */
   fix?: Record<string, unknown>;
-};
+} & Partial<DiagnosticAdvice>;
 
 const MAX_LEGIBLE_SERIES = 8;
 const MAX_STACK_SEGMENTS = 6;
@@ -835,7 +836,7 @@ export const RULES: Rule[] = [
 export function verify(spec: FigureSpec): Finding[] {
   const findings: Finding[] = [];
   const add: Add = (severity, code, message, fix) =>
-    findings.push(fix ? { severity, code, message, fix } : { severity, code, message });
+    findings.push(explainFinding(fix ? { severity, code, message, fix } : { severity, code, message }));
 
   const effective = spec.series_from_columns && !spec.group
     ? { ...spec, group: spec.series_from_columns.series_name } : spec;

@@ -45,8 +45,18 @@ def _render_spec(args: argparse.Namespace) -> int:
             )
     except (SpecError, OSError, ValueError) as problem:
         report = getattr(problem, "report", None)
+        diagnostics = getattr(problem, "diagnostics", None)
         if args.json:
-            print(json.dumps(report or {"status": "failed", "error": str(problem)}))
+            print(
+                json.dumps(
+                    report
+                    or {
+                        "status": "failed",
+                        "error": str(problem),
+                        **({"diagnostics": diagnostics} if diagnostics else {}),
+                    }
+                )
+            )
         else:
             print(str(problem), file=sys.stderr)
         return int(report.get("exit_code", 2)) if report else 2
@@ -79,8 +89,31 @@ def _translate_spec(args: argparse.Namespace) -> int:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result.get("ok") else 2
     except (SpecError, OSError, ValueError) as problem:
-        print(json.dumps({"ok": False, "error": str(problem)}))
+        diagnostics = getattr(problem, "diagnostics", None)
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": str(problem),
+                    **({"diagnostics": diagnostics} if diagnostics else {}),
+                }
+            )
+        )
         return 2
+
+
+def _explain(args: argparse.Namespace) -> int:
+    from .diagnostics import advice, catalog
+
+    known = args.code in catalog()["advice"]
+    item = {"code": args.code, "known": known, **advice(args.code)}
+    if args.json:
+        print(json.dumps(item))
+    else:
+        print(args.code + ("" if known else " (unrecognized code)"))
+        print("Why it matters: " + item["consequence"])
+        print("Recommended correction: " + item["correction"])
+    return 0 if known else 2
 
 
 def _doctor(_: argparse.Namespace) -> int:
@@ -640,6 +673,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     versioned = commands.add_parser("version", help="print the package version")
     versioned.set_defaults(handler=_version)
+
+    explain = commands.add_parser("explain", help="explain a finding's consequence and correction")
+    explain.add_argument("code", help="stable finding code, e.g. truncated_bar_axis")
+    explain.add_argument("--json", action="store_true")
+    explain.set_defaults(handler=_explain)
 
     return parser
 

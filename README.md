@@ -105,6 +105,10 @@ and units against your experiment. Relative data paths in a JSON spec resolve be
 Current development source defaults to strict verification; `--strict` remains accepted.
 Version 0.8.0 enables strict verification by default. Older 0.7.0 installations require `--strict`.
 Warnings remain visible, and `--fail-on-warning` rejects those too.
+Current source adds [actionable explanations](docs/diagnostics.md): each owned finding
+explains its scientific consequence and recommended correction in reports, the CLI
+and both local browser views. Use `graphunslopify explain CODE` to look one up.
+This addition requires a source installation after0.8.0.
 
 See [installation and optional extras](docs/installation.md), [versioned documentation](docs/versioning.md)
 and the [0.8.0 release notes](docs/releases/0.8.0.md).

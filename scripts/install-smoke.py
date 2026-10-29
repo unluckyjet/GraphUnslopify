@@ -89,6 +89,11 @@ def main() -> None:
         action="store_true",
         help="require the current-source packaged paper workspace and actual loopback workflow",
     )
+    parser.add_argument(
+        "--require-diagnostics",
+        action="store_true",
+        help="require current-source correction guidance and package-free advice",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -1428,6 +1433,21 @@ def main() -> None:
             )
         )
         assert project_interface["status"] == "passed"
+    diagnostics = None
+    if args.require_diagnostics:
+        diagnostics = json.loads(
+            run(
+                [
+                    str(python),
+                    str(Path(__file__).resolve().with_name("check-diagnostics.py")),
+                    "--work-dir",
+                    str(where / "diagnostics"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert diagnostics["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1445,6 +1465,7 @@ def main() -> None:
                 "experiment_tracking": experiment_tracking,
                 "project_management": project_management,
                 "project_interface": project_interface,
+                "diagnostics": diagnostics,
                 "work_dir": str(where),
             }
         )

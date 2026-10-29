@@ -1,7 +1,7 @@
 ---
 id: 67
 slug: project-management-interface
-status: ready
+status: done
 priority: P1
 title: Manage paper figures shared settings validation and version history in one local interface
 source_idea: review2026-10-28 item10 full project management continuation after editor65
@@ -63,3 +63,10 @@ fresh installed result.
 Exact pushed main/Figure CI remains pending before advancing review11. The spec
 stays ready until that proof is observed; no researcher usability study or overall
 20-item completion is claimed.
+
+Exact3d8f490cd6ea79d087b0a2b61b0aaf534c868e0d main40822199539 passed all nine
+jobs and Figure40822199526 passed. Four fresh installed platforms required the
+actual interface recipe. Downloaded render browser evidence confirms13 workflows/
+18 events, unchanged original data/first event and zero external page requests or
+JS errors; actual CI desktop history image inspected. Review10 is delivered in
+source after public0.8.0;11/20 and scoped validation/PDF limits remain separate.

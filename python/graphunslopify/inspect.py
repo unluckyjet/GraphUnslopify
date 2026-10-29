@@ -48,8 +48,24 @@ class Finding:
     code: str
     message: str
 
+    @property
+    def consequence(self) -> str:
+        from .diagnostics import advice
+
+        return advice(self.code)["consequence"]
+
+    @property
+    def correction(self) -> str:
+        from .diagnostics import advice
+
+        return advice(self.code)["correction"]
+
     def __str__(self) -> str:
-        return f"{self.severity.upper():7} [{self.code}] {self.message}"
+        from .diagnostics import format_finding
+
+        return format_finding(
+            {"severity": self.severity, "code": self.code, "message": self.message}
+        )
 
 
 @dataclass

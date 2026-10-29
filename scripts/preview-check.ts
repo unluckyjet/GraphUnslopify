@@ -87,6 +87,20 @@ try {
   );
   assert.equal(await page.locator("#recipe option").count(), 26);
   assert.equal(await page.locator("#bundle").isDisabled(), true);
+  // Legacy display is derived guidance; literal messages never become markup.
+  const legacy = await page.evaluate<{text: string; scripts: number; unknown: string}>(`(async () => {
+    const {describeFinding} = await import('/diagnostics.js');
+    const token = document.querySelector('meta[name="preview-token"]').content;
+    const info = await (await fetch('/api/info', {headers: {'X-Preview-Token':token}})).json();
+    const node = document.createElement('div');
+    describeFinding(node, {code:'truncated_bar_axis', message:'<script>bad()</script>'}, info.diagnostics);
+    const unknown = document.createElement('div');
+    describeFinding(unknown, {code:'__proto__', message:'External finding'}, info.diagnostics);
+    return {text:node.textContent, scripts:node.querySelectorAll('script').length, unknown:unknown.textContent};
+  })()`);
+  assert.match(legacy.text, /<script>bad\(\)<\/script>[\s\S]*Why it matters:[\s\S]*Recommended correction:/);
+  assert.equal(legacy.scripts, 0);
+  assert.match(legacy.unknown, /not been classified/);
   const edit = async (spec: object | string) => {
     await page
       .locator("#advanced")
@@ -208,6 +222,7 @@ try {
   await control("uncertainty-kind", "sem");
   await page.locator("#render").click();
   await page.locator('[data-code="median_sem_unsupported"]').waitFor();
+  assert.match(await page.locator('[data-code="median_sem_unsupported"]').innerText(), /Why it matters:[\s\S]*Recommended correction:/);
   assert.equal(await page.locator("#preview").isHidden(), true);
   await control("aggregation", "mean");
   await control("uncertainty-kind", "ci");
@@ -216,6 +231,7 @@ try {
   await page.locator("#render").click();
   await page.locator('#status[data-state="failed"]').waitFor();
   assert.match(await page.locator("#claims").innerText(), /FAILS/);
+  assert.match(await page.locator("#claims").innerText(), /Why it matters:[\s\S]*Recommended correction:/);
   await control("claims-0-subject", "ours");
   await control("claims-0-reference", "base");
   await page.locator("#add-claim").click();

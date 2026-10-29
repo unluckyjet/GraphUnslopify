@@ -1,4 +1,5 @@
 import { createControls } from "/controls.js";
+import { describeFinding } from "/diagnostics.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "", sharedRevision = "";
@@ -265,8 +266,17 @@ async function showFigure() {
   el("p", result.exit_code === 0 ? "Paper accepted in this saved run." : "Paper not accepted in this saved run. Inspect its policy and findings.", $("checks"));
   const report = figure.report;
   [...(figure.errors || []), ...(figure.warnings || []), ...(result.errors || []), ...(result.policy_errors?.[id] || [])].forEach((message) => el("p", message, $("checks")));
-  (report?.claims || []).forEach((claim) => el("p", `Claim ${words(claim.kind)}: ${claim.verdict}. ${claim.detail || ""}`, $("checks")));
-  (report?.findings || []).forEach((finding) => el("p", `${finding.severity}: ${finding.message || finding.code}`, $("checks")));
+  (report?.claims || []).forEach((claim) => {
+    const message = `Claim ${words(claim.kind)}: ${claim.verdict}. ${claim.detail || ""}`;
+    if (["fails", "untested"].includes(claim.verdict)) describeFinding(el("div", undefined, $("checks")),
+      {code: claim.verdict === "fails" ? "claim_failed" : "check_untested", message}, info.diagnostics);
+    else el("p", message, $("checks"));
+  });
+  (report?.findings || []).forEach((finding) => {
+    const node = el("div", undefined, $("checks"));
+    node.className = "finding" + (finding.severity === "error" ? " error" : "");
+    describeFinding(node, finding, info.diagnostics);
+  });
   if (report?.alt_text) { const details = el("details", undefined, $("checks")); el("summary", "Figure description", details); el("p", report.alt_text, details); }
   figure.outputs.forEach((output, index) => { const link = el("a", output.format.toUpperCase(), $("exports")); link.className = "download"; link.href = protect("/api/artifact", { event: event.id, figure: id, index }); });
   $("show-comparison").disabled = !result.baseline;

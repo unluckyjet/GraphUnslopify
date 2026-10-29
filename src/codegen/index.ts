@@ -295,8 +295,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       "    # Whether x repeats is not knowable from the spec, so it is checked here.",
       "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
       "    if df.duplicated(subset=keys).any():",
-      '        print("warning: repeated x values per series are drawn on top of each other.")',
-      '        print("         set aggregation to mean or median to summarise them.")',
+      '        print(diagnostic_text("repeated_x_values", "Repeated x values per series are drawn on top of each other."))',
       "",
     );
   }
@@ -337,7 +336,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     '        RUN_REPORT["inspection"] = {"available": True, "checked": False}',
     '        finding("warning", "inspection_outdated", "Upgrade graphunslopify: final exported text-size or data-view inspection is unavailable in this checker")',
     "        return False",
-    "    print(report)",
+    '    print(f"figure checks: {len(report.findings)} finding(s)" if "_execution_policy" in RUN_REPORT else report)',
     '    RUN_REPORT["inspection"] = {"available": True, "checked": report.measurements["basis"] == "exports", "measurements": report.measurements}',
     "    for item in report.findings:",
     "        finding(item.severity, item.code, item.message)",

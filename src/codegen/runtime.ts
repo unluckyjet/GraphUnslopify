@@ -1,6 +1,7 @@
 import type { FigureSpec } from "../schema.ts";
 import { verify } from "../verify.ts";
 import { pyStr } from "./py.ts";
+import { DIAGNOSTIC_ADVICE, UNKNOWN_DIAGNOSTIC } from "../diagnostics.ts";
 
 /** Runtime evidence lives in each generated program, including offline copies. */
 export function emitRuntime(spec: FigureSpec, out: string[]): void {
@@ -11,6 +12,8 @@ export function emitRuntime(spec: FigureSpec, out: string[]): void {
     : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
 
   out.push("", `STATIC_FINDINGS = json.loads(${pyStr(JSON.stringify(verify(spec)))})`);
+  out.push(`DIAGNOSTIC_ADVICE = json.loads(${pyStr(JSON.stringify(DIAGNOSTIC_ADVICE))})`,
+    `UNKNOWN_DIAGNOSTIC = json.loads(${pyStr(JSON.stringify(UNKNOWN_DIAGNOSTIC))})`);
   out.push(...`
 
 def new_report():
@@ -29,9 +32,17 @@ CURRENT_PANEL = 0
 
 
 def finding(severity, code, message):
-    item = {"severity": severity, "code": code, "message": message}
+    item = {"severity": severity, "code": code, "message": message,
+            **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)}
     if item not in RUN_REPORT["findings"]:
         RUN_REPORT["findings"].append(item)
+
+
+def diagnostic_text(code, message, severity="warning"):
+    advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
+    return (f"{severity.upper()} [{code}] {message}\\n"
+            f"  Why it matters: {advice['consequence']}\\n"
+            f"  Recommended correction: {advice['correction']}")
 
 
 def record_output(path):
@@ -202,8 +213,14 @@ def run_cli(argv=None):
     else:
         print(f"verification: {report['status']}; wrote {path}")
         for item in report["findings"]:
-            if item["code"] == "runtime_error":
-                print(item["message"], file=sys.stderr)
+            print(diagnostic_text(item["code"], item["message"], item["severity"]),
+                  file=sys.stderr if item["code"] == "runtime_error" else sys.stdout)
+        for reason in report["untested"]:
+            print(diagnostic_text("check_untested", reason))
+        for claim in report["claims"]:
+            if claim["verdict"] in {"fails", "untested"}:
+                print(diagnostic_text("claim_failed" if claim["verdict"] == "fails" else "check_untested",
+                      claim.get("detail", claim["kind"]), "error" if claim["verdict"] == "fails" else "warning"))
     return report["exit_code"]
 
 `.trimEnd().split("\n"));

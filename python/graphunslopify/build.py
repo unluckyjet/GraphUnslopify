@@ -369,7 +369,14 @@ class Figure:
         """Use the local translator, or an explicitly selected HTTP API."""
         result = _post("/api/convert", self.spec, api=api)
         if result.get("status") != "translated":
-            raise SpecError(json.dumps(result.get("issues", result), indent=2))
+            from .diagnostics import format_findings, schema_findings
+
+            issues = result.get("issues")
+            diagnostics = schema_findings(issues) if issues else None
+            raise SpecError(
+                format_findings(diagnostics) if diagnostics else json.dumps(result, indent=2),
+                diagnostics=diagnostics,
+            )
         return result
 
     def check(self, api: str | None = None) -> list[dict[str, Any]]:
@@ -419,10 +426,13 @@ class Figure:
         result = translator.translate(api)
         findings = result.get("findings", [])
         errors = [f for f in findings if f.get("severity") == "error"]
-        for finding in findings:
-            print(f"{finding['severity'].upper()} [{finding['code']}] {finding['message']}")
         if errors and (strict or fail_on_warning):
-            raise SpecError(f"{len(errors)} error(s) in the spec, and strict is on")
+            from .diagnostics import format_findings
+
+            raise SpecError(
+                f"{len(errors)} error(s) in the spec, and strict is on\n" + format_findings(errors),
+                diagnostics=errors,
+            )
 
         where.mkdir(parents=True, exist_ok=True)
         stem = self.spec.get("output", {}).get("stem", "figure")

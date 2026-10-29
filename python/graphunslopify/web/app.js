@@ -1,4 +1,6 @@
 import { createControls } from "/controls.js";
+import { describeFinding } from "/diagnostics.js";
+let diagnosticCatalog = {};
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 const client = crypto.randomUUID();
@@ -148,9 +150,7 @@ function findings(items) {
     const node = document.createElement("div");
     node.className = "finding" + (item.severity === "error" ? " error" : "");
     node.dataset.code = item.code;
-    const heading = document.createElement("strong");
-    heading.textContent = item.code.replaceAll("_", " ");
-    node.append(heading, document.createTextNode(item.message));
+    describeFinding(node, item, diagnosticCatalog);
     if (item.fix) {
       const detail = document.createElement("details"),
         summary = document.createElement("summary"),
@@ -220,8 +220,7 @@ async function update(force) {
     if (current !== revision) return;
     findings(checked.findings || [], spec);
     if (checked.status === "invalid_spec") {
-      for (const issue of checked.issues)
-        message(`${issue.path}: ${issue.message}`);
+      findings(checked.issues.map((issue) => ({...issue, code: "invalid_spec", severity: "error", message: `${issue.path}: ${issue.message}`})));
       status("Fix specification", "failed");
       return;
     }
@@ -283,6 +282,11 @@ async function update(force) {
           ),
         );
       $("claims").append(node);
+      if (["fails", "untested"].includes(claim.verdict)) {
+        const guidance = document.createElement("div");
+        describeFinding(guidance, {code: claim.verdict === "fails" ? "claim_failed" : "check_untested", message: claim.detail}, diagnosticCatalog);
+        $("claims").append(guidance);
+      }
     }
     $("description").textContent = report.alt_text;
     $("description-box").hidden = false;
@@ -470,6 +474,7 @@ $("spec").addEventListener("keydown", (event) => {
 setSpec(initial);
 api("/api/info")
   .then((info) => {
+    diagnosticCatalog = info.diagnostics;
     maxUploadBytes = info.max_upload_mb * 1024 * 1024;
     recipes = info.recipes;
     formSchema = info.schema;

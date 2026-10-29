@@ -442,6 +442,8 @@ Current source after0.8.0 can turn a paper manifest into a [research workspace](
 a project notebook for JupyterLab/VS Code, editor tasks using the selected Python interpreter,
 and LaTeX preparation that includes accepted exports at their checked manuscript width.
 Failed checks retain reports/previews and invalidate the generated manuscript include.
+The optional [MLflow integration](docs/experiment-tracking.md) logs saved reports,
+verified figures and acceptance to your chosen experiment or training run.
 
 ```sh
 graphunslopify workflow-init paper/

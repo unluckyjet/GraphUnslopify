@@ -69,6 +69,11 @@ def main() -> None:
         action="store_true",
         help="require current-source research workspace integration; older releases may omit it",
     )
+    parser.add_argument(
+        "--tracking",
+        action="store_true",
+        help="install the tracking extra and retrieve real local MLflow audit evidence",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -105,7 +110,13 @@ def main() -> None:
     env["GRAPHUNSLOPIFY_API"] = "local"
     env["PYTHONIOENCODING"] = "utf-8"
     extra = ",".join(
-        name for name, enabled in (("agent", args.agent), ("pdf", args.pdf)) if enabled
+        name
+        for name, enabled in (
+            ("agent", args.agent),
+            ("pdf", args.pdf),
+            ("tracking", args.tracking),
+        )
+        if enabled
     )
     extra = f"[{extra}]" if extra else ""
     requirement = (
@@ -1339,6 +1350,25 @@ def main() -> None:
             )
         )
         assert research_workflow["status"] == "passed"
+    experiment_tracking = None
+    if args.tracking:
+        experiment_tracking = json.loads(
+            run(
+                [
+                    str(python),
+                    str(
+                        Path(__file__)
+                        .resolve()
+                        .with_name("check-experiment-tracking.py")
+                    ),
+                    "--work-dir",
+                    str(where / "experiment tracking"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert experiment_tracking["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1353,6 +1383,7 @@ def main() -> None:
                 "getting_started": getting_started,
                 "visual_comparison": visual_comparison,
                 "research_workflow": research_workflow,
+                "experiment_tracking": experiment_tracking,
                 "work_dir": str(where),
             }
         )

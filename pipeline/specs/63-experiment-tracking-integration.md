@@ -22,3 +22,25 @@ source_idea: review2026-10-28 item9 experiment tracking continuation after works
 4. Document notebooks, existing training loops and CLI alongside workspace62,
    run seven gates, fresh installed optional-extra checks and exact pushed CI,
    then reassess full item9 against all four requested research environments.
+
+## Implementation checkpoint (2026-10-28)
+
+Explicit log_mlflow/track-mlflow accepts saved audit or workflow evidence and
+requires a caller-chosen URI plus existing experiment/new owned run or existing
+running run. Source snapshots and hash-verified static exports are staged before
+opening the destination; no raw inputs, sources, logs, credentials or arbitrary
+folders are selected. Machine comparison evidence is copied from the saved audit;
+unhashed interactive HTML is not selected. Per-attempt manifests preserve status,
+acceptance and fingerprints, and source rejection remains exit2 after a successful
+transfer. Existing fluent context/URI and caller run lifecycle are preserved.
+
+Eighteen real SQLite/artifact controls pass: exact retrieval, two figure kinds,
+failed claims/comparisons, preparation/pre-audit failures, explicit store distinct
+from active training, damaged/explicit-root refusal, unavailable extra and injected
+transport errors. Failure tags retain the current source acceptance and attempt
+prefix. Fresh final wheel with agent/PDF/environment/comparison/workflow/tracking
+passes outside the checkout with external runtime connections blocked. MLflow3.17.2;
+one upstream SQLAlchemy noload deprecation warning is retained, not suppressed.
+Final seven-gate run passes222 Node/1277 Python, zero skipped tests,15 baselines,
+16 renders,25 recipes/seven compositions and Ruff78 lint/format. The single
+upstream warning remains. Exact pushed CI is checked before closing this spec.

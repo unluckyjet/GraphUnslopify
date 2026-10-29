@@ -331,6 +331,24 @@ def _audit_init(args: argparse.Namespace) -> int:
     return 0
 
 
+def _track_mlflow(args: argparse.Namespace) -> int:
+    from .tracking import log_mlflow
+
+    try:
+        result = log_mlflow(
+            args.report,
+            tracking_uri=args.tracking_uri,
+            experiment_id=args.experiment_id,
+            run_id=args.run_id,
+            artifact_root=args.artifact_root,
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "exit_code": 2, "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result["exit_code"])
+
+
 def _audit_pdf(args: argparse.Namespace) -> int:
     from .pdf_review import review_pdf
 
@@ -446,6 +464,19 @@ def build_parser() -> argparse.ArgumentParser:
     workflow_run.add_argument("--fail-on-change", action="store_true")
     workflow_run.add_argument("--timeout", type=float, default=120)
     workflow_run.set_defaults(handler=_workflow_run)
+
+    tracked = commands.add_parser(
+        "track-mlflow", help="log saved audit/workflow evidence to an explicit MLflow run"
+    )
+    tracked.add_argument("report", help="saved audit.report.json or workflow.report.json")
+    tracked.add_argument("--tracking-uri", required=True)
+    destination = tracked.add_mutually_exclusive_group(required=True)
+    destination.add_argument("--experiment-id", help="existing experiment for a new owned run")
+    destination.add_argument("--run-id", help="existing running run; caller keeps its lifecycle")
+    tracked.add_argument(
+        "--artifact-root", help="exclusive root override for a moved audit archive"
+    )
+    tracked.set_defaults(handler=_track_mlflow)
 
     initialized = commands.add_parser(
         "audit-init", help="discover figure JSON specs and write a manifest"

@@ -1,7 +1,7 @@
 ---
 id: 64
 slug: portable-workflow-tex-verification
-status: ready
+status: done
 priority: P0
 title: Supply searchable manuscript text fonts and retain portable CI PDF evidence
 source_idea: observed render CI40795880690 job123192123806 exact heading extraction failure
@@ -54,3 +54,12 @@ Latin Modern with ToUnicode, and the rendered page retains the correct layout.
 A fresh source wheel passes agent/PDF/getting-started/visual-comparison/workflow
 checks with external runtime connections blocked. Exact pushed CI and downloaded
 CI PDF inspection remain required before closing this spec.
+
+## Exact pushed verification
+
+b96c57ae76a3dae67891689ff8ddf5c6a60d634e: main40798812554 passed all
+nine jobs; Figure40798812702 passed. Downloaded research-workflow-verification
+contains a one-page PDF with the complete raw Checked figure exports heading,
+Type1 Latin Modern fonts and ToUnicode maps. Poppler-rendered CI page inspected:
+heading order, literal caption, plot/table and layout remain correct. Both earlier
+failures are explained by retained Type3/PK evidence. Tracking63 can now proceed.

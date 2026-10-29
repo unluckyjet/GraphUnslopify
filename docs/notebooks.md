@@ -82,3 +82,7 @@ committed source notebook has cleared outputs; execution artifacts are generated
 Notebook execution uses [NBClient](https://nbclient.readthedocs.io/en/latest/client.html).
 
 For a notebook tied to your own paper manifest, current source after0.8.0 adds [research workspaces](research-workflows.md). `workflow-init` creates a cleared project notebook, selected-interpreter VS Code tasks and checked-width LaTeX preparation without replacing global kernels or existing editor settings. The original packaged quickstart above remains supported.
+
+Current source also supports [MLflow experiment tracking](experiment-tracking.md)
+for saved audit/workflow reports. Install the `tracking` extra in the notebook's
+interpreter and supply an explicit store and experiment or active training run.

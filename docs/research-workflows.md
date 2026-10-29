@@ -145,7 +145,15 @@ workflow exit2 if manuscript preparation is unavailable. `latex.status: prepared
 always has `compiled: false`; only the actual TeX command establishes compilation.
 The VS Code build task stops on failed preparation and honors TeX's own exit.
 
-## Verification and remaining integration work
+## Experiment tracking
+
+The optional [MLflow integration](experiment-tracking.md) attaches the saved
+`workflow.report.json` to an explicit experiment or running training run, preserving
+workflow acceptance separately from scientific audit status. Install the current
+source `tracking` extra in the selected interpreter. It verifies figure bytes,
+preserves caller run context and supports an entirely local SQLite/artifact store.
+
+## Verification
 
 `python/tests/test_workflow.py` uses actual audits, notebook kernels in both cwd
 contexts, generated editor argv and real TeX compilation/guard rejection/recovery.
@@ -154,6 +162,5 @@ refusal and input/editor preservation. Real TeX cases are mandatory in render CI
 `scripts/check-research-workflow.py` and installed-wheel `--require-workflow` check
 the actual outside-checkout CLI/editor-process path offline on four platforms.
 
-This workspace milestone covers JupyterLab, VS Code and LaTeX. Experiment-tracking
-integration is the next separate checkpoint; the full review item9 stays open
-until that is implemented and measured.
+The workspace milestone covers JupyterLab, VS Code and LaTeX; experiment tracking
+has separate real-store and installed-wheel verification documented in its guide.

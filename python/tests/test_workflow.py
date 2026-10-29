@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 import pytest
@@ -123,7 +124,12 @@ def test_nonportable_or_reserved_names_are_rejected_before_writing(tmp_path, nam
 
 @pytest.fixture(scope="module")
 def accepted(tmp_path_factory):
-    root = tmp_path_factory.mktemp("workflow accepted")
+    configured = os.environ.get("GRAPHUNSLOPIFY_WORKFLOW_EVIDENCE")
+    if configured:
+        root = Path(configured)
+        root.mkdir(parents=True, exist_ok=False)
+    else:
+        root = tmp_path_factory.mktemp("workflow accepted")
     project, folder = paper(root)
     original = {
         p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in project.iterdir() if p.is_file()
@@ -166,7 +172,17 @@ def test_actual_example_and_existing_manuscript_includes_compile_without_interpr
     text = "\n".join(page.extract_text() or "" for page in PdfReader(latex / "paper.pdf").pages)
     assert "INJECTED_SENTINEL" not in text
     assert "Literal" in text and "sentinel" in text
-    assert text.index("Checked figure exports") < text.index("Literal")
+    # PDF encodings can expose compatibility ligatures and unreliable spacing.
+    # Only the fixed heading assertion is normalized; source data is never changed.
+    normalized = "".join(unicodedata.normalize("NFKC", text).split())
+    (latex / "extracted-text.json").write_text(
+        json.dumps(
+            {"raw": text, "normalized_heading_text": normalized}, indent=2, ensure_ascii=False
+        ),
+        encoding="utf8",
+    )
+    assert "Checkedfigureexports" in normalized, repr(text)
+    assert normalized.index("Checkedfigureexports") < normalized.index("Literal"), repr(text)
     (project / "main.tex").write_text(
         r"\documentclass{article}\usepackage[T1]{fontenc}\usepackage{graphicx}\begin{document}"
         + f"\\input{{{DEFAULT_FOLDER}/latex/include.tex}}"

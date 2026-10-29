@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -35,7 +35,7 @@ def unchanged(path, expected):
 
 
 def utc():
-    return datetime.now(UTC).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 def load_inputs(root: Path, source_dir: Path, prepared_dir: Path) -> list[dict]:

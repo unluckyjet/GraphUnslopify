@@ -64,3 +64,23 @@ Frozen73 protocol/evaluator/worker bytes remain unchanged. All seven local gates
 MLflow/SQLAlchemy warning,15 baselines/16 renders/25 recipes/7 compositions.
 Ruff check/format99 pass. No NIST plotting outputs or live producer-task timings
 have been measured. Exact pushed main/Figure CI must pass before those tasks.
+
+## CI rework — Python3.10 compatibility
+
+1076462 main40849763227 Python3.10 job123366018116 fails during collection:
+local Ruff auto-fix replaced timezone.utc with datetime.UTC (introduced3.11).
+Python3.12 local gates did not expose that minimum-runtime import error.
+Restore datetime/timezone.utc and add root ruff.toml target-version py310 so
+repository-level helpers also retain the package's declared minimum. Existing
+CI lint rules/formatting remain unchanged; frozen73 measurement/worker/protocol
+bytes are untouched. Verify actual isolatedPython3.10.22 controls, rerun seven
+local gates and push this repair before beginning any real producer task.
+
+
+Compatibility repair measured locally: isolated CPython3.10.22 executes all36
+corpus/evaluator/runner controls (3.47s) and the real UTC helper. Root py310 Ruff
+configuration preserves timezone.utc under auto-fix;99 check/format files pass.
+All seven gates rerun225 Node/1399 Python, zero skips/one upstream warning,
+15 baselines/16 renders/25 recipes/7 compositions.1076462's completed CI has8
+successful jobs and solely the diagnosed3.10 collection failure. Frozen73 bytes
+unchanged. Push repaired commit and verify its exact main/Figure CI before75.

@@ -1,0 +1,3 @@
+# Repository-level helpers support the same minimum Python as the package.
+# They do not inherit python/pyproject.toml's requires-python setting.
+target-version = "py310"

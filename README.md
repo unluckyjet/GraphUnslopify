@@ -448,6 +448,9 @@ and LaTeX preparation that includes accepted exports at their checked manuscript
 Failed checks retain reports/previews and invalidate the generated manuscript include.
 The optional [MLflow integration](docs/experiment-tracking.md) logs saved reports,
 verified figures and acceptance to your chosen experiment or training run.
+Source also adds [persistent paper projects](docs/project-management.md): shared
+figure settings, per-figure input freshness and retained audit/settings history.
+The project dashboard is still in development.
 
 ```sh
 graphunslopify workflow-init paper/
@@ -562,6 +565,7 @@ labels outside the visible axes rather than reporting collisions with invisible 
 | Agent integration | [Local MCP setup](docs/agents.md) |
 | Reports and strict execution | [Runtime policies](docs/runtime-reports.md) |
 | Batch review and automation | [Paper audits](docs/paper-audits.md) · [Figure CI](docs/figure-ci.md) |
+| Shared settings and saved project runs | [Paper project management](docs/project-management.md) |
 | Composition and HTML boundaries | [Composition](docs/composition.md) · [Interactive exports](docs/interactive-exports.md) |
 | Numerical validation | [Scientific references](docs/scientific-validation.md) · [Interaction matrix](docs/interaction-validation.md) |
 | Specialized estimator contracts | [Survival](docs/survival-validation.md) · [Calibration](docs/calibration-validation.md) · [Paired differences](docs/paired-validation.md) · [Q–Q](docs/qq-validation.md) · [Scaling](docs/scaling-validation.md) · [Density](docs/density-validation.md) |

@@ -85,6 +85,13 @@ adds data, numeric-representation, claim, description and artifact differences. 
 JSON/Markdown plus individual programs, figures, logs and reports. See the repository paper-audit
 guide for the manifest contract and supported metadata-backed artifact checks.
 
+Current source after0.8.0 adds `project-init`, `project-status`, `project-run`,
+`project-shared` and `project-history` around the same manifest. They retain
+complete audit/settings history, check declared input/export freshness and apply
+shared semantic settings to JSON figures. Authored scripts retain their own
+source and must meet the requested shared policy. See [project management](../docs/project-management.md);
+the packaged project dashboard remains in development.
+
 ## Notebook example
 
 Install the notebook extra for JupyterLab and kernel execution. Run

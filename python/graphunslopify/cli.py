@@ -349,6 +349,44 @@ def _track_mlflow(args: argparse.Namespace) -> int:
     return int(result["exit_code"])
 
 
+def _project(args: argparse.Namespace) -> int:
+    from .project import (
+        initialize_project,
+        project_history,
+        project_status,
+        run_project,
+        set_project_shared,
+    )
+
+    try:
+        if args.command == "project-init":
+            result = initialize_project(args.path, folder=args.folder)
+        elif args.command == "project-status":
+            result = project_status(args.path)
+        elif args.command == "project-history":
+            result = project_history(args.path)
+        elif args.command == "project-shared":
+            result = set_project_shared(
+                args.path,
+                json.loads(Path(args.settings).read_text(encoding="utf8")),
+                expected_revision=args.expected_revision,
+            )
+        else:
+            result = run_project(
+                args.path,
+                expected_revision=args.expected_revision,
+                baseline=None if args.no_baseline else args.baseline,
+                fail_on_warning=args.fail_on_warning,
+                fail_on_change=args.fail_on_change,
+                timeout=args.timeout,
+            )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "exit_code": 2, "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result.get("exit_code", 0))
+
+
 def _audit_pdf(args: argparse.Namespace) -> int:
     from .pdf_review import review_pdf
 
@@ -477,6 +515,35 @@ def build_parser() -> argparse.ArgumentParser:
         "--artifact-root", help="exclusive root override for a moved audit archive"
     )
     tracked.set_defaults(handler=_track_mlflow)
+
+    for name, help_text in [
+        ("project-init", "initialize durable paper figure management beside its manifest"),
+        ("project-status", "inspect every figure's last result and declared input freshness"),
+        ("project-history", "verify saved project run and settings history"),
+        ("project-shared", "save shared semantic settings with an expected revision"),
+        ("project-run", "audit the paper and preserve an independent versioned run"),
+    ]:
+        project = commands.add_parser(name, help=help_text)
+        project.add_argument("path", nargs="?", default=".")
+        project.set_defaults(handler=_project)
+        if name == "project-init":
+            project.add_argument("--folder", default="graphunslopify-project")
+        if name == "project-shared":
+            project.add_argument(
+                "--settings",
+                required=True,
+                help="JSON object containing style/output/palette settings",
+            )
+            project.add_argument("--expected-revision", required=True)
+        if name == "project-run":
+            project.add_argument("--expected-revision")
+            project.add_argument(
+                "--baseline", default="latest", help="completed run ID; default latest intact run"
+            )
+            project.add_argument("--no-baseline", action="store_true")
+            project.add_argument("--fail-on-warning", action="store_true")
+            project.add_argument("--fail-on-change", action="store_true")
+            project.add_argument("--timeout", type=float, default=120)
 
     initialized = commands.add_parser(
         "audit-init", help="discover figure JSON specs and write a manifest"

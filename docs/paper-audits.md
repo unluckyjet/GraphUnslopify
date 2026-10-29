@@ -8,6 +8,10 @@ A manifest connects figures to their source specs or generated programs, local d
 claims. An audit regenerates every entry, runs strict runtime checks, verifies saved artifacts,
 and writes one combined report. It continues after an individual failure.
 
+For shared semantic settings, declared-input freshness and retained aggregate
+history, current source adds [paper project management](project-management.md)
+around this same manifest. The project dashboard remains in development.
+
 From a source checkout:
 
 ```sh

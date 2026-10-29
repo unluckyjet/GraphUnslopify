@@ -1,7 +1,7 @@
 ---
 id: 65
 slug: accessible-editor-controls
-status: ready
+status: done
 priority: P1
 title: Edit scientific figure settings and claims through schema-driven browser controls
 source_idea: review2026-10-28 item7 and source5dd3b17 basic controls require JSON for ordinary settings
@@ -52,3 +52,11 @@ Installed Chrome uses the actual wheel outside checkout source; the driver's
 loopback fetch for held responses is separate from blocked product Python/Node.
 Explicit external translator request is rejected. Legacy0.8.0 probes retain
 defaultFalse for the new asset requirement. Exact pushed CI remains pending.
+
+## Exact pushed verification
+
+597c4fa7625b7bcdf64e74456b244271541a7913 main40808684350 passed all nine
+jobs; Figure40808684380 passed. All four installed platforms required the new
+assets/schema. Downloaded Linux browser checks confirm21 workflows/21 required
+kind mappings/zero external calls or JS errors; actual CI desktop inspected.
+GitHub main/tree match clean local. Review7 delivered in source after0.8.0.

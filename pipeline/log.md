@@ -111,3 +111,7 @@ One line per state change, newest last.
 2026-10-28 —63 closes: exact5dd3b17 main40801523028 all9/Figure40801523058 pass with four installed tracking platforms; full review9 delivered in source.
 
 2026-10-28 —65 implementation: schema-backed native settings/claims for21 kinds, typed-draft gating, advanced preservation/undo and literal exports. Source/installed Chrome21 workflows/21 kinds/zero external calls or JS errors and real bundle reproduction pass; seven gates222/1277/Ruff78, one upstream warning, and fresh offline wheel pass. Final assets match; actual desktop/mobile inspected. Exact pushed CI checked next; remaining review scope stays active.
+
+2026-10-28 —69 closes: exact045dab3 main40826638872 all9/Figure40826638949 pass; actual Windows distribution log confirms136-code guidance and offline failure/recovery/package-free advice.
+
+2026-10-28 —70 implementation: contribution/security/public-roadmap docs, three issue forms/PR template and ignored local venv; YAML/relative-link/setup validation and all seven gates225/1338 pass. Private reporting enabled/GET-verified. Check exact pushed CI and served GitHub community files next; PDF visual inspection, broader benchmarks and user-deferred trials remain explicit.

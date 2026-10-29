@@ -1,7 +1,7 @@
 ---
 id: 69
 slug: actionable-diagnostics
-status: ready
+status: done
 priority: P1
 title: Explain every tool warning with its consequence and recommended correction
 source_idea: review2026-10-28 item11 every warning should explain problem scientific consequences and correction
@@ -47,3 +47,9 @@ source_idea: review2026-10-28 item11 every warning should explain problem scient
   literal legacy rendering. All60 tracked PNG pixels and52 README image placements
   remain unchanged; owned generated scripts/provenance refreshed from this emitter.
 - Exact pushed main/Figure CI remains to be checked before advancing review20.
+
+Exact045dab37d979f9e0ff1a36d6a33758964c43c573 main40826638872 passed all9 jobs
+and Figure40826638949 passed. All four distribution variants passed. Downloaded
+actual Windows job123291078057 confirms Python3.12.10,136-code guidance, strict
+failure/recovery, unchanged data and package-free advice with external networking
+blocked after installation.69 is verified before public contribution milestone70.

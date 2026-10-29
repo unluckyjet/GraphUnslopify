@@ -1,0 +1,22 @@
+name: Research workflow or feature request
+description: Propose a concrete task and explain what would demonstrate success.
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Research task and current difficulty
+      description: Who needs this, what question are they answering and where does the current workflow fail?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed behavior and success criteria
+      description: Give a small example and observable result. State scientific assumptions and limits.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Existing alternatives and public evidence
+      description: Relevant current features, workarounds, public datasets/papers or reference figures. No private data or credentials.

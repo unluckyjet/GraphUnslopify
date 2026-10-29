@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a reproducible installation, rendering or workflow problem.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For security vulnerabilities, use the private reporting link in SECURITY.md.
+        Use a minimal synthetic dataset. Remove credentials, private paths and unpublished data.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Version and environment
+      description: Include release or exact commit, OS, Python/Node versions and graphunslopify doctor output.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Exact command, specification and small synthetic data, or a public example with its hash.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and evidence
+      description: Include the exit code, relevant report/findings and export or log. Distinguish failed checks from unavailable ones.
+    validations:
+      required: true

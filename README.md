@@ -576,6 +576,8 @@ labels outside the visible axes rather than reporting collisions with invisible 
 | Specialized estimator contracts | [Survival](docs/survival-validation.md) · [Calibration](docs/calibration-validation.md) · [Paired differences](docs/paired-validation.md) · [Q–Q](docs/qq-validation.md) · [Scaling](docs/scaling-validation.md) · [Density](docs/density-validation.md) |
 | Design rationale and examples | [Research](docs/research.md) · [Gallery](examples/README.md) |
 | Versions and release evidence | [Versioning](docs/versioning.md) · [Release notes](docs/releases/0.8.0.md) · [Delivery audit](docs/delivery-audit.md) |
+| Contributing and direction | [Contribution guide](CONTRIBUTING.md) · [Public roadmap](ROADMAP.md) · [Issue forms](https://github.com/unluckyjet/GraphUnslopify/issues/new/choose) |
+| Security | [Policy and private reporting](SECURITY.md) |
 | License | [MIT](LICENSE) |
 
 ## Development
@@ -602,6 +604,7 @@ npm run compose-check
 Run `npm run gallery-check` when changing figure layouts or gallery examples. Rebuild the packaged
 translator with `npm run build:translator` after TypeScript or embedded cell-colour changes.
 Before pushing, follow [CLAUDE.md](CLAUDE.md) and check CI after the push.
+The [contribution guide](CONTRIBUTING.md) covers full setup, optional test contexts and review evidence.
 Use `PYTHON=python npm run baseline` only when intentionally regenerating baselines; a bare
 baseline generation command can select the wrong interpreter.
 

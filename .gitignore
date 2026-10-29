@@ -6,6 +6,7 @@ node_modules/
 .claude/logs/
 
 # python build artefacts
+.venv/
 *.egg-info/
 __pycache__/
 *.pyc

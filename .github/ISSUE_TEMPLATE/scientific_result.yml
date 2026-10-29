@@ -1,0 +1,36 @@
+name: Scientific result or misleading figure
+description: Report an incorrect quantity, unsupported claim, omission or misleading rendering.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A successful render is not proof of scientific correctness. Keep source-data limits explicit.
+        Share synthetic or licensed public data; do not attach confidential research data.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Version and reproduction
+      description: Release/commit, OS/Python versions, exact command, minimal spec and data.
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Intended quantities and analysis design
+      description: State units, independent experimental units, repeats, estimators, uncertainty and exclusions as relevant. Mark unknown assumptions.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Expected result and supporting evidence
+      description: Give a hand calculation, independent implementation or precise paper reference. Explain why the actual result is wrong or misleading.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual report and figure
+      description: Include relevant numbers, findings, exit code and exported figure. A missing check and an incorrect verdict are different failures.
+    validations:
+      required: true

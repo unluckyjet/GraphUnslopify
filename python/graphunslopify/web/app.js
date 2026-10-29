@@ -1,6 +1,7 @@
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 let diagnosticCatalog = {};
+let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 const client = crypto.randomUUID();
@@ -126,15 +127,54 @@ function showData(info) {
   data = info;
   const sheet = info.profile?.sheet;
   $("data-summary").textContent = `${info.name}${sheet ? " · " + sheet : ""} · ${info.rows} rows`;
-  $("columns").replaceChildren(
-    ...info.columns.map((column) => {
-      const span = document.createElement("span");
-      span.className = "chip";
-      span.textContent = column.name;
-      span.title = `${column.role} · ${column.distinct} distinct`;
-      return span;
-    }),
-  );
+  const table = document.createElement("table");
+  table.setAttribute("aria-label", "Dataset columns");
+  const head = table.createTHead().insertRow();
+  for (const label of ["Field", "Type", "Rows"]) {
+    const cell = document.createElement("th");
+    cell.scope = "col"; cell.textContent = label; head.append(cell);
+  }
+  const body = table.createTBody();
+  const count = (n) => typeof n === "number" ? String(n) : "Unknown";
+  for (const column of info.columns) {
+    const row = body.insertRow();
+    const name = row.insertCell();
+    name.textContent = column.name;
+    const role = document.createElement("small");
+    role.textContent = `${column.role} guess`; name.append(role);
+    row.insertCell().textContent = column.dtype || "Unknown";
+    const counts = row.insertCell();
+    counts.textContent = `${count(column.non_missing)} present`;
+    const missing = document.createElement("small");
+    missing.textContent = `${count(column.missing)} missing`;
+    if (column.missing > 0) missing.className = "missing";
+    counts.append(missing);
+    if (column.nonfinite > 0) {
+      const unavailable = document.createElement("small");
+      unavailable.textContent = `${column.nonfinite} nonfinite`;
+      unavailable.className = "missing"; counts.append(unavailable);
+    }
+  }
+  $("columns").replaceChildren(table);
+  $("profile-note").hidden = false;
+  $("profile-note").textContent = "Roles are guesses. Row counts do not establish independent experimental samples.";
+}
+function clearDataViews() {
+  $("columns").replaceChildren();
+  $("profile-note").hidden = true;
+  showDesigns([], null);
+}
+function showDesigns(items, identity) {
+  suggested = items; suggestedData = identity;
+  $("designs").hidden = !items.length;
+  $("apply-design").disabled = !items.length;
+  $("design-choice").replaceChildren(...items.map((item, index) =>
+    new Option(`${item.spec.kind.replaceAll("_", " ")} · ${item.spec.x.field} / ${item.spec.y.field}`, String(index))));
+  showDesignReason();
+}
+function showDesignReason() {
+  const item = suggested[Number($("design-choice").value)];
+  $("design-note").textContent = item?.why || "";
 }
 function showWorkbook(info) {
   workbook = info.sheets?.length ? {
@@ -159,11 +199,12 @@ function bindData(spec, info) {
   return spec;
 }
 async function activateData(info, operation, current, recommend = true) {
-  const suggestions = recommend ? await api("/api/suggest", {data_id: info.id}) : [];
+  const suggestions = await api("/api/suggest", {data_id: info.id});
   if (operation !== selection) return;
   showData(info);
+  showDesigns(suggestions, info.id);
   if (workbook) workbook.activeSheet = info.profile.sheet;
-  if (revision === current && suggestions.length)
+  if (recommend && revision === current && suggestions.length)
     setSpec(bindData(suggestions[0].spec, info));
   else {
     try { setSpec(bindData(readSpec(), info)); } catch {}
@@ -428,14 +469,13 @@ $("recipe").onchange = () => {
     $("recipe-note").textContent = item.purpose;
   }
 };
-$("data-file").onchange = async () => {
-  const file = $("data-file").files[0];
+async function uploadData(file) {
   if (!file) return;
   const operation = ++selection;
   data = null;
   showWorkbook({});
   $("include-data").checked = false;
-  $("columns").replaceChildren();
+  clearDataViews();
   invalidate();
   const current = revision;
   $("data-summary").textContent = "Reading " + file.name + "…";
@@ -458,14 +498,46 @@ $("data-file").onchange = async () => {
       status("Could not read data", "failed");
     }
   }
+}
+$("data-file").onchange = () => uploadData($("data-file").files[0]);
+$("design-choice").onchange = showDesignReason;
+$("apply-design").onclick = () => {
+  const item = suggested[Number($("design-choice").value)];
+  if (item && data?.id === suggestedData)
+    changeControls(bindData(structuredClone(item.spec), data));
 };
+const drop = $("data-drop");
+let dragDepth = 0;
+drop.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+});
+drop.addEventListener("dragenter", (event) => {
+  event.preventDefault(); dragDepth++; drop.dataset.dragging = "true";
+});
+drop.addEventListener("dragleave", () => {
+  if (--dragDepth <= 0) { dragDepth = 0; delete drop.dataset.dragging; }
+});
+drop.addEventListener("drop", (event) => {
+  event.preventDefault(); dragDepth = 0; delete drop.dataset.dragging;
+  const files = event.dataTransfer?.files;
+  if (!files || files.length !== 1) { message("Choose one dataset file at a time."); return; }
+  $("data-file").value = "";
+  uploadData(files[0]);
+});
+document.addEventListener("dragover", (event) => {
+  if (event.dataTransfer?.types.includes("Files")) event.preventDefault();
+});
+document.addEventListener("drop", (event) => {
+  if (event.dataTransfer?.types.includes("Files")) event.preventDefault();
+});
 $("worksheet").onchange = async () => {
   if (!workbook) return;
   const source = workbook, sheet = $("worksheet").value;
   const recommend = !source.activeSheet;
   const operation = ++selection;
   data = null;
-  $("columns").replaceChildren();
+  clearDataViews();
   invalidate();
   const current = revision;
   if (!sheet) {
@@ -509,7 +581,7 @@ $("demo").onclick = async () => {
   data = null;
   showWorkbook({});
   $("include-data").checked = false;
-  $("columns").replaceChildren();
+  clearDataViews();
   invalidate();
   status("Loading sample…");
   try {
@@ -517,6 +589,9 @@ $("demo").onclick = async () => {
     if (operation !== selection) return;
     showData(demo.data);
     setSpec(demo.spec);
+    const suggestions = await api("/api/suggest", {data_id: demo.data.id});
+    if (operation !== selection) return;
+    showDesigns(suggestions, demo.data.id);
     schedule();
   } catch (error) {
     if (operation === selection) message(error.message);

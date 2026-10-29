@@ -1,9 +1,9 @@
 /** Real browser/editor contract, including stale responses and exported reproduction. */
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
@@ -648,6 +648,60 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
   await page.getByRole("button", {name: "Try sample data"}).click();
   await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
   assert.equal(await page.locator("#worksheet-box").isHidden(), true);
+  // Real File API drops feed the same owned upload path as the picker.
+  await page.setViewportSize({width: 1500, height: 1100});
+  const left = (await page.locator(".controls").boundingBox())!;
+  const canvas = (await page.locator(".preview").boundingBox())!;
+  const inspector = (await page.locator(".editor").boundingBox())!;
+  assert.ok(left.x + left.width < canvas.x && canvas.x + canvas.width < inspector.x);
+  assert.equal(await page.locator(".preview #render").count(), 1);
+  assert.equal(await page.locator(".editor #findings").count(), 1);
+  const dropFile = async (path: string) => {
+    const encoded = readFileSync(path).toString("base64");
+    const transfer = await page.evaluateHandle(`(() => {
+      const raw=atob(${JSON.stringify(encoded)}), bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
+      const transfer=new DataTransfer();transfer.items.add(new File([bytes],${JSON.stringify(basename(path))}));
+      return transfer;
+    })()`);
+    await page.locator("#data-drop").dispatchEvent("dragenter", {dataTransfer:transfer});
+    assert.equal(await page.locator('#data-drop[data-dragging="true"]').count(), 1);
+    await page.locator("#data-drop").dispatchEvent("drop", {dataTransfer:transfer});
+    await transfer.dispose();
+  };
+  await dropFile(resolve("python/tests/fixtures/drop-profile.csv"));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.match(await page.locator("#data-summary").innerText(), /drop-profile.csv.*4 rows/);
+  const scoreRow = page.getByRole("table", {name:"Dataset columns"}).getByRole("row").filter({hasText:"score"});
+  assert.match(await scoreRow.innerText(), /float64[\s\S]*3 present[\s\S]*1 missing/);
+  assert.match(await page.locator("#profile-note").innerText(), /do not establish independent/);
+  await control("title", "Keep my authored title");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const authoredBefore = await spec();
+  await page.locator("#design-choice").selectOption({index:1});
+  assert.deepEqual(await spec(), authoredBefore);
+  await page.locator("#apply-design").click();
+  assert.notEqual((await spec()).title, "Keep my authored title");
+  await page.locator("#undo-controls").click();
+  assert.equal((await spec()).title, "Keep my authored title");
+  await dropFile(resolve("python/tests/fixtures/worksheet-experiments.xlsx"));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Choose a worksheet");
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await page.locator("#worksheet").selectOption("Measured results");
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.equal((await spec()).data.sheet, "Measured results");
+  await dropFile(resolve("python/tests/fixtures/drop-profile.parquet"));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  assert.equal((await spec()).data.format, "parquet");
+  assert.match(await page.locator("#data-summary").innerText(), /drop-profile.parquet.*3 rows/);
+  await page.locator("#render").click();
+  await verified();
+  await page.screenshot({path:join(evidence,"workspace-desktop.png"),fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  const mobileCanvas=(await page.locator(".preview").boundingBox())!;
+  const mobileInspector=(await page.locator(".editor").boundingBox())!;
+  assert.ok(mobileCanvas.y < mobileInspector.y);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
+  await page.locator(".preview").screenshot({path:join(evidence,"workspace-mobile-figure.png")});
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -685,6 +739,11 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
           "stale worksheet selection cannot replace current data",
           "native workbook ZIP consent and actual-artist reproduction",
           "native workbook desktop mobile and CSV sample recovery",
+          "central canvas with data left and checks/settings right",
+          "actual CSV Excel and Parquet File API drops",
+          "actual profile types present and missing counts",
+          "reviewed recommendation apply and undo preserves authored intent",
+          "mobile figure before settings with no horizontal overflow",
         ],
       },
       null,

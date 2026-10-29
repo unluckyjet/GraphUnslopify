@@ -58,6 +58,9 @@ def main() -> None:
         "--excel", action="store_true", help="verify native Excel input and exports"
     )
     parser.add_argument(
+        "--parquet", action="store_true", help="install the optional Parquet reader"
+    )
+    parser.add_argument(
         "--require-environment",
         action="store_true",
         help="require current-source runtime environment provenance; older releases may omit it",
@@ -145,6 +148,7 @@ def main() -> None:
             ("agent", args.agent),
             ("pdf", args.pdf),
             ("excel", args.excel),
+            ("parquet", args.parquet),
             ("tracking", args.tracking),
         )
         if enabled

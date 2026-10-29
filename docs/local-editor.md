@@ -18,15 +18,22 @@ works offline after dependencies are installed.
 
 ## A complete edit and review
 
-1. Select **Try sample data**, or choose a CSV, regular JSON table, Parquet or Excel file. The sample is
+1. Select **Try sample data**, or drop a CSV, regular JSON table, Parquet or Excel file onto
+   **Drop data or choose a file**. The file picker uses the same import path. The sample is
    public synthetic data. Parquet needs `[parquet]`; current-source Excel needs `[excel]`.
    For a workbook with multiple worksheets, choose the experiment explicitly before rendering.
    Changing worksheets clears the previous preview and downloads while preserving figure settings.
    Files are read by a loopback service
    on this computer; nothing is sent to the hosted API.
-2. Review the inferred fields and experimental units. Choose a kind, x/y fields or group. A
-   canonical recipe offers a starting spec; its placeholder fields still need your own data.
-3. Use **Figure settings** for labels, units, summaries, uncertainty, named observation IDs,
+2. Review **Data & fields** on the left: each field's actual type, present/missing counts and
+   inferred role. Counts describe rows, not independent experimental units. Choose a kind,
+   x/y fields or group. **Suggested figures** lists starting specifications for the selected
+   dataset and explains each recommendation. Changing that selection alone leaves the figure
+   unchanged; **Use suggested figure** replaces the starting specification, and **Undo control
+   change** can restore it. A canonical recipe is another starting point; its placeholder
+   fields still need your own data.
+3. The figure occupies the center, with rendering and exports beneath it. Use **Settings & checks**
+   on the right for labels, units, summaries, uncertainty, named observation IDs,
    manuscript exports and claims. Expand **Advanced JSON specification** for panels, filters,
    smoothing, layers and other advanced options.
    All 21 canonical kinds use the same schema/compiler as the CLI and agent integration. Some
@@ -75,9 +82,11 @@ renderer to validate. Dates in profile categories use ISO text. Column roles and
 figure recommendations are heuristics; row counts do not establish independent
 experimental sample sizes. Repeat discovery is bounded and reports truncation
 on wide tables. A malformed upload leaves no usable input identity or orphaned
-upload folder. These profile details require current source and do not yet change
-the three-pane editor layout. Current-source workbook upload adds explicit
-worksheet selection over those profiles.
+upload folder. The current-source workspace places this data explorer left of the
+figure and settings/verification to its right. On narrow screens the figure appears
+before settings. Current-source workbook upload adds explicit worksheet selection
+over those profiles. See the [actual before/after comparison](workspace/comparison.html)
+for the layout change and its [capture evidence](workspace/README.md).
 
 These additions require source after 0.8.0; the published 0.8.0 wheel retains the
 earlier editor. From a checkout, install with `python -m pip install ./python`.
@@ -119,7 +128,8 @@ starting recipe intentionally replaces the specification; control undo can resto
 Controls are generated from the same per-kind schema as the compiler. Actual
 browser checks cover typed drafts, strict claim failure/recovery, all 21 kinds'
 required controls, preservation/undo, keyboard text entry, focus, desktop/mobile
-layout, ZIP consent and exported-script reproduction. No independent usability
+layout, actual CSV/Excel/Parquet drops, recommendation apply/undo, ZIP consent and
+exported-script reproduction. No independent usability
 study or novice completion-time measurement is claimed.
 
 ## Local file boundaries

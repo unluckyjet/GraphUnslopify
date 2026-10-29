@@ -21,9 +21,9 @@
     </header>
     <main>
       <aside class="card controls">
-        <h2>1. Data &amp; intent</h2>
-        <label class="upload"
-          >Choose data file<input
+        <h2>1. Data &amp; fields</h2>
+        <label class="upload" id="data-drop"
+          >Drop data or choose a file<input
             id="data-file"
             type="file"
             accept=".csv,.json,.parquet,.xlsx,.xlsm,.xls"
@@ -36,7 +36,14 @@
           <label>Worksheet<select id="worksheet" aria-describedby="worksheet-help"></select></label>
           <p id="worksheet-help" class="muted">Choose the experiment to plot. Excel uses stored values; formulas are not recalculated.</p>
         </div>
-        <div id="columns" class="chips"></div>
+        <div id="columns" class="profile"></div>
+        <p id="profile-note" class="muted" hidden></p>
+        <details id="designs" open hidden>
+          <summary>Suggested figures</summary>
+          <label>Starting design<select id="design-choice"></select></label>
+          <p id="design-note" class="muted"></p>
+          <button id="apply-design" class="secondary" disabled>Use suggested figure</button>
+        </details>
         <label>Figure kind<select id="kind"></select></label
         ><label>X field<select id="x-field"></select></label
         ><label>Y field<select id="y-field"></select></label
@@ -62,13 +69,53 @@
           />
         </details>
       </aside>
+      <section class="card preview">
+        <div class="section-head">
+          <h2>2. Figure</h2>
+          <span id="status" class="badge" role="status" aria-live="polite"
+            >Choose data</span
+          >
+        </div>
+        <div class="paper">
+          <div id="empty">
+            <strong>Your figure will appear here</strong>
+            <p>Start with sample data, or choose a local file.</p>
+          </div>
+          <img id="preview" hidden alt="Figure preview" />
+        </div>
+        <div class="editor-actions">
+          <label class="check"
+            ><input id="live" type="checkbox" checked /> Live preview</label
+          ><button id="render">Render now</button>
+        </div>
+        <div class="downloads">
+          <div id="files"></div>
+          <label class="check"
+            ><input id="include-data" type="checkbox" /> <span id="include-data-label">Include source data in ZIP</span></label
+          ><button id="bundle" disabled>Download figure bundle</button>
+          <p class="muted">
+            Figures, Python, spec and report. Source data is included only when
+            selected.
+          </p>
+        </div>
+      </section>
       <section class="card editor">
         <div class="section-head">
-          <h2>2. Figure settings</h2>
+          <h2>3. Settings &amp; checks</h2>
           <button id="undo-controls" class="quiet" disabled>
             Undo control change
           </button>
         </div>
+        <details id="verification" open>
+          <summary>Verification results</summary>
+        <p id="counts" class="muted"></p>
+        <div id="findings" aria-live="polite"></div>
+        <div id="claims"></div>
+        <details id="description-box" hidden>
+          <summary>Accessible description</summary>
+          <p id="description"></p>
+        </details>
+        </details>
         <p id="control-error" role="alert" hidden></p>
         <fieldset
           id="settings"
@@ -93,43 +140,6 @@
             canonical figure schema.
           </p>
         </details>
-        <div class="editor-actions">
-          <label class="check"
-            ><input id="live" type="checkbox" checked /> Live preview</label
-          ><button id="render">Render now</button>
-        </div>
-      </section>
-      <section class="card preview">
-        <div class="section-head">
-          <h2>3. Preview &amp; evidence</h2>
-          <span id="status" class="badge" role="status" aria-live="polite"
-            >Choose data</span
-          >
-        </div>
-        <div class="paper">
-          <div id="empty">
-            <strong>Your figure will appear here</strong>
-            <p>Start with sample data, or choose a local file.</p>
-          </div>
-          <img id="preview" hidden alt="Figure preview" />
-        </div>
-        <p id="counts" class="muted"></p>
-        <div id="findings" aria-live="polite"></div>
-        <div id="claims"></div>
-        <details id="description-box" hidden>
-          <summary>Accessible description</summary>
-          <p id="description"></p>
-        </details>
-        <div class="downloads">
-          <div id="files"></div>
-          <label class="check"
-            ><input id="include-data" type="checkbox" /> <span id="include-data-label">Include source data in ZIP</span></label
-          ><button id="bundle" disabled>Download figure bundle</button>
-          <p class="muted">
-            Figures, Python, spec and report. Source data is included only when
-            selected.
-          </p>
-        </div>
       </section>
     </main>
     <footer>

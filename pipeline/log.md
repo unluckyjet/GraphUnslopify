@@ -139,3 +139,6 @@ One line per state change, newest last.
 2026-10-29 spec77 first pair checkpoint:Graph21.744921709s/Mpl16.953347625s,9/9 each first attempt;54 final hashes/18 PNGs/source and clock math rechecked,18-case replay passes.225/1420/seven gates/Ruff108 pass. Source protocol303b8e43/controller/core unchanged. Commit/push/exact CI/replay verification precedes mandatory reverse pair;2of4 study incomplete, no new release/human claim.
 
 2026-10-29 spec77 done:all4 prospective episodes/all36 clean cases first try, raw4 times/source snapshots retained;108 original hashes/36 PNGs and18 matching implementation pairs audited,full36-case replay passes.225/1420/seven gates/Ruff111 pass. Full20-item audit maps19 delivered scopes plus user-deferred18; no human/causal/unique-error advantage. Exact pushed all9/Figure and downloaded36-case replay required before goal completion.
+
+
+2026-10-29 spec80 done locally: central figure/render/exports, data types/counts and CSV/Excel/Parquet drops left, settings/strict checks right, explicit recommendations/apply/undo. Source/fresh offline installed31 browser workflows/all21 kinds and paper13 pass; seven gates227/1444/Ruff pass, original demo1953x1691 pixels identical, real measured desktop/mobile board retained. Source-only; push and exact all9/Figure verification precede81.

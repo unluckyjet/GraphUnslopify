@@ -39,7 +39,7 @@ exact main40901467484 all9 and Figure40901467426 passed; the downloaded actual
 Linux3.10 CI wheel reader/translator/schemas byte-match source and its Excel
 dependency metadata is verified.
 
-## Browser checkpoint79b (implemented; exact pushed CI pending)
+## Browser checkpoint79b (verified6d7a085)
 
 - Accept and preserve workbooks in an owned upload, list available worksheets,
   and require selection before a multi-sheet input is usable.
@@ -74,4 +74,7 @@ chooses bars via the native kind control and checks real label/value association
 Fresh installed assets come from /tmp/graphunslopify-workbook-editor-installed;
 the durable driver is scripts/preview-check.ts. CI installs the Excel extra for
 this browser gate and retains native installed-export evidence alongside wheels.
-New exact main/Figure CI must pass before milestone80; no PyPI release is made.
+Exact6d7a085 main40909604542 all9 and Figure40909604658 passed before80.
+Actual Linux3.10 native evidence12912149077 original source/all3 export hashes
+and selected-sheet schema-valid report rechecked; its PNG was visually inspected.
+No PyPI release is made.

@@ -63,7 +63,48 @@ separate comparison checked every one of8,574 output value strings, row IDs and
 observation order against the original source lines. Eleven automated negative/
 repeatability controls pass. These measurements cover preparation only.
 
-## Measurement contract for the next benchmark checkpoint
+## Frozen measurement protocol
+
+[Protocol v1](../../benchmarks/certified/protocol.json) binds the complete source
+manifest and evaluator/worker hashes. Its implementation is
+[measurement.py](../../benchmarks/certified/measurement.py); the isolated
+[save-time worker](../../scripts/measure-certified-figure.py) records the actual
+artists at each PNG/SVG/PDF export, plus final file hashes and process failure.
+Sixteen synthetic controls validate this evaluator before any NIST product output is run.
+Actual benchmark execution remains pending.
+
+The task has one mean marker and one observed sample-SD interval per dataset,
+with exact labels and separate original scales. All nine cases, two arms, two
+variants (correct task and intentionally missing interval) and two repetitions
+are mandatory. Matplotlib uses the same external evaluator as GraphUnslopify;
+this is a strong validated comparator. Built-in tool status is recorded separately
+from benchmark task acceptance; a deliberately omitted interval may render with
+exit0 while failing the external task. Do not credit that as a built-in catch.
+
+Numerical gates use external decimal facts, one last-printed decimal unit for
+non-exact reference precision, input float representation error and explicit8/16
+coordinate ULP allowances. Record continuous errors and their allowances. Plotted
+half-span is derived from the actual endpoints; it does not measure an underlying
+SD estimator's full precision. These are declared engineering gates, not NIST
+certification or a universal floating-point error proof.
+
+Quality proxies decode the actual three formats, check nontransparent marker/
+interval membership and axes coverage,2px interval visibility and6pt text at a
+3.4in final width. Actual drawn text is observed through draw calls, avoiding
+retained undrawn tick labels. Text-overlap candidates need visual review; proxies
+do not establish aesthetic quality or researcher usefulness. Reproduction checks
+actual decoded PNG dimensions/pixels within each arm, with missing files explicit.
+
+Development-session clocks will begin before writing each arm-specific producer,
+end after the first correct nine-case verification, and retain failures/attempts.
+This is one already-familiar, unblinded coding assistant, Matplotlib first and
+GraphUnslopify second. Report shared harness/preparation and producer/payload/code
+sizes alongside task clocks. This fixed-order single-operator observation cannot
+establish a causal productivity benefit or human development time. Machine build,
+process, instrumented execution and save timers remain separate; instrumentation
+overhead is included and disclosed.
+
+## Measurement contract for execution
 
 Before evaluating product outputs, implement and freeze the following task and
 measurement definitions. Preserve all nine datasets, failures and repeat

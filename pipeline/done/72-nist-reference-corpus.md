@@ -1,7 +1,7 @@
 ---
 id: 72
 slug: nist-reference-corpus
-status: ready
+status: done
 priority: P1
 title: Freeze a complete external certified-reference corpus before benchmark evaluation
 source_idea: review2026-10-28 item17 independent reference answers realistic research data comparison timing reproducibility quality
@@ -43,3 +43,7 @@ and evidence overwrite refusals, and complete-corpus membership. Seven local gat
 pass:225 Node/1374 Python, zero skips/one upstream MLflow/SQLAlchemy warning,
 15 baseline/16 render/25 recipe/7 composition cases. Ruff check/format93 pass.
 Exact pushed main/Figure CI remains to be verified before benchmarking.
+
+Exact856f057dcc8e51edae806157a8e16bc503507228 main40840310179 all9 and
+Figure40840310204 passed. Both downloaded CI preparation metadata records match
+local source/CSV hashes; additional real network-blocked offline preparation matches.

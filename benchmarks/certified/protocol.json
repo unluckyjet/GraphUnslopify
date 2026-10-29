@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "nist-univariate-mean-sd-v1",
+  "source_manifest_sha256": "5c6276e0424d5eb4aa60c6df8861ff6c5f4442df6a11a35134b1a40e223e4e20",
+  "dataset_order": [
+    "PiDigits",
+    "Lottery",
+    "Lew",
+    "Mavro",
+    "Michelso",
+    "NumAcc1",
+    "NumAcc2",
+    "NumAcc3",
+    "NumAcc4"
+  ],
+  "arms": [
+    "matplotlib",
+    "graphunslopify"
+  ],
+  "variants": [
+    "mean_sd",
+    "missing_interval"
+  ],
+  "repeats": 2,
+  "order": "Dataset publisher order; first arm alternates by dataset index; reverse that order on repeat 2. Run both variants for every dataset/arm/repeat.",
+  "formats": [
+    "png",
+    "svg",
+    "pdf"
+  ],
+  "width_in": 3.4,
+  "height_in": 2.6,
+  "dpi": 150,
+  "minimum_text_pt": 6,
+  "minimum_interval_pixels": 2,
+  "task": "One circle marker at the complete-data mean with a vertical +/- sample SD interval, separate figures in original publisher units, descriptive only. Title contains dataset ID and mean/sample SD meaning; labelled axes. Missing-interval sentinel intentionally violates this same task in both arms.",
+  "accuracy": {
+    "reference": "External NIST certified mean, sample SD and their decimal endpoints. Lag1 is metadata only.",
+    "reference_quantum": "Zero for exact values; otherwise one unit in the last printed decimal place (conservative rounding/truncation allowance).",
+    "input_error": "Maximum abs(Decimal.from_float(float(token))-Decimal(token)) over the original decimal tokens.",
+    "mean_allowance": "reference_mean_quantum + input_error + 8*ulp(float(reference_mean))",
+    "endpoint_allowance": "reference_mean_quantum + reference_sd_quantum + 3*input_error + 16*ulp(float(reference_endpoint))",
+    "half_span_allowance": "Average of the two endpoint allowances; half-span is measured from actual plotted endpoints, not an underlying SD estimator.",
+    "interpretation": "Engineering gates with explicit float/printed-precision context; not NIST software certification or a proof of every estimator. Retain continuous deviations and every failed/missing result."
+  },
+  "quality": "Decode actual PNG/SVG/one-page PDF, require one measured save of each and unchanged final bytes. Score marker/interval presence and within-axes center/endpoints, >=2px interval and >=6pt text at 3.4in placement. Record text-overlap candidates separately for visual review; proxies do not establish human aesthetics/usefulness. Require captured PNG save-DPI and decoded DPI metadata to match the declared150dpi (metadata rounding allowance0.5dpi).",
+  "reproducibility": "Both repetitions must have decodable actual PNGs; compare dimensions+RGBA pixels within each arm/variant/case. Missing outputs fail comparability, never count as identical. Cross-renderer pixels need not agree.",
+  "timing": "Record machine producer/build, process wall, instrumented script execution and file-save seconds separately. Do not subtract measurement overhead or infer human authoring time.",
+  "development_sessions": {
+    "operator": "One coding assistant in this thread; unblinded, already familiar with both workflows, no human participant.",
+    "task": "Author each arm-specific producer from an absent file to verified correct clean outputs for all nine datasets, using the shared frozen measurement harness. Producer accepts dataset, CSV, output directory and missing-interval variant and writes figure.py (and its own declarative payload if any).",
+    "clock": "Append UTC/monotonic begin event before further producer-specific lookup/editing; end after first correct nine-case verification. Include failed attempts/tool/validation time. Keep all events/failed outputs; no retrospective reconstructed times.",
+    "order": "Matplotlib producer first, GraphUnslopify second. Fixed order, shared prior work and one operator prevent a causal speed/productivity claim.",
+    "shared_cost": "Report shared measurement/harness code size and preparation separately. Common prior work is excluded from per-arm sessions and must be disclosed, together with producer/payload/generated-code sizes. Prior design/familiarity time is unmeasured and excluded; session clocks cover producer implementation/revision to successful verification, not total project development.",
+    "unmeasured": "Human development time, researcher quality/usability and independent external study execution."
+  },
+  "failure_policy": "Freeze protocol and measurement implementation in Git before any NIST tool-output evaluation. Retain all nine cases, variants, repeats, logs/statuses/hashes and failures. A subsequent protocol change needs a new version and retained earlier outcomes.",
+  "implementation_sha256": {
+    "benchmarks/certified/measurement.py": "1e7f5e712128fd53bf11eb68f899a1d0a1a7217ac3533db6f7b4a64cd4e60378",
+    "scripts/measure-certified-figure.py": "fce0f0049066812cfb1b715f5b600036ee3f716485a05ab9e0865db0e529e2d7"
+  },
+  "x_label": "Dataset",
+  "title_template": "{id}: mean and sample SD",
+  "y_labels": {
+    "PiDigits": "Digit value",
+    "Lottery": "Recorded lottery value",
+    "Lew": "Beam deflection (publisher units)",
+    "Mavro": "Filter transmittance (reported scale)",
+    "Michelso": "Speed of light (million m/s)",
+    "NumAcc1": "Synthetic value",
+    "NumAcc2": "Synthetic value",
+    "NumAcc3": "Synthetic value",
+    "NumAcc4": "Synthetic value"
+  }
+}

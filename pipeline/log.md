@@ -142,3 +142,6 @@ One line per state change, newest last.
 
 
 2026-10-29 spec80 done locally: central figure/render/exports, data types/counts and CSV/Excel/Parquet drops left, settings/strict checks right, explicit recommendations/apply/undo. Source/fresh offline installed31 browser workflows/all21 kinds and paper13 pass; seven gates227/1444/Ruff pass, original demo1953x1691 pixels identical, real measured desktop/mobile board retained. Source-only; push and exact all9/Figure verification precede81.
+
+
+2026-10-29 spec81a geometry checkpoint: actual final-PNG bounds and semantic artist paths, hash/spec/run binding, hidden-axis exclusion and safe imports for preview/standalone package-like filenames.14 focused controls on3.10/3.12,227 Node/1458 Python/seven gates/Ruff/gallery15 and source/fresh installed31 browser workflows pass;22 regenerated PNG pixel byte identities preserved. Full81 aliases/UI and82–89 remain open. Commit/push/exact CI before next checkpoint.

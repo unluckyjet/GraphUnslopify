@@ -1,0 +1,426 @@
+{
+  "date": "2026-10-29",
+  "base_revision": "8bb1d4a0d4f92ac565ab04ce69eba4b38b305b0b",
+  "checkpoint": "81a geometry foundation; full direct-editing interaction still open",
+  "source_sha256": {
+    "src/codegen/index.ts": "53488ddb3515c324603fc45d3db737eb8ce17e73885678bc47cbfb7c3460dedc",
+    "src/codegen/runtime.ts": "ea684e22249b8abc78e7fc2c000eb504ab9703c37f8e4fd76b682f04c7835526",
+    "src/codegen/decorate.ts": "c99983dee4459802038f49368d57b6002ea0f29d5c7ce04afc3bcac6c88aa951",
+    "src/codegen/annotations.ts": "2129d796ca639c192c888d30cb42845f04124160b8fbae7cb81ad1757538950e",
+    "src/codegen/draw.ts": "ab181d8b61f2f27ee69d3501d940c3be4dc5b20355d1bca7f59cb2b1683d5ffb",
+    "python/graphunslopify/preview.py": "3637c1d0d723586594ea104c757de00506d9e2a1b94b2475baffab6f2053e238",
+    "python/graphunslopify/preview_geometry.py": "8e3942ff2d0be43bf87370aeb69eb8c0c39b9876990607755f274f5f9725c98f",
+    "python/graphunslopify/preview_render.py": "20a07525631cee0b60ee260a3f953a0c39dc7e56a485ab5df2089c9f95fc05a6",
+    "python/graphunslopify/_translator.mjs": "e69fc4efd94ad4181bf11895af9b5639612a0166484a4da60388497df97b1783",
+    "python/tests/test_preview_geometry.py": "d36576d09beef57687def85848e848b1642434d44995019f911c7f88e569df53"
+  },
+  "local_checks": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.23683704098220915
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.55386924999766
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 256.06703150004614
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.2330056669889018
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.2464049169793725
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 17.907133625005372
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.1213805829756893
+    }
+  ],
+  "python_tests": 1458,
+  "node_tests": 227,
+  "focused_geometry_controls": {
+    "python_3_12_14": 14,
+    "python_3_10_22": 14
+  },
+  "strict_gallery_cases": 15,
+  "browser": {
+    "source": {
+      "passed": true,
+      "external_requests": 0,
+      "javascript_errors": 0,
+      "controlled_kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "workflows": [
+        "data picker",
+        "spec editing",
+        "offered fix",
+        "static rejection",
+        "false runtime claim",
+        "per-panel mixed verdicts",
+        "manual rendering",
+        "runtime error invalidates outputs",
+        "stale response",
+        "PNG preview",
+        "ZIP consent",
+        "reproduced exports",
+        "mobile layout",
+        "schema-driven required controls for all21 kinds",
+        "controls-only figure and reproduced bundle",
+        "typed numeric draft refusal and batch recovery",
+        "unsupported median SEM rejection",
+        "native claim add edit remove and strict failure",
+        "advanced settings custom labels and undo preserved",
+        "invalid JSON disables form controls",
+        "live native text input preserves focus",
+        "native workbook staging and explicit worksheet selection",
+        "worksheet switching preserves settings and invalidates evidence",
+        "stale worksheet selection cannot replace current data",
+        "native workbook ZIP consent and actual-artist reproduction",
+        "native workbook desktop mobile and CSV sample recovery",
+        "central canvas with data left and checks/settings right",
+        "actual CSV Excel and Parquet File API drops",
+        "actual profile types present and missing counts",
+        "reviewed recommendation apply and undo preserves authored intent",
+        "mobile figure before settings with no horizontal overflow"
+      ]
+    },
+    "fresh_installed_offline": {
+      "passed": true,
+      "external_requests": 0,
+      "javascript_errors": 0,
+      "controlled_kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "workflows": [
+        "data picker",
+        "spec editing",
+        "offered fix",
+        "static rejection",
+        "false runtime claim",
+        "per-panel mixed verdicts",
+        "manual rendering",
+        "runtime error invalidates outputs",
+        "stale response",
+        "PNG preview",
+        "ZIP consent",
+        "reproduced exports",
+        "mobile layout",
+        "schema-driven required controls for all21 kinds",
+        "controls-only figure and reproduced bundle",
+        "typed numeric draft refusal and batch recovery",
+        "unsupported median SEM rejection",
+        "native claim add edit remove and strict failure",
+        "advanced settings custom labels and undo preserved",
+        "invalid JSON disables form controls",
+        "live native text input preserves focus",
+        "native workbook staging and explicit worksheet selection",
+        "worksheet switching preserves settings and invalidates evidence",
+        "stale worksheet selection cannot replace current data",
+        "native workbook ZIP consent and actual-artist reproduction",
+        "native workbook desktop mobile and CSV sample recovery",
+        "central canvas with data left and checks/settings right",
+        "actual CSV Excel and Parquet File API drops",
+        "actual profile types present and missing counts",
+        "reviewed recommendation apply and undo preserves authored intent",
+        "mobile figure before settings with no horizontal overflow"
+      ]
+    }
+  },
+  "installed_matching_assets": [
+    "preview.py",
+    "preview_geometry.py",
+    "preview_render.py",
+    "_translator.mjs",
+    "web/index.html",
+    "web/app.js",
+    "web/app.css",
+    "web/controls.js",
+    "schemas/runtime-report.schema.json"
+  ],
+  "unchanged_pixel_evidence": [
+    {
+      "path": "docs/density-evidence.png",
+      "dimensions": [
+        1366,
+        823
+      ],
+      "decoded_rgba_sha256": "43de7679d30afb5e7b1251be9cd8034870dd0b15bf501f0574be49c1bb85716a",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/fifth-pass-table.png",
+      "dimensions": [
+        996,
+        370
+      ],
+      "decoded_rgba_sha256": "aa72263c32508d0564de90c66b8825ffe23095ec3918bfec069326fc7f806bfa",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/seventh-pass-confusion.png",
+      "dimensions": [
+        491,
+        376
+      ],
+      "decoded_rgba_sha256": "d80795a5ae6a8d85acf11e2eae26b35cd5e53260f3b1f014fcdce822e2728194",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/seventh-pass-qq.png",
+      "dimensions": [
+        491,
+        423
+      ],
+      "decoded_rgba_sha256": "36c987d4fbbee84c3ff84c8490f4ebda3e33f497867c7780f93d92bd1cfb4c25",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/seventh-pass-scaling-fit.png",
+      "dimensions": [
+        477,
+        423
+      ],
+      "decoded_rgba_sha256": "83395846edf72d205d11881401f7c3a4e1201c8f4d52c2dde37e53bebd5379fa",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/sparkline-shared-scales.png",
+      "dimensions": [
+        1037,
+        614
+      ],
+      "decoded_rgba_sha256": "7f0e09b558279abe47c82aa692a0db91fff85dcb23960a3f063942d72c81a755",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "docs/third-pass-heatmap.png",
+      "dimensions": [
+        998,
+        614
+      ],
+      "decoded_rgba_sha256": "2b42fee533bc1248f14833812960daac2ac0ed379438477c329eb090e505caf9",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/01-training-curve.png",
+      "dimensions": [
+        2614,
+        1661
+      ],
+      "decoded_rgba_sha256": "39e5a58ef19f1c19425600391822d4cc9cabf6e796287d9972f4a164fcbe7de8",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/02-loss-log.png",
+      "dimensions": [
+        1988,
+        1500
+      ],
+      "decoded_rgba_sha256": "b759074132f200eb20036e2e62754f72bc72d6406f8bc513c805ce204ce44714",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/03-single-run.png",
+      "dimensions": [
+        1991,
+        1509
+      ],
+      "decoded_rgba_sha256": "adf809cc82c06b66bb58707ed66ad7cd8a941f29a20c845ecd461a95cb81c501",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/04-accuracy-by-dataset.png",
+      "dimensions": [
+        2339,
+        1798
+      ],
+      "decoded_rgba_sha256": "d18124fa4cbdc8976ce7cbef17fb0ffd0aac93cf3d59d09b2600677eb8540349",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/05-latency-ranking.png",
+      "dimensions": [
+        1991,
+        1500
+      ],
+      "decoded_rgba_sha256": "0022efd09dfbafbed203be7321ba9e18dff13ae38e05b987e7c80d83bc496185",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/06-accuracy-vs-latency.png",
+      "dimensions": [
+        2339,
+        1798
+      ],
+      "decoded_rgba_sha256": "7ed64e5cd16e64856a15e8b5bee2e5dde0fcb68abfb68155b01c3cd5fe7e6e1d",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/07-params-trendline.png",
+      "dimensions": [
+        1991,
+        1509
+      ],
+      "decoded_rgba_sha256": "0aa8d4547898ac03b32f768b839cfeb13a742fa50a4831aa96298f9a1b0bd7e8",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/08-compact-double-column.png",
+      "dimensions": [
+        4175,
+        2490
+      ],
+      "decoded_rgba_sha256": "c40c12e2f784a7c7e2b582868b8cfabf3ae657325699530e9448e982d6ecebfc",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/09-uncertainty-band.png",
+      "dimensions": [
+        4322,
+        2400
+      ],
+      "decoded_rgba_sha256": "854262bb9728481813cdd6d6439742029d427fcd1642afbed492c33d7da16eb0",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/10-faceted-benchmarks.png",
+      "dimensions": [
+        4151,
+        2501
+      ],
+      "decoded_rgba_sha256": "ce8987c2f9c3a622fafa75d44eb2cb0b32c7c6d231637db951455d80ef40705f",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/11-seed-spread.png",
+      "dimensions": [
+        1925,
+        1503
+      ],
+      "decoded_rgba_sha256": "6c1275c09a9ac4b134912a97acf455342ffa815bc84f21f55941e50bf26a33af",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/12-sweep-heatmap.png",
+      "dimensions": [
+        1990,
+        1515
+      ],
+      "decoded_rgba_sha256": "a12a36fd5d3c4c7549fcc4211e02e7bc7a2d5aed5af8152e25c765b4691995ef",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/13-direct-labels.png",
+      "dimensions": [
+        4151,
+        2469
+      ],
+      "decoded_rgba_sha256": "c2bddfa635550e8d29174a1f3289e838264400005c1a34d552f4b0d0521d5aaa",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/14-animated-curve.png",
+      "dimensions": [
+        4322,
+        2400
+      ],
+      "decoded_rgba_sha256": "8a8bf7a17267c98ad07780e0bb19732df2567e1fdbb37417a9cd7fb3c734de09",
+      "matches_base_pixels": true
+    },
+    {
+      "path": "examples/baseline/15-price-and-average.png",
+      "dimensions": [
+        4147,
+        2466
+      ],
+      "decoded_rgba_sha256": "da7eedab86dd785034965c5352c5a9dcb5a97b63b5c62495a24c441f4e4b4328",
+      "matches_base_pixels": true
+    }
+  ],
+  "ci": "Exact pushed commit CI pending at this local evidence checkpoint"
+}

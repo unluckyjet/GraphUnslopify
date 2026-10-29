@@ -192,6 +192,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
             ? `Normalized ${axis.label} (${axis.percent ? "% of observed range" : "0–1"})`
             : axisLabel(axis),
       )})`,
+      `        edit_target(ax.${target}axis.label, [${pyStr(specAxis)}, "label"], "axis_label", ${pyStr(axis.field)})`,
     );
     if (isCategorical(spec, specAxis) || spec.kind === "heatmap") continue;
     if (axis.scale !== "linear") out.push(`    ax.set_${target}scale(${pyStr(axis.scale)})`);
@@ -327,7 +328,7 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
     ] : ["    handles, labels = ax.get_legend_handles_labels()"]),
     "    if not handles:",
     "        return",
-    "    ax.legend(",
+    "    legend = ax.legend(",
     "        handles,",
     "        labels,",
     `        title=${pyOptStr(spec.legend.title)},`,
@@ -339,7 +340,10 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
       ? "        ncol=1,  # Per-panel errors need room without crossing into another legend."
       : "        ncol=min(len(handles), 4),");
   }
-  out.push("    )", "");
+  out.push("    )",
+    "    for text, source in zip(legend.get_texts(), labels):",
+    '        edit_target(text, None, "legend_entry", str(source))',
+    '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")', "");
 }
 
 /** Keep complete category names and font sizes; rotate only when geometry needs it. */

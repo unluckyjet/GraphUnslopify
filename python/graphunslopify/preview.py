@@ -226,6 +226,19 @@ class PreviewState:
             completed = _run(
                 [
                     sys.executable,
+                    "-c",
+                    (
+                        "import os,sys; "
+                        "sys.path[:]=[p for p in sys.path if p and "
+                        "os.path.normcase(os.path.realpath(p)) != "
+                        "os.path.normcase(os.path.realpath(os.getcwd()))]; "
+                        f"sys.path.insert(0,{str(Path(__file__).resolve().parent.parent)!r}); "
+                        "import runpy; runpy.run_module('graphunslopify.preview_render',run_name='__main__')"
+                    ),
+                    "--geometry",
+                    f"{stem}.edit-map.json",
+                    "--png",
+                    f"{stem}.png",
                     str(script),
                     "--strict",
                     "--json",
@@ -283,6 +296,27 @@ class PreviewState:
                     "exit_code": completed.returncode,
                 }
             )
+            geometry_path = folder / f"{stem}.edit-map.json"
+            geometry = {"available": False, "targets": [], "error": "No PNG geometry was produced"}
+            if geometry_path.is_file():
+                try:
+                    candidate = json.loads(geometry_path.read_text(encoding="utf8"))
+                    if not isinstance(candidate, dict):
+                        raise TypeError("PNG geometry must be an object")
+                    image = next((item for item in exports if item["format"] == "png"), None)
+                    if candidate.get("available") and image is not None:
+                        if candidate["image"]["sha256"] != image["sha256"]:
+                            raise ValueError("Geometry does not describe the current PNG")
+                        geometry = {
+                            **candidate,
+                            "spec_hash": report["spec_hash"],
+                            "run_id": identity,
+                        }
+                    else:
+                        geometry["error"] = candidate.get("error", "PNG geometry is unavailable")
+                except (OSError, ValueError, KeyError, TypeError) as problem:
+                    geometry["error"] = str(problem)
+            answer["edit_map"] = geometry
             return answer
 
     def bundle(self, identity: str, include_data: bool) -> bytes:

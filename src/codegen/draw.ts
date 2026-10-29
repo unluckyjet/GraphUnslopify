@@ -226,6 +226,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
       "        zorder=1,",
       "    )",
       "    twin.set_ylabel(Y2_LABEL, color=PALETTE[1])",
+      '    edit_target(twin.yaxis.label, ["y2", "label"], "axis_label", Y2_FIELD)',
       '    twin.tick_params(axis="y", labelcolor=PALETTE[1])',
       `    twin.set_yscale(${pyStr(spec.y2.scale)})`,
       "    ax._gu_twin = twin",

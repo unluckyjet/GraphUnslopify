@@ -20963,11 +20963,12 @@ def place_annotations(ax, frame):
                 if not ANNOTATION_CATEGORICAL and note["coordinate"]:
                     requested = float(mdates.date2num(pd.to_datetime(note["at"]))) if X_TEMPORAL else float(note["at"])
                     record["snapped"] = point["key"] != requested
-                target.annotate(note["text"], xy=(point["x"], point["y"]),
+                artist = target.annotate(note["text"], xy=(point["x"], point["y"]),
                                 xytext=offsets[index % len(offsets)], textcoords="offset points",
                                 fontsize=ANNOTATION_PT, color="#202020", annotation_clip=False,
                                 bbox={"facecolor": "white", "alpha": 0.95, "edgecolor": "none", "pad": 1} if ANNOTATION_KIND in ("heatmap", "confusion_matrix") else None,
                                 arrowprops={"arrowstyle": "-", "linewidth": 0.7, "color": "#767676"})
+                edit_target(artist, ["annotate", index, "text"], "annotation", {"panel": CURRENT_PANEL, "metric": Y_FIELD})
             else:
                 record["reason"] = "the resolved primary mark lies outside this rendered view or log domain"
         records = RUN_REPORT.setdefault("annotations", [])
@@ -21333,7 +21334,8 @@ function emitDecoratePanel(spec, out) {
       `    if show_${target}:`,
       `        ax.set_${target}label(${pyStr(
         spec.kind === "paired_difference" && specAxis === "y" ? differenceLabel(axis2) : spec.kind === "qq" && specAxis === "y" && spec.transform?.kind === "normalize" ? `Normalized ${axis2.label} (${axis2.percent ? "% of observed range" : "0\u20131"})` : axisLabel(axis2)
-      )})`
+      )})`,
+      `        edit_target(ax.${target}axis.label, [${pyStr(specAxis)}, "label"], "axis_label", ${pyStr(axis2.field)})`
     );
     if (isCategorical(spec, specAxis) || spec.kind === "heatmap") continue;
     if (axis2.scale !== "linear") out.push(`    ax.set_${target}scale(${pyStr(axis2.scale)})`);
@@ -21451,7 +21453,7 @@ function emitLegend(spec, out) {
     ] : ["    handles, labels = ax.get_legend_handles_labels()"],
     "    if not handles:",
     "        return",
-    "    ax.legend(",
+    "    legend = ax.legend(",
     "        handles,",
     "        labels,",
     `        title=${pyOptStr(spec.legend.title)},`,
@@ -21461,7 +21463,13 @@ function emitLegend(spec, out) {
   if (spec.legend.position === "outside_bottom") {
     out.push(spec.kind === "calibration" && spec.facet ? "        ncol=1,  # Per-panel errors need room without crossing into another legend." : "        ncol=min(len(handles), 4),");
   }
-  out.push("    )", "");
+  out.push(
+    "    )",
+    "    for text, source in zip(legend.get_texts(), labels):",
+    '        edit_target(text, None, "legend_entry", str(source))',
+    '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")',
+    ""
+  );
 }
 function emitCategoryLayout(spec, out) {
   out.push("", "def fit_category_labels(fig, axes):");
@@ -22121,6 +22129,7 @@ function emitLine(spec, out) {
       "        zorder=1,",
       "    )",
       "    twin.set_ylabel(Y2_LABEL, color=PALETTE[1])",
+      '    edit_target(twin.yaxis.label, ["y2", "label"], "axis_label", Y2_FIELD)',
       '    twin.tick_params(axis="y", labelcolor=PALETTE[1])',
       `    twin.set_yscale(${pyStr(spec.y2.scale)})`,
       "    ax._gu_twin = twin"
@@ -25036,6 +25045,12 @@ function emitRuntime(spec, out) {
   );
   out.push(...`
 
+def edit_target(artist, path, role, source=None):
+    artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
+                                         "editable": path is not None}
+    return artist
+
+
 def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
@@ -25341,6 +25356,13 @@ function emitPreamble(spec, out, sourceSpec = spec) {
     "# The spec is embedded in the exported files' metadata, so a reader can",
     "# recover exactly what produced this figure. DISCLOSURE is ready to paste",
     "# into a methods section.",
+    "import os",
+    "import sys",
+    "# A chosen output filename must not shadow a required Python package.",
+    'if "__file__" in globals():',
+    "    _script_root = os.path.normcase(os.path.realpath(os.path.dirname(__file__)))",
+    "    sys.path[:] = [entry for entry in sys.path",
+    "                   if os.path.normcase(os.path.realpath(entry or os.getcwd())) != _script_root]",
     "import argparse",
     "import contextlib",
     "import io",
@@ -25714,6 +25736,7 @@ function emitMain(spec, out) {
       "            # Each repeated panel is a different metric, so the spec's",
       "            # own y label and unit do not apply to any of them.",
       "            ax.set_ylabel(pretty(name))",
+      '            edit_target(ax.yaxis.label, None, "derived_axis_label", str(name))',
       "            ax.set_title(None)"
     ] : [],
     ...scopedLegend ? [
@@ -25733,9 +25756,9 @@ function emitMain(spec, out) {
   if (spec.title) {
     out.push(
       "        if len(blocks) > 1:",
-      `            fig.suptitle(${pyStr(spec.title)})`,
+      `            edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`,
       "        else:",
-      `            flat[0].set_title(${pyStr(spec.title)})`
+      `            edit_target(flat[0].set_title(${pyStr(spec.title)}), ["title"], "title")`
     );
   }
   const outsideLegend = spec.group !== void 0 && spec.legend.show && spec.legend.style === "box" && (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");

@@ -16,6 +16,12 @@ export function emitRuntime(spec: FigureSpec, out: string[]): void {
     `UNKNOWN_DIAGNOSTIC = json.loads(${pyStr(JSON.stringify(UNKNOWN_DIAGNOSTIC))})`);
   out.push(...`
 
+def edit_target(artist, path, role, source=None):
+    artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
+                                         "editable": path is not None}
+    return artist
+
+
 def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,

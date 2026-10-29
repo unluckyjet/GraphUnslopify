@@ -64,3 +64,9 @@ workflow and synthetic fixture regeneration are documented. Obsidian is updated.
 
 This checkpoint is source after0.8.0. Exact pushed main/Figure CI must be verified
 before81; this does not complete the remaining visual-workspace initiative.
+
+
+Exact8bb1d4a main40915277406 all9/Figure40915277467 passed before81. Actual CI
+browser12915019920 confirms31 workflows/all21 kinds/0 external requests or JS
+errors; CI desktop visually inspected. Downloaded Linux3.10 wheel12916006318
+matches all7 checked server/editor/compiler/schema sources.

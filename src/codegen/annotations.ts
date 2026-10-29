@@ -203,11 +203,12 @@ def place_annotations(ax, frame):
                 if not ANNOTATION_CATEGORICAL and note["coordinate"]:
                     requested = float(mdates.date2num(pd.to_datetime(note["at"]))) if X_TEMPORAL else float(note["at"])
                     record["snapped"] = point["key"] != requested
-                target.annotate(note["text"], xy=(point["x"], point["y"]),
+                artist = target.annotate(note["text"], xy=(point["x"], point["y"]),
                                 xytext=offsets[index % len(offsets)], textcoords="offset points",
                                 fontsize=ANNOTATION_PT, color="#202020", annotation_clip=False,
                                 bbox={"facecolor": "white", "alpha": 0.95, "edgecolor": "none", "pad": 1} if ANNOTATION_KIND in ("heatmap", "confusion_matrix") else None,
                                 arrowprops={"arrowstyle": "-", "linewidth": 0.7, "color": "#767676"})
+                edit_target(artist, ["annotate", index, "text"], "annotation", {"panel": CURRENT_PANEL, "metric": Y_FIELD})
             else:
                 record["reason"] = "the resolved primary mark lies outside this rendered view or log domain"
         records = RUN_REPORT.setdefault("annotations", [])

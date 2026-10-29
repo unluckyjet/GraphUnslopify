@@ -86,6 +86,13 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
     "# The spec is embedded in the exported files' metadata, so a reader can",
     "# recover exactly what produced this figure. DISCLOSURE is ready to paste",
     "# into a methods section.",
+    "import os",
+    "import sys",
+    "# A chosen output filename must not shadow a required Python package.",
+    'if "__file__" in globals():',
+    "    _script_root = os.path.normcase(os.path.realpath(os.path.dirname(__file__)))",
+    "    sys.path[:] = [entry for entry in sys.path",
+    "                   if os.path.normcase(os.path.realpath(entry or os.getcwd())) != _script_root]",
     "import argparse",
     "import contextlib",
     "import io",
@@ -484,6 +491,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
           "            # Each repeated panel is a different metric, so the spec's",
           "            # own y label and unit do not apply to any of them.",
           "            ax.set_ylabel(pretty(name))",
+          '            edit_target(ax.yaxis.label, None, "derived_axis_label", str(name))',
           "            ax.set_title(None)",
         ]
       : []),
@@ -509,9 +517,9 @@ function emitMain(spec: FigureSpec, out: string[]): void {
   if (spec.title) {
     out.push(
       "        if len(blocks) > 1:",
-      `            fig.suptitle(${pyStr(spec.title)})`,
+      `            edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`,
       "        else:",
-      `            flat[0].set_title(${pyStr(spec.title)})`,
+      `            edit_target(flat[0].set_title(${pyStr(spec.title)}), ["title"], "title")`,
     );
   }
 

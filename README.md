@@ -516,7 +516,7 @@ A reproducible [workflow pilot](docs/validation/benchmark.md) compares ordinary 
 Matplotlib with hand-written assertions and the strict local CLI. On the eight selected
 synthetic cases, the assertion-enabled baseline and GraphUnslopify catch the same false
 comparison and abstain on the same unavailable checks. This is project-authored evidence;
-independent scientific benchmarking and external researcher testing remain outstanding.
+independent researcher execution and human productivity/adoption remain unmeasured.
 The [published-paper examples](docs/validation/published-papers.md) use real penguin and Iris
 datasets with source hashes, separate numerical calculations, actual artist measurements,
 and deliberately injected claim/uncertainty faults. Volunteer sessions are deferred;
@@ -524,7 +524,11 @@ the [prepared protocol](docs/validation/researcher-pilot.md) remains available f
 The [NIST reference comparison](docs/validation/certified-benchmark.md) adds 72 measured
 runs over all nine univariate reference datasets. Both validated workflows match the
 external answers and reject the chosen missing-interval faults; Matplotlib is faster
-on this workload. Authoring-time advantage remains unmeasured.
+on this workload. A [four-episode familiarized-agent creation study](docs/validation/authoring-study.md)
+also accepts all 36 clean cases; Matplotlib is faster in both pairs. These
+project-run observations establish no human or general productivity advantage.
+The [review-list delivery audit](docs/review-completion-2026-10-29.md) maps all 20
+items to implementation/evidence and keeps the user-deferred researcher trial explicit.
 
 These checks validate their implemented computations and presentation conditions. Data origin,
 experimental design, genuinely independent units and appropriate scientific interpretation remain

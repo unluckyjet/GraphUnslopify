@@ -29,7 +29,7 @@ recognition or a scientific certificate.
 
 | Priority | Work | What would establish progress |
 | --- | --- | --- |
-| High | Broader external scientific benchmarking. | Realistic tasks, independently established answers, fair Matplotlib comparators, measured errors, timing, reproducibility and defined figure-quality checks. Current synthetic/public-paper comparisons are author-run; no independent evaluation or human development-time advantage is established. |
+| Future validation | Broader independent researcher/task evaluation. | Current external-reference and familiarized-agent benchmarks are completed within their published bounds. New independent operators, tasks and human judgments would address general usefulness; current author-run results establish no human/causal productivity advantage. |
 | Deferred by user | Researchers testing their own projects. | Actual external sessions and recorded feedback when this work is resumed. The prepared protocol is not a completed user study; the current requested route uses public papers/datasets. |
 
 The [NIST comparison](docs/validation/certified-benchmark.md) records all 72 formal
@@ -39,6 +39,11 @@ PNG repetition pairs agree. GraphUnslopify has higher process overhead in this
 workload. Authoring-time episodes are retained but confounded by shared evaluator
 repair, so they cannot establish a paired authoring-speed advantage. External
 researcher execution, human quality/adoption and general superiority remain unmeasured.
+The [prospective familiarized-agent study](docs/validation/authoring-study.md) then
+completed all four counterbalanced episodes:36/36 accepted,108 original hashes/
+36 PNGs reread and18/18 reimplementation pixel pairs equal. Matplotlib was faster
+in both pairs; this supplies bounded task-time observations without rewriting
+the earlier confounded clocks.
 
 The existing [public-data examples](docs/validation/published-papers.md) reproduce
 bounded descriptive quantities from Penguin/Iris data and test seeded faults.

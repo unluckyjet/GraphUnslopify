@@ -1,7 +1,7 @@
 ---
 id: 77
 slug: familiarized-authoring-results
-status: ready
+status: done
 priority: P1
 title: Execute and publish all four familiarized workflow-creation episodes
 source_idea: review2026-10-28 item17 measured development time with all previous confounded attempts retained
@@ -52,3 +52,46 @@ controller/CLI/worker/numeric/physical rules are unchanged. Second pair remains
 mandatory. Run seven gates/push/exact CI/artifact check before advancing.
 
 First-pair final local gates:225 Node/1420 Python, zero skips/one upstream warning, all seven commands and Ruff108 pass. Actual local18-case completed-producer replay passes. Four original PNG copies retained; representative Mavro Mpl/NumAcc4 Graph visually inspected, correct/readable. All clock/source/protocol hashes unchanged; no live clock. Push/verify exact CI and downloaded18-case replay before reverse pair. Spec remains ready/incomplete2of4.
+
+
+## Complete prospective data (2026-10-29)
+
+First-pair7fbe362 exact main40876799302 all9/Figure40876799313 and downloaded
+18-case replay54 hashes/18 PNGs/source snapshots verified before reverse pair.
+Mpl third:17.439072041s,9/9 first attempt, source89a5f824.
+Graph fourth:22.175923792s,9/9 first attempt, source529aaaf2.
+All4 mandatory episodes complete, no live clock. Shared303b8e43 protocol/controller/
+CLI/runner/worker/acceptance bytes unchanged; both new files linted/formatted
+inside clocks and no shared development/CI/docs/vault work inside any episode.
+
+Final original-output audit108 file hashes/36 PNGs, all source/runtime/input
+identities and UTC/monotonic clock math pass.36/36 accepted on first attempt.
+18/18 PNG pairs across different per-arm implementations are identical. All
+numeric/physical proxies pass; min text9.24pt Mpl/8.02pt Graph, zero overlaps.
+Full local replay reports4/4 episodes,36/36 cases,study_complete:true. Original
+42s/3171s invalid timings stay preserved. Descriptive medians17.1962s Mpl/21.9604s
+Graph; Mpl faster both pairs, no human/general/causal superiority claim.
+
+Durable original audit/publisher is scripts/publish-authoring-results.py;
+results/summary.json and36-row run-metadata CSV retain all episode/code/error/
+quality/source evidence. Human trials remain user-deferred. Full original-list
+audit is docs/review-completion-2026-10-29.md, including current live registry/
+site/metadata/security and default-main author association. Final seven gates/
+Ruff/exact-push CI and downloaded4-episode36-case replay remain required.
+
+
+Final local gates:225 Node/1420 Python, zero skips/one upstream SQLAlchemy warning;
+all15 baselines/16 figures/25 recipes/7 compositions and Ruff111 pass. All edited
+relative links/three issue forms/contribution files validate. README preserves
+original51 distinct image targets/52 placements. Live PyPI0.8.0 file hashes match
+publication receipt; current Pages200/source-identical, live repository branding/
+private-reporting enabled/default-main contribution association verified. Product
+src/Python package has no diff from previously verifiede8c6f7d. Final exact-push
+main/Figure checks and downloaded4-producer36-case replay are verified after push
+before marking the overall goal complete. No new release/tag or human trial.
+
+Verdict: requested bounded comparative study implementation and observations
+complete, negative findings retained. The broader original review is mapped in
+docs/review-completion-2026-10-29.md; external researcher trials remain explicitly
+user-deferred, not counted as conducted. Future human/causal/independent-operator
+validation is a limitation, not an invented result.

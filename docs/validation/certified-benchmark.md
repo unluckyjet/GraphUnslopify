@@ -109,9 +109,10 @@ CI waiting, explicitly flagged invalid for a paired authoring-speed inference.
 One familiar, unblinded coding assistant and fixed order also cannot establish
 human productivity. Earlier failures, the protocol amendment and all clocks
 remain in [the session log](../../benchmarks/certified/development-sessions.jsonl)
-and [development reports](../../benchmarks/certified/development/). A clean paired
-authoring-time estimate remains unmeasured; no authoring advantage is claimed
-from these contaminated episodes.
+and [development reports](../../benchmarks/certified/development/). No authoring advantage is claimed from these contaminated episodes. The separate
+[prospective familiarized study](authoring-study.md) subsequently completed all
+four episodes with unchanged gates; it supplies bounded agent-task observations,
+not retrospective corrections or human productivity evidence.
 
 ## Actual representative exports
 
@@ -152,5 +153,5 @@ feedback. The broader researcher-readiness assessment remains unmeasured.
 
 A [prospective familiarized-agent follow-up](authoring-study.md) prepares four
 fresh reimplementation episodes with the unchanged nine-dataset verifier. Its
-preflight is measured and the first two episodes completed; the mandatory
-reverse-order pair remains pending.
+preflight and all four episodes are complete:36/36 accepted; Matplotlib is faster
+in both familiarized-agent pairs. No human/causal advantage is established.

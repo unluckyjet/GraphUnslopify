@@ -1,0 +1,431 @@
+{
+  "phase": "complete-familiarized-authoring-study",
+  "study_complete": true,
+  "planned_episodes": 4,
+  "completed_episodes": 4,
+  "accepted_cases": 36,
+  "protocol_sha256": "303b8e4395357ec976ec790532ceb052794a856405ef6bbfc2b8c8c713dc979f",
+  "journal_sha256": "7b692d3f60cd2d633e15948c638f147debcad05955e9e04096928911d4467894",
+  "publisher_sha256": "69cdfd0cc7e252e4ebff967b0668a96f05283360ca12a147bb18ffb73e1f0fef",
+  "measurement_protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "episodes": [
+    {
+      "slot": "round1-graphunslopify",
+      "round": 1,
+      "arm": "graphunslopify",
+      "seconds": 21.744921709,
+      "utc_elapsed_seconds": 21.745134,
+      "begin_utc": "2026-10-29T12:31:00.954058+00:00",
+      "end_utc": "2026-10-29T12:31:22.699192+00:00",
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "aa88299ca5df5bc8a91af3d1acdcab2d099dfd0d0e4c737fa2710e7fbdc5bc23",
+      "report": "benchmarks/authoring/development/7699dc76-d50e-41ef-beca-cb1234a23ac2/attempt-1.json",
+      "report_sha256": "6905ad508a5bb603aca02a7200262f0f042d4ba051040f14073b517cb5779ad7",
+      "authored_bytes": 3073,
+      "authored_nonblank_lines": 72,
+      "median_generated_nonblank_lines": 823,
+      "median_parameter_payload_bytes": 611,
+      "minimum_text_pt_at_target": 8.015717092337917,
+      "maximum_overlap_candidates": 0
+    },
+    {
+      "slot": "round1-matplotlib",
+      "round": 1,
+      "arm": "matplotlib",
+      "seconds": 16.953347625,
+      "utc_elapsed_seconds": 16.953525,
+      "begin_utc": "2026-10-29T12:31:30.744503+00:00",
+      "end_utc": "2026-10-29T12:31:47.698028+00:00",
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "118579803d37b702ea41fb49ebef91fd1f1123deee29f9c5b9940c46aa525cfe",
+      "report": "benchmarks/authoring/development/5b9b250f-49cb-46d4-87dc-b2e91d66a061/attempt-1.json",
+      "report_sha256": "9032a9112cd6374bac024da18e400dc181bf2e18d9faeaf1d17d30e410cf1264",
+      "authored_bytes": 2733,
+      "authored_nonblank_lines": 62,
+      "median_generated_nonblank_lines": 27,
+      "median_parameter_payload_bytes": 365,
+      "minimum_text_pt_at_target": 9.235412474849094,
+      "maximum_overlap_candidates": 0
+    },
+    {
+      "slot": "round2-matplotlib",
+      "round": 2,
+      "arm": "matplotlib",
+      "seconds": 17.439072041,
+      "utc_elapsed_seconds": 17.439255,
+      "begin_utc": "2026-10-29T13:06:47.103453+00:00",
+      "end_utc": "2026-10-29T13:07:04.542708+00:00",
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "89a5f8244fc34d247a07f17c90952771fcd2c2637bbfeda5c589808eb3b604f6",
+      "report": "benchmarks/authoring/development/a11414f9-f97d-48e4-8a8a-45a31eadfd33/attempt-1.json",
+      "report_sha256": "b7187a869ffb04e1b4882228855ee0a6dc177f2c494dbdf46e0fe9c83d28b04a",
+      "authored_bytes": 2433,
+      "authored_nonblank_lines": 56,
+      "median_generated_nonblank_lines": 23,
+      "median_parameter_payload_bytes": 358,
+      "minimum_text_pt_at_target": 9.235412474849094,
+      "maximum_overlap_candidates": 0
+    },
+    {
+      "slot": "round2-graphunslopify",
+      "round": 2,
+      "arm": "graphunslopify",
+      "seconds": 22.175923792,
+      "utc_elapsed_seconds": 22.176138,
+      "begin_utc": "2026-10-29T13:07:10.709048+00:00",
+      "end_utc": "2026-10-29T13:07:32.885186+00:00",
+      "attempts": 1,
+      "accepted_cases": 9,
+      "producer_sha256": "529aaaf2a6b2d288fe012629a05f69466efe952040cfc848abed5032a1274581",
+      "report": "benchmarks/authoring/development/177dda77-1981-4ef8-b593-7061c92adc54/attempt-1.json",
+      "report_sha256": "c9a0e371c516909e92ad31ad3c879a1fcacef61566299a7ec8313917dadf1948",
+      "authored_bytes": 2988,
+      "authored_nonblank_lines": 73,
+      "median_generated_nonblank_lines": 825,
+      "median_parameter_payload_bytes": 615,
+      "minimum_text_pt_at_target": 8.015717092337917,
+      "maximum_overlap_candidates": 0
+    }
+  ],
+  "verified_original_final_files": 108,
+  "verified_original_png_decodes": 36,
+  "per_dataset_absolute_errors": {
+    "PiDigits": {
+      "graphunslopify": {
+        "mean": "2.7995383788947947323322296142578125E-16",
+        "low": "2.94430966183426789939403533935546875E-15",
+        "high": "3.50421733761322684586048126220703125E-15",
+        "half_span": "3.22426349972374737262725830078125E-15"
+      },
+      "matplotlib": {
+        "mean": "2.7995383788947947323322296142578125E-16",
+        "low": "1.612042032284080050885677337646484375E-15",
+        "high": "2.616038917913101613521575927734375E-15",
+        "half_span": "2.33608508002362214028835296630859375E-15"
+      }
+    },
+    "Lottery": {
+      "graphunslopify": {
+        "mean": "3.075623116455972194671630859375E-13",
+        "low": "2.702494137920439243316650390625E-13",
+        "high": "3.448752094991505146026611328125E-13",
+        "half_span": "3.7312897853553295135498046875E-14"
+      },
+      "matplotlib": {
+        "mean": "3.075623116455972194671630859375E-13",
+        "low": "2.1340599493123590946197509765625E-13",
+        "high": "4.58562047220766544342041015625E-13",
+        "half_span": "1.509997355751693248748779296875E-13"
+      }
+    },
+    "Lew": {
+      "graphunslopify": {
+        "mean": "2.27373675443232059478759765625E-15",
+        "low": "1.22177406214177608489990234375E-13",
+        "high": "1.176299327053129673004150390625E-13",
+        "half_span": "1.1990366945974528789520263671875E-13"
+      },
+      "matplotlib": {
+        "mean": "2.27373675443232059478759765625E-15",
+        "low": "1.22177406214177608489990234375E-13",
+        "high": "1.176299327053129673004150390625E-13",
+        "half_span": "1.1990366945974528789520263671875E-13"
+      }
+    },
+    "Mavro": {
+      "graphunslopify": {
+        "mean": "3.64281049769488163292407989501953125E-16",
+        "low": "7.8845932548562996089458465576171875E-16",
+        "high": "5.98972259466536343097686767578125E-17",
+        "half_span": "4.24178275716141797602176666259765625E-16"
+      },
+      "matplotlib": {
+        "mean": "7.9808160080574452877044677734375E-17",
+        "low": "9.97190942144952714443206787109375E-17",
+        "high": "5.98972259466536343097686767578125E-17",
+        "half_span": "1.99109341339208185672760009765625E-17"
+      }
+    },
+    "Michelso": {
+      "graphunslopify": {
+        "mean": "1.1277734301984310150146484375E-14",
+        "low": "6.891121041662991046905517578125E-14",
+        "high": "4.635574181266129016876220703125E-14",
+        "half_span": "5.763347611464560031890869140625E-14"
+      },
+      "matplotlib": {
+        "mean": "1.1277734301984310150146484375E-14",
+        "low": "1.2067791555821895599365234375E-14",
+        "high": "1.0487677048146724700927734375E-14",
+        "half_span": "7.9005725383758544921875E-16"
+      }
+    },
+    "NumAcc1": {
+      "graphunslopify": {
+        "mean": "0",
+        "low": "0",
+        "high": "0",
+        "half_span": "0"
+      },
+      "matplotlib": {
+        "mean": "0",
+        "low": "0",
+        "high": "0",
+        "half_span": "0"
+      }
+    },
+    "NumAcc2": {
+      "graphunslopify": {
+        "mean": "4.44089209850062616169452667236328125E-17",
+        "low": "1.332267629550187848508358001708984375E-16",
+        "high": "4.44089209850062616169452667236328125E-17",
+        "half_span": "8.8817841970012523233890533447265625E-17"
+      },
+      "matplotlib": {
+        "mean": "4.44089209850062616169452667236328125E-17",
+        "low": "8.8817841970012523233890533447265625E-17",
+        "high": "1.7763568394002504646778106689453125E-16",
+        "half_span": "1.332267629550187848508358001708984375E-16"
+      }
+    },
+    "NumAcc3": {
+      "graphunslopify": {
+        "mean": "6.9849193096160888671875E-11",
+        "low": "2.3283064365386962890625E-11",
+        "high": "1.62981450557708740234375E-10",
+        "half_span": "9.31322574615478515625E-11"
+      },
+      "matplotlib": {
+        "mean": "4.656612873077392578125E-11",
+        "low": "1.3969838619232177734375E-10",
+        "high": "4.656612873077392578125E-11",
+        "half_span": "9.31322574615478515625E-11"
+      }
+    },
+    "NumAcc4": {
+      "graphunslopify": {
+        "mean": "1.11758708953857421875E-9",
+        "low": "3.7252902984619140625E-10",
+        "high": "2.60770320892333984375E-9",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "matplotlib": {
+        "mean": "7.450580596923828125E-10",
+        "low": "2.2351741790771484375E-9",
+        "high": "7.450580596923828125E-10",
+        "half_span": "1.490116119384765625E-9"
+      }
+    }
+  },
+  "reimplementation_pixel_pairs": [
+    {
+      "arm": "matplotlib",
+      "dataset": "PiDigits",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "Lottery",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "Lew",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "Mavro",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "Michelso",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "NumAcc1",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "NumAcc2",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "NumAcc3",
+      "identical": true
+    },
+    {
+      "arm": "matplotlib",
+      "dataset": "NumAcc4",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "PiDigits",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "Lottery",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "Lew",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "Mavro",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "Michelso",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "NumAcc1",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "NumAcc2",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "NumAcc3",
+      "identical": true
+    },
+    {
+      "arm": "graphunslopify",
+      "dataset": "NumAcc4",
+      "identical": true
+    }
+  ],
+  "episode_median_seconds": {
+    "matplotlib": 17.196209832999998,
+    "graphunslopify": 21.9604227505
+  },
+  "shared_runtime_context": {
+    "installed_source_sha256": {
+      "__init__.py": "c14670bb0da09a0ff41e2f99219694e0c7bb7d3a5f12b56a4e62a54a483229bd",
+      "_translator.mjs": "e2f638583bec0d048aacc8848567ddebc44d67bb0ea7cf33dcbd3e97b529d627",
+      "audit.py": "9f033c0c3d495291f87a377c916b10a06deef5e54b8d7f09f56525afefbe7252",
+      "audit_worker.py": "d158ca60ff2d24093ff3d41f906713dcbfd018ab00ad9c82b3b2668564bba5a0",
+      "build.py": "d9701bd601a9cfef9a5965822f385634f66e281f14e775676285166bdb61f60c",
+      "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+      "cli.py": "4a8bbbe5482684f0dd8a357abd0eb6cc89a43a021256d18cfde810fe262b707e",
+      "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+      "comparison.py": "246ad793f3f3270ac10deb2d45cbe0dc619fba3e0905760c2e22269f276a5b29",
+      "comparison_html.py": "e8794aaa1012d7442034e23619012f836f32f2797bf071ef5fd43043331d5336",
+      "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+      "demo.py": "4ec1f6f8a9543c3b4ac27ff517139ea01e314c8c625e0ef82d76370f89969685",
+      "describe.py": "385ea772f09eb17435f0486539b8f3602c80f80b4087385e51799f341821b153",
+      "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+      "errors.py": "f9e372cbd9d2ecbd0369f08b8d8f2f742f71214874643a59d2ca3a874e8c7b88",
+      "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+      "inspect.py": "f6b53f876cb9507d3f968ff2e54df31df3404bedf5048ecc6d60d14e95d7f4aa",
+      "lockfile.py": "668bc1637e7c16ed1497d30ba89ceb4d05cca9ca859e5d5ad0fe910c4d65e998",
+      "mcpserver.py": "fe567f2839c97ba6e4c983375f26878d46b1796c4e390f543823eb528fd6a879",
+      "notebook.py": "706659e48104888aed55d27210a4d54f0c8ca7772dc9da594e7def5ba16e465c",
+      "pdf_review.py": "f6358363f1bc6eb1e73b6c3c01ea53d904fa2ff1c64859a23c12b78b345ada57",
+      "pdf_visual.py": "fc8d01fb035faae5ea88e227b54ff4a8cd60e0936ca10c2b35e6ccc5fe06b151",
+      "preview.py": "d0f185f6a61933ef4986e3e9e2f0162cf92e52455fe6ea85323a3c117c70e9b9",
+      "project.py": "ca1a1b48f669d738acfb7a093c35859b8578ff1b2573d58436f2f07268372a77",
+      "project_preview.py": "20868957a853647bcaf22a626d5af71b530a20727f3de5a76ca11067d3d112ce",
+      "provenance.py": "2e155f8169e4b9c3a9dad6224563fb7f4dbe7c79ea5e2c2a2a65970d2572b8a5",
+      "schemas/audit-report.schema.json": "c7a5f29813708ec6c1f12ba35475b206372f15d78285ddffa2aea1c57814529c",
+      "schemas/comparison.schema.json": "f8c9653040064adf15786714968c0d5ea05344ebae808b946706dd429f275032",
+      "schemas/environment.schema.json": "9b41ba2a3913e042f00617ec7f5dff23654336bcad614086d0f5e814c1bdfe3f",
+      "schemas/manifest.schema.json": "477f867ad82a571bf7cc3eb9dcda3c4ab06db95b8272aa0e13d632d1044671d3",
+      "schemas/runtime-report.schema.json": "18d085db0884a02956c9feeda894782b4cd9e752129ca358ba263e5f09fccde3",
+      "tracking.py": "152fabff04afabaf33e2b7cefb6d3802e940f9b1344ecc998a96fe3fb89dcb2b",
+      "transport.py": "e48979edf30e4c7b651a254327c62c3f974673ab3f44b81b6f04853c57b7a505",
+      "workflow.py": "b14f1609774f1142d041560b9a2787caee3dd1e88a1013c407fd7a72d662e311"
+    },
+    "common_source": {
+      "benchmarks/certified/corpus.py": {
+        "bytes": 8738,
+        "nonblank_lines": 205,
+        "sha256": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589"
+      },
+      "benchmarks/certified/measurement.py": {
+        "bytes": 17755,
+        "nonblank_lines": 419,
+        "sha256": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209"
+      },
+      "benchmarks/certified/runner.py": {
+        "bytes": 30632,
+        "nonblank_lines": 800,
+        "sha256": "ded1190f9081524199e0648f624708a7f13880ff2ab16df4345f0d6da0812ec6"
+      },
+      "scripts/certified-benchmark.py": {
+        "bytes": 2707,
+        "nonblank_lines": 69,
+        "sha256": "aedc24056c5d3e58fdf974b3aa51f70275b34dbeb9a1349fdd83935aa8a51aba"
+      },
+      "scripts/measure-certified-figure.py": {
+        "bytes": 4063,
+        "nonblank_lines": 107,
+        "sha256": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29"
+      }
+    },
+    "versions": {
+      "Pillow": "13.0.0",
+      "graphunslopify": "0.8.0",
+      "matplotlib": "3.11.2",
+      "nodejs-wheel-binaries": "24.19.0",
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "pypdf": "6.21.2"
+    },
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "platform": {
+      "machine": "arm64",
+      "system": "Darwin"
+    }
+  },
+  "shared_study_implementation": {
+    "benchmarks/authoring/session.py": {
+      "sha256": "d42773a5df7e907d4dc5611eb1ebcb530baa25954fd1895e16031ea3e8900afe",
+      "bytes": 9243,
+      "nonblank_lines": 239
+    },
+    "scripts/authoring-benchmark.py": {
+      "sha256": "55513ae7dcb2c2a7d23d278ef7819a62db31a0565589ef6669f50a2845b3869e",
+      "bytes": 2119,
+      "nonblank_lines": 56
+    },
+    "benchmarks/certified/runner.py": {
+      "sha256": "ded1190f9081524199e0648f624708a7f13880ff2ab16df4345f0d6da0812ec6",
+      "bytes": 30632,
+      "nonblank_lines": 800
+    },
+    "benchmarks/certified/corpus.py": {
+      "sha256": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+      "bytes": 8738,
+      "nonblank_lines": 205
+    },
+    "benchmarks/certified/measurement.py": {
+      "sha256": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+      "bytes": 17755,
+      "nonblank_lines": 419
+    },
+    "scripts/measure-certified-figure.py": {
+      "sha256": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29",
+      "bytes": 4063,
+      "nonblank_lines": 107
+    }
+  },
+  "scope": "Four unamended familiarized episodes by one coding assistant, all9 cases each; not first-use/human/causal productivity or independent researcher benefit. Earlier invalid42s/3171s clocks retained. Shared preparation/familiarity/CI outside clocks is unmeasured/excluded. Errors retain each dataset's units; generated code size is not authored effort."
+}

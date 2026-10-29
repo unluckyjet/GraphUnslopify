@@ -1,22 +1,41 @@
 # Familiarized agent authoring-time study
 
-Status 2026-10-29: **first pair complete; second reverse-order pair pending**.
+Status 2026-10-29: **all four prospective episodes complete;36/36 clean cases accepted**.
 Preregistration c98fc52 passed exact main40871787084 all9/Figure40871786787 before
-any new clock. The same nine-dataset task/unchanged v2 gates remain frozen.
+any clock. First-pair7fbe362 exact main40876799302 all9/Figure40876799313 and its
+actual18-case replay artifact passed before the reverse pair began. The nine-
+dataset task and all original v2 numeric/physical/export gates stayed unchanged.
 
-| Episode | Familiarized agent-task seconds | Accepted cases | Attempts |
+| Round/order | Matplotlib seconds | GraphUnslopify seconds | Accepted cases |
 | --- | ---: | ---: | ---: |
-| Round1 GraphUnslopify | 21.744921709 | 9/9 | 1 |
-| Round1 Matplotlib | 16.953347625 | 9/9 | 1 |
+| 1: Graph then Matplotlib | 16.953347625 | 21.744921709 | 18/18 |
+| 2: Matplotlib then Graph | 17.439072041 | 22.175923792 | 18/18 |
+| Descriptive median,2 episodes per arm | 17.1962 | 21.9604 | 36/36 total |
 
-These are two observations from one already-familiar coding assistant. The
-mandatory second pair remains unexecuted; no general productivity advantage or
-complete four-episode result is claimed. All54 final export hashes/18 decoded
-PNGs and source/runtime identities were reread; UTC/monotonic intervals agree
-within0.001s. Both episodes ended before report/CI/vault work resumed.
+Matplotlib was faster in both pairs on this task. These are four observations
+from **one** already-familiar coding assistant, with model/tool/verification wall
+time included and earlier shared preparation excluded. They do not establish
+first-use human, causal or general productivity advantage. All four completed on
+the first attempt; no outcomes were omitted to obtain this result.
 
-[Raw session events](../../benchmarks/authoring/sessions.jsonl),
-[first-pair audited summary](../../benchmarks/authoring/round1-summary.json),
+The publication audit reread all108 original final export hashes/36 decoded PNGs,
+all source/runtime/input fingerprints, the complete9-case episode sequences and
+raw clock math. UTC and monotonic elapsed agree within0.001s. There were no shared
+code changes, CI/docs/vault work or recorded interruptions inside any episode.
+The full four-producer local replay passes36/36, with `study_complete:true`.
+Replay generates fresh outputs and preserves historical clocks; it never creates
+new authoring-time observations.
+
+All numerical/physical proxies pass. Minimum measured text at3.4in target is
+9.24pt Matplotlib/8.02pt Graph, with zero overlap candidates. All18 PNG pairs from
+the two different implementations of each arm/dataset have identical decoded
+pixels. These are9 datasets, repeated implementations/exports, not108 independent
+scientific experiments or four independent participants.
+
+[Complete audited summary](../../benchmarks/authoring/results/summary.json),
+[36-row run metadata](../../benchmarks/authoring/results/runs.csv),
+[raw session events](../../benchmarks/authoring/sessions.jsonl),
+[first-pair historical summary](../../benchmarks/authoring/round1-summary.json),
 [retained full attempts](../../benchmarks/authoring/development/).
 
 The [NIST comparison](certified-benchmark.md) measured numerical errors,
@@ -38,7 +57,7 @@ learning, independent researchers or causal/general productivity gains.
 | 1 | GraphUnslopify | Matplotlib |
 | 2 | Matplotlib | GraphUnslopify |
 
-All four are required regardless of which workflow is faster. Each new producer
+All four were required regardless of which workflow was faster. Each new producer
 starts absent, reads all observations, and implements nine mean/sample-SD figures
 with the existing labels, PNG/SVG/PDF exports, numerical allowances, physical-size
 checks and exact finalized-file retention. Producers may use documentation/library
@@ -140,3 +159,40 @@ were visually inspected; the1e7 offset means the displayed0.2 is10000000.2.
 | --- | --- | --- |
 | Mavro | ![Mavro Matplotlib](../../benchmarks/authoring/figures/round1-Mavro-matplotlib.png) | ![Mavro GraphUnslopify](../../benchmarks/authoring/figures/round1-Mavro-graphunslopify.png) |
 | NumAcc4 | ![NumAcc4 Matplotlib](../../benchmarks/authoring/figures/round1-NumAcc4-matplotlib.png) | ![NumAcc4 GraphUnslopify](../../benchmarks/authoring/figures/round1-NumAcc4-graphunslopify.png) |
+
+
+## Code footprint and retained original evidence
+
+| Episode | Authored nonblank lines | Median generated lines | Median parameter bytes |
+| --- | ---: | ---: | ---: |
+| Round1 Matplotlib | 62 | 27 | 365 |
+| Round2 Matplotlib | 56 | 23 | 358 |
+| Round1 GraphUnslopify | 72 | 823 | 611 |
+| Round2 GraphUnslopify | 73 | 825 | 615 |
+
+The Matplotlib payload is plotting configuration; the GraphUnslopify payload is
+a semantic FigureSpec. The latter's generated code includes runtime/provenance
+work. Each Graph implementation retains its unmodified translator output and
+adds only a presentation-coordinate/dataset-tick adapter, preserving every source
+row/value and generated mean/sample-SD calculation. Generated lines are output
+footprint, not authored effort. Six pinned shared helpers contain1826 nonblank
+lines; their prior development/familiarity cost is unmeasured/excluded.
+
+The original42.19s/3171.14s implementation episodes and their invalid paired-time
+flag remain in [the earlier study](certified-benchmark.md). This prospective
+follow-up does not overwrite/reclassify them or reconstruct an earlier end time.
+Human quality/usability/adoption and independent researcher execution remain
+unmeasured; volunteer sessions remain user-deferred.
+
+On the original retained local cache, audit/publish with a fresh directory:
+
+```sh
+python scripts/publish-authoring-results.py --out-dir benchmarks/authoring/.cache/publication-new
+```
+
+Original publication needs the original locally retained output paths. On a new
+machine use the replay command after pinned data preparation to generate fresh
+scientific outputs; historical agent times remain observations from this run.
+`results/runs.csv` is run metadata, not source observations. Raw source data is
+not committed or uploaded. Per-dataset numerical errors retain their own units;
+no pooled mixed-unit accuracy ranking is inferred.

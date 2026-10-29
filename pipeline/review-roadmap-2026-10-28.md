@@ -91,3 +91,10 @@ External results remain open until observed.
   shared size/DPI/provenance, strict failure/recovery, moved paper, damaged evidence,
   script limits and data-version guards measured. Existing figures unchanged. Exact
   pushed main/Figure CI checked next; the requested project interface67 stays open.
+
+- Item10 installed-check repair68:21bf7d1 Linux/Windows distribution jobs expose
+  unordered recursive PNG selection in the verification recipe. Targeting the
+  saved audit output path/SHA and checking that figure's freshness fixes the
+  fixture without changing product acceptance. Repeated seven gates222/1302/
+  Ruff81 and full fresh offline installed wheel pass; exact repaired CI checked
+  next before interface67. A comparison preview is not the current figure export.

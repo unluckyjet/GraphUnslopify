@@ -47,3 +47,10 @@ authored scripts are checked against shared policy without automatic restyling.
 
 Exact pushed main/Figure CI remains to be verified before advancing67. This ready
 spec's pre-push metadata is not evidence that the full review item10 is complete.
+
+The first push21bf7d1 has green Figure40813995700 but main40813995796 exposes a
+distribution-check path selection error on Linux/Windows. The installed recipe
+damaged an unordered recursive PNG, potentially a derived comparison preview,
+rather than the saved current export. Follow-up68 binds the target to the actual
+audit output record and strengthens the affected-figure assertion; no product
+acceptance or renderer change.66 stays pending exact repaired CI;67 remains open.

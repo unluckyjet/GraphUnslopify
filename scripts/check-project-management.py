@@ -155,16 +155,22 @@ def main():
     moved = where / "moved paper"
     shutil.copytree(paper, moved)
     assert command("project-status", moved)["status"] == "inputs_match_last_run"
-    artifact = next(
-        (
-            moved
-            / "graphunslopify-project/history"
-            / history["events"][0]["id"]
-            / "audit"
-        ).rglob("*.png")
+    newest = history["events"][0]
+    figure = newest["result"]["audit"]["figures"][0]
+    image = next(item for item in figure["outputs"] if item["format"] == "png")
+    artifact = (
+        moved
+        / "graphunslopify-project/history"
+        / newest["id"]
+        / "audit"
+        / image["path"]
     )
+    assert hashlib.sha256(artifact.read_bytes()).hexdigest() == image["sha256"]
     artifact.write_bytes(b"damaged")
-    assert command("project-status", moved)["status"] == "needs_audit"
+    damaged = command("project-status", moved)
+    assert damaged["status"] == "needs_audit"
+    row = next(item for item in damaged["figures"] if item["id"] == figure["id"])
+    assert row["freshness"] == "unavailable" and not row["artifacts_verified"]
     assert command("project-status", folder)["status"] == "inputs_match_last_run"
     evidence = {
         "status": "passed",

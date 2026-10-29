@@ -436,6 +436,18 @@ sends to its model is controlled by that host, so review what you share.
 [Hosted translator API](https://json-translator-three.vercel.app/api/health) ·
 [HTTP MCP endpoint](https://json-translator-three.vercel.app/api/mcp)
 
+### Connect your research workspace
+
+Current source after0.8.0 can turn a paper manifest into a [research workspace](docs/research-workflows.md):
+a project notebook for JupyterLab/VS Code, editor tasks using the selected Python interpreter,
+and LaTeX preparation that includes accepted exports at their checked manuscript width.
+Failed checks retain reports/previews and invalidate the generated manuscript include.
+
+```sh
+graphunslopify workflow-init paper/
+python paper/graphunslopify-workflow/run.py --latex
+```
+
 ### Audit a paper's figures together
 
 A manifest connects figure specs or compatible generated programs to local data, explicit claims

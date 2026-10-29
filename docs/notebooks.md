@@ -80,3 +80,5 @@ The notebook runs in CI through a real kernel on minimum Python 3.10 and Python 
 require an image output, exact sample counts and the controlled false-claim rejection. The
 committed source notebook has cleared outputs; execution artifacts are generated per run.
 Notebook execution uses [NBClient](https://nbclient.readthedocs.io/en/latest/client.html).
+
+For a notebook tied to your own paper manifest, current source after0.8.0 adds [research workspaces](research-workflows.md). `workflow-init` creates a cleared project notebook, selected-interpreter VS Code tasks and checked-width LaTeX preparation without replacing global kernels or existing editor settings. The original packaged quickstart above remains supported.

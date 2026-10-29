@@ -284,6 +284,38 @@ def _compare(args: argparse.Namespace) -> int:
     return int(result["exit_code"])
 
 
+def _workflow_init(args: argparse.Namespace) -> int:
+    from .workflow import initialize_workflow
+
+    try:
+        result = initialize_workflow(args.path, folder=args.folder)
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return 0
+
+
+def _workflow_run(args: argparse.Namespace) -> int:
+    from .workflow import run_workflow
+
+    try:
+        result = run_workflow(
+            args.config,
+            latex=args.latex,
+            baseline=args.baseline,
+            baseline_root=args.baseline_root,
+            fail_on_warning=args.fail_on_warning,
+            fail_on_change=args.fail_on_change,
+            timeout=args.timeout,
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, indent=2))
+    return int(result["exit_code"])
+
+
 def _audit_init(args: argparse.Namespace) -> int:
     from .audit import discover
 
@@ -388,6 +420,32 @@ def build_parser() -> argparse.ArgumentParser:
     compared.add_argument("--before-root", help="override the before artifact root")
     compared.add_argument("--after-root", help="override the after artifact root")
     compared.set_defaults(handler=_compare)
+
+    workflow = commands.add_parser(
+        "workflow-init", help="connect a paper manifest to notebooks, VS Code and LaTeX"
+    )
+    workflow.add_argument("path", nargs="?", default=".")
+    workflow.add_argument(
+        "--folder",
+        default="graphunslopify-workflow",
+        help="new portable child folder beside the manifest",
+    )
+    workflow.set_defaults(handler=_workflow_init)
+    workflow_run = commands.add_parser(
+        "workflow-run", help="run one strict manifest workflow from any working directory"
+    )
+    workflow_run.add_argument("config", nargs="?", default=".")
+    workflow_run.add_argument(
+        "--latex",
+        action="store_true",
+        help="stage accepted PNG/PDFs and a checked-width manuscript include",
+    )
+    workflow_run.add_argument("--baseline")
+    workflow_run.add_argument("--baseline-root")
+    workflow_run.add_argument("--fail-on-warning", action="store_true")
+    workflow_run.add_argument("--fail-on-change", action="store_true")
+    workflow_run.add_argument("--timeout", type=float, default=120)
+    workflow_run.set_defaults(handler=_workflow_run)
 
     initialized = commands.add_parser(
         "audit-init", help="discover figure JSON specs and write a manifest"

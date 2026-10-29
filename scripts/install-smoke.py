@@ -64,6 +64,11 @@ def main() -> None:
         action="store_true",
         help="require current-source visual audit comparison; older releases may omit it",
     )
+    parser.add_argument(
+        "--require-workflow",
+        action="store_true",
+        help="require current-source research workspace integration; older releases may omit it",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -1317,6 +1322,23 @@ def main() -> None:
             )
         )
         assert visual_comparison["status"] == "passed"
+    research_workflow = None
+    if args.require_workflow:
+        research_workflow = json.loads(
+            run(
+                [
+                    str(python),
+                    str(
+                        Path(__file__).resolve().with_name("check-research-workflow.py")
+                    ),
+                    "--work-dir",
+                    str(where / "research workflow"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert research_workflow["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1330,6 +1352,7 @@ def main() -> None:
                 "registry_version": args.registry_version,
                 "getting_started": getting_started,
                 "visual_comparison": visual_comparison,
+                "research_workflow": research_workflow,
                 "work_dir": str(where),
             }
         )

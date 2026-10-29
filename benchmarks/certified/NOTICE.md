@@ -21,3 +21,8 @@ for its original reference and measurement meaning.
 The certified mean/sample-SD answers are external to GraphUnslopify. Running our
 benchmark on them is still a project-run evaluation, not a NIST endorsement,
 independent researcher study or evidence of human development time saved.
+
+The `results/` package contains derived run metadata, numerical comparisons and
+our representative plot exports. Its `runs.csv` is run-level evidence, not an
+observation dataset. Source observations remain local; source-data terms above
+continue to apply.

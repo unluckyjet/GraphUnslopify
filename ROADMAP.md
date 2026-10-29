@@ -32,10 +32,13 @@ recognition or a scientific certificate.
 | High | Broader external scientific benchmarking. | Realistic tasks, independently established answers, fair Matplotlib comparators, measured errors, timing, reproducibility and defined figure-quality checks. Current synthetic/public-paper comparisons are author-run; no independent evaluation or human development-time advantage is established. |
 | Deferred by user | Researchers testing their own projects. | Actual external sessions and recorded feedback when this work is resumed. The prepared protocol is not a completed user study; the current requested route uses public papers/datasets. |
 
-The [frozen external-reference corpus](docs/validation/certified-reference.md) adds
-all nine NIST univariate datasets and independent certified answers for the next
-comparison. Initial task validations and a versioned SVG-evidence correction are recorded;
-all prior outcomes remain visible. The formal comparative benchmark is pending.
+The [NIST comparison](docs/validation/certified-benchmark.md) records all 72 formal
+runs over nine independently referenced datasets. Both validated workflows match
+the reference quantities and reject missing-interval sentinels; all 36 within-arm
+PNG repetition pairs agree. GraphUnslopify has higher process overhead in this
+workload. Authoring-time episodes are retained but confounded by shared evaluator
+repair, so they cannot establish a paired authoring-speed advantage. External
+researcher execution, human quality/adoption and general superiority remain unmeasured.
 
 The existing [public-data examples](docs/validation/published-papers.md) reproduce
 bounded descriptive quantities from Penguin/Iris data and test seeded faults.

@@ -1,7 +1,7 @@
 ---
 id: 75
 slug: certified-comparison
-status: ready
+status: done
 priority: P1
 title: Measure complete external-reference comparison and live producer tasks
 source_idea: review2026-10-28 item17 actual errors development-task time reproducibility and quality against strong Matplotlib alternative
@@ -67,3 +67,39 @@ Numeric reference/compare function ASTs are identical to v1. Actual Mavro PNG
 from Graph attempt2 inspected and correct; its physical/number checks already
 passed. Final-byte retention rejects late nonvisual SVG edits. Live Graph clock
 remains open/amended; no v2 NIST output or formal72-run result is claimed yet.
+
+
+## Formal v2 results (2026-10-29)
+
+5a76ed1 exact main40859642928 all9/Figure40859642893 passed before resuming.
+Graph attempt3 accepts all9 v2 cases and closes its original clock at3171.141533916s;
+its amended-session paired-time invalid flag remains. All36 development outcomes
+and source snapshots are retained. No live task remains.
+
+Formal run complete:72 executions, each arm18 clean accepted/18 intentional missing
+intervals correctly rejected, zero execution errors.36/36 repetition pairs have
+identical decoded PNG pixels and agreeing outcomes. All54 measured values per
+quantity/arm meet frozen bounds. Clean quality proxies pass18/18 each, minimum
+text9.24/8.02pt and zero overlap candidates. Actual216 final file hashes and72
+PNGs independently reread; all source tokens/producer/runtime fingerprints unchanged.
+Four actual representative Mavro/NumAcc4 PNGs inspected and copied unchanged.
+
+Durable report/summary/run-metadata CSV/selected plots are in
+`benchmarks/certified/results/`; `scripts/publish-certified-results.py` rechecks
+actual exports before publishing. CI runs the complete72-run study and uploads
+actual evidence without source observations. GraphUnslopify's native reports pass
+both intended specs; sentinel catches are by the common external verifier. The
+presentation-coordinate adapter remains explicit. Matplotlib has lower process
+latency here; no unique scientific-error catch, human advantage or independent
+researcher execution is claimed. Paired authoring inference remains inconclusive.
+Final local verification: seven gates225 Node/1406 Python, zero skips and one
+upstream MLflow/SQLAlchemy deprecation warning,15 baseline/16 rendered/25 recipe/
+7 composition cases and Ruff102 pass. Actual Python3.10 publication reproduces
+all seven canonical publication files byte-for-byte. Edited Markdown links and
+vault132 common links validate. Exact pushed main/Figure CI and uploaded full
+comparison evidence must be checked after this commit before advancing.
+
+Verdict: bounded measurement/publication implementation complete; it does not
+close review17's unmeasured fair authoring-time/independent-researcher scope or
+user-deferred review18. Confounded timing is reported as inconclusive, not repaired
+retrospectively or described as measured researcher benefit.

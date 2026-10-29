@@ -1,6 +1,7 @@
 # Frozen external reference corpus
 
-Status2026-10-29: **27 initial task-validation executions retained; formal72-run comparison pending**.
+Status2026-10-29: **72 formal runs complete; all expected outcomes pass**.
+See [measured results](certified-benchmark.md), including the invalid paired-authoring-time interpretation.
 This checkpoint freezes externally established answers before GraphUnslopify or
 Matplotlib outputs are evaluated. It advances review17 without turning source
 preparation into an accuracy, timing or adoption result.
@@ -71,7 +72,7 @@ manifest and evaluator/worker hashes. Its implementation is
 [save-time worker](../../scripts/measure-certified-figure.py) records the actual
 artists at each PNG/SVG/PDF export, plus final file hashes and process failure.
 Sixteen synthetic controls validate this evaluator before any NIST product output is run.
-Formal benchmark execution remains pending; the initial v1 task validations and correction are recorded below.
+Formal v2 outcomes are in [the measured report](certified-benchmark.md); initial v1 task validations and correction remain below.
 
 The task has one mean marker and one observed sample-SD interval per dataset,
 with exact labels and separate original scales. All nine cases, two arms, two
@@ -234,11 +235,17 @@ V1 evaluator implementation is preserved at commit4b8cb8f. Historical producer
 copies match their recorded SHA256; restore their original producer path when
 replaying them rather than executing the archive copy directly.
 
-The GraphUnslopify clock continues without reset across an explicit protocol-
+The GraphUnslopify clock continued without reset across an explicit protocol-
 revision event. Its elapsed time includes shared evaluator debugging/repair and
 waiting; it **cannot support a paired workflow-authoring-speed comparison** with
 the42.19s Matplotlib task. Retain that confound rather than subtracting unrecorded
 work or retroactively manufacturing a completion time. Fair machine timings and
-all formal outcomes will be recorded separately under the frozen v2 protocol.
-At this checkpoint the GraphUnslopify task is still open and no formal v2 comparison
-has run. Human development time and independent researcher execution are unmeasured.
+all formal outcomes are recorded separately under the frozen v2 protocol.
+The GraphUnslopify task subsequently passed all nine cases under v2 and closed
+its original clock at3171.1415s, still invalid for paired authoring inference.
+The formal72-run comparison passed; all36 task-validation executions remain.
+Human development time and independent researcher execution are unmeasured.
+
+The durable publication helper is `scripts/publish-certified-results.py`; its
+[checked-in report package](../../benchmarks/certified/results/) contains run-level
+metadata/representative copied figures, not source observation data.

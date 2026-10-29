@@ -521,6 +521,10 @@ The [published-paper examples](docs/validation/published-papers.md) use real pen
 datasets with source hashes, separate numerical calculations, actual artist measurements,
 and deliberately injected claim/uncertainty faults. Volunteer sessions are deferred;
 the [prepared protocol](docs/validation/researcher-pilot.md) remains available for later.
+The [NIST reference comparison](docs/validation/certified-benchmark.md) adds 72 measured
+runs over all nine univariate reference datasets. Both validated workflows match the
+external answers and reject the chosen missing-interval faults; Matplotlib is faster
+on this workload. Authoring-time advantage remains unmeasured.
 
 These checks validate their implemented computations and presentation conditions. Data origin,
 experimental design, genuinely independent units and appropriate scientific interpretation remain

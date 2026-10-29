@@ -1,7 +1,7 @@
 ---
 id: 66
 slug: project-history-and-shared-settings
-status: ready
+status: done
 priority: P1
 title: Persist paper project audit history input freshness and shared figure settings
 source_idea: review2026-10-28 item10 full project management continuation after editor65
@@ -54,3 +54,9 @@ damaged an unordered recursive PNG, potentially a derived comparison preview,
 rather than the saved current export. Follow-up68 binds the target to the actual
 audit output record and strengthens the affected-figure assertion; no product
 acceptance or renderer change.66 stays pending exact repaired CI;67 remains open.
+
+Verified repaired source0ae6cf878a568885f139b8da7104f032ff97b92e:
+main40815063294 all nine jobs and Figure40815063397 passed. All four installed
+platforms require the project recipe. Downloaded Linux3.12 job123254085545 proves
+two figures/five events, unchanged sources/old records, moved/damaged export
+checks and runtime network blocking. Backend66 is delivered; interface67 remains.

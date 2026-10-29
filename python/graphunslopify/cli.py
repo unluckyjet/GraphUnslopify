@@ -139,6 +139,17 @@ def _preview(args: argparse.Namespace) -> int:
     return 0
 
 
+def _project_preview(args: argparse.Namespace) -> int:
+    from .project_preview import serve_project
+
+    try:
+        serve_project(args.path, args.port, open_browser=args.open)
+    except (OSError, ValueError) as problem:
+        print(f"Could not start the paper workspace: {problem}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def _mcp_config(args: argparse.Namespace) -> int:
     command_args = ["-m", "graphunslopify.cli", "mcp"]
     if args.client == "codex":
@@ -437,6 +448,15 @@ def build_parser() -> argparse.ArgumentParser:
     preview.add_argument("--open", action="store_true", help="open the browser")
     preview.add_argument("--max-upload-mb", type=int, default=100)
     preview.set_defaults(handler=_preview)
+
+    paper = commands.add_parser(
+        "project-preview",
+        help="manage a paper's figures and audit history in one local browser workspace",
+    )
+    paper.add_argument("path", nargs="?", default=".")
+    paper.add_argument("--port", type=int, default=8788)
+    paper.add_argument("--open", action="store_true", help="open the browser")
+    paper.set_defaults(handler=_project_preview)
 
     mcp = commands.add_parser("mcp", help="serve the local compiler over MCP stdio (agent extra)")
     mcp.set_defaults(handler=_mcp)

@@ -10,7 +10,8 @@ and writes one combined report. It continues after an individual failure.
 
 For shared semantic settings, declared-input freshness and retained aggregate
 history, current source adds [paper project management](project-management.md)
-around this same manifest. The project dashboard remains in development.
+around this same manifest. `project-preview paper/ --open` brings definitions,
+shared settings, audits and saved evidence into one local paper workspace.
 
 From a source checkout:
 

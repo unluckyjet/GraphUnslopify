@@ -6,9 +6,59 @@ changes, lists each figure's last result and checks whether declared inputs and
 saved exports still match. Install from source for these commands; the published
 0.8.0 wheel remains unchanged.
 
-This is the backend milestone for review item10. The packaged project dashboard
-is still tracked in [spec67](../pipeline/specs/67-project-management-interface.md).
-The [single-figure editor](local-editor.md) remains a separate workflow.
+The packaged paper workspace brings figure definitions, shared settings, strict
+audits and saved history into one local interface. It uses the same manifest and
+backend as these commands. The [single-figure editor](local-editor.md) is useful
+for starting a standalone figure or working with uploaded data.
+
+## Open the paper workspace
+
+After initializing a project, run:
+
+```sh
+graphunslopify project-preview paper --open
+```
+
+This prints a loopback URL on port8788. Paste it into your preferred browser, or
+use `--port 0` for an available port. Keep that terminal open while using the
+workspace. Closing the server waits for an active bounded audit to finish.
+
+- Select a figure to inspect its source, last result and declared input freshness.
+  Use the existing schema-driven controls or advanced JSON to edit its original
+  definition. Other supported advanced settings survive control changes.
+- Save shared settings to apply one semantic style/column width/DPI across JSON
+  figures. Unspecified fields inherit each definition's own settings. Authored
+  Python retains its source and is checked against the shared policy.
+- Open **Manifest binding and overrides** to change data mappings, claim overrides
+  or source references. The stable ID stays fixed. **Duplicate selected figure**
+  creates a new binding; **Remove selected binding** retains source/data/history.
+  Adding or removing a figure requires a new complete paper audit.
+- Press **Audit paper** to run the real strict pipeline. Only one managed audit
+  runs at once. The audit policy panel selects a baseline and optional warning/
+  change rejection. The workspace bounds each figure to120 seconds by default;
+  the CLI supports custom timeouts.
+- Browse **Saved runs & changes**, choose a figure and inspect its actual results,
+  captured source or verified downloads. **Compare with baseline** rebuilds
+  before/after previews from verified original exports and explains changed
+  evidence. Equal-size PNG/PDF rasters can include a difference map; pixel changes
+  do not establish scientific correctness. Different formats/canvas sizes keep
+  unknown metrics explicit.
+
+Draft changes hide the current preview and block auditing until saved or reloaded.
+Saved historical results remain explicitly historical. A native invalid numeric
+draft or malformed JSON cannot silently save a default value. Saved changes and
+failures remain in history. Stale browser writes refuse to overwrite newer inputs;
+reload and review your draft against the current project before saving again.
+
+Source editing covers inline JSON and files inside the paper. Shared source files
+are identified before editing because the change affects every referencing figure.
+Authored Python, outside-paper files, symlink targets, history/configuration and
+paths also declared as data/palette/program/artifact inputs are read-only here.
+You can deliberately change the manifest binding instead. The browser never serves
+raw datasets, imports scripts for status, or embeds executable HTML exports in
+the workspace origin. Local scripts execute only during the explicit audit.
+If the manifest itself is malformed, fix it in your text editor and refresh;
+intact saved history remains available.
 
 ## Start a project
 
@@ -106,6 +156,9 @@ whether an audit is needed. `project-run` returns0 only for project acceptance;
 failed, incomplete, mismatched or changed-during-run evidence returns2.
 `project-history` returns2 when evidence is incomplete/damaged. Recorded SHA-256
 receipts detect changed bytes; they are not signatures or third-party trust.
+`matches_last_run_revision` also binds the complete paper's status to the latest
+audit snapshot. Unchanged remaining figures cannot make changed paper membership
+look like a complete current audit.
 
 ## Baselines and recovery
 
@@ -141,3 +194,13 @@ embedded provenance, retain failures, recover, move the paper and detect damaged
 exports. `scripts/install-smoke.py --require-project` runs it with external network
 connections blocked after installation; all four distribution jobs require it.
 These checks measure the backend, not dashboard usability or researcher adoption.
+
+The interface adds actual HTTP/source-ownership/worker/history/export controls in
+`python/tests/test_project_preview.py`, a real Chrome multi-figure workflow in
+`scripts/project-check.ts`, and an outside-checkout packaged CLI/HTTP recipe in
+`scripts/check-project-interface.py`. All four distribution jobs require the latter
+with `--require-project-interface`; the render job runs the browser checks and saves
+desktop/mobile screenshots. This is automated evidence, not a researcher usability
+study or independent scientific benchmark. Browser previews/downloads are bounded
+to20MiB and decoded rasters to30million pixels; use the saved files directly for
+larger exports. Creation-time environment evidence is not a full dependency image.

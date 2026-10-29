@@ -14,9 +14,12 @@ from graphunslopify.cli import main
 from graphunslopify.project import (
     ProjectError,
     initialize_project,
+    project_figure,
     project_history,
     project_status,
     run_project,
+    set_project_entry,
+    set_project_figure,
     set_project_shared,
 )
 from graphunslopify.provenance import read_provenance
@@ -343,3 +346,189 @@ def test_owned_paths_refuse_receipt_traversal_and_symlink_history(copy, tmp_path
     with pytest.raises(ProjectError, match="symlinks"):
         project_history(copy)
     assert not list(outside.iterdir())
+
+
+def test_removing_a_binding_requires_a_new_paper_audit_even_if_remaining_inputs_match(copy):
+    paper = copy.parent.parent
+    manifest = paper / "graphunslopify.json"
+    value = json.loads(manifest.read_text())
+    value["figures"].pop()
+    manifest.write_text(json.dumps(value))
+    state = project_status(copy)
+    assert state["figures"][0]["freshness"] == "unchanged"
+    assert state["status"] == "needs_audit" and not state["matches_last_run_revision"]
+    assert run_project(copy)["exit_code"] == 0
+    assert project_status(copy)["status"] == "inputs_match_last_run"
+
+
+def test_definition_edit_retains_prior_bytes_and_advanced_intent_without_touching_data(copy):
+    paper = copy.parent.parent
+    data = (paper / "results.csv").read_bytes()
+    source = paper / "training.figure.json"
+    original = source.read_bytes()
+    read = project_figure(copy, "training")
+    assert read["editable"] and "seed" in read["columns"]
+    spec = json.loads(read["text"])
+    spec["title"] = "Edited <literal> title"
+    result = set_project_figure(copy, "training", spec, expected_revision=read["revision"])
+    assert result["status"] == "definition_saved"
+    assert (Path(result["directory"]) / "source/0000.json").read_bytes() == original
+    assert json.loads(source.read_text()) == spec
+    assert (paper / "results.csv").read_bytes() == data
+    state = project_status(copy)
+    assert state["status"] == "needs_audit"
+    assert [row["freshness"] for row in state["figures"]] == ["changed", "unchanged"]
+    assert project_history(copy)["integrity"] == "verified"
+
+
+def test_stale_and_invalid_definition_updates_do_not_write_or_create_history(copy):
+    read = project_figure(copy, "training")
+    source = copy.parent.parent / "training.figure.json"
+    original = source.read_bytes()
+    invalid = json.loads(read["text"])
+    invalid["kind"] = "invented"
+    with pytest.raises(ProjectError, match="Correct the figure definition"):
+        set_project_figure(copy, "training", invalid, expected_revision=read["revision"])
+    assert source.read_bytes() == original and len(project_history(copy)["events"]) == 1
+    source.write_bytes(original + b"\n")
+    with pytest.raises(ProjectError, match="changed since review"):
+        set_project_figure(
+            copy, "training", json.loads(original), expected_revision=read["revision"]
+        )
+    assert source.read_bytes() == original + b"\n" and len(project_history(copy)["events"]) == 1
+
+
+def test_shared_source_references_use_resolved_identity_not_path_spelling(copy):
+    paper = copy.parent.parent
+    path = paper / "graphunslopify.json"
+    manifest = json.loads(path.read_text())
+    manifest["figures"][1]["spec"] = str(paper / "training.figure.json")
+    path.write_text(json.dumps(manifest))
+    read = project_figure(copy, "training")
+    assert read["shared_by"] == ["training", "results-table"]
+
+
+def test_clone_rebases_nested_source_and_keeps_ids_and_originals_on_add_remove(copy):
+    paper = copy.parent.parent
+    nested = paper / "definitions"
+    nested.mkdir()
+    spec = json.loads((paper / "training.figure.json").read_text())
+    spec["data"]["path"] = "../results.csv"
+    (nested / "curve.json").write_text(json.dumps(spec))
+    manifest_path = paper / "graphunslopify.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["figures"][0]["spec"] = "definitions/curve.json"
+    manifest_path.write_text(json.dumps(manifest))
+    read = project_figure(copy, "training")
+    assert read["clone"]["spec"]["data"]["path"] == "results.csv"
+    entry = {**read["clone"], "id": "duplicate"}
+    added = set_project_entry(
+        copy, "duplicate", entry, mode="add", expected_revision=read["revision"]
+    )
+    assert added["change"] == "add" and len(project_status(copy)["figures"]) == 3
+    assert run_project(copy)["exit_code"] == 0
+    current = project_figure(copy, "duplicate")
+    edited = json.loads(current["text"])
+    edited["caption"] = "Inline source preserves advanced fields."
+    set_project_figure(copy, "duplicate", edited, expected_revision=current["revision"])
+    assert project_figure(copy, "duplicate")["entry"]["spec"] == edited
+    set_project_entry(
+        copy, "duplicate", None, mode="remove", expected_revision=project_status(copy)["revision"]
+    )
+    assert len(project_status(copy)["figures"]) == 2 and (nested / "curve.json").exists()
+    assert project_status(copy)["status"] == "needs_audit"
+    assert project_history(copy)["integrity"] == "verified"
+
+
+@pytest.mark.parametrize("change", ["duplicate", "rename", "unknown", "empty"])
+def test_invalid_manifest_binding_changes_preserve_originals(copy, change):
+    before = (copy.parent.parent / "graphunslopify.json").read_bytes()
+    state = project_status(copy)
+    entry = project_figure(copy, "training")["entry"]
+    if change == "duplicate":
+        args = ("training", entry)
+        mode = "add"
+    elif change == "rename":
+        args = ("training", {**entry, "id": "different"})
+        mode = "update"
+    elif change == "unknown":
+        args = ("training", {**entry, "colour": "red"})
+        mode = "update"
+    else:
+        set_project_entry(
+            copy, "results-table", None, mode="remove", expected_revision=state["revision"]
+        )
+        before = (copy.parent.parent / "graphunslopify.json").read_bytes()
+        state = project_status(copy)
+        args = ("training", None)
+        mode = "remove"
+    count = len(project_history(copy)["events"])
+    with pytest.raises(ProjectError):
+        set_project_entry(copy, *args, mode=mode, expected_revision=state["revision"])
+    assert (copy.parent.parent / "graphunslopify.json").read_bytes() == before
+    assert len(project_history(copy)["events"]) == count
+
+
+def test_invalid_json_source_can_be_repaired_and_retains_original_failed_text(copy):
+    source = copy.parent.parent / "training.figure.json"
+    original = json.loads(source.read_text())
+    source.write_text("{")
+    read = project_figure(copy, "training")
+    assert read["text"] == "{" and read["editable"] and read["errors"]
+    result = set_project_figure(copy, "training", original, expected_revision=read["revision"])
+    assert (Path(result["directory"]) / "source/0000.json").read_text() == "{"
+    assert run_project(copy)["exit_code"] == 0
+
+
+@pytest.mark.parametrize("shape", ["columns", "axis", "group", "data", "inline-data"])
+def test_schema_invalid_but_parseable_definitions_remain_readable_and_repairable(copy, shape):
+    source = copy.parent.parent / "training.figure.json"
+    good = json.loads(source.read_text())
+    broken = json.loads(source.read_text())
+    if shape == "columns":
+        broken["data"]["columns"] = None
+    elif shape == "axis":
+        broken["x"] = 42
+    elif shape == "group":
+        broken["group"] = ["not-a-field"]
+    else:
+        broken["data"] = None
+    if shape == "inline-data":
+        path = copy.parent.parent / "graphunslopify.json"
+        manifest = json.loads(path.read_text())
+        manifest["figures"][0]["spec"] = broken
+        path.write_text(json.dumps(manifest))
+    else:
+        source.write_text(json.dumps(broken))
+    read = project_figure(copy, "training")
+    assert read["editable"] and json.loads(read["text"]) == broken
+    saved = set_project_figure(copy, "training", good, expected_revision=read["revision"])
+    assert saved["exit_code"] == 0 and json.loads(project_figure(copy, "training")["text"]) == good
+
+
+@pytest.mark.parametrize("target", ["external", "data", "history", "symlink"])
+def test_definition_source_ownership_never_rewrites_external_data_or_history(
+    copy, tmp_path, target
+):
+    paper = copy.parent.parent
+    manifest_path = paper / "graphunslopify.json"
+    value = json.loads(manifest_path.read_text())
+    raw = (paper / "training.figure.json").read_bytes()
+    if target == "external":
+        source = tmp_path / "external.json"
+        source.write_bytes(raw)
+    elif target == "data":
+        source = paper / "results.csv"
+    elif target == "history":
+        source = next((copy.parent / "history").iterdir()) / "source/0000.json"
+    else:
+        source = paper / "linked.json"
+        source.symlink_to(paper / "training.figure.json")
+    original = source.read_bytes()
+    value["figures"][0]["spec"] = str(source)
+    manifest_path.write_text(json.dumps(value))
+    read = project_figure(copy, "training")
+    assert not read["editable"] and read["reason"]
+    with pytest.raises(ProjectError):
+        set_project_figure(copy, "training", json.loads(raw), expected_revision=read["revision"])
+    assert source.read_bytes() == original

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="preview-token" content="__PREVIEW_TOKEN__" />
+    <title>GraphUnslopify · Paper workspace</title>
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/project.css" />
+    <script src="/project.js" type="module"></script>
+  </head>
+  <body class="paper-workspace">
+    <header>
+      <div><div class="eyebrow">GRAPHUNSLOPIFY <span class="local">LOCAL PAPER WORKSPACE</span></div>
+        <h1 id="project-name">Your paper, every figure.</h1>
+        <p>Keep definitions, shared settings and the evidence from every audit together.</p>
+      </div>
+      <div class="actions"><button id="refresh" class="secondary">Refresh project</button><button id="audit" disabled>Audit paper</button></div>
+    </header>
+    <div class="workspace-notices">
+      <p id="error" role="alert" hidden></p>
+      <p id="notice" role="status" aria-live="polite">Loading project…</p>
+      <p id="running" role="status" hidden>Auditing the paper. Definitions stay locked until this audit finishes.</p>
+    </div>
+    <main>
+      <aside class="card project-navigation">
+        <h2>Figures <span id="figure-count" class="muted"></span></h2>
+        <p id="project-status" class="badge" role="status"></p>
+        <div id="figure-list" aria-label="Paper figures"></div>
+        <details><summary>Add or remove a figure</summary>
+          <label>New figure ID<input id="new-id" type="text" placeholder="ablation-results" /></label>
+          <button id="duplicate" class="secondary" disabled>Duplicate selected figure</button>
+          <button id="remove" class="quiet" disabled>Remove selected binding</button>
+          <p class="muted">Removing a binding keeps its source files, data and saved history.</p>
+        </details>
+        <details><summary>Audit policy</summary>
+          <label>Baseline<select id="baseline"><option value="latest">Latest intact audit</option><option value="">No baseline</option></select></label>
+          <label class="check"><input id="fail-warning" type="checkbox" /> Reject warnings</label>
+          <label class="check"><input id="fail-change" type="checkbox" /> Reject changes</label>
+          <p class="muted">Audits run the selected local data and trusted Python programs. Undeclared script dependencies remain unknown.</p>
+        </details>
+      </aside>
+      <div class="project-content">
+        <section class="card shared-card">
+          <details id="shared-panel"><summary>Shared settings for this paper</summary>
+            <p class="muted">JSON figures inherit these settings at execution. Authored Python must already match them. Saved definitions remain separate from shared overrides.</p>
+            <fieldset id="shared-controls" aria-label="Shared paper settings"></fieldset>
+            <details><summary>Advanced shared JSON</summary><label class="sr-only" for="shared-json">Shared settings JSON</label><textarea id="shared-json" spellcheck="false"></textarea></details>
+            <p id="shared-error" role="alert" hidden></p>
+            <div class="actions"><button id="save-shared" disabled>Save shared settings</button><button id="discard-shared" class="quiet">Reload saved settings</button></div>
+          </details>
+        </section>
+        <section class="card definition-card">
+          <div class="section-head"><h2 id="selected-title">Choose a figure</h2><button id="undo-controls" class="quiet" disabled>Undo control change</button></div>
+          <p id="source" class="muted"></p><p id="source-note" class="muted"></p>
+          <p id="control-error" role="alert" hidden></p>
+          <fieldset id="figure-controls" aria-label="Figure definition controls" disabled></fieldset>
+          <details id="definition-panel"><summary>Original definition JSON / Python</summary><label class="sr-only" for="definition">Original figure definition</label><textarea id="definition" spellcheck="false" disabled></textarea></details>
+          <div class="actions"><button id="save-definition" disabled>Save figure definition</button><button id="reload-definition" class="quiet" disabled>Reload saved definition</button></div>
+          <details id="binding-panel"><summary>Manifest binding and overrides</summary>
+            <p class="muted">Paths in this binding resolve beside the paper manifest. Its data and claim overrides take precedence over the original definition.</p>
+            <label class="sr-only" for="entry">Manifest binding</label><textarea id="entry" spellcheck="false" disabled></textarea><button id="save-entry" disabled>Save manifest binding</button>
+          </details>
+        </section>
+        <section class="card history-card">
+          <div class="section-head"><h2>Saved runs &amp; changes</h2><span id="history-integrity" class="muted"></span></div>
+          <div class="history-selectors"><label>History event<select id="history"></select></label><label>Figure in this event<select id="history-figure"></select></label></div>
+          <p id="event-summary" role="status">No audit has been saved yet.</p>
+          <p class="muted">These are saved results. Drafts, later input edits and missing dependencies need another audit.</p>
+          <div class="evidence-grid"><div class="paper"><img id="preview" alt="Saved audited figure" hidden /><p id="preview-note">Run an audit to create figure evidence.</p></div>
+            <div><h3>Check results</h3><div id="checks"></div><div id="exports" class="downloads"></div></div></div>
+          <div class="actions"><button id="show-comparison" class="secondary" disabled>Compare with baseline</button><button id="show-source" class="quiet" disabled>Read captured source</button></div>
+          <div id="comparison" hidden></div>
+          <details id="saved-source-panel" hidden><summary id="saved-source-label">Captured source</summary><label class="sr-only" for="saved-source">Captured historical source</label><textarea id="saved-source" readonly></textarea></details>
+          <details><summary>Selected event evidence</summary><pre id="event-json"></pre></details>
+        </section>
+      </div>
+    </main>
+    <footer>A local workspace for your paper. Checks describe declared computations and saved evidence; you choose the scientific interpretation.</footer>
+  </body>
+</html>

@@ -90,7 +90,8 @@ Current source after0.8.0 adds `project-init`, `project-status`, `project-run`,
 complete audit/settings history, check declared input/export freshness and apply
 shared semantic settings to JSON figures. Authored scripts retain their own
 source and must meet the requested shared policy. See [project management](../docs/project-management.md);
-the packaged project dashboard remains in development.
+`graphunslopify project-preview paper/ --open` provides the packaged local paper
+workspace for definition/binding edits, shared settings, real audits and history.
 
 ## Notebook example
 

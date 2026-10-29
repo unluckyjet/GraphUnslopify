@@ -1,7 +1,7 @@
 ---
 id: 68
 slug: portable-project-artifact-check
-status: ready
+status: done
 priority: P1
 title: Target recorded current exports in installed project verification
 source_idea: exact21bf7d1 Linux and Windows distribution failures expose unordered PNG selection
@@ -38,3 +38,8 @@ blocked after installation. Original product module/CLI/bundle bytes are identic
 to the21bf7d1 wheel. Actual two-target counterexample distinguishes a derived
 comparison after-preview from a recorded current export. Exact repaired push/CI
 is pending; interface67 and full review10 remain open.
+
+Exact0ae6cf878a568885f139b8da7104f032ff97b92e main40815063294 passed all nine
+jobs; Figure40815063397 passed. Linux3.10/3.12, Windows and macOS installed
+checks all pass; downloaded Linux3.12 job123254085545 confirms actual offline
+two-figure/five-event project evidence. Interface67 remains the next required work.

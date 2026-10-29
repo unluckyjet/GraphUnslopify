@@ -84,6 +84,11 @@ def main() -> None:
         action="store_true",
         help="require current-source project history and shared settings; older releases may omit them",
     )
+    parser.add_argument(
+        "--require-project-interface",
+        action="store_true",
+        help="require the current-source packaged paper workspace and actual loopback workflow",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -1406,6 +1411,23 @@ def main() -> None:
             )
         )
         assert project_management["status"] == "passed"
+    project_interface = None
+    if args.require_project_interface:
+        project_interface = json.loads(
+            run(
+                [
+                    str(python),
+                    str(
+                        Path(__file__).resolve().with_name("check-project-interface.py")
+                    ),
+                    "--work-dir",
+                    str(where / "project interface"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert project_interface["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1422,6 +1444,7 @@ def main() -> None:
                 "research_workflow": research_workflow,
                 "experiment_tracking": experiment_tracking,
                 "project_management": project_management,
+                "project_interface": project_interface,
                 "work_dir": str(where),
             }
         )

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import csv
 import hashlib
 import json
 import math
@@ -381,7 +382,7 @@ def project_history(path: str | Path = ".") -> dict:
                     receipt.get("project_id") != owner["project_id"]
                     or receipt.get("id") != folder.name
                     or receipt.get("sequence") != item["sequence"]
-                    or receipt.get("action") not in ("run", "settings")
+                    or receipt.get("action") not in ("run", "settings", "figure", "entry")
                 ):
                     raise ProjectError("Receipt ownership does not match this project/event.")
                 names = set()
@@ -505,7 +506,13 @@ def project_status(path: str | Path = ".") -> dict:
         if row["errors"]:
             row["freshness"] = "unavailable"
         rows.append(row)
-    matches = all(
+    latest = next(
+        (x for x in history["events"] if x["integrity"] and x.get("action") == "run"), None
+    )
+    revision_matches = bool(
+        latest and (latest["result"].get("snapshot") or {}).get("revision") == snapshot["revision"]
+    )
+    matches = revision_matches and all(
         x["freshness"] == "unchanged" and x["last_accepted"] and x.get("artifacts_verified")
         for x in rows
     )
@@ -519,6 +526,7 @@ def project_status(path: str | Path = ".") -> dict:
         "status": "inputs_match_last_run" if matches else "needs_audit",
         "history_integrity": history["integrity"],
         "history_count": len(history["events"]),
+        "matches_last_run_revision": revision_matches,
     }
 
 
@@ -527,6 +535,242 @@ def _expected(expected: str | None, snapshot: dict) -> None:
         raise ProjectError(
             "Project inputs/settings changed since review; refresh before applying this action."
         )
+
+
+def _review_token(value: str) -> None:
+    if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
+        raise ProjectError("Changes need the current project-status revision token.")
+
+
+def _authoring_target(source: Path, target: Path, snapshot: dict) -> Path:
+    paper = source.parent.parent
+    if not target.absolute().is_relative_to(paper):
+        raise ProjectError("Definitions outside the paper folder are read-only here.")
+    target = _inside(paper, target.absolute().relative_to(paper).as_posix())
+    if target.is_relative_to(source.parent):
+        raise ProjectError(
+            "Owned project configuration and saved history cannot be definition targets."
+        )
+    protected = {
+        (paper / item["path"]).resolve()
+        for row in snapshot["figures"]
+        for item in row["files"]
+        if item["role"] != "spec"
+    }
+    if target.resolve() in protected:
+        raise ProjectError(
+            "This path is also a data, palette, script or published-artifact input; change its manifest binding instead."
+        )
+    return target
+
+
+def project_figure(path: str | Path, identity: str) -> dict:
+    """Return one captured authoring definition without importing a selected script."""
+    source, config = _config(path)
+    snapshot, effective, originals = _capture(source, config)
+    manifest = json.loads(originals["source/manifest.json"])
+    index = next(
+        (i for i, entry in enumerate(manifest["figures"]) if entry["id"] == identity), None
+    )
+    if index is None:
+        raise ProjectError("Choose a figure ID in the current manifest.")
+    entry = manifest["figures"][index]
+    paper = source.parent.parent
+    script = "script" in entry
+    filename = (
+        entry.get("script") if script else entry["spec"] if isinstance(entry["spec"], str) else None
+    )
+    raw = (
+        originals.get(f"source/{index:04d}." + ("py" if script else "json"))
+        if filename
+        else _bytes(entry["spec"])
+    )
+    reason = (
+        "Authored Python is read-only here; update its source deliberately, then audit again."
+        if script
+        else ""
+    )
+    if filename and not script:
+        try:
+            _authoring_target(source, paper / filename, snapshot)
+        except ProjectError as problem:
+            reason = str(problem)
+    normalized = effective["figures"][index]
+    clone = copy.deepcopy(entry)
+    clone.pop("artifacts", None)
+    effective_spec = normalized.get("spec")
+    data_spec = effective_spec.get("data") if isinstance(effective_spec, dict) else None
+    if not script and isinstance(data_spec, dict) and isinstance(data_spec.get("path"), str):
+        spec = copy.deepcopy(normalized["spec"])
+        spec["data"]["path"] = _locator(Path(spec["data"]["path"]), paper)
+        if spec.get("palette_lock"):
+            spec["palette_lock"] = _locator(Path(spec["palette_lock"]), paper)
+        clone = {"id": identity, "spec": spec}
+    hints = set()
+    actual = normalized.get("spec")
+    if isinstance(actual, dict):
+        declared = data_spec.get("columns") if isinstance(data_spec, dict) else None
+        if isinstance(declared, list):
+            hints.update(value for value in declared if isinstance(value, str))
+        for key in ("x", "y"):
+            axis = actual.get(key)
+            if isinstance(axis, dict) and isinstance(axis.get("field"), str):
+                hints.add(axis["field"])
+        if isinstance(actual.get("group"), str):
+            hints.add(actual["group"])
+        data = (
+            Path(data_spec["path"])
+            if isinstance(data_spec, dict) and isinstance(data_spec.get("path"), str)
+            else None
+        )
+        if data is not None and data.suffix.lower() == ".csv":
+            try:
+                with data.open(encoding="utf-8-sig", newline="") as handle:
+                    hints.update(next(csv.reader(handle), []))
+            except (OSError, ValueError, csv.Error):
+                pass  # Hints are optional; captured source errors remain explicit.
+    return {
+        "id": identity,
+        "revision": snapshot["revision"],
+        "entry": entry,
+        "source_type": "script" if script else "spec",
+        "source": filename or "inline in " + config["manifest"],
+        "text": raw.decode("utf8") if raw is not None else "",
+        "editable": not reason,
+        "reason": reason,
+        "errors": snapshot["figures"][index]["errors"],
+        "clone": clone,
+        "shared_by": [
+            row["id"]
+            for row in snapshot["figures"]
+            if filename
+            and any(
+                item["role"] == ("script" if script else "spec")
+                and Path(item["path"]) == Path(_locator(paper / filename, paper))
+                for item in row["files"]
+            )
+        ],
+        "columns": sorted(value for value in hints if isinstance(value, str)),
+    }
+
+
+def _write_authoring(paper: Path, target: Path, content: bytes, expected_sha: str | None) -> None:
+    # Optimistic guards cover cooperative writers; this is not a filesystem CAS.
+    target = _inside(paper, target.relative_to(paper).as_posix())
+    current = _digest(target) if target.is_file() else None
+    if current != expected_sha or (target.exists() and not target.is_file()):
+        raise ProjectError("Definition changed since capture; refresh before saving.")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.parent / (".graphunslopify-write-" + uuid.uuid4().hex)
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        temporary.replace(target)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _edit_definition(path, identity, value, *, expected_revision, entry_mode=None):
+    _review_token(expected_revision)
+    source, config = _config(path)
+    with _operation(source.parent):
+        before, _, originals = _capture(source, config)
+        _expected(expected_revision, before)
+        manifest = json.loads(originals["source/manifest.json"])
+        index = next(
+            (i for i, item in enumerate(manifest["figures"]) if item["id"] == identity), None
+        )
+        paper = source.parent.parent
+        target = paper / before["manifest"]
+        expected_sha = before["manifest_sha256"]
+        if entry_mode is not None:
+            if entry_mode not in ("add", "update", "remove"):
+                raise ProjectError("Choose add, update or remove for a manifest binding.")
+            if (index is None) != (entry_mode == "add"):
+                raise ProjectError(
+                    "The figure ID is missing or already exists; refresh the manifest."
+                )
+            if entry_mode == "remove":
+                manifest["figures"].pop(index)
+            else:
+                if not isinstance(value, dict) or value.get("id") != identity:
+                    raise ProjectError("Keep the stable figure ID; use a new ID when duplicating.")
+                if index is None:
+                    manifest["figures"].append(copy.deepcopy(value))
+                else:
+                    manifest["figures"][index] = copy.deepcopy(value)
+        else:
+            if index is None or "spec" not in manifest["figures"][index]:
+                raise ProjectError(
+                    "Choose a JSON figure definition; authored scripts stay read-only."
+                )
+            if not isinstance(value, dict):
+                raise ProjectError("A figure definition must be a JSON object.")
+            checked = local_request("convert", value)
+            if not checked.get("ok"):
+                raise ProjectError("Correct the figure definition before saving: " + str(checked))
+            old = manifest["figures"][index]
+            if isinstance(old["spec"], str):
+                target = _authoring_target(source, paper / old["spec"], before)
+                expected_sha = next(
+                    x["sha256"] for x in before["figures"][index]["files"] if x["role"] == "spec"
+                )
+            else:
+                old["spec"] = copy.deepcopy(value)
+        if target == paper / before["manifest"]:
+            from importlib.resources import files
+
+            from jsonschema import Draft202012Validator
+
+            schema = json.loads(
+                files("graphunslopify").joinpath("schemas/manifest.schema.json").read_text()
+            )
+            problems = list(Draft202012Validator(schema).iter_errors(manifest))
+            ids = [item["id"] for item in manifest["figures"]]
+            if problems or len(ids) != len(set(ids)):
+                raise ProjectError(
+                    "Invalid manifest binding: "
+                    + (problems[0].message if problems else "duplicate figure ID")
+                )
+            content = _bytes(manifest)
+            target = _authoring_target(source, target, before)
+        else:
+            content = _bytes(value)
+        if len(content) > MAX_SOURCE_BYTES:
+            raise ProjectError("Definition exceeds the 20 MiB authoring limit.")
+        folder, event = _event(source.parent, "entry" if entry_mode else "figure")
+        _write_authoring(paper, target, content, expected_sha)
+        after, _, _ = _capture(source, config)
+        return _finish(
+            folder,
+            event,
+            {
+                "status": "definition_saved",
+                "exit_code": 0,
+                "before": before,
+                "snapshot": after,
+                "audit": None,
+                "figure_id": identity,
+                "change": entry_mode or "definition",
+            },
+            originals,
+        )
+
+
+def set_project_figure(path, identity: str, spec: dict, *, expected_revision: str) -> dict:
+    """Save a reviewed JSON definition and retain its previous captured source."""
+    return _edit_definition(path, identity, spec, expected_revision=expected_revision)
+
+
+def set_project_entry(
+    path, identity: str, entry: dict | None, *, expected_revision: str, mode="update"
+) -> dict:
+    """Add/update/remove a manifest binding; never delete source programs or data."""
+    return _edit_definition(
+        path, identity, entry, expected_revision=expected_revision, entry_mode=mode
+    )
 
 
 def set_project_shared(path: str | Path, shared: dict, *, expected_revision: str) -> dict:

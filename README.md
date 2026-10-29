@@ -450,7 +450,8 @@ The optional [MLflow integration](docs/experiment-tracking.md) logs saved report
 verified figures and acceptance to your chosen experiment or training run.
 Source also adds [persistent paper projects](docs/project-management.md): shared
 figure settings, per-figure input freshness and retained audit/settings history.
-The project dashboard is still in development.
+After `graphunslopify project-init paper/`, run `graphunslopify project-preview paper/ --open` to edit
+definitions/bindings, apply shared settings, audit the paper and review saved runs.
 
 ```sh
 graphunslopify workflow-init paper/

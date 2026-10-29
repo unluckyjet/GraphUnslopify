@@ -316,11 +316,16 @@ class PreviewHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         route = urlsplit(self.path).path
-        if not self.allowed(token=route not in {"/", "/app.js", "/app.css"}):
+        if not self.allowed(token=route not in {"/", "/app.js", "/app.css", "/controls.js"}):
             self.json({"error": "This local editor request is not authorized"}, 403)
             return
-        if route in {"/", "/app.js", "/app.css"}:
-            name = {"/": "index.html", "/app.js": "app.js", "/app.css": "app.css"}[route]
+        if route in {"/", "/app.js", "/app.css", "/controls.js"}:
+            name = {
+                "/": "index.html",
+                "/app.js": "app.js",
+                "/app.css": "app.css",
+                "/controls.js": "controls.js",
+            }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
             self.send(
@@ -328,6 +333,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 {
                     "index.html": "text/html; charset=utf-8",
                     "app.js": "text/javascript; charset=utf-8",
+                    "controls.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -338,6 +344,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 {
                     "kinds": info["kinds"],
                     "recipes": local_request("recipes"),
+                    "schema": local_request("schema"),
                     "max_upload_mb": self.server.state.max_upload // 1024 // 1024,
                 }
             )

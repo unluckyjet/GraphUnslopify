@@ -86,12 +86,16 @@ label {
   margin-top: 15px;
 }
 select,
+input[type="text"],
+input[type="number"],
 input[type="file"] {
   width: 100%;
   font: inherit;
   margin-top: 6px;
 }
-select {
+select,
+input[type="text"],
+input[type="number"] {
   padding: 9px 10px;
   border: 1px solid #cbd8df;
   border-radius: 7px;
@@ -195,6 +199,78 @@ summary:focus-visible {
   align-items: center;
   justify-content: space-between;
   margin-top: 15px;
+}
+#settings,
+.claim-controls fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+#settings details {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+#settings details:first-child {
+  border-top: 0;
+}
+.setting-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+.setting-grid small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+  margin-top: 5px;
+}
+.setting-grid label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.setting-grid label.wide {
+  grid-column: 1/-1;
+}
+.setting-grid textarea {
+  height: 90px;
+  min-height: 70px;
+  width: 100%;
+  margin-top: 6px;
+}
+.claim-controls {
+  display: block;
+}
+.claim-controls fieldset {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 12px 0;
+}
+.claim-controls legend {
+  font-weight: 700;
+  padding: 0 5px;
+}
+.claim-controls button {
+  margin-top: 12px;
+}
+#control-error {
+  color: var(--red);
+  background: #fbe7e8;
+  padding: 10px;
+  border-radius: 6px;
+}
+[aria-invalid="true"] {
+  border-color: var(--red) !important;
+}
+#advanced {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 10px;
+}
+#advanced > button {
+  margin-top: 12px;
 }
 .check {
   display: flex;
@@ -347,6 +423,13 @@ footer {
   .editor textarea {
     height: 440px;
   }
+  .setting-grid {
+    grid-template-columns: 1fr;
+  }
+  .setting-grid textarea {
+    height: 90px;
+    min-height: 70px;
+  }
 }
 @media (max-width: 680px) {
   header {
@@ -377,5 +460,9 @@ footer {
   }
   .editor textarea {
     height: 380px;
+  }
+  .setting-grid textarea {
+    height: 90px;
+    min-height: 70px;
   }
 }

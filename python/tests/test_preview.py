@@ -46,6 +46,10 @@ def test_loopback_origin_token_and_asset_boundaries(editor):
     assert status == 200
     assert b"Make the figure" in html and editor.state.token.encode() in html
     assert request(editor, "/app.js", token=False)[0] == 200
+    assert (
+        request(editor, "/controls.js", token=False)[1]
+        == preview.files("graphunslopify").joinpath("web/controls.js").read_bytes()
+    )
     assert request(editor, "/api/info", token=False)[0] == 403
     assert request(editor, "/api/demo", {}, token=False)[0] == 403
     assert request(editor, "/api/demo", {}, headers={"Origin": "https://example.org"})[0] == 403
@@ -53,6 +57,9 @@ def test_loopback_origin_token_and_asset_boundaries(editor):
     assert request(editor, "/artifact/unknown/../../etc/passwd")[0] == 404
     info = json.loads(request(editor, "/api/info")[1])
     assert len(info["kinds"]) == 21 and len(info["recipes"]) == 25
+    assert {branch["properties"]["kind"]["const"] for branch in info["schema"]["oneOf"]} == set(
+        info["kinds"]
+    )
     assert not editor.state.uploads
 
 

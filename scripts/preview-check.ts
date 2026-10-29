@@ -23,7 +23,13 @@ declare const window: { innerWidth: number };
 
 const python = process.env.PYTHON || "python";
 const evidence = mkdtempSync(join(tmpdir(), "gu-preview-check-"));
-const env = { ...process.env, PYTHONPATH: resolve("python") };
+const env: NodeJS.ProcessEnv = process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED
+  ? { ...process.env }
+  : { ...process.env, PYTHONPATH: resolve("python") };
+// The driver must fetch a loopback response to hold it. Product processes keep
+// their independent translator-network hook in installed offline verification.
+if (process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS)
+  env.NODE_OPTIONS = process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS;
 const server = spawn(
   python,
   ["-m", "graphunslopify.cli", "preview", "--port", "0"],
@@ -71,16 +77,24 @@ try {
     if (!request.url().startsWith(url) && !request.url().startsWith("data:"))
       external.push(request.url());
   });
+  const infoResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/info"),
+  );
   await page.goto(url);
+  const info = await (await infoResponse).json();
   await page.waitForFunction(
     () => document.querySelectorAll("#kind option").length === 21,
   );
   assert.equal(await page.locator("#recipe option").count(), 26);
   assert.equal(await page.locator("#bundle").isDisabled(), true);
-  const edit = async (spec: object | string) =>
-    page
+  const edit = async (spec: object | string) => {
+    await page
+      .locator("#advanced")
+      .evaluate((node) => node.setAttribute("open", ""));
+    return page
       .locator("#spec")
       .fill(typeof spec === "string" ? spec : JSON.stringify(spec, null, 2));
+  };
   const spec = async () => JSON.parse(await page.locator("#spec").inputValue());
   const verified = async () => {
     await page.locator('#status[data-state="passed"]').waitFor();
@@ -96,6 +110,197 @@ try {
   await verified();
   assert.match(await page.locator("#counts").innerText(), /24 rows read/);
   const demo = await spec();
+  assert.equal(
+    await page.getByRole("textbox", { name: "X unit", exact: true }).count(),
+    1,
+  );
+  await page.screenshot({
+    path: join(evidence, "controls-default-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .locator(".editor")
+    .screenshot({ path: join(evidence, "controls-default-mobile.png") });
+  assert.equal(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    ),
+    false,
+  );
+  await page.setViewportSize({ width: 1500, height: 1000 });
+  // Common research settings and a complete claim edit need no raw JSON.
+  assert.equal(await page.locator("#advanced").getAttribute("open"), null);
+  await page.locator("#live").uncheck();
+  const control = async (id: string, value: string) => {
+    const input = page.locator("#control-" + id);
+    await input.evaluate((node) => {
+      let parent = node.parentElement;
+      while (parent) {
+        if (parent.tagName === "DETAILS") parent.setAttribute("open", "");
+        parent = parent.parentElement;
+      }
+    });
+    if ((await input.evaluate((node) => node.tagName)) === "SELECT")
+      await input.selectOption(value);
+    else {
+      await input.fill(value);
+      await input.press("Tab");
+    }
+  };
+  const caption =
+    "Literal <script> _&% control caption\nSecond line stays literal.";
+  await control("title", "Controls-only figure");
+  await control("y-label", "Validation score");
+  await control("y-unit", "points");
+  await control("caption", caption);
+  await control("output-size", "double_column");
+  await control("output-dpi", "300");
+  await control("uncertainty-kind", "ci");
+  await control("uncertainty-over", "seed");
+  await control("uncertainty-level", "0.95");
+  await page.locator("#control-format-svg").uncheck();
+  assert.equal(await page.locator("#advanced").getAttribute("open"), null);
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await page.locator("#render").click();
+  await verified();
+  assert.equal((await spec()).caption, caption);
+  assert.deepEqual((await spec()).output.formats, ["png", "pdf"]);
+  const controlsDownload = page.waitForEvent("download");
+  await page.locator("#include-data").check();
+  await page.locator("#bundle").click();
+  await (
+    await controlsDownload
+  ).saveAs(join(evidence, "controls-with-data.zip"));
+  await page.locator("#include-data").uncheck();
+  // Invalid/unfinished numeric drafts never become valid defaults or resurrect exports.
+  let renderRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/render")) renderRequests++;
+  });
+  await control("output-dpi", "71");
+  assert.equal((await spec()).output.dpi, 300);
+  assert.match(await page.locator("#control-error").innerText(), /Raster DPI/);
+  await control("title", "Draft is preserved");
+  assert.equal((await spec()).title, "Controls-only figure");
+  const beforeInvalid = renderRequests;
+  await page.locator("#render").click();
+  assert.equal(renderRequests, beforeInvalid);
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  await control("output-dpi", "300");
+  assert.equal((await spec()).title, "Draft is preserved");
+  const dpi = page.locator("#control-output-dpi");
+  await dpi.fill("");
+  await dpi.pressSequentially("1e");
+  await dpi.press("Tab");
+  assert.equal(await dpi.inputValue(), "");
+  assert.match(
+    await page.locator("#control-error").innerText(),
+    /valid number/,
+  );
+  assert.equal((await spec()).output.dpi, 300);
+  await control("output-dpi", "300");
+  await page.locator("#undo-controls").click();
+  assert.equal((await spec()).title, "Controls-only figure");
+  await control("aggregation", "median");
+  await control("uncertainty-kind", "sem");
+  await page.locator("#render").click();
+  await page.locator('[data-code="median_sem_unsupported"]').waitFor();
+  assert.equal(await page.locator("#preview").isHidden(), true);
+  await control("aggregation", "mean");
+  await control("uncertainty-kind", "ci");
+  await control("claims-0-subject", "base");
+  await control("claims-0-reference", "ours");
+  await page.locator("#render").click();
+  await page.locator('#status[data-state="failed"]').waitFor();
+  assert.match(await page.locator("#claims").innerText(), /FAILS/);
+  await control("claims-0-subject", "ours");
+  await control("claims-0-reference", "base");
+  await page.locator("#add-claim").click();
+  assert.deepEqual((await spec()).claims[1], {});
+  await control("claims-1-kind", "monotone_increasing");
+  await control("claims-1-subject", "ours");
+  await page.locator("#render").click();
+  await verified();
+  assert.equal(await page.locator("#claims .claim").count(), 2);
+  await page
+    .getByRole("button", { name: "Remove claim 2", exact: true })
+    .click();
+  assert.equal((await spec()).claims.length, 1);
+  // Advanced authored fields survive unrelated native controls and undo.
+  const advanced = {
+    ...demo,
+    y: { ...demo.y, label: "Authored score label", unit: "points" },
+    filter: [{ field: "model", op: "in", value: ["base", "ours"] }],
+    legend: { ...demo.legend, title: "Authored legend", style: "box" },
+    smooth: { kind: "rolling", window: 2, show_raw: true },
+  };
+  await edit(advanced);
+  await control("title", "Preserve advanced settings");
+  await page.locator("#y-field").selectOption("score");
+  for (const key of ["filter", "smooth", "legend", "y"])
+    assert.deepEqual(
+      (await spec())[key],
+      advanced[key as keyof typeof advanced],
+    );
+  await control("caption", "Another authored caption from controls");
+  await page.locator("#undo-controls").click();
+  assert.equal((await spec()).caption, undefined);
+  assert.deepEqual((await spec()).filter, advanced.filter);
+  // Every kind's required primitive/category settings come from the actual schema.
+  const controlledKinds = [];
+  for (const branch of info.schema.oneOf) {
+    const kind = branch.properties.kind.const;
+    await page.locator("#kind").selectOption(kind);
+    for (const key of branch.required) {
+      const node = branch.properties[key];
+      if (key === "kind" || (node.type === "object" && key !== "uncertainty"))
+        continue;
+      if (node.type === "array" && node.items?.type !== "string") continue;
+      assert.equal(
+        await page
+          .locator(
+            "#control-" + (key === "uncertainty" ? "uncertainty-kind" : key),
+          )
+          .count(),
+        1,
+        `${kind}.${key}`,
+      );
+    }
+    if (kind === "waterfall") {
+      await control("start", "0");
+      assert.equal((await spec()).start, 0);
+      await control("start", "");
+      assert.equal((await spec()).start, 0);
+      assert.match(
+        await page.locator("#control-error").innerText(),
+        /Starting total/,
+      );
+      await control("start", "2");
+      await control("category_order", " stage, one\ntwo ");
+      assert.deepEqual((await spec()).category_order, [" stage, one", "two "]);
+    }
+    controlledKinds.push(kind);
+  }
+  assert.equal(controlledKinds.length, 21);
+  await page.screenshot({
+    path: join(evidence, "kind-controls.png"),
+    fullPage: true,
+  });
+  await edit(demo);
+  await page.locator("#live").check();
+  await verified();
+  await page.locator("#control-title").fill("Live control title");
+  await page.waitForFunction(
+    () => document.querySelector("#status")?.textContent === "Verified",
+  );
+  await verified();
+  assert.equal((await spec()).title, "Live control title");
+  assert.equal(await page.locator("#control-title:focus").count(), 1);
+  await edit(demo);
+  await verified();
   // Existing successful output disappears immediately when input is invalidated.
   await edit({ ...demo, y: { ...demo.y, temporal: true } });
   assert.equal(await page.locator("#preview").isHidden(), true);
@@ -126,6 +331,12 @@ try {
   );
   assert.equal(await page.locator("#preview").isHidden(), true);
   assert.equal(await page.locator("#files a").count(), 0);
+  assert.notEqual(
+    await page.locator("#settings").getAttribute("disabled"),
+    null,
+  );
+  assert.equal(await page.locator("#control-title").isDisabled(), true);
+  assert.equal(await page.locator("#spec").inputValue(), "{");
   await edit({ ...demo, x: { field: "missing_column", label: "Missing" } });
   await page.locator('[data-code="unknown_field"]').waitFor();
   assert.equal(await page.locator("#bundle").isDisabled(), true);
@@ -242,6 +453,21 @@ try {
 import json, pathlib, subprocess, sys, zipfile
 from graphunslopify.audit import _outputs, _validate_report
 root=pathlib.Path(sys.argv[1])
+with zipfile.ZipFile(root/'controls-with-data.zip') as archive:
+    controlled=root/'controls-reproduced';archive.extractall(controlled)
+controlled=controlled.resolve()
+form_report=json.loads((controlled/'figure.report.json').read_text())
+assert form_report['status']=='passed'
+assert form_report['spec']['title']=='Controls-only figure'
+assert form_report['spec']['y']['label']=='Validation score' and form_report['spec']['y']['unit']=='points'
+assert form_report['spec']['caption']=="Literal <script> _&% control caption\\nSecond line stays literal."
+assert form_report['spec']['output']['size']=='double_column' and form_report['spec']['output']['dpi']==300
+assert form_report['spec']['output']['formats']==['png','pdf']
+assert form_report['spec']['uncertainty']['over']=='seed'
+_validate_report(form_report);assert len(_outputs(form_report,controlled,controlled))==2
+done=subprocess.run([sys.executable,'figure.py','--strict','--json'],cwd=controlled,capture_output=True,text=True)
+assert done.returncode==0,done.stderr
+assert json.loads(done.stdout)['spec_hash']==form_report['spec_hash']
 with zipfile.ZipFile(root/'without-data.zip') as archive:
     assert not any(n.endswith(('.csv','.parquet')) or n=='data.json' for n in archive.namelist())
 with zipfile.ZipFile(root/'with-data.zip') as archive:
@@ -299,6 +525,7 @@ print('Exported Python rerendered outside checkout; spec, report, data, output d
         passed: true,
         external_requests: external.length,
         javascript_errors: errors.length,
+        controlled_kinds: controlledKinds,
         workflows: [
           "data picker",
           "spec editing",
@@ -313,6 +540,14 @@ print('Exported Python rerendered outside checkout; spec, report, data, output d
           "ZIP consent",
           "reproduced exports",
           "mobile layout",
+          "schema-driven required controls for all21 kinds",
+          "controls-only figure and reproduced bundle",
+          "typed numeric draft refusal and batch recovery",
+          "unsupported median SEM rejection",
+          "native claim add edit remove and strict failure",
+          "advanced settings custom labels and undo preserved",
+          "invalid JSON disables form controls",
+          "live native text input preserves focus",
         ],
       },
       null,

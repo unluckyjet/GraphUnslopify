@@ -1,7 +1,7 @@
 ---
 id: 63
 slug: experiment-tracking-integration
-status: ready
+status: done
 priority: P1
 title: Log verified figure audit evidence to explicit MLflow experiment runs
 source_idea: review2026-10-28 item9 experiment tracking continuation after workspace62
@@ -44,3 +44,12 @@ one upstream SQLAlchemy noload deprecation warning is retained, not suppressed.
 Final seven-gate run passes222 Node/1277 Python, zero skipped tests,15 baselines,
 16 renders,25 recipes/seven compositions and Ruff78 lint/format. The single
 upstream warning remains. Exact pushed CI is checked before closing this spec.
+
+## Exact pushed verification
+
+5dd3b17d19525d80b2a7f276e59312000ef753c9 main40801523028 passed all nine
+jobs; Figure40801523058 passed. All four fresh installed platforms required
+tracking. Downloaded Windows log confirms MLflow3.17.2/Python3.12.10, external
+runtime networking blocked, six recovered files, strict0/2 exits, caller lifecycle
+and damaged-export refusal. GitHub main/tree match local and the worktree was
+clean. Review item9 is delivered across all four requested environment categories.

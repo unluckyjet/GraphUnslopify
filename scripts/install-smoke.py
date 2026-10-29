@@ -74,6 +74,11 @@ def main() -> None:
         action="store_true",
         help="install the tracking extra and retrieve real local MLflow audit evidence",
     )
+    parser.add_argument(
+        "--require-editor-controls",
+        action="store_true",
+        help="require current-source schema-backed editor assets; older releases may omit them",
+    )
     args = parser.parse_args()
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
@@ -1239,9 +1244,17 @@ def main() -> None:
         "        url=f'http://127.0.0.1:{server.server_address[1]}'\n"
         "        with urllib.request.urlopen(url) as response: html=response.read()\n"
         "        assert b'Make the figure' in html and server.state.token.encode() in html\n"
-        "        for asset in ('/app.js','/app.css'):\n"
+        f"        assets={['/app.js', '/app.css', *(['/controls.js'] if args.require_editor_controls else [])]!r}\n"
+        "        for asset in assets:\n"
         "            with urllib.request.urlopen(url+asset) as response: assert len(response.read())>1000\n"
-        "        request=urllib.request.Request(url+'/api/demo',data=b'{}',headers={'X-Preview-Token':server.state.token})\n"
+        + (
+            "        request=urllib.request.Request(url+'/api/info',headers={'X-Preview-Token':server.state.token})\n"
+            "        with urllib.request.urlopen(request) as response: info=json.load(response)\n"
+            "        assert len(info['schema']['oneOf'])==21 and b'Figure settings' in html\n"
+            if args.require_editor_controls
+            else ""
+        )
+        + "        request=urllib.request.Request(url+'/api/demo',data=b'{}',headers={'X-Preview-Token':server.state.token})\n"
         "        with urllib.request.urlopen(request) as response: demo=json.load(response)\n"
         "        assert demo['data']['rows']==24\n"
         "        payload={'spec':demo['spec'],'data_id':demo['data']['id'],'client':'wheel','generation':1}\n"

@@ -6,7 +6,7 @@
     <meta name="preview-token" content="__PREVIEW_TOKEN__" />
     <title>GraphUnslopify · Figure workspace</title>
     <link rel="stylesheet" href="/app.css" />
-    <script src="/app.js" defer></script>
+    <script src="/app.js" type="module"></script>
   </head>
   <body>
     <header>
@@ -60,23 +60,35 @@
       </aside>
       <section class="card editor">
         <div class="section-head">
-          <h2>2. Figure specification</h2>
-          <button id="format" class="quiet">Format</button>
+          <h2>2. Figure settings</h2>
+          <button id="undo-controls" class="quiet" disabled>
+            Undo control change
+          </button>
         </div>
-        <p class="muted">
-          Edit every supported option here. Data paths bind to your chosen file.
-          A PNG is included for preview.
-        </p>
-        <label class="sr-only" for="spec">Figure specification</label
-        ><textarea
-          id="spec"
-          spellcheck="false"
-          aria-describedby="spec-help"
-        ></textarea>
-        <p id="spec-help" class="muted">
-          Kind-specific fields, claims, panels and exports follow the canonical
-          figure schema.
-        </p>
+        <p id="control-error" role="alert" hidden></p>
+        <fieldset
+          id="settings"
+          disabled
+          aria-label="Figure settings"
+        ></fieldset>
+        <details id="advanced">
+          <summary>Advanced JSON specification</summary>
+          <button id="format" class="quiet">Format JSON</button>
+          <p class="muted">
+            Edit every supported option here. Data paths bind to your chosen
+            file. A PNG is included for preview.
+          </p>
+          <label class="sr-only" for="spec">Figure specification</label
+          ><textarea
+            id="spec"
+            spellcheck="false"
+            aria-describedby="spec-help"
+          ></textarea>
+          <p id="spec-help" class="muted">
+            Kind-specific fields, claims, panels and exports follow the
+            canonical figure schema.
+          </p>
+        </details>
         <div class="editor-actions">
           <label class="check"
             ><input id="live" type="checkbox" checked /> Live preview</label

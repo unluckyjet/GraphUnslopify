@@ -82,7 +82,11 @@ graphunslopify preview --open
 
 Select a CSV, regular JSON table or supported Parquet file; choose a kind or recipe; edit the
 settings; and review live previews, diagnostics and claim verdicts. Some findings offer a proposed
-fix you can inspect and apply. Settings are structured JSON rather than a free-form drawing canvas.
+fix you can inspect and apply.
+
+Current source after 0.8.0 adds form controls for labels, units, uncertainty, claims,
+exports and chart-specific fields across all 21 kinds. Advanced JSON remains available
+for compound options, with control undo and preservation of unrelated settings.
 
 Download individual outputs or a ZIP containing figures, the effective spec, generated Python and
 runtime report. **Source data is excluded from the ZIP unless you explicitly include it.**

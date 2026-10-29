@@ -1,4 +1,4 @@
-"use strict";
+import { createControls } from "/controls.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 const client = crypto.randomUUID();
@@ -8,6 +8,7 @@ let revision = 0,
   latest = null,
   timer = null,
   recipes = [],
+  formSchema = null,
   selection = 0,
   paletteSelection = 0,
   maxUploadBytes = 100 * 1024 * 1024;
@@ -17,6 +18,29 @@ const initial = {
   y: { field: "score", label: "Score" },
   output: { stem: "figure", formats: ["png", "svg", "pdf"] },
 };
+const controlHistory = [];
+function controlError(text) {
+  $("control-error").textContent = text;
+  $("control-error").hidden = !text;
+  if (text) status("Fix settings", "failed");
+}
+function changeControls(spec) {
+  const before = $("spec").value;
+  if (JSON.stringify(spec, null, 2) !== before) {
+    controlHistory.push(before);
+    if (controlHistory.length > 20) controlHistory.shift();
+  }
+  controls.discard();
+  setSpec(spec);
+  $("undo-controls").disabled = !controlHistory.length;
+  schedule();
+}
+const controls = createControls($("settings"), {
+  read: readSpec,
+  change: changeControls,
+  edit: invalidate,
+  error: controlError,
+});
 function status(text, state = "") {
   $("status").textContent = text;
   $("status").dataset.state = state;
@@ -93,6 +117,7 @@ function syncFields(spec) {
   options($("x-field"), columns, spec.x?.field);
   options($("y-field"), columns, spec.y?.field);
   options($("group"), columns, spec.group, true);
+  controls.sync(spec, formSchema, columns);
 }
 function showData(info) {
   data = info;
@@ -285,7 +310,31 @@ async function update(force) {
     status("Needs attention", "failed");
   }
 }
-$("spec").addEventListener("input", schedule);
+$("spec").addEventListener("input", () => {
+  controlHistory.length = 0;
+  $("undo-controls").disabled = true;
+  controls.discard();
+  try {
+    syncFields(readSpec());
+  } catch {
+    controls.disable(
+      "Correct the Advanced JSON object to use the settings controls.",
+    );
+  }
+  schedule();
+});
+$("undo-controls").onclick = () => {
+  if (!controlHistory.length) return;
+  controls.discard();
+  $("spec").value = controlHistory.pop();
+  try {
+    syncFields(readSpec());
+  } catch {
+    controls.disable("Correct Advanced JSON to use settings.");
+  }
+  $("undo-controls").disabled = !controlHistory.length;
+  schedule();
+};
 $("format").onclick = () => {
   try {
     setSpec(readSpec());
@@ -294,6 +343,7 @@ $("format").onclick = () => {
   }
 };
 $("render").onclick = () => {
+  if (!controls.flush()) return;
   clearTimeout(timer);
   invalidate();
   update(true);
@@ -304,6 +354,10 @@ $("live").onchange = () => {
 for (const id of ["kind", "x-field", "y-field", "group"])
   $(id).onchange = () => {
     try {
+      if (!controls.flush()) {
+        syncFields(readSpec());
+        return;
+      }
       const spec = readSpec();
       if (id === "kind") spec.kind = $(id).value;
       else if (id === "group") {
@@ -311,14 +365,18 @@ for (const id of ["kind", "x-field", "y-field", "group"])
         else delete spec.group;
       } else {
         const axis = id[0];
+        const previous = spec[axis] || {};
+        const defaultLabel = (previous.field || "").replaceAll("_", " ");
         spec[axis] = {
-          ...(spec[axis] || {}),
+          ...previous,
           field: $(id).value,
-          label: $(id).value.replaceAll("_", " "),
+          label:
+            previous.label && previous.label !== defaultLabel
+              ? previous.label
+              : $(id).value.replaceAll("_", " "),
         };
       }
-      setSpec(spec);
-      schedule();
+      changeControls(spec);
     } catch (error) {
       message(error.message);
     }
@@ -326,9 +384,8 @@ for (const id of ["kind", "x-field", "y-field", "group"])
 $("recipe").onchange = () => {
   const item = recipes.find((r) => r.name === $("recipe").value);
   if (item) {
-    setSpec(item.spec);
+    changeControls(structuredClone(item.spec));
     $("recipe-note").textContent = item.purpose;
-    schedule();
   }
 };
 $("data-file").onchange = async () => {
@@ -415,10 +472,12 @@ api("/api/info")
   .then((info) => {
     maxUploadBytes = info.max_upload_mb * 1024 * 1024;
     recipes = info.recipes;
+    formSchema = info.schema;
     options($("kind"), info.kinds, "line");
     for (const recipe of recipes)
       $("recipe").add(
         new Option(recipe.name.replaceAll("_", " "), recipe.name),
       );
+    syncFields(readSpec());
   })
   .catch((error) => message(error.message));

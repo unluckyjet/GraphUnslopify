@@ -107,3 +107,7 @@ One line per state change, newest last.
 2026-10-28 —64: mapped starter fonts repair actual retained CI Type3/Unicode failure; b96c57a main40798812554 all9/Figure40798812702 pass; downloaded PDF text/fonts and rendered page inspected; seven local gates222/1259/Ruff75 and fresh offline wheel pass.
 
 2026-10-28 —63 implementation: explicit MLflow audit/workflow snapshots and caller-owned lifecycle;18 real SQLite/retrieval/failure controls; seven gates222/1277/Ruff78, one upstream warning, and fresh installed offline agent/PDF/environment/comparison/workflow/tracking pass. Exact pushed main/Figure CI required before closure; full20-item review remains active.
+
+2026-10-28 —63 closes: exact5dd3b17 main40801523028 all9/Figure40801523058 pass with four installed tracking platforms; full review9 delivered in source.
+
+2026-10-28 —65 implementation: schema-backed native settings/claims for21 kinds, typed-draft gating, advanced preservation/undo and literal exports. Source/installed Chrome21 workflows/21 kinds/zero external calls or JS errors and real bundle reproduction pass; seven gates222/1277/Ruff78, one upstream warning, and fresh offline wheel pass. Final assets match; actual desktop/mobile inspected. Exact pushed CI checked next; remaining review scope stays active.

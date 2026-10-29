@@ -37,6 +37,7 @@ from typing_extensions import Self
 
 from .errors import SpecError
 from .transport import post as _post
+from .workbook import EXCEL_SUFFIXES
 
 Kind = Literal[
     "line",
@@ -82,7 +83,18 @@ class Figure:
     @classmethod
     def of(cls, kind: Kind, path: str | Path = "results.csv") -> Self:
         format_name = {".json": "json", ".parquet": "parquet"}.get(Path(path).suffix.lower(), "csv")
+        if Path(path).suffix.lower() in EXCEL_SUFFIXES:
+            format_name = "excel"
         return cls({"kind": kind, "data": {"path": str(path), "format": format_name}})
+
+    def worksheet(self, name: str) -> Self:
+        """Choose a named worksheet without converting or rewriting the workbook."""
+        if self.spec.get("data", {}).get("format") != "excel":
+            raise SpecError("Worksheet selection requires Excel input")
+        if not isinstance(name, str) or not name:
+            raise SpecError("Choose a nonempty worksheet name")
+        self.spec["data"]["sheet"] = name
+        return self
 
     @classmethod
     def line(cls, path: str | Path = "results.csv") -> Self:
@@ -169,7 +181,9 @@ class Figure:
         return cls.of("sparkline_grid", path)
 
     @classmethod
-    def from_profile(cls, path: str | Path, rank: int = 0, api: str | None = None) -> Self:
+    def from_profile(
+        cls, path: str | Path, rank: int = 0, api: str | None = None, *, sheet: str | None = None
+    ) -> Self:
         """Start from what the data suggests rather than from a guess.
 
         Profiles the file, asks the translator to rank candidate designs, and
@@ -177,7 +191,7 @@ class Figure:
         """
         from .describe import profile
 
-        report = profile(path)
+        report = profile(path, sheet=sheet)
         if not report.get("ok"):
             raise SpecError(report.get("error", "the file could not be profiled"))
         candidates = _post("/api/suggest", {"profile": report}, api=api)
@@ -195,6 +209,8 @@ class Figure:
             "path": str(path),
             "format": {".parquet": "parquet", ".json": "json"}.get(suffix, "csv"),
         }
+        if suffix in EXCEL_SUFFIXES:
+            chosen["data"].update(format="excel", sheet=report["sheet"])
         return cls(chosen)
 
     # --- encoding ---------------------------------------------------------

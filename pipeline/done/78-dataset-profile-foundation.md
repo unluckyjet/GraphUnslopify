@@ -9,7 +9,7 @@ source_idea: User visual-workspace advice following the completed twenty-item re
 
 # 78 — Dataset profile foundation
 
-Status: implemented; all seven local gates pass. Exact pushed CI pending.
+Status: implemented and verified b95f833. Exact main40895079839 all9 and Figure40895079807 pass.
 Parent: [visual workspace](../visual-workspace-roadmap.md).
 
 The editor previously returned columns/row counts but omitted the profiler's

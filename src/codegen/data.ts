@@ -2,6 +2,7 @@ import { derivedAxis, type FigureSpec, type FilterOp } from "../schema.ts";
 import { pyList, pyStr, pyValue } from "./py.ts";
 import { READERS } from "./theme.ts";
 import { identityFields, identityConflicts, requiredIdentityFields, numericFields } from "../identity.ts";
+import { WORKBOOK_SOURCE } from "./workbook-source.ts";
 
 /**
  * The data pipeline the generated script runs before anything is drawn.
@@ -24,6 +25,7 @@ const OPERATORS: Record<FilterOp, (field: string, value: string) => string> = {
 
 export function emitLoad(spec: FigureSpec, out: string[]): void {
   const identities = identityFields(spec);
+  if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
   out.push("", `IDENTITY_FIELDS = ${pyList(identities)}`,
     `REQUIRED_IDENTITY_FIELDS = ${pyList(requiredIdentityFields(spec))}`,
     `IDENTITY_CONFLICTS = ${pyList(identityConflicts(spec))}`);
@@ -77,7 +79,7 @@ def normalize_identities(frame, *, final=True):
     "        snapshot = raw.handle.read()",
     '        decoded = raw.compression.get("method") is not None',
     "    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]");
-  if (spec.data.format !== "parquet") {
+  if (spec.data.format !== "parquet" && spec.data.format !== "excel") {
     out.push(
       "    # Keep pandas' filename-based compression behavior on the byte snapshot.",
       '    compression = None if decoded else pd.io.common.infer_compression(DATA_PATH, "infer")',
@@ -85,7 +87,9 @@ def normalize_identities(frame, *, final=True):
       "        payload = handle.handle.read()",
     );
   } else out.push("    payload = snapshot");
-  out.push(`    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  out.push(spec.data.format === "excel"
+    ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === undefined ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)`
+    : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
   if (spec.data.format === "json" || identities.length && spec.data.format === "csv") {
     out.push(
       "    # Preserve names from the same bytes; filters still see the typed frame.",

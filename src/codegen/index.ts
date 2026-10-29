@@ -580,7 +580,7 @@ export function emitPython(spec: FigureSpec): string {
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
-  emitEnvironment(out);
+  emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);

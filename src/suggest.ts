@@ -28,6 +28,7 @@ export const ColumnSchema = z
     distinct: z.number(),
     min: z.number().optional(),
     max: z.number().optional(),
+    finite: z.number().int().nonnegative().optional(),
   })
   .loose();
 
@@ -75,8 +76,8 @@ export function suggestFigures(profile: Profile, limit = 3): Candidate[] {
   // Profiling JSON Lines is supported, but emitting its reader is not. Do not
   // substitute an unrelated default CSV for an unsupported source format.
   if (/\.(jsonl|ndjson)$/i.test(path)) return [];
-  const format = /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
-  const measures = profile.columns.filter((c) => c.role === "measure");
+  const format = /\.(xlsx|xls|xlsm)$/i.test(path) ? "excel" : /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
+  const measures = profile.columns.filter((c) => c.role === "measure" && c.finite !== 0);
   const categories = profile.columns.filter((c) => c.role === "category");
   const ordinals = profile.columns
     .filter((c) => c.role === "ordinal")
@@ -180,7 +181,8 @@ export function suggestFigures(profile: Profile, limit = 3): Candidate[] {
 
   const scored: Candidate[] = [];
   for (const candidate of candidates) {
-    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: { path, format } });
+    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: { path, format,
+      ...(format === "excel" && typeof profile.sheet === "string" ? { sheet: profile.sheet } : {}) } });
     if (!parsed.success) continue;
     const findings = verify(parsed.data);
     if (hasErrors(findings)) continue;

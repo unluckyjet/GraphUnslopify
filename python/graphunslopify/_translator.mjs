@@ -19104,8 +19104,12 @@ var StyleSpec = external_exports.object({
 });
 var DataSpec = external_exports.object({
   path: external_exports.string().min(1).default("results.csv").describe("Path the generated script reads."),
-  format: external_exports.enum(["csv", "parquet", "json"]).default("csv"),
+  format: external_exports.enum(["csv", "parquet", "json", "excel"]).default("csv"),
+  sheet: external_exports.string().min(1).optional().describe("Excel worksheet name. Required for multi-sheet workbooks."),
   columns: external_exports.array(external_exports.string().min(1)).optional().describe("Columns the file is known to hold. Supply this and every field reference is checked.")
+}).refine((data) => data.sheet === void 0 || data.format === "excel", {
+  message: "Worksheet selection requires data.format excel",
+  path: ["sheet"]
 });
 var FilterSpec = external_exports.object({
   field: external_exports.string().min(1),
@@ -20084,7 +20088,8 @@ var REFERENCE_STYLES = {
 var READERS = {
   csv: "read_csv",
   parquet: "read_parquet",
-  json: "read_json"
+  json: "read_json",
+  excel: "read_excel"
 };
 var TOOL_VERSION = "0.8.0";
 var DASHED_KINDS = /* @__PURE__ */ new Set([
@@ -20134,6 +20139,79 @@ function identityConflicts(spec) {
   return identityFields(spec).filter((field) => numeric.has(field));
 }
 
+// src/codegen/workbook-source.ts
+var WORKBOOK_SOURCE = `"""Native Excel values shared with package-free generated programs.
+
+Keep this module standalone: build:translator embeds it for Excel inputs.
+Cells use their stored/cached values; no formulas or macros are executed.
+"""
+
+EXCEL_SUFFIXES = {".xlsx", ".xls", ".xlsm"}
+
+
+class WorksheetSelectionError(ValueError):
+    def __init__(self, message, sheets):
+        super().__init__(message)
+        self.sheets = list(sheets)
+
+
+def _open_workbook(source):
+    import pandas as pd
+
+    try:
+        return pd.ExcelFile(source, engine="calamine")
+    except ImportError as error:
+        raise ValueError(
+            "Excel input needs pandas>=2.2 and python-calamine>=0.3.1 "
+            "(or the source package's [excel] extra)."
+        ) from error
+    except Exception as error:
+        raise ValueError(f"Could not read Excel workbook: {error}") from error
+
+
+def workbook_sheets(source):
+    with _open_workbook(source) as workbook:
+        return list(workbook.sheet_names)
+
+
+def read_excel_table(source, *, sheet=None, identity_fields=()):
+    import pandas as pd
+
+    with _open_workbook(source) as workbook:
+        names = list(workbook.sheet_names)
+        if sheet is None:
+            if len(names) != 1:
+                raise WorksheetSelectionError(
+                    "Choose a worksheet explicitly with data.sheet (CLI: --sheet). "
+                    f"Available worksheets: {names}",
+                    names,
+                )
+            sheet = names[0]
+        if not isinstance(sheet, str) or sheet not in names:
+            raise WorksheetSelectionError(
+                f"Unknown worksheet {sheet!r}; choose from {names}", names
+            )
+        try:
+            # Excel stores types. Preserve strings such as 001 and NA, while
+            # treating genuinely blank cells as missing; infer only native objects.
+            raw = pd.read_excel(
+                workbook, sheet_name=sheet, dtype=object, keep_default_na=False, na_values=[""]
+            )
+        except Exception as error:
+            raise ValueError(f"Could not read worksheet {sheet!r}: {error}") from error
+        columns = [str(name) for name in raw.columns]
+        if len(columns) != len(set(columns)):
+            raise ValueError("Excel column labels collide after conversion to field names")
+        raw.columns = columns
+        frame = raw.infer_objects()
+        frame.attrs["_graphunslopify_identity_rows"] = {
+            field: raw[field].tolist() for field in identity_fields if field in raw
+        }
+        frame.attrs["_graphunslopify_excel_sheet"] = sheet
+        frame.attrs["_graphunslopify_excel_engine"] = workbook.engine
+        return frame
+`;
+
 // src/codegen/data.ts
 var OPERATORS = {
   eq: (f, v) => `df[${f}] == ${v}`,
@@ -20147,6 +20225,7 @@ var OPERATORS = {
 };
 function emitLoad(spec, out) {
   const identities = identityFields(spec);
+  if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
   out.push(
     "",
     `IDENTITY_FIELDS = ${pyList(identities)}`,
@@ -20207,7 +20286,7 @@ def normalize_identities(frame, *, final=True):
     '        decoded = raw.compression.get("method") is not None',
     "    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]"
   );
-  if (spec.data.format !== "parquet") {
+  if (spec.data.format !== "parquet" && spec.data.format !== "excel") {
     out.push(
       "    # Keep pandas' filename-based compression behavior on the byte snapshot.",
       '    compression = None if decoded else pd.io.common.infer_compression(DATA_PATH, "infer")',
@@ -20215,7 +20294,7 @@ def normalize_identities(frame, *, final=True):
       "        payload = handle.handle.read()"
     );
   } else out.push("    payload = snapshot");
-  out.push(`    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  out.push(spec.data.format === "excel" ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === void 0 ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)` : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
   if (spec.data.format === "json" || identities.length && spec.data.format === "csv") {
     out.push(
       "    # Preserve names from the same bytes; filters still see the typed frame.",
@@ -25168,8 +25247,8 @@ def run_cli(argv=None):
 }
 
 // src/codegen/environment.ts
-function emitEnvironment(out) {
-  out.push(...String.raw`
+function emitEnvironment(out, excel = false) {
+  const source = String.raw`
 
 def capture_environment(fig=None):
     if RUN_REPORT.get("environment") is not None:
@@ -25228,7 +25307,11 @@ def capture_environment(fig=None):
     snapshot = json.loads(json.dumps(snapshot, allow_nan=False))
     RUN_REPORT["environment"] = snapshot
     return snapshot
-`.split("\n"));
+`;
+  out.push(...(excel ? source.replace(
+    '("graphunslopify", "plotly", "scipy", "pypdf")',
+    '("graphunslopify", "plotly", "scipy", "pypdf", "python-calamine")'
+  ) : source).split("\n"));
 }
 
 // src/codegen/index.ts
@@ -25709,7 +25792,7 @@ function emitPython(spec) {
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
-  emitEnvironment(out);
+  emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
   emitLoad(spec, out);
   emitPrepare(spec, out);
@@ -25787,7 +25870,8 @@ var ColumnSchema = external_exports.object({
   role: external_exports.enum(["measure", "category", "ordinal", "flag", "identifier"]),
   distinct: external_exports.number(),
   min: external_exports.number().optional(),
-  max: external_exports.number().optional()
+  max: external_exports.number().optional(),
+  finite: external_exports.number().int().nonnegative().optional()
 }).loose();
 var ProfileSchema = external_exports.object({
   columns: external_exports.array(ColumnSchema),
@@ -25812,8 +25896,8 @@ function axis(field) {
 function suggestFigures(profile, limit = 3) {
   const path = typeof profile.path === "string" ? profile.path : "results.csv";
   if (/\.(jsonl|ndjson)$/i.test(path)) return [];
-  const format = /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
-  const measures = profile.columns.filter((c) => c.role === "measure");
+  const format = /\.(xlsx|xls|xlsm)$/i.test(path) ? "excel" : /\.parquet$/i.test(path) ? "parquet" : /\.json$/i.test(path) ? "json" : "csv";
+  const measures = profile.columns.filter((c) => c.role === "measure" && c.finite !== 0);
   const categories = profile.columns.filter((c) => c.role === "category");
   const ordinals = profile.columns.filter((c) => c.role === "ordinal").sort((a, b) => b.distinct - a.distinct);
   const repeats = profile.repeats ?? [];
@@ -25897,7 +25981,11 @@ function suggestFigures(profile, limit = 3) {
   }
   const scored = [];
   for (const candidate of candidates) {
-    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: { path, format } });
+    const parsed = FigureSpec.safeParse({ ...candidate.spec, data: {
+      path,
+      format,
+      ...format === "excel" && typeof profile.sheet === "string" ? { sheet: profile.sheet } : {}
+    } });
     if (!parsed.success) continue;
     const findings = verify(parsed.data);
     if (hasErrors(findings)) continue;

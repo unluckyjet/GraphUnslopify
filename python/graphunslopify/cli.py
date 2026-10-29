@@ -219,7 +219,7 @@ def _demo(args: argparse.Namespace) -> int:
 
 
 def _describe(args: argparse.Namespace) -> int:
-    report = profile(args.path)
+    report = profile(args.path, sheet=args.sheet)
     print(render(report))
     return 0 if report.get("ok") else 1
 
@@ -663,7 +663,8 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.set_defaults(handler=_doctor)
 
     described = commands.add_parser("describe", help="profile a data file as JSON")
-    described.add_argument("path", help="csv, parquet or json file")
+    described.add_argument("path", help="csv, parquet, json or Excel file")
+    described.add_argument("--sheet", help="Excel worksheet name; required for multiple worksheets")
     described.set_defaults(handler=_describe)
 
     for name, handler in (("run", _run), ("check", _check)):

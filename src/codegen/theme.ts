@@ -125,6 +125,7 @@ export const READERS = {
   csv: "read_csv",
   parquet: "read_parquet",
   json: "read_json",
+  excel: "read_excel",
 } as const;
 
 export const TOOL_VERSION = "0.8.0";

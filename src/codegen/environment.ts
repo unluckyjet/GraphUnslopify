@@ -1,6 +1,6 @@
 /** Runtime context is captured by the generated program, never by translation. */
-export function emitEnvironment(out: string[]): void {
-  out.push(...String.raw`
+export function emitEnvironment(out: string[], excel = false): void {
+  const source = String.raw`
 
 def capture_environment(fig=None):
     if RUN_REPORT.get("environment") is not None:
@@ -59,5 +59,9 @@ def capture_environment(fig=None):
     snapshot = json.loads(json.dumps(snapshot, allow_nan=False))
     RUN_REPORT["environment"] = snapshot
     return snapshot
-`.split("\n"));
+`;
+  out.push(...(excel ? source.replace(
+    '("graphunslopify", "plotly", "scipy", "pypdf")',
+    '("graphunslopify", "plotly", "scipy", "pypdf", "python-calamine")',
+  ) : source).split("\n"));
 }

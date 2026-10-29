@@ -16,6 +16,8 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
+from .workbook import EXCEL_SUFFIXES, read_excel_table
+
 MAX_LISTED_CATEGORIES = 25
 CATEGORICAL_CEILING = 50
 MAX_REPEAT_CANDIDATES = 16
@@ -37,10 +39,12 @@ def _json_scalar(value: Any) -> Any:
     return value if value is None or isinstance(value, (str, int, float, bool)) else str(value)
 
 
-def _read(path: Path) -> Any:
+def _read(path: Path, sheet: str | None = None) -> Any:
     import pandas as pd
 
     suffix = path.suffix.lower()
+    if suffix in EXCEL_SUFFIXES:
+        return read_excel_table(path, sheet=sheet)
     if suffix == ".parquet":
         return pd.read_parquet(path)
     if suffix in {".json", ".jsonl"}:
@@ -84,7 +88,7 @@ def _role(series: Any, rows: int) -> str:
     return "identifier"
 
 
-def profile(path: str | Path) -> dict[str, Any]:
+def profile(path: str | Path, *, sheet: str | None = None) -> dict[str, Any]:
     import numpy as np
     import pandas as pd
 
@@ -92,7 +96,19 @@ def profile(path: str | Path) -> dict[str, Any]:
     if not path.exists():
         return {"ok": False, "error": f"no such file: {path}"}
 
-    frame = _read(path)
+    if sheet is not None and path.suffix.lower() not in EXCEL_SUFFIXES:
+        return {"ok": False, "error": "Worksheet selection applies only to Excel input"}
+    try:
+        frame = _read(path, sheet)
+    except ValueError as error:
+        if path.suffix.lower() not in EXCEL_SUFFIXES:
+            raise
+        return {
+            "ok": False,
+            "path": str(path),
+            "error": str(error),
+            "sheets": getattr(error, "sheets", []),
+        }
     rows = len(frame)
     columns: list[dict[str, Any]] = []
 
@@ -195,6 +211,12 @@ def profile(path: str | Path) -> dict[str, Any]:
             f"({hint['x']}, {hint['group']}), so aggregation is needed"
         )
     report["suggested"] = hint
+    if path.suffix.lower() in EXCEL_SUFFIXES:
+        report["format"] = "excel"
+        report["sheet"] = frame.attrs["_graphunslopify_excel_sheet"]
+        report["reader_note"] = (
+            "Excel stored/cached cell values; formulas and macros are not executed."
+        )
 
     return report
 

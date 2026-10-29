@@ -100,11 +100,14 @@ export const StyleSpec = z.object({
 
 export const DataSpec = z.object({
   path: z.string().min(1).default("results.csv").describe("Path the generated script reads."),
-  format: z.enum(["csv", "parquet", "json"]).default("csv"),
+  format: z.enum(["csv", "parquet", "json", "excel"]).default("csv"),
+  sheet: z.string().min(1).optional().describe("Excel worksheet name. Required for multi-sheet workbooks."),
   columns: z
     .array(z.string().min(1))
     .optional()
     .describe("Columns the file is known to hold. Supply this and every field reference is checked."),
+}).refine(data => data.sheet === undefined || data.format === "excel", {
+  message: "Worksheet selection requires data.format excel", path: ["sheet"],
 });
 
 export const FilterSpec = z.object({

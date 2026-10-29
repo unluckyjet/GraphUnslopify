@@ -55,6 +55,9 @@ def main() -> None:
         help="also exercise optional manuscript PDF review",
     )
     parser.add_argument(
+        "--excel", action="store_true", help="verify native Excel input and exports"
+    )
+    parser.add_argument(
         "--require-environment",
         action="store_true",
         help="require current-source runtime environment provenance; older releases may omit it",
@@ -141,6 +144,7 @@ def main() -> None:
         for name, enabled in (
             ("agent", args.agent),
             ("pdf", args.pdf),
+            ("excel", args.excel),
             ("tracking", args.tracking),
         )
         if enabled
@@ -1470,6 +1474,21 @@ def main() -> None:
             )
         )
         assert pdf_visual["status"] == "passed"
+    excel_input = None
+    if args.excel:
+        excel_input = json.loads(
+            run(
+                [
+                    str(python),
+                    str(Path(__file__).resolve().with_name("check-excel-input.py")),
+                    "--work-dir",
+                    str(where / "native Excel"),
+                ],
+                cwd=where,
+                env=env,
+            )
+        )
+        assert excel_input["status"] == "passed"
     print(
         json.dumps(
             {
@@ -1489,6 +1508,7 @@ def main() -> None:
                 "project_interface": project_interface,
                 "diagnostics": diagnostics,
                 "pdf_visual": pdf_visual,
+                "excel_input": excel_input,
                 "work_dir": str(where),
             }
         )

@@ -108,11 +108,17 @@ def _spec(entry: dict[str, Any], root: Path) -> tuple[dict[str, Any], str]:
     return spec, source_hash
 
 
-def _input_data(path: Path, data_format: str) -> dict[str, Any]:
+def _input_data(path: Path, data_format: str, sheet: str | None = None) -> dict[str, Any]:
     import pandas as pd
 
+    from .workbook import read_excel_table
+
     readers = {"csv": pd.read_csv, "json": pd.read_json, "parquet": pd.read_parquet}
-    frame = readers[data_format](path)
+    frame = (
+        read_excel_table(path, sheet=sheet)
+        if data_format == "excel"
+        else readers[data_format](path)
+    )
     numeric = frame.select_dtypes(include="number")
     # Hash exact binary float representations, not rounded display values. Row order
     # and inferred integer/float encodings/column names are part of this representation.
@@ -287,7 +293,9 @@ def _audit_one(
         data = report["data"]
         data_path = Path(data["path"])
         data_path = data_path if data_path.is_absolute() else folder / data_path
-        record["data"] = _input_data(data_path, report["spec"]["data"]["format"])
+        record["data"] = _input_data(
+            data_path, report["spec"]["data"]["format"], report["spec"]["data"].get("sheet")
+        )
         if record["data"]["sha256"][:16] != data["sha256_prefix"]:
             raise AuditError("data changed during auditing or does not match the runtime report")
         if (

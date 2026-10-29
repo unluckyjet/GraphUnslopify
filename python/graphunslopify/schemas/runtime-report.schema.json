@@ -630,6 +630,12 @@
                 "string",
                 "null"
               ]
+            },
+            "python-calamine": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "additionalProperties": false

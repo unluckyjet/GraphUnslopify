@@ -45,3 +45,23 @@ test("suggestions preserve the real input path and format instead of another def
     assert.deepEqual(local("suggest", { profile: { ...profile, path: "data.jsonl" } }), []);
   }
 });
+
+test("Excel candidates retain the selected worksheet across native formats", () => {
+  for (const suffix of ["xlsx", "xls", "xlsm"]) {
+    const profile = { path: `actual.${suffix}`, sheet: "Selected results", columns: [
+      { name: "epoch", role: "ordinal", distinct: 30 },
+      { name: "score", role: "measure", distinct: 50, finite: 50 },
+    ] };
+    const candidates = local("suggest", { profile });
+    assert.ok(candidates.length > 0);
+    for (const candidate of candidates) assert.deepEqual(candidate.spec.data,
+      { path: profile.path, format: "excel", sheet: profile.sheet });
+  }
+});
+
+test("a known all-nonfinite measurement is not recommended as available data", () => {
+  assert.deepEqual(local("suggest", { profile: { path: "unavailable.csv", columns: [
+    { name: "epoch", role: "ordinal", distinct: 30 },
+    { name: "score", role: "measure", distinct: 2, finite: 0 },
+  ] } }), []);
+});

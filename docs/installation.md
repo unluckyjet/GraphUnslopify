@@ -52,6 +52,11 @@ paths resolve from the caller's directory before switching to the requested outp
 The SDK leaves the original spec unchanged. JSON specs can set `data.format` to csv, parquet or json;
 JSON rendering expects a regular JSON table, not JSON Lines.
 
+Current source additionally supports [native Excel workbooks](excel-input.md)
+with `data.format: "excel"` and an explicit `data.sheet` for multiple worksheets.
+Install `"./python[excel]"` from the checkout for that reader; it is not part of
+the published0.8.0 wheel.
+
 A failed or untested required runtime check exits nonzero with `--strict`; select
 `--fail-on-warning` to reject warnings too. The **0.8.0 wheel** defaults to strict verification. Older 0.7.0 installations
 require explicit `--strict`. Explicit `--no-strict` or

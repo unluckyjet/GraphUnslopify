@@ -169,7 +169,21 @@ def test_actual_example_and_existing_manuscript_includes_compile_without_interpr
     latex = folder / "latex"
     (latex / "sentinel.tex").write_text("INJECTED_SENTINEL")
     compile_tex(latex)
-    text = "\n".join(page.extract_text() or "" for page in PdfReader(latex / "paper.pdf").pages)
+    reader = PdfReader(latex / "paper.pdf")
+    text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    fonts = [
+        ref.get_object()
+        for page in reader.pages
+        for ref in page["/Resources"].get("/Font", {}).values()
+    ]
+    font_evidence = [
+        {
+            "subtype": str(font.get("/Subtype")),
+            "base_font": str(font.get("/BaseFont")),
+            "unicode_map": "/ToUnicode" in font,
+        }
+        for font in fonts
+    ]
     assert "INJECTED_SENTINEL" not in text
     assert "Literal" in text and "sentinel" in text
     # PDF encodings can expose compatibility ligatures and unreliable spacing.
@@ -177,9 +191,14 @@ def test_actual_example_and_existing_manuscript_includes_compile_without_interpr
     normalized = "".join(unicodedata.normalize("NFKC", text).split())
     (latex / "extracted-text.json").write_text(
         json.dumps(
-            {"raw": text, "normalized_heading_text": normalized}, indent=2, ensure_ascii=False
+            {"raw": text, "normalized_heading_text": normalized, "text_fonts": font_evidence},
+            indent=2,
+            ensure_ascii=False,
         ),
         encoding="utf8",
+    )
+    assert fonts and all(font["/Subtype"] != "/Type3" and "/ToUnicode" in font for font in fonts), (
+        font_evidence
     )
     assert "Checkedfigureexports" in normalized, repr(text)
     assert normalized.index("Checkedfigureexports") < normalized.index("Literal"), repr(text)

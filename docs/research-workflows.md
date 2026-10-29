@@ -120,7 +120,12 @@ For an existing manuscript compiled from the project root:
 ```
 
 The wrapper sets its own relative graphic root, so source project folder names
-can contain spaces/Unicode while staged filenames remain portable. The example
+can contain spaces/Unicode while staged filenames remain portable. The example uses Latin Modern outline fonts and explicit pdfTeX Unicode maps,
+so text ligatures remain searchable/copyable on minimal TeX installations. Install
+the `lmodern` TeX package alongside `graphicx` and `geometry` to build it. See
+[Latin Modern](https://www.ctan.org/pkg/lm) and the
+[pdfTeX Unicode mapping documentation](https://ctan.math.washington.edu/tex-archive/systems/doc/pdftex/manual/pdftex-a.pdf).
+This does not change your existing manuscript font setup. The example
 uses an8-inch text block; it is a build demonstration, not a journal template.
 Your manuscript owns fonts, float placement and Unicode-capable engine choices.
 Descriptions are retained via `\Description`, with a no-op fallback when no

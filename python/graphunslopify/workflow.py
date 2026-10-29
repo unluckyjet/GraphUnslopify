@@ -257,6 +257,11 @@ def initialize_workflow(path: str | Path = ".", *, folder: str = DEFAULT_FOLDER)
     (latex / "paper.tex").write_text(
         r"""\documentclass{article}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\ifdefined\pdfgentounicode
+\input{glyphtounicode}
+\pdfgentounicode=1
+\fi
 \usepackage[paperwidth=10in,paperheight=12in,margin=1in]{geometry}
 \usepackage{graphicx}
 \begin{document}

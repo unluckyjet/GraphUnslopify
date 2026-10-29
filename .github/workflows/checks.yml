@@ -66,7 +66,7 @@ jobs:
       - run: npm run compose-check
       # Every published gallery example must pass the actual strict checker.
       - run: npm run gallery-check
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended lmodern
       - run: python -m pytest python/tests/test_text_exports.py -q
         env:
           GRAPHUNSLOPIFY_REQUIRE_LATEX: "1"

@@ -11,10 +11,13 @@ The original user attachment and subsequent volunteer deferral define the scope.
 The [review table](../pipeline/review-roadmap-2026-10-28.md) links each target and
 implementation checkpoint; the focused-spec count is not completion evidence by
 itself.
-The latest production `src/` and `python/graphunslopify/` trees are byte-identical
+At audit revision `538c89c`, the production `src/` and `python/graphunslopify/` trees were byte-identical
 to verified PDF checkpointe8c6f7d; subsequent changes implement/test/document
 benchmarks. Current full tests and cross-platform installed/browser/TeX/Figure CI
 recheck those capabilities; exact commit check results are authoritative.
+The subsequent [visual-workspace initiative](../pipeline/visual-workspace-roadmap.md)
+changes production source and has its own milestone checks. This audit records
+the earlier review's delivery, rather than completion of that newer initiative.
 
 | Item | Inspected implementation/artifact | Evidence and practical boundary |
 | --- | --- | --- |

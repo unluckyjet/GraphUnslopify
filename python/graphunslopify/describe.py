@@ -11,11 +11,30 @@ Output is JSON so it can be read straight back into a spec.
 from __future__ import annotations
 
 import json
+import math
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 MAX_LISTED_CATEGORIES = 25
 CATEGORICAL_CEILING = 50
+MAX_REPEAT_CANDIDATES = 16
+
+
+def _finite_mask(series: Any) -> Any:
+    import numpy as np
+
+    return np.isfinite(series.to_numpy(dtype=float))
+
+
+def _json_scalar(value: Any) -> Any:
+    if hasattr(value, "item"):
+        value = value.item()
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    return value if value is None or isinstance(value, (str, int, float, bool)) else str(value)
 
 
 def _read(path: Path) -> Any:
@@ -37,7 +56,7 @@ def _looks_like_an_index(series: Any) -> bool:
     the axis a curve travels along from the quantity being measured.
     """
     values = series.dropna()
-    if values.empty or not (values % 1 == 0).all():
+    if values.empty or not _finite_mask(values).all() or not (values % 1 == 0).all():
         return False
     low, high = int(values.min()), int(values.max())
     if low not in (0, 1):
@@ -51,6 +70,10 @@ def _role(series: Any, rows: int) -> str:
 
     distinct = series.nunique(dropna=True)
     if pd.api.types.is_numeric_dtype(series):
+        if pd.api.types.is_complex_dtype(series):
+            raise ValueError("Complex-valued columns need an explicit real-valued interpretation")
+        if not _finite_mask(series.dropna()).all():
+            return "measure"
         if distinct <= 2:
             return "flag"
         if distinct <= CATEGORICAL_CEILING and _looks_like_an_index(series):
@@ -62,6 +85,7 @@ def _role(series: Any, rows: int) -> str:
 
 
 def profile(path: str | Path) -> dict[str, Any]:
+    import numpy as np
     import pandas as pd
 
     path = Path(path)
@@ -80,21 +104,32 @@ def profile(path: str | Path) -> dict[str, Any]:
             "role": _role(series, rows),
             "distinct": int(series.nunique(dropna=True)),
             "missing": int(series.isna().sum()),
+            "non_missing": int(series.notna().sum()),
+            "role_inference": "heuristic",
         }
-        if pd.api.types.is_numeric_dtype(series) and series.notna().any():
-            entry["min"] = float(series.min())
-            entry["max"] = float(series.max())
-            entry["mean"] = float(series.mean())
+        if pd.api.types.is_numeric_dtype(series):
+            values = series.dropna()
+            finite = values[_finite_mask(values)]
+            entry["finite"] = len(finite)
+            entry["nonfinite"] = len(values) - len(finite)
+            entry["numeric_summary_scope"] = "finite values only"
+            if len(finite):
+                entry["min"] = _json_scalar(float(finite.min()))
+                entry["max"] = _json_scalar(float(finite.max()))
+                with np.errstate(over="ignore", invalid="ignore"):
+                    numeric = finite.to_numpy(dtype=float)
+                    mean = float(np.mean(numeric))
+                    if not math.isfinite(mean):
+                        mean = float(np.sum(numeric / len(finite)))
+                    entry["mean"] = _json_scalar(mean)
         if (
             entry["role"] in {"category", "flag", "ordinal"}
             and entry["distinct"] <= MAX_LISTED_CATEGORIES
         ):
-            entry["values"] = [
-                (v.item() if hasattr(v, "item") else v) for v in series.dropna().unique().tolist()
-            ]
+            entry["values"] = [_json_scalar(v) for v in series.dropna().unique().tolist()]
         columns.append(entry)
 
-    measures = [c["name"] for c in columns if c["role"] == "measure"]
+    measures = [c["name"] for c in columns if c["role"] == "measure" and c.get("finite", 0)]
     categories = [c["name"] for c in columns if c["role"] == "category"]
     # The ordinal a curve runs along has many steps. A replicate index has few,
     # so ranking by distinct count picks epoch over seed.
@@ -113,14 +148,27 @@ def profile(path: str | Path) -> dict[str, Any]:
     # Whether x repeats per series decides whether aggregation is needed, and it
     # is the single thing a spec most often gets wrong.
     repeats: list[dict[str, Any]] = []
-    for x_name in ordinals + categories:
-        for group in categories:
+    x_candidates = (ordinals + categories)[:MAX_REPEAT_CANDIDATES]
+    group_candidates = categories[:MAX_REPEAT_CANDIDATES]
+    for x_name in x_candidates:
+        for group in group_candidates:
             if group == x_name:
                 continue
             duplicated = int(frame.duplicated(subset=[x_name, group]).sum())
             if duplicated:
                 repeats.append({"x": x_name, "group": group, "repeated_rows": duplicated})
     report["repeats"] = repeats[:10]
+    report["repeat_scan"] = {
+        "x_columns_checked": len(x_candidates),
+        "group_columns_checked": len(group_candidates),
+        "truncated": len(x_candidates) < len(ordinals + categories)
+        or len(group_candidates) < len(categories)
+        or len(repeats) > 10,
+    }
+    report["inference_note"] = (
+        "Column roles and figure suggestions are heuristics. Row/non-missing counts are not "
+        "independent experimental sample counts; review units and uncertainty before rendering."
+    )
 
     hint: dict[str, Any] = {}
     if ordinals and measures:
@@ -152,4 +200,4 @@ def profile(path: str | Path) -> dict[str, Any]:
 
 
 def render(report: dict[str, Any]) -> str:
-    return json.dumps(report, indent=2, default=str)
+    return json.dumps(report, indent=2, default=str, allow_nan=False)

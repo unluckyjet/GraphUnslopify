@@ -58,6 +58,16 @@ exports stay visible as errors rather than disappearing behind a successful prev
 
 ## Research controls in current source
 
+Current uploads also expose the data profiler's inferred roles, types, distinct,
+missing/non-missing and finite/nonfinite counts. Numeric summaries use finite
+values only; excluded observations remain in the original input for the actual
+renderer to validate. Dates in profile categories use ISO text. Column roles and
+figure recommendations are heuristics; row counts do not establish independent
+experimental sample sizes. Repeat discovery is bounded and reports truncation
+on wide tables. A malformed upload leaves no usable input identity or orphaned
+upload folder. These profile details require current source and do not yet change
+the editor layout or add Excel support.
+
 These additions require source after 0.8.0; the published 0.8.0 wheel retains the
 earlier editor. From a checkout, install with `python -m pip install ./python`.
 

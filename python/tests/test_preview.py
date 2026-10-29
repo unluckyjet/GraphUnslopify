@@ -72,6 +72,7 @@ def test_uploaded_paths_are_owned_and_dataset_not_downloadable(editor, tmp_path)
         b"epoch,score\n1,51\n2,52\n",
         headers={"X-Filename": "../../private.csv"},
     )
+
     assert status == 200
     uploaded = json.loads(result)
     assert uploaded["name"] == "private.csv"
@@ -105,6 +106,35 @@ def test_uploaded_paths_are_owned_and_dataset_not_downloadable(editor, tmp_path)
         )[0]
         == 400
     )
+
+
+def test_upload_exposes_safe_profile_facts_and_preserves_original_bytes(editor):
+    content = b"group,value\na,2\nb,inf\nc,-inf\nd,\ne,4\n"
+    status, body = request(editor, "/api/upload", content, headers={"X-Filename": "values.csv"})
+    assert status == 200, body
+    uploaded = json.loads(body)
+    profile = uploaded["profile"]
+    assert profile["path"] == "data.csv" and profile["rows"] == 5
+    value = next(c for c in profile["columns"] if c["name"] == "value")
+    assert value["non_missing"] == 4 and value["finite"] == 2 and value["missing"] == 1
+    assert value["mean"] == 3
+    assert editor.state.uploads[uploaded["id"]]["path"].read_bytes() == content
+    assert request(editor, "/api/suggest", {"data_id": uploaded["id"]})[0] == 200
+
+
+@pytest.mark.parametrize(
+    "filename,content,palette",
+    [("bad.csv", b'"unterminated', False), ("bad.json", b"not json", True)],
+)
+def test_failed_upload_leaves_no_published_identity_or_orphaned_files(
+    editor, filename, content, palette
+):
+    before = dict(editor.state.uploads)
+    folder = editor.state.root / "uploads"
+    existing = set(folder.iterdir()) if folder.exists() else set()
+    with pytest.raises((ValueError, TypeError)):
+        editor.state.upload(filename, content, palette=palette)
+    assert editor.state.uploads == before and set(folder.iterdir()) == existing
 
 
 def test_static_failure_blocks_execution_and_fixes_are_verifier_owned(editor, monkeypatch):

@@ -29,3 +29,7 @@ coherent implementation milestone separately. Do not accumulate completed items
 locally. Run the required checks before each push and verify CI for that exact
 commit before advancing. Keep incomplete items and external dependencies explicit;
 never describe proposed benchmarks or external user feedback as measured results.
+
+The later visual-authoring and performance initiative is tracked separately in
+`pipeline/visual-workspace-roadmap.md`. Preserve its full scope and apply the same
+per-milestone checks, push and exact-commit CI requirements.

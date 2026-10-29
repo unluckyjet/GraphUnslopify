@@ -55,16 +55,22 @@ class PreviewState:
         folder.mkdir(parents=True)
         filename = "palette.lock.json" if palette else "data" + suffix
         path = folder / filename
-        path.write_bytes(content)
-        if palette:
-            value = json.loads(content)
-            if not isinstance(value, dict):
-                raise ValueError("Palette lock must be a JSON object")
-            details = {"columns": [], "rows": None}
-        else:
-            details = profile(path)
-            if not details.get("ok"):
-                raise ValueError(details.get("error", "Could not read this data file"))
+        try:
+            path.write_bytes(content)
+            if palette:
+                value = json.loads(content)
+                if not isinstance(value, dict):
+                    raise ValueError("Palette lock must be a JSON object")
+                details = {"columns": [], "rows": None}
+            else:
+                details = profile(path)
+                if not details.get("ok"):
+                    raise ValueError(details.get("error", "Could not read this data file"))
+            # Validate the response before publishing a usable upload identity.
+            json.dumps(details, allow_nan=False)
+        except Exception:
+            shutil.rmtree(folder)
+            raise
         record = {
             "id": identity,
             "path": path,
@@ -82,6 +88,7 @@ class PreviewState:
             "format": record["format"],
             "rows": details.get("rows"),
             "columns": details.get("columns", []),
+            "profile": {**details, "path": filename},
         }
 
     def prepare(

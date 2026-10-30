@@ -26,6 +26,48 @@ KINDS = [
 ]
 
 
+@pytest.mark.parametrize("kind", KINDS)
+def test_display_aliases_preserve_source_artist_ids_and_sparse_panel_order(
+    tmp_path, monkeypatch, kind
+):
+    raw = spec(kind, explicit=True)
+    raw["legend"]["labels"] = [
+        {"series": "01", "text": "Alpha"},
+        {"series": "1", "text": "Beta"},
+    ]
+    if kind == "bar":
+        # This identity fixture otherwise inherits a first-panel shared-y cap.
+        # Give all observed values a visible range; clipping remains an error.
+        raw["y"]["limits"] = [0, 5]
+    module, figure = run_main(tmp_path, monkeypatch, raw, rows(explicit=True))
+    assert not [item for item in module.RUN_REPORT["findings"] if item["severity"] == "error"]
+    if kind == "sparkline_grid":
+        titles = {child.get_title() for axes in figure.axes for child in axes.child_axes}
+        assert titles == {"Alpha", "Beta"}
+    else:
+        raw_names, displayed = [], []
+        for axes in figure.axes:
+            handles, labels = axes.get_legend_handles_labels()
+            raw_names.extend(labels)
+            for handle, label in zip(handles, labels, strict=True):
+                identity = getattr(handle, "_graphunslopify_legend_identity", None)
+                if identity is not None:
+                    assert identity["series"] in {"01", "1"}
+                    assert label.startswith(identity["series"])
+            legend = axes.get_legend()
+            if legend is not None:
+                displayed.extend(text.get_text() for text in legend.get_texts())
+        assert all(name.split()[0] in {"01", "1"} for name in raw_names)
+        assert any(name.startswith("Alpha") for name in displayed)
+        assert any(name.startswith("Beta") for name in displayed)
+        if kind != "calibration":
+            assert displayed[:2] == ["Beta", "Alpha"]
+        else:
+            assert all(" (ECE " in text for text in displayed)
+    assert module.RUN_REPORT["spec"]["legend"]["labels"] == raw["legend"]["labels"]
+    assert "Display names: Alpha means source series 01" in module.ALT_TEXT
+
+
 def spec(kind, explicit=False, **extra):
     raw = {
         "kind": kind,
@@ -96,6 +138,31 @@ def run_main(tmp_path, monkeypatch, raw, data):
 def name_of(label):
     name = str(label).split()[0]
     return name if name in {"01", "1"} else None
+
+
+def test_aliases_do_not_hide_underscore_series_from_actual_colour_checks(tmp_path, monkeypatch):
+    from graphunslopify import inspect_figure
+
+    raw = spec(
+        "line",
+        legend={
+            "position": "outside_bottom",
+            "labels": [
+                {"series": "__proto__", "text": "Alpha"},
+                {"series": "constructor", "text": "Beta"},
+            ],
+        },
+    )
+    data = rows().replace({"method": {"01": "__proto__", "1": "constructor"}})
+    _, figure = run_main(tmp_path, monkeypatch, raw, data)
+    for axes in figure.axes:
+        for line in axes.lines:
+            if line.get_label() in {"__proto__", "constructor"}:
+                line.set_color("#000000")
+                line.set_linestyle("-")
+                line.set_marker("")
+    report = inspect_figure(figure)
+    assert "series_indistinguishable" in {finding.code for finding in report.findings}
 
 
 def artist_styles(ax, kind):

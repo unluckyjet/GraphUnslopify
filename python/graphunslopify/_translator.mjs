@@ -19073,6 +19073,10 @@ var AxisSpec = external_exports.object({
 });
 var LegendSpec = external_exports.object({
   show: external_exports.boolean().default(true),
+  labels: external_exports.array(external_exports.object({
+    series: external_exports.string().min(1).describe("Original source series ID; does not rename data or claim subjects."),
+    text: external_exports.string().min(1).describe("Literal display name. Computed legend details remain renderer-owned.")
+  })).optional().describe("Display names for source series; IDs and numerical checks remain unchanged."),
   position: external_exports.enum([
     "best",
     "upper_left",
@@ -21309,8 +21313,8 @@ function emitHelpers(spec, out) {
       ...spec.kind === "qq" ? ["        curve = qq_estimate(block)"] : [],
       ...spec.kind === "scaling_fit" ? ["        curve = scaling_estimate(block)"] : [],
       "        style = series_style(name, index, len(series_names(frame)))",
-      "        ax.annotate(",
-      spec.kind === "calibration" ? `            f"{name} (ECE {curve['ece']:.3g})",` : "            str(name),",
+      "        text = ax.annotate(",
+      spec.kind === "calibration" ? `            f"{legend_alias(name)} (ECE {curve['ece']:.3g})",` : "            legend_alias(name),",
       spec.kind === "calibration" ? '            xy=(curve["probability"][-1], curve["frequency"][-1]),' : spec.kind === "qq" ? '            xy=(curve["theoretical"][-1], curve["observed"][-1]),' : spec.kind === "scaling_fit" ? '            xy=(curve["grid_x"][-1], curve["grid_y"][-1]),' : "            xy=(block[X_FIELD].iloc[-1], block[Y_FIELD].iloc[-1]),",
       "            xytext=(4, 0),",
       '            textcoords="offset points",',
@@ -21319,6 +21323,7 @@ function emitHelpers(spec, out) {
       "            fontsize=ANNOTATION_PT,",
       '            color=style["colour"],',
       "        )",
+      '        edit_target(text, legend_alias_path(name), "legend_entry", str(name))',
       "    ax.margins(x=0.16)",
       ""
     );
@@ -21443,19 +21448,28 @@ function emitLegend(spec, out) {
     ...sharedSeriesLegend(spec) || spec.kind === "dumbbell" ? [
       "    by_label = {}",
       sharedSeriesLegend(spec) ? "    for panel in fig.axes:" : "    for panel in [ax]:",
-      "        panel_handles, panel_labels = panel.get_legend_handles_labels()",
+      "        panel_handles, panel_labels = source_legend_handles(panel)",
       "        for handle, label in zip(panel_handles, panel_labels):",
       "            by_label.setdefault(label, handle)",
       "    desired = [str(name) for name in series_names(frame)]",
       "    labels = [name for name in desired if name in by_label]",
       "    labels += [label for label in by_label if label not in labels]",
       "    handles = [by_label[label] for label in labels]"
-    ] : ["    handles, labels = ax.get_legend_handles_labels()"],
+    ] : ["    handles, labels = source_legend_handles(ax)"],
     "    if not handles:",
     "        return",
+    "    identities, displayed = [], []",
+    "    for handle, label in zip(handles, labels):",
+    '        identity = getattr(handle, "_graphunslopify_legend_identity", None)',
+    '        source = identity["series"] if identity is not None else None',
+    '        suffix = identity.get("suffix", "") if identity is not None else ""',
+    "        identities.append(source)",
+    "        displayed.append(label if source is None else legend_alias(source) + suffix)",
+    '    if RUN_REPORT["spec"]["legend"].get("labels") and len({name.strip() for name in displayed}) != len(displayed):',
+    '        raise ValueError("Legend display names collide with another visible legend entry")',
     "    legend = ax.legend(",
     "        handles,",
-    "        labels,",
+    '        [f"Series {index}" for index in range(len(handles))],',
     `        title=${pyOptStr(spec.legend.title)},`,
     "        frameon=False,",
     `        ${LEGEND_LOCATIONS[spec.legend.position]},`
@@ -21465,8 +21479,9 @@ function emitLegend(spec, out) {
   }
   out.push(
     "    )",
-    "    for text, source in zip(legend.get_texts(), labels):",
-    '        edit_target(text, None, "legend_entry", str(source))',
+    "    for text, source, original, shown in zip(legend.get_texts(), identities, labels, displayed):",
+    "        text.set_text(shown)",
+    '        edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
     '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")',
     ""
   );
@@ -22053,7 +22068,7 @@ function emitLine(spec, out) {
     }
     const values = spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
     lines.push(
-      `${indentLevel}${spec.annotate?.length ? "_annotation_curve, = " : ""}ax.plot(`,
+      `${indentLevel}_annotation_curve, = ax.plot(`,
       `${indentLevel}    ${source}[X_FIELD],`,
       `${indentLevel}    ${values},`,
       label ? `${indentLevel}    label=${label},` : `${indentLevel}    label=None,`,
@@ -22065,6 +22080,7 @@ function emitLine(spec, out) {
     );
     lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
+    lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
       `${indentLevel}_annotation_curve._graphunslopify_annotation_series = ${spec.group ? "name" : "None"}`
@@ -22141,7 +22157,7 @@ function emitScatter(spec, out) {
   const preset = PRESETS[spec.style.preset];
   out.push("", "def draw_panel(ax, df):", "    frame = df");
   const body = (level, source, styleExpr, label) => [
-    `${level}ax.scatter(`,
+    `${level}_series_points = ax.scatter(`,
     `${level}    ${source}[X_FIELD],`,
     `${level}    ${source}[Y_FIELD],`,
     label ? `${level}    label=${label},` : `${level}    label=None,`,
@@ -22150,7 +22166,8 @@ function emitScatter(spec, out) {
     `${level}    alpha=${styleExpr}["alpha"],`,
     `${level}    zorder=${styleExpr}["zorder"],`,
     `${level}    marker=${styleExpr}["marker"],`,
-    `${level})`
+    `${level})`,
+    `${level}series_artist(_series_points, ${spec.group ? "name" : "None"})`
   ];
   if (spec.group) {
     out.push(
@@ -22201,7 +22218,7 @@ function emitBar(spec, out) {
       '            raise ValueError("Stacked bars need known contributions for observed groups; filter unknown values or use grouped bars/table")',
       "        values = np.nan_to_num(block[Y_FIELD].to_numpy(dtype=float))",
       "        style = series_style(name, index, len(names))",
-      `        ax.${plot}(`,
+      `        _series_bars = ax.${plot}(`,
       "            positions,",
       "            values,",
       "            0.72,",
@@ -22214,6 +22231,7 @@ function emitBar(spec, out) {
       '            edgecolor="white",',
       "            linewidth=0.0,",
       "        )",
+      "        series_artist(_series_bars, name)",
       "        running = running + values"
     );
   } else if (spec.group) {
@@ -22224,7 +22242,7 @@ function emitBar(spec, out) {
       "        block = frame[frame[GROUP] == name].set_index(X_FIELD).reindex(categories)",
       "        offset = (index - (len(names) - 1) / 2) * width",
       "        style = series_style(name, index, len(names))",
-      `        ax.${plot}(`,
+      `        _series_bars = ax.${plot}(`,
       "            positions + offset,",
       "            block[Y_FIELD].to_numpy(dtype=float),",
       "            width,",
@@ -22240,6 +22258,7 @@ function emitBar(spec, out) {
       spec.uncertainty ? "            capsize=2," : "",
       "        )"
     );
+    out.push("        series_artist(_series_bars, name)");
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
@@ -22372,7 +22391,7 @@ function emitEcdf(spec, out) {
     "        style = series_style(name, index, len(names))",
     "        # A step, not a line. The distribution is flat between observations,",
     "        # and joining them with a slope claims data that was never seen.",
-    "        ax.step(",
+    "        _series_steps = ax.step(",
     "            np.concatenate([values[:1], values]),",
     "            np.concatenate([[1.0 if COMPLEMENTARY else 0.0], proportion]),",
     '            where="post",',
@@ -22383,6 +22402,7 @@ function emitEcdf(spec, out) {
     '            zorder=style["zorder"],',
     '            linestyle=style["linestyle"],',
     "        )",
+    "        series_artist(_series_steps, name)",
     "    ax.set_ylim(-0.02, 1.02)",
     ""
   );
@@ -22745,7 +22765,7 @@ function emitSlope(spec, out) {
     "        if not np.isfinite(values).any():",
     "            continue",
     "        style = series_style(name, index, len(names))",
-    "        ax.plot(",
+    "        _series_line = ax.plot(",
     "            positions,",
     "            values,",
     '            marker="o",',
@@ -22757,6 +22777,7 @@ function emitSlope(spec, out) {
     '            zorder=style["zorder"],',
     '            linestyle=style["linestyle"],',
     "        )",
+    "        series_artist(_series_line, name)",
     "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     "    ax.set_xlim(-0.35, len(categories) - 0.65)",
@@ -22787,7 +22808,7 @@ function emitDumbbell(spec, out) {
     "            if not np.isfinite(value):",
     "                continue",
     "            style = series_style(name, position, len(names))",
-    `            ${spec.annotate?.length ? "_annotation_mark, = " : ""}ax.plot(`,
+    "            _annotation_mark, = ax.plot(",
     "                [value],",
     "                [row],",
     '                marker="o",',
@@ -22800,6 +22821,7 @@ function emitDumbbell(spec, out) {
     "                label=(str(name) if name is not None and name not in labelled else None),",
     "            )",
     ...spec.annotate?.length ? ["            _annotation_mark._graphunslopify_annotation_series = name"] : [],
+    "            series_artist(_annotation_mark, name, legend=name not in labelled)",
     "            labelled.add(name)",
     "    ax.set_yticks(np.arange(len(categories)))",
     "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
@@ -22880,10 +22902,12 @@ def draw_panel(ax, df):
         curve = calibration_estimate(block)
         style = series_style(name, index, len(names))
         label = None if name is None else str(name)
-        ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
+        line, = ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
                 label=None if label is None else f"{label} (ECE {curve['ece']:.3g})",
                 color=style["colour"], linewidth=style["width"], alpha=style["alpha"],
                 zorder=style["zorder"], linestyle=style["linestyle"])
+        if name is not None:
+            series_artist(line, name, suffix=f" (ECE {curve['ece']:.3g})")
         who = "the model" if name is None else str(name)
         print(f"calibration: {who} has an expected calibration error of {curve['ece']:.4g} "
               f"over {curve['observations']} predictions in {len(curve['counts'])} of {BINS} bins")
@@ -22987,9 +23011,10 @@ def draw_panel(ax, df):
         curve = qq_estimate(df if name is None else df[df[GROUP] == name])
         record_qq(curve, name)
         style = series_style(name, index, len(names))
-        ax.scatter(curve["theoretical"], curve["observed"], s=10,
+        points = ax.scatter(curve["theoretical"], curve["observed"], s=10,
                    label=None if name is None else str(name), color=style["colour"],
                    marker=style["marker"], alpha=0.7, linewidths=0, zorder=3)
+        series_artist(points, name)
         ax.plot(curve["line_x"], curve["line_y"], color=style["colour"], linewidth=0.9,
                 linestyle=(0, (4, 3)), zorder=2)
 `.split("\n"));
@@ -23068,10 +23093,11 @@ def draw_panel(ax, df):
         block = df if name is None else df[df[GROUP] == name]
         curve = survival_estimate(block)
         style = series_style(name, index, len(names))
-        ax.step(curve["time"], curve["survival"], where="post",
+        steps = ax.step(curve["time"], curve["survival"], where="post",
                 label=None if name is None else str(name), color=style["colour"],
                 linewidth=style["width"], alpha=style["alpha"],
                 zorder=style["zorder"], linestyle=style["linestyle"])
+        series_artist(steps, name)
         if len(curve["censor_time"]):
             ax.scatter(curve["censor_time"], curve["censor_survival"], marker="|", s=28,
                        color=style["colour"], zorder=4, linewidths=1.0)
@@ -23202,11 +23228,13 @@ def draw_panel(ax, df):
         style = series_style(name, index, len(names))
         label = None if name is None else str(name)
         if SCALING_SHOW_POINTS:
-            ax.scatter(fit["x"], fit["y"], s=14, label=label, color=style["colour"],
+            points = ax.scatter(fit["x"], fit["y"], s=14, label=label, color=style["colour"],
                        marker=style["marker"], alpha=0.75, linewidths=0, zorder=3)
-        ax.plot(fit["grid_x"], fit["grid_y"], color=style["colour"], linewidth=1.3,
+            series_artist(points, name)
+        line = ax.plot(fit["grid_x"], fit["grid_y"], color=style["colour"], linewidth=1.3,
                 label=None if SCALING_SHOW_POINTS else label,
                 linestyle=(0, (5, 2)) if SCALING_SHOW_POINTS else style["linestyle"], zorder=2)
+        series_artist(line, name, legend=not SCALING_SHOW_POINTS)
         text = f"scaling: {label or 'the fit'} has fitted exponent {fit['slope']:+.4g} over {fit['observations']} observations"
         interval = fit["interval"]
         if interval["status"] == "available":
@@ -23363,6 +23391,12 @@ function emitSparklineGrid(spec, out) {
     "    names = series_names(df)",
     `    columns = min(${spec.columns}, max(len(names), 1))`,
     "    rows = int(np.ceil(len(names) / columns)) if names else 1",
+    ...spec.facet || spec.repeat ? [
+      "    # Reserve a separate physical row for the owning facet/repeat heading.",
+      "    heading_points = PANEL_LETTER_PT + ANNOTATION_PT + 4",
+      "    heading_fraction = heading_points * ax.figure.dpi / 72 / max(ax.get_window_extent().height, 1)",
+      "    usable_height = max(0.1, 1 - heading_fraction)"
+    ] : ["    usable_height = 1.0"],
     "    # One shared scale across every cell. Free limits would let a flat",
     "    # series look as dramatic as a real one.",
     "    ax.margins(y=0.08)",
@@ -23376,9 +23410,9 @@ function emitSparklineGrid(spec, out) {
     "        cell = ax.inset_axes(",
     "            [",
     "                column / columns + 0.012,",
-    "                1.0 - (row + 1) / rows + 0.012,",
+    "                usable_height * (1.0 - (row + 1) / rows) + 0.012,",
     "                1.0 / columns - 0.024,",
-    "                1.0 / rows - 0.024,",
+    "                usable_height / rows - 0.024,",
     "            ], sharex=ax, sharey=ax",
     "        )",
     "        style = series_style(name, index, len(names))",
@@ -23393,7 +23427,7 @@ function emitSparklineGrid(spec, out) {
     "        cell.set_yticks([])",
     "        for side in cell.spines.values():",
     "            side.set_visible(False)",
-    "        cell.set_title(str(name), fontsize=ANNOTATION_PT, pad=2)",
+    '        edit_target(cell.set_title(legend_alias(name), fontsize=ANNOTATION_PT, pad=2), legend_alias_path(name), "legend_entry", str(name))',
     ""
   );
 }
@@ -23683,7 +23717,8 @@ function emitInteractive(spec, out) {
       ...spec.kind === "bar" ? ["        categories = category_order(prepared)", "        block = block.set_index(X_FIELD).reindex(categories).reset_index()"] : [],
       "        if block.empty: continue",
       ...spec.group ? ["        style = series_style(name, index, len(names))"] : ['        style = {"colour": PALETTE[0], "alpha": 1.0}'],
-      '        options = {"name": str(name) if name is not None else Y_AXIS_LABEL, "marker_color": style["colour"], "opacity": style["alpha"]}'
+      '        options = {"name": escape(legend_alias(name)) if name is not None else Y_AXIS_LABEL, "marker_color": style["colour"], "opacity": style["alpha"]}',
+      '        if name is not None: options["meta"] = {"source_series": str(name)}'
     );
     const uncertainty2 = "uncertainty" in spec ? spec.uncertainty : void 0;
     if (uncertainty2 && spec.kind === "line" && uncertainty2.display === "band") {
@@ -25051,6 +25086,69 @@ def edit_target(artist, path, role, source=None):
     return artist
 
 
+def series_artist(artist, source, suffix="", legend=True):
+    if source is not None:
+        for target in artist if isinstance(artist, list) else [artist]:
+            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
+    return artist
+
+
+def source_legend_handles(axes):
+    ordinary, labels = axes.get_legend_handles_labels()
+    public = {id(handle): label for handle, label in zip(ordinary, labels)}
+    handles, names, seen = [], [], set()
+    for handle in [*axes.get_children(), *axes.containers]:
+        identity = getattr(handle, "_graphunslopify_legend_identity", None)
+        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        if include and id(handle) not in seen:
+            handles.append(handle)
+            names.append(public.get(id(handle), handle.get_label()))
+            seen.add(id(handle))
+    return handles, names
+
+
+def legend_alias(source):
+    key = str(source)
+    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
+                 if item["series"] == key), key)
+
+
+def legend_alias_path(source):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
+    return ["legend", "labels", index, "text"]
+
+
+def validate_legend_aliases(frame):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return
+    if GROUP is None or GROUP not in frame:
+        raise ValueError("Legend display names require a source grouping column")
+    names = [str(name) for name in series_names(frame)]
+    if len(set(names)) != len(names):
+        raise ValueError("Source series IDs have ambiguous string representations")
+    requested = [item["series"] for item in labels]
+    if len(set(requested)) != len(requested):
+        raise ValueError("Each source series may have only one legend display name")
+    unknown = sorted(set(requested) - set(names))
+    if unknown:
+        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
+    if any(not item["text"].strip() for item in labels):
+        raise ValueError("Legend display names must contain visible text")
+    displayed = [legend_alias(name).strip() for name in names]
+    if len(set(displayed)) != len(displayed):
+        raise ValueError("Legend display names must uniquely identify source series")
+
+
+def disclose_legend_aliases(description):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return description
+    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
+    return description + " Display names: " + "; ".join(mappings) + "."
+
+
 def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
@@ -25646,7 +25744,8 @@ function emitMain(spec, out) {
     ...unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : [],
     ...spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : [],
     "    df = prepare(load())",
-    "    report_counts(df)"
+    "    report_counts(df)",
+    "    validate_legend_aliases(df)"
   );
   if (spec.kind === "table") {
     out.push(
@@ -25773,7 +25872,7 @@ function emitMain(spec, out) {
 }
 function emitSaveBlock(spec, out) {
   out.push(
-    "        description = describe_panels(blocks)",
+    "        description = disclose_legend_aliases(describe_panels(blocks))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",

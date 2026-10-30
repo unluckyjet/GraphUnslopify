@@ -388,6 +388,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
     "    df = prepare(load())",
     "    report_counts(df)",
+    "    validate_legend_aliases(df)",
   );
 
   if (spec.kind === "table") {
@@ -543,7 +544,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
 
 function emitSaveBlock(spec: FigureSpec, out: string[]): void {
   out.push(
-    "        description = describe_panels(blocks)",
+    "        description = disclose_legend_aliases(describe_panels(blocks))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",

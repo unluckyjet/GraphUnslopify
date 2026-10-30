@@ -66,3 +66,27 @@ proof is in docs/workspace/geometry-verification.json and geometry.md.
 This is a coherent backend checkpoint to commit/push and verify in exact CI before
 the remaining81 work. Canonical display aliases and actual click/review/apply/undo
 remain open; neither this spec nor the full workspace goal is complete.
+
+
+Geometry81a exact d0178e0 main40962707353 all9/Figure40962707278 passed before81b.
+
+## Display-alias checkpoint81b verified locally
+
+Typed source-series/text array records drive visible box/direct/sparkline names
+without renaming data, quantities or claim IDs. Renderer-owned artist identity
+distinguishes references and preserves ECE details, ordering and style checks.
+Underscore IDs and literal text work in PNG/SVG/PDF and supported native HTML;
+HTML trace metadata and accessible provenance retain original IDs. Invalid, stale,
+blank or ambiguous mappings fail strictly. Nested sparkline facet/repeat headings
+reserve a separate row; shared-bar auto-range defect is explicitly retained in
+Obsidian for83 rather than hidden by the identity fixture's authored0..5 limits.
+
+114 focused controls pass on actual3.10.22; final3.12.14 full suite1485/Node227 and
+all seven gates pass, zero skips/one existing upstream warning. Strict gallery15
+and Ruff pass. Source/fresh offline installed Chrome33 workflows/all21 kinds pass,
+0 external page requests/JS errors. Actual HTML Chrome shows literal text;10 wheel
+assets match source and22 refreshed default PNG RGBA byte identities are retained.
+Proof: docs/workspace/legend-labels-verification.json; contract: docs/legend-labels.md.
+
+Commit/push and exact CI precede the next microchange. Derived metric/panel labels
+and click/review/apply/undo are still open;81 and the full workspace remain unfinished.

@@ -1,15 +1,17 @@
 # Renderer-bound text geometry
 
 This is the backend foundation of workspace milestone81, after the verified80
-layout. Click-to-edit controls and display aliases are still being implemented;
+layout. Source display aliases are available; click-to-edit controls are still being implemented;
 this document does not claim that the complete interaction is available.
 
 Generated programs mark text with private semantic metadata when it is created.
 Axis paths therefore describe source meaning even when a forest plot draws the
 measurement horizontally. Annotation paths retain the original annotation index;
 units and source-field identity are separate from authored label text. Repeated
-metric labels and current legend entries retain their source identities and are
-explicitly read-only until canonical display mappings support editing them.
+metric labels retain their source identities and remain read-only. Named-series
+legend entries use the canonical [display mappings](../legend-labels.md), including
+a prospective append path for IDs without an override. Unowned references stay
+read-only until their own canonical label field is mapped.
 
 The local preview runs its owned generated script through `preview_render.py`.
 The adapter observes the final PNG `draw_event` inside the actual save call.

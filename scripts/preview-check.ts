@@ -702,6 +702,31 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
   assert.ok(mobileCanvas.y < mobileInspector.y);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false);
   await page.locator(".preview").screenshot({path:join(evidence,"workspace-mobile-figure.png")});
+  await page.setViewportSize({width:1500,height:1100});
+  await page.locator("#demo").click();
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const named = await spec();
+  named.legend.labels = [{series:"base",text:"Control"},{series:"ours",text:"Treatment"}];
+  await page.locator("#spec").fill(JSON.stringify(named,null,2));
+  const aliasResponse = page.waitForResponse(response => response.url().endsWith("/api/render"));
+  await page.locator("#render").click();
+  await verified();
+  const aliased = await (await aliasResponse).json();
+  const entries = aliased.edit_map.targets.filter((entry: {role:string}) => entry.role === "legend_entry");
+  assert.deepEqual(entries.map((entry:{source:string;text:string})=>[entry.source,entry.text]).sort(), [["base","Control"],["ours","Treatment"]]);
+  assert.ok(aliased.report.claims.length > 0);
+  assert.ok(aliased.report.claims.every((claim:{subject:string})=>claim.subject === "ours"));
+  await page.screenshot({path:join(evidence,"legend-display-names.png"),fullPage:true});
+  const ambiguous = structuredClone(named);
+  ambiguous.legend.labels[1].text = "Control";
+  await page.locator("#spec").fill(JSON.stringify(ambiguous,null,2));
+  await page.locator("#render").click();
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Failed checks");
+  assert.match(await page.locator("#findings").innerText(), /uniquely identify/);
+  assert.equal(await page.locator("#bundle").isDisabled(),true);
+  await page.locator("#spec").fill(JSON.stringify(named,null,2));
+  await page.locator("#render").click();
+  await verified();
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -744,6 +769,8 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
           "actual profile types present and missing counts",
           "reviewed recommendation apply and undo preserves authored intent",
           "mobile figure before settings with no horizontal overflow",
+          "actual legend display names preserve source and claim IDs",
+          "ambiguous display names fail strictly and recover to current exports",
         ],
       },
       null,

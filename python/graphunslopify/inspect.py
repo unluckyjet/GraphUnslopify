@@ -364,6 +364,16 @@ def _series_appearance(axes: Any) -> list[tuple[str, tuple[float, float, float],
     from matplotlib.colors import to_rgb
 
     handles, labels = axes.get_legend_handles_labels()
+    # Matplotlib hides underscore-prefixed labels from automatic legends. The
+    # generator supplies source identity for its own visible series instead;
+    # augment the current scene rather than trusting a cached artist list.
+    seen = {id(handle) for handle in handles}
+    for handle in [*axes.get_children(), *axes.containers]:
+        identity = getattr(handle, "_graphunslopify_legend_identity", None)
+        if identity is not None and identity.get("legend", True) and id(handle) not in seen:
+            handles.append(handle)
+            labels.append(handle.get_label())
+            seen.add(id(handle))
     series = []
     for handle, label in zip(handles, labels, strict=True):
         # Bars hand back a BarContainer, which carries no colour of its own.

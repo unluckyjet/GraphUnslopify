@@ -148,7 +148,8 @@ export function emitInteractive(spec: FigureSpec, out: string[]): void {
       ...(spec.kind === "bar" ? ["        categories = category_order(prepared)", "        block = block.set_index(X_FIELD).reindex(categories).reset_index()"] : []),
       "        if block.empty: continue",
       ...(spec.group ? ['        style = series_style(name, index, len(names))'] : ['        style = {"colour": PALETTE[0], "alpha": 1.0}']),
-      '        options = {"name": str(name) if name is not None else Y_AXIS_LABEL, "marker_color": style["colour"], "opacity": style["alpha"]}',
+      '        options = {"name": escape(legend_alias(name)) if name is not None else Y_AXIS_LABEL, "marker_color": style["colour"], "opacity": style["alpha"]}',
+      '        if name is not None: options["meta"] = {"source_series": str(name)}',
     );
     const uncertainty = "uncertainty" in spec ? spec.uncertainty : undefined;
     if (uncertainty && spec.kind === "line" && uncertainty.display === "band") {

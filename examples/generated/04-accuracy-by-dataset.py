@@ -167,6 +167,69 @@ def edit_target(artist, path, role, source=None):
     return artist
 
 
+def series_artist(artist, source, suffix="", legend=True):
+    if source is not None:
+        for target in artist if isinstance(artist, list) else [artist]:
+            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
+    return artist
+
+
+def source_legend_handles(axes):
+    ordinary, labels = axes.get_legend_handles_labels()
+    public = {id(handle): label for handle, label in zip(ordinary, labels)}
+    handles, names, seen = [], [], set()
+    for handle in [*axes.get_children(), *axes.containers]:
+        identity = getattr(handle, "_graphunslopify_legend_identity", None)
+        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        if include and id(handle) not in seen:
+            handles.append(handle)
+            names.append(public.get(id(handle), handle.get_label()))
+            seen.add(id(handle))
+    return handles, names
+
+
+def legend_alias(source):
+    key = str(source)
+    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
+                 if item["series"] == key), key)
+
+
+def legend_alias_path(source):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
+    return ["legend", "labels", index, "text"]
+
+
+def validate_legend_aliases(frame):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return
+    if GROUP is None or GROUP not in frame:
+        raise ValueError("Legend display names require a source grouping column")
+    names = [str(name) for name in series_names(frame)]
+    if len(set(names)) != len(names):
+        raise ValueError("Source series IDs have ambiguous string representations")
+    requested = [item["series"] for item in labels]
+    if len(set(requested)) != len(requested):
+        raise ValueError("Each source series may have only one legend display name")
+    unknown = sorted(set(requested) - set(names))
+    if unknown:
+        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
+    if any(not item["text"].strip() for item in labels):
+        raise ValueError("Legend display names must contain visible text")
+    displayed = [legend_alias(name).strip() for name in names]
+    if len(set(displayed)) != len(displayed):
+        raise ValueError("Legend display names must uniquely identify source series")
+
+
+def disclose_legend_aliases(description):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return description
+    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
+    return description + " Display names: " + "; ".join(mappings) + "."
+
+
 def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
@@ -596,7 +659,7 @@ def draw_panel(ax, df):
         block = frame[frame[GROUP] == name].set_index(X_FIELD).reindex(categories)
         offset = (index - (len(names) - 1) / 2) * width
         style = series_style(name, index, len(names))
-        ax.bar(
+        _series_bars = ax.bar(
             positions + offset,
             block[Y_FIELD].to_numpy(dtype=float),
             width,
@@ -610,6 +673,7 @@ def draw_panel(ax, df):
 
 
         )
+        series_artist(_series_bars, name)
     ax.set_xticks(positions)
     ax.set_xticklabels([str(value) for value in categories])
 
@@ -657,19 +721,29 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
 
 
 def add_legend(fig, ax, frame):
-    handles, labels = ax.get_legend_handles_labels()
+    handles, labels = source_legend_handles(ax)
     if not handles:
         return
+    identities, displayed = [], []
+    for handle, label in zip(handles, labels):
+        identity = getattr(handle, "_graphunslopify_legend_identity", None)
+        source = identity["series"] if identity is not None else None
+        suffix = identity.get("suffix", "") if identity is not None else ""
+        identities.append(source)
+        displayed.append(label if source is None else legend_alias(source) + suffix)
+    if RUN_REPORT["spec"]["legend"].get("labels") and len({name.strip() for name in displayed}) != len(displayed):
+        raise ValueError("Legend display names collide with another visible legend entry")
     legend = ax.legend(
         handles,
-        labels,
+        [f"Series {index}" for index in range(len(handles))],
         title=None,
         frameon=False,
         loc="upper center", bbox_to_anchor=(0.5, -0.18),
         ncol=min(len(handles), 4),
     )
-    for text, source in zip(legend.get_texts(), labels):
-        edit_target(text, None, "legend_entry", str(source))
+    for text, source, original, shown in zip(legend.get_texts(), identities, labels, displayed):
+        text.set_text(shown)
+        edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)
     edit_target(legend.get_title(), ["legend", "title"], "legend_title")
 
 
@@ -939,6 +1013,7 @@ def main():
     global DATA_HASH, ALT_TEXT
     df = prepare(load())
     report_counts(df)
+    validate_legend_aliases(df)
     if PALETTE_LOCK is not None and GROUP is not None:
         globals()["LOCKED"] = locked_appearance(
             SERIES_ORDER if SERIES_ORDER is not None else sorted(df[GROUP].dropna().unique(), key=str)
@@ -987,7 +1062,7 @@ def main():
         else:
             edit_target(flat[0].set_title("Accuracy across benchmarks"), ["title"], "title")
         # tight_layout is skipped: it fights a legend anchored outside the axes.
-        description = describe_panels(blocks)
+        description = disclose_legend_aliases(describe_panels(blocks))
         claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])
         print(f"alt text: {description}")
         ALT_TEXT = description

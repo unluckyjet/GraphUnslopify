@@ -145,3 +145,6 @@ One line per state change, newest last.
 
 
 2026-10-29 spec81a geometry checkpoint: actual final-PNG bounds and semantic artist paths, hash/spec/run binding, hidden-axis exclusion and safe imports for preview/standalone package-like filenames.14 focused controls on3.10/3.12,227 Node/1458 Python/seven gates/Ruff/gallery15 and source/fresh installed31 browser workflows pass;22 regenerated PNG pixel byte identities preserved. Full81 aliases/UI and82–89 remain open. Commit/push/exact CI before next checkpoint.
+
+
+Display-alias81b checkpoint: source IDs/data/claims retained behind literal visible names, owned legend identity and current-scene colour checks, computed ECE preservation, native HTML source metadata and nested heading space.227/1485/seven gates,114 controls on3.10, gallery15/Ruff and source/fresh installed33 browser workflows pass;22 default PNGs retain RGBA bytes.81a exact all9/Figure verified before81b. Commit/push/exact CI precede remaining81 aliases/interactive editing; full81–89 remain open.

@@ -184,7 +184,7 @@ def test_legend_entries_keep_original_identity_and_derived_labels_stay_read_only
     targets = result["edit_map"]["targets"]
     legends = [item for item in targets if item["role"] == "legend_entry"]
     assert {item["source"] for item in legends} == {"base", "ours"}
-    assert all(not item["editable"] and item["path"] is None for item in legends)
+    assert all(item["editable"] and item["path"][:2] == ["legend", "labels"] for item in legends)
     derived = [item for item in targets if item["role"] == "derived_axis_label"]
     assert {item["source"] for item in derived} == {"score", "loss"}
     assert all(not item["editable"] and item["path"] is None for item in derived)

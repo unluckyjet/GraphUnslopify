@@ -148,7 +148,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
     }
     const values = spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
     lines.push(
-      `${indentLevel}${spec.annotate?.length ? "_annotation_curve, = " : ""}ax.plot(`,
+      `${indentLevel}_annotation_curve, = ax.plot(`,
       `${indentLevel}    ${source}[X_FIELD],`,
       `${indentLevel}    ${values},`,
       label ? `${indentLevel}    label=${label},` : `${indentLevel}    label=None,`,
@@ -160,6 +160,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
     );
     lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
+    lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
       `${indentLevel}_annotation_curve._graphunslopify_annotation_series = ${spec.group ? "name" : "None"}`,
@@ -240,7 +241,7 @@ function emitScatter(spec: FigureSpec & { kind: "scatter" }, out: string[]): voi
   out.push("", "def draw_panel(ax, df):", "    frame = df");
 
   const body = (level: string, source: string, styleExpr: string, label: string) => [
-    `${level}ax.scatter(`,
+    `${level}_series_points = ax.scatter(`,
     `${level}    ${source}[X_FIELD],`,
     `${level}    ${source}[Y_FIELD],`,
     label ? `${level}    label=${label},` : `${level}    label=None,`,
@@ -250,6 +251,7 @@ function emitScatter(spec: FigureSpec & { kind: "scatter" }, out: string[]): voi
     `${level}    zorder=${styleExpr}["zorder"],`,
     `${level}    marker=${styleExpr}["marker"],`,
     `${level})`,
+    `${level}series_artist(_series_points, ${spec.group ? "name" : "None"})`,
   ];
 
   if (spec.group) {
@@ -305,7 +307,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       '            raise ValueError("Stacked bars need known contributions for observed groups; filter unknown values or use grouped bars/table")',
       "        values = np.nan_to_num(block[Y_FIELD].to_numpy(dtype=float))",
       "        style = series_style(name, index, len(names))",
-      `        ax.${plot}(`,
+      `        _series_bars = ax.${plot}(`,
       "            positions,",
       "            values,",
       "            0.72,",
@@ -318,6 +320,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       '            edgecolor="white",',
       "            linewidth=0.0,",
       "        )",
+      "        series_artist(_series_bars, name)",
       "        running = running + values",
     );
   } else if (spec.group) {
@@ -328,7 +331,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       "        block = frame[frame[GROUP] == name].set_index(X_FIELD).reindex(categories)",
       "        offset = (index - (len(names) - 1) / 2) * width",
       "        style = series_style(name, index, len(names))",
-      `        ax.${plot}(`,
+      `        _series_bars = ax.${plot}(`,
       "            positions + offset,",
       "            block[Y_FIELD].to_numpy(dtype=float),",
       "            width,",
@@ -346,6 +349,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       spec.uncertainty ? "            capsize=2," : "",
       "        )",
     );
+    out.push("        series_artist(_series_bars, name)");
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
@@ -489,7 +493,7 @@ function emitEcdf(spec: FigureSpec & { kind: "ecdf" }, out: string[]): void {
     "        style = series_style(name, index, len(names))",
     "        # A step, not a line. The distribution is flat between observations,",
     "        # and joining them with a slope claims data that was never seen.",
-    "        ax.step(",
+    "        _series_steps = ax.step(",
     "            np.concatenate([values[:1], values]),",
     "            np.concatenate([[1.0 if COMPLEMENTARY else 0.0], proportion]),",
     '            where="post",',
@@ -500,6 +504,7 @@ function emitEcdf(spec: FigureSpec & { kind: "ecdf" }, out: string[]): void {
     '            zorder=style["zorder"],',
     '            linestyle=style["linestyle"],',
     "        )",
+    "        series_artist(_series_steps, name)",
     "    ax.set_ylim(-0.02, 1.02)",
     "",
   );
@@ -878,7 +883,7 @@ function emitSlope(spec: FigureSpec & { kind: "slope" }, out: string[]): void {
     "        if not np.isfinite(values).any():",
     "            continue",
     "        style = series_style(name, index, len(names))",
-    "        ax.plot(",
+    "        _series_line = ax.plot(",
     "            positions,",
     "            values,",
     '            marker="o",',
@@ -890,6 +895,7 @@ function emitSlope(spec: FigureSpec & { kind: "slope" }, out: string[]): void {
     '            zorder=style["zorder"],',
     '            linestyle=style["linestyle"],',
     "        )",
+    "        series_artist(_series_line, name)",
     "    ax.set_xticks(positions)",
     "    ax.set_xticklabels([str(value) for value in categories])",
     "    ax.set_xlim(-0.35, len(categories) - 0.65)",
@@ -924,7 +930,7 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     "            if not np.isfinite(value):",
     "                continue",
     "            style = series_style(name, position, len(names))",
-    `            ${spec.annotate?.length ? "_annotation_mark, = " : ""}ax.plot(`,
+    "            _annotation_mark, = ax.plot(",
     "                [value],",
     "                [row],",
     '                marker="o",',
@@ -937,6 +943,7 @@ function emitDumbbell(spec: FigureSpec & { kind: "dumbbell" }, out: string[]): v
     "                label=(str(name) if name is not None and name not in labelled else None),",
     "            )",
     ...(spec.annotate?.length ? ["            _annotation_mark._graphunslopify_annotation_series = name"] : []),
+    "            series_artist(_annotation_mark, name, legend=name not in labelled)",
     "            labelled.add(name)",
     "    ax.set_yticks(np.arange(len(categories)))",
     "    ax.set_yticklabels([str(value) for value in reversed(categories)])",
@@ -1019,10 +1026,12 @@ def draw_panel(ax, df):
         curve = calibration_estimate(block)
         style = series_style(name, index, len(names))
         label = None if name is None else str(name)
-        ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
+        line, = ax.plot(curve["probability"], curve["frequency"], marker="o", markersize=4,
                 label=None if label is None else f"{label} (ECE {curve['ece']:.3g})",
                 color=style["colour"], linewidth=style["width"], alpha=style["alpha"],
                 zorder=style["zorder"], linestyle=style["linestyle"])
+        if name is not None:
+            series_artist(line, name, suffix=f" (ECE {curve['ece']:.3g})")
         who = "the model" if name is None else str(name)
         print(f"calibration: {who} has an expected calibration error of {curve['ece']:.4g} "
               f"over {curve['observations']} predictions in {len(curve['counts'])} of {BINS} bins")
@@ -1127,9 +1136,10 @@ def draw_panel(ax, df):
         curve = qq_estimate(df if name is None else df[df[GROUP] == name])
         record_qq(curve, name)
         style = series_style(name, index, len(names))
-        ax.scatter(curve["theoretical"], curve["observed"], s=10,
+        points = ax.scatter(curve["theoretical"], curve["observed"], s=10,
                    label=None if name is None else str(name), color=style["colour"],
                    marker=style["marker"], alpha=0.7, linewidths=0, zorder=3)
+        series_artist(points, name)
         ax.plot(curve["line_x"], curve["line_y"], color=style["colour"], linewidth=0.9,
                 linestyle=(0, (4, 3)), zorder=2)
 `.split("\n"));
@@ -1211,10 +1221,11 @@ def draw_panel(ax, df):
         block = df if name is None else df[df[GROUP] == name]
         curve = survival_estimate(block)
         style = series_style(name, index, len(names))
-        ax.step(curve["time"], curve["survival"], where="post",
+        steps = ax.step(curve["time"], curve["survival"], where="post",
                 label=None if name is None else str(name), color=style["colour"],
                 linewidth=style["width"], alpha=style["alpha"],
                 zorder=style["zorder"], linestyle=style["linestyle"])
+        series_artist(steps, name)
         if len(curve["censor_time"]):
             ax.scatter(curve["censor_time"], curve["censor_survival"], marker="|", s=28,
                        color=style["colour"], zorder=4, linewidths=1.0)
@@ -1343,11 +1354,13 @@ def draw_panel(ax, df):
         style = series_style(name, index, len(names))
         label = None if name is None else str(name)
         if SCALING_SHOW_POINTS:
-            ax.scatter(fit["x"], fit["y"], s=14, label=label, color=style["colour"],
+            points = ax.scatter(fit["x"], fit["y"], s=14, label=label, color=style["colour"],
                        marker=style["marker"], alpha=0.75, linewidths=0, zorder=3)
-        ax.plot(fit["grid_x"], fit["grid_y"], color=style["colour"], linewidth=1.3,
+            series_artist(points, name)
+        line = ax.plot(fit["grid_x"], fit["grid_y"], color=style["colour"], linewidth=1.3,
                 label=None if SCALING_SHOW_POINTS else label,
                 linestyle=(0, (5, 2)) if SCALING_SHOW_POINTS else style["linestyle"], zorder=2)
+        series_artist(line, name, legend=not SCALING_SHOW_POINTS)
         text = f"scaling: {label or 'the fit'} has fitted exponent {fit['slope']:+.4g} over {fit['observations']} observations"
         interval = fit["interval"]
         if interval["status"] == "available":
@@ -1517,6 +1530,12 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "    names = series_names(df)",
     `    columns = min(${spec.columns}, max(len(names), 1))`,
     "    rows = int(np.ceil(len(names) / columns)) if names else 1",
+    ...(spec.facet || spec.repeat ? [
+      "    # Reserve a separate physical row for the owning facet/repeat heading.",
+      "    heading_points = PANEL_LETTER_PT + ANNOTATION_PT + 4",
+      "    heading_fraction = heading_points * ax.figure.dpi / 72 / max(ax.get_window_extent().height, 1)",
+      "    usable_height = max(0.1, 1 - heading_fraction)",
+    ] : ["    usable_height = 1.0"]),
     "    # One shared scale across every cell. Free limits would let a flat",
     "    # series look as dramatic as a real one.",
     "    ax.margins(y=0.08)",
@@ -1530,9 +1549,9 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "        cell = ax.inset_axes(",
     "            [",
     "                column / columns + 0.012,",
-    "                1.0 - (row + 1) / rows + 0.012,",
+    "                usable_height * (1.0 - (row + 1) / rows) + 0.012,",
     "                1.0 / columns - 0.024,",
-    "                1.0 / rows - 0.024,",
+    "                usable_height / rows - 0.024,",
     "            ], sharex=ax, sharey=ax",
     "        )",
     "        style = series_style(name, index, len(names))",
@@ -1547,7 +1566,7 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "        cell.set_yticks([])",
     "        for side in cell.spines.values():",
     "            side.set_visible(False)",
-    "        cell.set_title(str(name), fontsize=ANNOTATION_PT, pad=2)",
+    '        edit_target(cell.set_title(legend_alias(name), fontsize=ANNOTATION_PT, pad=2), legend_alias_path(name), "legend_entry", str(name))',
     "",
   );
 }

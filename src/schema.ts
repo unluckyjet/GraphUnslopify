@@ -47,6 +47,10 @@ export type AxisSpec = z.infer<typeof AxisSpec>;
 
 export const LegendSpec = z.object({
   show: z.boolean().default(true),
+  labels: z.array(z.object({
+    series: z.string().min(1).describe("Original source series ID; does not rename data or claim subjects."),
+    text: z.string().min(1).describe("Literal display name. Computed legend details remain renderer-owned."),
+  })).optional().describe("Display names for source series; IDs and numerical checks remain unchanged."),
   position: z
     .enum([
       "best",

@@ -113,6 +113,10 @@ earlier editor. From a checkout, install with `python -m pip install ./python`.
   failed claim retains its failed verdict; these predicates do not test causality,
   significance or experimental independence.
 
+Current-source [legend display names](legend-labels.md) can also be authored in
+Advanced JSON. They change visible series names while preserving source IDs,
+claims and numerical results. Direct click-to-edit controls remain in progress.
+
 Text changes apply after a pause or when leaving a field. **Render now** validates
 pending edits first. Every edit clears previous preview/download evidence; invalid
 numbers or unfinished exponents cannot silently become zero or a default. Empty

@@ -22,6 +22,69 @@ def edit_target(artist, path, role, source=None):
     return artist
 
 
+def series_artist(artist, source, suffix="", legend=True):
+    if source is not None:
+        for target in artist if isinstance(artist, list) else [artist]:
+            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
+    return artist
+
+
+def source_legend_handles(axes):
+    ordinary, labels = axes.get_legend_handles_labels()
+    public = {id(handle): label for handle, label in zip(ordinary, labels)}
+    handles, names, seen = [], [], set()
+    for handle in [*axes.get_children(), *axes.containers]:
+        identity = getattr(handle, "_graphunslopify_legend_identity", None)
+        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        if include and id(handle) not in seen:
+            handles.append(handle)
+            names.append(public.get(id(handle), handle.get_label()))
+            seen.add(id(handle))
+    return handles, names
+
+
+def legend_alias(source):
+    key = str(source)
+    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
+                 if item["series"] == key), key)
+
+
+def legend_alias_path(source):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
+    return ["legend", "labels", index, "text"]
+
+
+def validate_legend_aliases(frame):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return
+    if GROUP is None or GROUP not in frame:
+        raise ValueError("Legend display names require a source grouping column")
+    names = [str(name) for name in series_names(frame)]
+    if len(set(names)) != len(names):
+        raise ValueError("Source series IDs have ambiguous string representations")
+    requested = [item["series"] for item in labels]
+    if len(set(requested)) != len(requested):
+        raise ValueError("Each source series may have only one legend display name")
+    unknown = sorted(set(requested) - set(names))
+    if unknown:
+        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
+    if any(not item["text"].strip() for item in labels):
+        raise ValueError("Legend display names must contain visible text")
+    displayed = [legend_alias(name).strip() for name in names]
+    if len(set(displayed)) != len(displayed):
+        raise ValueError("Legend display names must uniquely identify source series")
+
+
+def disclose_legend_aliases(description):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return description
+    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
+    return description + " Display names: " + "; ".join(mappings) + "."
+
+
 def new_report():
     return {
         "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,

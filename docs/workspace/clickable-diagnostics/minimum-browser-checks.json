@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "provider": "No model inference used by diagnostic cases",
+  "strict_negative_status": "failed",
+  "original_spec_unchanged_by_selection": true,
+  "geometry": [
+    {
+      "viewport": "desktop",
+      "image": {
+        "x": 364,
+        "y": 255.59375,
+        "width": 692,
+        "height": 526.28125,
+        "top": 255.59375,
+        "right": 1056,
+        "bottom": 781.875,
+        "left": 364
+      },
+      "targets": [
+        {
+          "x": 743.9375,
+          "y": 313.25,
+          "width": 4.328125,
+          "height": 296.28125,
+          "top": 313.25,
+          "right": 748.265625,
+          "bottom": 609.53125,
+          "left": 743.9375
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": "narrow",
+      "image": {
+        "x": 44,
+        "y": 307.25,
+        "width": 302,
+        "height": 229.671875,
+        "top": 307.25,
+        "right": 346,
+        "bottom": 536.921875,
+        "left": 44
+      },
+      "targets": [
+        {
+          "x": 209.8125,
+          "y": 332.40625,
+          "width": 1.890625,
+          "height": 129.296875,
+          "top": 332.40625,
+          "right": 211.703125,
+          "bottom": 461.703125,
+          "left": 209.8125
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": "wide",
+      "image": {
+        "x": 544.4375,
+        "y": -0.40625,
+        "width": 631.125,
+        "height": 479.984375,
+        "top": -0.40625,
+        "right": 1175.5625,
+        "bottom": 479.578125,
+        "left": 544.4375
+      },
+      "targets": [
+        {
+          "x": 890.953125,
+          "y": 52.171875,
+          "width": 3.953125,
+          "height": 270.21875,
+          "top": 52.171875,
+          "right": 894.90625,
+          "bottom": 322.390625,
+          "left": 890.953125
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": "short",
+      "image": {
+        "x": 521.109375,
+        "y": 128.59375,
+        "width": 157.78125,
+        "height": 119.984375,
+        "top": 128.59375,
+        "right": 678.890625,
+        "bottom": 248.578125,
+        "left": 521.109375
+      },
+      "targets": [
+        {
+          "x": 607.734375,
+          "y": 141.734375,
+          "width": 0.984375,
+          "height": 67.546875,
+          "top": 141.734375,
+          "right": 608.71875,
+          "bottom": 209.28125,
+          "left": 607.734375
+        }
+      ],
+      "overflow": false
+    }
+  ],
+  "workflows": [
+    "actual clipped interval selection preserves intent render count strict failure and review-artifact availability",
+    "keyboard and finding-card locate actions select the actual runtime finding",
+    "narrow viewport diagnostic click and keyboard selection preserve canonical intent",
+    "measured diagnostic rectangles align with actual PNG at desktop narrow wide and short-height viewports",
+    "unlocated actual findings remain explicit without invented highlighted regions",
+    "switching text and diagnostic modes preserves unapplied wording and canonical intent",
+    "browser refuses version diagnostic metadata without fake targets or false scientific acceptance",
+    "browser refuses image_hash diagnostic metadata without fake targets or false scientific acceptance",
+    "browser refuses finding_index diagnostic metadata without fake targets or false scientific acceptance",
+    "browser refuses bounds diagnostic metadata without fake targets or false scientific acceptance",
+    "canonical edits clear diagnostic review and old image targets immediately",
+    "held completed old render cannot revive diagnostic targets after a newer canonical edit",
+    "literal diagnostic wording remains text without active markup",
+    "partial location capture stays explicit alongside measured regions",
+    "dataset replacement clears selected diagnostic locations before another render",
+    "explicit manual-mode repair reruns strict checks retains additional layout errors and joins native undo",
+    "valid explicit temporal repair renders verified in manual mode and native undo restores authored intent"
+  ],
+  "evidence": "/var/folders/cm/8l8qlt0s57sg6h83r9_1b_r80000gn/T/gu-diagnostic-browser-qGIVfy",
+  "javascript_errors": 0,
+  "external_browser_requests": 0
+}

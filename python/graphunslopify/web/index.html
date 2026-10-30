@@ -84,6 +84,7 @@
           <div class="figure-surface" id="figure-surface" hidden>
             <img id="preview" hidden alt="Figure preview" />
             <div id="text-targets" hidden aria-label="Editable figure text"></div>
+            <div id="diagnostic-targets" hidden aria-label="Measured finding locations"></div>
           </div>
         </div>
         <div class="editor-actions">
@@ -91,7 +92,17 @@
             ><input id="live" type="checkbox" checked /> Live preview</label
           ><button id="render">Render now</button>
         </div>
-        <button id="edit-figure-text" class="quiet" disabled aria-pressed="false">Edit figure text</button>
+        <div class="figure-tools">
+          <button id="edit-figure-text" class="quiet" disabled aria-pressed="false">Edit figure text</button>
+          <button id="show-diagnostics" class="quiet" disabled aria-pressed="false">Show findings</button>
+        </div>
+        <section id="diagnostic-review" hidden aria-label="Review figure findings">
+          <label for="diagnostic-finding">Finding</label>
+          <select id="diagnostic-finding"><option value="">Choose a finding</option></select>
+          <p id="diagnostic-location" class="muted"></p>
+          <div id="diagnostic-description" tabindex="-1" aria-live="polite"></div>
+          <button id="close-diagnostics" class="quiet">Close findings</button>
+        </section>
         <section id="text-editor" hidden aria-label="Review figure text">
           <p class="muted">Click text on the figure, or choose it below. Units and computed details stay attached to their source.</p>
           <label for="text-target">Figure text</label>

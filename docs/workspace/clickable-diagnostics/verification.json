@@ -1,0 +1,90 @@
+{
+  "scope": "83d clickable diagnostic controls; remaining83 owned layout and84\u201389 stay open. Later source work, not release.",
+  "base_revision": "1859edb1219d5a00d4352365edbe595e632ae145",
+  "previous_exact_main_all9": 41075487244,
+  "previous_exact_figure_success": 41075487357,
+  "required_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 22.19
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 324.48
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.21
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.83
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 16.78
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.85
+    }
+  ],
+  "source_test_files_unchanged_during_gates": true,
+  "checked_source_manifest_sha256": "76a2069cb28e7029720fa96610efa51b6bb85b55fd4efd918f92b44084c1f447",
+  "node_tests": 234,
+  "node_skips": 0,
+  "python_tests": 1637,
+  "python_skips": 0,
+  "python_warnings": "1 existing upstream MLflow/SQLAlchemy deprecation",
+  "source_installed_browser_workflows_each": 83,
+  "diagnostic_browser_cases_each": 17,
+  "minimum_python_diagnostic_cases": 17,
+  "controlled_native_kinds": 21,
+  "javascript_errors": 0,
+  "external_browser_requests": 0,
+  "model_cases": "Controlled provider; no new inference evidence.",
+  "installed_assets_matched": 19,
+  "gallery_passed": 15,
+  "prior_tracked_pngs_byte_identical": 75,
+  "exact_ci": "Pending new checkpoint push."
+}

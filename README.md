@@ -95,6 +95,11 @@ See the [complete editor workflow](docs/local-editor.md).
 
 Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Metric and facet labels keep their original source identities and automatic panel letters.
 
+Use [clickable diagnostic highlights](docs/workspace/clickable-diagnostics.md) to locate measured
+collisions, small text or clipped bars/intervals and read their guidance. Unknown locations stay
+explicit. Selecting a region leaves the figure unchanged; offered fixes rerun strict verification
+and support undo, including with live preview off.
+
 For optional [model-backed drafts](docs/workspace/model-drafts.md), configure a provider,
 review exactly which metadata and authored intent will be sent, then explicitly
 request and review a proposal. Applying it reruns strict checks and supports undo.

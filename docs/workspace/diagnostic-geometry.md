@@ -2,8 +2,8 @@
 
 The local preview response now includes `diagnostic_map`, binding measured
 locations to entries in the actual runtime `report.findings`. This checkpoint
-provides the backend contract; clickable diagnostic controls are the next
-checkpoint of 83.
+provides the backend contract; [clickable diagnostic controls](clickable-diagnostics.md)
+use it in checkpoint83d.
 
 ## Ownership and meaning
 

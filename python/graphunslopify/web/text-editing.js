@@ -218,5 +218,11 @@ export function createTextEditor({ current, apply }) {
     $("edit-figure-text").setAttribute("aria-pressed", String(active));
     position();
   }
-  return { clear, mount };
+  function hide() {
+    active = false;
+    $("text-editor").hidden = true;
+    $("edit-figure-text").setAttribute("aria-pressed", "false");
+    position();
+  }
+  return { clear, hide, mount };
 }

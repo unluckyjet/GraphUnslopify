@@ -80,5 +80,15 @@ ink, native/inverted axes, missing/custom/capped/capture-failure cases and actua
 preview IPC. See [backend contract](../../docs/workspace/diagnostic-geometry.md).
 Full gates/source-installed controls, push and exact CI are required before the
 clickable overlay frontend; this backend alone does not complete that interaction.
+83c is pushed1859edb; exact main41075487244 all9/Figure41075487357 passed before83d.
+83d adds readonly region/card/picker/keyboard selection with actual guidance,
+explicit unlocated/partial capture, old/malformed result refusal and preserved
+text drafts. Explicit verifier fixes force strict manual rendering and native undo.
+Local seven gates234/1637 and source/fresh83 workflows (17 diagnostics)/21 kinds
+pass; actual minimum-Python17 workflows also pass.19 installed assets match and75
+prior PNG bytes are unchanged. [Evidence](../../docs/workspace/clickable-diagnostics.md).
+New push/exact CI must pass before owned-layout work. The three-day date fixture
+still correctly fails tick collisions after temporal scale repair; preserve it
+as a measured layout regression alongside the long/nested headings.
 Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
 open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.

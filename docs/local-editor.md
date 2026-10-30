@@ -18,6 +18,11 @@ works offline after dependencies are installed.
 
 ## A complete edit and review
 
+Current source also includes [clickable diagnostic highlights](workspace/clickable-diagnostics.md).
+Choose **Show findings** or **Locate on figure** to read the actual finding and guidance.
+Unknown locations stay explicit. Offered fixes run strict rendering in manual-preview mode
+and join the normal undo history; selection leaves the current figure unchanged.
+
 1. Select **Try sample data**, or drop a CSV, regular JSON table, Parquet or Excel file onto
    **Drop data or choose a file**. The file picker uses the same import path. The sample is
    public synthetic data. Parquet needs `[parquet]`; current-source Excel needs `[excel]`.

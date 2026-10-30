@@ -520,3 +520,25 @@ footer {
 #text-editor p { overflow-wrap: anywhere; }
 #text-editor button { margin-top: 12px; }
 #text-error { color: var(--red); }
+.figure-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+#diagnostic-targets { position: absolute; inset: 0; pointer-events: none; }
+#diagnostic-targets[hidden], #diagnostic-review[hidden] { display: none; }
+#diagnostic-targets .diagnostic-target {
+  position: absolute; pointer-events: auto; cursor: pointer; padding: 0;
+  min-width: 0; min-height: 0;
+  background: #c3860615; border: 0; outline: 1px solid #9d6800; border-radius: 2px;
+}
+#diagnostic-targets .diagnostic-target::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: max(100%, 24px); height: max(100%, 24px);
+}
+#diagnostic-targets .diagnostic-target.error { outline-color: var(--red); background: #b6202012; }
+#diagnostic-targets .diagnostic-target:hover, #diagnostic-targets .diagnostic-target:focus-visible,
+#diagnostic-targets .diagnostic-target.selected {
+  outline: 2px solid var(--blue); outline-offset: 2px; background: #126b8e18;
+}
+#diagnostic-review { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+#diagnostic-review p { overflow-wrap: anywhere; }
+#diagnostic-description:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.finding.selected-finding { outline: 2px solid var(--blue); outline-offset: 2px; }
+.finding-location { margin-top: 10px; }

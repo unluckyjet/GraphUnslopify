@@ -2,6 +2,7 @@ import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
 import { createDraftEditor } from "/drafts.js";
+import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.js";
 let draftEditor = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
@@ -52,6 +53,12 @@ const textEditor = createTextEditor({
   current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
   apply: spec => { changeControls(spec); clearTimeout(timer); update(true); },
 });
+const diagnosticOverlays = createDiagnosticOverlays({
+  current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
+  catalog: () => diagnosticCatalog,
+  deactivateText: () => textEditor.hide(),
+});
+$("edit-figure-text").addEventListener("click", () => diagnosticOverlays.hide());
 draftEditor = createDraftEditor({
   api, identity: () => ({client, generation: revision}), flush: () => controls.flush(),
   snapshot: () => ({client, generation: revision, spec: readSpec(), data_id: data?.id, palette_id: palette?.id, data_name: data?.name, rows: data?.rows, sheet: data?.profile?.sheet, columns: data?.columns.map(column => column.name) || []}),
@@ -103,6 +110,7 @@ function invalidate() {
   draftEditor?.invalidate();
   latest = null;
   textEditor.clear();
+  diagnosticOverlays.clear();
   $("figure-surface").hidden = true;
   $("bundle").disabled = true;
   $("files").replaceChildren();
@@ -240,12 +248,13 @@ function findings(items) {
   $("findings").replaceChildren();
   const seen = new Set();
   for (const item of items) {
-    const key = item.code + item.message;
+    const key = findingIdentity(item);
     if (seen.has(key)) continue;
     seen.add(key);
     const node = document.createElement("div");
     node.className = "finding" + (item.severity === "error" ? " error" : "");
     node.dataset.code = item.code;
+    node.dataset.identity = key;
     describeFinding(node, item, diagnosticCatalog);
     if (item.fix) {
       const detail = document.createElement("details"),
@@ -268,8 +277,9 @@ function findings(items) {
             code: item.code,
           });
           if (current !== revision) return;
-          setSpec(fixed.spec);
-          schedule();
+          changeControls(fixed.spec);
+          clearTimeout(timer);
+          await update(true);
         } catch (error) {
           if (current === revision) message(error.message);
         } finally {
@@ -304,6 +314,7 @@ async function update(force) {
   }
   // A new check cancels any review tied to the previous rendered result.
   textEditor.clear();
+  diagnosticOverlays.clear();
   const current = revision;
   status("Checking…");
   try {
@@ -362,6 +373,7 @@ async function update(force) {
       $("preview").hidden = false;
       $("figure-surface").hidden = false;
       textEditor.mount(result);
+      diagnosticOverlays.mount(result);
       $("empty").hidden = true;
     } else {
       $("empty").firstElementChild.textContent = "No preview was produced";

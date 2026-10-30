@@ -6,7 +6,7 @@ Open: 1. Shipped: 82.
 
 | id | pri | status | title | file |
 | --- | --- | --- | --- | --- |
-| 83 | P1 | ready | Locate actual figure diagnostics and complete renderer-owned layout | `83-spatial-diagnostics-layout.md` |
+| 83 | P1 | in_progress | Locate actual figure diagnostics and complete renderer-owned layout | `83-spatial-diagnostics-layout.md` |
 
 ## Shipped
 

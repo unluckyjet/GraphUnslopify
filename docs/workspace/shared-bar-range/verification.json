@@ -1,0 +1,90 @@
+{
+  "scope": "83a shared automatic bar ranges; remaining83 and84\u201389 stay open. Source wheel, not a release.",
+  "base_revision": "1a0cb2a35bcf7b0033e4799978595deb0daa8516",
+  "required_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.25
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 23.77
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 313.2
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.82
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 16.79
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.92
+    }
+  ],
+  "source_test_files_unchanged_during_gates": true,
+  "checked_source_manifest_sha256": "875d8728f53314e9ecd511c1e8ecf4f07e3af2373e6d34152a07fb05f47386fc",
+  "node_tests": 234,
+  "python_tests": 1582,
+  "python_skips": 0,
+  "python_warnings": "1 existing upstream MLflow/SQLAlchemy deprecation",
+  "current_runtime": {
+    "python": "3.12.14",
+    "matplotlib": "3.11.2"
+  },
+  "minimum_runtime": {
+    "python": "3.10.22",
+    "matplotlib": "3.10.9",
+    "focused_cases": 17
+  },
+  "fresh_installed_cases": 17,
+  "gallery_passed": 15,
+  "baseline_programs_regenerated": 15,
+  "reference_programs_regenerated": 7,
+  "exact_ci": "Pending new checkpoint push;82 closing1a0 all9/Figure verified before implementation."
+}

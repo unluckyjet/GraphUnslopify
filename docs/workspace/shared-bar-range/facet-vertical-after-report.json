@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "tool": "GraphUnslopify 0.8.0",
+  "spec_hash": "ae4e74cdc648402a",
+  "spec": {
+    "facet": {
+      "by": "condition",
+      "columns": 2,
+      "share_x": true,
+      "share_y": true,
+      "panel_letters": true
+    },
+    "legend": {
+      "show": false,
+      "position": "best",
+      "style": "box"
+    },
+    "output": {
+      "interactive": false,
+      "latex": false,
+      "size": "single_column",
+      "formats": [
+        "png"
+      ],
+      "dpi": 600,
+      "stem": "figure"
+    },
+    "style": {
+      "preset": "paper",
+      "grid": false,
+      "despine": true,
+      "venue": "none"
+    },
+    "data": {
+      "path": "data.csv",
+      "format": "csv",
+      "columns": [
+        "category",
+        "condition",
+        "value"
+      ]
+    },
+    "x": {
+      "field": "category",
+      "label": "Category",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "y": {
+      "field": "value",
+      "label": "Value",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "kind": "bar",
+    "orientation": "vertical",
+    "aggregation": "none",
+    "baseline_zero": true,
+    "stacked": false,
+    "value_labels": false
+  },
+  "status": "passed",
+  "ok": true,
+  "data": {
+    "path": "data.csv",
+    "sha256_prefix": "a1dd6f869d369245",
+    "counts": {
+      "read": 4,
+      "after_filter": 4,
+      "prepared": 4,
+      "missing_plot_keys": 0,
+      "measurements": {
+        "value": {
+          "finite": 4,
+          "nonfinite": 0
+        }
+      },
+      "finite": 4,
+      "nonfinite": 0
+    }
+  },
+  "environment": {
+    "schema_version": 1,
+    "capture_stage": "before_export",
+    "python": {
+      "version": "3.12.14",
+      "implementation": "CPython",
+      "optimize": 0,
+      "hash_randomization": true
+    },
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "loaded_core_versions": {
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "matplotlib": "3.11.2",
+      "Pillow": "13.0.0",
+      "freetype": "2.14.3"
+    },
+    "installed_optional_versions": {
+      "graphunslopify": "0.8.0",
+      "plotly": "7.1.0",
+      "scipy": "1.18.1",
+      "pypdf": "6.21.2"
+    },
+    "rendering": {
+      "backend": "Agg",
+      "figure_inches": [
+        3.4,
+        2.6
+      ],
+      "figure_dpi": 100.0,
+      "export_dpi": 600,
+      "target_width_in": 3.4,
+      "requested_formats": [
+        "png"
+      ],
+      "requested_interactive": false,
+      "rc_parameters": {
+        "font.family": [
+          "sans-serif"
+        ],
+        "font.size": 9.0,
+        "font.style": "normal",
+        "font.weight": "normal",
+        "font.variant": "normal",
+        "font.stretch": "normal",
+        "mathtext.fontset": "dejavusans",
+        "text.usetex": false,
+        "text.parse_math": true,
+        "svg.fonttype": "path",
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "savefig.transparent": false,
+        "savefig.facecolor": "auto",
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
+        "path.simplify": true,
+        "path.simplify_threshold": 0.111111111111,
+        "agg.path.chunksize": 0,
+        "svg.hashsalt": "ae4e74cdc648402a"
+      },
+      "default_font": {
+        "family": "DejaVu Sans",
+        "file": "DejaVuSans.ttf",
+        "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+      }
+    },
+    "execution": {
+      "strict": true,
+      "fail_on_warning": false,
+      "source": "cli"
+    },
+    "random_constants": {},
+    "unavailable": []
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "unaggregated_bar",
+      "message": "aggregation is \"none\", so repeated x values draw overlapping bars instead of a summary. Set mean or median if the data has repeats.",
+      "consequence": "Repeated values at the same category draw on top of one another and may look like a summary that was never computed.",
+      "correction": "Inspect whether rows are repeats. If a summary is intended, declare its estimator and independent unit; otherwise use a representation that shows the individual observations."
+    }
+  ],
+  "inspection": {
+    "available": true,
+    "checked": true,
+    "measurements": {
+      "basis": "exports",
+      "nominal_width_in": 3.4,
+      "widths_in": {
+        "figure.png": 3.206673080012827
+      },
+      "target_width_in": 3.4,
+      "evaluated_width_in": 3.206673080012827,
+      "text_scale": 1.0,
+      "data_view": [
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            -0.435,
+            1.435
+          ],
+          "y_limits": [
+            0.0,
+            4.2
+          ],
+          "artists": []
+        },
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            -0.435,
+            1.435
+          ],
+          "y_limits": [
+            0.0,
+            4.2
+          ],
+          "artists": []
+        }
+      ]
+    }
+  },
+  "panels": [
+    {
+      "index": 0,
+      "name": "one",
+      "metric": "value"
+    },
+    {
+      "index": 1,
+      "name": "two",
+      "metric": "value"
+    }
+  ],
+  "claims": [],
+  "significance": [],
+  "annotations": [],
+  "outputs": [
+    {
+      "path": "figure.png",
+      "format": "png",
+      "sha256": "786e411918095a1f3cba66cf081bfcf1c22f5c3212e2b70539698fc83e4f091a",
+      "bytes": 64600
+    }
+  ],
+  "skipped_outputs": [],
+  "untested": [],
+  "alt_text": "Bar chart of Value against Category. Split into one panel per condition. Panel one: Values run from 1 to 2. The mean is 1.5. Panel two: Values run from 2 to 4. The mean is 3.",
+  "script": {
+    "sha256": "482339a4d20f610e01caa096c8678b58341f5d9ccd13d417347b7d9ef692cda3"
+  },
+  "exit_code": 0,
+  "policy": {
+    "strict": true,
+    "fail_on_warning": false,
+    "passed": true
+  }
+}

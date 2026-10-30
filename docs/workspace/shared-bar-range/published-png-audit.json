@@ -1,0 +1,11 @@
+{
+  "base_revision": "1a0cb2a35bcf7b0033e4799978595deb0daa8516",
+  "scope": "All tracked PNG files before adding new synthetic evidence graphics; identical RGBA pixels/dimensions is separate from provenance bytes.",
+  "tracked_pngs": 73,
+  "changed_file_bytes": [
+    "examples/baseline/04-accuracy-by-dataset.png",
+    "examples/baseline/05-latency-ranking.png",
+    "examples/baseline/10-faceted-benchmarks.png"
+  ],
+  "changed_rgba_pixels_or_dimensions": []
+}

@@ -738,7 +738,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         ax.set_xlabel("Latency (ms)")
         edit_target(ax.xaxis.label, ["y", "label"], "axis_label", "latency_ms")
     _bar_low, _bar_high = sorted(ax.get_xlim())
-    ax.set_xlim(min(_bar_low, 0), max(_bar_high, 0))
+    ax.set_xlim(min(_bar_low, 0), max(_bar_high, 0), auto=None)
     ax.grid(False)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)

@@ -31,6 +31,20 @@ failures/11 passes before the fix. Installed offline wheel checks independently
 verify actual signed magnitudes/ranges/labels and a failing clipped-limit export.
 The broader21-kind scientific reference matrix remains separate.
 
+## Shared automatic ranges (source after0.8.0)
+
+The zero-baseline adjustment preserves automatic scaling. Later shared panels
+can extend the value range to include their actual bars and interval endpoints.
+Previously, a first panel with maximum2 froze shared limits at2.1 and clipped a
+later maximum4. The same specification and CSV now produce shared limits0..4.2.
+Explicit authored limits still take effect and fail strict verification if they
+hide a bar or interval. Independent panels retain their independent ranges.
+
+Seventeen actual-render controls cover supported vertical repeats, vertical and
+horizontal facets, signed values, intervals, stacks and deliberate clipping.
+Horizontal repeats remain unsupported. See the
+[measured before/after evidence](workspace/shared-bar-range.md).
+
 ## Preserve actual interval endpoints
 
 Bar errorbars require their interval to enclose the estimate. A mean of20 with

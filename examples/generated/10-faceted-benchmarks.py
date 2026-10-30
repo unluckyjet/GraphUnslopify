@@ -780,7 +780,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         ax.set_ylabel("Top-1 accuracy (%)")
         edit_target(ax.yaxis.label, ["y", "label"], "axis_label", "accuracy")
     _bar_low, _bar_high = sorted(ax.get_ylim())
-    ax.set_ylim(min(_bar_low, 0), max(_bar_high, 0))
+    ax.set_ylim(min(_bar_low, 0), max(_bar_high, 0), auto=None)
     ax.grid(False)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)

@@ -1,7 +1,7 @@
 ---
 id: 83
 slug: spatial-diagnostics-layout
-status: ready
+status: in_progress
 priority: P1
 title: Locate actual figure diagnostics and complete renderer-owned layout
 source_idea: User visual-workspace advice clickable diagnostics and automatic publication layout
@@ -56,3 +56,14 @@ scientific checks to make previews or examples pass.
   with explicit PYTHON; run gallery-check and inspect final exports. No fabricated
   pixel equivalence or human quality/speed claims.
 - Update canonical Obsidian notes and record observed limits/negative outcomes.
+
+## Checkpoints
+
+83a repairs shared automatic bar ranges without overriding authored bounds.
+The first repeated-bar strict export reproduced exit2 before the fix;17 actual
+render/artist controls now cover supported vertical repeats and both facet
+orientations, signed values, independent limits, intervals, stacks and deliberate
+clipping. Source/installed browser controls, seven gates and exact push CI must
+pass before advancing. See [measured evidence](../../docs/workspace/shared-bar-range.md).
+Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
+open; this checkpoint does not complete83 or narrow84–89.

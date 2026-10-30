@@ -1,0 +1,76 @@
+{
+  "scope": "Synthetic coordinate controls; identical canonical specs and source CSV bytes before/after. Original aggregation:none warning is retained. Horizontal repeats are unsupported and excluded.",
+  "reviewed_base": "1a0cb2a35bcf7b0033e4799978595deb0daa8516",
+  "cases": [
+    {
+      "case": "repeat-vertical",
+      "data_sha256": "83ddcd746648e4ecdf286eeb53052fabbd1ce81ce3515db78fe2ba0c9aabf278",
+      "authored_value_limits": null,
+      "original_values": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          2.0,
+          4.0
+        ]
+      ],
+      "before_status": "failed",
+      "before_findings": [
+        "unaggregated_bar",
+        "bar_mark_clipped"
+      ],
+      "after_status": "passed",
+      "after_findings": [
+        "unaggregated_bar"
+      ],
+      "after_actual_ylim": [
+        [
+          0.0,
+          4.2
+        ],
+        [
+          0.0,
+          4.2
+        ]
+      ],
+      "spec_hash_unchanged": true
+    },
+    {
+      "case": "facet-vertical",
+      "data_sha256": "a1dd6f869d3692452b7431b9f0d7b3636620261f4a73c9269f016c3eaf4ac8e5",
+      "authored_value_limits": null,
+      "original_values": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          2.0,
+          4.0
+        ]
+      ],
+      "before_status": "failed",
+      "before_findings": [
+        "unaggregated_bar",
+        "bar_mark_clipped"
+      ],
+      "after_status": "passed",
+      "after_findings": [
+        "unaggregated_bar"
+      ],
+      "after_actual_ylim": [
+        [
+          0.0,
+          4.2
+        ],
+        [
+          0.0,
+          4.2
+        ]
+      ],
+      "spec_hash_unchanged": true
+    }
+  ]
+}

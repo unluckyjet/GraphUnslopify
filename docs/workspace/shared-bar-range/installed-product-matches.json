@@ -1,0 +1,21 @@
+{
+  "source_assets_sha256": {
+    "web/diagnostics.js": "b65794325ebcebacadf18c561ccc032c3ffacc95fa960f6fd58234b1bb7bf664",
+    "web/index.html": "454a8a51bac2f65929021bba424e7c3f541ffcf0871bca4cead00efdb7e1af89",
+    "web/controls.js": "156fd5b5f808a5b5c19aedd87ceed0be2e1477bf4a751c806b47b6f30e69e1dd",
+    "web/app.css": "581165347025c05cac6f5c74c762cc9b2ee32e98ac4e2dee7af642f84ee7e007",
+    "web/text-editing.js": "1eaeb2f577db87d4cbb6e00d5200de9b16fef52dfa011792d45bdbf7634114e2",
+    "web/project.js": "3efac35fb4fcc21a0bc8ffa21a704b10888580b14814463a1a624720cac841fb",
+    "web/project.html": "eaaafee8fed3c5ea8be00580fb9494c0fe08fd186fe42738a188d267b4b4355d",
+    "web/project.css": "c09e3a732cc33846caa6ad08e8ced407e2c3c7b012913e5bae08f0c858acb117",
+    "web/app.js": "4a85aad2382f610718cd0c4c680ecd3f1b00525c7894fa194d242845878c272a",
+    "web/drafts.js": "a175ea56fbdf8d2ef590d587e5645957cf265b29a2e662160e59a81b61a43c9b",
+    "drafts.py": "989bf28bd691635f9d808e178dee0f94433372ec2f27137198f1da668d03855f",
+    "preview.py": "35cc9ba5544584067a2e9d8435ba5b8af66f1e1bf1459f13325f63af7dae8998",
+    "preview_drafts.py": "913d25185fbb282633528fe0b912249a8bed25641e3e96bdb71b12eb082fbab0",
+    "_translator.mjs": "080e34573bfd513a2a482720c4658c1d3776ebb58eb63fd4b6fca4223789975c"
+  },
+  "all_installed_bytes_match": true,
+  "wheel_sha256": "b67a6a56bea46fc856dd8951ad6e927a2f18692cbf978b2f611ee2b0a5d85a8f",
+  "scope": "Local source wheel; not a new published release. External product network denied by installed smoke hooks."
+}

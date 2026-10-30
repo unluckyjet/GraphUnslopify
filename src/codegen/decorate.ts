@@ -215,7 +215,8 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
     const target = plotAxis(spec, "y");
     out.push(
       `    _bar_low, _bar_high = sorted(ax.get_${target}lim())`,
-      `    ax.set_${target}lim(min(_bar_low, 0), max(_bar_high, 0))`,
+      // Later panels must still extend shared automatic value limits.
+      `    ax.set_${target}lim(min(_bar_low, 0), max(_bar_high, 0), auto=None)`,
     );
   }
 

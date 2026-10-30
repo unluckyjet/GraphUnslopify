@@ -81,13 +81,37 @@
             <strong>Your figure will appear here</strong>
             <p>Start with sample data, or choose a local file.</p>
           </div>
-          <img id="preview" hidden alt="Figure preview" />
+          <div class="figure-surface" id="figure-surface" hidden>
+            <img id="preview" hidden alt="Figure preview" />
+            <div id="text-targets" hidden aria-label="Editable figure text"></div>
+          </div>
         </div>
         <div class="editor-actions">
           <label class="check"
             ><input id="live" type="checkbox" checked /> Live preview</label
           ><button id="render">Render now</button>
         </div>
+        <button id="edit-figure-text" class="quiet" disabled aria-pressed="false">Edit figure text</button>
+        <section id="text-editor" hidden aria-label="Review figure text">
+          <p class="muted">Click text on the figure, or choose it below. Units and computed details stay attached to their source.</p>
+          <label for="text-target">Figure text</label>
+          <select id="text-target"><option value="">Choose text to edit</option></select>
+          <div id="text-draft" hidden>
+            <p id="text-source" class="muted"></p>
+            <p id="text-rendered" class="muted"></p>
+            <label for="text-wording">Wording</label>
+            <input id="text-wording" type="text" />
+            <button id="review-text" class="secondary">Review change</button>
+          </div>
+          <div id="text-review" hidden>
+            <p id="text-change"></p>
+            <label class="check"><input id="text-meaning" type="checkbox" /> I reviewed this wording and its scientific meaning.</label>
+            <p class="muted">Numerical checks cannot certify the meaning of authored text.</p>
+            <button id="apply-text" disabled>Apply and verify</button>
+          </div>
+          <p id="text-error" role="alert" hidden></p>
+          <button id="cancel-text" class="quiet">Cancel edit</button>
+        </section>
         <div class="downloads">
           <div id="files"></div>
           <label class="check"
@@ -103,7 +127,7 @@
         <div class="section-head">
           <h2>3. Settings &amp; checks</h2>
           <button id="undo-controls" class="quiet" disabled>
-            Undo control change
+            Undo change
           </button>
         </div>
         <details id="verification" open>

@@ -161,3 +161,6 @@ and mobile screenshots. It also checks zero external browser requests and JavaSc
 Install Chromium with `npx playwright install chromium`; on macOS the check can use installed
 Google Chrome. `GRAPHUNSLOPIFY_BROWSER` can select a browser executable. CI runs this workflow and
 retains its screenshots and exported evidence alongside the other rendering checks.
+
+
+Current-source figures support [clicking text, reviewing wording and applying verified edits](workspace/direct-text-editing.md), with keyboard selection and shared settings/text undo. Derived metric/panel labels remain a further checkpoint.

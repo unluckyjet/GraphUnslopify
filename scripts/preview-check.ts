@@ -727,6 +727,131 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
   await page.locator("#spec").fill(JSON.stringify(named,null,2));
   await page.locator("#render").click();
   await verified();
+  // Real PNG hit targets, canonical wording, explicit review and strict rerenders.
+  const textSpec = await spec();
+  textSpec.title = "Observed accuracy";
+  textSpec.y = {...textSpec.y, label:"Accuracy", unit:"%"};
+  textSpec.legend.title = "Method";
+  textSpec.annotate = [{at:"first",series:"ours",text:"Start"}];
+  await edit(textSpec);
+  await page.locator("#render").click(); await verified();
+  await page.locator("#edit-figure-text").click();
+  const textChange = async (visible:string, wording:string) => {
+    const before = await spec();
+    await page.getByRole("button",{name:`Edit ${visible}`,exact:true}).click();
+    await page.locator("#text-wording").fill(wording);
+    await page.locator("#review-text").click();
+    assert.deepEqual(await spec(),before,"Review must not mutate current intent");
+    assert.equal(await page.locator("#apply-text").isDisabled(),true);
+    await page.locator("#text-meaning").check();
+    if (wording === "Reviewed accuracy") await page.screenshot({path:join(evidence,"direct-text-review.png"),fullPage:true});
+    const response=page.waitForResponse(r=>r.url().endsWith("/api/render"));
+    await page.locator("#apply-text").click();
+    return await (await response).json();
+  };
+  let changed=await textChange("Title: Observed accuracy","Reviewed accuracy");
+  await verified();
+  assert.equal(changed.spec.title,"Reviewed accuracy");
+  assert.ok(changed.edit_map.targets.some((t:{role:string;text:string})=>t.role==="title" && t.text==="Reviewed accuracy"));
+  changed=await textChange("Axis label: Accuracy (%)","Accuracy score");
+  await verified();
+  assert.equal(changed.spec.y.unit,"%");
+  assert.equal(changed.spec.y.label,"Accuracy score");
+  assert.deepEqual(changed.spec.claims,textSpec.claims);
+  assert.ok(changed.edit_map.targets.some((t:{role:string;text:string})=>t.role==="axis_label" && t.text==="Accuracy score (%)"));
+  changed=await textChange("Series name: Control","Control cohort");
+  await verified();
+  assert.deepEqual(changed.spec.legend.labels,[{series:"base",text:"Control cohort"},{series:"ours",text:"Treatment"}]);
+  assert.ok(changed.report.claims.every((c:{subject:string})=>c.subject==="ours"));
+  changed=await textChange("Annotation: Start","Beginning");
+  await verified();
+  assert.deepEqual(changed.spec.annotate,[{at:"first",series:"ours",text:"Beginning"}]);
+  changed=await textChange("Legend title: Method","Approach");
+  await verified();
+  assert.equal(changed.spec.legend.title,"Approach");
+  await page.screenshot({path:join(evidence,"direct-text-desktop.png"),fullPage:true});
+  await page.setViewportSize({width:420,height:900});
+  await page.getByRole("button",{name:"Edit Title: Reviewed accuracy",exact:true}).focus();
+  await page.getByRole("button",{name:"Edit Title: Reviewed accuracy",exact:true}).press("Enter");
+  assert.equal(await page.locator("#text-wording").inputValue(),"Reviewed accuracy");
+  const imageBox=(await page.locator("#preview").boundingBox())!;
+  const targetBox=(await page.getByRole("button",{name:"Edit Title: Reviewed accuracy",exact:true}).boundingBox())!;
+  const titleTarget=changed.edit_map.targets.find((t:{role:string})=>t.role==="title");
+  assert.ok(Math.abs(targetBox.x-imageBox.x-titleTarget.bounds[0]*imageBox.width/changed.edit_map.image.width)<1);
+  assert.ok(Math.abs(targetBox.y-imageBox.y-titleTarget.bounds[1]*imageBox.height/changed.edit_map.image.height)<1);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false);
+  await page.screenshot({path:join(evidence,"direct-text-mobile.png"),fullPage:true});
+  for (const viewport of [{width:1500,height:700},{width:420,height:900},{width:900,height:650},{width:340,height:800}]) {
+    await page.setViewportSize(viewport);
+    const boxes=await page.evaluate<{image:{x:number;y:number;width:number;height:number};targets:{label:string;box:{x:number;y:number;width:number;height:number}}[]}>(`(() => {
+      const image=document.querySelector('#preview').getBoundingClientRect().toJSON();
+      const targets=[...document.querySelectorAll('#text-targets button')].map(b=>({label:b.getAttribute('aria-label'),box:b.getBoundingClientRect().toJSON()}));
+      return {image,targets};
+    })()`);
+    for (const [role, text] of [["title","Reviewed accuracy"],["axis_label","Accuracy score (%)"]]) {
+      const target=changed.edit_map.targets.find((t:{role:string;text:string})=>t.role===role && t.text===text);
+      const actual=boxes.targets.find(t=>t.label===`Edit ${role==="title"?"Title":"Axis label"}: ${text}`)!.box;
+      const expected=[boxes.image.x+target.bounds[0]*boxes.image.width/changed.edit_map.image.width,
+        boxes.image.y+target.bounds[1]*boxes.image.height/changed.edit_map.image.height,
+        target.bounds[2]*boxes.image.width/changed.edit_map.image.width,
+        target.bounds[3]*boxes.image.height/changed.edit_map.image.height];
+      assert.ok([actual.x,actual.y,actual.width,actual.height].every((v,i)=>Math.abs(v-expected[i]!)<1),JSON.stringify({viewport,role,actual,expected}));
+    }
+  }
+  await page.locator("#cancel-text").click();
+  await page.setViewportSize({width:1500,height:1100});
+  // An ambiguous alias still fails; undo restores a verified current figure.
+  await textChange("Series name: Treatment","Control cohort");
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Failed checks");
+  assert.equal(await page.locator("#bundle").isDisabled(),true);
+  assert.equal(await page.locator("#text-targets button").count(),0);
+  await page.locator("#undo-controls").click();
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await page.locator("#render").click(); await verified();
+  assert.equal((await spec()).legend.labels[1].text,"Treatment");
+  await page.locator("#include-data").check();
+  await download("text-edited-with-data.zip");
+  execFileSync(python,["-c",`
+import json,pathlib,subprocess,sys,zipfile,runpy
+from unittest.mock import patch
+import matplotlib.pyplot as plt
+root=pathlib.Path(sys.argv[1]);target=root/'text-edited-reproduced'
+with zipfile.ZipFile(root/'text-edited-with-data.zip') as z:z.extractall(target)
+report_path=next(target.glob('*.report.json'));report=json.loads(report_path.read_text())
+assert report['spec']['title']=='Reviewed accuracy'
+assert report['spec']['y']['label']=='Accuracy score' and report['spec']['y']['unit']=='%'
+assert report['spec']['legend']['labels']==[{'series':'base','text':'Control cohort'},{'series':'ours','text':'Treatment'}]
+assert report['spec']['annotate']==[{'at':'first','series':'ours','text':'Beginning'}]
+assert all(c['subject']=='ours' for c in report['claims']) and report['claims']
+script=next(target.glob('*.py')).resolve()
+done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+assert done.returncode==0,done.stderr
+assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
+import os
+os.chdir(target)
+module=runpy.run_path(str(script))
+with patch.object(plt,'close'):module['main']()
+fig=plt.gcf();axes=fig.axes[0]
+assert axes.get_title()=='Reviewed accuracy' and axes.get_ylabel()=='Accuracy score (%)'
+assert axes.get_legend().get_title().get_text()=='Approach'
+assert [t.get_text() for t in axes.get_legend().get_texts()]==['Control cohort','Treatment']
+assert any(t.get_text()=='Beginning' for t in axes.texts)
+assert {line.get_label() for line in axes.lines if line.get_label() in ('base','ours')}=={'base','ours'}
+plt.close('all')
+print('Direct text edits reproduced in actual exported artists with original claim/series IDs')
+`,evidence],{env,stdio:"inherit",timeout:90_000});
+  // A new data selection cancels reviewed wording and discards all old targets.
+  await page.getByRole("button",{name:"Edit Title: Reviewed accuracy",exact:true}).click();
+  await page.locator("#text-wording").fill("Stale wording");
+  await page.locator("#review-text").click();
+  await page.locator("#text-meaning").check();
+  await page.locator("#demo").click();
+  assert.equal(await page.locator("#text-targets button").count(),0);
+  assert.equal(await page.locator("#text-review").isHidden(),true);
+  assert.equal(await page.locator("#apply-text").isDisabled(),true);
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  assert.notEqual((await spec()).title,"Stale wording");
+  await page.locator("#render").click(); await verified();
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -771,6 +896,14 @@ print('Browser-selected workbook reproduced with actual7/11/13 marks and001/NA/0
           "mobile figure before settings with no horizontal overflow",
           "actual legend display names preserve source and claim IDs",
           "ambiguous display names fail strictly and recover to current exports",
+          "actual PNG click title axis series annotation and legend-title editing",
+          "wording review requires explicit meaning confirmation before canonical mutation",
+          "canonical text edits preserve units data attachment and claim identities",
+          "keyboard and mobile geometry match actual image scaling",
+          "rapid narrow wide and short-height resizes keep title and rotated-axis targets aligned",
+          "ambiguous clicked names fail strict checks and undo restores verified exports",
+          "edited bundle rerenders with actual artist wording and original source IDs",
+          "new data selection cancels reviewed text and discards stale targets",
         ],
       },
       null,

@@ -15,9 +15,10 @@ and Treatment. Add this to an existing specification:
 }
 ```
 
-This example is a specification fragment. In the local editor, edit
-**Advanced JSON specification** to use it now. The click-to-edit form is a
-separate, still-open part of the [workspace initiative](../pipeline/visual-workspace-roadmap.md).
+This example is a specification fragment. Use **Advanced JSON specification** or
+the [direct text editor](workspace/direct-text-editing.md) to review and apply
+the visible names. Derived metric/panel aliases remain a further checkpoint of
+the [workspace initiative](../pipeline/visual-workspace-roadmap.md).
 The public PyPI0.8.0 wheel does not include these source additions.
 
 Source IDs, input bytes, grouping, quantities and claim subjects remain unchanged.
@@ -63,3 +64,6 @@ python/tests/test_shared_series.py python/tests/test_preview_geometry.py
 python/tests/test_inspect.py -q` from a source installation. Real browser checks
 also render the names, reject ambiguous edits and recover to current exports:
 `PYTHON=python npm run preview-check`.
+
+
+The current-source [direct text editor](workspace/direct-text-editing.md) can create these records by clicking a series name and reviewing the change. Derived metric/panel aliases remain open.

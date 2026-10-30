@@ -90,3 +90,26 @@ Proof: docs/workspace/legend-labels-verification.json; contract: docs/legend-lab
 
 Commit/push and exact CI precede the next microchange. Derived metric/panel labels
 and click/review/apply/undo are still open;81 and the full workspace remain unfinished.
+
+
+## Actual text interaction checkpoint81c
+
+Prerequisite7ab724f exact main41024904963 all9/Figure41024904907 passed.
+Source Chrome40 workflows pass: actual PNG title/axis/series/annotation/legend-title
+clicks, review before mutation, explicit meaning confirmation, canonical text
+changes, strict rerender with live mode off, original units/claim/source identity,
+strict duplicate-name refusal and actual undo/recovery. Keyboard/mobile hit
+positions match the scaled image within1px; new data cancels old reviews/targets.
+Extracted bundle executes strictly outside checkout and actual Matplotlib artists
+retain the applied wording and raw line labels.3 Node intent/security invariants
+and25 preview/geometry tests on both3.10.22/3.12.14 pass.
+
+Final seven gates230 Node/1485 Python pass, zero skips/one existing upstream
+warning. Ruff/gallery15 pass; final source/fresh offline installed Chrome41
+workflows/21 required-kind controls pass,0 external requests/JS errors.12 installed
+assets match source. Mobile/rapid viewport correction uses one CSS surface, with
+actual title/rotated-axis x/y/width/height within1px; no tolerance weakening.
+No published scientific artifacts changed. Proof: docs/workspace/direct-text-verification.json.
+Push/exact CI pending.
+Repeated-metric/facet heading aliases, reference/layer labels with existing
+canonical fields, and remaining full81 acceptance coverage stay open. Guide: docs/workspace/direct-text-editing.md.

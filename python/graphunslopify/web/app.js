@@ -1,4 +1,5 @@
 import { createControls } from "/controls.js";
+import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
@@ -45,6 +46,10 @@ const controls = createControls($("settings"), {
   edit: invalidate,
   error: controlError,
 });
+const textEditor = createTextEditor({
+  current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
+  apply: spec => { changeControls(spec); clearTimeout(timer); update(true); },
+});
 function status(text, state = "") {
   $("status").textContent = text;
   $("status").dataset.state = state;
@@ -86,6 +91,8 @@ function setSpec(spec) {
 function invalidate() {
   revision++;
   latest = null;
+  textEditor.clear();
+  $("figure-surface").hidden = true;
   $("bundle").disabled = true;
   $("files").replaceChildren();
   $("preview").hidden = true;
@@ -283,6 +290,8 @@ async function update(force) {
     status("Fix JSON", "failed");
     return;
   }
+  // A new check cancels any review tied to the previous rendered result.
+  textEditor.clear();
   const current = revision;
   status("Checking…");
   try {
@@ -339,6 +348,8 @@ async function update(force) {
       $("preview").src = artifact(result.run_id, image.name);
       $("preview").alt = report.alt_text;
       $("preview").hidden = false;
+      $("figure-surface").hidden = false;
+      textEditor.mount(result);
       $("empty").hidden = true;
     } else {
       $("empty").firstElementChild.textContent = "No preview was produced";

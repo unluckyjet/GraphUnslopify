@@ -1,8 +1,8 @@
 # Renderer-bound text geometry
 
 This is the backend foundation of workspace milestone81, after the verified80
-layout. Source display aliases are available; click-to-edit controls are still being implemented;
-this document does not claim that the complete interaction is available.
+layout. Source display aliases and [click/review/apply/undo controls](direct-text-editing.md)
+are available. Repeated-metric/panel aliases remain open before full81 completion.
 
 Generated programs mark text with private semantic metadata when it is created.
 Axis paths therefore describe source meaning even when a forest plot draws the

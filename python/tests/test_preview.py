@@ -74,6 +74,10 @@ def test_loopback_origin_token_and_asset_boundaries(editor):
         request(editor, "/controls.js", token=False)[1]
         == preview.files("graphunslopify").joinpath("web/controls.js").read_bytes()
     )
+    assert (
+        request(editor, "/text-editing.js", token=False)[1]
+        == preview.files("graphunslopify").joinpath("web/text-editing.js").read_bytes()
+    )
     assert request(editor, "/api/info", token=False)[0] == 403
     assert request(editor, "/api/demo", {}, token=False)[0] == 403
     assert request(editor, "/api/demo", {}, headers={"Origin": "https://example.org"})[0] == 403

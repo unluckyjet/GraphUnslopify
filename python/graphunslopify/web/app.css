@@ -493,3 +493,23 @@ footer {
     min-height: 70px;
   }
 }
+
+.figure-surface {
+  position: relative; max-width: 100%; line-height: 0;
+  width: min(100%, calc(max(120px, 100vh - 420px) * var(--figure-ratio, 1)));
+}
+.preview .figure-surface img { display: block; width: 100%; height: auto; max-height: none; }
+#text-targets { position: absolute; inset: 0; pointer-events: none; }
+#text-targets[hidden], .figure-surface[hidden] { display: none; }
+#text-targets .text-target {
+  position: absolute; pointer-events: auto; cursor: text; padding: 0;
+  background: #126b8e08; border: 1px dashed #126b8e60; border-radius: 2px;
+}
+#text-targets .text-target:hover, #text-targets .text-target:focus-visible {
+  background: #126b8e18; outline: 2px solid var(--blue); outline-offset: 2px;
+}
+#text-editor { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+#text-editor[hidden], #text-draft[hidden], #text-review[hidden] { display: none; }
+#text-editor p { overflow-wrap: anywhere; }
+#text-editor button { margin-top: 12px; }
+#text-error { color: var(--red); }

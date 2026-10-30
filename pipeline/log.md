@@ -148,3 +148,15 @@ One line per state change, newest last.
 
 
 Display-alias81b checkpoint: source IDs/data/claims retained behind literal visible names, owned legend identity and current-scene colour checks, computed ECE preservation, native HTML source metadata and nested heading space.227/1485/seven gates,114 controls on3.10, gallery15/Ruff and source/fresh installed33 browser workflows pass;22 default PNGs retain RGBA bytes.81a exact all9/Figure verified before81b. Commit/push/exact CI precede remaining81 aliases/interactive editing; full81–89 remain open.
+
+
+81c actual text editing: title/axis/series/annotation/legend-title click and keyboard
+targets, unchanged review draft, explicit meaning confirmation, canonical apply,
+strict rerender in manual mode, shared undo, stale-review cancellation and actual
+standalone artist reproduction. First installed mobile check exposed asynchronous
+overlay sizing; final shared CSS surface passes source/fresh offline Chrome41
+workflows and actual title/rotated bounds within1px across four viewport regimes.
+230 Node/1485 Python/all seven gates/25 preview geometry controls on both actual
+3.10/3.12/Ruff/gallery15 pass;12 installed source matches, zero external requests/JS
+errors, no scientific baseline artifact changes. Commit/push/exact CI precede
+derived/reference/layer labels and remaining full81 coverage;82–89 remain open.

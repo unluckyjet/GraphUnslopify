@@ -399,16 +399,32 @@ class PreviewHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         route = urlsplit(self.path).path
         if not self.allowed(
-            token=route not in {"/", "/app.js", "/app.css", "/controls.js", "/diagnostics.js"}
+            token=route
+            not in {
+                "/",
+                "/app.js",
+                "/app.css",
+                "/controls.js",
+                "/diagnostics.js",
+                "/text-editing.js",
+            }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
             return
-        if route in {"/", "/app.js", "/app.css", "/controls.js", "/diagnostics.js"}:
+        if route in {
+            "/",
+            "/app.js",
+            "/app.css",
+            "/controls.js",
+            "/diagnostics.js",
+            "/text-editing.js",
+        }:
             name = {
                 "/": "index.html",
                 "/app.js": "app.js",
                 "/app.css": "app.css",
                 "/controls.js": "controls.js",
+                "/text-editing.js": "text-editing.js",
                 "/diagnostics.js": "diagnostics.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
@@ -419,6 +435,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "index.html": "text/html; charset=utf-8",
                     "app.js": "text/javascript; charset=utf-8",
                     "controls.js": "text/javascript; charset=utf-8",
+                    "text-editing.js": "text/javascript; charset=utf-8",
                     "diagnostics.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],

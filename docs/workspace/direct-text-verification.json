@@ -1,0 +1,283 @@
+{
+  "base_revision": "7ab724f5aa4e2ef167bdada5528ec41390a53c9b",
+  "prerequisite_ci": {
+    "checks": 41024904963,
+    "all_jobs_passed": 9,
+    "figure": 41024904907,
+    "result": "success"
+  },
+  "checkpoint": "81c actual text interaction; derived/reference/layer labels and remaining full81 coverage remain open",
+  "source_sha256": {
+    "python/graphunslopify/web/text-editing.js": "a781a6a5526403d7382365a57961782d6ec3816d2b49818781df27b32f140919",
+    "python/graphunslopify/web/app.js": "47a4884911e38a4a4636d9de72640772099d6ad2ee8a30f5967edf86339ab9a5",
+    "python/graphunslopify/web/app.css": "27fc9a5e7c2399970aa56562c9f153a282167ec5d7fd76c911cc84e47bfba791",
+    "python/graphunslopify/web/index.html": "921338bdb4c2db85781289f95c6809540ef51d2325ee6048b0306196f57bd3d1",
+    "python/graphunslopify/preview.py": "c98b8f724ffc97def24b20b418191622604b816676cfeef9066f84f88f7939bd",
+    "python/tests/test_preview.py": "3f6711785e7a9fb5bd99c322d12cbf0f52c904de32d96624510d7062afc03eff",
+    "test/text-editing.test.ts": "97619de8e7069b8ef71313f4f38fad3bd6b71da0e47e443681b86602f7b0212a",
+    "scripts/preview-check.ts": "f147260080023b3b88fc5a4d02e729f816b07a88bfbf4b7ef3865318255d2af4"
+  },
+  "required_checks": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.21707862499170005
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.149329583044164
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 249.84092129103374
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.16161491704406217
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.875990416971035
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.727933250018395
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.8387371670105495
+    }
+  ],
+  "node_tests": 230,
+  "python_tests": 1485,
+  "python_warning": "One existing upstream MLflow/SQLAlchemy warning; zero skips",
+  "focused_preview_geometry": {
+    "python312": 25,
+    "python310": 25,
+    "minimum_python": "3.10.22"
+  },
+  "strict_gallery": 15,
+  "browser": {
+    "source": {
+      "passed": true,
+      "external_requests": 0,
+      "javascript_errors": 0,
+      "controlled_kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "workflows": [
+        "data picker",
+        "spec editing",
+        "offered fix",
+        "static rejection",
+        "false runtime claim",
+        "per-panel mixed verdicts",
+        "manual rendering",
+        "runtime error invalidates outputs",
+        "stale response",
+        "PNG preview",
+        "ZIP consent",
+        "reproduced exports",
+        "mobile layout",
+        "schema-driven required controls for all21 kinds",
+        "controls-only figure and reproduced bundle",
+        "typed numeric draft refusal and batch recovery",
+        "unsupported median SEM rejection",
+        "native claim add edit remove and strict failure",
+        "advanced settings custom labels and undo preserved",
+        "invalid JSON disables form controls",
+        "live native text input preserves focus",
+        "native workbook staging and explicit worksheet selection",
+        "worksheet switching preserves settings and invalidates evidence",
+        "stale worksheet selection cannot replace current data",
+        "native workbook ZIP consent and actual-artist reproduction",
+        "native workbook desktop mobile and CSV sample recovery",
+        "central canvas with data left and checks/settings right",
+        "actual CSV Excel and Parquet File API drops",
+        "actual profile types present and missing counts",
+        "reviewed recommendation apply and undo preserves authored intent",
+        "mobile figure before settings with no horizontal overflow",
+        "actual legend display names preserve source and claim IDs",
+        "ambiguous display names fail strictly and recover to current exports",
+        "actual PNG click title axis series annotation and legend-title editing",
+        "wording review requires explicit meaning confirmation before canonical mutation",
+        "canonical text edits preserve units data attachment and claim identities",
+        "keyboard and mobile geometry match actual image scaling",
+        "rapid narrow wide and short-height resizes keep title and rotated-axis targets aligned",
+        "ambiguous clicked names fail strict checks and undo restores verified exports",
+        "edited bundle rerenders with actual artist wording and original source IDs",
+        "new data selection cancels reviewed text and discards stale targets"
+      ]
+    },
+    "fresh_offline_installed": {
+      "passed": true,
+      "external_requests": 0,
+      "javascript_errors": 0,
+      "controlled_kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "workflows": [
+        "data picker",
+        "spec editing",
+        "offered fix",
+        "static rejection",
+        "false runtime claim",
+        "per-panel mixed verdicts",
+        "manual rendering",
+        "runtime error invalidates outputs",
+        "stale response",
+        "PNG preview",
+        "ZIP consent",
+        "reproduced exports",
+        "mobile layout",
+        "schema-driven required controls for all21 kinds",
+        "controls-only figure and reproduced bundle",
+        "typed numeric draft refusal and batch recovery",
+        "unsupported median SEM rejection",
+        "native claim add edit remove and strict failure",
+        "advanced settings custom labels and undo preserved",
+        "invalid JSON disables form controls",
+        "live native text input preserves focus",
+        "native workbook staging and explicit worksheet selection",
+        "worksheet switching preserves settings and invalidates evidence",
+        "stale worksheet selection cannot replace current data",
+        "native workbook ZIP consent and actual-artist reproduction",
+        "native workbook desktop mobile and CSV sample recovery",
+        "central canvas with data left and checks/settings right",
+        "actual CSV Excel and Parquet File API drops",
+        "actual profile types present and missing counts",
+        "reviewed recommendation apply and undo preserves authored intent",
+        "mobile figure before settings with no horizontal overflow",
+        "actual legend display names preserve source and claim IDs",
+        "ambiguous display names fail strictly and recover to current exports",
+        "actual PNG click title axis series annotation and legend-title editing",
+        "wording review requires explicit meaning confirmation before canonical mutation",
+        "canonical text edits preserve units data attachment and claim identities",
+        "keyboard and mobile geometry match actual image scaling",
+        "rapid narrow wide and short-height resizes keep title and rotated-axis targets aligned",
+        "ambiguous clicked names fail strict checks and undo restores verified exports",
+        "edited bundle rerenders with actual artist wording and original source IDs",
+        "new data selection cancels reviewed text and discards stale targets"
+      ]
+    }
+  },
+  "installed_source_sha256": {
+    "_translator.mjs": "b6bcf5c2268278804f30c43c197f26a05fdf7d31a2bfece86db3c496108bc1d0",
+    "inspect.py": "8848d9867780f93451f7e5ba4c04580fd022c30574b12ff5666834550b5dc905",
+    "preview.py": "c98b8f724ffc97def24b20b418191622604b816676cfeef9066f84f88f7939bd",
+    "preview_geometry.py": "8e3942ff2d0be43bf87370aeb69eb8c0c39b9876990607755f274f5f9725c98f",
+    "preview_render.py": "20a07525631cee0b60ee260a3f953a0c39dc7e56a485ab5df2089c9f95fc05a6",
+    "web/index.html": "921338bdb4c2db85781289f95c6809540ef51d2325ee6048b0306196f57bd3d1",
+    "web/app.js": "47a4884911e38a4a4636d9de72640772099d6ad2ee8a30f5967edf86339ab9a5",
+    "web/app.css": "27fc9a5e7c2399970aa56562c9f153a282167ec5d7fd76c911cc84e47bfba791",
+    "web/controls.js": "156fd5b5f808a5b5c19aedd87ceed0be2e1477bf4a751c806b47b6f30e69e1dd",
+    "web/text-editing.js": "a781a6a5526403d7382365a57961782d6ec3816d2b49818781df27b32f140919",
+    "web/diagnostics.js": "b65794325ebcebacadf18c561ccc032c3ffacc95fa960f6fd58234b1bb7bf664",
+    "schemas/runtime-report.schema.json": "389971f777baa841811e1ea45c1556c68800b686b1ffe6f1e2e7f12c88cd90ee"
+  },
+  "ui_roles_actually_clicked": [
+    "title",
+    "axis_label",
+    "legend_entry",
+    "annotation",
+    "legend_title"
+  ],
+  "geometry_tolerance_pixels": 1,
+  "geometry_viewports": [
+    {
+      "width": 1500,
+      "height": 700
+    },
+    {
+      "width": 420,
+      "height": 900
+    },
+    {
+      "width": 900,
+      "height": 650
+    },
+    {
+      "width": 340,
+      "height": 800
+    }
+  ],
+  "measured_correction": "Initial installed mobile failed async overlay positioning. Shared CSS image/percentage-target surface passes final source and installed geometry assertions without tolerance changes.",
+  "export_reproduction": "Extracted strict standalone script and actual Matplotlib title, axes, legend/title, annotation and original line IDs verified",
+  "published_scientific_artifact_changes": 0,
+  "ci": "Pending exact commit after this local checkpoint"
+}

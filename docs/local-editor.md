@@ -19,6 +19,8 @@ works offline after dependencies are installed.
 ## A complete edit and review
 
 Current source also includes [clickable diagnostic highlights](workspace/clickable-diagnostics.md).
+[Measured heading layout](workspace/heading-layout.md) keeps long plot wording complete.
+Clicking a wrapped label edits its canonical wording; visual line breaks and units remain renderer-owned.
 Choose **Show findings** or **Locate on figure** to read the actual finding and guidance.
 Unknown locations stay explicit. Offered fixes run strict rendering in manual-preview mode
 and join the normal undo history; selection leaves the current figure unchanged.

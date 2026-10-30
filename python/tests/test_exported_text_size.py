@@ -226,8 +226,14 @@ def test_generated_strict_reports_measure_the_actual_written_static_files(tmp_pa
     assert report["data"]["counts"]["read"] == 3
 
 
-def test_generated_wide_title_fails_actual_column_font_floor_and_keeps_artifacts(tmp_path):
-    _, path = generated(tmp_path, title="A very long scientific title " * 8)
+@pytest.mark.parametrize(
+    ("title", "accepted"),
+    [("A very long scientific title " * 8, True), ("UnbreakableIdentifier" * 12, False)],
+)
+def test_generated_title_layout_and_column_font_floor_keep_actual_artifacts(
+    tmp_path, title, accepted
+):
+    _, path = generated(tmp_path, title=title)
     process = subprocess.run(
         [sys.executable, str(path), "--strict", "--json"],
         cwd=tmp_path,
@@ -236,9 +242,13 @@ def test_generated_wide_title_fails_actual_column_font_floor_and_keeps_artifacts
         check=False,
     )
     report = json.loads(process.stdout)
-    assert process.returncode == 2 and report["status"] == "failed", process.stderr
-    assert any(f["code"] == "text_too_small" for f in report["findings"])
-    assert len(report["outputs"]) == 3 and report["inspection"]["measurements"]["text_scale"] < 0.5
+    assert process.returncode == (0 if accepted else 2), process.stderr
+    assert report["status"] == ("passed" if accepted else "failed")
+    assert report["spec"]["title"] == title and report["data"]["counts"]["read"] == 3
+    assert len(report["outputs"]) == 3
+    if not accepted:
+        assert any(f["code"] == "text_too_small" for f in report["findings"])
+        assert report["inspection"]["measurements"]["text_scale"] < 0.5
 
 
 def test_outdated_inspector_is_incomplete_instead_of_silently_using_nominal_size(

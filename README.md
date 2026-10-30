@@ -93,7 +93,7 @@ runtime report. **Source data is excluded from the ZIP unless you explicitly inc
 Uploads and previews are temporary, so save wanted outputs before stopping the editor.
 See the [complete editor workflow](docs/local-editor.md).
 
-Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Metric and facet labels keep their original source identities and automatic panel letters.
+Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Metric and facet labels keep their original source identities and automatic panel letters. [Measured heading layout](docs/workspace/heading-layout.md) wraps complete plot wording and makes room vertically while retaining fonts, units and observations.
 
 Use [clickable diagnostic highlights](docs/workspace/clickable-diagnostics.md) to locate measured
 collisions, small text or clipped bars/intervals and read their guidance. Unknown locations stay

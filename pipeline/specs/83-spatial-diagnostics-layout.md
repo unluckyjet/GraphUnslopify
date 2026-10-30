@@ -95,6 +95,13 @@ controls cover supported native contexts, unchanged uncrowded pixels, a blocked
 negative log observation and the existing unsupported temporal-bounds guard.
 [Measured dates](../../docs/workspace/date-label-layout.md). Full checks, source/
 installed controls, push and exact CI must pass before the next layout change.
-Long/nested headings and full legend wording remain open.
+83e1 is pushed12763f8; exact main41087294418 all9/Figure41087294588 passed.
+83e2 wraps complete plot titles/panel headings/axis labels using actual font
+metrics, with measured decoration-height budgeting that preserves the data area.
+Its ten native controls preserve original observations/units/math/source IDs and
+strict negatives; six actual browser cases cover wrapped canonical edit/apply/
+undo, including narrow axes. [Evidence](../../docs/workspace/heading-layout.md).
+Full gates/source-installed controls, push and exact CI are required before the
+next checkpoint. Outside legends/table context and full83 acceptance remain open.
 Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
 open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.

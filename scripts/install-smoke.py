@@ -626,7 +626,8 @@ def main() -> None:
     physical = cell_report["inspection"]["measurements"]
     assert physical["basis"] == "exports" and len(physical["widths_in"]) == 2
     assert physical["evaluated_width_in"] == max(physical["widths_in"].values())
-    # A nominally readable canvas can export too wide for the requested column.
+    # Complete prose now wraps; an unbreakable identifier must still fail the
+    # actual exported-width font floor rather than silently shrinking the text.
     wide_spec = where / "wide-title.json"
     wide = json.loads(cell_spec.read_text(encoding="utf8"))
     wide["title"] = "A very long scientific title " * 8
@@ -639,6 +640,31 @@ def main() -> None:
             str(wide_spec),
             "--out-dir",
             str(where / "wide output"),
+            "--strict",
+            "--json",
+        ],
+        cwd=where,
+        env=env,
+        capture_output=True,
+        text=True,
+        encoding="utf8",
+        check=False,
+    )
+    wrapped_width = json.loads(too_wide.stdout)
+    assert too_wide.returncode == 0 and wrapped_width["status"] == "passed"
+    assert wrapped_width["spec"]["title"] == wide["title"]
+    assert (
+        wrapped_width["data"]["sha256_prefix"] == cell_report["data"]["sha256_prefix"]
+    )
+    wide["title"] = "UnbreakableIdentifier" * 12
+    wide_spec.write_text(json.dumps(wide), encoding="utf8")
+    too_wide = subprocess.run(
+        [
+            *cli,
+            "render",
+            str(wide_spec),
+            "--out-dir",
+            str(where / "identifier output"),
             "--strict",
             "--json",
         ],

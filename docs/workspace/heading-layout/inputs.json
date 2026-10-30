@@ -1,0 +1,89 @@
+{
+  "scope": "Synthetic eight-row/four-panel long-heading negative control. Before implementation, strict exit2. Not research data.",
+  "source_revision": "9b4c1c1efb013a6b0ffd9bf9d3cc423ff640d3a9",
+  "spec": {
+    "title": "Longitudinal response measurements across treatment conditions and experimental phases with all original observations retained",
+    "facet": {
+      "labels": [
+        {
+          "value": "A",
+          "row": "early",
+          "text": "Early observations from the reference treatment condition with the original experimental preparation"
+        },
+        {
+          "value": "B",
+          "row": "early",
+          "text": "Early observations from the comparison treatment condition with the original experimental preparation"
+        },
+        {
+          "value": "A",
+          "row": "late",
+          "text": "Late observations from the reference treatment condition with the original experimental preparation"
+        },
+        {
+          "value": "B",
+          "row": "late",
+          "text": "Late observations from the comparison treatment condition with the original experimental preparation"
+        }
+      ],
+      "by": "condition",
+      "rows": "phase",
+      "columns": 2,
+      "share_x": true,
+      "share_y": true,
+      "panel_letters": true
+    },
+    "legend": {
+      "show": false,
+      "position": "best",
+      "style": "box"
+    },
+    "output": {
+      "interactive": false,
+      "latex": false,
+      "size": "double_column",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "dpi": 600,
+      "stem": "panels"
+    },
+    "style": {
+      "preset": "paper",
+      "grid": false,
+      "despine": true,
+      "venue": "none"
+    },
+    "data": {
+      "path": "data.csv",
+      "format": "csv",
+      "columns": [
+        "epoch",
+        "score",
+        "condition",
+        "phase"
+      ]
+    },
+    "x": {
+      "field": "epoch",
+      "label": "Elapsed measurement time after the beginning of the experimental observation period",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "y": {
+      "field": "score",
+      "label": "Observed response measurement on the original untransformed measurement scale",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "kind": "line",
+    "marker": false,
+    "sort_x": true,
+    "aggregation": "none"
+  },
+  "csv": "epoch,score,condition,phase\n1,7,A,early\n2,11,A,early\n1,5,B,early\n2,8,B,early\n1,8,A,late\n2,13,A,late\n1,6,B,late\n2,9,B,late\n"
+}

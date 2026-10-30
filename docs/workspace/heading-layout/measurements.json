@@ -1,0 +1,26 @@
+{
+  "baseline_revision": "12763f8dddecbb9fe99a8bae6516c870e39f33d8",
+  "scope": "Synthetic eight-row four-panel full wording and source identities retained.",
+  "runs": {
+    "before": {
+      "exit_code": 2,
+      "status": "failed",
+      "spec_hash": "e37320ed475892fc",
+      "data_sha256_prefix": "9f604c94773850b6",
+      "findings": [
+        "line_implies_continuity",
+        "text_too_small",
+        "labels_collide"
+      ]
+    },
+    "after": {
+      "exit_code": 0,
+      "status": "passed",
+      "spec_hash": "e37320ed475892fc",
+      "data_sha256_prefix": "9f604c94773850b6",
+      "findings": [
+        "line_implies_continuity"
+      ]
+    }
+  }
+}

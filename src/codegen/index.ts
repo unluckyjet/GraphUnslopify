@@ -15,6 +15,7 @@ import {
   emitSummaryInput,
 } from "./data.ts";
 import { emitCategoryLayout, emitDateLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
+import { emitHeadingLayout } from "./heading-layout.ts";
 import {
   emitAxisBreak,
   emitInset,
@@ -453,6 +454,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       "        legend = lower.get_legend()",
       "        if legend is not None:",
       "            legend.remove()",
+      "        fit_headings(fig)",
     );
     emitSaveBlock(spec, out);
     return;
@@ -536,12 +538,13 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     spec.legend.style === "box" &&
     (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
 
-  if (!outsideLegend) out.push("        fit_category_labels(fig, flat)");
+  if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
   out.push(
     outsideLegend
       ? "        # tight_layout is skipped: it fights a legend anchored outside the axes."
       : "        fig.tight_layout()",
   );
+  if (!outsideLegend) out.push("        fit_headings(fig)");
   if (spec.x.temporal) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
@@ -621,6 +624,7 @@ export function emitPython(spec: FigureSpec): string {
   }
   emitCategoryLayout(spec, out);
   emitDateLayout(spec, out);
+  emitHeadingLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitDataFingerprint(out);

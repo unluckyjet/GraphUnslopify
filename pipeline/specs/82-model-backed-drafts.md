@@ -60,10 +60,31 @@ JSON, existing source consent, undo, ownership and strict evidence intact.
 grounding, exact request disclosure, one-attempt consent, ownership/scientific
 context guards and canonical untrusted-patch validation. See
 [backend boundary and verification](../../docs/workspace/model-drafts.md).
-Browser configuration/disclosure/review/apply, shared undo, stale fences and
-source/fresh-installed browser acceptance remain unfinished. Keep82 open.
+Backend82a was verified at90022f2 exact main41047929069 all9/Figure41047929222.
+The82b editor integration below implements the remaining browser path; keep82
+open until its exact commit CI and final acceptance reconciliation are verified.
 
 82a local evidence: all seven gates234 Node/1550 Python,39 focused controls on
 actual3.10.22/3.12.14, actual source/fresh-installed model inference followed by
 strict PNG/SVG/PDF exports, and five preserved exploratory source failures.
 Exact commit CI remains required after pushing this checkpoint.
+
+## Editor integration checkpoint82b
+
+Session-only provider configuration, exact selected-data disclosure, explicit
+transmission consent, reviewed unverified proposals, shared undo and forced
+strict apply work in the actual editor. Backend owner/provider/client/revision
+fences and browser epochs discard late results. Unknown/invalid outputs remain
+quarantined; no model or template runs automatically.
+
+All seven local gates234 Node/1565 Python pass on stable product hashes.54 related
+contracts pass on actual3.10.22 and in the3.12.14 full suite. Source and fresh
+offline installed Chrome pass65 workflows/21 required-kind controls, including12
+model cases. Separate actual local-model browser positives pass from both source
+and installation with strict PNG/SVG/PDF, original numeric boundaries and undo.
+Negative cases remain controlled; a real exploratory title mismatch is preserved.
+[Evidence](../../docs/workspace/model-drafts.md).
+
+Exact commit main/Figure CI and acceptance/queue reconciliation remain before
+closing82. Live OpenAI account inference, human usability and productivity are
+untested; do not equate passing canonical validation with satisfying a prompt.

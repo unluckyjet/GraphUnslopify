@@ -95,6 +95,12 @@ See the [complete editor workflow](docs/local-editor.md).
 
 Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Metric and facet labels keep their original source identities and automatic panel letters.
 
+For optional [model-backed drafts](docs/workspace/model-drafts.md), configure a provider,
+review exactly which metadata and authored intent will be sent, then explicitly
+request and review a proposal. Applying it reruns strict checks and supports undo.
+Raw observations are not automatically sent; manual authoring works offline.
+These source features are newer than the published 0.8.0 package.
+
 ### Render your own spec
 
 ```sh

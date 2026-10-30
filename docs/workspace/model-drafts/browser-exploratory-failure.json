@@ -1,0 +1,12 @@
+{
+  "scope": "Exploratory source browser trial before the explicit-request-compliance instruction; not a model-quality sample",
+  "provider": "Ollama0.40.13 via loopback Chat Completions",
+  "model": "qwen2.5:3b",
+  "synthetic_data_only": true,
+  "observed": "Server returned a canonical proposal with requested epoch/score source mapping but retained Original title instead of requested Training progress. Browser harness rejected it before applying or rendering the proposal.",
+  "expected_title": "Training progress",
+  "actual_title": "Original title",
+  "raw_response_retained": false,
+  "request_sha256": null,
+  "interpretation": "Schema validity did not establish task compliance; preserving this failure does not imply a measured success rate after changing instructions."
+}

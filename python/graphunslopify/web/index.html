@@ -29,7 +29,7 @@
             accept=".csv,.json,.parquet,.xlsx,.xlsm,.xls"
         /></label>
         <p class="muted">
-          CSV, JSON table, Parquet or Excel. Files stay on this computer.
+          CSV, JSON table, Parquet or Excel. Files stay local. Optional model drafts disclose what will be sent before you consent.
         </p>
         <p id="data-summary" role="status">No data selected</p>
         <div id="worksheet-box" hidden>
@@ -112,6 +112,55 @@
           <p id="text-error" role="alert" hidden></p>
           <button id="cancel-text" class="quiet">Cancel edit</button>
         </section>
+        <details id="model-drafts" class="model-drafts">
+          <summary>Ask for a figure draft</summary>
+          <p class="muted">Describe the figure, review the model's proposed sources and assumptions, then apply and verify. Manual settings work without a model.</p>
+          <details id="draft-provider-settings">
+            <summary>Model provider · this session only</summary>
+            <p id="draft-provider-note" class="muted">No provider configured.</p>
+            <label>Protocol<select id="draft-protocol"><option value="responses">Responses API</option><option value="chat">Compatible Chat Completions API</option></select></label>
+            <label>Full API endpoint<input id="draft-endpoint" type="text" placeholder="https://api.openai.com/v1/responses" autocomplete="off" /></label>
+            <label>Model identifier<input id="draft-model" type="text" placeholder="Model served by your provider" autocomplete="off" /></label>
+            <label>API key, if required<input id="draft-key" type="password" autocomplete="off" /></label>
+            <p class="muted">Use HTTPS or loopback HTTP. Keys stay in this server session and are excluded from reports. Re-enter the key when saving configuration; an empty key clears authorization.</p>
+            <button id="draft-save-provider" class="secondary">Save provider</button>
+            <button id="draft-disable-provider" class="quiet">Disable model drafts</button>
+          </details>
+          <label for="draft-prompt">What should this figure show?</label>
+          <textarea id="draft-prompt" rows="3" maxlength="12000" placeholder="Compare test accuracy across models. Explain what context is missing before adding uncertainty."></textarea>
+          <details id="draft-author-context">
+            <summary>Author context · units and experimental design</summary>
+            <p class="muted">Column names and row counts do not establish independence. These declarations are your assertions, not verified experimental facts.</p>
+            <label>Sampling design<select id="draft-design"><option value="unspecified">Not declared · descriptive intent only</option><option value="independent">Author declares independent units</option><option value="paired">Author declares paired units</option></select></label>
+            <label>Experimental unit column<select id="draft-experimental-unit"><option value="">No unit column declared</option></select></label>
+            <p class="muted">With independent design and no unit column, you assert each row is independent. Paired inference needs an identified unit column.</p>
+            <label>Source column<select id="draft-unit-column"><option value="">Choose column</option></select></label>
+            <label>Author-declared measurement unit<input id="draft-unit-value" type="text" placeholder="For example, ms" /></label>
+            <button id="draft-add-unit" class="secondary">Declare unit</button>
+            <div id="draft-units"></div>
+          </details>
+          <button id="draft-disclose" class="secondary" disabled>Review model request</button>
+          <p id="draft-status" class="muted" role="status" aria-live="polite">Nothing sent to a model.</p>
+          <section id="draft-disclosure" hidden aria-label="Review model request">
+            <p id="draft-request-summary"></p>
+            <details><summary>Exact request JSON, excluding authorization</summary><pre id="draft-request-json" class="draft-json"></pre></details>
+            <label class="check"><input id="draft-consent" type="checkbox" /> I reviewed this provider and information and agree to send this request.</label>
+            <button id="draft-send" disabled>Send reviewed request</button>
+          </section>
+          <section id="draft-proposal" hidden aria-label="Review unapplied model proposal">
+            <strong>Unapplied · unverified proposal</strong>
+            <p id="draft-source-choices"></p>
+            <p>Model assumptions</p><ul id="draft-assumptions"></ul>
+            <p>Model questions to review</p><ul id="draft-questions"></ul>
+            <details><summary>Proposed canonical specification</summary><pre id="draft-proposal-json" class="draft-json"></pre></details>
+            <p class="muted">Check every source choice and all wording. A valid specification does not prove that the model followed your request. Numerical checks do not certify prose.</p>
+            <label class="check"><input id="draft-reviewed" type="checkbox" /> I reviewed the source choices, assumptions, questions and scientific meaning.</label>
+            <button id="draft-apply" disabled>Apply draft and verify</button>
+          </section>
+          <section id="draft-invalid" hidden aria-label="Quarantined model output"><strong>Invalid proposal · no changes applied</strong><pre id="draft-invalid-json" class="draft-json"></pre></section>
+          <p id="draft-error" role="alert" hidden></p>
+          <button id="draft-cancel" class="quiet">Discard draft</button>
+        </details>
         <div class="downloads">
           <div id="files"></div>
           <label class="check"

@@ -1,0 +1,74 @@
+{
+  "draft_id": "19379a4b99284c9c8660cabae3e7f00e",
+  "spec": {
+    "title": "Training progress",
+    "legend": {
+      "show": true,
+      "position": "best",
+      "style": "box"
+    },
+    "output": {
+      "interactive": false,
+      "latex": false,
+      "size": "single_column",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "dpi": 600,
+      "stem": "figure"
+    },
+    "style": {
+      "preset": "paper",
+      "grid": false,
+      "despine": true,
+      "venue": "none"
+    },
+    "data": {
+      "path": "data.csv",
+      "format": "csv",
+      "columns": [
+        "epoch",
+        "score"
+      ]
+    },
+    "x": {
+      "field": "epoch",
+      "label": "Epoch",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "y": {
+      "field": "score",
+      "label": "Score",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "kind": "line",
+    "marker": false,
+    "sort_x": true,
+    "aggregation": "none"
+  },
+  "assumptions": [
+    "The sampling design for the observations is unspecified, so any uncertainty or tests related to the observations have been removed according to the request.",
+    "The figure title and axis labels have been appropriately changed.",
+    "The score is plotted on the vertical axis with an axis label of 'Score', and the epoch is plotted on the horizontal axis with an axis label of 'Epoch' as requested."
+  ],
+  "questions": [
+    "Can the removal of uncertainty and tests be handled gracefully if the actual data requires them in the future?",
+    "Is it certain that changing the plotting axes and title will not lead to ambiguities in understanding the figure's context?"
+  ],
+  "binding": "44675aa5574285a540cedcb7b3e08772defaa493e91749a2114af1fee8424195",
+  "provider": {
+    "endpoint": "http://127.0.0.1:11582/v1/chat/completions",
+    "model": "qwen2.5:3b",
+    "protocol": "chat"
+  },
+  "request_sha256": "37ae6bce2456180563a5e4326dac15acb4e3a3766a569cc7d97432e21f1de479",
+  "applied": false,
+  "verified": false,
+  "notice": "Review every source choice, assumption and wording. Numerical checks do not certify prose. Apply explicitly and rerender with strict verification."
+}

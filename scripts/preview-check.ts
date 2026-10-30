@@ -7,6 +7,7 @@ import { basename, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright";
+import { checkDrafts } from "./preview-drafts-check.ts";
 
 // Module-local browser globals; importing lib.dom changes unrelated Node stream types.
 declare const document: {
@@ -1018,6 +1019,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const measurement=changed.edit_map.targets.find((t:{role:string;source:string})=>t.role==="axis_label" && t.source==="score");
   assert.deepEqual(measurement.path,["y","label"]);
   assert.equal(measurement.text,"Measured score (points)");assert.ok(measurement.bounds[2]>measurement.bounds[3]);
+  const modelDrafts = await checkDrafts(page, evidence);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -1028,7 +1030,9 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         external_requests: external.length,
         javascript_errors: errors.length,
         controlled_kinds: controlledKinds,
+        model_drafts: modelDrafts,
         workflows: [
+          ...modelDrafts.workflows,
           "data picker",
           "spec editing",
           "offered fix",

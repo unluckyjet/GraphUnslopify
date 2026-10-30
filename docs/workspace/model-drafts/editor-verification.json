@@ -1,0 +1,101 @@
+{
+  "scope": "82b integrated editor workflow; exact commit CI required before closing82",
+  "base_revision": "90022f2a25b8bd5b2c78a2e8b3e643621a5988d1",
+  "seven_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 22.2
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 305.41
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.18
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.85
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 16.83
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.89
+    }
+  ],
+  "stable_product_sha256": {
+    "python/graphunslopify/preview_drafts.py": "913d25185fbb282633528fe0b912249a8bed25641e3e96bdb71b12eb082fbab0",
+    "python/graphunslopify/web/drafts.js": "a175ea56fbdf8d2ef590d587e5645957cf265b29a2e662160e59a81b61a43c9b",
+    "python/tests/test_preview_drafts.py": "a28b33975c3f9257e136c3024d3cf239eaa928756c986a6ffb610361f3a001a8",
+    "scripts/preview-drafts-check.ts": "d29ab5067b5b45de4af4d2b2da8e412b6d3f7aec87f49c96dcdbba4de2759591",
+    "python/graphunslopify/drafts.py": "989bf28bd691635f9d808e178dee0f94433372ec2f27137198f1da668d03855f",
+    "python/graphunslopify/preview.py": "35cc9ba5544584067a2e9d8435ba5b8af66f1e1bf1459f13325f63af7dae8998",
+    "python/graphunslopify/web/app.css": "581165347025c05cac6f5c74c762cc9b2ee32e98ac4e2dee7af642f84ee7e007",
+    "python/graphunslopify/web/app.js": "4a85aad2382f610718cd0c4c680ecd3f1b00525c7894fa194d242845878c272a",
+    "python/graphunslopify/web/index.html": "454a8a51bac2f65929021bba424e7c3f541ffcf0871bca4cead00efdb7e1af89",
+    "scripts/install-smoke.py": "c70a18a96e616c21909597f0595339f158b1053cb9e6327fa362c25aa7d03679",
+    "scripts/preview-check.ts": "f293ace940c08c5b17e688b5a9c94114271e2d2da546e7cab14e596c3b5b9a8e"
+  },
+  "node_tests": 234,
+  "python_tests": 1565,
+  "skips": 0,
+  "existing_upstream_warnings": 1,
+  "relevant_contracts": {
+    "3.10.22_targeted": 54,
+    "3.12.14_in_full_suite": 54
+  },
+  "source_browser_workflows": 65,
+  "fresh_offline_installed_browser_workflows": 65,
+  "native_kinds": 21,
+  "model_browser_cases": 12,
+  "actual_model_source_and_installed_positive": true,
+  "actual_model": "Ollama0.40.13 / qwen2.5:3b",
+  "actual_request_sha256": "37ae6bce2456180563a5e4326dac15acb4e3a3766a569cc7d97432e21f1de479",
+  "live_openai_account_tested": false,
+  "quality_or_human_productivity_claim": false,
+  "full_83_89_roadmap": "Pending"
+}

@@ -1,6 +1,8 @@
 import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
+import { createDraftEditor } from "/drafts.js";
+let draftEditor = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -50,6 +52,11 @@ const textEditor = createTextEditor({
   current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
   apply: spec => { changeControls(spec); clearTimeout(timer); update(true); },
 });
+draftEditor = createDraftEditor({
+  api, identity: () => ({client, generation: revision}), flush: () => controls.flush(),
+  snapshot: () => ({client, generation: revision, spec: readSpec(), data_id: data?.id, palette_id: palette?.id, data_name: data?.name, rows: data?.rows, sheet: data?.profile?.sheet, columns: data?.columns.map(column => column.name) || []}),
+  apply: spec => { changeControls(spec); clearTimeout(timer); update(true); },
+});
 function status(text, state = "") {
   $("status").textContent = text;
   $("status").dataset.state = state;
@@ -74,8 +81,11 @@ async function api(path, body, headers = {}) {
           : JSON.stringify(body),
   });
   const result = await response.json();
-  if (!response.ok)
-    throw Error(result.error || "The request could not be completed");
+  if (!response.ok) {
+    const problem = Error(result.error || "The request could not be completed");
+    problem.details = result;
+    throw problem;
+  }
   return result;
 }
 function readSpec() {
@@ -90,6 +100,7 @@ function setSpec(spec) {
 }
 function invalidate() {
   revision++;
+  draftEditor?.invalidate();
   latest = null;
   textEditor.clear();
   $("figure-surface").hidden = true;
@@ -123,6 +134,7 @@ function options(select, values, current, none = false) {
   select.value = current || "";
 }
 function syncFields(spec) {
+  draftEditor?.refresh();
   $("kind").value = spec.kind || "line";
   const columns = data ? data.columns.map((c) => c.name) : [];
   options($("x-field"), columns, spec.x?.field);

@@ -1,9 +1,44 @@
-# Model draft backend (82a)
+# Model drafts in the local editor (current source)
 
-This source checkpoint adds a proposal backend, not an editor feature yet.
-Roadmap82 remains in progress. Browser provider configuration, disclosure/consent,
-review/apply, shared undo, stale-request fences and installed browser acceptance
-remain required before completing it. PyPI0.8.0 predates this work.
+Current source connects model proposals to the local editor. PyPI0.8.0 predates
+this work; use a current source installation. The82b integration checkpoint stays
+in progress until all local and exact-commit CI requirements are verified.
+
+## Use it
+
+1. Select your actual dataset or worksheet and open **Ask for a figure draft**
+   beneath the central figure. Manual authoring remains available without a model.
+2. Open **Model provider**, enter its protocol, full API endpoint and model ID,
+   and save. An optional key stays in this server session; the input is cleared.
+   Saving again replaces authorization, so re-enter the key if needed. Empty means
+   no key. Saving configuration does not transmit a figure request.
+3. Describe the figure. Under **Author context**, explicitly declare any required
+   measurement units, sampling design and experimental-unit column. Column names
+   and row counts cannot establish experimental independence.
+4. Choose **Review model request**. Check the selected file/worksheet, provider,
+   metadata summary and exact request JSON. Only explicit consent followed by
+   **Send reviewed request** contacts the model. Each disclosure has one attempt.
+5. Review the unapplied, unverified source choices, assumptions, questions, wording
+   and full canonical specification. Invalid output is quarantined; provider
+   failure never applies a fallback template.
+6. Confirm review and choose **Apply draft and verify**. This shares the existing
+   undo history and forces a strict rerender even with live preview disabled.
+   Exports belong to the current rendered intent. Save wanted files before ending
+   this temporary session.
+
+For a local compatible server, choose Chat Completions and use its full endpoint,
+for example `http://127.0.0.1:11434/v1/chat/completions`. For the OpenAI Responses
+protocol the endpoint is `https://api.openai.com/v1/responses`; supply a model and
+authorization accepted by your account. Live OpenAI account inference is untested.
+The source/fresh-installed actual-model evidence uses local Ollama0.40.13 and
+Qwen2.5:3b, with no keys or private observations in the recorded examples.
+
+Changes to data, canonical intent, provider or draft context invalidate old
+disclosures/proposals. A late response cannot restore an older figure or its
+exports. Provider changes never silently reuse a saved key for another endpoint.
+The session bounds pending records, expires them after ten minutes, and permits
+one model request at a time. Cancellation prevents acceptance of stale results;
+it cannot unsend a request already transmitted with consent.
 
 ## Boundary
 
@@ -61,6 +96,9 @@ authoring time or scientific error rates.
 
 ## Explicit inference verification
 
+The initial82a records below are historical snapshots at90022f2. The current
+browser integration has its own source/fresh-installed records linked afterward.
+
 Ordinary CI uses real local HTTP doubles for protocol, privacy and failure tests;
 those tests do not establish real inference. To test an actual configured model:
 
@@ -106,3 +144,41 @@ All seven required gates passed on stable product hashes:234 Node/1550 Python
 (no skips; one existing upstream MLflow/SQLAlchemy warning).39 provider-contract
 cases also pass on actual Python3.10.22 and3.12.14.
 [Backend verification and hashes](model-drafts/backend-verification.json).
+
+## Current browser integration evidence (82b)
+
+Both [source](model-drafts/source-browser-checks.json) and
+[fresh-installed](model-drafts/installed-browser-checks.json) Chrome pass65
+workflows including all21 native kind controls and12 model-flow cases. These
+ordinary runs use a controlled HTTP provider and are not inference evidence.
+The cases cover disclosure/consent, unapplied proposals, manual-mode strict apply,
+shared undo, untrusted wording, author units, quarantine, unavailable providers,
+late dataset and specification changes, provider/key changes and literal reserved
+source-column names. Both runs report zero browser errors/external requests.
+
+Separate actual-model browser runs pass the same12 model cases from
+[source](model-drafts/source-real-browser-checks.json) and
+[fresh installation](model-drafts/installed-real-browser-checks.json). Their actual
+positive inference uses Qwen2.5:3b and request hash
+`37ae6bce2456180563a5e4326dac15acb4e3a3766a569cc7d97432e21f1de479`
+(65,159 bytes). Each checks requested sources/title, reviews before applying,
+strictly renders PNG/SVG/PDF in manual mode, and undoes through shared history.
+Negative cases remain controlled in these runs; they are not claims that a live
+model produced each injected fault.
+
+A preceding [actual browser trial](model-drafts/browser-exploratory-failure.json)
+retained the old title despite valid source bindings and was rejected before
+application. Explicit requested-change instructions were then added. This is
+exploratory debugging, not evidence of a general model-quality rate or a guarantee
+that a valid proposal follows the user's request.
+
+[Installed product hashes](model-drafts/installed-product-matches.json) match
+source. Fresh-installed tests deny external Python/Node networking while allowing
+loopback inference. Live OpenAI account inference, human usability and
+productivity advantages remain untested.
+
+All seven local gates pass on stable product hashes:234 Node/1565 Python,
+no skips and one existing upstream MLflow/SQLAlchemy warning.54 related provider
+and editor contracts pass on actual Python3.10.22 and within the full3.12.14 suite.
+[Editor verification and hashes](model-drafts/editor-verification.json). Exact
+commit CI remains required before closing82;83–89 are still pending.

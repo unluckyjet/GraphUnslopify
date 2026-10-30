@@ -1,0 +1,195 @@
+/** Actual browser workflow. Controlled HTTP is contract evidence, never model inference. */
+import assert from "node:assert/strict";
+import {spawn} from "node:child_process";
+import {createServer} from "node:http";
+import {existsSync, mkdtempSync, writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join, resolve} from "node:path";
+import {createInterface} from "node:readline";
+import {setTimeout as delay} from "node:timers/promises";
+import {pathToFileURL} from "node:url";
+import {chromium, type Page} from "playwright";
+
+declare const document: {querySelector(selector: string): {textContent: string; value: string} | null; querySelectorAll(selector: string): {length: number}; documentElement: {scrollWidth: number}};
+declare const window: {innerWidth: number};
+
+export async function checkDrafts(page: Page, evidence: string) {
+  let mode = "valid", releaseHeld: (() => void) | undefined;
+  const releaseProvider = () => {assert.ok(releaseHeld,"No controlled model response is held");releaseHeld();};
+  const calls: unknown[] = [];
+  const stub = createServer(async (request, response) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of request) chunks.push(Buffer.from(chunk));
+    calls.push(JSON.parse(Buffer.concat(chunks).toString()));
+    if (mode === "hold") await new Promise<void>(done => {releaseHeld = done;});
+    if (mode === "unavailable") {response.writeHead(503);response.end("PRIVATE_PROVIDER_ERROR_BODY");return;}
+    const patch = mode === "invalid" ? {x: {label: 7}} : {title: "Training progress", x: {field: "epoch", label: "Epoch"}, y: {field: "score", label: "Score", ...(mode === "units" ? {unit: "ms"} : {})}};
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({choices: [{finish_reason: "stop", message: {role: "assistant", content: JSON.stringify({patch, assumptions: ["<img src=x onerror=unsafe()>"], questions: []})}}]}));
+  });
+  await new Promise<void>(done => stub.listen(0, "127.0.0.1", done));
+  const address = stub.address();assert.ok(address && typeof address !== "string");
+  const controlledEndpoint = `http://127.0.0.1:${address.port}/v1/chat/completions`;
+  const actualEndpoint = process.env.GRAPHUNSLOPIFY_TEST_DRAFT_ENDPOINT;
+  const actualModel = process.env.GRAPHUNSLOPIFY_TEST_DRAFT_MODEL;
+  assert.equal(Boolean(actualEndpoint), Boolean(actualModel), "Configure both actual test endpoint and model");
+  const workflows: string[] = [];
+  const original = {kind: "line", title: "Original title", x: {field: "score", label: "Old horizontal axis"}, y: {field: "epoch", label: "Old vertical axis"}, output: {stem: "figure", formats: ["png", "svg", "pdf"]}};
+  const prompt = "Plot score against epoch as a line. Put epoch on the horizontal axis labeled Epoch and score on the vertical axis labeled Score. Set the figure title to Training progress. Keep the observed values unchanged. Do not add uncertainty or tests because sampling design is unspecified.";
+  const spec = async () => JSON.parse(await page.locator("#spec").inputValue());
+  const verified = () => page.waitForFunction(() => document.querySelector("#status")?.textContent === "Verified");
+  const configure = async (endpoint: string, model: string) => {
+    if (!await page.locator("#draft-provider-settings").evaluate(el => Boolean((el as unknown as {open: boolean}).open))) await page.locator("#draft-provider-settings > summary").click();
+    await page.locator("#draft-protocol").selectOption("chat");
+    await page.locator("#draft-endpoint").fill(endpoint);
+    await page.locator("#draft-model").fill(model);
+    await page.locator("#draft-key").fill(actualEndpoint === endpoint ? (process.env.GRAPHUNSLOPIFY_TEST_DRAFT_KEY || "") : "synthetic-browser-key");
+    const saved = page.waitForResponse(r => r.url().endsWith("/api/model-provider") && r.request().method() === "POST");
+    await page.locator("#draft-save-provider").click();assert.equal((await saved).status(), 200);
+    assert.equal(await page.locator("#draft-key").inputValue(), "");
+    await page.locator("#draft-prompt").fill(prompt);
+  };
+  const reviewRequest = async () => {
+    const prepared = page.waitForResponse(r => r.url().endsWith("/api/draft/disclose"));
+    await page.locator("#draft-disclose").click();
+    const response = await prepared;assert.equal(response.status(), 200);
+    await page.locator("#draft-disclosure").waitFor({state: "visible"});
+    assert.equal(await page.locator("#draft-send").isDisabled(), true);
+    return response.json();
+  };
+  const send = async () => {
+    await page.locator("#draft-consent").check();
+    const received = page.waitForResponse(r => r.url().endsWith("/api/draft/propose"));
+    await page.locator("#draft-send").click();return received;
+  };
+  try {
+    await page.locator("#live").uncheck();
+    await page.locator("#data-file").setInputFiles({name: "public-model-synthetic.csv", mimeType: "text/csv", buffer: Buffer.from("epoch,score\n1,51\n2,54\n3,56\n4,59\n")});
+    await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.includes("public-model-synthetic.csv") && !document.querySelector("#data-summary")?.textContent.startsWith("Reading "));
+    if (!await page.locator("#advanced").evaluate(el => Boolean((el as unknown as {open: boolean}).open))) await page.locator("#advanced > summary").click();
+    await page.locator("#spec").fill(JSON.stringify(original, null, 2));
+    await page.locator("#render").click();await verified();console.log("Model draft browser: manual figure verified");
+    if (!await page.locator("#model-drafts").evaluate(el => Boolean((el as unknown as {open: boolean}).open))) await page.locator("#model-drafts > summary").click();
+    await configure(actualEndpoint || controlledEndpoint, actualModel || "controlled-provider-double");
+    const before = await spec(), beforeImage = await page.locator("#preview").getAttribute("src");
+    console.log("Model draft browser: provider saved");
+    const disclosure = await reviewRequest();
+    assert.equal(calls.length, 0, "Disclosure must not contact a provider");
+    assert.ok(!JSON.stringify(disclosure).includes("synthetic-browser-key"));
+    console.log("Model draft browser: request disclosed");
+    const modelResponse = await send();
+    if (modelResponse.status() !== 200) throw Error(`Model browser proposal failed: ${JSON.stringify(await modelResponse.json())}`);
+    await page.locator("#draft-proposal").waitFor({state: "visible"});console.log("Model draft browser: unapplied proposal reviewed");
+    assert.deepEqual(await spec(), before);
+    assert.equal(await page.locator("#preview").getAttribute("src"), beforeImage);
+    assert.equal(await page.locator("#status").textContent(), "Verified");
+    assert.equal(await page.locator("#draft-apply").isDisabled(), true);
+    assert.equal(await page.locator("#draft-proposal img").count(), 0);
+    if (!actualEndpoint) assert.ok((await page.locator("#draft-assumptions").textContent())?.includes("<img"));
+    const proposal = await modelResponse.json();
+    writeFileSync(join(evidence,"model-received-proposal.json"),JSON.stringify(proposal,null,2)+"\n");
+    writeFileSync(join(evidence,"model-disclosure.json"),JSON.stringify(disclosure,null,2)+"\n");
+    assert.equal(proposal.spec.x.field, "epoch");assert.equal(proposal.spec.y.field, "score");assert.equal(proposal.spec.title, "Training progress");
+    assert.equal(proposal.verified, false);assert.equal(proposal.applied, false);
+    await page.screenshot({path: join(evidence, "model-proposal-desktop.png"), fullPage: true});
+    await page.locator("#draft-proposal").scrollIntoViewIfNeeded();
+    await page.screenshot({path:join(evidence,"model-review-desktop-viewport.png")});
+    await page.setViewportSize({width:390,height:844});
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await page.screenshot({path: join(evidence, "model-proposal-mobile.png"), fullPage: true});
+    await page.locator("#draft-proposal").scrollIntoViewIfNeeded();
+    await page.screenshot({path:join(evidence,"model-review-mobile-viewport.png")});
+    await page.setViewportSize({width:1500,height:1000});
+    await page.locator("#draft-reviewed").check();
+    const rendered = page.waitForResponse(r => r.url().endsWith("/api/render"));
+    await page.locator("#draft-apply").click();
+    const result = await (await rendered).json();await verified();console.log("Model draft browser: strict applied figure verified");
+    assert.equal(result.report.status, "passed");
+    assert.deepEqual(new Set(result.report.outputs.map((x:{format:string}) => x.format)), new Set(["png","svg","pdf"]));
+    assert.equal((await spec()).x.field, "epoch");
+    await page.locator("#undo-controls").click();
+    await page.waitForFunction(() => JSON.parse(document.querySelector("#spec")?.value || "{}").title === "Original title");
+    assert.deepEqual(await spec(), before);
+    assert.equal(await page.locator("#bundle").isDisabled(), true);
+    workflows.push("model disclosure before opt-in transmission", "unapplied unverified proposal preserves current figure", "explicit review apply forces strict render in manual mode", "model apply shares native undo and invalidates exports", "model review desktop mobile and literal untrusted wording");
+    // Failure/race cases use a controlled server even in actual-model verification.
+    await configure(controlledEndpoint, "controlled-provider-double");
+    await page.locator("#draft-author-context > summary").click();
+    await page.locator("#draft-unit-column").selectOption("score");
+    await page.locator("#draft-unit-value").fill("ms");await page.locator("#draft-add-unit").click();
+    mode="units";const unitDisclosure=await reviewRequest();
+    assert.deepEqual(JSON.parse(unitDisclosure.request.messages[1].content).author_context.units,{score:"ms"});
+    const unitReply=await send();assert.equal(unitReply.status(),200);assert.equal((await unitReply.json()).spec.y.unit,"ms");
+    assert.equal((await spec()).y.unit,undefined,"Declaring model context must not apply an axis unit");
+    await page.getByRole("button",{name:"Remove score unit",exact:true}).click();
+    workflows.push("declared source units are disclosed and remain unapplied until review");
+    mode = "invalid";await reviewRequest();assert.equal((await send()).status(),400);
+    await page.locator("#draft-invalid").waitFor({state:"visible"});
+    assert.equal(await page.locator("#draft-apply").isDisabled(),true);
+    assert.equal((await spec()).title,"Original title");
+    mode = "unavailable";await reviewRequest();assert.equal((await send()).status(),400);
+    assert.ok(!(await page.locator("#draft-error").textContent())?.includes("PRIVATE_PROVIDER_ERROR_BODY"));
+    assert.equal((await spec()).title,"Original title");
+    workflows.push("invalid model response quarantined without application", "provider failure preserves offline manual authoring");
+    mode="hold";await reviewRequest();await page.locator("#draft-consent").check();
+    const late=page.waitForResponse(r=>r.url().endsWith("/api/draft/propose"));
+    await page.locator("#draft-send").click();
+    for(let i=0;i<100&&!releaseHeld;i++)await delay(50);
+    assert.ok(releaseHeld,"Controlled provider must be live before switching data");
+    await page.locator("#data-file").setInputFiles({name:"new-current-data.csv",mimeType:"text/csv",buffer:Buffer.from("epoch,score\n1,71\n2,74\n")});
+    await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.includes("new-current-data.csv") && !document.querySelector("#data-summary")?.textContent.startsWith("Reading "));
+    releaseProvider();assert.equal((await late).status(),400);
+    assert.equal(await page.locator("#draft-proposal").isVisible(),false);
+    assert.equal(await page.locator("#draft-apply").isDisabled(),true);
+    assert.equal((await spec()).title,"Original title");
+    workflows.push("late model response cannot revive stale dataset intent or exports");
+    releaseHeld=undefined;mode="hold";await page.locator("#draft-prompt").fill(prompt);await reviewRequest();
+    await page.locator("#draft-consent").check();
+    const lateSpec=page.waitForResponse(r=>r.url().endsWith("/api/draft/propose"));
+    await page.locator("#draft-send").click();
+    for(let i=0;i<100&&!releaseHeld;i++)await delay(50);assert.ok(releaseHeld);
+    const cancelAck=page.waitForResponse(r=>r.url().endsWith("/api/draft/cancel"));
+    await page.locator("#spec").fill(JSON.stringify({...await spec(),title:"New current title"},null,2));
+    await cancelAck;releaseProvider();assert.equal((await lateSpec).status(),400);
+    assert.equal((await spec()).title,"New current title");assert.equal(await page.locator("#draft-proposal").isVisible(),false);
+    assert.equal(await page.locator("#draft-apply").isDisabled(),true);
+    workflows.push("late model response cannot overwrite a newer canonical figure edit");
+    mode="valid";await page.locator("#draft-prompt").fill(prompt);await reviewRequest();assert.equal((await send()).status(),200);
+    await page.locator("#draft-proposal").waitFor({state:"visible"});
+    await configure(controlledEndpoint,"replacement-provider");
+    assert.equal(await page.locator("#draft-proposal").isVisible(),false);
+    assert.equal(await page.locator("#draft-apply").isDisabled(),true);
+    workflows.push("provider changes clear old proposals and session key fields");
+    await page.locator("#data-file").setInputFiles({name:"literal-unit-column.csv",mimeType:"text/csv",buffer:Buffer.from("epoch,score,__proto__\n1,2,3\n2,3,4\n")});
+    await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.includes("literal-unit-column.csv") && !document.querySelector("#data-summary")?.textContent.startsWith("Reading "));
+    if(!await page.locator("#draft-author-context").evaluate(el=>Boolean((el as unknown as {open:boolean}).open)))await page.locator("#draft-author-context > summary").click();
+    await page.locator("#draft-unit-column").selectOption("__proto__");
+    await page.locator("#draft-unit-value").fill("ms");await page.locator("#draft-add-unit").click();
+    const literal=await reviewRequest();
+    assert.equal(JSON.parse(literal.request.messages[1].content).author_context.units["__proto__"],"ms");
+    workflows.push("reserved source column names remain literal in declared-unit disclosure");
+    const proof={passed:true,positive_provider:actualEndpoint?"actual configured model":"controlled HTTP double; not inference",model:actualModel||"controlled-provider-double",request_sha256:disclosure.request_sha256,request_bytes:disclosure.request_bytes,strict_status:result.report.status,exports:result.report.outputs.map((x:{format:string})=>x.format),controlled_negative_cases:true,workflows};
+    writeFileSync(join(evidence,"model-drafts-checks.json"),JSON.stringify(proof,null,2)+"\n");
+    return proof;
+  } finally {releaseHeld?.();await new Promise<void>(done=>stub.close(()=>done()));}
+}
+
+if (import.meta.url === pathToFileURL(resolve(process.argv[1] || "")).href) {
+  const evidence=mkdtempSync(join(tmpdir(),"gu-model-browser-"));
+  const env: NodeJS.ProcessEnv={...process.env,...(process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED?{}:{PYTHONPATH:resolve("python")})};
+  if(process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS)env.NODE_OPTIONS=process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS;
+  const server=spawn(process.env.PYTHON||"python",["-m","graphunslopify.cli","preview","--port","0"],{env,stdio:["ignore","pipe","pipe"]});
+  let stderr="";server.stderr.on("data",chunk=>{stderr+=chunk;});
+  let browser;
+  try {
+    const url=await new Promise<string>((done,fail)=>{createInterface({input:server.stdout}).once("line",line=>done(JSON.parse(line).url));server.once("exit",code=>fail(Error(`Editor exited ${code}: ${stderr}`)));});
+    const chrome=process.env.GRAPHUNSLOPIFY_BROWSER||"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+    browser=await chromium.launch({headless:true,...(existsSync(chrome)?{executablePath:chrome}:{})});
+    const page=await browser.newPage({viewport:{width:1500,height:1000}});page.setDefaultTimeout(120000);
+    const errors:string[]=[],external:string[]=[];
+    page.on("pageerror",error=>{errors.push(error.message);console.error("Browser JavaScript error:",error.message);});page.on("request",request=>{if(!request.url().startsWith(url)&&!request.url().startsWith("data:"))external.push(request.url());});
+    await page.goto(url);await page.waitForFunction(() => document.querySelectorAll("#kind option").length === 21);
+    const proof=await checkDrafts(page,evidence);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+    console.log(JSON.stringify({...proof,evidence,javascript_errors:errors.length,external_browser_requests:external.length}));
+  } finally {await browser?.close();server.kill();}
+}

@@ -26,7 +26,9 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from .audit import _outputs, _run, _validate_report
 from .demo import write_demo
 from .describe import profile
+from .drafts import InvalidDraft
 from .errors import SpecError
+from .preview_drafts import PreviewDrafts
 from .transport import local_request
 from .workbook import EXCEL_SUFFIXES, workbook_sheets
 
@@ -40,6 +42,7 @@ class PreviewState:
         self.generations: dict[str, int] = {}
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
+        self.drafts = PreviewDrafts(self)
 
     def upload(self, name: str, content: bytes, *, palette: bool = False) -> dict[str, Any]:
         suffix = Path(name).suffix.lower()
@@ -407,6 +410,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/controls.js",
                 "/diagnostics.js",
                 "/text-editing.js",
+                "/drafts.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -418,6 +422,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/controls.js",
             "/diagnostics.js",
             "/text-editing.js",
+            "/drafts.js",
         }:
             name = {
                 "/": "index.html",
@@ -426,6 +431,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/controls.js": "controls.js",
                 "/text-editing.js": "text-editing.js",
                 "/diagnostics.js": "diagnostics.js",
+                "/drafts.js": "drafts.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -437,9 +443,13 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "controls.js": "text/javascript; charset=utf-8",
                     "text-editing.js": "text/javascript; charset=utf-8",
                     "diagnostics.js": "text/javascript; charset=utf-8",
+                    "drafts.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
+            return
+        if route == "/api/model-provider":
+            self.json(self.server.state.drafts.info())
             return
         if route == "/api/info":
             from .diagnostics import catalog
@@ -501,7 +511,17 @@ class PreviewHandler(BaseHTTPRequestHandler):
             payload = json.loads(body)
             if not isinstance(payload, dict):
                 raise TypeError("Request must be a JSON object")
-            if route == "/api/demo":
+            if route == "/api/model-provider":
+                self.json(self.server.state.drafts.configure(payload))
+            elif route in {
+                "/api/draft/disclose",
+                "/api/draft/propose",
+                "/api/draft/accept",
+                "/api/draft/cancel",
+            }:
+                operation = route.rsplit("/", 1)[-1]
+                self.json(getattr(self.server.state.drafts, operation)(payload))
+            elif route == "/api/demo":
                 demo = self.server.state.root / "demo"
                 spec_path = write_demo(demo)
                 uploaded = self.server.state.upload(
@@ -531,6 +551,15 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json(self.server.state.render(payload))
             else:
                 self.json({"error": "Not found"}, 404)
+        except InvalidDraft as problem:
+            self.json(
+                {
+                    "error": str(problem),
+                    "invalid_draft": {"envelope": problem.envelope, "problems": problem.problems},
+                    "verified": False,
+                },
+                400,
+            )
         except (OSError, ValueError, TypeError, KeyError, SpecError) as problem:
             self.json({"error": str(problem)}, 400)
         except Exception as problem:  # noqa: BLE001 -- surface worker failures without killing the editor

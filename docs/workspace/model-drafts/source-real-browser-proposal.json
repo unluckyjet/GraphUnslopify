@@ -1,0 +1,72 @@
+{
+  "draft_id": "6cfbb44412ed4b62a3f280fd53fb13d0",
+  "spec": {
+    "title": "Training progress",
+    "legend": {
+      "show": true,
+      "position": "best",
+      "style": "box"
+    },
+    "output": {
+      "interactive": false,
+      "latex": false,
+      "size": "single_column",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "dpi": 600,
+      "stem": "figure"
+    },
+    "style": {
+      "preset": "paper",
+      "grid": false,
+      "despine": true,
+      "venue": "none"
+    },
+    "data": {
+      "path": "data.csv",
+      "format": "csv",
+      "columns": [
+        "epoch",
+        "score"
+      ]
+    },
+    "x": {
+      "field": "epoch",
+      "label": "Epoch",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "y": {
+      "field": "score",
+      "label": "Score",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "kind": "line",
+    "marker": false,
+    "sort_x": true,
+    "aggregation": "none"
+  },
+  "assumptions": [
+    "Assumption about unspecified sampling design is preserved.",
+    "Column finite check passes for both epoch and score."
+  ],
+  "questions": [
+    "Patching uncertainty or tests is not possible without knowing the sampling design."
+  ],
+  "binding": "757c974e0c8f624ec3336cd3608abd7abdf0fc15b09d412dd0e1f22da48b6304",
+  "provider": {
+    "endpoint": "http://127.0.0.1:11582/v1/chat/completions",
+    "model": "qwen2.5:3b",
+    "protocol": "chat"
+  },
+  "request_sha256": "37ae6bce2456180563a5e4326dac15acb4e3a3766a569cc7d97432e21f1de479",
+  "applied": false,
+  "verified": false,
+  "notice": "Review every source choice, assumption and wording. Numerical checks do not certify prose. Apply explicitly and rerender with strict verification."
+}

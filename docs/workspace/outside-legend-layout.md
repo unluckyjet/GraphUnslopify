@@ -95,4 +95,20 @@ execution failures.
 [installed assets](outside-legend-layout/installed-product-matches.json),
 [image comparisons](outside-legend-layout/existing-png-comparison.json), and
 [frozen replay](outside-legend-layout/certified-replay.json) preserve the evidence.
-Exact new-commit CI remains required before the next implementation.
+The complete exact checkpoint is accepted below.
+
+
+## Accepted complete checkpoint
+
+Implementation aace57e omitted five genuinely regenerated reference-provenance
+PNGs. Both Python jobs caught those exact omissions; that partial upload is not
+an accepted all-green revision. Completion9cbd0f6 includes all seven maintained
+references and passes exact [main41121663624](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41121663624)
+(all nine jobs) and [Figure41121663626](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41121663626).
+Final workflow metadata and all ten named check-runs were verified.
+The [actual CI benchmark summary](outside-legend-layout/ci-certified-summary.json)
+verifies72 expected outcomes with artifact13009006827/digest36b9e2ef…;
+the [actual editor evidence](outside-legend-layout/ci-editor-checks.json)
+verifies95 workflows/21 kinds/8 headings/18 diagnostics/3 legends and zero JS
+errors/external requests with artifact13008853395/digest3dce6985….
+[Direct endpoints](direct-series-endpoints.md) are the next separate correction.

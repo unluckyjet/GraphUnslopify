@@ -141,3 +141,21 @@ The frozen72-case replay passes unchanged. [Measured proof](../../docs/workspace
 New push/exact main/Figure CI are required before the next implementation.
 Sparkline child headings, long table context/headers and full83 acceptance remain
 open;84–89 retain their entire scope.
+
+
+### 83f accepted; 83g native direct endpoints active
+
+Complete9cbd0f6 passes exact main41121663624 all nine/Figure41121663626,
+with independently downloaded95-workflow editor and72-outcome NIST evidence.
+The earlier aace57e omitted five provenance-only reference updates and failed
+those five Python checks; the immediate complete revision includes them.
+
+83g corrects raw-last-row assumptions through actual source-tagged native
+artists, including aggregate means/probabilities/native categories/signed bars,
+fitted lines and scoped ECE values; it removes duplicate sparkline parent names.
+33 focused and183 minimum/fresh native controls plus source/fresh96 workflows,
+19 asset matches/genuine15+seven/gallery15/frozen72 pass. The additional mean
+regression is included in the final passing seven gates232/1791 and Ruff107.
+New push/exact CI pending.
+[Actual evidence](../../docs/workspace/direct-series-endpoints.md).
+Long child headings/table context/full83 and84–89 remain open.

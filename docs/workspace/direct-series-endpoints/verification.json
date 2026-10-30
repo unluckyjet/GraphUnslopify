@@ -1,0 +1,36 @@
+{
+  "scope": "Final actual native direct-endpoint correction; source-only after PyPI0.8.0; new push/exact CI pending",
+  "required_gates": {
+    "commands": 7,
+    "passed": true,
+    "node_tests": 232,
+    "python_tests": 1791,
+    "skips": 0,
+    "warnings": 1,
+    "warning_scope": "Existing MLflow/SQLAlchemy deprecation"
+  },
+  "focused_native_tests": 33,
+  "combined_minimum_native_tests": 183,
+  "combined_fresh_native_tests": 183,
+  "source_browser_workflows": 96,
+  "fresh_browser_workflows": 96,
+  "controlled_kinds": 21,
+  "heading_workflows": 8,
+  "diagnostic_workflows": 18,
+  "series_workflows": 4,
+  "javascript_errors": 0,
+  "external_browser_requests": 0,
+  "matching_installed_assets": 19,
+  "genuine_baselines": 15,
+  "genuine_maintained_references": 7,
+  "gallery_passed": 15,
+  "existing_pngs_compared": 101,
+  "existing_pngs_same_rgba_and_dimensions": 100,
+  "intentional_changed_pngs": [
+    "examples/baseline/13-direct-labels.png"
+  ],
+  "frozen_certified_runs": 72,
+  "frozen_protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "paired_native_replay_cases": 8,
+  "numeric_artist_scales_limits_preserved": true
+}

@@ -1,0 +1,46 @@
+{
+  "scope": "Independent synthetic positive fixture with distinct observed cohort endpoints; raw 01/1 source IDs and complete source bytes remain explicit",
+  "spec": {
+    "kind": "ecdf",
+    "data": {
+      "path": "data.csv"
+    },
+    "x": {
+      "field": "step",
+      "label": "Step"
+    },
+    "y": {
+      "field": "value",
+      "label": "Value"
+    },
+    "group": "method",
+    "legend": {
+      "style": "direct",
+      "labels": [
+        {
+          "series": "01",
+          "text": "Alpha"
+        },
+        {
+          "series": "1",
+          "text": "Beta"
+        }
+      ]
+    },
+    "output": {
+      "stem": "series",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "size": "double_column",
+      "dpi": 150
+    },
+    "series_order": [
+      "1",
+      "01"
+    ]
+  },
+  "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n2,3,6,0.25,0,1,second\n4,4,8,0.75,1,1,second\n"
+}

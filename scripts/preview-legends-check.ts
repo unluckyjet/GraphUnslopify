@@ -65,6 +65,34 @@ export async function checkOutsideLegends(page:Page,evidence:string){
     await page.locator("#undo-controls").click();assert.deepEqual(await current(),before);assert.equal(await page.locator("#bundle").isDisabled(),true);
     workflows.push(`${kind} wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics`);
   }
+  {
+    const source=JSON.parse(readFileSync("docs/workspace/direct-series-endpoints/inputs.json","utf8"));
+    const name="original-direct-endpoints.csv";
+    await page.setViewportSize({width:1500,height:1000});
+    await page.locator("#live").uncheck();
+    await page.locator("#data-file").setInputFiles({name,mimeType:"text/csv",buffer:Buffer.from(source.csv)});
+    await page.waitForFunction(filename=>document.querySelector("#data-summary")?.textContent.includes(filename)&&!document.querySelector("#data-summary")?.textContent.startsWith("Reading "),name);
+    await page.locator("#advanced").evaluate(node=>node.setAttribute("open",""));
+    await page.locator("#spec").fill(JSON.stringify(source.spec,null,2));
+    await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+    const rendered=response();await page.locator("#render").click();
+    assert.equal((await(await rendered).json()).report.status,"passed");await verified();
+    const original=await current();
+    if(await page.locator("#edit-figure-text").getAttribute("aria-pressed")!=="true")await page.locator("#edit-figure-text").click();
+    await page.getByRole("button",{name:"Edit Series name: Beta",exact:true}).click();
+    assert.equal(await page.locator("#text-wording").inputValue(),"Beta");
+    const changed=await edit("Beta revised");await verified();
+    assert.equal(changed.report.status,"passed",JSON.stringify(changed.report.findings));
+    assert.equal(changed.report.data.sha256_prefix,createHash("sha256").update(source.csv).digest("hex").slice(0,16));
+    assert.equal(changed.report.data.counts.read,4);
+    const target=changed.edit_map.targets.find((item:any)=>item.role==="legend_entry"&&item.source==="1");
+    assert.equal(target.text,"Beta revised");assert.deepEqual(target.path,["legend","labels",1,"text"]);
+    assert.ok(target.bounds[2]>0&&target.bounds[3]>0);
+    const intent=await current();assert.deepEqual(intent.legend.labels,[{series:"01",text:"Alpha"},{series:"1",text:"Beta revised"}]);
+    await page.locator(".preview").screenshot({path:join(evidence,"direct-ecdf-source-edit.png")});
+    await page.locator("#undo-controls").click();assert.deepEqual(await current(),original);
+    workflows.push("actual direct ECDF name click, reviewed manual alias edit and undo preserve raw 01/1 source IDs and original observed data");
+  }
   await page.setViewportSize({width:1500,height:1000});
   const proof={passed:true,workflows};writeFileSync(join(evidence,"outside-legend-checks.json"),JSON.stringify(proof,null,2)+"\n");return proof;
 }

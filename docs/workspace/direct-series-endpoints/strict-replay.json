@@ -1,0 +1,1576 @@
+{
+  "before_revision": "9cbd0f64e934c26424cba3233efe43c8982bfc08",
+  "current_parent_revision": "9cbd0f64e934c26424cba3233efe43c8982bfc08",
+  "scope": "Same independent synthetic source bytes/specs, real strict three-format execution and unchanged inspector; source-only, not PyPI release or timing evaluation",
+  "cases": [
+    {
+      "kind": "ecdf",
+      "spec": {
+        "kind": "ecdf",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            },
+            {
+              "series": "1",
+              "text": "Beta"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "1",
+          "01"
+        ]
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n2,3,6,0.25,0,1,second\n4,4,8,0.75,1,1,second\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "2102d0c49a8aff40565c78db49697d8a3a2895d3b063ded7695ccb064d813524",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "c4a39c7add53affa7cea91b40b8ce3e60a643bc348e988107c5607314157f6dd",
+          "data_sha256": "5db5847c00216f965408dfcab4ce9938331dafe5cf9d340de627e73fe22237d3",
+          "native_error": null,
+          "png": "ecdf-before.png",
+          "rendered_name_comments": [],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "labels_collide",
+              "message": "\"Beta\" and \"Alpha\" are drawn on top of each other.",
+              "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+              "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.52,
+                    4.48
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "98db1bc003518eceb2b225d95ee40debe2da5e2a70c15dc157f95b609bfb68c5",
+          "data_sha256": "5db5847c00216f965408dfcab4ce9938331dafe5cf9d340de627e73fe22237d3",
+          "native_error": null,
+          "png": "ecdf-after.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.52,
+                    4.48
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "kaplan_meier",
+      "spec": {
+        "kind": "kaplan_meier",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            },
+            {
+              "series": "1",
+              "text": "Beta"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "1",
+          "01"
+        ],
+        "event": "event"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n2,3,6,0.25,0,1,second\n4,4,8,0.75,1,1,second\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "6c57db85dbb63115841313e30e6bb0fbcb1ea095478686a78608817e3a418a68",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "186053e5840262703314db94edaa23b728a4a56668f3277073fa31492c884823",
+          "data_sha256": "5db5847c00216f965408dfcab4ce9938331dafe5cf9d340de627e73fe22237d3",
+          "native_error": null,
+          "png": "kaplan_meier-before.png",
+          "rendered_name_comments": [],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "labels_collide",
+              "message": "\"Beta\" and \"Alpha\" are drawn on top of each other.",
+              "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+              "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.64,
+                    4.64
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 1,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 1,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "38d1031195ad430ab5fe076ea25be1d5adcdb1ed689a01eef59ad2138ddecfa6",
+          "data_sha256": "5db5847c00216f965408dfcab4ce9938331dafe5cf9d340de627e73fe22237d3",
+          "native_error": null,
+          "png": "kaplan_meier-after.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.64,
+                    4.64
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 1,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 1,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "slope",
+      "spec": {
+        "kind": "slope",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            },
+            {
+              "series": "1",
+              "text": "Beta"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "1",
+          "01"
+        ]
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n1,3,6,0.25,0,1,second\n2,4,8,0.75,1,1,second\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "79dadb08e304550c9c0a3ab2ea0ba07d95852e990145c89235b765bb72b39d82",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 1,
+          "status": "failed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "040efe569853aa1e49234436a420e7477c4e76213011e2137bed4b4034bedaea",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": "ConversionError: Failed to convert value(s) to axis units: '2'",
+          "png": null,
+          "rendered_name_comments": [],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "direct_labels_on_categories",
+              "message": "Direct labelling puts a name at the end of each line. On a categorical chart use a legend.",
+              "consequence": "End-of-line placement is not meaningful for an unordered categorical layout and can detach names from the intended marks.",
+              "correction": "Use a legend for categorical comparisons. Keep direct line labels only when the ordered/continuous endpoint has the intended meaning."
+            },
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "runtime_error",
+              "message": "Failed to convert value(s) to axis units: '2'",
+              "consequence": "Execution did not complete its verification contract; partially written files are not a complete accepted result.",
+              "correction": "Read the actual exception and execution log, check source paths/columns/types and required capabilities, correct the underlying cause and rerun the strict audit. Keep failed evidence; suppressing checks is not a repair."
+            }
+          ],
+          "inspection": {
+            "available": null,
+            "checked": false
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "02aa848bbd510009d59f1941bf6be04d270a36f8fbafc8b10bd6fcef77621e19",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": null,
+          "png": "slope-after.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "direct_labels_on_categories",
+              "message": "Direct labelling puts a name at the end of each line. On a categorical chart use a legend.",
+              "consequence": "End-of-line placement is not meaningful for an unordered categorical layout and can detach names from the intended marks.",
+              "correction": "Use a legend for categorical comparisons. Keep direct line labels only when the ordered/continuous endpoint has the intended meaning."
+            },
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.35,
+                    1.35
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "bar",
+      "spec": {
+        "kind": "bar",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            },
+            {
+              "series": "1",
+              "text": "Beta"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "1",
+          "01"
+        ],
+        "aggregation": "mean"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n1,3,6,0.25,0,1,second\n2,4,8,0.75,1,1,second\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "6784b4a96a66f685e38855d36d681fb92f29201554192b13cce8ba82caf7f668",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 1,
+          "status": "failed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "0f4b582449d653b7fa6f60f18e55cee5a216532fecf5679a49f3c70ca82c836d",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": "ConversionError: Failed to convert value(s) to axis units: '2'",
+          "png": null,
+          "rendered_name_comments": [],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "direct_labels_on_categories",
+              "message": "Direct labelling puts a name at the end of each line. On a categorical chart use a legend.",
+              "consequence": "End-of-line placement is not meaningful for an unordered categorical layout and can detach names from the intended marks.",
+              "correction": "Use a legend for categorical comparisons. Keep direct line labels only when the ordered/continuous endpoint has the intended meaning."
+            },
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "runtime_error",
+              "message": "Failed to convert value(s) to axis units: '2'",
+              "consequence": "Execution did not complete its verification contract; partially written files are not a complete accepted result.",
+              "correction": "Read the actual exception and execution log, check source paths/columns/types and required capabilities, correct the underlying cause and rerun the strict audit. Keep failed evidence; suppressing checks is not a repair."
+            }
+          ],
+          "inspection": {
+            "available": null,
+            "checked": false
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "e615c18be379ea2da9db6cf63582537645d5c30c86c7416dae9aece2bb61929d",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": null,
+          "png": "bar-after.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "direct_labels_on_categories",
+              "message": "Direct labelling puts a name at the end of each line. On a categorical chart use a legend.",
+              "consequence": "End-of-line placement is not meaningful for an unordered categorical layout and can detach names from the intended marks.",
+              "correction": "Use a legend for categorical comparisons. Keep direct line labels only when the ordered/continuous endpoint has the intended meaning."
+            },
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.688,
+                    1.688
+                  ],
+                  "y_limits": [
+                    0.0,
+                    4.2
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "scaling_fit",
+      "spec": {
+        "kind": "scaling_fit",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step",
+          "scale": "log"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value",
+          "scale": "log"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "01"
+        ],
+        "interval": "none"
+      },
+      "csv": "step,value,method\n1,1,01\n2,3,01\n4,4,01\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "6cbfc949742d6ca8474c42e41c80c949834500935593cac8439dbe729dd9aafa",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "b3b001f598cd9185c85a90f37c5144588fb58f1078ec5ee42ce85ddf8394058f",
+          "data_sha256": "51c765a4d4bcdd8b12bccfadd7fdba3ef71a16de041ba7aedffcd84a34eb20da",
+          "native_error": null,
+          "png": "scaling_fit-before.png",
+          "rendered_name_comments": [
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.9127582499999995,
+                "series.pdf": 6.915607638888889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.915607638888889,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "log",
+                  "y_scale": "log",
+                  "x_limits": [
+                    0.801069877589622,
+                    4.993322195606449
+                  ],
+                  "y_limits": [
+                    0.9267490427543937,
+                    4.940773347447432
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 100,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "28f97910d962e54991fcd7f8ee99d683666b87fed20385160b52e1907f78049c",
+          "data_sha256": "51c765a4d4bcdd8b12bccfadd7fdba3ef71a16de041ba7aedffcd84a34eb20da",
+          "native_error": null,
+          "png": "scaling_fit-after.png",
+          "rendered_name_comments": [
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.9127582499999995,
+                "series.pdf": 6.915607638888889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.915607638888889,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "log",
+                  "y_scale": "log",
+                  "x_limits": [
+                    0.801069877589622,
+                    4.993322195606449
+                  ],
+                  "y_limits": [
+                    0.9267490427543937,
+                    4.940773347447432
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 100,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "scatter",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "calibration",
+      "spec": {
+        "kind": "calibration",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "prob",
+          "label": "Step"
+        },
+        "y": {
+          "field": "observed",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "01"
+        ],
+        "outcome": "event"
+      },
+      "csv": "site,method,prob,event\nfirst,01,0.1,0\nfirst,01,0.9,1\nsecond,01,0.25,0\nsecond,01,0.75,1\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "a3131a93b3f2df10a0996d07be64aa56f8c37338ac007b2ef002d0790fab9d46",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "e0b2010db0a95b4d851760f568687fb2f7026cdcddc69b2b7b54b9fcce948001",
+          "data_sha256": "2f82aef85c9a3e3269c8be109b62ce09cb24745e76d284b42f2ca267d9e8926a",
+          "native_error": null,
+          "png": "calibration-before.png",
+          "rendered_name_comments": [
+            "Alpha (ECE 0.1)",
+            "Alpha (ECE 0.25)"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.884053902777778,
+                "series.pdf": 6.885097741140278
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "a671ba81b7e7979b34b9961f440a257509ddf124f6a37e97b0313421383243b9",
+          "data_sha256": "2f82aef85c9a3e3269c8be109b62ce09cb24745e76d284b42f2ca267d9e8926a",
+          "native_error": null,
+          "png": "calibration-after.png",
+          "rendered_name_comments": [
+            "Alpha (ECE 0.1)",
+            "Alpha (ECE 0.25)"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.884053902777778,
+                "series.pdf": 6.885097741140278
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "sparkline_grid",
+      "spec": {
+        "kind": "sparkline_grid",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            },
+            {
+              "series": "1",
+              "text": "Beta"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "1",
+          "01"
+        ]
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,01,second\n2,2,4,0.75,1,01,second\n1,3,6,0.25,0,1,second\n2,4,8,0.75,1,1,second\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "55dd862680f8448f9b23182d7231a07cd17f45498d26032efe539699e824e14f",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "ad4352baaca2a5678ab08d98b20e500b41398cdf014cc9dfd859a43e3882526f",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": null,
+          "png": "sparkline_grid-before.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha",
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.914980472222222,
+                "series.pdf": 6.915052083333333
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.915052083333333,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.84,
+                    2.16
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "a1011bf03bb452baf55bbf7e01584aa989b77ab0972457ab3a914b3fa0dc9f2a",
+          "data_sha256": "5de16dcd275608fac8a94f61aea2221f331cf29b0fc6e715c04842a2dd635c32",
+          "native_error": null,
+          "png": "sparkline_grid-after.png",
+          "rendered_name_comments": [
+            "Beta",
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.914980472222222,
+                "series.pdf": 6.915052083333333
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.915052083333333,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.84,
+                    2.16
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "line",
+      "spec": {
+        "kind": "line",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "legend": {
+          "style": "direct",
+          "labels": [
+            {
+              "series": "01",
+              "text": "Alpha"
+            }
+          ]
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "01"
+        ],
+        "aggregation": "mean"
+      },
+      "csv": "step,value,method\n1,1,01\n1,3,01\n2,3,01\n2,7,01\n",
+      "numeric_artists_scales_and_limits_unchanged": true,
+      "numeric_signature_sha256": "294c6ef02dd6cbbe153c3155213c66f95883b9c422f74b1be114641e9b5c7c03",
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "program_sha256": "fe2b90f658f3d039e170c03acde64cd4d634870d34df882dd754109a8717b8ea",
+          "data_sha256": "4804c819f6a0d1a7f245902b0e11bd1e57d7f49f752f5b40a979c1068327dec4",
+          "native_error": null,
+          "png": "line-before.png",
+          "rendered_name_comments": [],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.84,
+                    2.16
+                  ],
+                  "y_limits": [
+                    1.85,
+                    5.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "dc991630db7fbac8bcba7c5564b5ae08269d098582a7018b01227ebde159857a",
+          "data_sha256": "4804c819f6a0d1a7f245902b0e11bd1e57d7f49f752f5b40a979c1068327dec4",
+          "native_error": null,
+          "png": "line-after.png",
+          "rendered_name_comments": [
+            "Alpha"
+          ],
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.911681861111111,
+                "series.pdf": 6.911918402777777
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.84,
+                    2.16
+                  ],
+                  "y_limits": [
+                    1.85,
+                    5.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

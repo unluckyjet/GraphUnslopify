@@ -298,7 +298,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
 
   out.push(
     "    if panel_label is not None:",
-    "        ax.set_title(str(panel_label), loc=\"left\", fontsize=PANEL_LETTER_PT)",
+    "        mark_panel_text(ax.set_title(str(panel_label), loc=\"left\", fontsize=PANEL_LETTER_PT), CURRENT_PANEL)",
   );
   out.push("");
 }

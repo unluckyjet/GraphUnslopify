@@ -24,7 +24,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
-import { sharedCategoryAxes, sharedSeriesStyles, sharedSeriesLegend, unusedGrouping } from "../capabilities.ts";
+import { plotAxis, sharedCategoryAxes, sharedSeriesStyles, sharedSeriesLegend, unusedGrouping } from "../capabilities.ts";
 import {
   emitAltTextConstants,
   emitDataFingerprint,
@@ -364,12 +364,14 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       "    rows = list(dict.fromkeys(valid[FACET_ROWS].tolist()))",
       "    if len(names) > FACET_COLUMNS:",
       '        raise ValueError(f"nested facet has {len(names)} column levels; increase facet.columns")',
+      '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name), "row": str(row)} for row in rows for name in names]',
       '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
       "            for row in rows for name in names]",
     );
   } else if (spec.facet) {
     out.push(
       "    names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))",
+      '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name)} for name in names]',
       "    return [(name, df[df[FACET_BY] == name]) for name in names]",
     );
   } else {
@@ -423,6 +425,8 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "        )",
     spec.repeat ? "    blocks = repeated_panels(df)" : "    blocks = panels(df)",
     '    if not blocks: raise ValueError("no usable facet values in the prepared data")',
+    '    globals()["PANEL_ORIGINAL_NAMES"] = [name for name, _ in blocks]',
+    "    validate_panel_aliases(df, blocks)",
     spec.repeat
       ? "    columns = min(REPEAT_COLUMNS, len(blocks))"
       : spec.facet?.rows ? "    columns = df.dropna(subset=[FACET_BY, FACET_ROWS])[FACET_BY].nunique()"
@@ -467,7 +471,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     '            globals()["CURRENT_PANEL"] = index',
     "            if block.empty:",
     '                ax.text(0.5, 0.5, "No data", transform=ax.transAxes, ha="center")',
-    "                ax.set_title(str(name))",
+    "                mark_panel_text(ax.set_title(panel_label_value(index, name)), index)",
     "                ax.set_axis_off()",
     "                continue",
     ...(sharedLegend ? ["            if legend_ax is None:", "                legend_ax = ax"] : []),
@@ -475,15 +479,15 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     spec.repeat
       ? '            globals()["Y_FIELD"] = name'
       : "",
-    ...(spec.repeat ? ['            letter_override = pretty(name)'] : []),
+    ...(spec.repeat ? ['            letter_override = metric_label(name)'] : []),
     "            draw_panel(ax, block)",
     spec.layers?.length ? "            draw_layers(ax, block)" : "",
     spec.inset ? "            add_inset(ax, block)" : "",
     spec.repeat
       ? '            letter = f"({chr(ord(chr(97)) + index)}) {letter_override}"'
       : letters
-        ? '            letter = f"({chr(ord(chr(97)) + index)}) {name}" if name is not None else None'
-        : "            letter = str(name) if name is not None else None",
+        ? '            letter = f"({chr(ord(chr(97)) + index)}) {panel_label_value(index, name)}" if name is not None else None'
+        : "            letter = panel_label_value(index, name) if name is not None else None",
     "            show_x = (index // columns) == rows - 1 or not SHARE_X",
     "            show_y = (index % columns) == 0 or not SHARE_Y",
     "            decorate_panel(ax, block, letter, show_x, show_y)",
@@ -491,8 +495,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       ? [
           "            # Each repeated panel is a different metric, so the spec's",
           "            # own y label and unit do not apply to any of them.",
-          "            ax.set_ylabel(pretty(name))",
-          '            edit_target(ax.yaxis.label, None, "derived_axis_label", str(name))',
+          `            mark_panel_text(ax.set_${plotAxis(spec, "y")}label(metric_label(name)), index)`,
           "            ax.set_title(None)",
         ]
       : []),
@@ -544,7 +547,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
 
 function emitSaveBlock(spec: FigureSpec, out: string[]): void {
   out.push(
-    "        description = disclose_legend_aliases(describe_panels(blocks))",
+    "        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
     '        print(f"alt text: {description}")',
     "        ALT_TEXT = description",

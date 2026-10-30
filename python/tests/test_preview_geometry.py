@@ -159,7 +159,7 @@ def test_horizontal_forest_keeps_semantic_axis_paths_without_guessing_from_text(
     assert measure["bounds"][2] > measure["bounds"][3]
 
 
-def test_legend_entries_keep_original_identity_and_derived_labels_stay_read_only(tmp_path):
+def test_legend_entries_and_repeated_metric_labels_keep_canonical_source_identity(tmp_path):
     state = PreviewState(tmp_path, 1024 * 1024)
     data = state.upload(
         "series.csv", b"epoch,score,loss,model\n1,7,4,base\n2,11,2,base\n1,8,3,ours\n2,13,1,ours\n"
@@ -185,9 +185,9 @@ def test_legend_entries_keep_original_identity_and_derived_labels_stay_read_only
     legends = [item for item in targets if item["role"] == "legend_entry"]
     assert {item["source"] for item in legends} == {"base", "ours"}
     assert all(item["editable"] and item["path"][:2] == ["legend", "labels"] for item in legends)
-    derived = [item for item in targets if item["role"] == "derived_axis_label"]
+    derived = [item for item in targets if item["role"] == "metric_label"]
     assert {item["source"] for item in derived} == {"score", "loss"}
-    assert all(not item["editable"] and item["path"] is None for item in derived)
+    assert all(item["editable"] and item["path"][:2] == ["repeat", "labels"] for item in derived)
     title = next(item for item in targets if item["role"] == "legend_title")
     assert title["path"] == ["legend", "title"] and title["editable"]
 

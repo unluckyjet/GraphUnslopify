@@ -79,3 +79,26 @@ test("renderer-default legends can receive display names without adding unrelate
   assert.deepEqual(result.spec.y,minimal.y);
   assert.equal(Object.hasOwn(minimal,"legend"),false);
 });
+
+test("metric wording edits create source records and keep renderer panel letters separate", () => {
+  const input={...original,repeat:{fields:["score","loss"]}};
+  const target={editable:true,role:"metric_label",path:["repeat","labels",0,"text"],source:"score",text:"(a) Score",value:"Score"};
+  const result=proposeTextEdit(input,target,"Quality");
+  assert.equal(result.before,"Score");
+  assert.deepEqual(result.spec.repeat,{fields:["score","loss"],labels:[{field:"score",text:"Quality"}]});
+  assert.deepEqual(result.spec.y,input.y);
+  assert.deepEqual(result.spec.claims,input.claims);
+  assert.throws(()=>proposeTextEdit(result.spec,{...target,source:"loss"},"Error"),/source changed/);
+  assert.throws(()=>proposeTextEdit(input,{...target,source:"ghost"},"Error"),/source changed/);
+});
+
+test("facet display keys preserve separate literal row and column values", () => {
+  const input={...original,facet:{by:"condition",rows:"phase"}};
+  const target={editable:true,role:"panel_title",path:["facet","labels",0,"text"],source:{value:"__proto__",row:"A / B"},value:"A / B / __proto__",text:"(a) A / B / __proto__"};
+  const result=proposeTextEdit(input,target,"Control");
+  assert.deepEqual(result.spec.facet.labels,[{value:"__proto__",row:"A / B",text:"Control"}]);
+  assert.equal(result.before,"A / B / __proto__");
+  assert.deepEqual(result.spec.data,input.data);
+  assert.throws(()=>proposeTextEdit(result.spec,{...target,source:{value:"__proto__",row:"A"}},"Other"),/source changed/);
+  assert.throws(()=>proposeTextEdit(input,{...target,source:{value:"__proto__"}},"Other"),/source changed/);
+});

@@ -3,7 +3,7 @@
 Available from the current source checkout. Published PyPI0.8.0 predates this workspace feature.
 
 1. Choose your data and render a figure.
-2. Select **Edit figure text**, then click a highlighted title, axis label, series name, annotation, reference-line label, layer legend entry or legend title. Keyboard users can tab to the same targets; the **Figure text** selector also lists them.
+2. Select **Edit figure text**, then click a highlighted title, axis label, series name, annotation, reference-line label, layer legend entry, repeated metric label, facet heading or legend title. Keyboard users can tab to the same targets; the **Figure text** selector also lists them.
 3. Enter the wording and select **Review change**. Compare the old and proposed text and review its scientific meaning. The figure and specification have not changed yet.
 4. Confirm the review and select **Apply and verify**. The editor updates the specification and reruns the original strict checks, even with live preview turned off.
 5. Use **Undo change** to restore the previous applied text/settings, then render again if live preview is off. The open page retains up to20 changes.
@@ -14,7 +14,7 @@ The exported specification, report and standalone Python reproduce the applied w
 
 Targets come from text measured during the actual final cropped PNG draw, bound to its hash and current render. Mobile resizing uses the displayed image's actual dimensions. Data changes, specification edits and new checks discard old targets and pending reviews. Geometry unavailable, hidden text and unsupported computed labels remain uneditable; this does not convert an unknown verification result into a pass.
 
-Repeated-metric labels and facet/panel heading aliases remain a further checkpoint of roadmap81. Model drafts, spatial findings, worker/cache improvements and the remaining workspace roadmap are also unfinished.
+[Repeated-metric labels and facet/panel headings](panel-labels.md) retain their original source identities and automatic panel letters. Model drafts, spatial findings, worker/cache improvements and the remaining workspace roadmap are also unfinished.
 
 Implementation: `web/text-editing.js`, `web/app.js`, the packaged preview asset route, and the [geometry contract](geometry.md). [Series display names](../legend-labels.md) documents the canonical alias records. `scripts/preview-check.ts` checks the real click/review/apply/undo workflow and exported Matplotlib artists.
 

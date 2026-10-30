@@ -172,3 +172,16 @@ offline installed45 browser workflows pass;12 source matches/0 external requests
 or JS errors. Actual exported anchors51/50 and claim IDs retain identity.22
 regenerated PNGs retain decoded RGBA bytes. Commit/push/exact CI precede metric/
 facet aliases and remaining full81 coverage;82–89 remain unfinished.
+
+
+81e metric/facet wording: structured source field/row/column aliases and separate
+base text preserve automatic letters, raw IDs, numbers and mixed claim outcomes.
+Actual metric/facet click/review/apply/undo/stale refusal/mobile and strict
+extracted numeric artists/forest semantic axis+unit are measured.234 Node/1511
+Python/seven gates,140 actual3.10/3.12 focused controls, source/fresh offline
+Chrome53 workflows/21 required-kind controls/12 source matches, Ruff/gallery15
+pass,0 external requests/JS errors;22 refreshed PNG decoded RGBA bytes unchanged.
+A brittle emitted-code-shape test was replaced with semantic schema plus actual
+rendered shared-unit/default/alias text checks. Full81 local acceptance audit is
+in docs/workspace/direct-editing-acceptance.md; commit/push/exact CI required
+before closure/82.82–89 and the original full native goal remain unfinished.

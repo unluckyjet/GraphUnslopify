@@ -2,13 +2,15 @@
 
 This is the backend foundation of workspace milestone81, after the verified80
 layout. Source display aliases and [click/review/apply/undo controls](direct-text-editing.md)
-are available. Repeated-metric/panel aliases remain open before full81 completion.
+are available. [Metric/panel aliases](panel-labels.md) use structured original source identities and separate base wording from automatic panel letters.
 
 Generated programs mark text with private semantic metadata when it is created.
 Axis paths therefore describe source meaning even when a forest plot draws the
 measurement horizontally. Annotation paths retain the original annotation index;
 units and source-field identity are separate from authored label text. Repeated
-metric labels retain their source identities and remain read-only. Named-series
+metric axes/headings now share canonical repeat.labels records. Facet targets
+retain separate row/column source values; their value metadata contains editable
+wording without the renderer-owned letter prefix. Named-series
 legend entries use the canonical [display mappings](../legend-labels.md), including
 a prospective append path for IDs without an override. Reference-line annotations and layer legend entries now use their own existing
 canonical label fields. Renderer-owned identities distinguish them from source

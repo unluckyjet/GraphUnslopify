@@ -182,6 +182,11 @@ export const AnnotationSpec = z.object({
 });
 
 export const FacetSpec = z.object({
+  labels: z.array(z.object({
+    value: z.string().describe("Original by-column value as captured by the renderer."),
+    row: z.string().optional().describe("Original row-column value for a two-dimensional facet."),
+    text: z.string().min(1).describe("Literal panel wording; source values and claims stay unchanged."),
+  })).optional(),
   by: z.string().min(1).describe("Column that splits the figure into panels."),
   rows: z
     .string()
@@ -269,6 +274,10 @@ export const LayerSpec = z.object({
 
 /** Small multiples over columns rather than over a data column. */
 export const RepeatSpec = z.object({
+  labels: z.array(z.object({
+    field: z.string().min(1).describe("Original repeated metric column; does not rename observations."),
+    text: z.string().min(1).describe("Literal metric label shared by its axis and panel heading."),
+  })).optional(),
   fields: z.array(z.string().min(1)).min(2).describe("One panel per column named here."),
   columns: z.number().int().min(1).max(6).default(2),
   share_x: z.boolean().default(true),

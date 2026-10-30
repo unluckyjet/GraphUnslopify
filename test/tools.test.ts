@@ -333,12 +333,14 @@ test("repeat swaps the y field per panel", () => {
   assert.match(result.code, /globals\(\)\["Y_FIELD"\] = name/);
 });
 
-test("repeated panels are labelled by their own metric", () => {
-  const result = translated({ ...line, repeat: { fields: ["accuracy", "loss"], columns: 2 } });
-  // The spec's y label and unit belong to none of the repeated metrics.
-  assert.match(result.code, /def pretty\(field\)/);
-  assert.match(result.code, /ax\.set_ylabel\(pretty\(name\)\)/);
-  assert.match(result.code, /letter_override = pretty\(name\)/);
+test("metric label records retain original columns and keep shared units separate", () => {
+  const spec = FigureSpec.parse({...line, repeat:{fields:["accuracy","loss"],labels:[{field:"accuracy",text:"Quality"}]}});
+  assert.deepEqual(spec.repeat?.fields,["accuracy","loss"]);
+  assert.deepEqual(spec.repeat?.labels,[{field:"accuracy",text:"Quality"}]);
+  assert.equal(spec.y.field,"accuracy");
+  assert.equal(spec.y.unit,"%");
+  // Actual default/aliased axis and heading text is checked on rendered artists
+  // in test_panel_labels.py and the installed browser's exported reproduction.
 });
 
 test("a cut axis takes its own path through main", () => {

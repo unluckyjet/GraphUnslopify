@@ -163,4 +163,4 @@ Google Chrome. `GRAPHUNSLOPIFY_BROWSER` can select a browser executable. CI runs
 retains its screenshots and exported evidence alongside the other rendering checks.
 
 
-Current-source figures support [clicking text, reviewing wording and applying verified edits](workspace/direct-text-editing.md), with keyboard selection and shared settings/text undo. Derived metric/panel labels remain a further checkpoint.
+Current-source figures support [clicking text, reviewing wording and applying verified edits](workspace/direct-text-editing.md), with keyboard selection and shared settings/text undo. [Metric and facet labels](workspace/panel-labels.md) preserve original columns/panel keys and keep automatic panel letters separate.

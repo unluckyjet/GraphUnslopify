@@ -93,7 +93,7 @@ runtime report. **Source data is excluded from the ZIP unless you explicitly inc
 Uploads and previews are temporary, so save wanted outputs before stopping the editor.
 See the [complete editor workflow](docs/local-editor.md).
 
-Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Derived panel labels remain in progress.
+Current source also supports [clicking chart text, reviewing wording and applying verified edits](docs/workspace/direct-text-editing.md), with keyboard selection and undo. Series names retain original source/claim IDs. Metric and facet labels keep their original source identities and automatic panel letters.
 
 ### Render your own spec
 

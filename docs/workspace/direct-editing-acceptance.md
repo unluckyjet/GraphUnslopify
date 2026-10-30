@@ -1,0 +1,20 @@
+# Direct editing acceptance audit
+
+Scope: roadmap81's actual title, axis, legend and annotation editing through canonical intent, including authored reference/layer wording and derived metric/facet headings. Model drafts, spatial diagnostics, workers, caching and the remaining workspace roadmap are separate unfinished work.
+
+| Requirement | Current implementation and measured evidence |
+| --- | --- |
+| Actual final image positions | `preview_geometry.py` observes the final cropped PNG draw, binds dimensions/hash/spec/run, excludes arrows and hidden text. `test_preview_geometry.py` checks actual ink at73/144/300 DPI, vertical text, ghost axis labels and callback/export failures. |
+| Source-owned canonical targets | Emitter registration supplies original paths and identity, including swapped forest axes, source series, annotation indices, reference/layer records, repeated columns and separate facet row/column values. Rendered text is not used as a join key. |
+| Review before applying | `text-editing.js` stages unchanged intent, presents source/current/proposed wording and requires explicit meaning confirmation. Actual browser workflows check unchanged JSON and disabled Apply before confirmation. Numerical checks do not certify authored prose. |
+| Real apply/rerender/undo | Actual PNG buttons and keyboard/selector targets update source records, rerender strictly in manual mode, and share the open-page undo history. Browser cases cover title, axis, series, annotation, legend title, reference/layer, metric axis/header and1D/2D facet roles. |
+| Preserve data and scientific identity | Raw series/metric/panel IDs and mixed holding/failing claims remain unchanged. Real extracted scripts reproduce original metric arrays7/11/13 and4/2/1, facet values and51/50 reference anchors. Normal forest edits retain semantic y path/points units. Unsupported forest-repeat remains rejected. |
+| Derived labels without data renaming | `repeat.labels` and `facet.labels` use source records. Captured base wording excludes automatic panel letters. Tests include empty cells, concatenated-heading collisions, reserved names and strict unknown/duplicate/blank/ambiguous rejection. |
+| Stale/unknown evidence | Data/settings/new checks discard targets and reviews; current run/spec/data identity is fenced again on Apply. A controlled transport mutation to geometry version99 disables editing while preserving the actual scientific report. Missing locations remain unavailable. |
+| Narrow layouts and keyboard use | Real source/fresh-installed Chrome cases check mobile target alignment within1px, rapid viewport changes, rotated axes and facet keyboard input without copying prefixes. Image/targets share one CSS surface after a measured installed-browser failure. |
+| Reproducible exports | Browser-downloaded bundles execute strictly outside checkout; actual Matplotlib text, source line IDs, panel names, reference values and numeric marks are inspected. Source-data ZIP inclusion remains explicit. |
+| Installation and regressions | Final source/fresh offline installed browser53 workflows/21 required-kind controls pass with0 external page requests/JS errors;12 installed assets match source.140 focused controls on actual3.10.22/3.12.14, gallery15/Ruff and22 unchanged decoded default PNGs are measured. Final seven gates and exact pushed CI are recorded separately in the checkpoint proof. |
+
+Direct UI role cases use actual line/forest/repeat/facet figures. The21-kind count refers to required settings controls; backend grouped-kind tests and strict canonical recipes provide additional renderer coverage. It does not mean53 independent human trials or GUI click tests on every possible composition.
+
+Local acceptance is implemented and measured. Full milestone closure still requires the final seven gates and exact pushed main/Figure CI success. The shared Obsidian project notes record current source and that final verification state. Nothing here establishes a productivity advantage or outside researcher adoption.

@@ -165,9 +165,11 @@ DIAGNOSTIC_ADVICE = json.loads("{\"invalid_spec\":{\"consequence\":\"No runnable
 UNKNOWN_DIAGNOSTIC = json.loads("{\"consequence\":\"This unrecognized finding has no reviewed catalog entry; its scientific consequences have not been classified.\",\"correction\":\"Preserve the code and original message, consult that producer's documentation and review the source evidence before rerunning. No automatic scientific correction is inferred.\"}")
 
 
-def edit_target(artist, path, role, source=None):
+def edit_target(artist, path, role, source=None, value=None):
     artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
                                          "editable": path is not None}
+    if value is not None:
+        artist._graphunslopify_text_target["value"] = value
     return artist
 
 
@@ -253,6 +255,90 @@ def disclose_legend_aliases(description):
         return description
     mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
     return description + " Display names: " + "; ".join(mappings) + "."
+
+
+PANEL_SOURCE_KEYS = []
+PANEL_ORIGINAL_NAMES = []
+
+
+def metric_label(source):
+    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
+    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))
+
+
+def metric_label_path(source):
+    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
+    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))
+    return ["repeat", "labels", index, "text"]
+
+
+def facet_key(item):
+    return tuple((field, item[field]) for field in ("value", "row") if field in item)
+
+
+def panel_label_value(index, original):
+    labels = RUN_REPORT["spec"].get("facet", {}).get("labels", [])
+    if not labels:
+        return str(original)
+    key = facet_key(PANEL_SOURCE_KEYS[index])
+    return next((item["text"] for item in labels if facet_key(item) == key), str(original))
+
+
+def mark_panel_text(artist, index):
+    spec = RUN_REPORT["spec"]
+    if "repeat" in spec:
+        field = spec["repeat"]["fields"][index]
+        return edit_target(artist, metric_label_path(field), "metric_label", field, metric_label(field))
+    if "facet" in spec:
+        labels = spec["facet"].get("labels", [])
+        source = PANEL_SOURCE_KEYS[index]
+        slot = next((i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)), len(labels))
+        return edit_target(artist, ["facet", "labels", slot, "text"], "panel_title", source,
+                           panel_label_value(index, PANEL_ORIGINAL_NAMES[index]))
+    return artist
+
+
+def validate_panel_aliases(frame, blocks):
+    spec = RUN_REPORT["spec"]
+    repeat = spec.get("repeat", {})
+    labels = repeat.get("labels", [])
+    if labels:
+        fields = repeat["fields"]
+        requested = [item["field"] for item in labels]
+        if len(set(fields)) != len(fields) or len(set(requested)) != len(requested):
+            raise ValueError("Repeated metric labels require unique source fields and overrides")
+        if any(field not in fields or field not in frame for field in requested):
+            raise ValueError("Metric display names refer to unknown prepared source fields")
+        shown = [metric_label(field).strip() for field in fields]
+        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
+            raise ValueError("Metric display names must visibly and uniquely identify source fields")
+    facet = spec.get("facet", {})
+    labels = facet.get("labels", [])
+    if labels:
+        keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]
+        requested = [facet_key(item) for item in labels]
+        if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):
+            raise ValueError("Facet display names require unambiguous source values and unique overrides")
+        if any(("row" in item) != ("rows" in facet) for item in labels):
+            raise ValueError("Facet display names must include row values exactly for two-dimensional facets")
+        if any(key not in keys for key in requested):
+            raise ValueError("Facet display names refer to unknown prepared source panels")
+        shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]
+        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
+            raise ValueError("Facet display names must visibly and uniquely identify source panels")
+
+
+def disclose_panel_aliases(description):
+    spec = RUN_REPORT["spec"]
+    mappings = [f'{item["text"]} means source metric {item["field"]}'
+                for item in spec.get("repeat", {}).get("labels", [])]
+    facet = spec.get("facet", {})
+    for item in facet.get("labels", []):
+        source = f'{facet["by"]}={item["value"]}'
+        if "row" in item:
+            source += f', {facet["rows"]}={item["row"]}'
+        mappings.append(f'{item["text"]} means source panel {source}')
+    return description if not mappings else description + " Panel display names: " + "; ".join(mappings) + "."
 
 
 def new_report():
@@ -699,7 +785,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
     if panel_label is not None:
-        ax.set_title(str(panel_label), loc="left", fontsize=PANEL_LETTER_PT)
+        mark_panel_text(ax.set_title(str(panel_label), loc="left", fontsize=PANEL_LETTER_PT), CURRENT_PANEL)
 
 
 def add_legend(fig, ax, frame):
@@ -943,6 +1029,7 @@ def check(fig):
 def panels(df):
     """One entry per panel. Without faceting that is the whole frame."""
     names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))
+    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name)} for name in names]
     return [(name, df[df[FACET_BY] == name]) for name in names]
 
 
@@ -960,6 +1047,8 @@ def main():
         )
     blocks = panels(df)
     if not blocks: raise ValueError("no usable facet values in the prepared data")
+    globals()["PANEL_ORIGINAL_NAMES"] = [name for name, _ in blocks]
+    validate_panel_aliases(df, blocks)
     columns = min(FACET_COLUMNS, len(blocks)) if len(blocks) > 1 else 1
     rows = math.ceil(len(blocks) / columns)
 
@@ -979,14 +1068,14 @@ def main():
             globals()["CURRENT_PANEL"] = index
             if block.empty:
                 ax.text(0.5, 0.5, "No data", transform=ax.transAxes, ha="center")
-                ax.set_title(str(name))
+                mark_panel_text(ax.set_title(panel_label_value(index, name)), index)
                 ax.set_axis_off()
                 continue
 
             draw_panel(ax, block)
 
 
-            letter = f"({chr(ord(chr(97)) + index)}) {name}" if name is not None else None
+            letter = f"({chr(ord(chr(97)) + index)}) {panel_label_value(index, name)}" if name is not None else None
             show_x = (index // columns) == rows - 1 or not SHARE_X
             show_y = (index % columns) == 0 or not SHARE_Y
             decorate_panel(ax, block, letter, show_x, show_y)
@@ -1003,7 +1092,7 @@ def main():
             edit_target(flat[0].set_title("Accuracy per benchmark"), ["title"], "title")
         fit_category_labels(fig, flat)
         fig.tight_layout()
-        description = disclose_legend_aliases(describe_panels(blocks))
+        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))
         claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])
         print(f"alt text: {description}")
         ALT_TEXT = description

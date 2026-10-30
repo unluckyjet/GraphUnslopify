@@ -481,5 +481,14 @@
       "matches_base_pixels": true
     }
   ],
-  "ci": "Pending exact commit after this local checkpoint"
+  "ci": {
+    "revision": "5773d58bcbeb1fcee5feb801b7816f1a4617bc91",
+    "main": 41033640343,
+    "jobs_passed": 9,
+    "figure": 41033640564,
+    "result": "success",
+    "browser_artifact": 12966984021,
+    "browser_workflows": 45,
+    "artifact_sha256_verified": "5de05efd7d4d7bcdfc935c10141184e60161c5ed604589f097ae6c2c16eb76ad"
+  }
 }

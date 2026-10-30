@@ -914,6 +914,110 @@ print('Reference/layer text reproduced with actual unchanged51/50 anchors and or
   await page.unroute("**/api/render");
   await page.locator("#render").click(); await verified();
   assert.equal(await page.locator("#edit-figure-text").isDisabled(),false);
+  const metricCsv=join(evidence,"metric-columns.csv");
+  writeFileSync(metricCsv,"epoch,score,loss\n1,7,4\n2,11,2\n3,13,1\n");
+  await page.locator("#data-file").setInputFiles(metricCsv);
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await edit({kind:"line",x:{field:"epoch",label:"Epoch"},y:{field:"score",label:"Score"},repeat:{fields:["score","loss"]},legend:{show:false},output:{stem:"metrics",size:"double_column",formats:["png","svg","pdf"]}});
+  await page.locator("#render").click(); await verified();
+  if(await page.locator("#edit-figure-text").getAttribute("aria-pressed")!=="true")await page.locator("#edit-figure-text").click();
+  changed=await textChange("Metric label: (a) Score","Quality");
+  await verified();
+  assert.deepEqual(changed.spec.repeat.labels,[{field:"score",text:"Quality"}]);
+  assert.deepEqual(changed.report.panels.map((p:{metric:string})=>p.metric),["score","loss"]);
+  assert.ok(changed.edit_map.targets.some((t:{role:string;text:string;value:string})=>t.role==="metric_label" && t.text==="(a) Quality" && t.value==="Quality"));
+  assert.ok(changed.edit_map.targets.some((t:{role:string;text:string})=>t.role==="metric_label" && t.text==="Quality"));
+  changed=await textChange("Metric label: Loss","Error");
+  await verified();
+  assert.deepEqual(changed.spec.repeat.labels,[{field:"score",text:"Quality"},{field:"loss",text:"Error"}]);
+  await page.locator("#undo-controls").click();
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await page.locator("#render").click(); await verified();
+  assert.deepEqual((await spec()).repeat.labels,[{field:"score",text:"Quality"}]);
+  changed=await textChange("Metric label: Loss","Error");await verified();
+  await page.locator(".preview").screenshot({path:join(evidence,"metric-text.png")});
+  await page.locator("#include-data").check();await download("metric-text-with-data.zip");
+  await page.getByRole("button",{name:"Edit Metric label: (a) Quality",exact:true}).click();
+  await page.locator("#text-wording").fill("Stale metric");await page.locator("#review-text").click();await page.locator("#text-meaning").check();
+  const facetCsv=join(evidence,"facet-values.csv");
+  writeFileSync(facetCsv,"epoch,score,condition,phase\n1,7,A,early\n2,11,A,early\n1,5,B,early\n2,8,B,early\n1,8,A,late\n2,13,A,late\n1,6,B,late\n2,9,B,late\n");
+  await page.locator("#data-file").setInputFiles(facetCsv);
+  assert.equal(await page.locator("#text-review").isHidden(),true);
+  assert.equal(await page.locator("#apply-text").isDisabled(),true);
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  const facetSpec={kind:"line",x:{field:"epoch",label:"Epoch"},y:{field:"score",label:"Score"},facet:{by:"condition"},filter:[{field:"phase",op:"eq",value:"early"}],legend:{show:false},output:{stem:"panels",size:"double_column",formats:["png","svg","pdf"]}};
+  await edit(facetSpec);await page.locator("#render").click();await verified();
+  changed=await textChange("Panel title: (a) A","Control");await verified();
+  assert.deepEqual(changed.spec.facet.labels,[{value:"A",text:"Control"}]);
+  assert.deepEqual(changed.report.panels.map((p:{name:string})=>p.name),["A","B"]);
+  await textChange("Panel title: (b) B","Control");
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Failed checks");
+  assert.equal(await page.locator("#bundle").isDisabled(),true);
+  await page.locator("#undo-controls").click();
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await page.locator("#render").click();await verified();
+  const grid={...facetSpec,facet:{by:"condition",rows:"phase"},filter:undefined};
+  await edit(grid);await page.locator("#render").click();await verified();
+  changed=await textChange("Panel title: (a) early / A","Early control");await verified();
+  changed=await textChange("Panel title: (c) late / A","Late control");await verified();
+  assert.deepEqual(changed.spec.facet.labels,[{value:"A",row:"early",text:"Early control"},{value:"A",row:"late",text:"Late control"}]);
+  assert.deepEqual(changed.report.panels.map((p:{name:string})=>p.name),["early / A","early / B","late / A","late / B"]);
+  await page.locator(".preview").screenshot({path:join(evidence,"facet-text.png")});
+  await page.setViewportSize({width:420,height:900});
+  await page.getByRole("button",{name:"Edit Panel title: (c) Late control",exact:true}).focus();
+  await page.getByRole("button",{name:"Edit Panel title: (c) Late control",exact:true}).press("Enter");
+  assert.equal(await page.locator("#text-wording").inputValue(),"Late control");
+  const panelBox=(await page.getByRole("button",{name:"Edit Panel title: (c) Late control",exact:true}).boundingBox())!;
+  const gridImage=(await page.locator("#preview").boundingBox())!;
+  const panelTarget=changed.edit_map.targets.find((t:{role:string;text:string})=>t.role==="panel_title" && t.text==="(c) Late control");
+  assert.ok(Math.abs(panelBox.x-gridImage.x-panelTarget.bounds[0]*gridImage.width/changed.edit_map.image.width)<1);
+  assert.ok(Math.abs(panelBox.y-gridImage.y-panelTarget.bounds[1]*gridImage.height/changed.edit_map.image.height)<1);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false);
+  await page.locator(".preview").screenshot({path:join(evidence,"facet-text-mobile.png")});
+  await page.locator("#cancel-text").click();
+  await page.setViewportSize({width:1500,height:1100});
+  await page.locator("#include-data").check();await download("facet-text-with-data.zip");
+  execFileSync(python,["-c",`
+import pathlib,zipfile,json,subprocess,sys,os,runpy
+from unittest.mock import patch
+import matplotlib.pyplot as plt
+root=pathlib.Path(sys.argv[1]);initial=pathlib.Path.cwd()
+for name in ('metric','facet'):
+ target=(root/(name+'-text-reproduced')).resolve()
+ with zipfile.ZipFile(root/(name+'-text-with-data.zip')) as z:z.extractall(target)
+ report=json.loads(next(target.glob('*.report.json')).read_text())
+ script=next(target.glob('*.py')).resolve()
+ done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+ assert done.returncode==0,done.stderr
+ assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
+ os.chdir(target);m=runpy.run_path(str(script))
+ with patch.object(plt,'close'):m['main']()
+ axes=plt.gcf().axes
+ if name=='metric':
+  assert report['spec']['repeat']['fields']==['score','loss']
+  assert [a.get_title(loc='left') for a in axes]==['(a) Quality','(b) Error']
+  assert [a.get_ylabel() for a in axes]==['Quality','Error']
+  assert list(axes[0].lines[0].get_ydata())==[7,11,13]
+  assert list(axes[1].lines[0].get_ydata())==[4,2,1]
+ else:
+  assert [p['name'] for p in report['panels']]==['early / A','early / B','late / A','late / B']
+  assert [a.get_title(loc='left') for a in axes]==['(a) Early control','(b) early / B','(c) Late control','(d) late / B']
+  assert list(axes[0].lines[0].get_ydata())==[7,11]
+  assert list(axes[2].lines[0].get_ydata())==[8,13]
+ plt.close('all');os.chdir(initial)
+print('Metric/facet labels reproduced with actual original columns, panel keys and numeric marks')
+`,evidence],{env,stdio:"inherit",timeout:120_000});
+  const forestCsv=join(evidence,"forest-values.csv");
+  writeFileSync(forestCsv,"condition,score\nA,7\nA,8\nA,9\nB,11\nB,12\nB,13\n");
+  await page.locator("#data-file").setInputFiles(forestCsv);
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await edit({kind:"forest",x:{field:"condition",label:"Condition"},y:{field:"score",label:"Score",unit:"points"},uncertainty:{kind:"range"},legend:{show:false},output:{formats:["png"]}});
+  await page.locator("#render").click();await verified();
+  changed=await textChange("Axis label: Score (points)","Measured score");await verified();
+  assert.equal(changed.spec.x.label,"Condition");assert.equal(changed.spec.y.label,"Measured score");assert.equal(changed.spec.y.unit,"points");
+  const measurement=changed.edit_map.targets.find((t:{role:string;source:string})=>t.role==="axis_label" && t.source==="score");
+  assert.deepEqual(measurement.path,["y","label"]);
+  assert.equal(measurement.text,"Measured score (points)");assert.ok(measurement.bounds[2]>measurement.bounds[3]);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -970,6 +1074,14 @@ print('Reference/layer text reproduced with actual unchanged51/50 anchors and or
           "edited reference-layer bundle reruns strictly with actual unchanged51/50 anchors",
           "layer wording retains data intent and rejects duplicate displayed source names with undo",
           "transport-mutated unknown geometry version disables editing without altering scientific acceptance",
+          "repeated metric axes and letter headings share reviewed canonical aliases",
+          "metric alias append slots and undo preserve original metric columns",
+          "new data cancels reviewed metric wording",
+          "one-dimensional facet alias retains raw panel identity and rejects ambiguity with undo",
+          "two-dimensional facet aliases retain separate row and column keys",
+          "mobile facet keyboard edits use base wording and actual scaled target bounds",
+          "metric and facet bundles rerender with actual original numeric marks and aliased artist wording",
+          "horizontal forest label edits retain semantic y path and original units",
         ],
       },
       null,

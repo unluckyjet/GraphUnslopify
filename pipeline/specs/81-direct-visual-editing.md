@@ -135,3 +135,37 @@ without adding unrelated defaults.22 refreshed PNG decoded RGBA bytes match
 upstream warning; fresh offline installed browser45 workflows/21 required-kind
 controls pass with0 external requests/JS errors.12 installed assets match.
 Push/exact CI pending. Proof: docs/workspace/reference-labels-verification.json. Derived metric/facet aliases and remaining full81 coverage stay open.
+
+
+## Metric/facet checkpoint81e (local; final gates running)
+
+Prerequisite5773d58 exact main41033640343 all9/Figure41033640564 passed, including
+actual CI artifact12966984021/45 workflows with verified ZIP digest. Optional
+repeat.labels[{field,text}] and facet.labels[{value,row?,text}] preserve raw data/
+claim/report IDs. Actual headers and repeated axes carry canonical paths and a
+separate base value; the edit form does not copy automatic letters into intent.
+Prepared source membership, row shape, duplicate/blank/ambiguous names fail strictly.
+Empty cells retain No data/untested evidence, and unsupported forest-repeat
+combinations retain the original explicit rejection. Native horizontal forest
+editing retains semantic y-path/points units.
+
+140 actual3.10.22/3.12.14 controls pass, including failed/holding metric claims,
+empty/grid/concatenated-name/reserved-name cases. Seven Node semantic/path controls
+pass. Source Chrome53 workflows pass, including metric axis/header edits/undo,
+prospective append paths, old-review/new-data cancellation,1D strict ambiguity/
+undo,2D structured keys, mobile keyboard/actual1px target bounds, strict extracted
+metric/facet artists with original numeric marks and native forest orientation.
+22 refreshed default PNGs retain exact decoded RGBA bytes relative to5773d58.
+Final seven gates234/1511, zero skips/1 existing upstream warning, Ruff/gallery15
+and source/fresh offline installed Chrome53 workflows/21 required-kind controls/
+12 source matches pass,0 external requests/JS errors.140 final3.10/3.12 controls
+pass; actual exported metric/facet text/numbers and native forest path/unit
+semantics are checked. Proof: docs/workspace/panel-labels-verification.json.
+Commit/exact CI pending. Full81 local acceptance is audited in
+docs/workspace/direct-editing-acceptance.md;82–89 retain full original scope.
+
+
+Requirement audit: docs/workspace/direct-editing-acceptance.md maps all original81
+acceptance items to actual implementation/controls and states the measurement
+scope. Local implementation is complete; final seven gates and exact pushed CI
+are required before closing81. This does not close82–89 or the native goal.

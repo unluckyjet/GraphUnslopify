@@ -37,6 +37,32 @@ export function proposeTextEdit(original, target, text) {
       (target.role === "layer_label" && (path[1] !== target.source.layer || item.mark !== target.source.mark)))
       throw Error("The reference or layer changed; render again.");
     item.label = text;
+  } else if (["metric_label", "panel_title"].includes(target.role) && path.length === 4 &&
+    path[0] === (target.role === "metric_label" ? "repeat" : "facet") && path[1] === "labels" &&
+    path[3] === "text" && Number.isInteger(path[2]) && path[2] >= 0 && typeof target.value === "string") {
+    const settings = spec[path[0]];
+    if (!settings) throw Error("The panel layout changed; render again.");
+    let identity;
+    if (target.role === "metric_label") {
+      if (typeof target.source !== "string" || !settings.fields?.includes(target.source))
+        throw Error("The metric source changed; render again.");
+      identity = {field: target.source};
+    } else {
+      const source = target.source;
+      if (!source || typeof source.value !== "string" ||
+        (Object.hasOwn(source,"row") !== Boolean(settings.rows)) ||
+        (Object.hasOwn(source,"row") && typeof source.row !== "string"))
+        throw Error("The facet source changed; render again.");
+      identity = {value:source.value,...(Object.hasOwn(source,"row") ? {row:source.row} : {})};
+    }
+    const labels = settings.labels || [];
+    if (!Array.isArray(labels) || path[2] > labels.length) throw Error("The panel names changed; render again.");
+    const entry = labels[path[2]];
+    if (entry && (Object.keys(identity).some(key => identity[key] !== entry[key]) ||
+      (target.role === "panel_title" && Object.hasOwn(identity,"row") !== Object.hasOwn(entry,"row"))))
+      throw Error("The panel source changed; render again.");
+    before = entry?.text ?? target.value;
+    labels[path[2]] = {...identity,text}; settings.labels = labels;
   } else if (target.role === "legend_entry" && path.length === 4 &&
     path[0] === "legend" && path[1] === "labels" && path[3] === "text" &&
     Number.isInteger(path[2]) && path[2] >= 0 && typeof target.source === "string") {
@@ -60,7 +86,7 @@ export function createTextEditor({ current, apply }) {
   const image = $("preview"), layer = $("text-targets"), picker = $("text-target");
   let binding = null, targets = [], selected = null, proposal = null, active = false;
   const names = { title: "Title", axis_label: "Axis label", legend_title: "Legend title",
-    legend_entry: "Series name", annotation: "Annotation", reference_label: "Reference label", layer_label: "Layer label" };
+    legend_entry: "Series name", annotation: "Annotation", reference_label: "Reference label", layer_label: "Layer label", metric_label: "Metric label", panel_title: "Panel title" };
   function error(message = "") {
     $("text-error").textContent = message;
     $("text-error").hidden = !message;
@@ -103,6 +129,10 @@ export function createTextEditor({ current, apply }) {
             ? `Reference ${selected.source.axis} = ${selected.source.value}. Only its wording changes; the reference value stays unchanged.`
             : selected.role === "layer_label"
               ? `Layer ${selected.source.layer + 1}: ${selected.source.mark}. Its observations, filters and coordinates stay unchanged.`
+          : selected.role === "metric_label"
+            ? `Source metric: ${selected.source}. Its axis and heading change together; observations and scaling stay unchanged.`
+            : selected.role === "panel_title"
+              ? `Source panel: ${current().spec.facet.by} = ${selected.source.value}${Object.hasOwn(selected.source,"row") ? `; ${current().spec.facet.rows} = ${selected.source.row}` : ""}. Panel letters and observations stay unchanged.`
           : selected.role === "annotation"
             ? "This wording applies wherever the same annotation appears. Its data attachment stays unchanged."
             : "Only this wording changes. Data, units and claim subjects stay unchanged.";

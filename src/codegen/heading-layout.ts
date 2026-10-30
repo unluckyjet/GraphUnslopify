@@ -1,10 +1,12 @@
 import type {FigureSpec} from "../schema.ts";
+import {hasOutsideLegendLayout} from "./legend-layout.ts";
 
 /** Font-measured wrapping changes owned presentation, never canonical wording. */
 export function emitHeadingLayout(spec: FigureSpec, out: string[]): void {
   // These paths own their layout separately; do not emit an unused fitter.
   if (spec.kind === "table" || (!spec.axis_break && spec.group && spec.legend.show &&
-      spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position))) return;
+      spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position) &&
+      !hasOutsideLegendLayout(spec))) return;
   out.push("", ...String.raw`
 def heading_dollars(text):
     return text.count("$") - text.count(r"\$")

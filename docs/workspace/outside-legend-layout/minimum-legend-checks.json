@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "workflows": [
+    "unbreakable legend alias remains failed with review downloads; native undo and strict rerender recover original verified data",
+    "line wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics",
+    "calibration wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics"
+  ],
+  "python": "3.10.22",
+  "javascript_errors": [],
+  "external_requests": []
+}

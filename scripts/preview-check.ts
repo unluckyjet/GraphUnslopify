@@ -10,6 +10,7 @@ import { chromium } from "playwright";
 import { checkDrafts } from "./preview-drafts-check.ts";
 import { checkDiagnostics } from "./preview-diagnostics-check.ts";
 import { checkHeadings } from "./preview-headings-check.ts";
+import { checkOutsideLegends } from "./preview-legends-check.ts";
 
 // Module-local browser globals; importing lib.dom changes unrelated Node stream types.
 declare const document: {
@@ -1024,6 +1025,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const modelDrafts = await checkDrafts(page, evidence);
   const diagnosticOverlays = await checkDiagnostics(page, evidence);
   const ownedHeadings = await checkHeadings(page, evidence);
+  const ownedLegends = await checkOutsideLegends(page, evidence);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -1037,9 +1039,11 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         model_drafts: modelDrafts,
         diagnostic_overlays: diagnosticOverlays,
         owned_headings: ownedHeadings,
+        owned_legends: ownedLegends,
         workflows: [
           ...diagnosticOverlays.workflows,
           ...ownedHeadings.workflows,
+          ...ownedLegends.workflows,
           ...modelDrafts.workflows,
           "data picker",
           "spec editing",

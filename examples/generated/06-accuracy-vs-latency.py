@@ -742,6 +742,158 @@ def fit_category_labels(fig, axes):
     return
 
 
+def heading_dollars(text):
+    return text.count("$") - text.count(r"\$")
+
+
+def literal_heading_lines(lines, original):
+    # An originally literal paragraph must not acquire a MathText line.
+    index = 0
+    while index < len(lines):
+        count = heading_dollars(lines[index])
+        if count == 0 or count % 2:
+            index += 1
+            continue
+        line = lines[index]
+        cuts = [match for match in re.finditer(r"\s+", line)
+                if heading_dollars(line[:match.start()]) % 2]
+        if cuts:
+            cut = cuts[-1]
+            lines[index:index + 1] = [line[:cut.start()], line[cut.end():]]
+            index += 2
+            continue
+        # A dollar pair inside one word cannot be split without changing it.
+        # Keep it with an odd-dollar neighbor; ordinary inspection still owns
+        # acceptance if the resulting complete wording cannot fit the column.
+        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]
+        if not odd:
+            return [original]
+        neighbor = min(odd, key=lambda i: abs(i - index))
+        low, high = sorted((index, neighbor))
+        lines[low:high + 1] = [" ".join(lines[low:high + 1])]
+        index = low + 1
+    return lines
+
+
+def wrap_heading(original, artist, renderer, width):
+    from matplotlib.text import Text
+    probe = Text(fontproperties=artist.get_fontproperties(),
+                 usetex=artist.get_usetex(), parse_math=artist.get_parse_math())
+    probe.set_figure(artist.get_figure())
+    parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()
+    lines = []
+    for paragraph in original.split("\n"):
+        dollars = heading_dollars(paragraph)
+        mathematical = (parse_math or use_tex) and dollars > 0 and dollars % 2 == 0
+        probe.set_parse_math(parse_math and mathematical)
+        paragraph_lines = []
+        tokens, token = [], ""
+        math_mode, depth, escaped, space = False, 0, False, False
+        for position, char in enumerate(paragraph):
+            separable = char.isspace() and not math_mode and depth == 0 and not escaped
+            if token and separable != space:
+                tokens.append(token)
+                token = ""
+            token += char
+            space = separable
+            dollar_boundary = not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
+            if char == "$" and mathematical and dollar_boundary:
+                math_mode = not math_mode
+            elif not escaped:
+                if char == "{" and (math_mode or use_tex):
+                    depth += 1
+                elif char == "}" and depth:
+                    depth -= 1
+            escaped = char == "\\" and not escaped
+        if token:
+            tokens.append(token)
+        line, separator = "", ""
+        for token in tokens:
+            if token.isspace():
+                separator += token
+                continue
+            candidate = line + separator + token
+            probe.set_text(candidate.replace(r"\$", "$")
+                           if parse_math and not mathematical and not use_tex else candidate)
+            if line and probe.get_window_extent(renderer).width > width:
+                paragraph_lines.append(line)
+                line = token
+            else:
+                line = candidate
+            separator = ""
+        paragraph_lines.append(line + separator)
+        if parse_math and not mathematical and not use_tex and dollars > 1:
+            paragraph_lines = literal_heading_lines(paragraph_lines, paragraph)
+        lines.extend(paragraph_lines)
+    return "\n".join(lines)
+
+
+def fit_headings(fig):
+    minimum_heights = {ax: getattr(ax, "_graphunslopify_heading_height", ax.bbox.height)
+                       for ax in fig.axes if ax.get_visible()}
+    for attempt in range(8):
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        candidates = [(text, fig.bbox.width * 0.94, False) for text in fig.texts
+                      if getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"]
+        for ax in fig.axes:
+            if not ax.get_visible():
+                continue
+            candidates.extend((text, ax.bbox.width * 0.98, False)
+                              for text in (ax.title, ax._left_title, ax._right_title))
+            if ax.axison:
+                # Axis wording may use free margins beyond the data rectangle.
+                available_height = max(ax.bbox.height, minimum_heights[ax])
+                grid = ax.get_subplotspec()
+                if grid is not None:
+                    rows = grid.get_gridspec().nrows
+                    bottom = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.stop / rows)
+                    top = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.start / rows)
+                    center = ax.yaxis.label.get_transform().transform(ax.yaxis.label.get_position())[1]
+                    available_height = max(available_height, 2 * min(center - bottom, top - center))
+                candidates.extend([(ax.xaxis.label, ax.bbox.width * 0.98, False),
+                                   (ax.yaxis.label, available_height * 0.98, True)])
+        changed = False
+        for artist, width, vertical in candidates:
+            target = getattr(artist, "_graphunslopify_text_target", {})
+            if target.get("role") not in {"title", "panel_title", "axis_label", "metric_label"}:
+                continue
+            if not artist.get_visible() or not artist.get_text().strip() or width <= 0:
+                continue
+            box = artist.get_window_extent(renderer)
+            if (box.height if vertical else box.width) <= width:
+                continue
+            original = getattr(artist, "_graphunslopify_heading_original", artist.get_text())
+            wrapped = wrap_heading(original, artist, renderer, width)
+            if wrapped != artist.get_text():
+                artist._graphunslopify_heading_original = original
+                artist.set_text(wrapped)
+                changed = True
+        if not changed:
+            return
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        row_heights = {}
+        for ax, minimum in minimum_heights.items():
+            grid = ax.get_subplotspec()
+            if grid is None:
+                continue
+            ax._graphunslopify_heading_height = minimum
+            box = ax.get_tightbbox(renderer)
+            if box is None:
+                continue
+            height = minimum + max(0, box.y1 - ax.bbox.y1) + max(0, ax.bbox.y0 - box.y0)
+            rows = list(grid.rowspan)
+            for row in rows:
+                row_heights[row] = max(row_heights.get(row, 0), height / len(rows))
+        title_height = max((text.get_window_extent(renderer).height for text in fig.texts
+                            if text.get_visible() and getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"), default=0)
+        required_height = sum(row_heights.values()) + title_height + fig.dpi * 0.3
+        if row_heights and required_height > fig.bbox.height + 1:
+            fig.set_size_inches(fig.get_figwidth(), required_height / fig.dpi)
+        fig.tight_layout()
+
+
 def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
     if show_x:
         ax.set_xlabel("Latency (ms)")
@@ -756,7 +908,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         mark_panel_text(ax.set_title(str(panel_label), loc="left", fontsize=PANEL_LETTER_PT), CURRENT_PANEL)
 
 
-def add_legend(fig, ax, frame):
+def add_legend(fig, ax, frame, layout_columns=None):
     handles, labels = source_legend_handles(ax)
     if not handles:
         return
@@ -776,7 +928,7 @@ def add_legend(fig, ax, frame):
         title=None,
         frameon=False,
         loc="upper center", bbox_to_anchor=(0.5, -0.18),
-        ncol=min(len(handles), 4),
+        ncol=layout_columns or min(len(handles), 4),
     )
     for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):
         text.set_text(shown)
@@ -785,6 +937,114 @@ def add_legend(fig, ax, frame):
         else:
             edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)
     edit_target(legend.get_title(), ["legend", "title"], "legend_title")
+    legend._graphunslopify_legend_frame = frame
+    legend._graphunslopify_panel_legend = False
+    return legend
+
+
+def fit_outside_legends(fig, axes, frame, layout=None):
+    axes = [ax for ax in axes if ax.get_visible()]
+    legends = [ax.get_legend() for ax in axes if ax.get_legend() is not None]
+    if not legends:
+        if layout is not None:
+            layout()
+        return
+    fig.canvas.draw()
+    minimum = {ax: ax.bbox.height / fig.dpi for ax in axes}
+    rows = max((ax.get_subplotspec().get_gridspec().nrows for ax in axes
+                if ax.get_subplotspec() is not None), default=1)
+    position = RUN_REPORT["spec"]["legend"]["position"]
+    for attempt in range(4):
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        changed = False
+        for index, legend in enumerate(legends):
+            local = legend._graphunslopify_panel_legend
+            budget = (legend.axes.bbox.width * 0.94 if local else
+                      fig.bbox.width * (0.38 if position == "outside_right" else 0.92))
+            box = legend.get_window_extent(renderer)
+            if position == "outside_bottom" and legend._ncols > 1 and box.width > budget:
+                owner, source = legend.axes, legend._graphunslopify_legend_frame
+                choices = []
+                for columns in range(legend._ncols - 1, 0, -1):
+                    legend.remove()
+                    legend = add_legend(fig, owner, source, layout_columns=columns)
+                    candidate = legend.get_window_extent(renderer)
+                    if candidate.width <= budget:
+                        choices.append((candidate.height, candidate.width, columns))
+                selected = min(choices, default=(0, 0, 1))[2]
+                if legend._ncols != selected:
+                    legend.remove()
+                    legend = add_legend(fig, owner, source, layout_columns=selected)
+                legends[index] = legend
+                fig.canvas.draw()
+                renderer = fig.canvas.get_renderer()
+                box = legend.get_window_extent(renderer)
+                changed = True
+            texts = legend.get_texts()
+            font = renderer.points_to_pixels(texts[0].get_fontsize())
+            overhead = (font * (2 * legend.borderpad + legend.handlelength + legend.handletextpad)
+                        if legend._ncols == 1 else
+                        max(0, box.width - max((text.get_window_extent(renderer).width
+                                               for text in texts), default=0)))
+            for text in [*texts, legend.get_title()]:
+                width = max(1, budget - (2 * font * legend.borderpad
+                                        if text is legend.get_title() else overhead))
+                if not text.get_visible() or not text.get_text().strip():
+                    continue
+                if text.get_window_extent(renderer).width <= width:
+                    continue
+                original = getattr(text, "_graphunslopify_heading_original", text.get_text())
+                wrapped = wrap_heading(original, text, renderer, width)
+                if wrapped != text.get_text():
+                    text._graphunslopify_heading_original = original
+                    text.set_text(wrapped)
+                    changed = True
+            displayed = [text.get_text().strip() for text in texts]
+            if len(set(displayed)) != len(displayed):
+                raise ValueError("Legend wrapping makes visible source names ambiguous; review display names")
+        shared = [legend for legend in legends if not legend._graphunslopify_panel_legend]
+        states = [(legend, legend.get_in_layout()) for legend in shared]
+        for legend, state in states:
+            legend.set_in_layout(False)
+        try:
+            if layout is not None:
+                layout()
+                layout = None
+            else:
+                fit_headings(fig)
+                fit_category_labels(fig, axes)
+
+            fig.tight_layout()
+            fig.canvas.draw()
+            deficit = max((height - ax.bbox.height / fig.dpi
+                           for ax, height in minimum.items()), default=0)
+            if deficit > 1 / fig.dpi:
+                # Text consumes fixed physical space, not a fraction of the
+                # enlarged canvas. Dividing by the current usable fraction
+                # compounds margins and unnecessarily enlarges the data area.
+                fig.set_size_inches(fig.get_figwidth(), fig.get_figheight() + rows * deficit + 0.05)
+                changed = True
+        finally:
+            for legend, state in states:
+                legend.set_in_layout(state)
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        visible = [ax for ax in fig.axes if ax.get_visible()]
+        boxes = [ax.get_tightbbox(renderer, bbox_extra_artists=[]) for ax in visible]
+        boxes = [box for box in boxes if box is not None]
+        if boxes:
+            left = min(box.x0 for box in boxes)
+            right = max(box.x1 for box in boxes)
+            bottom = min(box.y0 for box in boxes)
+            center = (min(ax.bbox.y0 for ax in visible) + max(ax.bbox.y1 for ax in visible)) / 2
+            for legend in shared:
+                point = ((right + fig.dpi * 0.08, center) if position == "outside_right" else
+                         ((left + right) / 2, bottom - fig.dpi * 0.08))
+                anchor = fig.transFigure.inverted().transform(point)
+                legend.set_bbox_to_anchor(tuple(anchor), transform=fig.transFigure)
+        if not changed:
+            return
 
 
 def data_fingerprint():
@@ -1101,7 +1361,8 @@ def main():
             edit_target(fig.suptitle("Accuracy against cost"), ["title"], "title")
         else:
             edit_target(flat[0].set_title("Accuracy against cost"), ["title"], "title")
-        # tight_layout is skipped: it fights a legend anchored outside the axes.
+        fit_outside_legends(fig, flat, df)
+        # Complete outside legends retain source ownership and final export cropping.
         description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))
         claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])
         print(f"alt text: {description}")

@@ -16,6 +16,7 @@ import {
 } from "./data.ts";
 import { emitCategoryLayout, emitDateLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
 import { emitHeadingLayout } from "./heading-layout.ts";
+import { emitLegendLayout, hasOutsideLegendLayout } from "./legend-layout.ts";
 import {
   emitAxisBreak,
   emitInset,
@@ -455,7 +456,9 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       "        if legend is not None:",
       "            legend.remove()",
       ...(spec.title ? [`        edit_target(upper.set_title(${pyStr(spec.title)}), ["title"], "title")`] : []),
-      "        fit_break_layout(fig, upper, lower)",
+      hasOutsideLegendLayout(spec)
+        ? "        fit_outside_legends(fig, [upper, lower], df, lambda: fit_break_layout(fig, upper, lower))"
+        : "        fit_break_layout(fig, upper, lower)",
     );
     emitSaveBlock(spec, out);
     return;
@@ -540,14 +543,17 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     spec.legend.style === "box" &&
     (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
 
-  if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
+  if (hasOutsideLegendLayout(spec)) out.push("        fit_outside_legends(fig, flat, df)");
+  else if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
   out.push(
-    outsideLegend
+    hasOutsideLegendLayout(spec)
+      ? "        # Complete outside legends retain source ownership and final export cropping."
+      : outsideLegend
       ? "        # tight_layout is skipped: it fights a legend anchored outside the axes."
       : "        fig.tight_layout()",
   );
   if (!outsideLegend) out.push("        fit_headings(fig)");
-  if (spec.x.temporal) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
+  if (spec.x.temporal && !hasOutsideLegendLayout(spec)) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
@@ -629,6 +635,7 @@ export function emitPython(spec: FigureSpec): string {
   emitHeadingLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
+  emitLegendLayout(spec, out);
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);

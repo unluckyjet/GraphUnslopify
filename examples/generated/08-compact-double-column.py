@@ -933,7 +933,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         mark_panel_text(ax.set_title(str(panel_label), loc="left", fontsize=PANEL_LETTER_PT), CURRENT_PANEL)
 
 
-def add_legend(fig, ax, frame):
+def add_legend(fig, ax, frame, layout_columns=None):
     handles, labels = source_legend_handles(ax)
     if not handles:
         return
@@ -953,6 +953,7 @@ def add_legend(fig, ax, frame):
         title=None,
         frameon=False,
         loc="best",
+        ncol=layout_columns or 1,
     )
     for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):
         text.set_text(shown)
@@ -961,6 +962,9 @@ def add_legend(fig, ax, frame):
         else:
             edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)
     edit_target(legend.get_title(), ["legend", "title"], "legend_title")
+    legend._graphunslopify_legend_frame = frame
+    legend._graphunslopify_panel_legend = False
+    return legend
 
 
 def data_fingerprint():

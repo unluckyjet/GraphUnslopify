@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-30",
+  "base_revision": "3f2a925b813bbf5d9da7e48e051e31dba029f8f5",
+  "status": "Local final measured outside-legend correction; exact new-commit CI required",
+  "node_tests": 232,
+  "python_tests": 1758,
+  "skipped": 0,
+  "python_warnings": 1,
+  "warning_scope": "Existing upstream MLflow/SQLAlchemy deprecation",
+  "new_native_controls": 37,
+  "combined_heading_legend_export_controls": {
+    "current_full_suite": "All150 included in passing1758",
+    "minimum_python310": 150,
+    "fresh_offline_wheel_python312": 150
+  },
+  "browser": {
+    "source": 95,
+    "fresh_offline_wheel": 95,
+    "kinds": 21,
+    "headings": 8,
+    "diagnostics": 18,
+    "legends": 3,
+    "minimum_python310_legends": 3,
+    "javascript_errors": 0,
+    "external_requests": 0
+  },
+  "genuinely_regenerated": {
+    "baselines": 15,
+    "maintained_references": 7,
+    "gallery_passed": 15
+  },
+  "existing_pngs": {
+    "compared": 93,
+    "identical_dimensions_and_rgba": 86,
+    "intentionally_changed": 7
+  },
+  "installed_assets_matched": 19,
+  "frozen_nist_cases": 72,
+  "frozen_nist_expected_outcomes_passed": true,
+  "tested_source_manifest_sha256": "fb0058edcf06bc9e0c12111f9da2faf08432fac99b8ad3207230cf5523f00f54",
+  "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+  "source_scope": "Ten boxed-legend kinds; existing source IDs, numeric artists/scales/limits, fonts/parser flags and data-area controls retained. Sparkline child headings/table context/full83 and84\u201389 remain open. No PyPI release, blind human assessment or new timing comparison."
+}

@@ -1,0 +1,557 @@
+{
+  "source_revision": "3f2a925b813bbf5d9da7e48e051e31dba029f8f5",
+  "scope": "Frozen original synthetic source IDs, sparse six-row observations and complete text; source layout at this revision fails; formatter changes must preserve observations and intent",
+  "grouped": [
+    {
+      "kind": "line",
+      "spec": {
+        "kind": "line",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "scatter",
+      "spec": {
+        "kind": "scatter",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "bar",
+      "spec": {
+        "kind": "bar",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "aggregation": "mean",
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "ecdf",
+      "spec": {
+        "kind": "ecdf",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "slope",
+      "spec": {
+        "kind": "slope",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "qq",
+      "spec": {
+        "kind": "qq",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "scaling_fit",
+      "spec": {
+        "kind": "scaling_fit",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step",
+          "scale": "log"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value",
+          "scale": "log"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "interval": "none",
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "kaplan_meier",
+      "spec": {
+        "kind": "kaplan_meier",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "event": "event",
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "calibration",
+      "spec": {
+        "kind": "calibration",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "prob",
+          "label": "Step"
+        },
+        "y": {
+          "field": "observed",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "outcome": "event",
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    },
+    {
+      "kind": "dumbbell",
+      "spec": {
+        "kind": "dumbbell",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51"
+    }
+  ],
+  "single_column": [
+    {
+      "position": "outside_right",
+      "spec": {
+        "title": "Observed responses",
+        "group": "condition",
+        "legend": {
+          "show": true,
+          "position": "outside_right",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png"
+          ],
+          "dpi": 600,
+          "stem": "legend"
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "data": {
+          "path": "data.csv",
+          "format": "csv"
+        },
+        "x": {
+          "field": "epoch",
+          "label": "Epoch",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "value",
+          "label": "Response",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "line",
+        "marker": false,
+        "sort_x": true,
+        "aggregation": "none"
+      },
+      "csv": "epoch,value,condition\n1,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n2,2,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n3,3,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n1,2,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n2,3,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n3,4,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n",
+      "status": "failed",
+      "findings": [
+        {
+          "severity": "error",
+          "code": "text_too_small",
+          "message": "\"1.0\" renders at 2.5880062416745955pt, below the required 5pt at the target width.",
+          "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+          "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+        }
+      ]
+    },
+    {
+      "position": "outside_bottom",
+      "spec": {
+        "title": "Observed responses",
+        "group": "condition",
+        "legend": {
+          "show": true,
+          "position": "outside_bottom",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png"
+          ],
+          "dpi": 600,
+          "stem": "legend"
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "data": {
+          "path": "data.csv",
+          "format": "csv"
+        },
+        "x": {
+          "field": "epoch",
+          "label": "Epoch",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "value",
+          "label": "Response",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "line",
+        "marker": false,
+        "sort_x": true,
+        "aggregation": "none"
+      },
+      "csv": "epoch,value,condition\n1,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n2,2,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n3,3,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n1,2,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n2,3,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n3,4,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n",
+      "status": "failed",
+      "findings": [
+        {
+          "severity": "error",
+          "code": "text_too_small",
+          "message": "\"1.0\" renders at 1.8840876656661276pt, below the required 5pt at the target width.",
+          "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+          "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+        }
+      ]
+    }
+  ],
+  "calibration_statistics_csv": "step,value,other,prob,event,method,site\n1,1,2,0.1,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.9,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n"
+}

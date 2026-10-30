@@ -305,7 +305,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
 }
 
 export function emitLegend(spec: FigureSpec, out: string[]): void {
-  out.push("", "def add_legend(fig, ax, frame):");
+  out.push("", "def add_legend(fig, ax, frame, layout_columns=None):");
 
   if (spec.kind === "heatmap" || !spec.group || !spec.legend.show) {
     out.push("    return", "");
@@ -351,9 +351,9 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
   );
   if (spec.legend.position === "outside_bottom") {
     out.push(spec.kind === "calibration" && spec.facet
-      ? "        ncol=1,  # Per-panel errors need room without crossing into another legend."
-      : "        ncol=min(len(handles), 4),");
-  }
+      ? "        ncol=layout_columns or 1,  # Per-panel errors need room without crossing into another legend."
+      : "        ncol=layout_columns or min(len(handles), 4),");
+  } else out.push("        ncol=layout_columns or 1,");
   out.push("    )",
     "    for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):",
     "        text.set_text(shown)",
@@ -361,7 +361,10 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
     '            edit_target(text, target["path"], target["role"], target["source"])',
     "        else:",
     '            edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
-    '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")', "");
+    '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")',
+    "    legend._graphunslopify_legend_frame = frame",
+    `    legend._graphunslopify_panel_legend = ${spec.kind === "calibration" && (spec.facet || spec.repeat) ? "True" : "False"}`,
+    "    return legend", "");
 }
 
 /** Keep complete category names and font sizes; rotate only when geometry needs it. */

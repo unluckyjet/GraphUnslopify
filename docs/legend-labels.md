@@ -17,7 +17,7 @@ and Treatment. Add this to an existing specification:
 
 This example is a specification fragment. Use **Advanced JSON specification** or
 the [direct text editor](workspace/direct-text-editing.md) to review and apply
-the visible names. Derived metric/panel aliases remain a further checkpoint of
+the visible names. Derived metric/panel aliases are also supported in the current source editor; see
 the [workspace initiative](../pipeline/visual-workspace-roadmap.md).
 The public PyPI0.8.0 wheel does not include these source additions.
 
@@ -66,4 +66,11 @@ also render the names, reject ambiguous edits and recover to current exports:
 `PYTHON=python npm run preview-check`.
 
 
-The current-source [direct text editor](workspace/direct-text-editing.md) can create these records by clicking a series name and reviewing the change. Derived metric/panel aliases remain open.
+The current-source [direct text editor](workspace/direct-text-editing.md) can create these records by clicking a series name and reviewing the change. The current source editor also supports canonical derived metric/panel aliases.
+
+
+Current-source [measured outside legends](workspace/outside-legend-layout.md) wrap
+complete names/titles and choose fitting native columns while retaining source
+identities and panel-specific statistics. Unbreakable wording and constrained
+layouts can still fail strict verification. Sparkline child-heading and table
+context refinements remain separate roadmap work.

@@ -152,14 +152,6 @@ test("a horizontal bar reads top to bottom", () => {
   assert.ok(!vertical.code.includes("invert_yaxis"));
 });
 
-test("a legend below the axes lays out as a strip", () => {
-  const below = translated({ ...line, legend: { position: "outside_bottom" } });
-  assert.match(below.code, /ncol=min\(len\(handles\), 4\)/);
-
-  const right = translated({ ...line, legend: { position: "outside_right" } });
-  assert.ok(!right.code.includes("ncol="));
-});
-
 test("a second visual channel appears once colour stops being enough", () => {
   const few = translated({ ...line, series_order: ["a", "b"] });
   const many = translated({ ...line, series_order: ["a", "b", "c", "d", "e", "f"] });
@@ -282,12 +274,6 @@ test("a horizontal bar sends the value limit to the axis that draws it", () => {
   });
   assert.match(result.code, /ax\.set_xlim\(0, 100\)/);
   assert.ok(!result.code.includes("set_ylim(0, 100)"));
-});
-
-test("an outside legend suppresses tight_layout", () => {
-  const result = translated({ ...line, legend: { position: "outside_right" } });
-  assert.ok(!result.code.includes("fig.tight_layout()"));
-  assert.match(result.code, /bbox_to_anchor=\(1\.02, 0\.5\)/);
 });
 
 const SAMPLES: [string, unknown][] = [

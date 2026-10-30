@@ -58,6 +58,11 @@ benchmark results and clocks are unchanged.
 The preceding literal/math checkpoint `4cfdf9d` passed exact
 [main](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41104445012) and
 [Figure](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41104445231) CI
-before this implementation began. This checkpoint still requires its own exact
-CI before the next implementation. Outside legends, long table context/headers,
+before this implementation began. Heading ownership3f2a925 subsequently passed
+exact [main](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41110332003)
+and [Figure](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41110331832)
+CI before outside-legend implementation. Downloaded
+[NIST evidence](heading-ownership/ci-certified-summary.json) confirms72 expected
+outcomes; [editor evidence](heading-ownership/ci-editor-checks.json) confirms92
+workflows/8 headings/18 diagnostics with zero JavaScript errors/external requests. Outside legends, long table context/headers,
 full task 83 acceptance and tasks 84–89 remain open. No new PyPI release is made.

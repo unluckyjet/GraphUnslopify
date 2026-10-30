@@ -124,6 +124,20 @@ preview geometry. All seven gates234/1721 pass;113 native controls pass minimum/
 fresh, source/fresh92 editor workflows and minimum8 heading workflows pass,19
 assets match and all89 prior PNG pixels remain unchanged. The unchanged72 NIST
 outcomes pass. [Heading ownership](../../docs/workspace/heading-ownership.md).
-New push and exact main/Figure CI are required before the next implementation.
-Outside legends, long table context/headers and full83 acceptance remain open;
-84–89 retain their entire scope.
+Heading ownership3f2a925 passed exact main41110332003 all9/Figure41110331832.
+Downloaded CI artifacts confirm72 NIST expected outcomes and92 editor workflows.
+
+83f fits complete outside boxes across ten grouped kinds while preserving original
+numeric artists/scales/limits, source identities, canonical aliases, fonts/parser
+flags and computed panel suffixes. Actual column measurement retains a short strip
+or compact rows; shared boxes clear the whole panel grid, local statistics remain
+local, and physical height budgeting preserves the original data area.37 new
+native controls include actual SVG glyphs, both positions, original narrow cases,
+scoped stats, supported compositions and strict negatives. Stable seven gates
+232/1758,150 minimum/fresh native controls, source/fresh95 editor workflows and
+minimum3 legend workflows pass.19 assets match; genuine15+seven/gallery15 pass;
+86/93 prior PNGs retain original pixels and7 change for measured owned layout.
+The frozen72-case replay passes unchanged. [Measured proof](../../docs/workspace/outside-legend-layout.md).
+New push/exact main/Figure CI are required before the next implementation.
+Sparkline child headings, long table context/headers and full83 acceptance remain
+open;84–89 retain their entire scope.

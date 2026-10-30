@@ -1167,7 +1167,7 @@ def decorate_panel(ax, frame, panel_label, show_x=True, show_y=True):
         mark_panel_text(ax.set_title(str(panel_label), loc="left", fontsize=PANEL_LETTER_PT), CURRENT_PANEL)
 
 
-def add_legend(fig, ax, frame):
+def add_legend(fig, ax, frame, layout_columns=None):
     return
 
 

@@ -1,0 +1,1823 @@
+{
+  "before_revision": "3f2a925b813bbf5d9da7e48e051e31dba029f8f5",
+  "current_parent_revision": "3f2a925b813bbf5d9da7e48e051e31dba029f8f5",
+  "current_tracked_working_tree": "M docs/density-evidence.png\n M docs/fifth-pass-table.png\n M docs/seventh-pass-confusion.png\n M docs/seventh-pass-qq.png\n M docs/seventh-pass-scaling-fit.png\n M docs/sparkline-shared-scales.png\n M docs/third-pass-heatmap.png\n M examples/baseline/01-training-curve.pdf\n M examples/baseline/01-training-curve.png\n M examples/baseline/01-training-curve.svg\n M examples/baseline/02-loss-log.pdf\n M examples/baseline/02-loss-log.png\n M examples/baseline/02-loss-log.svg\n M examples/baseline/03-single-run.pdf\n M examples/baseline/03-single-run.png\n M examples/baseline/03-single-run.svg\n M examples/baseline/04-accuracy-by-dataset.pdf\n M examples/baseline/04-accuracy-by-dataset.png\n M examples/baseline/04-accuracy-by-dataset.svg\n M examples/baseline/05-latency-ranking.pdf\n M examples/baseline/05-latency-ranking.png\n M examples/baseline/05-latency-ranking.svg\n M examples/baseline/06-accuracy-vs-latency.pdf\n M examples/baseline/06-accuracy-vs-latency.png\n M examples/baseline/06-accuracy-vs-latency.svg\n M examples/baseline/07-params-trendline.pdf\n M examples/baseline/07-params-trendline.png\n M examples/baseline/07-params-trendline.svg\n M examples/baseline/08-compact-double-column.pdf\n M examples/baseline/08-compact-double-column.png\n M examples/baseline/08-compact-double-column.svg\n M examples/baseline/09-uncertainty-band.pdf\n M examples/baseline/09-uncertainty-band.png\n M examples/baseline/09-uncertainty-band.svg\n M examples/baseline/10-faceted-benchmarks.pdf\n M examples/baseline/10-faceted-benchmarks.png\n M examples/baseline/10-faceted-benchmarks.svg\n M examples/baseline/11-seed-spread.pdf\n M examples/baseline/11-seed-spread.png\n M examples/baseline/11-seed-spread.svg\n M examples/baseline/12-sweep-heatmap.pdf\n M examples/baseline/12-sweep-heatmap.png\n M examples/baseline/12-sweep-heatmap.svg\n M examples/baseline/13-direct-labels.pdf\n M examples/baseline/13-direct-labels.png\n M examples/baseline/13-direct-labels.svg\n M examples/baseline/14-animated-curve.gif\n M examples/baseline/14-animated-curve.png\n M examples/baseline/15-price-and-average.pdf\n M examples/baseline/15-price-and-average.png\n M examples/baseline/15-price-and-average.svg\n M examples/generated/01-training-curve.py\n M examples/generated/02-loss-log.py\n M examples/generated/03-single-run.py\n M examples/generated/04-accuracy-by-dataset.py\n M examples/generated/05-latency-ranking.py\n M examples/generated/06-accuracy-vs-latency.py\n M examples/generated/07-params-trendline.py\n M examples/generated/08-compact-double-column.py\n M examples/generated/09-uncertainty-band.py\n M examples/generated/10-faceted-benchmarks.py\n M examples/generated/11-seed-spread.py\n M examples/generated/12-sweep-heatmap.py\n M examples/generated/13-direct-labels.py\n M examples/generated/14-animated-curve.py\n M examples/generated/15-price-and-average.py\n M python/graphunslopify/_translator.mjs\n M scripts/preview-check.ts\n M src/codegen/decorate.ts\n M src/codegen/heading-layout.ts\n M src/codegen/index.ts\n M test/translate.test.ts",
+  "scope": "Actual historical/current shipped emission; identical synthetic CSV and complete wording; genuine strict PNG/SVG/PDF/native data comparison. Old verdicts are measured, not assumed.",
+  "cases": [
+    {
+      "name": "outside_right",
+      "spec": {
+        "title": "Observed responses",
+        "group": "condition",
+        "legend": {
+          "show": true,
+          "position": "outside_right",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600,
+          "stem": "legend"
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "data": {
+          "path": "data.csv",
+          "format": "csv"
+        },
+        "x": {
+          "field": "epoch",
+          "label": "Epoch",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "value",
+          "label": "Response",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "line",
+        "marker": false,
+        "sort_x": true,
+        "aggregation": "none"
+      },
+      "csv": "epoch,value,condition\n1,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n2,2,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n3,3,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n1,2,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n2,3,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n3,4,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n",
+      "numeric_artist_signature_sha256": "755949f98ada7ee60932bb79fff254b294d138ce939bf32a7e92d8a2fc828419",
+      "original_numeric_artists_and_limits_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "data_sha256": "208ac6b395f9150486ddf62f4c52924fdd3696cba278ed04fb61bad74278f1d3",
+          "code_sha256": "6fe68d217d0ff710625d74128b1cff8bdd5f3150c226e0eb66f63ebe74f7226a",
+          "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                316.8255555555555,
+                109.80850694444447,
+                717.8750000000001,
+                37.782986111111114
+              ],
+              "axes_bbox": [
+                42.5,
+                28.599999999999998,
+                263.5,
+                200.20000000000002
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "legend.png": 10.510021020042041,
+                "legend.svg": 10.48115486111111,
+                "legend.pdf": 10.484965625
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 10.510021020042041,
+              "text_scale": 0.32350078020932443,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "error",
+              "code": "text_too_small",
+              "message": "\"1.0\" renders at 2.5880062416745955pt, below the required 5pt at the target width.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "condition",
+            "legend": {
+              "show": true,
+              "position": "outside_right",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "legend"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Response",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "data_sha256": "208ac6b395f9150486ddf62f4c52924fdd3696cba278ed04fb61bad74278f1d3",
+          "code_sha256": "323906fdb0ca7705d3a24c66481aaf66346154016dcfbac8fe6d23f70897d862",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                340.0555555555555,
+                11.449283854166765,
+                123.75,
+                290.0850694444444
+              ],
+              "axes_bbox": [
+                59.277777777777786,
+                53.8918185763889,
+                267.2222222222222,
+                205.2000000000001
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative\ntreatment\ncondition\nmeasured with\nthe modified\nexperimental\npreparation\nand complete\nfollow-up\nschedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference\ntreatment\ncondition\nmeasured with\nthe original\nexperimental\npreparation\nand complete\nfollow-up\nschedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "legend.png": 4.691676050018767,
+                "legend.svg": 4.688402777777777,
+                "legend.pdf": 4.689244791666667
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 4.691676050018767,
+              "text_scale": 0.7246877158081705,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "text_near_minimum",
+              "message": "\"1.0\" renders at 5.8pt, close to the 5pt floor.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "condition",
+            "legend": {
+              "show": true,
+              "position": "outside_right",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "legend"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Response",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        }
+      ]
+    },
+    {
+      "name": "outside_bottom",
+      "spec": {
+        "title": "Observed responses",
+        "group": "condition",
+        "legend": {
+          "show": true,
+          "position": "outside_bottom",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600,
+          "stem": "legend"
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "data": {
+          "path": "data.csv",
+          "format": "csv"
+        },
+        "x": {
+          "field": "epoch",
+          "label": "Epoch",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "value",
+          "label": "Response",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "line",
+        "marker": false,
+        "sort_x": true,
+        "aggregation": "none"
+      },
+      "csv": "epoch,value,condition\n1,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n2,2,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n3,3,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\n1,2,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n2,3,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n3,4,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\n",
+      "numeric_artist_signature_sha256": "755949f98ada7ee60932bb79fff254b294d138ce939bf32a7e92d8a2fc828419",
+      "original_numeric_artists_and_limits_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "data_sha256": "208ac6b395f9150486ddf62f4c52924fdd3696cba278ed04fb61bad74278f1d3",
+          "code_sha256": "6e11efca162a82b8c6c44f1d4b66771c376d26e7f04b255407b75052722610cb",
+          "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                -544.5104166666665,
+                -33.54971527777778,
+                1437.520833333333,
+                20.55815972222222
+              ],
+              "axes_bbox": [
+                42.5,
+                28.599999999999998,
+                263.5,
+                200.20000000000002
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "legend.png": 14.436695540057748,
+                "legend.svg": 14.37892361111111,
+                "legend.pdf": 14.386371527777776
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 14.436695540057748,
+              "text_scale": 0.23551095820826595,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "error",
+              "code": "text_too_small",
+              "message": "\"1.0\" renders at 1.8840876656661276pt, below the required 5pt at the target width.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "condition",
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "legend"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Response",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "data_sha256": "208ac6b395f9150486ddf62f4c52924fdd3696cba278ed04fb61bad74278f1d3",
+          "code_sha256": "9c9fbedd3250fd71a9fedc1935f3c94ea062f6f59e2227bd6dfe808933b74658",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                17.84374999999997,
+                -97.86197916666666,
+                304.3125,
+                97.80642361111111
+              ],
+              "axes_bbox": [
+                59.277777777777786,
+                53.8918185763889,
+                267.2222222222222,
+                205.2000000000001
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition measured with\nthe modified experimental preparation and\ncomplete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition measured with\nthe original experimental preparation and\ncomplete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "legend.png": 3.3283399900133137,
+                "legend.svg": 3.326701388888889,
+                "legend.pdf": 3.3268663194444446
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3283399900133137,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "condition",
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "legend"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Response",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        }
+      ]
+    },
+    {
+      "name": "shared-panels",
+      "spec": {
+        "kind": "line",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_right"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "numeric_artist_signature_sha256": "fd4bbc3b15dec2ce7049e67e64bf1da4bb7e2cff621ea1fbdc6bbe8d48498ff6",
+      "original_numeric_artists_and_limits_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 0,
+          "status": "passed",
+          "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+          "code_sha256": "acc611e7d552194fab4a07450eb2041b3ad0766119ea752c20397fb94a83746f",
+          "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                344.5782828282828,
+                189.00850694444446,
+                717.8749999999999,
+                37.782986111111114
+              ],
+              "axes_bbox": [
+                87.5,
+                46.199999999999996,
+                246.59090909090907,
+                323.40000000000003
+              ],
+              "overlaps_other_data_axes": [
+                1
+              ],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 10.419138684535413,
+                "series.svg": 10.308691902777777,
+                "series.pdf": 10.312574277936111
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 10.419138684535413,
+              "text_scale": 0.6718405630198335,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "warning",
+              "code": "text_near_minimum",
+              "message": "\"1.0\" renders at 5.4pt, close to the 5pt floor.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_right",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "step",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+          "code_sha256": "4478c7ab66abbd2760d439958c004a53aae35556abb82cfdfb7cad3683422941",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                700.0555555555555,
+                153.7920138888889,
+                265.5625,
+                125.59375
+              ],
+              "axes_bbox": [
+                60.780707465277786,
+                52.38888888888889,
+                303.67909071180554,
+                328.40000000000003
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition\nmeasured with the modified\nexperimental preparation and complete\nfollow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition\nmeasured with the original\nexperimental preparation and complete\nfollow-up schedule",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 9.692532084014388,
+                "series.svg": 9.665761722222221,
+                "series.pdf": 9.667092013888889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 9.692532084014388,
+              "text_scale": 0.7222055020632737,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.85,
+                    4.15
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "warning",
+              "code": "text_near_minimum",
+              "message": "\"1.0\" renders at 5.8pt, close to the 5pt floor.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_right",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "step",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "none"
+          }
+        }
+      ]
+    },
+    {
+      "name": "panel-statistics",
+      "spec": {
+        "kind": "calibration",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "prob",
+          "label": "Step"
+        },
+        "y": {
+          "field": "observed",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "outcome": "event",
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.1,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.9,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "numeric_artist_signature_sha256": "2e48a7c3d7f25fff73e4005b7ac9d8f24d3e86398bf54f1d471b2654823f4027",
+      "original_numeric_artists_and_limits_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "data_sha256": "36adf661bf542c758360a4ef8ff1e3774f4fcccb99fb1a66a708055488006686",
+          "code_sha256": "413c765f99c2937b1e0cb6f4dbda2baa66ef1532408c69189360961a08e0e925",
+          "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                -170.36079545454547,
+                -38.125715277777786,
+                762.3125,
+                20.55815972222222
+              ],
+              "axes_bbox": [
+                87.5,
+                46.199999999999996,
+                246.59090909090907,
+                323.40000000000003
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule (ECE 0.1)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            },
+            {
+              "axes_index": 1,
+              "bbox": [
+                116.26704545454538,
+                -55.350541666666665,
+                780.875,
+                37.7829861111111
+              ],
+              "axes_bbox": [
+                383.4090909090908,
+                46.199999999999996,
+                246.59090909090907,
+                323.40000000000003
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule (ECE 0.25)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule (ECE 0.25)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 10.885766776613135,
+                "series.svg": 10.769264513888887,
+                "series.pdf": 10.773717645201389
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 10.885766776613135,
+              "text_scale": 0.643041518677281,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "warning",
+              "code": "text_near_minimum",
+              "message": "\"0.0\" renders at 5.1pt, close to the 5pt floor.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            },
+            {
+              "severity": "error",
+              "code": "labels_collide",
+              "message": "\"Reference treatment condition measured with the original experimental preparation and complete follow-up schedule (ECE 0.1)\" and \"Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule (ECE 0.25)\" are drawn on top of each other (an inset over its parent).",
+              "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+              "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "prob",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "observed",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "calibration",
+            "outcome": "event",
+            "bins": 10
+          }
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "data_sha256": "36adf661bf542c758360a4ef8ff1e3774f4fcccb99fb1a66a708055488006686",
+          "code_sha256": "c54c851914237d1a43e62bd874a7e145d7871a92cb59149732e47db6635b0223",
+          "translator_sha256": "9e626ec59df63307f711b7c790db77990d82228d8cb9b80eadf6b584b701bd92",
+          "native_legends": [
+            {
+              "axes_index": 0,
+              "bbox": [
+                95.49930304790114,
+                59.09758054217445,
+                231.0,
+                78.35720486111109
+              ],
+              "axes_bbox": [
+                60.780707465277786,
+                206.4738090752891,
+                300.4371911652467,
+                352.5748228691556
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Reference treatment condition\nmeasured with the original\nexperimental preparation and\ncomplete follow-up schedule (ECE\n0.1)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            },
+            {
+              "axes_index": 1,
+              "bbox": [
+                417.53950487081784,
+                -15.926290985603345,
+                231.0,
+                153.38107638888889
+              ],
+              "axes_bbox": [
+                382.82090928819446,
+                206.4738090752891,
+                300.43719116524676,
+                352.5748228691556
+              ],
+              "overlaps_other_data_axes": [],
+              "texts": [
+                {
+                  "text": "Alternative treatment condition\nmeasured with the modified\nexperimental preparation and\ncomplete follow-up schedule (ECE\n0.25)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                },
+                {
+                  "text": "Reference treatment condition\nmeasured with the original\nexperimental preparation and\ncomplete follow-up schedule (ECE\n0.25)",
+                  "font_size": 8.0,
+                  "target": {
+                    "path": [
+                      "legend",
+                      "labels",
+                      0,
+                      "text"
+                    ],
+                    "role": "legend_entry",
+                    "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+                    "editable": true
+                  }
+                }
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 6.91276187835139,
+                "series.svg": 6.909837180555556,
+                "series.pdf": 6.910156184118055
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.91276187835139,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "y_limits": [
+                    -0.02,
+                    1.02
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 2,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "report_spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv"
+            },
+            "x": {
+              "field": "prob",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "observed",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "calibration",
+            "outcome": "event",
+            "bins": 10
+          }
+        }
+      ]
+    }
+  ]
+}

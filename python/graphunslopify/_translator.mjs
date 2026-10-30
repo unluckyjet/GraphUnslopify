@@ -21446,7 +21446,7 @@ function emitDecoratePanel(spec, out) {
   out.push("");
 }
 function emitLegend(spec, out) {
-  out.push("", "def add_legend(fig, ax, frame):");
+  out.push("", "def add_legend(fig, ax, frame, layout_columns=None):");
   if (spec.kind === "heatmap" || !spec.group || !spec.legend.show) {
     out.push("    return", "");
     return;
@@ -21488,8 +21488,8 @@ function emitLegend(spec, out) {
     `        ${LEGEND_LOCATIONS[spec.legend.position]},`
   );
   if (spec.legend.position === "outside_bottom") {
-    out.push(spec.kind === "calibration" && spec.facet ? "        ncol=1,  # Per-panel errors need room without crossing into another legend." : "        ncol=min(len(handles), 4),");
-  }
+    out.push(spec.kind === "calibration" && spec.facet ? "        ncol=layout_columns or 1,  # Per-panel errors need room without crossing into another legend." : "        ncol=layout_columns or min(len(handles), 4),");
+  } else out.push("        ncol=layout_columns or 1,");
   out.push(
     "    )",
     "    for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):",
@@ -21499,6 +21499,9 @@ function emitLegend(spec, out) {
     "        else:",
     '            edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
     '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")',
+    "    legend._graphunslopify_legend_frame = frame",
+    `    legend._graphunslopify_panel_legend = ${spec.kind === "calibration" && (spec.facet || spec.repeat) ? "True" : "False"}`,
+    "    return legend",
     ""
   );
 }
@@ -21576,9 +21579,122 @@ function emitDateLayout(spec, out) {
   );
 }
 
+// src/codegen/legend-layout.ts
+function hasOutsideLegendLayout(spec) {
+  return !!spec.group && !unusedGrouping(spec) && !["table", "sparkline_grid"].includes(spec.kind) && spec.legend.show && spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position);
+}
+function emitLegendLayout(spec, out) {
+  if (!hasOutsideLegendLayout(spec)) return;
+  out.push("", ...String.raw`
+def fit_outside_legends(fig, axes, frame, layout=None):
+    axes = [ax for ax in axes if ax.get_visible()]
+    legends = [ax.get_legend() for ax in axes if ax.get_legend() is not None]
+    if not legends:
+        if layout is not None:
+            layout()
+        return
+    fig.canvas.draw()
+    minimum = {ax: ax.bbox.height / fig.dpi for ax in axes}
+    rows = max((ax.get_subplotspec().get_gridspec().nrows for ax in axes
+                if ax.get_subplotspec() is not None), default=1)
+    position = RUN_REPORT["spec"]["legend"]["position"]
+    for attempt in range(4):
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        changed = False
+        for index, legend in enumerate(legends):
+            local = legend._graphunslopify_panel_legend
+            budget = (legend.axes.bbox.width * 0.94 if local else
+                      fig.bbox.width * (0.38 if position == "outside_right" else 0.92))
+            box = legend.get_window_extent(renderer)
+            if position == "outside_bottom" and legend._ncols > 1 and box.width > budget:
+                owner, source = legend.axes, legend._graphunslopify_legend_frame
+                choices = []
+                for columns in range(legend._ncols - 1, 0, -1):
+                    legend.remove()
+                    legend = add_legend(fig, owner, source, layout_columns=columns)
+                    candidate = legend.get_window_extent(renderer)
+                    if candidate.width <= budget:
+                        choices.append((candidate.height, candidate.width, columns))
+                selected = min(choices, default=(0, 0, 1))[2]
+                if legend._ncols != selected:
+                    legend.remove()
+                    legend = add_legend(fig, owner, source, layout_columns=selected)
+                legends[index] = legend
+                fig.canvas.draw()
+                renderer = fig.canvas.get_renderer()
+                box = legend.get_window_extent(renderer)
+                changed = True
+            texts = legend.get_texts()
+            font = renderer.points_to_pixels(texts[0].get_fontsize())
+            overhead = (font * (2 * legend.borderpad + legend.handlelength + legend.handletextpad)
+                        if legend._ncols == 1 else
+                        max(0, box.width - max((text.get_window_extent(renderer).width
+                                               for text in texts), default=0)))
+            for text in [*texts, legend.get_title()]:
+                width = max(1, budget - (2 * font * legend.borderpad
+                                        if text is legend.get_title() else overhead))
+                if not text.get_visible() or not text.get_text().strip():
+                    continue
+                if text.get_window_extent(renderer).width <= width:
+                    continue
+                original = getattr(text, "_graphunslopify_heading_original", text.get_text())
+                wrapped = wrap_heading(original, text, renderer, width)
+                if wrapped != text.get_text():
+                    text._graphunslopify_heading_original = original
+                    text.set_text(wrapped)
+                    changed = True
+            displayed = [text.get_text().strip() for text in texts]
+            if len(set(displayed)) != len(displayed):
+                raise ValueError("Legend wrapping makes visible source names ambiguous; review display names")
+        shared = [legend for legend in legends if not legend._graphunslopify_panel_legend]
+        states = [(legend, legend.get_in_layout()) for legend in shared]
+        for legend, state in states:
+            legend.set_in_layout(False)
+        try:
+            if layout is not None:
+                layout()
+                layout = None
+            else:
+                fit_headings(fig)
+                fit_category_labels(fig, axes)
+${spec.x.temporal ? "            fit_date_labels(fig, axes, tight=False)" : ""}
+            fig.tight_layout()
+            fig.canvas.draw()
+            deficit = max((height - ax.bbox.height / fig.dpi
+                           for ax, height in minimum.items()), default=0)
+            if deficit > 1 / fig.dpi:
+                # Text consumes fixed physical space, not a fraction of the
+                # enlarged canvas. Dividing by the current usable fraction
+                # compounds margins and unnecessarily enlarges the data area.
+                fig.set_size_inches(fig.get_figwidth(), fig.get_figheight() + rows * deficit + 0.05)
+                changed = True
+        finally:
+            for legend, state in states:
+                legend.set_in_layout(state)
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        visible = [ax for ax in fig.axes if ax.get_visible()]
+        boxes = [ax.get_tightbbox(renderer, bbox_extra_artists=[]) for ax in visible]
+        boxes = [box for box in boxes if box is not None]
+        if boxes:
+            left = min(box.x0 for box in boxes)
+            right = max(box.x1 for box in boxes)
+            bottom = min(box.y0 for box in boxes)
+            center = (min(ax.bbox.y0 for ax in visible) + max(ax.bbox.y1 for ax in visible)) / 2
+            for legend in shared:
+                point = ((right + fig.dpi * 0.08, center) if position == "outside_right" else
+                         ((left + right) / 2, bottom - fig.dpi * 0.08))
+                anchor = fig.transFigure.inverted().transform(point)
+                legend.set_bbox_to_anchor(tuple(anchor), transform=fig.transFigure)
+        if not changed:
+            return
+`.trim().split("\n"), "");
+}
+
 // src/codegen/heading-layout.ts
 function emitHeadingLayout(spec, out) {
-  if (spec.kind === "table" || !spec.axis_break && spec.group && spec.legend.show && spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position)) return;
+  if (spec.kind === "table" || !spec.axis_break && spec.group && spec.legend.show && spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position) && !hasOutsideLegendLayout(spec)) return;
   out.push("", ...String.raw`
 def heading_dollars(text):
     return text.count("$") - text.count(r"\$")
@@ -26143,7 +26259,7 @@ function emitMain(spec, out) {
       "        if legend is not None:",
       "            legend.remove()",
       ...spec.title ? [`        edit_target(upper.set_title(${pyStr(spec.title)}), ["title"], "title")`] : [],
-      "        fit_break_layout(fig, upper, lower)"
+      hasOutsideLegendLayout(spec) ? "        fit_outside_legends(fig, [upper, lower], df, lambda: fit_break_layout(fig, upper, lower))" : "        fit_break_layout(fig, upper, lower)"
     );
     emitSaveBlock(spec, out);
     return;
@@ -26208,12 +26324,13 @@ function emitMain(spec, out) {
     );
   }
   const outsideLegend = spec.group !== void 0 && spec.legend.show && spec.legend.style === "box" && (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
-  if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
+  if (hasOutsideLegendLayout(spec)) out.push("        fit_outside_legends(fig, flat, df)");
+  else if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
   out.push(
-    outsideLegend ? "        # tight_layout is skipped: it fights a legend anchored outside the axes." : "        fig.tight_layout()"
+    hasOutsideLegendLayout(spec) ? "        # Complete outside legends retain source ownership and final export cropping." : outsideLegend ? "        # tight_layout is skipped: it fights a legend anchored outside the axes." : "        fig.tight_layout()"
   );
   if (!outsideLegend) out.push("        fit_headings(fig)");
-  if (spec.x.temporal) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
+  if (spec.x.temporal && !hasOutsideLegendLayout(spec)) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
@@ -26291,6 +26408,7 @@ function emitPython(spec) {
   emitHeadingLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
+  emitLegendLayout(spec, out);
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);

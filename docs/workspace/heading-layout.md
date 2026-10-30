@@ -10,8 +10,8 @@ remain intact. Canonical JSON wording is unchanged by visual line breaks.
 | ![Original rejected four-panel export](heading-layout/before.png) | ![Measured wrapped four-panel export](heading-layout/after.png) |
 
 The same synthetic eight-row input and canonical specification were executed
-with the real translator at12763f8dddecbb9fe99a8bae6516c870e39f33d8 and the new
-source. Before: strict exit2, `labels_collide` and `text_too_small`. After: exit0;
+with the real translator at12763f8dddecbb9fe99a8bae6516c870e39f33d8 and the
+initial heading checkpointc02c43f. Before: strict exit2, `labels_collide` and `text_too_small`. After: exit0;
 the existing `line_implies_continuity` advisory remains. Both retain spec hash
 `e37320ed475892fc` and data hash prefix `9f604c94773850b6`.
 [Inputs](heading-layout/inputs.json), [measurements](heading-layout/measurements.json)
@@ -46,7 +46,7 @@ checkpoint. Their unused heading helper is omitted from generated scripts.
 Full83 acceptance and84–89 remain open. These changes follow the immutable
 published0.8.0 release; no new release or tag is created here.
 
-## Verification
+## Initial83e2 verification
 
 All seven gates pass on stable source/test files:234 Node/1656 Python tests,
 zero skips/one existing upstream MLflow/SQLAlchemy warning.48 heading/export
@@ -66,3 +66,8 @@ original budget](heading-layout/single-column-data-area.json), at unchanged
 adjacent browser/installation/image JSON. Exact new-commit CI must pass before
 advancing to the next checkpoint. These are automated controls, not blind human
 judgments or a productivity comparison.
+
+The initial c02c43f main CI subsequently failed exact publisher-label checks;
+see the [available-margin correction](heading-margin-regression.md) and its
+unchanged frozen72-run replay. The original image/verification snapshots above
+remain historical evidence of that checkpoint.

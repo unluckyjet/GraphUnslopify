@@ -1,0 +1,129 @@
+{
+  "revision": "c02c43f77973668a240c83404ec6b3b6035d24ff",
+  "workflow": 41094291652,
+  "job": 124195904158,
+  "artifact": 12995716224,
+  "artifact_sha256": "039c5c773fe7447e5bce559233045094525d6b502e73f849045a05047e1eefce",
+  "unexpected_outcomes": [
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 0,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 0,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 0,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 0,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 1,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Lew",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 1,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 1,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Mavro",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 1,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "mean_sd",
+      "repeat": 1,
+      "numeric_passed": true,
+      "labels_passed": false,
+      "quality_passed": true,
+      "matches_expected": false
+    },
+    {
+      "dataset": "Michelso",
+      "arm": "graphunslopify",
+      "variant": "missing_interval",
+      "repeat": 1,
+      "numeric_passed": false,
+      "labels_passed": false,
+      "quality_passed": false,
+      "matches_expected": false
+    }
+  ]
+}

@@ -1,0 +1,432 @@
+{
+  "parent_revision": "c02c43f77973668a240c83404ec6b3b6035d24ff",
+  "count": 85,
+  "files": [
+    {
+      "path": "benchmarks/authoring/figures/round1-Mavro-graphunslopify.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-Mavro-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-NumAcc4-graphunslopify.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-NumAcc4-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/Mavro-graphunslopify.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/Mavro-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/NumAcc4-graphunslopify.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/NumAcc4-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/density-evidence.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "docs/fifth-pass-axis-break.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-inset.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-layers.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-repeat.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-table.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/first-pass-greyscale.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/first-pass.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fix-apply-fixes-bar.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fix-temporal-before.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-direct-labels.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-facets.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-showcase.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/lock-figure-1.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/lock-figure-2.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/second-pass-greyscale.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/second-pass.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-calibration.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-confusion.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "docs/seventh-pass-dumbbell.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-ecdf.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-forest.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-kaplan-meier.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-paired-difference.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-qq.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-raincloud.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-ridgeline.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-scaling-fit.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-slope.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-sparklines.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-waterfall.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/sparkline-shared-scales.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "docs/third-pass-box.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/third-pass-heatmap.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "docs/third-pass-pareto.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/third-pass-stacked.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/third-pass-violin.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-measurements-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-measurements.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-scatter-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-scatter.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-mass-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-mass.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-scatter-matplotlib.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-scatter.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/after-figure.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/after.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/before-figure.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/before.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/desktop.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/narrow.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/short.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/wide.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/comparison.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/date-label-layout/after.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/date-label-layout/before.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/after.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/before.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/narrow-editor.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/single-column.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/shared-bar-range/after-shared-range.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "docs/workspace/shared-bar-range/before-shared-range.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/01-training-curve.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/02-loss-log.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/03-single-run.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/04-accuracy-by-dataset.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/05-latency-ranking.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/06-accuracy-vs-latency.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/07-params-trendline.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/08-compact-double-column.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/09-uncertainty-band.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/10-faceted-benchmarks.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/11-seed-spread.png",
+      "identical_rgba_and_dimensions": false,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/12-sweep-heatmap.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/13-direct-labels.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    },
+    {
+      "path": "examples/baseline/14-animated-curve.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": true
+    },
+    {
+      "path": "examples/baseline/15-price-and-average.png",
+      "identical_rgba_and_dimensions": true,
+      "identical_bytes": false
+    }
+  ],
+  "seed_spread_matches_pre_heading_12763f8_rgba": true
+}

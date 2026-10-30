@@ -32,6 +32,17 @@ def request(case="nested"):
         spec.pop("facet")
         frame = frame.iloc[:2]
         spec["output"]["size"] = "single_column"
+    elif case.startswith("margin-"):
+        spec.pop("facet")
+        frame = frame.iloc[:2]
+        spec["title"] = "Measured mean and sample SD"
+        spec["x"]["label"] = "Dataset"
+        spec["y"]["label"] = {
+            "margin-beam": "Beam deflection (publisher units)",
+            "margin-filter": "Filter transmittance (reported scale)",
+            "margin-speed": "Speed of light (million m/s)",
+        }[case]
+        spec["output"]["size"] = "single_column"
     elif case == "repeat":
         spec.pop("facet")
         frame = frame.iloc[:2].assign(loss=[3, 2])
@@ -188,3 +199,11 @@ def test_wrapped_preview_targets_retain_canonical_identity_and_wording(tmp_path)
     assert any(
         t["role"] == "axis_label" and t["source"] == "epoch" and "\n" in t["text"] for t in targets
     )
+
+
+@pytest.mark.parametrize("case", ["margin-beam", "margin-filter", "margin-speed"])
+def test_native_axis_wording_uses_free_figure_margins(tmp_path, monkeypatch, case):
+    run, report, fig, _, spec = render(tmp_path, monkeypatch, case)
+    assert run.returncode == 0 and report["status"] == "passed", report
+    assert fig.axes[0].get_ylabel() == spec["y"]["label"]
+    assert not hasattr(fig.axes[0].yaxis.label, "_graphunslopify_heading_original")

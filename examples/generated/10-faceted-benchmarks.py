@@ -831,8 +831,17 @@ def fit_headings(fig):
             candidates.extend((text, ax.bbox.width * 0.98, False)
                               for text in (ax.title, ax._left_title, ax._right_title))
             if ax.axison:
+                # Axis wording may use free margins beyond the data rectangle.
+                available_height = max(ax.bbox.height, minimum_heights[ax])
+                grid = ax.get_subplotspec()
+                if grid is not None:
+                    rows = grid.get_gridspec().nrows
+                    bottom = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.stop / rows)
+                    top = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.start / rows)
+                    center = ax.yaxis.label.get_transform().transform(ax.yaxis.label.get_position())[1]
+                    available_height = max(available_height, 2 * min(center - bottom, top - center))
                 candidates.extend([(ax.xaxis.label, ax.bbox.width * 0.98, False),
-                                   (ax.yaxis.label, max(ax.bbox.height, minimum_heights[ax]) * 0.98, True)])
+                                   (ax.yaxis.label, available_height * 0.98, True)])
         changed = False
         for artist, width, vertical in candidates:
             target = getattr(artist, "_graphunslopify_text_target", {})

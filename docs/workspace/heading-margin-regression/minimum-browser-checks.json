@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "workflows": [
+    "long nested headings and declared units render strictly with all eight original observations",
+    "actual wrapped heading click loads complete canonical wording without panel letters or inserted line breaks",
+    "reviewed wrapped panel edit forces strict manual rendering and preserves nested keys and automatic letters",
+    "native undo restores original long panel wording and invalidates newer outputs",
+    "narrow-screen wrapped axis edit changes canonical wording while preserving units fields and original data",
+    "axis edit native undo restores full original intent including declared units"
+  ],
+  "evidence": "/var/folders/cm/8l8qlt0s57sg6h83r9_1b_r80000gn/T/gu-heading-margin-minimum-Ptg9T4",
+  "javascript_errors": 0,
+  "external_browser_requests": 0
+}

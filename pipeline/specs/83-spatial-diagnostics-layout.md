@@ -105,3 +105,11 @@ Full gates/source-installed controls, push and exact CI are required before the
 next checkpoint. Outside legends/table context and full83 acceptance remain open.
 Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
 open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.
+
+83e2c02c43f failed the frozen NIST label gate despite passing local checks. A
+production available-margin correction preserves three publisher labels and
+passes the unchanged full72-case comparison. Three native regression cases plus
+234/1659/seven gates and source/fresh90 browser cases pass. [Failure and repair
+proof](../../docs/workspace/heading-margin-regression.md). New push/exact CI must
+pass before advancing. A separately observed odd-currency math-context change
+also remains to fix before full83 acceptance, alongside legends/table context.

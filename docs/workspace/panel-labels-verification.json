@@ -495,5 +495,14 @@
     }
   ],
   "acceptance_audit": "docs/workspace/direct-editing-acceptance.md",
-  "ci": "Pending exact pushed commit; full native goal82\u201389 remains unfinished"
+  "ci": {
+    "revision": "9d79aa838644b00d064063b05318b064c5c5477a",
+    "main": 41038823610,
+    "jobs_passed": 9,
+    "figure": 41038823929,
+    "result": "success",
+    "browser_artifact": 12969657911,
+    "browser_workflows": 53,
+    "artifact_sha256_verified": "47905ee77d23a233dcc880f33ab6b056651216b953cd99cb3affed70dc1f2923"
+  }
 }

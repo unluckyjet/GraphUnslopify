@@ -185,3 +185,11 @@ A brittle emitted-code-shape test was replaced with semantic schema plus actual
 rendered shared-unit/default/alias text checks. Full81 local acceptance audit is
 in docs/workspace/direct-editing-acceptance.md; commit/push/exact CI required
 before closure/82.82–89 and the original full native goal remain unfinished.
+
+
+81 final closure:9d79aa8 exact main41038823610 all9/Figure41038823929 passed.
+Actual CI editor artifact12969657911 ZIP SHA256 verified and actual53 workflows/
+21 required-kind controls/0 external requests/JS errors inspected. Original81
+requirements are audited against implementation and actual exports. Move81 to
+done; define82 real model/provider/data disclosure/review/strict draft requirements.
+No provider is assumed and83–89/native goal remain unfinished.

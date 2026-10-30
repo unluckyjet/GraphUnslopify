@@ -1,7 +1,7 @@
 ---
 id: 81
 slug: direct-visual-editing
-status: ready
+status: done
 priority: P1
 title: Edit actual rendered text through canonical figure intent
 source_idea: User visual-workspace advice and direct chart manipulation requirement
@@ -169,3 +169,17 @@ Requirement audit: docs/workspace/direct-editing-acceptance.md maps all original
 acceptance items to actual implementation/controls and states the measurement
 scope. Local implementation is complete; final seven gates and exact pushed CI
 are required before closing81. This does not close82–89 or the native goal.
+
+
+## Final exact-commit acceptance
+
+Implementation9d79aa838644b00d064063b05318b064c5c5477a is on main; exact main
+41038823610 all nine jobs and Figure41038823929 passed. Actual CI editor
+artifact12969657911 matches GitHub SHA256
+47905ee77d23a233dcc880f33ab6b056651216b953cd99cb3affed70dc1f2923;
+its actual checks.json confirms53 workflows/21 required-kind controls/0 external
+page requests/JS errors. All original81 acceptance items are mapped to actual
+implementation/measurement in docs/workspace/direct-editing-acceptance.md.
+234 Node/1511 Python/seven gates/Ruff/gallery15,140 actual3.10/3.12 controls,
+source/fresh offline53 workflows/12 source matches and22 default PNG RGBA
+identities passed.81 is complete;82–89 and the native full goal are not.

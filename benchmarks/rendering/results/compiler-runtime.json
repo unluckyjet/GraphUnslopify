@@ -1,0 +1,32 @@
+{
+  "scope": "Compiler runtime queried separately immediately after final baseline using the same interpreter/environment; outside all primary timers",
+  "observed_at": "2026-10-30T23:23:31.362817+00:00",
+  "compiler": {
+    "version": "0.8.0",
+    "kinds": [
+      "line",
+      "scatter",
+      "bar",
+      "box",
+      "violin",
+      "ecdf",
+      "raincloud",
+      "ridgeline",
+      "forest",
+      "paired_difference",
+      "slope",
+      "dumbbell",
+      "calibration",
+      "qq",
+      "kaplan_meier",
+      "scaling_fit",
+      "confusion_matrix",
+      "waterfall",
+      "sparkline_grid",
+      "heatmap",
+      "table"
+    ],
+    "node": "v24.19.0"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]"
+}

@@ -1,0 +1,18 @@
+{
+  "from_protocol_sha256": "320cf1c796553c037cf3e27823a82928ef93b0183acb6f420098000741faf874",
+  "to_protocol_sha256": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+  "reason": "Original dense case supplied claims:[], which canonical schema rejects because a present claims list must contain at least one item. Remove the empty optional property; median line support was not the problem. No data, quantities, bootstrap size, case membership, outcome or measurement threshold changed.",
+  "preserved": "protocol-v1.json, all original cases including invalid dense spec, original harness/phase sources and complete45-attempt initial-baseline-v1.json",
+  "initial_outcome": {
+    "attempts": 45,
+    "matching_original_cases": 36,
+    "invalid_dense_translations": 9,
+    "initial_harness_error": "KeyError: None occurred because it tried to inspect an absent run_id before surfacing actual invalid_spec claims issue"
+  },
+  "harness_corrections": [
+    "retain translation response and report absence before artifact lookup",
+    "bind synchronous measurement closures explicitly for Ruff",
+    "sort imports; remove redundant Git lookup"
+  ],
+  "causal_scope": "No worker exists. Rerun all five cases under v2 before any architecture change."
+}

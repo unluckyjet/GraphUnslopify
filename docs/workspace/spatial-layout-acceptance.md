@@ -10,8 +10,9 @@ conclusion to source and digest-verified downloaded ZIPs.
 
 The separate closing-record checkpoint has its own fresh seven-gate pass on
 unchanged production/test files ([receipts](spatial-layout-acceptance/local-gates.json),
-[source hashes](spatial-layout-acceptance/tested-source-manifest.json)). Its exact
-main/Figure CI must pass before84 implementation. Tasks84–89 retain their full
+[source hashes](spatial-layout-acceptance/tested-source-manifest.json)). Closing bb4c231 exact main41140106558 all nine/Figure41140106580 passed;
+[final source-bound metadata](spatial-layout-acceptance/closing-ci-acceptance.json)
+was verified before84 implementation. Tasks84–89 retain their full
 scope; this acceptance publishes no release.
 
 ## Required scope mapped to actual evidence
@@ -61,5 +62,6 @@ before image is invented for an original program that failed before export.
   volunteers remain deferred at the user's request.
 
 The complete milestone83 implementation and its controlled acceptance are verified.
-The closing-record push has a separate exact-CI gate before84. No implementation
-of84–89 has begun.
+Closing bb4c231 passed its separate exact-CI gate before84. The full84–89
+roadmap now continues with measured rendering overhead; this acceptance does not
+claim those remaining milestones complete.

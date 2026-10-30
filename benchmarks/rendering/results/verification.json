@@ -1,0 +1,30 @@
+{
+  "scope": "84a prospective baseline only; no worker/cache/runtime/review implementation or public release",
+  "all_seven_gates_passed": true,
+  "source_test_fixture_files_unchanged_during_gates": 300,
+  "node_tests": 232,
+  "python_tests": 1816,
+  "skips": 0,
+  "warnings": 1,
+  "warning_scope": "Existing MLflow/SQLAlchemy deprecation",
+  "ruff_formatted_files": 110,
+  "protocol_sha256": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+  "formal_expected_outcomes": 45,
+  "clean_exit_zero": 36,
+  "false_claim_exit_two": 9,
+  "minimum_smoke_expected_outcomes": 15,
+  "offline_installed_smoke_expected_outcomes": 15,
+  "installed_assets_matched": 6,
+  "frozen_input_tamper_rejected_before_render": true,
+  "initial_v1_attempts_preserved": 45,
+  "initial_v1_invalid_translations": 9,
+  "exact_new_push_ci_pending": true,
+  "remaining_milestones": [
+    "84 beneficial worker implementation/conformance",
+    "85",
+    "86",
+    "87",
+    "88",
+    "89"
+  ]
+}

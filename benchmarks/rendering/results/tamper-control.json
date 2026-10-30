@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "scope": "Actual copied benchmark CLI rejects changed frozen CSV before creating a run or invoking a renderer",
+  "exit_code": 1,
+  "out_directory_created": false,
+  "executor_sha256": "f56fd01f843c94611310b6510f95816fd3cd39cf4342356554d36e7dea7bf207"
+}

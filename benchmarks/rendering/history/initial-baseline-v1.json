@@ -1,0 +1,1868 @@
+{
+  "schema_version": 1,
+  "protocol_sha256": "320cf1c796553c037cf3e27823a82928ef93b0183acb6f420098000741faf874",
+  "mode": "formal-one-shot-baseline",
+  "executor": "actual PreviewState.render, existing one-shot translator and renderer",
+  "scope": "Prospective engine latency/phase and worker-conformance workload. Not browser/app-startup or human authoring time, blind quality, independent research evaluation or a speed claim. Three small exploratory fixtures informed selection; this is not held-out evaluation. Frozen before this formal baseline, before any worker implementation.",
+  "source_commit": "bb4c2311ade54655e6ea522e2cc6b8421225f39a",
+  "sources": {
+    "scripts/rendering-benchmark.py": "8f31b159a5dd44674342f85a4be93c721f8d9a50cb0aea7e80752b5ce553331e",
+    "scripts/profile-preview-phases.py": "3477f1cd76b9fb89d97edc1deb458b5497b266fa51a169b688f277cc2952a05d",
+    "python/graphunslopify/preview.py": "576a68d73e5c1b67dcf205992c03a20be38fc8ec3c52a11dea9a52d1c5ca3d4a",
+    "python/graphunslopify/preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "python/graphunslopify/_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "executable": "/Users/shooter/.cache/graphunslopify/verification-py312/bin/python",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "dependencies": {
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "matplotlib": "3.11.2",
+      "pillow": "13.0.0",
+      "graphunslopify": "0.8.0"
+    }
+  },
+  "warm_repetitions": 7,
+  "cases": [
+    {
+      "id": "demo-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.11425337503897026,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.710928792017512,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "819de0a397d3495492f06d9585b07519",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.06024295900715515,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.627887875016313
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.022797957994043827
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5737372080329806,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f0a96a8506004e6091a945207e6b2846",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0534255420207046,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.497956334031187
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.022355331981088966
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.572237792017404,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "55ad9eebaf864719954b999e20b7a7cf",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05353691597701982,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4968684170162305
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02183245902415365
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5721338330185972,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0c88375418a14fc083f8c4797fe80e29",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05181362497387454,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4982675419887528
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.022052666055969894
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5743121249834076,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "b827452bf48b4dfe8072e8bf32ffda84",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05226208397652954,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4995386250084266
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02251141599845141
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5725437919609249,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "7e51f9425adf472c823ed7e0b155ed2d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05418987502343953,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4966457079863176
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.021708208951167762
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5743279589805752,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "bab57346cb99456aa4fd28236f5a994a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053444833029061556,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4985821250011213
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.022301000950392336
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5737722920021042,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "2165e4f8a93d4a4f9daa70fa0f87ee8d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05269295902689919,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4991517079761252
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.021927624999079853
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5731555840466172,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e48410b331de402089c9a07d8f317b1b",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052551541943103075,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4986063750111498
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02199766709236428,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.4422484170063399,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13860337500227615,
+              "script_module_initialization": 0.11218950001057237,
+              "draw_and_other_main": 0.01271804206771776,
+              "data_read": 0.0016538749914616346,
+              "data_prepare": 0.000355415977537632,
+              "statistics": 0.004978748969733715,
+              "owned_layout": 0.05277395900338888,
+              "description_and_claims": 0.006527792022097856,
+              "export_and_geometry": 0.10189791698940098,
+              "inspection_and_projection": 0.010030541976448148
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0016538749914616346,
+              "data_prepare": 0.000355415977537632,
+              "statistics": 0.006117750017438084,
+              "owned_layout": 0.061747125058900565,
+              "description_and_claims": 0.008463500009384006,
+              "export_and_geometry": 0.10189791698940098,
+              "inspection_and_projection": 0.010030541976448148,
+              "draw_and_other_main": 0.1909362919977866
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005192499957047403
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "147d34abe833c594",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "ours",
+                "reference": "base"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3333400000133335,
+                "figure.svg": 3.3313888888888887,
+                "figure.pdf": 3.3314930555555557
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3333400000133335,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "ours",
+              "reference": "base",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "0 of 3 x values are not above base",
+              "verdict": "holds",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2. Ours is above base at every x, though the intervals overlap at 3 of 3 x values.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "ca7176d0656f1ffeecd90aa31a463b658483eac46ba26aa5ec1e5868ce782d27"
+          }
+        },
+        "png": {
+          "size": [
+            2000,
+            1795
+          ],
+          "rgba_sha256": "c0bbe248ce006dde935593e61668605b06fe13c7719bed15f6ebf738bbab6b5d"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.5737372080329806,
+        "p90_engine_seconds_linear": 0.5743184585822746,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-sparkline",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.002673291019164026,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.7821157919825055,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0ff44babba2b460a833cda633d256e9a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053017749974969774,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.72211062500719
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006987417000345886
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6501893749809824,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "9b8f91832ee443d48cb2756a9a4796ad",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05280175001826137,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5907158749760129
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006671749986708164
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6482531670480967,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f1d7e8b56c0d44d19768457d5e2633b6",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053133249981328845,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5884617919800803
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006658125086687505
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6508007500087842,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f0f8f6a27a7a4fe4bfec38cfeeae100d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0538391669979319,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5903832080075517
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006578375003300607
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6538846659823321,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0ba9cd1797754172b4066e2d58673c34",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0523646249785088,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5946497079567052
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006870333047118038
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6532595829921775,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "320826fd20a34682a82b0eb7670606a0",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05385974998353049,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.592764166998677
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006635666009970009
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6503375000320375,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "23f86fa0fdb240c7b4cf14de7cea8b6f",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052574167028069496,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5911327920039184
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006630541000049561
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.651794167002663,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f7201971e6694a26934a1103d8b6f699",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05289245897438377,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5921306670061313
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006771041022147983
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.649581459001638,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "41e26981f2d34b989a91537972876066",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05290624999906868,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5897339169750921
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006941292027477175,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.5331442500464618,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13747483404586092,
+              "script_module_initialization": 0.11418583401245996,
+              "draw_and_other_main": 0.016972123994491994,
+              "data_read": 0.0016835839487612247,
+              "data_prepare": 0.00042554200626909733,
+              "owned_layout": 0.1310858330107294,
+              "description_and_claims": 0.0010707079782150686,
+              "export_and_geometry": 0.11240108305355534,
+              "inspection_and_projection": 0.017317458987236023
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0016835839487612247,
+              "data_prepare": 0.00042554200626909733,
+              "owned_layout": 0.14394074998563156,
+              "description_and_claims": 0.0010707079782150686,
+              "export_and_geometry": 0.11240108305355534,
+              "inspection_and_projection": 0.017317458987236023,
+              "draw_and_other_main": 0.28095633297925815
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "owned_layout": 2,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005272490088827908
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "75226738ea54f809",
+          "spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "step",
+                "value",
+                "other",
+                "prob",
+                "event",
+                "method",
+                "site"
+              ]
+            },
+            "x": {
+              "field": "step",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "sparkline_grid",
+            "columns": 4
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "a2454cfd3075110b",
+            "counts": {
+              "read": 6,
+              "after_filter": 6,
+              "prepared": 6,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "value": {
+                  "finite": 6,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 6,
+              "nonfinite": 0
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 5.799520572965969,
+                "series.svg": 5.805565319444444,
+                "series.pdf": 5.805636935763889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 5.805636935763889,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": "first",
+              "metric": "value"
+            },
+            {
+              "index": 1,
+              "name": "second",
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Grid of sparklines on a shared scale, one per series of Value against Step. One series per method, with expected order Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule. Split into one panel per site. Panel first: At the largest step, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is 2. Panel second: At the largest step, Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule is highest at 4 and Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is lowest at 2. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "366574da065a323f8c7bb3781476244ffd315018b63c291f379deef364a7c001"
+          }
+        },
+        "png": {
+          "size": [
+            870,
+            752
+          ],
+          "rgba_sha256": "2d8d87103e3d5a3ec451e20e5fd03b2b95dd148b5ed70a42d20d15732fb558ab"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.6508007500087842,
+        "p90_engine_seconds_linear": 0.6535096161882393,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-grouped-table",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.0017304589855484664,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.655386540980544,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "edb112017e6748549012612156afe0c1",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05261212500045076,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.598407540994231
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004366874985862523
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5189916249946691,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0cd7628ec17c45e6a982a812334bed6e",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.054281749995425344,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4603062500245869
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.00440362497465685
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5189975000103004,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "3c118ec0ff14480482e08fd1a45696c3",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053144041972700506,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4614280840032734
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.0044253740343265235
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5205381659907289,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "ae2994fe27024a67b4dd557481d34714",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05229899997357279,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.46400341601110995
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004235750006046146
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.516635041043628,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "fc3a0dab43c244139bb19a7eea899a70",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05237829202087596,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.46000600000843406
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004250749014317989
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5163087919936515,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "71bb9c4eebab49289d83a9461418084e",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05325983295915648,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4588178340345621
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004231124999932945
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5151088340207934,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "51e7a3265921450ea966a3adb9e90801",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05244912498164922,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.45846679201349616
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.0041929170256480575
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5161135419621132,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "930d0fdfde484961bcd99756bf46cc3f",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05169104196829721,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.46016220800811425
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.00426029198570177
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5183912920183502,
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "2d62f8ef0ec3412eb0f0fe6752c099f9",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05214137502480298,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.46183883398771286
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004411083005834371,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.405751499987673,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13936249999096617,
+              "script_module_initialization": 0.11419379198923707,
+              "draw_and_other_main": 0.012542999116703868,
+              "data_read": 0.0016486249514855444,
+              "data_prepare": 0.00023570802295580506,
+              "statistics": 0.0018589169485494494,
+              "description_and_claims": 0.00010379101149737835,
+              "owned_layout": 0.0331912079709582,
+              "export_and_geometry": 0.08928575098980218,
+              "inspection_and_projection": 0.01281858398579061
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0016486249514855444,
+              "data_prepare": 0.00023570802295580506,
+              "statistics": 0.0023857498890720308,
+              "description_and_claims": 0.00045374996261671185,
+              "owned_layout": 0.0331912079709582,
+              "export_and_geometry": 0.08928575098980218,
+              "inspection_and_projection": 0.01281858398579061,
+              "draw_and_other_main": 0.15168558299774304
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "description_and_claims": 1,
+              "owned_layout": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.000509625009726733
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "20882059cb7fbed0",
+          "spec": {
+            "title": "Observed responses across the complete original experimental measurement period",
+            "group": "condition",
+            "legend": {
+              "show": false,
+              "position": "best",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "context"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "dataset",
+                "value",
+                "condition"
+              ]
+            },
+            "kind": "table",
+            "x": {
+              "field": "dataset",
+              "label": "Dataset",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Observed response across the complete original experimental measurement period",
+              "unit": "fraction",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "aggregation": "mean",
+            "precision": 2,
+            "highlight": "none",
+            "higher_is_better": true
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "27ede3e03ed9e4f6",
+            "counts": {
+              "read": 4,
+              "after_filter": 4,
+              "prepared": 4,
+              "missing_plot_keys": 0,
+              "measurements": {
+                "value": {
+                  "finite": 4,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 4,
+              "nonfinite": 0,
+              "sample_sizes": [
+                1,
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 3.2064016041340584,
+                "context.svg": 3.184440111111111,
+                "context.pdf": 3.184592013888889
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.2064016041340584,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Table of Observed response across the complete original experimental measurement period in fraction, one row per dataset. One column per condition. N = 1 per point. Displayed cells run from 0.60 to 0.90. The mean of displayed cells is 0.75.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "aa91096697b96202e113e360f1d866dfe5bc234dd9090c5aa2688c365812a363"
+          }
+        },
+        "png": {
+          "size": [
+            481,
+            347
+          ],
+          "rgba_sha256": "b9865c81d52f7001b13da06beb0b19b8a61b71e2b4e62426ff839adf79bc11e3"
+        },
+        "table_text": {
+          "md": "0f4eb3e4b8e52be620228c114b30fe2fdd86536877631aab44fee7b426c9cdbd",
+          "tex": "1a702b2bf7b2aef4dee8c507090d3bb6a91c9791a5d8f838ffc768463eab8e28"
+        }
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.516635041043628,
+        "p90_engine_seconds_linear": 0.5196137664024718,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "dense-median-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.0030893749790266156,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": false,
+          "engine_seconds": 0.05002204101765528,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.04967908299295232,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.05004337499849498,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.04927304096054286,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.050873000000137836,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.049420458963140845,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.050216333009302616,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": false,
+          "engine_seconds": 0.049626875028479844,
+          "error": "KeyError: None"
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": false,
+          "engine_seconds": 0.04965120897395536,
+          "error": "KeyError: None"
+        }
+      ],
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 0,
+        "median_engine_seconds": null,
+        "p90_engine_seconds_linear": null,
+        "all_runs_match_original_semantics_and_png": false
+      }
+    },
+    {
+      "id": "false-comparison",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "upload_seconds": 0.0020644590258598328,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.75037829199573,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "65d2053c33924cee8f5928713538c861",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.051914957992266864,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.671436374948826
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.0270269590546377
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5794922090135515,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "02afd7d3d81b464a89f2d0756df73a7d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0596892079920508,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49771575001068413
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.022087251010816544
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5741515830159187,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "11507863b55e4fdd9896a30b2eb8d9f4",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05349366698646918,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49856266600545496
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.022095250023994595
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5773054169840179,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "c4557f3a77a64919aec84cf8f08746be",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05241958302212879,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5027866250020452
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.022099208959843963
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5735016249818727,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "313cb8633940465e841032449debd35d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053775542008224875,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4980815830058418
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.02164449996780604
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5714070000103675,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "19ed441642604083aaffb173fe530491",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053686416998971254,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49590849998639897
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.021812083024997264
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5821634999592789,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "b919d9a8a0b441bd92b4ce007e1fe3c5",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05421966698486358,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5053996249916963
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.022544207982718945
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6328932500327937,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "2651a84a8cad4a97b62dbc846c44f2a8",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05732295900816098,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5528333749971353
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.0227369160274975
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5730875420267694,
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "78452b69348c4b679cf4b67076198969",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05229808297008276,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4989091249881312
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.021880334068555385,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.4419886250398122,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13892937503987923,
+              "script_module_initialization": 0.1131512499996461,
+              "draw_and_other_main": 0.013195790001191199,
+              "data_read": 0.0016333329840563238,
+              "data_prepare": 0.00034974998561665416,
+              "statistics": 0.005121460068039596,
+              "owned_layout": 0.05257558298762888,
+              "description_and_claims": 0.004802832962013781,
+              "export_and_geometry": 0.10193100100150332,
+              "inspection_and_projection": 0.00977554201381281
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0016333329840563238,
+              "data_prepare": 0.00034974998561665416,
+              "statistics": 0.006443752034101635,
+              "owned_layout": 0.06132958293892443,
+              "description_and_claims": 0.006685542000923306,
+              "export_and_geometry": 0.10193100100150332,
+              "inspection_and_projection": 0.00977554201381281,
+              "draw_and_other_main": 0.18938529200386256
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005227079964242876
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "27d50eab38e31e8b",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "base",
+                "reference": "ours"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "failed",
+          "ok": false,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3333400000133335,
+                "figure.svg": 3.3313888888888887,
+                "figure.pdf": 3.3314930555555557
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3333400000133335,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "base",
+              "reference": "ours",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "3 of 3 x values are not above ours",
+              "verdict": "fails",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": false
+          },
+          "exit_code": 2,
+          "script": {
+            "sha256": "183920d2fde25dc62bbf7ad167f76a2623b391cfa277110eb0ca7c5982683980"
+          }
+        },
+        "png": {
+          "size": [
+            2000,
+            1795
+          ],
+          "rgba_sha256": "c0bbe248ce006dde935593e61668605b06fe13c7719bed15f6ebf738bbab6b5d"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.5773054169840179,
+        "p90_engine_seconds_linear": 0.6024553999886848,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    }
+  ],
+  "complete": true,
+  "passed": false
+}

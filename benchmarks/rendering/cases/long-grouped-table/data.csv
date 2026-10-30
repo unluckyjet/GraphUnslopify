@@ -1,0 +1,5 @@
+dataset,value,condition
+A,0.6,Base
+A,0.8,Ours
+B,0.7,Base
+B,0.9,Ours

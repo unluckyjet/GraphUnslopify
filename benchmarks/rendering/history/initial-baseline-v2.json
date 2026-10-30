@@ -1,0 +1,2682 @@
+{
+  "schema_version": 1,
+  "protocol_sha256": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+  "mode": "formal-one-shot-baseline",
+  "executor": "actual PreviewState.render, existing one-shot translator and renderer",
+  "scope": "Prospective engine latency/phase and worker-conformance workload. Not browser/app-startup or human authoring time, blind quality, independent research evaluation or a speed claim. Three small exploratory fixtures informed selection; this is not held-out evaluation. Frozen before this formal baseline, before any worker implementation. v1 failed its preflight intent: one case included an invalid empty optional claims array; v2 omits that property and preserves all data/statistics/outcome gates. Prior protocol, inputs, executor and all45 attempted outcomes remain.",
+  "source_commit": "bb4c2311ade54655e6ea522e2cc6b8421225f39a",
+  "sources": {
+    "scripts/rendering-benchmark.py": "29bc2ed25706af3b62fc3fd1a4fec859b9a860a4826dc9d5c69ef205485e97f2",
+    "scripts/profile-preview-phases.py": "f0a2a6ea43b93f425dd759a1449bee56614f395f48c5166072c95732d2aedd0f",
+    "python/graphunslopify/preview.py": "576a68d73e5c1b67dcf205992c03a20be38fc8ec3c52a11dea9a52d1c5ca3d4a",
+    "python/graphunslopify/preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "python/graphunslopify/_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "executable": "/Users/shooter/.cache/graphunslopify/verification-py312/bin/python",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "dependencies": {
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "matplotlib": "3.11.2",
+      "pillow": "13.0.0",
+      "graphunslopify": "0.8.0"
+    }
+  },
+  "warm_repetitions": 7,
+  "cases": [
+    {
+      "id": "demo-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.1151152080274187,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.653130291029811,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0fa8985821b24f53b3033c99d313305f",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052499249984975904,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.5778830829658546
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.022747958078980446
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5728560410207137,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "14e9424e05be423cb23d429edd427082",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05238170799566433,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4984376250067726
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02203670801827684
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5725820829975419,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "309a3e46589143b8b2bc28d6fe80f07d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05274295900017023,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49810212495503947
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.021736999042332172
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5703735409770161,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "00d49c29656c4c318798d0621a7e269c",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05266216699965298,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49558812502073124
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02212324895663187
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5715184579603374,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "abd00e2efc9945b1bfdf8284ad7ab140",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0542169589898549,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49551075004274026
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.021790748927742243
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5722407499561086,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "2b4e5bea9973466f93cb8b2339568c3d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05284974997630343,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4976930000120774
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02169799996772781
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5776357499998994,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e742200e6eec4bfda54254129fb90965",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05216550000477582,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4996816670172848
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.025788582977838814
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5757327920291573,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e6a244ef9dad49b389c11dd0511ed69e",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05273154203314334,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5010424999636598
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.021958750032354146
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.583628916007001,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f1e72e5167204c26b0978644be2314a7",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052874208020512015,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5072281250031665
+          },
+          "artifact_hashes": {
+            "figure.png": "75f56a88c0a4c2a6c19698a9a6c041f38e947bf1e329656c55639c0c7541a847",
+            "figure.svg": "cd79ceeae254a062f2f07f3c75dd1816dd1db8768e2b264bed37841183d62549",
+            "figure.pdf": "d649226fda1cee5d9c435767f19ca04d07af00171a32ea93ff84a8b1286f6a48"
+          },
+          "prepare_and_post_seconds": 0.02352658298332244,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.44530299998587,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.14004287496209145,
+              "script_module_initialization": 0.11556787503650412,
+              "draw_and_other_main": 0.012957750062923878,
+              "data_read": 0.0016832919791340828,
+              "data_prepare": 0.00035437499172985554,
+              "statistics": 0.005180957959964871,
+              "owned_layout": 0.052373999962583184,
+              "description_and_claims": 0.006047625036444515,
+              "export_and_geometry": 0.10095604200614616,
+              "inspection_and_projection": 0.009628125000745058
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0016832919791340828,
+              "data_prepare": 0.00035437499172985554,
+              "statistics": 0.006321915949229151,
+              "owned_layout": 0.06122062494978309,
+              "description_and_claims": 0.007974250009283423,
+              "export_and_geometry": 0.10095604200614616,
+              "inspection_and_projection": 0.009628125000745058,
+              "draw_and_other_main": 0.1891821669996716
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005100829876028001
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "147d34abe833c594",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "ours",
+                "reference": "base"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3333400000133335,
+                "figure.svg": 3.3313888888888887,
+                "figure.pdf": 3.3314930555555557
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3333400000133335,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "ours",
+              "reference": "base",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "0 of 3 x values are not above base",
+              "verdict": "holds",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2. Ours is above base at every x, though the intervals overlap at 3 of 3 x values.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "ca7176d0656f1ffeecd90aa31a463b658483eac46ba26aa5ec1e5868ce782d27"
+          }
+        },
+        "png": {
+          "size": [
+            2000,
+            1795
+          ],
+          "rgba_sha256": "c0bbe248ce006dde935593e61668605b06fe13c7719bed15f6ebf738bbab6b5d"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.5725820829975419,
+        "p90_engine_seconds_linear": 0.5764939752174542,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-sparkline",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.003702457994222641,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.837048124987632,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "f157d88552e14f0e827e3ea850dffdd3",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05777274997672066,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.772437000006903
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006838375004008412
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.656087833980564,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "72b877d149e54b9da5c8d932fb320f5a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05730666598537937,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5920063749654219
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.0067747930297628045
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6481693749665283,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "3126072929d847658bb4d048d4f56223",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05165741703240201,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.58971329202177
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006798665912356228
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6484869160340168,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "35be4406479842f891013f8fa3e27ed5",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052452332980465144,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5891751660383306
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.00685941701522097
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6490842499770224,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "0b639799e3b64a199b50d5c0f72fa8b6",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05308570899069309,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5892282499698922
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006770291016437113
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6517935000010766,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "dfa969c091974c46959bfd3ae1b802ff",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052927167038433254,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.592211666982621
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006654665980022401
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6490902919904329,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "d782078df75e4bf4ad1fd7e82ff7231a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05200979200890288,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5903034170041792
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.006777082977350801
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.661810958001297,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "a372d38f596a4d4da804e91a8fa2b211",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05272745800903067,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.6022182919550687
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.00686520803719759
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.6575116669991985,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "5d6ad3922da74ec4b7593bf47ce2c205",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0528504999820143,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5977987499791197
+          },
+          "artifact_hashes": {
+            "series.png": "9a1be0b90be0c6573f994ddfa71b8aea37d995570a0975ca5ea8ad145317f65d",
+            "series.svg": "5b4dbd227f6dcf5a9deab3d44f8c581862cd1e3eb42470a484613f4a5ca161a0",
+            "series.pdf": "ed6d4f850f62db0fbd833c7126afc91e2f0301f8aedb26b328693b2c65754b3d"
+          },
+          "prepare_and_post_seconds": 0.00686241703806445,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.5388053750502877,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.14027262502349913,
+              "script_module_initialization": 0.1151465000002645,
+              "draw_and_other_main": 0.01778579200617969,
+              "data_read": 0.0017654579714871943,
+              "data_prepare": 0.00043399998685345054,
+              "owned_layout": 0.13079916703281924,
+              "description_and_claims": 0.0011168749770149589,
+              "export_and_geometry": 0.11337737500434741,
+              "inspection_and_projection": 0.01757199998246506
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0017654579714871943,
+              "data_prepare": 0.00043399998685345054,
+              "owned_layout": 0.1433660420589149,
+              "description_and_claims": 0.0011168749770149589,
+              "export_and_geometry": 0.11337737500434741,
+              "inspection_and_projection": 0.01757199998246506,
+              "draw_and_other_main": 0.282850666961167
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "owned_layout": 2,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005355830653570592
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "75226738ea54f809",
+          "spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "step",
+                "value",
+                "other",
+                "prob",
+                "event",
+                "method",
+                "site"
+              ]
+            },
+            "x": {
+              "field": "step",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "sparkline_grid",
+            "columns": 4
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "a2454cfd3075110b",
+            "counts": {
+              "read": 6,
+              "after_filter": 6,
+              "prepared": 6,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "value": {
+                  "finite": 6,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 6,
+              "nonfinite": 0
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 5.799520572965969,
+                "series.svg": 5.805565319444444,
+                "series.pdf": 5.805636935763889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 5.805636935763889,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": "first",
+              "metric": "value"
+            },
+            {
+              "index": 1,
+              "name": "second",
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Grid of sparklines on a shared scale, one per series of Value against Step. One series per method, with expected order Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule. Split into one panel per site. Panel first: At the largest step, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is 2. Panel second: At the largest step, Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule is highest at 4 and Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is lowest at 2. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "366574da065a323f8c7bb3781476244ffd315018b63c291f379deef364a7c001"
+          }
+        },
+        "png": {
+          "size": [
+            870,
+            752
+          ],
+          "rgba_sha256": "2d8d87103e3d5a3ec451e20e5fd03b2b95dd148b5ed70a42d20d15732fb558ab"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.6490902919904329,
+        "p90_engine_seconds_linear": 0.6583770835888572,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-grouped-table",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.0017069170135073364,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.7267862079897895,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "c4126a4cd7724f5597fd59f6f46f9e0c",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05219858296914026,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.670155334053561
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004432290967088193
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5164175410172902,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "d87ec0ddd0a6445e9e283bd3180d4303",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.052707499999087304,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4594340830226429
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.00427595799556002
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5171863340074196,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "bb9798320fa5466ebc5fd6a5b3cde2f9",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05177204200299457,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4611570000415668
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.0042572919628582895
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5210622919839807,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e609fe3fed2c4130935c264c8823e9e4",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05414079100592062,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.46261116600362584
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004310334974434227
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5178687080042437,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "c13c22b7fc6d43b1b749435dcca12de0",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.051580832980107516,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.461799125012476
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004488750011660159
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5154305420001037,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "4ecc2c018d2a4b289ad6b9c87dcfbbbb",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.051868374983314425,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4592319580260664
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004330208990722895
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5231230839854106,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "187a6a8e31fb4a35b0e3af218979c55d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05215845798375085,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.466707875020802
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.00425675098085776
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5171967909554951,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "66e47814d3384a628808a86418503028",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05166566598927602,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4608317500096746
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004699374956544489
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.518116542021744,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "64b7bc4e070440bcbdb04d20ed52578a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05321437504608184,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4604559169965796
+          },
+          "artifact_hashes": {
+            "context.png": "a30e9668fff93ac41fd0ddff0dc40682a614164dccabd8ca067dcc1502c2b7c6",
+            "context.svg": "452a6179da1dcfb05680e86f25f4d6bfdf0b5162c988aa5770b0f0c0148833ef",
+            "context.pdf": "1b2ea7be93d41779d9495698868efec541d8ba7eac29c1bf1a782cb6a437e8f6"
+          },
+          "prepare_and_post_seconds": 0.004446249979082495,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.4042431249981746,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13877866603434086,
+              "script_module_initialization": 0.11231100000441074,
+              "draw_and_other_main": 0.012260125018656254,
+              "data_read": 0.0017006249981932342,
+              "data_prepare": 0.00019687501480802894,
+              "statistics": 0.001988500007428229,
+              "description_and_claims": 0.00010958401253446937,
+              "owned_layout": 0.03344212501542643,
+              "export_and_geometry": 0.0899270829395391,
+              "inspection_and_projection": 0.013021457998547703
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0017006249981932342,
+              "data_prepare": 0.00019687501480802894,
+              "statistics": 0.0025201250100508332,
+              "description_and_claims": 0.0005258339806459844,
+              "owned_layout": 0.03344212501542643,
+              "export_and_geometry": 0.0899270829395391,
+              "inspection_and_projection": 0.013021457998547703,
+              "draw_and_other_main": 0.15264637500513345
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "description_and_claims": 1,
+              "owned_layout": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005070839542895555
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "20882059cb7fbed0",
+          "spec": {
+            "title": "Observed responses across the complete original experimental measurement period",
+            "group": "condition",
+            "legend": {
+              "show": false,
+              "position": "best",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "context"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "dataset",
+                "value",
+                "condition"
+              ]
+            },
+            "kind": "table",
+            "x": {
+              "field": "dataset",
+              "label": "Dataset",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Observed response across the complete original experimental measurement period",
+              "unit": "fraction",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "aggregation": "mean",
+            "precision": 2,
+            "highlight": "none",
+            "higher_is_better": true
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "27ede3e03ed9e4f6",
+            "counts": {
+              "read": 4,
+              "after_filter": 4,
+              "prepared": 4,
+              "missing_plot_keys": 0,
+              "measurements": {
+                "value": {
+                  "finite": 4,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 4,
+              "nonfinite": 0,
+              "sample_sizes": [
+                1,
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 3.2064016041340584,
+                "context.svg": 3.184440111111111,
+                "context.pdf": 3.184592013888889
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.2064016041340584,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Table of Observed response across the complete original experimental measurement period in fraction, one row per dataset. One column per condition. N = 1 per point. Displayed cells run from 0.60 to 0.90. The mean of displayed cells is 0.75.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "aa91096697b96202e113e360f1d866dfe5bc234dd9090c5aa2688c365812a363"
+          }
+        },
+        "png": {
+          "size": [
+            481,
+            347
+          ],
+          "rgba_sha256": "b9865c81d52f7001b13da06beb0b19b8a61b71e2b4e62426ff839adf79bc11e3"
+        },
+        "table_text": {
+          "md": "0f4eb3e4b8e52be620228c114b30fe2fdd86536877631aab44fee7b426c9cdbd",
+          "tex": "1a702b2bf7b2aef4dee8c507090d3bb6a91c9791a5d8f838ffc768463eab8e28"
+        }
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.5171967909554951,
+        "p90_engine_seconds_linear": 0.5218866087845526,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "dense-median-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.0030952920205891132,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 7.66980541695375,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "be951ec319be408b8ab30ce67512a49a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05357229197397828,
+            "renderer_calls": 1,
+            "renderer_seconds": 7.553108374995645
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.06312474998412654
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.4709969589603133,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "9a36dc6a9ba749ae8be3ac27a47a65f5",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.06052641698624939,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3509882919606753
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.05948225001338869
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.462569833965972,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "6b8574c8a0da4f05a91490a76ef99f45",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05356383300386369,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3509011249989271
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.05810487596318126
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.45519345800858,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "4bcf0c52151040e6986d3270bc3f7e06",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05472541699418798,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3427292500273325
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.057738790987059474
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.4347784999990836,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "3193f8746fdd4ebfb12ad6d73010b532",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05408475000876933,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3221845410298556
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.058509208960458636
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.4341629589907825,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "a960128419e445bbbf00c1eee2b00a9a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05420054099522531,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3223883340251632
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.057574083970393986
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.4396315829944797,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "8b29ac6b0a514f18b66376cc2a4112bc",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.053876416001003236,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.328001415997278
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.057753750996198505
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.446803542028647,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "223403c3e04444ffa77c62ce6bc4195d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0590596660040319,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3302331249578856
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.057510751066729426
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 1.4587997079943307,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "72f88ba940f347d1b38bf835ab6e9be1",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05350400001043454,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.3475141249946319
+          },
+          "artifact_hashes": {
+            "figure.png": "9441370a62dae15ef90bc26b96a90c522a3c9918353237a6ea572806e50ad006",
+            "figure.svg": "a26ed65fa528b74c08014d0fe2f2a062d07be51cdd24dc3c6d65f62d12904a92",
+            "figure.pdf": "0fc5b97d41bdc231ddfd74ebce679baa938697a6161bcec8ee2f61413124e2f7"
+          },
+          "prepare_and_post_seconds": 0.05778158298926428,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 1.283490374975372,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13933545799227431,
+              "script_module_initialization": 0.11390095896786079,
+              "draw_and_other_main": 0.014922459842637181,
+              "data_read": 0.004005208029411733,
+              "data_prepare": 0.01131783303571865,
+              "statistics": 0.7493217090377584,
+              "owned_layout": 0.05306120903696865,
+              "description_and_claims": 0.0008211239473894238,
+              "export_and_geometry": 0.18227233306970447,
+              "inspection_and_projection": 0.013990666018798947
+            },
+            "inclusive_seconds": {
+              "data_read": 0.004005208029411733,
+              "data_prepare": 0.01131783303571865,
+              "statistics": 0.7523935009958223,
+              "owned_layout": 0.060512584052048624,
+              "description_and_claims": 0.37332754099043086,
+              "export_and_geometry": 0.18227233306970447,
+              "inspection_and_projection": 0.013990666018798947,
+              "draw_and_other_main": 1.0297125420183875
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 2,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005414159968495369
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "4de6bc25532655ba",
+          "spec": {
+            "title": "Synthetic repeated-unit responses",
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "median",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "9f0560bfec5a1acb",
+            "counts": {
+              "read": 20000,
+              "after_filter": 20000,
+              "prepared": 20000,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 20000,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 20000,
+              "nonfinite": 0,
+              "sample_sizes": [
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 20000
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "figure.png": 6.933347200027733,
+                "figure.svg": 6.931388888888889,
+                "figure.pdf": 6.931493055555555
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.933347200027733,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.04999999999999993,
+                    20.95
+                  ],
+                  "y_limits": [
+                    39.82005,
+                    54.67995
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 20,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 20,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 42,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 42,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 500 per point (unit IDs: seed). At the largest epoch, ours is highest at 54 and base is lowest at 50. A spread of 4.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "3d6950b691b7b550c8c88931ace6eaf1def76ec2d4741635b5d1e1a3dcc2372b"
+          }
+        },
+        "png": {
+          "size": [
+            4160,
+            2670
+          ],
+          "rgba_sha256": "92df253c58fab5f14fb2cd84e5b3bbeb1d894bcb052c59fda273bc7294daae9c"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 1.446803542028647,
+        "p90_engine_seconds_linear": 1.4659406839637086,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "false-comparison",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "upload_seconds": 0.0018560420139692724,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 6.859142250032164,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "0d01ece6f43241dfb2d9f2ef61619a36",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05411433399422094,
+            "renderer_calls": 1,
+            "renderer_seconds": 6.78317104204325
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.02185687399469316
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5752507920260541,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "08b2557a5f3b4e39b0b31465df9dfe2a",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05358349997550249,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4995112919714302
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.02215600007912144
+        },
+        {
+          "generation": 2,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5718724159523845,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "bb4df57eae8b405e87578dc69f475817",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05246579204685986,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.497709083952941
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.02169753995258361
+        },
+        {
+          "generation": 3,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5758265000185929,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "9b445eeb07494e19ad6fd963a89f1570",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05484383297152817,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.49910408398136497
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.021878583065699786
+        },
+        {
+          "generation": 4,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5783231660025194,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "14f2a3ff55a24293ad8c7873e5b2e4fe",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.0556974999490194,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.500714666035492
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.021911000018008053
+        },
+        {
+          "generation": 5,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5785608340520412,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "fcd4a0163f414576b3942db6410951db",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05369349999818951,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5007600000244565
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.024107334029395133
+        },
+        {
+          "generation": 6,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5768395829945803,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "aafa4e645373417e91705b17e3079423",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05355779197998345,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5005992079968564
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.0226825830177404
+        },
+        {
+          "generation": 7,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 0.577218750026077,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "7b8d02022d85420ea7ecab8be4c64ee7",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.055142207944300026,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.5000220829970203
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.022054459084756672
+        },
+        {
+          "generation": 8,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 0.5741106249624863,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "411900a01f61414c8261453ce7d3d0bf",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.05348012497415766,
+            "renderer_calls": 1,
+            "renderer_seconds": 0.4988826250191778
+          },
+          "artifact_hashes": {
+            "figure.png": "c9be27d5815abb270130abb6013212ecd8f3717caa2cd4761c81f8305e26ad6f",
+            "figure.svg": "e6d2f8b53c2776fa5c6a6b155a88dcb0eaa200e336d478042e0f10a7b8af4c07",
+            "figure.pdf": "aee156924241f82fa300ad06a5582f63cad4c6d586e24ad126ba4e7602adc632"
+          },
+          "prepare_and_post_seconds": 0.02174787496915087,
+          "instrumented_phases": {
+            "scope": "Exploratory instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 0.44147216697456315,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.13848433399107307,
+              "script_module_initialization": 0.11284583300584927,
+              "draw_and_other_main": 0.013257834943942726,
+              "data_read": 0.0017123749712482095,
+              "data_prepare": 0.0003683330141939223,
+              "statistics": 0.004809666017536074,
+              "owned_layout": 0.05256625002948567,
+              "description_and_claims": 0.004522958013694733,
+              "export_and_geometry": 0.10259399999631569,
+              "inspection_and_projection": 0.009794707992114127
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0017123749712482095,
+              "data_prepare": 0.0003683330141939223,
+              "statistics": 0.00599191605579108,
+              "owned_layout": 0.061468374042306095,
+              "description_and_claims": 0.006335958023555577,
+              "export_and_geometry": 0.10259399999631569,
+              "inspection_and_projection": 0.009794707992114127,
+              "draw_and_other_main": 0.18962612497853115
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0005158749991096556
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "27d50eab38e31e8b",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "base",
+                "reference": "ours"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "failed",
+          "ok": false,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3333400000133335,
+                "figure.svg": 3.3313888888888887,
+                "figure.pdf": 3.3314930555555557
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3333400000133335,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "base",
+              "reference": "ours",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "3 of 3 x values are not above ours",
+              "verdict": "fails",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": false
+          },
+          "exit_code": 2,
+          "script": {
+            "sha256": "183920d2fde25dc62bbf7ad167f76a2623b391cfa277110eb0ca7c5982683980"
+          }
+        },
+        "png": {
+          "size": [
+            2000,
+            1795
+          ],
+          "rgba_sha256": "c0bbe248ce006dde935593e61668605b06fe13c7719bed15f6ebf738bbab6b5d"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 7,
+        "accepted_warm_runs": 7,
+        "median_engine_seconds": 0.5768395829945803,
+        "p90_engine_seconds_linear": 0.5784182332223281,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    }
+  ],
+  "complete": true,
+  "passed": true
+}

@@ -1,0 +1,11 @@
+{
+  "status": "invalid_spec",
+  "issues": [
+    {
+      "path": "claims",
+      "message": "Too small: expected array to have >=1 items",
+      "consequence": "No runnable figure was translated, so the requested data and claims have not been verified.",
+      "correction": "Correct claims using the expected value in the problem message. Correct the indicated field using the expected type, range or required value in the problem message. Check JSON syntax and the canonical schema, then translate and audit again."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "render-engine-v1",
+  "scope": "Prospective engine latency/phase and worker-conformance workload. Not browser/app-startup or human authoring time, blind quality, independent research evaluation or a speed claim. Three small exploratory fixtures informed selection; this is not held-out evaluation. Frozen before this formal baseline, before any worker implementation.",
+  "formats": [
+    "png",
+    "svg",
+    "pdf"
+  ],
+  "cases": [
+    {
+      "id": "demo-bootstrap",
+      "spec": "cases/demo-bootstrap/figure.json",
+      "data": "cases/demo-bootstrap/data.csv",
+      "spec_sha256": "2bf7cb18c1c3551ebe199eb4310392038890859718a11b8d30b7848e3846f718",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "scope": "Existing public24-row offline demo: mean/seed bootstrap and supported true comparison claim."
+    },
+    {
+      "id": "long-sparkline",
+      "spec": "cases/long-sparkline/figure.json",
+      "data": "cases/long-sparkline/data.csv",
+      "spec_sha256": "fd5bd6ecf036b98d506636eed041477a4a474cd483e3b741231d5c7a5d04134f",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "scope": "Original complete83h sparse child-heading fixture; all source names retained."
+    },
+    {
+      "id": "long-grouped-table",
+      "spec": "cases/long-grouped-table/figure.json",
+      "data": "cases/long-grouped-table/data.csv",
+      "spec_sha256": "6af84cb9dd6f990a4c95963ee999672ec7187bde2a5d65e863f94675ecf7bc40",
+      "data_sha256": "27ede3e03ed9e4f6397ce30a5dfe28a63d308cbe77b079c5c16f0f4b14f33946",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "scope": "Original complete83h grouped table context/units/headers; no shortening."
+    },
+    {
+      "id": "dense-median-bootstrap",
+      "spec": "cases/dense-median-bootstrap/figure.json",
+      "data": "cases/dense-median-bootstrap/data.csv",
+      "spec_sha256": "ead1c0862c43d44519e4c44ca9476a635dc554e1976cca9c5c54444c155abc7d",
+      "data_sha256": "9f0560bfec5a1acb9495008a0248cd2fd9ca5a36eb5c9aa65d58934e3e9ecae3",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "scope": "Declared deterministic synthetic20000 rows:20 points/two series/500 named units, median2000-draw bootstrap; no real observations claimed."
+    },
+    {
+      "id": "false-comparison",
+      "spec": "cases/false-comparison/figure.json",
+      "data": "cases/false-comparison/data.csv",
+      "spec_sha256": "66d5d4c51b4fe2a7407342503e86155abb6b945e0d67aa11bc736bb5c7e52b44",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "scope": "Same original24 observations; deliberately reversed claim remains strict failed with review exports."
+    }
+  ],
+  "schedule": {
+    "first_request": "fresh owned font/config directory per case; record separately, do not pool with warm fonts",
+    "warm_repetitions": 7,
+    "instrumented_requests": 1,
+    "order": "listed case order; one cold-font ordinary request, seven warm-font ordinary fresh subprocesses, one instrumented warm-font request per case",
+    "future_worker_order": "counterbalance one-shot/worker blocks per case with independent equivalent initially fresh owned font/config directories; preserve first startup separately",
+    "os_page_cache": "uncontrolled; no OS cache flush or human/general inference"
+  },
+  "clock": {
+    "primary": "perf_counter around actual PreviewState.render; includes canonical prepare/convert/native subprocess/report/geometry binding, excludes upload, artifact hashing, harness startup and browser/HTTP/app startup",
+    "upload": "separate perf_counter around actual PreviewState.upload",
+    "translation": "one-shot current local_request convert wall time, parent timing wrapper",
+    "renderer": "actual preview._run wall time, includes child process lifecycle and all strict exports",
+    "instrumentation": "separate request with explicit nested-aware direct timers; not pooled into primary medians; inclusive phases overlap"
+  },
+  "acceptance": {
+    "unchanged_source_input_bytes": true,
+    "exact_expected_exit_and_status": true,
+    "strict_policy": true,
+    "all_requested_exports": true,
+    "actual_current_geometry_and_diagnostics": true,
+    "same_spec_data_script_and_semantic_reports_across_repetitions": true,
+    "same_png_rgba_and_dimensions_across_repetitions": true,
+    "same_table_markdown_tex_bytes_when_present": true,
+    "no_timing_thresholds": true,
+    "never_drop_negative_or_failed_runs": true
+  },
+  "required_worker_controls": [
+    "fresh script namespace and closed figures for every request",
+    "immutable current input/script/run ownership and protocol framing",
+    "bounded service lifecycle and shutdown",
+    "timeout/crash kills owned descendants and next-request recovery",
+    "concurrency/generation/stale response refusal",
+    "no prior data/rcParams/argv/cwd/metadata/statistics leakage",
+    "same full strict checks and requested export behavior",
+    "minimum/current/fresh-installed controls and exact all9/Figure CI"
+  ],
+  "amendments": "Changing case membership, accepted outcomes or metric/gate definitions requires a new version retaining original protocol, runs and reasons. Executor/instrumentation source hashes accompany every run; this baseline has no worker."
+}

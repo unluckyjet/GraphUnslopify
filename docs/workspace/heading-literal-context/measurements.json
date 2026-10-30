@@ -1,0 +1,91 @@
+{
+  "baseline_revision": "d404a7ee3da2972ba7a46cb13313cfcf6f768724",
+  "scope": "Actual typography-only generated-helper comparison; synthetic wording, no observations or scientific-acceptance claim.",
+  "cases": [
+    {
+      "case": "currency",
+      "original": "Measured prices at $5 and $10 and $15 in the original measurement currency",
+      "width_px": 140,
+      "font_pt": 12,
+      "outputs": {
+        "before": {
+          "wrapped": "Measured prices\nat $5 and $10 and\n$15 in the\noriginal\nmeasurement\ncurrency",
+          "raw_words_preserved": true,
+          "svg_text": [
+            "Measured prices",
+            "\n      a\n      t\n      \u00a0\n      5\n      1\n      0\n      \u00a0\n      a\n      n\n      d\n      a\n      n\n      d\n     ",
+            "$15 in the",
+            "original",
+            "measurement",
+            "currency"
+          ],
+          "currency_glyphs": 1,
+          "alpha_glyphs": 0
+        },
+        "after": {
+          "wrapped": "Measured prices\nat $5 and\n$10\nand $15 in the\noriginal\nmeasurement\ncurrency",
+          "raw_words_preserved": true,
+          "svg_text": [
+            "Measured prices",
+            "at $5 and",
+            "$10",
+            "and $15 in the",
+            "original",
+            "measurement",
+            "currency"
+          ],
+          "currency_glyphs": 3,
+          "alpha_glyphs": 0
+        }
+      }
+    },
+    {
+      "case": "mixed",
+      "original": "Measured response $\\alpha + \\beta$\nNominal price $15 in the original measurement currency",
+      "width_px": 35,
+      "font_pt": 12,
+      "outputs": {
+        "before": {
+          "wrapped": "Measured\nresponse\n$\\alpha\n+\n\\beta$\nNominal\nprice\n$15\nin\nthe\noriginal\nmeasurement\ncurrency",
+          "raw_words_preserved": true,
+          "svg_text": [
+            "Measured",
+            "response",
+            "$\\alpha",
+            "+",
+            "\\beta$",
+            "Nominal",
+            "price",
+            "$15",
+            "in",
+            "the",
+            "original",
+            "measurement",
+            "currency"
+          ],
+          "currency_glyphs": 3,
+          "alpha_glyphs": 0
+        },
+        "after": {
+          "wrapped": "Measured\nresponse\n$\\alpha + \\beta$\nNominal\nprice\n$15\nin\nthe\noriginal\nmeasurement\ncurrency",
+          "raw_words_preserved": true,
+          "svg_text": [
+            "Measured",
+            "response",
+            "\n      \u03b1\n      \u03b2\n      +\n     ",
+            "Nominal",
+            "price",
+            "$15",
+            "in",
+            "the",
+            "original",
+            "measurement",
+            "currency"
+          ],
+          "currency_glyphs": 1,
+          "alpha_glyphs": 1
+        }
+      }
+    }
+  ]
+}

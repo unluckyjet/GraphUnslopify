@@ -747,28 +747,65 @@ def fit_category_labels(fig, axes):
         fig.tight_layout()
 
 
+def heading_dollars(text):
+    return text.count("$") - text.count(r"\$")
+
+
+def literal_heading_lines(lines, original):
+    # An originally literal paragraph must not acquire a MathText line.
+    index = 0
+    while index < len(lines):
+        count = heading_dollars(lines[index])
+        if count == 0 or count % 2:
+            index += 1
+            continue
+        line = lines[index]
+        cuts = [match for match in re.finditer(r"\s+", line)
+                if heading_dollars(line[:match.start()]) % 2]
+        if cuts:
+            cut = cuts[-1]
+            lines[index:index + 1] = [line[:cut.start()], line[cut.end():]]
+            index += 2
+            continue
+        # A dollar pair inside one word cannot be split without changing it.
+        # Keep it with an odd-dollar neighbor; ordinary inspection still owns
+        # acceptance if the resulting complete wording cannot fit the column.
+        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]
+        if not odd:
+            return [original]
+        neighbor = min(odd, key=lambda i: abs(i - index))
+        low, high = sorted((index, neighbor))
+        lines[low:high + 1] = [" ".join(lines[low:high + 1])]
+        index = low + 1
+    return lines
+
+
 def wrap_heading(original, artist, renderer, width):
     from matplotlib.text import Text
     probe = Text(fontproperties=artist.get_fontproperties(),
                  usetex=artist.get_usetex(), parse_math=artist.get_parse_math())
     probe.set_figure(artist.get_figure())
-    dollars = original.count("$") - original.count(r"\$")
-    mathematical = (artist.get_parse_math() or artist.get_usetex()) and dollars > 0 and dollars % 2 == 0
+    parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()
     lines = []
     for paragraph in original.split("\n"):
+        dollars = heading_dollars(paragraph)
+        mathematical = (parse_math or use_tex) and dollars > 0 and dollars % 2 == 0
+        probe.set_parse_math(parse_math and mathematical)
+        paragraph_lines = []
         tokens, token = [], ""
         math_mode, depth, escaped, space = False, 0, False, False
-        for char in paragraph:
+        for position, char in enumerate(paragraph):
             separable = char.isspace() and not math_mode and depth == 0 and not escaped
             if token and separable != space:
                 tokens.append(token)
                 token = ""
             token += char
             space = separable
-            if not escaped:
-                if char == "$" and mathematical:
-                    math_mode = not math_mode
-                elif char == "{" and (math_mode or artist.get_usetex()):
+            dollar_boundary = not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
+            if char == "$" and mathematical and dollar_boundary:
+                math_mode = not math_mode
+            elif not escaped:
+                if char == "{" and (math_mode or use_tex):
                     depth += 1
                 elif char == "}" and depth:
                     depth -= 1
@@ -781,14 +818,18 @@ def wrap_heading(original, artist, renderer, width):
                 separator += token
                 continue
             candidate = line + separator + token
-            probe.set_text(candidate)
+            probe.set_text(candidate.replace(r"\$", "$")
+                           if parse_math and not mathematical and not use_tex else candidate)
             if line and probe.get_window_extent(renderer).width > width:
-                lines.append(line)
+                paragraph_lines.append(line)
                 line = token
             else:
                 line = candidate
             separator = ""
-        lines.append(line + separator)
+        paragraph_lines.append(line + separator)
+        if parse_math and not mathematical and not use_tex and dollars > 1:
+            paragraph_lines = literal_heading_lines(paragraph_lines, paragraph)
+        lines.extend(paragraph_lines)
     return "\n".join(lines)
 
 

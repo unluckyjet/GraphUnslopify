@@ -1,0 +1,67 @@
+[
+  {
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "exit_code": 0,
+    "seconds": 0.23
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "test"
+    ],
+    "exit_code": 0,
+    "seconds": 14.64
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "test:python"
+    ],
+    "exit_code": 0,
+    "seconds": 354.55
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "baseline",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "render-check"
+    ],
+    "exit_code": 0,
+    "seconds": 7.06
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "recipe-check"
+    ],
+    "exit_code": 0,
+    "seconds": 17.12
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "compose-check"
+    ],
+    "exit_code": 0,
+    "seconds": 2.98
+  }
+]

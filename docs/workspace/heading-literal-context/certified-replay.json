@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "phase": "benchmark",
+  "started_at": "2026-10-30T17:53:44.783119+00:00",
+  "completed_at": "2026-10-30T17:54:19.397865+00:00",
+  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "complete": true,
+  "expected_runs": 72,
+  "runs": 72,
+  "passed": true,
+  "arms": {
+    "matplotlib": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "7.450580596923828125E-10",
+        "low": "2.2351741790771484375E-9",
+        "high": "7.450580596923828125E-10",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.01652914599981159,
+        "execution_seconds_median": 0.29261833350756206,
+        "instrumented_execution_seconds_median": 0.10343487502541393,
+        "save_seconds_median": 0.06848024995997548
+      }
+    },
+    "graphunslopify": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "1.11758708953857421875E-9",
+        "low": "3.7252902984619140625E-10",
+        "high": "2.60770320892333984375E-9",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.1699462914839387,
+        "execution_seconds_median": 0.4684888534829952,
+        "instrumented_execution_seconds_median": 0.2620495004521217,
+        "save_seconds_median": 0.07264945900533348
+      }
+    }
+  },
+  "scope": "Project-run evaluation against external NIST facts; live author clocks describe one familiar AI operator, not human or causal productivity; quality proxies are not human judgments",
+  "raw_result_sha256": "2609244eb4f14319603bbed49c5a57853673e1a53703c664df51c97518ca5830",
+  "production_scope": "Uncommitted heading-context repair on accepted d404a7ee3da2972ba7a46cb13313cfcf6f768724; protocol, evaluator and producers unchanged."
+}

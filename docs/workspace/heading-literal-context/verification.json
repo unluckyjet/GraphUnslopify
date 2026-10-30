@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "base_revision": "d404a7ee3da2972ba7a46cb13313cfcf6f768724",
+  "status": "Local uncommitted production correction; new exact-commit CI required",
+  "node_tests": 234,
+  "python_tests": 1707,
+  "skipped": 0,
+  "python_warnings": 1,
+  "warning_scope": "Existing MLflow/SQLAlchemy deprecation",
+  "focused_native": {
+    "current_python312_matplotlib311": 99,
+    "minimum_python310_matplotlib310": 99,
+    "fresh_installed_python312": 99
+  },
+  "focused_cases": {
+    "native_svg_contexts": 45,
+    "strict_generated_exports": 2,
+    "malformed_math_rejected": 1,
+    "existing_heading_and_export_controls": 51
+  },
+  "browser": {
+    "source": 90,
+    "fresh_offline_wheel": 90,
+    "kinds": 21,
+    "headings": 6,
+    "diagnostics": 18,
+    "javascript_errors": 0,
+    "external_requests": 0
+  },
+  "installed_assets_matched": 19,
+  "wheel_sha256": "971fd0cddb50e81c5ea014ad1eade4e514c922478b24a4208fc316bb7e62d590",
+  "genuinely_regenerated": {
+    "baselines": 15,
+    "references": 7,
+    "gallery_passed": 15
+  },
+  "existing_pngs": {
+    "compared": 85,
+    "identical_rgba": 85,
+    "identical_bytes": 71
+  },
+  "frozen_nist_cases": 72,
+  "frozen_nist_passed": true,
+  "tested_source_manifest_sha256": "ca52abd0e655a9886079504dcd0609649aec20ee4f899c099e89e2d18198da75",
+  "translator_sha256": "ebef1af0d3ca402e372e05a46f8ced4eecbc3640d5c3e24656ee4b1f6f0f9d0c",
+  "scope": "Source correction only; synthetic typography probes are not scientific acceptance, human evidence, a new timing comparison, or a PyPI release."
+}

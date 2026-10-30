@@ -1,0 +1,432 @@
+{
+  "base_revision": "d404a7ee3da2972ba7a46cb13313cfcf6f768724",
+  "compared_images": 85,
+  "changed_pixels": [],
+  "images": [
+    {
+      "path": "benchmarks/authoring/figures/round1-Mavro-graphunslopify.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-Mavro-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-NumAcc4-graphunslopify.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/authoring/figures/round1-NumAcc4-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/Mavro-graphunslopify.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/Mavro-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/NumAcc4-graphunslopify.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "benchmarks/certified/results/figures/NumAcc4-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/density-evidence.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "docs/fifth-pass-axis-break.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-inset.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-layers.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-repeat.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fifth-pass-table.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/first-pass-greyscale.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/first-pass.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fix-apply-fixes-bar.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fix-temporal-before.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-direct-labels.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-facets.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/fourth-pass-showcase.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/lock-figure-1.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/lock-figure-2.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/second-pass-greyscale.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/second-pass.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-calibration.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-confusion.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "docs/seventh-pass-dumbbell.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-ecdf.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-forest.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-kaplan-meier.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-paired-difference.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-qq.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-raincloud.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-ridgeline.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-scaling-fit.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-slope.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-sparklines.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/seventh-pass-waterfall.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/sparkline-shared-scales.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "docs/third-pass-box.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/third-pass-heatmap.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "docs/third-pass-pareto.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/third-pass-stacked.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/third-pass-violin.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-measurements-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-measurements.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-scatter-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/iris-scatter.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-mass-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-mass.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-scatter-matplotlib.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/validation/papers/penguins-scatter.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/after-figure.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/after.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/before-figure.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/before.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/desktop.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/narrow.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/short.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/clickable-diagnostics/wide.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/comparison.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/date-label-layout/after.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/date-label-layout/before.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/after.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/before.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/narrow-editor.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/heading-layout/single-column.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/shared-bar-range/after-shared-range.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "docs/workspace/shared-bar-range/before-shared-range.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/01-training-curve.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/02-loss-log.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/03-single-run.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/04-accuracy-by-dataset.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/05-latency-ranking.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/06-accuracy-vs-latency.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/07-params-trendline.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/08-compact-double-column.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/09-uncertainty-band.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/10-faceted-benchmarks.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/11-seed-spread.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/12-sweep-heatmap.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/13-direct-labels.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    },
+    {
+      "path": "examples/baseline/14-animated-curve.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": true
+    },
+    {
+      "path": "examples/baseline/15-price-and-average.png",
+      "same_dimensions_and_rgba": true,
+      "same_bytes": false
+    }
+  ]
+}

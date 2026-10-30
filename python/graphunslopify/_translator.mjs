@@ -26631,6 +26631,7 @@ function dispatch(operation, payload) {
   if (operation === "convert") return translate(payload);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7" });
+  if (operation === "input-schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7", io: "input" });
   if (operation === "suggest") {
     const input2 = external_exports.object({ profile: ProfileSchema, limit: external_exports.number().int().min(1).max(5).default(3) }).parse(payload);
     return suggestFigures(input2.profile, input2.limit);

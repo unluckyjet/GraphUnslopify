@@ -1,7 +1,7 @@
 ---
 id: 82
 slug: model-backed-drafts
-status: ready
+status: in_progress
 priority: P1
 title: Ground real model-backed figure drafts in selected data and explicit review
 source_idea: User visual-workspace advice natural-language figure generation
@@ -53,3 +53,17 @@ JSON, existing source consent, undo, ownership and strict evidence intact.
   calling an unmeasured model connection complete.
 - Update canonical Obsidian notes and preserve the full83–89 roadmap. This milestone
   does not establish a measured authoring-speed or researcher-adoption advantage.
+
+## Backend checkpoint82a
+
+`drafts.py` implements opt-in real-provider transport, server-prepared data/schema
+grounding, exact request disclosure, one-attempt consent, ownership/scientific
+context guards and canonical untrusted-patch validation. See
+[backend boundary and verification](../../docs/workspace/model-drafts.md).
+Browser configuration/disclosure/review/apply, shared undo, stale fences and
+source/fresh-installed browser acceptance remain unfinished. Keep82 open.
+
+82a local evidence: all seven gates234 Node/1550 Python,39 focused controls on
+actual3.10.22/3.12.14, actual source/fresh-installed model inference followed by
+strict PNG/SVG/PDF exports, and five preserved exploratory source failures.
+Exact commit CI remains required after pushing this checkpoint.

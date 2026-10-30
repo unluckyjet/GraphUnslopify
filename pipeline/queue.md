@@ -6,7 +6,7 @@ Open: 1. Shipped: 81.
 
 | id | pri | status | title | file |
 | --- | --- | --- | --- | --- |
-| 82 | P1 | ready | Ground real model-backed figure drafts in selected data and explicit review | `82-model-backed-drafts.md` |
+| 82 | P1 | in_progress | Ground real model-backed figure drafts in selected data and explicit review | `82-model-backed-drafts.md` |
 
 ## Shipped
 

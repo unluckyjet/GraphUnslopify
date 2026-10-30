@@ -1,0 +1,96 @@
+{
+  "scope": "82a backend foundation only; roadmap82 browser integration remains incomplete",
+  "base_revision": "7eedcf97ef6bff2277f1b272ee7c9b4cfb1e6533",
+  "source_sha256": {
+    "src/local.ts": "b7a79336bacdb75f18984dac2bb7c2cafa1c0c7487cb3a77056ca684af3d12b9",
+    "python/graphunslopify/_translator.mjs": "a6155d5acb940dc02cbd11d3f6302b38f6c0d1d105e5e2d7ac0506d2325b17ae",
+    "python/graphunslopify/drafts.py": "ecff9aea165719fdbadcf702a80d0f5c9b0e59a623c59e030c2130f5954c9835",
+    "python/tests/test_drafts.py": "3ba9cdaf41232395fafb641ab212fa528de1fe168fbb2fefa07dbc0bee683982",
+    "scripts/model-draft-smoke.py": "a29fcdd2db76cf5864bd3f523bbfc31c39cfd748418f930bb0f6caa90b04aec0"
+  },
+  "seven_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 20.95
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 277.87
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.18
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.78
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 16.68
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.83
+    }
+  ],
+  "node_tests": 234,
+  "python_tests": 1550,
+  "python_skipped": 0,
+  "python_existing_upstream_warnings": 1,
+  "focused_provider_contract_tests": {
+    "3.10.22": 39,
+    "3.12.14": 39
+  },
+  "real_inference": {
+    "exploratory_source_calls": 6,
+    "preserved_source_failures": 5,
+    "final_source_strict_pass": true,
+    "fresh_installed_external_network_denied_strict_pass": true,
+    "model": "qwen2.5:3b",
+    "provider": "Ollama0.40.13 via loopback Chat Completions",
+    "live_openai_account_tested": false
+  },
+  "browser_acceptance": "Pending configuration/disclosure/consent/review/apply/undo/stale integration",
+  "exact_commit_ci": "Required after push; recorded in maintained project notes after verification"
+}

@@ -13,6 +13,7 @@ export function dispatch(operation: string, payload: unknown): unknown {
   if (operation === "convert") return translate(payload);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return z.toJSONSchema(FigureSpec, { target: "draft-7" });
+  if (operation === "input-schema") return z.toJSONSchema(FigureSpec, { target: "draft-7", io: "input" });
   if (operation === "suggest") {
     const input = z.object({ profile: ProfileSchema, limit: z.number().int().min(1).max(5).default(3) }).parse(payload);
     return suggestFigures(input.profile, input.limit);

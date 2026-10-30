@@ -245,7 +245,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
     }
   }
 
-  for (const line of spec.reference_lines ?? []) {
+  for (const [index, line] of (spec.reference_lines ?? []).entries()) {
     const style = REFERENCE_STYLES[line.meaning];
     const call = line.axis === "y" ? "axhline" : "axvline";
     out.push(
@@ -267,7 +267,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
       // at the right, where the last point is.
       const xy = vertical ? `(${line.value}, 0.02)` : `(0.01, ${line.value})`;
       out.push(
-        "    ax.annotate(",
+        "    reference_text = ax.annotate(",
         `        ${pyStr(line.label)},`,
         `        xy=${xy},`,
         vertical
@@ -280,6 +280,7 @@ export function emitDecoratePanel(spec: FigureSpec, out: string[]): void {
         "        fontsize=ANNOTATION_PT - 1,",
         `        color=${style.colour},`,
         "    )",
+        `    edit_target(reference_text, ["reference_lines", ${index}, "label"], "reference_label", {"axis": ${pyStr(line.axis)}, "value": ${line.value}})`,
       );
     }
   }
@@ -321,22 +322,24 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
       sharedSeriesLegend(spec) ? "    for panel in fig.axes:" : "    for panel in [ax]:",
       "        panel_handles, panel_labels = source_legend_handles(panel)",
       "        for handle, label in zip(panel_handles, panel_labels):",
-      "            by_label.setdefault(label, handle)",
-      "    desired = [str(name) for name in series_names(frame)]",
-      "    labels = [name for name in desired if name in by_label]",
-      "    labels += [label for label in by_label if label not in labels]",
-      "    handles = [by_label[label] for label in labels]",
+      "            by_label.setdefault(legend_handle_key(handle, label), (handle, label))",
+      '    desired = [("series", str(name)) for name in series_names(frame)]',
+      "    keys = [key for key in desired if key in by_label]",
+      "    keys += [key for key in by_label if key not in keys]",
+      "    handles = [by_label[key][0] for key in keys]",
+      "    labels = [by_label[key][1] for key in keys]",
     ] : ["    handles, labels = source_legend_handles(ax)"]),
     "    if not handles:",
     "        return",
-    "    identities, displayed = [], []",
+    "    identities, displayed, label_targets = [], [], []",
     "    for handle, label in zip(handles, labels):",
     '        identity = getattr(handle, "_graphunslopify_legend_identity", None)',
     '        source = identity["series"] if identity is not None else None',
     '        suffix = identity.get("suffix", "") if identity is not None else ""',
     "        identities.append(source)",
+    '        label_targets.append(getattr(handle, "_graphunslopify_legend_text_target", None))',
     "        displayed.append(label if source is None else legend_alias(source) + suffix)",
-    '    if RUN_REPORT["spec"]["legend"].get("labels") and len({name.strip() for name in displayed}) != len(displayed):',
+    '    if (RUN_REPORT["spec"]["legend"].get("labels") or any(label_targets)) and len({name.strip() for name in displayed}) != len(displayed):',
     '        raise ValueError("Legend display names collide with another visible legend entry")',
     "    legend = ax.legend(",
     "        handles,",
@@ -351,9 +354,12 @@ export function emitLegend(spec: FigureSpec, out: string[]): void {
       : "        ncol=min(len(handles), 4),");
   }
   out.push("    )",
-    "    for text, source, original, shown in zip(legend.get_texts(), identities, labels, displayed):",
+    "    for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):",
     "        text.set_text(shown)",
-    '        edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
+    "        if source is None and target is not None:",
+    '            edit_target(text, target["path"], target["role"], target["source"])',
+    "        else:",
+    '            edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
     '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")', "");
 }
 

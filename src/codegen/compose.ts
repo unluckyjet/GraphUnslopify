@@ -69,7 +69,7 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
     switch (layer.mark) {
       case "line":
         out.push(
-          "    ax.plot(",
+          `    layer_artist(ax.plot(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
@@ -77,12 +77,12 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
           '        linestyle="--",',
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )",
+          `    ), ${index})`,
         );
         break;
       case "scatter":
         out.push(
-          "    ax.scatter(",
+          `    layer_artist(ax.scatter(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
@@ -91,13 +91,13 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
           "        linewidths=0,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )",
+          `    ), ${index})`,
         );
         break;
       case "rug":
         out.push(
           "    # Ticks along the bottom, showing where the observations actually are.",
-          "    ax.plot(",
+          `    layer_artist(ax.plot(`,
           `        ${layerX},`,
           "        np.full(len(block), 0.01),",
           "        transform=ax.get_xaxis_transform(),",
@@ -108,12 +108,12 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
           "        alpha=0.6,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )",
+          `    ), ${index})`,
         );
         break;
       case "band":
         out.push(
-          "    ax.fill_between(",
+          `    layer_artist(ax.fill_between(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        block[${layer.y2 ? pyStr(layer.y2) : field}],`,
@@ -122,12 +122,12 @@ export function emitLayers(spec: FigureSpec, out: string[]): void {
           "        linewidth=0,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )",
+          `    ), ${index})`,
         );
         break;
       case "rule":
         out.push(
-          `    ax.axhline(${layer.value ?? 0}, color=${colour}, linewidth=1.0, linestyle=":", zorder=${zorder}, label=${label})`,
+          `    layer_artist(ax.axhline(${layer.value ?? 0}, color=${colour}, linewidth=1.0, linestyle=":", zorder=${zorder}, label=${label}), ${index})`,
         );
         break;
       default: {

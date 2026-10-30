@@ -174,13 +174,34 @@ def series_artist(artist, source, suffix="", legend=True):
     return artist
 
 
+def layer_artist(artist, index):
+    layer = RUN_REPORT["spec"]["layers"][index]
+    if layer.get("label"):
+        target = {"path": ["layers", index, "label"], "role": "layer_label",
+                  "source": {"layer": index, "mark": layer["mark"]}}
+        for item in artist if isinstance(artist, list) else [artist]:
+            item._graphunslopify_legend_text_target = target
+    return artist
+
+
+def legend_handle_key(handle, label):
+    identity = getattr(handle, "_graphunslopify_legend_identity", None)
+    target = getattr(handle, "_graphunslopify_legend_text_target", None)
+    if identity is not None:
+        return ("series", identity["series"])
+    if target is not None:
+        return ("layer", target["source"]["layer"])
+    return ("external", label)
+
+
 def source_legend_handles(axes):
     ordinary, labels = axes.get_legend_handles_labels()
     public = {id(handle): label for handle, label in zip(ordinary, labels)}
     handles, names, seen = [], [], set()
     for handle in [*axes.get_children(), *axes.containers]:
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        include = identity.get("legend", True) if identity is not None else (
+            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
         if include and id(handle) not in seen:
             handles.append(handle)
             names.append(public.get(id(handle), handle.get_label()))
@@ -724,14 +745,15 @@ def add_legend(fig, ax, frame):
     handles, labels = source_legend_handles(ax)
     if not handles:
         return
-    identities, displayed = [], []
+    identities, displayed, label_targets = [], [], []
     for handle, label in zip(handles, labels):
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
         source = identity["series"] if identity is not None else None
         suffix = identity.get("suffix", "") if identity is not None else ""
         identities.append(source)
+        label_targets.append(getattr(handle, "_graphunslopify_legend_text_target", None))
         displayed.append(label if source is None else legend_alias(source) + suffix)
-    if RUN_REPORT["spec"]["legend"].get("labels") and len({name.strip() for name in displayed}) != len(displayed):
+    if (RUN_REPORT["spec"]["legend"].get("labels") or any(label_targets)) and len({name.strip() for name in displayed}) != len(displayed):
         raise ValueError("Legend display names collide with another visible legend entry")
     legend = ax.legend(
         handles,
@@ -741,9 +763,12 @@ def add_legend(fig, ax, frame):
         loc="upper center", bbox_to_anchor=(0.5, -0.18),
         ncol=min(len(handles), 4),
     )
-    for text, source, original, shown in zip(legend.get_texts(), identities, labels, displayed):
+    for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):
         text.set_text(shown)
-        edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)
+        if source is None and target is not None:
+            edit_target(text, target["path"], target["role"], target["source"])
+        else:
+            edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)
     edit_target(legend.get_title(), ["legend", "title"], "legend_title")
 
 

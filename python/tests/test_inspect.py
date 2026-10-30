@@ -179,7 +179,7 @@ def test_scatter_markers_count_as_a_second_channel():
     ax.scatter([1, 2], [2, 3], marker="s", color="#D55E00", label="B")
     ax.legend(loc="upper left")
 
-    channels = {channel for _, _, channel in _series_appearance(ax)}
+    channels = {item.channel for item in _series_appearance(ax)}
     assert len(channels) == 2
     assert "greyscale_collision" not in codes(fig)
 

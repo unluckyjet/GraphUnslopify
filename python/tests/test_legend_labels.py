@@ -174,8 +174,12 @@ def test_same_named_reference_entry_is_not_mistaken_for_a_source_series(tmp_path
     assert {(item["text"], item["editable"]) for item in entries} == {
         ("Control", True),
         ("ours", True),
-        ("base", False),
     }
+
+    layer = next(item for item in result["edit_map"]["targets"] if item["role"] == "layer_label")
+    assert layer["text"] == "base" and layer["editable"]
+    assert layer["path"] == ["layers", 0, "label"]
+    assert layer["source"] == {"layer": 0, "mark": "rule"}
 
 
 def test_alias_must_not_collapse_a_series_and_a_reference_to_the_same_name(tmp_path):

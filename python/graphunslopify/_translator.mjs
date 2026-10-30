@@ -21388,7 +21388,7 @@ function emitDecoratePanel(spec, out) {
       );
     }
   }
-  for (const line of spec.reference_lines ?? []) {
+  for (const [index, line] of (spec.reference_lines ?? []).entries()) {
     const style = REFERENCE_STYLES[line.meaning];
     const call = line.axis === "y" ? "axhline" : "axvline";
     out.push(
@@ -21406,7 +21406,7 @@ function emitDecoratePanel(spec, out) {
       const vertical = line.axis === "x";
       const xy2 = vertical ? `(${line.value}, 0.02)` : `(0.01, ${line.value})`;
       out.push(
-        "    ax.annotate(",
+        "    reference_text = ax.annotate(",
         `        ${pyStr(line.label)},`,
         `        xy=${xy2},`,
         vertical ? "        xycoords=ax.get_xaxis_transform()," : "        xycoords=ax.get_yaxis_transform(),",
@@ -21416,7 +21416,8 @@ function emitDecoratePanel(spec, out) {
         '        va="bottom",',
         "        fontsize=ANNOTATION_PT - 1,",
         `        color=${style.colour},`,
-        "    )"
+        "    )",
+        `    edit_target(reference_text, ["reference_lines", ${index}, "label"], "reference_label", {"axis": ${pyStr(line.axis)}, "value": ${line.value}})`
       );
     }
   }
@@ -21450,22 +21451,24 @@ function emitLegend(spec, out) {
       sharedSeriesLegend(spec) ? "    for panel in fig.axes:" : "    for panel in [ax]:",
       "        panel_handles, panel_labels = source_legend_handles(panel)",
       "        for handle, label in zip(panel_handles, panel_labels):",
-      "            by_label.setdefault(label, handle)",
-      "    desired = [str(name) for name in series_names(frame)]",
-      "    labels = [name for name in desired if name in by_label]",
-      "    labels += [label for label in by_label if label not in labels]",
-      "    handles = [by_label[label] for label in labels]"
+      "            by_label.setdefault(legend_handle_key(handle, label), (handle, label))",
+      '    desired = [("series", str(name)) for name in series_names(frame)]',
+      "    keys = [key for key in desired if key in by_label]",
+      "    keys += [key for key in by_label if key not in keys]",
+      "    handles = [by_label[key][0] for key in keys]",
+      "    labels = [by_label[key][1] for key in keys]"
     ] : ["    handles, labels = source_legend_handles(ax)"],
     "    if not handles:",
     "        return",
-    "    identities, displayed = [], []",
+    "    identities, displayed, label_targets = [], [], []",
     "    for handle, label in zip(handles, labels):",
     '        identity = getattr(handle, "_graphunslopify_legend_identity", None)',
     '        source = identity["series"] if identity is not None else None',
     '        suffix = identity.get("suffix", "") if identity is not None else ""',
     "        identities.append(source)",
+    '        label_targets.append(getattr(handle, "_graphunslopify_legend_text_target", None))',
     "        displayed.append(label if source is None else legend_alias(source) + suffix)",
-    '    if RUN_REPORT["spec"]["legend"].get("labels") and len({name.strip() for name in displayed}) != len(displayed):',
+    '    if (RUN_REPORT["spec"]["legend"].get("labels") or any(label_targets)) and len({name.strip() for name in displayed}) != len(displayed):',
     '        raise ValueError("Legend display names collide with another visible legend entry")',
     "    legend = ax.legend(",
     "        handles,",
@@ -21479,9 +21482,12 @@ function emitLegend(spec, out) {
   }
   out.push(
     "    )",
-    "    for text, source, original, shown in zip(legend.get_texts(), identities, labels, displayed):",
+    "    for text, source, original, shown, target in zip(legend.get_texts(), identities, labels, displayed, label_targets):",
     "        text.set_text(shown)",
-    '        edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
+    "        if source is None and target is not None:",
+    '            edit_target(text, target["path"], target["role"], target["source"])',
+    "        else:",
+    '            edit_target(text, None if source is None else legend_alias_path(source), "legend_entry", original if source is None else source)',
     '    edit_target(legend.get_title(), ["legend", "title"], "legend_title")',
     ""
   );
@@ -21573,7 +21579,7 @@ function emitLayers(spec, out) {
     switch (layer.mark) {
       case "line":
         out.push(
-          "    ax.plot(",
+          `    layer_artist(ax.plot(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
@@ -21581,12 +21587,12 @@ function emitLayers(spec, out) {
           '        linestyle="--",',
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )"
+          `    ), ${index})`
         );
         break;
       case "scatter":
         out.push(
-          "    ax.scatter(",
+          `    layer_artist(ax.scatter(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        color=${colour},`,
@@ -21595,13 +21601,13 @@ function emitLayers(spec, out) {
           "        linewidths=0,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )"
+          `    ), ${index})`
         );
         break;
       case "rug":
         out.push(
           "    # Ticks along the bottom, showing where the observations actually are.",
-          "    ax.plot(",
+          `    layer_artist(ax.plot(`,
           `        ${layerX},`,
           "        np.full(len(block), 0.01),",
           "        transform=ax.get_xaxis_transform(),",
@@ -21612,12 +21618,12 @@ function emitLayers(spec, out) {
           "        alpha=0.6,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )"
+          `    ), ${index})`
         );
         break;
       case "band":
         out.push(
-          "    ax.fill_between(",
+          `    layer_artist(ax.fill_between(`,
           `        ${layerX},`,
           `        block[${field}],`,
           `        block[${layer.y2 ? pyStr(layer.y2) : field}],`,
@@ -21626,12 +21632,12 @@ function emitLayers(spec, out) {
           "        linewidth=0,",
           `        zorder=${zorder},`,
           `        label=${label},`,
-          "    )"
+          `    ), ${index})`
         );
         break;
       case "rule":
         out.push(
-          `    ax.axhline(${layer.value ?? 0}, color=${colour}, linewidth=1.0, linestyle=":", zorder=${zorder}, label=${label})`
+          `    layer_artist(ax.axhline(${layer.value ?? 0}, color=${colour}, linewidth=1.0, linestyle=":", zorder=${zorder}, label=${label}), ${index})`
         );
         break;
       default: {
@@ -25093,13 +25099,34 @@ def series_artist(artist, source, suffix="", legend=True):
     return artist
 
 
+def layer_artist(artist, index):
+    layer = RUN_REPORT["spec"]["layers"][index]
+    if layer.get("label"):
+        target = {"path": ["layers", index, "label"], "role": "layer_label",
+                  "source": {"layer": index, "mark": layer["mark"]}}
+        for item in artist if isinstance(artist, list) else [artist]:
+            item._graphunslopify_legend_text_target = target
+    return artist
+
+
+def legend_handle_key(handle, label):
+    identity = getattr(handle, "_graphunslopify_legend_identity", None)
+    target = getattr(handle, "_graphunslopify_legend_text_target", None)
+    if identity is not None:
+        return ("series", identity["series"])
+    if target is not None:
+        return ("layer", target["source"]["layer"])
+    return ("external", label)
+
+
 def source_legend_handles(axes):
     ordinary, labels = axes.get_legend_handles_labels()
     public = {id(handle): label for handle, label in zip(ordinary, labels)}
     handles, names, seen = [], [], set()
     for handle in [*axes.get_children(), *axes.containers]:
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        include = identity.get("legend", True) if identity is not None else (
+            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
         if include and id(handle) not in seen:
             handles.append(handle)
             names.append(public.get(id(handle), handle.get_label()))

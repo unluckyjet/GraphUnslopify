@@ -852,6 +852,68 @@ print('Direct text edits reproduced in actual exported artists with original cla
   await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
   assert.notEqual((await spec()).title,"Stale wording");
   await page.locator("#render").click(); await verified();
+  const references=await spec();
+  references.legend.labels=[];
+  references.reference_lines=[{axis:"y",value:51,meaning:"target",label:"Target"}];
+  references.layers=[{mark:"rule",value:50,label:"Guide"}];
+  await edit(references);
+  await page.locator("#render").click(); await verified();
+  if (await page.locator("#edit-figure-text").getAttribute("aria-pressed")!=="true") await page.locator("#edit-figure-text").click();
+  changed=await textChange("Reference label: Target","Planned level");
+  await verified();
+  assert.deepEqual(changed.spec.reference_lines,[{axis:"y",value:51,meaning:"target",label:"Planned level"}]);
+  assert.ok(changed.edit_map.targets.some((t:{role:string;text:string})=>t.role==="reference_label" && t.text==="Planned level"));
+  changed=await textChange("Layer label: Guide","Guide cohort");
+  await verified();
+  assert.deepEqual(changed.spec.layers,[{mark:"rule",value:50,label:"Guide cohort"}]);
+  assert.deepEqual(changed.spec.claims,references.claims);
+  await page.locator(".preview").screenshot({path:join(evidence,"reference-layer-text.png")});
+  await page.locator("#include-data").check();
+  await download("reference-text-with-data.zip");
+  execFileSync(python,["-c",`
+import json,pathlib,subprocess,sys,zipfile,runpy,os
+from unittest.mock import patch
+import matplotlib.pyplot as plt
+root=pathlib.Path(sys.argv[1]);target=root/'reference-text-reproduced'
+with zipfile.ZipFile(root/'reference-text-with-data.zip') as z:z.extractall(target)
+report=json.loads(next(target.glob('*.report.json')).read_text())
+assert report['spec']['reference_lines']==[{'axis':'y','value':51,'meaning':'target','label':'Planned level'}]
+assert report['spec']['layers'][0]['label']=='Guide cohort' and report['spec']['layers'][0]['value']==50
+assert report['claims'] and all(c['subject']=='ours' for c in report['claims'])
+script=next(target.glob('*.py')).resolve()
+done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+assert done.returncode==0,done.stderr
+assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
+os.chdir(target);m=runpy.run_path(str(script))
+with patch.object(plt,'close'):m['main']()
+axes=plt.gcf().axes[0]
+assert any(t.get_text()=='Planned level' for t in axes.texts)
+assert 'Guide cohort' in [t.get_text() for t in axes.get_legend().get_texts()]
+layer=next(h for h in axes.lines if getattr(h,'_graphunslopify_legend_text_target',None))
+assert list(layer.get_ydata())==[50,50]
+assert any(list(h.get_ydata())==[51,51] for h in axes.lines)
+plt.close('all')
+print('Reference/layer text reproduced with actual unchanged51/50 anchors and original claim IDs')
+`,evidence],{env,stdio:"inherit",timeout:90_000});
+  await textChange("Layer label: Guide cohort","base");
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Failed checks");
+  assert.equal(await page.locator("#bundle").isDisabled(),true);
+  await page.locator("#undo-controls").click();
+  await page.waitForFunction(()=>document.querySelector("#status")?.textContent==="Ready to render");
+  await page.locator("#render").click(); await verified();
+  assert.equal((await spec()).layers[0].label,"Guide cohort");
+  await page.route("**/api/render",async route=>{
+    const response=await route.fetch();const body=await response.json();
+    body.edit_map.schema_version=99;
+    await route.fulfill({response,json:body});
+  });
+  await page.locator("#render").click(); await verified();
+  assert.equal(await page.locator("#edit-figure-text").isDisabled(),true);
+  assert.equal(await page.locator("#text-targets button").count(),0);
+  assert.equal(await page.locator("#bundle").isDisabled(),false);
+  await page.unroute("**/api/render");
+  await page.locator("#render").click(); await verified();
+  assert.equal(await page.locator("#edit-figure-text").isDisabled(),false);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -904,6 +966,10 @@ print('Direct text edits reproduced in actual exported artists with original cla
           "ambiguous clicked names fail strict checks and undo restores verified exports",
           "edited bundle rerenders with actual artist wording and original source IDs",
           "new data selection cancels reviewed text and discards stale targets",
+          "reference-line wording retains its actual numerical anchor",
+          "edited reference-layer bundle reruns strictly with actual unchanged51/50 anchors",
+          "layer wording retains data intent and rejects duplicate displayed source names with undo",
+          "transport-mutated unknown geometry version disables editing without altering scientific acceptance",
         ],
       },
       null,

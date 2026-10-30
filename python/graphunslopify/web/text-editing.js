@@ -27,10 +27,21 @@ export function proposeTextEdit(original, target, text) {
     before = annotation?.text;
     if (typeof before !== "string") throw Error("The annotation changed; render again.");
     annotation.text = text;
+  } else if (["reference_label", "layer_label"].includes(target.role) && path.length === 3 &&
+    path[0] === (target.role === "reference_label" ? "reference_lines" : "layers") &&
+    path[2] === "label" && Number.isInteger(path[1]) && path[1] >= 0) {
+    const item = spec[path[0]]?.[path[1]];
+    before = item?.label;
+    if (typeof before !== "string" || !target.source ||
+      (target.role === "reference_label" && (item.axis !== target.source.axis || item.value !== target.source.value)) ||
+      (target.role === "layer_label" && (path[1] !== target.source.layer || item.mark !== target.source.mark)))
+      throw Error("The reference or layer changed; render again.");
+    item.label = text;
   } else if (target.role === "legend_entry" && path.length === 4 &&
     path[0] === "legend" && path[1] === "labels" && path[3] === "text" &&
     Number.isInteger(path[2]) && path[2] >= 0 && typeof target.source === "string") {
-    if (!spec.group || !spec.legend) throw Error("The series changed; render again.");
+    spec.legend ??= {};
+    if (typeof spec.legend !== "object" || Array.isArray(spec.legend)) throw Error("The series changed; render again.");
     const labels = spec.legend.labels || [];
     if (!Array.isArray(labels) || path[2] > labels.length)
       throw Error("The series names changed; render again.");
@@ -49,7 +60,7 @@ export function createTextEditor({ current, apply }) {
   const image = $("preview"), layer = $("text-targets"), picker = $("text-target");
   let binding = null, targets = [], selected = null, proposal = null, active = false;
   const names = { title: "Title", axis_label: "Axis label", legend_title: "Legend title",
-    legend_entry: "Series name", annotation: "Annotation" };
+    legend_entry: "Series name", annotation: "Annotation", reference_label: "Reference label", layer_label: "Layer label" };
   function error(message = "") {
     $("text-error").textContent = message;
     $("text-error").hidden = !message;
@@ -88,6 +99,10 @@ export function createTextEditor({ current, apply }) {
         ? `Source series: ${selected.source}. This name applies wherever that series appears.`
         : selected.role === "axis_label"
           ? `Source field: ${selected.source}. Units and scaling stay unchanged; shared labels change together.`
+          : selected.role === "reference_label"
+            ? `Reference ${selected.source.axis} = ${selected.source.value}. Only its wording changes; the reference value stays unchanged.`
+            : selected.role === "layer_label"
+              ? `Layer ${selected.source.layer + 1}: ${selected.source.mark}. Its observations, filters and coordinates stay unchanged.`
           : selected.role === "annotation"
             ? "This wording applies wherever the same annotation appears. Its data attachment stays unchanged."
             : "Only this wording changes. Data, units and claim subjects stay unchanged.";
@@ -141,7 +156,7 @@ export function createTextEditor({ current, apply }) {
     clear();
     const map = result.edit_map;
     const png = result.report?.outputs.find(output => output.format === "png" && output.path.split(/[\\/]/).pop() === map?.image?.name);
-    if (!map?.available || map.run_id !== result.run_id || map.spec_hash !== result.report.spec_hash ||
+    if (!map?.available || map.schema_version !== 1 || map.coordinates !== "pixels_top_left" || map.run_id !== result.run_id || map.spec_hash !== result.report.spec_hash ||
       !png || png.sha256 !== map.image.sha256 || !Array.isArray(map.targets) ||
       !(map.image.width > 0 && map.image.height > 0)) return;
     const now = current();

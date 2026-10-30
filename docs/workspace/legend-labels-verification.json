@@ -436,5 +436,13 @@
     }
   ],
   "intentional_layout_change": "Nested faceted/repeated sparkline headings reserve a separate parent heading row",
-  "ci": "Pending exact pushed commit verification at this local checkpoint"
+  "ci": {
+    "revision": "7ab724f5aa4e2ef167bdada5528ec41390a53c9b",
+    "main": 41024904963,
+    "jobs_passed": 9,
+    "figure": 41024904907,
+    "result": "success",
+    "actual_browser_artifact": 12963153299,
+    "workflows": 33
+  }
 }

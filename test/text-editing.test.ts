@@ -56,3 +56,26 @@ test("display editing refuses data, unit, prototype, stale-field and read-only p
   assert.equal(({} as Record<string, unknown>).label, undefined);
   assert.throws(() => proposeTextEdit(original, { editable: true, role: "title", path: ["title"] }, " \t "));
 });
+
+test("reference and layer wording cannot change numerical anchors, filters or marks", () => {
+  const input = { ...original, reference_lines: [{axis:"y",value:5,meaning:"target",label:"Target"}],
+    layers:[{mark:"rule",value:3,label:"Threshold",filter:[{field:"method",op:"eq",value:"base"}]}] };
+  const reference = {editable:true,role:"reference_label",path:["reference_lines",0,"label"],source:{axis:"y",value:5}};
+  const updated = proposeTextEdit(input,reference,"Goal");
+  assert.deepEqual(updated.spec.reference_lines,[{axis:"y",value:5,meaning:"target",label:"Goal"}]);
+  assert.deepEqual(input.reference_lines[0]!.label,"Target");
+  assert.throws(()=>proposeTextEdit(input,{...reference,source:{axis:"x",value:5}},"Goal"),/changed/);
+  const layer = {editable:true,role:"layer_label",path:["layers",0,"label"],source:{layer:0,mark:"rule"}};
+  const result = proposeTextEdit(input,layer,"Comparison");
+  assert.deepEqual(result.spec.layers,[{...input.layers[0],label:"Comparison"}]);
+  assert.throws(()=>proposeTextEdit(input,{...layer,source:{layer:1,mark:"rule"}},"Comparison"),/changed/);
+  assert.deepEqual(result.spec.claims,input.claims);
+});
+
+test("renderer-default legends can receive display names without adding unrelated settings", () => {
+  const {legend: _legend,...minimal}=original;
+  const result=proposeTextEdit(minimal,{editable:true,role:"legend_entry",source:"base",path:["legend","labels",0,"text"]},"Control");
+  assert.deepEqual(result.spec.legend,{labels:[{series:"base",text:"Control"}]});
+  assert.deepEqual(result.spec.y,minimal.y);
+  assert.equal(Object.hasOwn(minimal,"legend"),false);
+});

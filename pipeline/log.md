@@ -160,3 +160,15 @@ workflows and actual title/rotated bounds within1px across four viewport regimes
 3.10/3.12/Ruff/gallery15 pass;12 installed source matches, zero external requests/JS
 errors, no scientific baseline artifact changes. Commit/push/exact CI precede
 derived/reference/layer labels and remaining full81 coverage;82–89 remain open.
+
+
+81d reference/layer label identity: actual canonical text paths, all five owned
+layer marks, raw-name-independent shared legends/panel colour checks, retained
+actual colour separation and deliberately mutated source/layer drift detection.
+Default legend edit preserves unrelated intent; unsupported geometry versions
+disable editing without altering original verification.232 Node/1494 Python/
+seven gates/Ruff/gallery15,123 actual3.10/3.12 focused controls and source/fresh
+offline installed45 browser workflows pass;12 source matches/0 external requests
+or JS errors. Actual exported anchors51/50 and claim IDs retain identity.22
+regenerated PNGs retain decoded RGBA bytes. Commit/push/exact CI precede metric/
+facet aliases and remaining full81 coverage;82–89 remain unfinished.

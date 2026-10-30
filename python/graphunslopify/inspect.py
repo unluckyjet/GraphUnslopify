@@ -359,7 +359,15 @@ def _check_overplotting(axes: Any, renderer: Any, report: Report) -> None:
         )
 
 
-def _series_appearance(axes: Any) -> list[tuple[str, tuple[float, float, float], str]]:
+@dataclass(frozen=True)
+class _SeriesAppearance:
+    label: str
+    colour: tuple[float, float, float]
+    channel: str
+    identity: tuple[str, str | int]
+
+
+def _series_appearance(axes: Any) -> list[_SeriesAppearance]:
     """Colour and second channel per legend entry, as the reader receives them."""
     from matplotlib.colors import to_rgb
 
@@ -370,7 +378,10 @@ def _series_appearance(axes: Any) -> list[tuple[str, tuple[float, float, float],
     seen = {id(handle) for handle in handles}
     for handle in [*axes.get_children(), *axes.containers]:
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        if identity is not None and identity.get("legend", True) and id(handle) not in seen:
+        target = getattr(handle, "_graphunslopify_legend_text_target", None)
+        if ((identity is not None and identity.get("legend", True)) or target is not None) and id(
+            handle
+        ) not in seen:
             handles.append(handle)
             labels.append(handle.get_label())
             seen.add(id(handle))
@@ -415,7 +426,14 @@ def _series_appearance(axes: Any) -> list[tuple[str, tuple[float, float, float],
             paths = mark.get_paths()
             if paths:
                 channel += hashlib.md5(paths[0].vertices.tobytes()).hexdigest()[:8]
-        series.append((label, seen, channel))
+        owner = getattr(handle, "_graphunslopify_legend_identity", None)
+        target = getattr(handle, "_graphunslopify_legend_text_target", None)
+        key = (
+            ("source", str(owner["series"]))
+            if owner is not None
+            else (("layer", target["source"]["layer"]) if target is not None else ("label", label))
+        )
+        series.append(_SeriesAppearance(label, seen, channel, key))
     return series
 
 
@@ -424,12 +442,12 @@ def _check_colour_separation(axes: Any, report: Report) -> None:
     if len(series) < 2:
         return
 
-    distinct_channels = len({channel for _, _, channel in series}) == len(series)
+    distinct_channels = len({item.channel for item in series}) == len(series)
 
     for i in range(len(series)):
         for j in range(i + 1, len(series)):
-            left_label, left_rgb, _ = series[i]
-            right_label, right_rgb, _ = series[j]
+            left_label, left_rgb = series[i].label, series[i].colour
+            right_label, right_rgb = series[j].label, series[j].colour
             gap, condition = worst_case_distance(left_rgb, right_rgb)
 
             if gap < MIN_COLOUR_DISTANCE:
@@ -628,11 +646,17 @@ def _check_panel_consistency(figure: Any, report: Report) -> None:
             )
 
     # A series must keep one colour across every panel or the legend lies.
-    seen: dict[str, set[tuple[float, float, float]]] = {}
+    seen: dict[tuple[str, str | int], set[tuple[float, float, float]]] = {}
+    labels = {}
     for ax in axes:
-        for label, rgb, _ in _series_appearance(ax):
-            seen.setdefault(label, set()).add(tuple(round(c, 4) for c in rgb))
-    drifted = sorted(label for label, colours in seen.items() if len(colours) > 1)
+        for item in _series_appearance(ax):
+            seen.setdefault(item.identity, set()).add(tuple(round(c, 4) for c in item.colour))
+            labels[item.identity] = (
+                f"Layer {item.identity[1] + 1} ({item.label})"
+                if item.identity[0] == "layer"
+                else item.label
+            )
+    drifted = sorted(labels[key] for key, colours in seen.items() if len(colours) > 1)
     if drifted:
         report.add(
             "error",

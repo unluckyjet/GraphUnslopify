@@ -110,6 +110,28 @@ workflows/21 required-kind controls pass,0 external requests/JS errors.12 instal
 assets match source. Mobile/rapid viewport correction uses one CSS surface, with
 actual title/rotated-axis x/y/width/height within1px; no tolerance weakening.
 No published scientific artifacts changed. Proof: docs/workspace/direct-text-verification.json.
-Push/exact CI pending.
+57b4652 exact main41029266281 all9/Figure41029266288 passed.
 Repeated-metric/facet heading aliases, reference/layer labels with existing
 canonical fields, and remaining full81 acceptance coverage stay open. Guide: docs/workspace/direct-text-editing.md.
+
+
+## Reference/layer checkpoint81d (local verification)
+
+Prerequisite57b4652 exact main41029266281 all9/Figure41029266288 passed. Actual
+reference annotation paths and layer legend paths retain numeric anchors/marks/
+filters; all five layer kinds have actual measured text. Layer/source IDs have
+separate namespaces for legend deduplication and panel-colour checks. A new shared
+fixture initially exposed a false colour-drift failure when a layer and a raw
+series shared a name; the corrected inspector retains actual colour separation
+and detects deliberately mutated source and layer colours across panels.
+
+123 focused controls pass on actual3.10.22/3.12.14; five Node semantic/unsafe-path
+controls pass. Source browser45 workflows pass, including actual reference/layer
+click/review/apply/strict duplicate-name refusal/undo and strict exported51/50
+anchor reproduction. Unknown-version transport mutation disables editing without
+changing the actual scientific report. Renderer-default legend editing works
+without adding unrelated defaults.22 refreshed PNG decoded RGBA bytes match
+57b4652; gallery15/Ruff pass. Final seven gates232/1494 pass,0 skips/1 existing
+upstream warning; fresh offline installed browser45 workflows/21 required-kind
+controls pass with0 external requests/JS errors.12 installed assets match.
+Push/exact CI pending. Proof: docs/workspace/reference-labels-verification.json. Derived metric/facet aliases and remaining full81 coverage stay open.

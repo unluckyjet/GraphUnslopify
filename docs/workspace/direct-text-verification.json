@@ -279,5 +279,14 @@
   "measured_correction": "Initial installed mobile failed async overlay positioning. Shared CSS image/percentage-target surface passes final source and installed geometry assertions without tolerance changes.",
   "export_reproduction": "Extracted strict standalone script and actual Matplotlib title, axes, legend/title, annotation and original line IDs verified",
   "published_scientific_artifact_changes": 0,
-  "ci": "Pending exact commit after this local checkpoint"
+  "ci": {
+    "revision": "57b4652745ebb30904c1313f8be1176896f7c43f",
+    "main": 41029266281,
+    "jobs_passed": 9,
+    "figure": 41029266288,
+    "result": "success",
+    "actual_browser_artifact": 12965511463,
+    "sha256_verified": "b8c790d1edee1f97cae66d87f85107994fa98c4585cf97404c7febbe755dba7b",
+    "workflows": 41
+  }
 }

@@ -10,8 +10,9 @@ measurement horizontally. Annotation paths retain the original annotation index;
 units and source-field identity are separate from authored label text. Repeated
 metric labels retain their source identities and remain read-only. Named-series
 legend entries use the canonical [display mappings](../legend-labels.md), including
-a prospective append path for IDs without an override. Unowned references stay
-read-only until their own canonical label field is mapped.
+a prospective append path for IDs without an override. Reference-line annotations and layer legend entries now use their own existing
+canonical label fields. Renderer-owned identities distinguish them from source
+series even when the visible wording happens to match.
 
 The local preview runs its owned generated script through `preview_render.py`.
 The adapter observes the final PNG `draw_event` inside the actual save call.

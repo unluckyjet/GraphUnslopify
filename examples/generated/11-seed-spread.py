@@ -174,13 +174,34 @@ def series_artist(artist, source, suffix="", legend=True):
     return artist
 
 
+def layer_artist(artist, index):
+    layer = RUN_REPORT["spec"]["layers"][index]
+    if layer.get("label"):
+        target = {"path": ["layers", index, "label"], "role": "layer_label",
+                  "source": {"layer": index, "mark": layer["mark"]}}
+        for item in artist if isinstance(artist, list) else [artist]:
+            item._graphunslopify_legend_text_target = target
+    return artist
+
+
+def legend_handle_key(handle, label):
+    identity = getattr(handle, "_graphunslopify_legend_identity", None)
+    target = getattr(handle, "_graphunslopify_legend_text_target", None)
+    if identity is not None:
+        return ("series", identity["series"])
+    if target is not None:
+        return ("layer", target["source"]["layer"])
+    return ("external", label)
+
+
 def source_legend_handles(axes):
     ordinary, labels = axes.get_legend_handles_labels()
     public = {id(handle): label for handle, label in zip(ordinary, labels)}
     handles, names, seen = [], [], set()
     for handle in [*axes.get_children(), *axes.containers]:
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else id(handle) in public
+        include = identity.get("legend", True) if identity is not None else (
+            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
         if include and id(handle) not in seen:
             handles.append(handle)
             names.append(public.get(id(handle), handle.get_label()))

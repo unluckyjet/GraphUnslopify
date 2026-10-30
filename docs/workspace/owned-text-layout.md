@@ -58,8 +58,8 @@ child-name/form/undo/failure/recovery cases. Minimum/fresh native batches pass23
 controls. Fresh offline wheel installation/Excel/Parquet/editor controls and19
 source asset matches pass. Genuine15 baselines/seven references/gallery15 and the
 unchanged frozen72 NIST expected outcomes pass. All seven final gates pass232 Node/1,816 Python tests with zero skips and one
-existing MLflow/SQLAlchemy deprecation; Ruff108 passes. New exact-commit
-main/Figure CI remains required.
+existing MLflow/SQLAlchemy deprecation; Ruff108 passes. Exact de65710 main41137594346 all nine jobs and Figure41137594427 passed;
+final workflow metadata and all ten named checks were verified22:41UTC.
 
 [Source editor](owned-text-layout/source-editor-checks.json),
 [fresh editor](owned-text-layout/installed-editor-checks.json),
@@ -68,8 +68,8 @@ main/Figure CI remains required.
 
 Arbitrary unbreakable text, constrained many-column tables, coincident direct
 labels and dense foreign insets can remain failed. No universal automatic layout
-or source-free scientific certification is claimed. Full83 acceptance and84–89
-remain open; this source work does not publish a PyPI release or add chart kinds.
+or source-free scientific certification is claimed. Full83 acceptance is in the [requirement audit](spatial-layout-acceptance.md).
+Milestones84–89 remain open; this source work does not publish a PyPI release or add chart kinds.
 
 
 [Final verification](owned-text-layout/verification.json),
@@ -79,3 +79,11 @@ remain open; this source work does not publish a PyPI release or add chart kinds
 The minimum real browser separately passes all five new workflows with no JS
 errors or external requests. The complete source/test/fixture set stayed unchanged
 during final required checks.
+
+
+[Exact CI acceptance](owned-text-layout/ci-acceptance.json) includes both final
+source-bound workflow results. The actual downloaded [101-workflow editor archive
+summary](owned-text-layout/ci-editor-checks.json) and [72-run NIST summary](owned-text-layout/ci-certified-summary.json)
+have independently verified ZIP digests. All expected original controls and zero
+JavaScript/external-request results remain; these measurements establish no human
+adoption, blind quality or general productivity claim.

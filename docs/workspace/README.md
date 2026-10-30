@@ -41,3 +41,8 @@ Capture the same viewport/crop and sample on both revisions. The durable script
 saves the real rendered figure as well as screenshots and measured metadata;
 it does not execute screenshot lookalikes. Current changes are source additions
 after the immutable PyPI0.8.0 release.
+
+
+Complete [spatial diagnostics and owned-layout acceptance](spatial-layout-acceptance.md)
+records milestone83, exact CI evidence and retained strict limits. Performance
+and review-workspace milestones84–89 remain open.

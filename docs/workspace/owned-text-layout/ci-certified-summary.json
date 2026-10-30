@@ -1,0 +1,69 @@
+{
+  "phase": "benchmark",
+  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "complete": true,
+  "expected_runs": 72,
+  "runs": 72,
+  "passed": true,
+  "arms": {
+    "matplotlib": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "7.450580596923828125E-10",
+        "low": "2.2351741790771484375E-9",
+        "high": "7.450580596923828125E-10",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.03536659750000126,
+        "execution_seconds_median": 1.049372528500001,
+        "instrumented_execution_seconds_median": 0.41677190600001524,
+        "save_seconds_median": 0.286783710999984
+      }
+    },
+    "graphunslopify": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "1.11758708953857421875E-9",
+        "low": "3.7252902984619140625E-10",
+        "high": "2.60770320892333984375E-9",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.4956060235000024,
+        "execution_seconds_median": 1.435788355000014,
+        "instrumented_execution_seconds_median": 0.7502289339999919,
+        "save_seconds_median": 0.32396992300000704
+      }
+    }
+  },
+  "scope": "Project-run evaluation against external NIST facts; live author clocks describe one familiar AI operator, not human or causal productivity; quality proxies are not human judgments",
+  "commit": "de6571009b2a3e4f3d29e9a02053e51a83a0b447",
+  "run_id": 41137594346,
+  "artifact_id": 13017655475,
+  "zip_sha256": "37561e393490f0f856101f5ea9b47e4e14c07d0f57b8c9934522fbd40d4d6fcd"
+}

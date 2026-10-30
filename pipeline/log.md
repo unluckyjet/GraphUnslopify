@@ -193,3 +193,5 @@ Actual CI editor artifact12969657911 ZIP SHA256 verified and actual53 workflows/
 requirements are audited against implementation and actual exports. Move81 to
 done; define82 real model/provider/data disclosure/review/strict draft requirements.
 No provider is assumed and83–89/native goal remain unfinished.
+
+2026-10-30 —83 lands: complete actual diagnostic locations/ownership/clickable repairs, measured date/headings/literal-math/legend/direct/child/table layout, full shared bar ranges and panel-aware duplicate keys. Final de65710 exact main41137594346 all9/Figure41137594427 passed; actual digest-verified archives confirm101 editor workflows and72 frozen NIST outcomes. Fresh closing seven gates232/1816 pass on258 unchanged source/test/fixture files. Full acceptance retains strict negatives, original quantities/fonts/source words, failed historical checkpoints and explicit measurement limits.84–89 remain pending; exact closing-record CI required before84.

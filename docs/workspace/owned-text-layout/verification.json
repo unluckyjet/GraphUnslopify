@@ -1,5 +1,5 @@
 {
-  "scope": "Final current child/table owned-text source milestone; new push/exact CI pending; not a PyPI release",
+  "scope": "Child/table owned-text source accepted in exact main/Figure CI; separate from immutable public0.8.0",
   "all_seven_gates_passed": true,
   "node_tests": 232,
   "python_tests": 1816,
@@ -41,5 +41,9 @@
   "fonts_source_words_quantities_preserved": true,
   "table_markdown_tex_bytes_preserved": true,
   "frozen_certified_runs": 72,
-  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3"
+  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "accepted_source_commit": "de6571009b2a3e4f3d29e9a02053e51a83a0b447",
+  "main_run_id": 41137594346,
+  "figure_run_id": 41137594427,
+  "all_nine_main_jobs_and_figure_passed": true
 }

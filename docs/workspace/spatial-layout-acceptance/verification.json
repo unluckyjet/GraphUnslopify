@@ -1,0 +1,26 @@
+{
+  "scope": "Milestone83 complete source acceptance and separate closing-record verification; no release or84\u201389 implementation",
+  "accepted_source_commit": "de6571009b2a3e4f3d29e9a02053e51a83a0b447",
+  "main_run_id": 41137594346,
+  "figure_run_id": 41137594427,
+  "all_nine_main_jobs_and_figure_passed": true,
+  "fresh_closing_all_seven_gates_passed": true,
+  "unchanged_source_test_fixture_files": 258,
+  "node_tests": 232,
+  "python_tests": 1816,
+  "skips": 0,
+  "warnings": 1,
+  "warning_scope": "Existing MLflow/SQLAlchemy deprecation",
+  "current_browser_workflows": 101,
+  "controlled_kinds": 21,
+  "actual_ci_benchmark_runs": 72,
+  "source_equals_immutable_pypi_release": false,
+  "remaining_milestones": [
+    84,
+    85,
+    86,
+    87,
+    88,
+    89
+  ]
+}

@@ -1,7 +1,7 @@
 ---
 id: 83
 slug: spatial-diagnostics-layout
-status: in_progress
+status: done
 priority: P1
 title: Locate actual figure diagnostics and complete renderer-owned layout
 source_idea: User visual-workspace advice clickable diagnostics and automatic publication layout
@@ -138,12 +138,11 @@ scoped stats, supported compositions and strict negatives. Stable seven gates
 minimum3 legend workflows pass.19 assets match; genuine15+seven/gallery15 pass;
 86/93 prior PNGs retain original pixels and7 change for measured owned layout.
 The frozen72-case replay passes unchanged. [Measured proof](../../docs/workspace/outside-legend-layout.md).
-New push/exact main/Figure CI are required before the next implementation.
-Sparkline child headings, long table context/headers and full83 acceptance remain
-open;84–89 retain their entire scope.
+At this checkpoint sparkline child headings/table context/full acceptance were
+still open; their accepted completion follows.84–89 retain their entire scope.
 
 
-### 83f accepted; 83g native direct endpoints active
+### Accepted83f/83g native direct endpoints
 
 Complete9cbd0f6 passes exact main41121663624 all nine/Figure41121663626,
 with independently downloaded95-workflow editor and72-outcome NIST evidence.
@@ -156,12 +155,12 @@ fitted lines and scoped ECE values; it removes duplicate sparkline parent names.
 33 focused and183 minimum/fresh native controls plus source/fresh96 workflows,
 19 asset matches/genuine15+seven/gallery15/frozen72 pass. The additional mean
 regression is included in the final passing seven gates232/1791 and Ruff107.
-New push/exact CI pending.
+Exact d7e32f0 main41129703718 all nine/Figure41129703804 passed.
 [Actual evidence](../../docs/workspace/direct-series-endpoints.md).
-Long child headings/table context/full83 and84–89 remain open.
+At83g child/table layout and full83 remained open; their accepted completion follows.
 
 
-### 83g accepted; 83h child/table text active
+### Accepted83h child/table text and full83
 
 Complete d7e32f0 exact main41129703718 all9/Figure41129703804 passed, with
 actual96-workflow editor/72-outcome NIST archives independently verified.
@@ -171,5 +170,17 @@ locators and measured row/column space, and keeps unfit/false-claim failures.
 25 focused/236 minimum-fresh native controls, source/fresh101 workflows,19 assets,
 genuine15+seven/gallery15/frozen72 pass; all115 old PNG pixels remain identical.
 All seven final gates232/1816/Ruff108 and minimum five browser workflows pass.
-New push/exact CI and full83 acceptance remain open.
+Complete de65710 exact main41137594346 all nine/Figure41137594427 passed.
+Actual downloaded archives verify101 workflows and72 NIST outcomes; all ten
+named checks and final workflow metadata were verified22:41UTC.
 [Actual evidence](../../docs/workspace/owned-text-layout.md).
+
+
+## Complete scoped acceptance
+
+The [requirement-by-requirement audit](../../docs/workspace/spatial-layout-acceptance.md)
+maps all original requirements to actual source/export/browser/negative evidence.
+Fresh closing checks pass232 Node/1816 Python and all seven gates on258 unchanged
+source/test/fixture files. Controlled limits and failed intermediate checkpoints
+remain explicit. This completes83;84–89 retain their full scope and wait for the
+closing-record push's exact main/Figure CI before implementation.

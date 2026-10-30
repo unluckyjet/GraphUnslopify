@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "positive_provider": "actual configured model",
+  "model": "qwen2.5:3b",
+  "request_sha256": "37ae6bce2456180563a5e4326dac15acb4e3a3766a569cc7d97432e21f1de479",
+  "request_bytes": 65159,
+  "strict_status": "passed",
+  "exports": [
+    "png",
+    "svg",
+    "pdf"
+  ],
+  "source_binding": {
+    "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+    "original_bytes_unchanged": true,
+    "runtime_prefix_matches_source": true,
+    "replayed_strict_status": "passed",
+    "plotted_x": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "plotted_y": [
+      51,
+      54,
+      56,
+      59
+    ],
+    "title": "Training progress"
+  },
+  "controlled_negative_cases": true,
+  "workflows": [
+    "model-applied CSV bytes runtime digest and replayed numeric artists match original source",
+    "model disclosure before opt-in transmission",
+    "unapplied unverified proposal preserves current figure",
+    "explicit review apply forces strict render in manual mode",
+    "model apply shares native undo and invalidates exports",
+    "model review desktop mobile and literal untrusted wording",
+    "declared source units are disclosed and remain unapplied until review",
+    "invalid model response quarantined without application",
+    "provider failure preserves offline manual authoring",
+    "late model response cannot revive stale dataset intent or exports",
+    "late model response cannot overwrite a newer canonical figure edit",
+    "provider changes clear old proposals and session key fields",
+    "reserved source column names remain literal in declared-unit disclosure"
+  ],
+  "evidence": "/var/folders/cm/8l8qlt0s57sg6h83r9_1b_r80000gn/T/gu-model-browser-i3W76V",
+  "javascript_errors": 0,
+  "external_browser_requests": 0
+}

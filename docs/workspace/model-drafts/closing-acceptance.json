@@ -1,0 +1,192 @@
+{
+  "production_revision": "6275b8c24e7bce32724d915a58176cab61cbe196",
+  "production_exact_ci": {
+    "main": 41056713354,
+    "main_jobs": 9,
+    "figure": 41056713193,
+    "all_success": true
+  },
+  "verified_ci_artifact": {
+    "id": 12977671629,
+    "sha256": "4fbd3753e29075c9030e2670edc6e2ee80d83991306302132721d19ffe421cbc",
+    "workflows": 65,
+    "controlled_kinds": 21,
+    "model_cases": 12
+  },
+  "current_acceptance": {
+    "source-real": {
+      "workflows": 13,
+      "source_binding": {
+        "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+        "original_bytes_unchanged": true,
+        "runtime_prefix_matches_source": true,
+        "replayed_strict_status": "passed",
+        "plotted_x": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "plotted_y": [
+          51,
+          54,
+          56,
+          59
+        ],
+        "title": "Training progress"
+      }
+    },
+    "installed-real": {
+      "workflows": 13,
+      "source_binding": {
+        "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+        "original_bytes_unchanged": true,
+        "runtime_prefix_matches_source": true,
+        "replayed_strict_status": "passed",
+        "plotted_x": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "plotted_y": [
+          51,
+          54,
+          56,
+          59
+        ],
+        "title": "Training progress"
+      }
+    },
+    "source-browser": {
+      "workflows": 66,
+      "source_binding": {
+        "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+        "original_bytes_unchanged": true,
+        "runtime_prefix_matches_source": true,
+        "replayed_strict_status": "passed",
+        "plotted_x": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "plotted_y": [
+          51,
+          54,
+          56,
+          59
+        ],
+        "title": "Training progress"
+      }
+    },
+    "installed-browser": {
+      "workflows": 66,
+      "source_binding": {
+        "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+        "original_bytes_unchanged": true,
+        "runtime_prefix_matches_source": true,
+        "replayed_strict_status": "passed",
+        "plotted_x": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "plotted_y": [
+          51,
+          54,
+          56,
+          59
+        ],
+        "title": "Training progress"
+      }
+    }
+  },
+  "runtime": {
+    "version": "0.40.13"
+  },
+  "models": [
+    {
+      "name": "qwen2.5:3b",
+      "digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+      "size": 1929912432
+    }
+  ],
+  "limits": "One synthetic curve per actual-provider run; controlled fault injections are not model inference. No human usability, general model-quality or speed benefit established. OpenAI account inference untested.",
+  "closing_checks": {
+    "seven_gates": [
+      {
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit_code": 0,
+        "seconds": 0.28
+      },
+      {
+        "command": [
+          "npm",
+          "test"
+        ],
+        "exit_code": 0,
+        "seconds": 22.28
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "test:python"
+        ],
+        "exit_code": 0,
+        "seconds": 289.47
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "baseline",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "seconds": 0.19
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "render-check"
+        ],
+        "exit_code": 0,
+        "seconds": 6.81
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "recipe-check"
+        ],
+        "exit_code": 0,
+        "seconds": 16.68
+      },
+      {
+        "command": [
+          "npm",
+          "run",
+          "compose-check"
+        ],
+        "exit_code": 0,
+        "seconds": 2.88
+      }
+    ],
+    "node_tests": 234,
+    "python_tests": 1565,
+    "skips": 0,
+    "existing_upstream_warning": 1,
+    "script_sha256": "39447b11019c1550fd7c7919494a73c7b48ecb2c8b0ca69e9b66c136c44d12fd",
+    "production_diff": "No changes to python/ or src/ compared with6275b8c; only acceptance harness and documentation/queue",
+    "exact_closing_commit_ci": "Verify after push before83 implementation"
+  }
+}

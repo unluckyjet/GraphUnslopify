@@ -1,7 +1,7 @@
 ---
 id: 82
 slug: model-backed-drafts
-status: in_progress
+status: done
 priority: P1
 title: Ground real model-backed figure drafts in selected data and explicit review
 source_idea: User visual-workspace advice natural-language figure generation
@@ -61,8 +61,8 @@ grounding, exact request disclosure, one-attempt consent, ownership/scientific
 context guards and canonical untrusted-patch validation. See
 [backend boundary and verification](../../docs/workspace/model-drafts.md).
 Backend82a was verified at90022f2 exact main41047929069 all9/Figure41047929222.
-The82b editor integration below implements the remaining browser path; keep82
-open until its exact commit CI and final acceptance reconciliation are verified.
+The82b editor integration below implements the remaining browser path; its production6275b8c exact main41056713354 all9/Figure41056713193 passed.
+The closing acceptance below adds original byte/numeric evidence.
 
 82a local evidence: all seven gates234 Node/1550 Python,39 focused controls on
 actual3.10.22/3.12.14, actual source/fresh-installed model inference followed by
@@ -85,6 +85,16 @@ and installation with strict PNG/SVG/PDF, original numeric boundaries and undo.
 Negative cases remain controlled; a real exploratory title mismatch is preserved.
 [Evidence](../../docs/workspace/model-drafts.md).
 
-Exact commit main/Figure CI and acceptance/queue reconciliation remain before
-closing82. Live OpenAI account inference, human usability and productivity are
+Production6275b8c exact main41056713354 all9/Figure41056713193 passed. Live OpenAI account inference, human usability and productivity are
 untested; do not equate passing canonical validation with satisfying a prompt.
+
+## Closing acceptance
+
+[Requirement audit](../../docs/workspace/model-draft-acceptance.md) verifies the
+full scoped82 behavior. Source/fresh-installed66 workflows and actual local-model
+13-case runs additionally retain the applied runtime report, compare original
+source digest/row counts, explicitly download unchanged CSV bytes and replay
+actual x/y marks `[1,2,3,4]` / `[51,54,56,59]` from the exported strict script.
+All seven gates reran234/1565 on stable source hashes, with no production changes
+from6275b8c. The final closing checkpoint's own exact CI is checked before any83
+implementation.83–89 remain pending in the full roadmap.

@@ -1,6 +1,7 @@
 /** Actual browser workflow. Controlled HTTP is contract evidence, never model inference. */
 import assert from "node:assert/strict";
-import {spawn} from "node:child_process";
+import {spawn, execFileSync} from "node:child_process";
+import {createHash} from "node:crypto";
 import {createServer} from "node:http";
 import {existsSync, mkdtempSync, writeFileSync} from "node:fs";
 import {tmpdir} from "node:os";
@@ -34,6 +35,8 @@ export async function checkDrafts(page: Page, evidence: string) {
   const actualModel = process.env.GRAPHUNSLOPIFY_TEST_DRAFT_MODEL;
   assert.equal(Boolean(actualEndpoint), Boolean(actualModel), "Configure both actual test endpoint and model");
   const workflows: string[] = [];
+  const sourceCsv = Buffer.from("epoch,score\n1,51\n2,54\n3,56\n4,59\n");
+  const sourceSha256 = createHash("sha256").update(sourceCsv).digest("hex");
   const original = {kind: "line", title: "Original title", x: {field: "score", label: "Old horizontal axis"}, y: {field: "epoch", label: "Old vertical axis"}, output: {stem: "figure", formats: ["png", "svg", "pdf"]}};
   const prompt = "Plot score against epoch as a line. Put epoch on the horizontal axis labeled Epoch and score on the vertical axis labeled Score. Set the figure title to Training progress. Keep the observed values unchanged. Do not add uncertainty or tests because sampling design is unspecified.";
   const spec = async () => JSON.parse(await page.locator("#spec").inputValue());
@@ -64,7 +67,7 @@ export async function checkDrafts(page: Page, evidence: string) {
   };
   try {
     await page.locator("#live").uncheck();
-    await page.locator("#data-file").setInputFiles({name: "public-model-synthetic.csv", mimeType: "text/csv", buffer: Buffer.from("epoch,score\n1,51\n2,54\n3,56\n4,59\n")});
+    await page.locator("#data-file").setInputFiles({name: "public-model-synthetic.csv", mimeType: "text/csv", buffer: sourceCsv});
     await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.includes("public-model-synthetic.csv") && !document.querySelector("#data-summary")?.textContent.startsWith("Reading "));
     if (!await page.locator("#advanced").evaluate(el => Boolean((el as unknown as {open: boolean}).open))) await page.locator("#advanced > summary").click();
     await page.locator("#spec").fill(JSON.stringify(original, null, 2));
@@ -89,7 +92,7 @@ export async function checkDrafts(page: Page, evidence: string) {
     const proposal = await modelResponse.json();
     writeFileSync(join(evidence,"model-received-proposal.json"),JSON.stringify(proposal,null,2)+"\n");
     writeFileSync(join(evidence,"model-disclosure.json"),JSON.stringify(disclosure,null,2)+"\n");
-    assert.equal(proposal.spec.x.field, "epoch");assert.equal(proposal.spec.y.field, "score");assert.equal(proposal.spec.title, "Training progress");
+    assert.equal(proposal.spec.kind, "line");assert.equal(proposal.spec.x.field, "epoch");assert.equal(proposal.spec.y.field, "score");assert.equal(proposal.spec.title, "Training progress");
     assert.equal(proposal.verified, false);assert.equal(proposal.applied, false);
     await page.screenshot({path: join(evidence, "model-proposal-desktop.png"), fullPage: true});
     await page.locator("#draft-proposal").scrollIntoViewIfNeeded();
@@ -105,8 +108,55 @@ export async function checkDrafts(page: Page, evidence: string) {
     await page.locator("#draft-apply").click();
     const result = await (await rendered).json();await verified();console.log("Model draft browser: strict applied figure verified");
     assert.equal(result.report.status, "passed");
+    assert.equal(result.report.policy.strict, true);
+    assert.equal(result.report.data.sha256_prefix, sourceSha256.slice(0,16));
+    assert.equal(result.report.data.counts.read, 4);
+    assert.equal(result.report.data.counts.after_filter, 4);
+    assert.equal(result.report.data.counts.prepared, 4);
+    writeFileSync(join(evidence,"model-applied-report.json"),JSON.stringify(result.report,null,2)+"\n");
     assert.deepEqual(new Set(result.report.outputs.map((x:{format:string}) => x.format)), new Set(["png","svg","pdf"]));
     assert.equal((await spec()).x.field, "epoch");
+    assert.equal(await page.locator("#include-data").isChecked(),false);
+    await page.locator("#include-data").check();
+    const download = page.waitForEvent("download");await page.locator("#bundle").click();
+    const bundle = join(evidence,"model-applied-with-consented-data.zip");
+    await (await download).saveAs(bundle);
+    const replayEnv: NodeJS.ProcessEnv = process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED ? {...process.env} : {...process.env,PYTHONPATH:resolve("python")};
+    if(process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS)replayEnv.NODE_OPTIONS=process.env.GRAPHUNSLOPIFY_PREVIEW_NODE_OPTIONS;
+    const sourceBinding=JSON.parse(execFileSync(process.env.PYTHON||"python",["-c",`
+import contextlib,hashlib,io,json,os,pathlib,runpy,subprocess,sys,zipfile
+from unittest.mock import patch
+import matplotlib.pyplot as plt
+archive,expected_hash,expected_spec,target=sys.argv[1:]
+target=pathlib.Path(target).resolve();target.mkdir(parents=True,exist_ok=True)
+with zipfile.ZipFile(archive) as z:
+ names=set(z.namelist())
+ assert names <= {'figure.py','figure.figure.json','figure.report.json','figure.png','figure.svg','figure.pdf','data.csv'},names
+ source=z.read('data.csv')
+ assert hashlib.sha256(source).hexdigest()==expected_hash
+ packaged=json.loads(z.read('figure.report.json'))
+ assert packaged['spec_hash']==expected_spec and packaged['data']['sha256_prefix']==expected_hash[:16]
+ z.extractall(target)
+script=target/'figure.py'
+done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+assert done.returncode==0,done.stderr
+report=json.loads(done.stdout)
+assert report['status']=='passed' and report['spec_hash']==expected_spec
+assert report['data']['sha256_prefix']==expected_hash[:16]
+os.chdir(target);module=runpy.run_path(str(script))
+with patch.object(plt,'close'),contextlib.redirect_stdout(io.StringIO()):module['main']()
+fig=plt.gcf();assert len(fig.axes)==1
+ax=fig.axes[0];assert len(ax.lines)==1
+x=[float(value) for value in ax.lines[0].get_xdata()]
+y=[float(value) for value in ax.lines[0].get_ydata()]
+assert x==[1,2,3,4] and y==[51,54,56,59],(x,y)
+assert ax.get_title()=='Training progress' and ax.get_xlabel()=='Epoch' and ax.get_ylabel()=='Score'
+assert (target/'data.csv').read_bytes()==source
+plt.close('all')
+print(json.dumps({'source_sha256':hashlib.sha256(source).hexdigest(),'original_bytes_unchanged':True,'runtime_prefix_matches_source':True,'replayed_strict_status':report['status'],'plotted_x':x,'plotted_y':y,'title':'Training progress'}))
+`,bundle,sourceSha256,result.report.spec_hash,join(evidence,"model-applied-reproduced")],{env:replayEnv,encoding:"utf8",timeout:120000}));
+    await page.locator("#include-data").uncheck();
+    workflows.push("model-applied CSV bytes runtime digest and replayed numeric artists match original source");
     await page.locator("#undo-controls").click();
     await page.waitForFunction(() => JSON.parse(document.querySelector("#spec")?.value || "{}").title === "Original title");
     assert.deepEqual(await spec(), before);
@@ -168,7 +218,7 @@ export async function checkDrafts(page: Page, evidence: string) {
     const literal=await reviewRequest();
     assert.equal(JSON.parse(literal.request.messages[1].content).author_context.units["__proto__"],"ms");
     workflows.push("reserved source column names remain literal in declared-unit disclosure");
-    const proof={passed:true,positive_provider:actualEndpoint?"actual configured model":"controlled HTTP double; not inference",model:actualModel||"controlled-provider-double",request_sha256:disclosure.request_sha256,request_bytes:disclosure.request_bytes,strict_status:result.report.status,exports:result.report.outputs.map((x:{format:string})=>x.format),controlled_negative_cases:true,workflows};
+    const proof={passed:true,positive_provider:actualEndpoint?"actual configured model":"controlled HTTP double; not inference",model:actualModel||"controlled-provider-double",request_sha256:disclosure.request_sha256,request_bytes:disclosure.request_bytes,strict_status:result.report.status,exports:result.report.outputs.map((x:{format:string})=>x.format),source_binding:sourceBinding,controlled_negative_cases:true,workflows};
     writeFileSync(join(evidence,"model-drafts-checks.json"),JSON.stringify(proof,null,2)+"\n");
     return proof;
   } finally {releaseHeld?.();await new Promise<void>(done=>stub.close(()=>done()));}

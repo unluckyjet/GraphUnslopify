@@ -1,8 +1,8 @@
 # Model drafts in the local editor (current source)
 
 Current source connects model proposals to the local editor. PyPI0.8.0 predates
-this work; use a current source installation. The82b integration checkpoint stays
-in progress until all local and exact-commit CI requirements are verified.
+this work; use a current source installation. Production6275b8c passed all nine main CI jobs and Figure CI. The final
+acceptance/queue checkpoint has its own CI before work advances to83.
 
 ## Use it
 
@@ -182,3 +182,17 @@ no skips and one existing upstream MLflow/SQLAlchemy warning.54 related provider
 and editor contracts pass on actual Python3.10.22 and within the full3.12.14 suite.
 [Editor verification and hashes](model-drafts/editor-verification.json). Exact
 commit CI remains required before closing82;83–89 are still pending.
+
+## Final82 acceptance
+
+[Requirement-by-requirement audit](model-draft-acceptance.md) closes the scoped
+feature using actual source and fresh-installed66 browser workflows/21 kind
+controls, plus13 model cases per actual-provider run. New proof persists the
+applied strict runtime report, compares source digest and four row counts,
+explicitly downloads a source-inclusive bundle, checks the full CSV SHA256 and
+replays the exported script. Actual line marks remain x `[1,2,3,4]`,
+y `[51,54,56,59]` with the requested labels/title; original CSV bytes remain
+unchanged after replay. This is the measured synthetic example, not a guarantee
+of general model quality. [Closing evidence](model-drafts/closing-acceptance.json).
+All seven checks were rerun234/1565 on stable source hashes. The closing
+checkpoint's exact CI is verified after push before83 implementation.

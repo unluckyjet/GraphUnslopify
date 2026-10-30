@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "tool": "GraphUnslopify 0.8.0",
+  "spec_hash": "43ef7b9464a4222a",
+  "spec": {
+    "facet": {
+      "labels": [
+        {
+          "value": "A",
+          "row": "early",
+          "text": "Early control"
+        },
+        {
+          "value": "A",
+          "row": "late",
+          "text": "Late control"
+        }
+      ],
+      "by": "condition",
+      "rows": "phase",
+      "columns": 2,
+      "share_x": true,
+      "share_y": true,
+      "panel_letters": true
+    },
+    "legend": {
+      "show": false,
+      "position": "best",
+      "style": "box"
+    },
+    "output": {
+      "interactive": false,
+      "latex": false,
+      "size": "double_column",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "dpi": 600,
+      "stem": "panels"
+    },
+    "style": {
+      "preset": "paper",
+      "grid": false,
+      "despine": true,
+      "venue": "none"
+    },
+    "data": {
+      "path": "data.csv",
+      "format": "csv",
+      "columns": [
+        "epoch",
+        "score",
+        "condition",
+        "phase"
+      ]
+    },
+    "x": {
+      "field": "epoch",
+      "label": "Epoch",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "y": {
+      "field": "score",
+      "label": "Score",
+      "scale": "linear",
+      "percent": false,
+      "temporal": false
+    },
+    "kind": "line",
+    "marker": false,
+    "sort_x": true,
+    "aggregation": "none"
+  },
+  "status": "passed",
+  "ok": true,
+  "data": {
+    "path": "data.csv",
+    "sha256_prefix": "9f604c94773850b6",
+    "counts": {
+      "read": 8,
+      "after_filter": 8,
+      "prepared": 8,
+      "missing_plot_keys": 0,
+      "measurements": {
+        "score": {
+          "finite": 8,
+          "nonfinite": 0
+        }
+      },
+      "finite": 8,
+      "nonfinite": 0
+    }
+  },
+  "environment": {
+    "schema_version": 1,
+    "capture_stage": "before_export",
+    "python": {
+      "version": "3.12.14",
+      "implementation": "CPython",
+      "optimize": 0,
+      "hash_randomization": true
+    },
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64"
+    },
+    "loaded_core_versions": {
+      "numpy": "2.5.4",
+      "pandas": "3.1.0",
+      "matplotlib": "3.11.2",
+      "Pillow": "13.0.0",
+      "freetype": "2.14.3"
+    },
+    "installed_optional_versions": {
+      "graphunslopify": "0.8.0",
+      "plotly": "7.1.0",
+      "scipy": "1.18.1",
+      "pypdf": "6.21.2"
+    },
+    "rendering": {
+      "backend": "Agg",
+      "figure_inches": [
+        7.0,
+        8.4
+      ],
+      "figure_dpi": 100.0,
+      "export_dpi": 600,
+      "target_width_in": 7,
+      "requested_formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "requested_interactive": false,
+      "rc_parameters": {
+        "font.family": [
+          "sans-serif"
+        ],
+        "font.size": 9.0,
+        "font.style": "normal",
+        "font.weight": "normal",
+        "font.variant": "normal",
+        "font.stretch": "normal",
+        "mathtext.fontset": "dejavusans",
+        "text.usetex": false,
+        "text.parse_math": true,
+        "svg.fonttype": "path",
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "savefig.transparent": false,
+        "savefig.facecolor": "auto",
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
+        "path.simplify": true,
+        "path.simplify_threshold": 0.111111111111,
+        "agg.path.chunksize": 0,
+        "svg.hashsalt": "43ef7b9464a4222a"
+      },
+      "default_font": {
+        "family": "DejaVu Sans",
+        "file": "DejaVuSans.ttf",
+        "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+      }
+    },
+    "execution": {
+      "strict": true,
+      "fail_on_warning": false,
+      "source": "cli"
+    },
+    "random_constants": {},
+    "unavailable": []
+  },
+  "findings": [
+    {
+      "severity": "warning",
+      "code": "line_implies_continuity",
+      "message": "A line asserts that the space between two x values means something. If x is a set of unordered categories, a bar chart makes the same comparison without that claim. Only the author can tell, so this one carries no automatic fix.",
+      "consequence": "Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.",
+      "correction": "Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion."
+    }
+  ],
+  "inspection": {
+    "available": true,
+    "checked": true,
+    "measurements": {
+      "basis": "exports",
+      "nominal_width_in": 7.0,
+      "widths_in": {
+        "panels.png": 6.933347200027733,
+        "panels.svg": 6.931388888888889,
+        "panels.pdf": 6.931493055555555
+      },
+      "target_width_in": 7,
+      "evaluated_width_in": 6.933347200027733,
+      "text_scale": 1.0,
+      "data_view": [
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            0.95,
+            2.05
+          ],
+          "y_limits": [
+            4.6,
+            13.4
+          ],
+          "artists": [
+            {
+              "kind": "line",
+              "finite_coordinates": 2,
+              "unavailable_coordinates": 0,
+              "clip_on": true,
+              "outside_axes": 0,
+              "nonpositive_x": 0,
+              "nonpositive_y": 0
+            }
+          ]
+        },
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            0.95,
+            2.05
+          ],
+          "y_limits": [
+            4.6,
+            13.4
+          ],
+          "artists": [
+            {
+              "kind": "line",
+              "finite_coordinates": 2,
+              "unavailable_coordinates": 0,
+              "clip_on": true,
+              "outside_axes": 0,
+              "nonpositive_x": 0,
+              "nonpositive_y": 0
+            }
+          ]
+        },
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            0.95,
+            2.05
+          ],
+          "y_limits": [
+            4.6,
+            13.4
+          ],
+          "artists": [
+            {
+              "kind": "line",
+              "finite_coordinates": 2,
+              "unavailable_coordinates": 0,
+              "clip_on": true,
+              "outside_axes": 0,
+              "nonpositive_x": 0,
+              "nonpositive_y": 0
+            }
+          ]
+        },
+        {
+          "basis": "artist_coordinates_not_source_sample_sizes",
+          "scope": "axes_bounds",
+          "x_scale": "linear",
+          "y_scale": "linear",
+          "x_limits": [
+            0.95,
+            2.05
+          ],
+          "y_limits": [
+            4.6,
+            13.4
+          ],
+          "artists": [
+            {
+              "kind": "line",
+              "finite_coordinates": 2,
+              "unavailable_coordinates": 0,
+              "clip_on": true,
+              "outside_axes": 0,
+              "nonpositive_x": 0,
+              "nonpositive_y": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "panels": [
+    {
+      "index": 0,
+      "name": "early / A",
+      "metric": "score"
+    },
+    {
+      "index": 1,
+      "name": "early / B",
+      "metric": "score"
+    },
+    {
+      "index": 2,
+      "name": "late / A",
+      "metric": "score"
+    },
+    {
+      "index": 3,
+      "name": "late / B",
+      "metric": "score"
+    }
+  ],
+  "claims": [],
+  "significance": [],
+  "annotations": [],
+  "outputs": [
+    {
+      "path": "panels.png",
+      "format": "png",
+      "sha256": "cda20d05401425b5643ceefc6253bb5c08da01d4809770dd40fa5210f6003eea",
+      "bytes": 336301
+    },
+    {
+      "path": "panels.svg",
+      "format": "svg",
+      "sha256": "e535499e0caafb40a50caf3dd3a84b44e2becfe0acfd5d6ca710942bc207b2d1",
+      "bytes": 47962
+    },
+    {
+      "path": "panels.pdf",
+      "format": "pdf",
+      "sha256": "149f86a6ae0c017bfabbdf5027fc79a967b7c467b439d840d6529f02e75e90d7",
+      "bytes": 15572
+    }
+  ],
+  "skipped_outputs": [],
+  "untested": [],
+  "alt_text": "Line chart of Score against Epoch. Panels arranged by condition across columns and phase down rows. Panel early / A: Values run from 7 to 11. The mean is 9. Panel early / B: Values run from 5 to 8. The mean is 6.5. Panel late / A: Values run from 8 to 13. The mean is 10.5. Panel late / B: Values run from 6 to 9. The mean is 7.5. Panel display names: Early control means source panel condition=A, phase=early; Late control means source panel condition=A, phase=late.",
+  "script": {
+    "sha256": "d59728b914b841b3b1fa6c534f98fa83b2b9c9d5fcd8284481534a8691eaae95"
+  },
+  "exit_code": 0,
+  "policy": {
+    "strict": true,
+    "fail_on_warning": false,
+    "passed": true
+  }
+}

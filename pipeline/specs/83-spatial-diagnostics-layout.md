@@ -65,5 +65,12 @@ render/artist controls now cover supported vertical repeats and both facet
 orientations, signed values, independent limits, intervals, stacks and deliberate
 clipping. Source/installed browser controls, seven gates and exact push CI must
 pass before advancing. See [measured evidence](../../docs/workspace/shared-bar-range.md).
+83a is pushed9b4c1c1; exact main41064322822 all9/Figure41064322645 passed before83b.
+83b scopes prepared duplicate keys to original facet column/row identities.
+Its21 focused cases retain genuine within-series warnings, ambiguous-bar runtime
+refusals and the existing semantic facet/group guard. The original8-row/4-panel
+false alarm disappears with identical data/spec hash/final PNG pixels. See
+[measured evidence](../../docs/workspace/panel-duplicate-keys.md). Its seven gates,
+source/installed checks, push and exact CI gate must complete before advancing.
 Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
-open; this checkpoint does not complete83 or narrow84–89.
+open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.

@@ -1,0 +1,18 @@
+{
+  "base_revision": "9b4c1c1efb013a6b0ffd9bf9d3cc423ff640d3a9",
+  "scope": "Synthetic eight-row/four-panel source export; identical specification, CSV bytes and actual final PNG pixels. Logged duplicate warning corrected; no new machine finding or strict failure introduced.",
+  "source_sha256": "9f604c94773850b6973965a9bf31e07a31249ee4657ce055727deb3c51f346c4",
+  "spec_hash": "43ef7b9464a4222a",
+  "rows": 8,
+  "panels": 4,
+  "actual_within_panel_duplicates": false,
+  "before_warning": true,
+  "after_warning": false,
+  "before_strict_status": "passed",
+  "after_strict_status": "passed",
+  "png_dimensions": [
+    4160,
+    4986
+  ],
+  "final_png_rgba_identical": true
+}

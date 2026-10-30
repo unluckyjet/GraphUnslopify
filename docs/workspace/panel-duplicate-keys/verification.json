@@ -1,0 +1,86 @@
+{
+  "scope": "83b prepared facet/series duplicate warning keys; remaining83 overlays/layout and full84\u201389 stay open. Source wheel, not a new release.",
+  "base_revision": "9b4c1c1efb013a6b0ffd9bf9d3cc423ff640d3a9",
+  "previous_exact_main_all9": 41064322822,
+  "previous_exact_figure_success": 41064322645,
+  "required_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.26
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 23.21
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 335.61
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.93
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 17.18
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 3.0
+    }
+  ],
+  "source_test_files_unchanged_during_gates": true,
+  "checked_source_manifest_sha256": "379bbbbb67ff946065db3c36c74ddaf04f134272f75c0571bc6b4489b0089ea9",
+  "node_tests": 234,
+  "python_tests": 1603,
+  "python_skips": 0,
+  "python_warnings": "1 existing upstream MLflow/SQLAlchemy deprecation",
+  "focused_current_python_cases": 21,
+  "focused_minimum_python_cases": 21,
+  "focused_fresh_installed_cases": 21,
+  "focused_case_scope": "20 strict script executions (14 accepted,6 native ambiguous-bar runtime refusals);1 semantic facet-by-group refusal.",
+  "gallery_passed": 15,
+  "baseline_programs_regenerated": 15,
+  "reference_programs_regenerated": 7,
+  "exact_ci": "Pending new checkpoint push."
+}

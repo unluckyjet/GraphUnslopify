@@ -294,13 +294,16 @@ function emitMain(spec: FigureSpec, out: string[]): void {
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates =
     (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
+  const duplicatePanelKeys = spec.facet
+    ? ` + [FACET_BY${spec.facet.rows ? ", FACET_ROWS" : ""}]`
+    : "";
 
   if (warnsDuplicates) {
     out.push(
       "",
       "def warn_duplicates(df):",
       "    # Whether x repeats is not knowable from the spec, so it is checked here.",
-      "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
+      `    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])${duplicatePanelKeys}`,
       "    if df.duplicated(subset=keys).any():",
       '        print(diagnostic_text("repeated_x_values", "Repeated x values per series are drawn on top of each other."))',
       "",

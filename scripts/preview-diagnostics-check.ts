@@ -175,17 +175,17 @@ export async function checkDiagnostics(page: Page, evidence: string) {
     await page.locator('#findings .finding[data-code="temporal_log_axis"]').getByRole("button",{name:"Apply fix",exact:true}).click();
     const fixed=await(await repaired).json();
     writeFileSync(join(evidence,"diagnostic-fix-runtime-report.json"),JSON.stringify(fixed.report,null,2)+"\n");
-    assert.equal(fixed.report.status,"failed",JSON.stringify(fixed.report.findings));
-    assert.ok(fixed.report.findings.some((item:{code:string})=>item.code==="tick_labels_collide"));
+    assert.equal(fixed.report.status,"passed",JSON.stringify(fixed.report.findings));
+    assert.ok(!fixed.report.findings.some((item:{code:string})=>item.code==="tick_labels_collide"));
     assert.equal(fixed.report.data.sha256_prefix,createHash("sha256").update(dates).digest("hex").slice(0,16));
     assert.equal(fixed.report.data.counts.read,3);
-    await page.locator('#status[data-state="failed"]').waitFor();
+    await page.locator('#status[data-state="passed"]').waitFor();
     assert.equal(await page.locator("#live").isChecked(),false);
     assert.equal((await spec()).x.scale,"linear");assert.equal((await spec()).x.temporal,true);
     assert.equal(await page.locator("#undo-controls").isDisabled(),false);
     await page.locator("#undo-controls").click();
     assert.equal((await spec()).x.scale,"log");assert.equal(await page.locator("#bundle").isDisabled(),true);
-    workflows.push("explicit manual-mode repair reruns strict checks retains additional layout errors and joins native undo");
+    workflows.push("three-day temporal repair fits actual date labels retains original observations and joins native undo");
 
     const years="date,value\n2020-01-01,1\n2024-01-01,2\n2028-01-01,3\n";
     await upload("diagnostic-years.csv",years);
@@ -202,6 +202,22 @@ export async function checkDiagnostics(page: Page, evidence: string) {
     await page.locator("#undo-controls").click();
     assert.equal((await spec()).x.scale,"log");assert.equal(await page.locator("#bundle").isDisabled(),true);
     workflows.push("valid explicit temporal repair renders verified in manual mode and native undo restores authored intent");
+
+    const hiddenDomain="date,value\n2024-01-01,-1\n2024-01-02,2\n2024-01-03,3\n";
+    await upload("diagnostic-log-domain.csv",hiddenDomain);
+    await edit({...temporal,y:{field:"value",label:"Value",scale:"log"}});
+    const negativeRepair=page.waitForResponse(r=>r.url().endsWith("/api/render"));
+    await page.locator('#findings .finding[data-code="temporal_log_axis"]').getByRole("button",{name:"Apply fix",exact:true}).click();
+    const negative=await(await negativeRepair).json();
+    assert.equal(negative.report.status,"failed");assert.equal(negative.exit_code,2);
+    assert.ok(negative.report.findings.some((item:{code:string;severity:string})=>item.code==="log_domain_hidden"&&item.severity==="error"));
+    assert.equal(negative.report.data.sha256_prefix,createHash("sha256").update(hiddenDomain).digest("hex").slice(0,16));
+    assert.equal(negative.report.data.counts.read,3);
+    await page.locator('#status[data-state="failed"]').waitFor();
+    assert.equal((await spec()).x.scale,"linear");assert.equal((await spec()).y.scale,"log");
+    await page.locator("#undo-controls").click();
+    assert.equal((await spec()).x.scale,"log");assert.equal(await page.locator("#bundle").isDisabled(),true);
+    workflows.push("explicit temporal repair still blocks actual negative observations hidden by an authored log value axis");
 
     const proof={passed:true,provider:"No model inference used by diagnostic cases",strict_negative_status:result.report.status,original_spec_unchanged_by_selection:true,geometry,workflows};
     writeFileSync(join(evidence,"diagnostic-overlays-checks.json"),JSON.stringify(proof,null,2)+"\n");return proof;

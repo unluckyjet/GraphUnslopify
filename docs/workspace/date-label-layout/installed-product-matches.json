@@ -1,0 +1,26 @@
+{
+  "source_assets_sha256": {
+    "web/diagnostics.js": "b65794325ebcebacadf18c561ccc032c3ffacc95fa960f6fd58234b1bb7bf664",
+    "web/index.html": "e636139d2b849ad81f2c81ff0d944d98338dfba2485cde7350e7a8bfda902998",
+    "web/controls.js": "156fd5b5f808a5b5c19aedd87ceed0be2e1477bf4a751c806b47b6f30e69e1dd",
+    "web/app.css": "e9e92cfa8defb53bc161f3ee4100042221817b8d944092bead235169b1e7202a",
+    "web/text-editing.js": "e7448dc6252fa57f8cef3249e460efaec28a48659fbf6e45da0cb53c933a508e",
+    "web/project.js": "3efac35fb4fcc21a0bc8ffa21a704b10888580b14814463a1a624720cac841fb",
+    "web/project.html": "eaaafee8fed3c5ea8be00580fb9494c0fe08fd186fe42738a188d267b4b4355d",
+    "web/project.css": "c09e3a732cc33846caa6ad08e8ced407e2c3c7b012913e5bae08f0c858acb117",
+    "web/app.js": "f34d929081f7ffda753e24e892989fcffeae4e1f024c157331a978ef8ab65c61",
+    "web/drafts.js": "a175ea56fbdf8d2ef590d587e5645957cf265b29a2e662160e59a81b61a43c9b",
+    "drafts.py": "989bf28bd691635f9d808e178dee0f94433372ec2f27137198f1da668d03855f",
+    "preview.py": "576a68d73e5c1b67dcf205992c03a20be38fc8ec3c52a11dea9a52d1c5ca3d4a",
+    "preview_drafts.py": "913d25185fbb282633528fe0b912249a8bed25641e3e96bdb71b12eb082fbab0",
+    "_translator.mjs": "5f6753cd4450f7b211771cd77451a76853c1bb866e46ef5ac387176230012549",
+    "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+    "preview_diagnostics.py": "d0eacc6830fb3516401b416492673a8174b5e6763d07513aac9538f00fec357c",
+    "preview_geometry.py": "9f903957198b95ed71bd85d5f13b0b022a1acbb21c70af527a03626721d35dbd",
+    "preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "web/diagnostic-overlays.js": "501d216cc274ce031e51cede894b22b2cd6c4dfd3214f69820cda02ca61a3d04"
+  },
+  "all_installed_bytes_match": true,
+  "wheel_sha256": "5d9b64427058a4cda3d0c8bce34b765027acac45823c23593724b7bf3b2b100f",
+  "scope": "Fresh source wheel, external product connections blocked; no release/tag."
+}

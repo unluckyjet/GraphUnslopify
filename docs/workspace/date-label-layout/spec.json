@@ -1,0 +1,27 @@
+{
+  "kind": "line",
+  "title": "Observed dates",
+  "data": {
+    "path": "data.csv"
+  },
+  "x": {
+    "field": "date",
+    "label": "Date",
+    "temporal": true
+  },
+  "y": {
+    "field": "value",
+    "label": "Value"
+  },
+  "legend": {
+    "show": false
+  },
+  "output": {
+    "stem": "dates",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ]
+  }
+}

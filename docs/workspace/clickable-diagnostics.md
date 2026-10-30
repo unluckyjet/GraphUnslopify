@@ -35,14 +35,14 @@ When the verifier offers a patch, review **Review proposed change** and choose
 with live preview off, and enters the normal undo history. Selection itself has
 no repair or data-edit action.
 
-A temporal-log repair can expose another real error: the three-day fixture still
-fails on overlapping hourly tick labels after its scale becomes linear. That
-failure remains visible. A separate, wider eight-year fixture verifies after the
-same offered scale repair; both retain their original three-row source hashes.
-Undo restores the authored log scale and invalidates the repaired preview.
-The short-date layout issue belongs to the remaining owned-layout work in 83.
+The three-day and wider eight-year fixtures now verify after the offered temporal
+scale repair, retaining their original three-row hashes. The renderer-owned
+[date-label correction](date-label-layout.md) resolves the measured three-day
+collision. A separate negative observation on an authored log value axis still
+fails strict checks after repairing the time scale. Undo restores authored
+intent and invalidates the repaired preview.
 
-## Actual verification
+## Original83d checkpoint verification
 
 `scripts/preview-diagnostics-check.ts` adds 17 real browser workflows: selection
 without mutation/rendering, keyboard/card/narrow interaction, independent PNG
@@ -62,6 +62,6 @@ zero skips/one existing upstream MLflow/SQLAlchemy warning. Gallery passes15/15;
 19 installed assets match source and all75 prior tracked PNG bytes are unchanged.
 Four new actual UI screenshots provide separate evidence. See
 [verification](clickable-diagnostics/verification.json) and adjacent browser/asset
-JSON. Exact new-commit CI follows publication. Preceding 1859edb exact main 41075487244 all nine jobs and
+JSON. Exact7cc1f64 main41082692466 all9 and Figure41082692500 passed. Preceding 1859edb exact main 41075487244 all nine jobs and
 Figure 41075487357 passed before this implementation. Remaining owned layout and
 the full 84–89 roadmap stay open. Published 0.8.0 predates these source features.

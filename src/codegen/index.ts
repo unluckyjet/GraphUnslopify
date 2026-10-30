@@ -14,7 +14,7 @@ import {
   emitSummarise,
   emitSummaryInput,
 } from "./data.ts";
-import { emitCategoryLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
+import { emitCategoryLayout, emitDateLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
 import {
   emitAxisBreak,
   emitInset,
@@ -542,6 +542,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       ? "        # tight_layout is skipped: it fights a legend anchored outside the axes."
       : "        fig.tight_layout()",
   );
+  if (spec.x.temporal) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
@@ -619,6 +620,7 @@ export function emitPython(spec: FigureSpec): string {
     emitRepeat(spec, out);
   }
   emitCategoryLayout(spec, out);
+  emitDateLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitDataFingerprint(out);

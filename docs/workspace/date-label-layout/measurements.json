@@ -1,0 +1,25 @@
+{
+  "baseline_revision": "7cc1f6494f12c4d843ca2231c5b7fbcc230687b3",
+  "runs": {
+    "before": {
+      "exit_code": 2,
+      "status": "failed",
+      "findings": [
+        "line_implies_continuity",
+        "tick_labels_collide"
+      ],
+      "spec_hash": "dbdaff03ef71112d",
+      "data_sha256_prefix": "7496a63cb2f175b0"
+    },
+    "after": {
+      "exit_code": 0,
+      "status": "passed",
+      "findings": [
+        "line_implies_continuity"
+      ],
+      "spec_hash": "dbdaff03ef71112d",
+      "data_sha256_prefix": "7496a63cb2f175b0"
+    }
+  },
+  "csv_sha256": "7496a63cb2f175b09a53e1e8e8123c107b83fce2344727634515bba378919d0e"
+}

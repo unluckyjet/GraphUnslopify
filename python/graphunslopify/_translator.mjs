@@ -21535,6 +21535,46 @@ function emitCategoryLayout(spec, out) {
     ""
   );
 }
+function emitDateLayout(spec, out) {
+  if (!spec.x.temporal) return;
+  out.push(
+    "",
+    "def fit_date_labels(fig, axes, tight=True):",
+    "    for maximum in (7, 4):",
+    "        fig.canvas.draw()",
+    "        renderer = fig.canvas.get_renderer()",
+    "        crowded = []",
+    "        for ax in axes:",
+    "            if not ax.get_visible():",
+    "                continue",
+    "            low, high = sorted(ax.get_xlim())",
+    "            labels = [label for label in ax.get_xticklabels()",
+    "                      if label.get_visible() and label.get_text().strip()",
+    "                      and low <= label.get_position()[0] <= high]",
+    "            boxes = sorted([label.get_window_extent(renderer) for label in labels], key=lambda box: box.x0)",
+    "            if any(left.overlaps(right) for left, right in zip(boxes, boxes[1:])):",
+    "                crowded.append(ax)",
+    "        if not crowded:",
+    "            break",
+    "        for ax in crowded:",
+    "            locator = mdates.AutoDateLocator(minticks=2, maxticks=maximum)",
+    "            ax.xaxis.set_major_locator(locator)",
+    "            ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))",
+    "    fig.canvas.draw()",
+    "    renderer = fig.canvas.get_renderer()",
+    "    moved = False",
+    "    for ax in axes:",
+    "        label, offset = ax.xaxis.label, ax.xaxis.get_offset_text()",
+    "        if not ax.get_visible() or not label.get_visible() or not offset.get_visible():",
+    "            continue",
+    "        if label.get_text().strip() and offset.get_text().strip() and label.get_window_extent(renderer).overlaps(offset.get_window_extent(renderer)):",
+    "            ax.xaxis.labelpad += (offset.get_window_extent(renderer).height + 2) * 72 / fig.dpi",
+    "            moved = True",
+    "    if moved and tight:",
+    "        fig.tight_layout()",
+    ""
+  );
+}
 
 // src/codegen/compose.ts
 var OPERATORS2 = {
@@ -25992,6 +26032,7 @@ function emitMain(spec, out) {
   out.push(
     outsideLegend ? "        # tight_layout is skipped: it fights a legend anchored outside the axes." : "        fig.tight_layout()"
   );
+  if (spec.x.temporal) out.push(`        fit_date_labels(fig, flat, tight=${outsideLegend ? "False" : "True"})`);
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
@@ -26065,6 +26106,7 @@ function emitPython(spec) {
     emitRepeat(spec, out);
   }
   emitCategoryLayout(spec, out);
+  emitDateLayout(spec, out);
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitDataFingerprint(out);

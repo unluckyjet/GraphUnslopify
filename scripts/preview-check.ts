@@ -11,6 +11,7 @@ import { checkDrafts } from "./preview-drafts-check.ts";
 import { checkDiagnostics } from "./preview-diagnostics-check.ts";
 import { checkHeadings } from "./preview-headings-check.ts";
 import { checkOutsideLegends } from "./preview-legends-check.ts";
+import { checkOwnedText } from "./preview-owned-text-check.ts";
 
 // Module-local browser globals; importing lib.dom changes unrelated Node stream types.
 declare const document: {
@@ -1026,6 +1027,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const diagnosticOverlays = await checkDiagnostics(page, evidence);
   const ownedHeadings = await checkHeadings(page, evidence);
   const ownedLegends = await checkOutsideLegends(page, evidence);
+  const ownedText = await checkOwnedText(page, evidence);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -1040,10 +1042,12 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         diagnostic_overlays: diagnosticOverlays,
         owned_headings: ownedHeadings,
         owned_legends: ownedLegends,
+        owned_text: ownedText,
         workflows: [
           ...diagnosticOverlays.workflows,
           ...ownedHeadings.workflows,
           ...ownedLegends.workflows,
+          ...ownedText.workflows,
           ...modelDrafts.workflows,
           "data picker",
           "spec editing",

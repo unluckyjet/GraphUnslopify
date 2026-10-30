@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "workflows": [
+    "actual wrapped child title click, reviewed manual edit and strict render retain complete original names, source IDs and all six observations",
+    "native child-name undo restores original canonical words and invalidates newer outputs before strict recovery",
+    "unbreakable child name remains a strict failure with review downloads and native undo/manual recovery",
+    "grouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification",
+    "ungrouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification"
+  ],
+  "python": "3.10.22",
+  "javascript_errors": [],
+  "external_requests": []
+}

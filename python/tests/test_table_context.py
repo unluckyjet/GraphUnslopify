@@ -270,10 +270,9 @@ def test_non_table_context_options_are_refused_instead_of_described_or_ignored(
     assert any(f["code"] == code and f["severity"] == "error" for f in result["findings"])
 
 
-def test_too_wide_context_cannot_hide_headers_or_pass_the_actual_font_floor(tmp_path):
-    module = generated(
-        tmp_path, raw_spec(tmp_path, title="An intentionally oversized table title " * 12)
-    )
+def test_complete_wide_context_wraps_without_hiding_headers_or_shrinking_text(tmp_path):
+    title = "An intentionally oversized table title " * 12
+    module = generated(tmp_path, raw_spec(tmp_path, title=title))
     source_rows().to_csv(tmp_path / "data.csv", index=False, lineterminator="\n")
     result = subprocess.run(
         [sys.executable, module.__file__, "--strict", "--json"],
@@ -283,8 +282,12 @@ def test_too_wide_context_cannot_hide_headers_or_pass_the_actual_font_floor(tmp_
         check=False,
     )
     report = json.loads(result.stdout)
-    assert result.returncode == 2 and report["status"] == "failed", result.stderr
-    assert any(f["code"] == "text_too_small" for f in report["findings"])
+    assert result.returncode == 0 and report["status"] == "passed", result.stderr
+    assert report["inspection"]["measurements"]["text_scale"] >= 0.99
+    assert read_provenance(tmp_path / "table.png")["spec"]["title"] == title
+    pdf_text = "\n".join(page.extract_text() for page in PdfReader(tmp_path / "table.pdf").pages)
+    assert " ".join(title.split()) in " ".join(pdf_text.split())
+    assert "Dataset" in pdf_text and "Base" in pdf_text and "Ours" in pdf_text
     assert (
         len(report["outputs"]) == 5 and report["inspection"]["measurements"]["basis"] == "exports"
     )

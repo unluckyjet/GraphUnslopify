@@ -1554,6 +1554,7 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
     "                usable_height / rows - 0.024,",
     "            ], sharex=ax, sharey=ax",
     "        )",
+    "        cell._graphunslopify_sparkline_cell = (row, column, rows, columns)",
     "        style = series_style(name, index, len(names))",
     "        cell.plot(",
     "            block[X_FIELD],",

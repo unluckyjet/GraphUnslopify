@@ -159,3 +159,17 @@ regression is included in the final passing seven gates232/1791 and Ruff107.
 New push/exact CI pending.
 [Actual evidence](../../docs/workspace/direct-series-endpoints.md).
 Long child headings/table context/full83 and84–89 remain open.
+
+
+### 83g accepted; 83h child/table text active
+
+Complete d7e32f0 exact main41129703718 all9/Figure41129703804 passed, with
+actual96-workflow editor/72-outcome NIST archives independently verified.
+83h reuses literal/math wrapping for child titles and literal table context/headers,
+keeps native source identity/quantities/fonts/data heights, uses delayed owned
+locators and measured row/column space, and keeps unfit/false-claim failures.
+25 focused/236 minimum-fresh native controls, source/fresh101 workflows,19 assets,
+genuine15+seven/gallery15/frozen72 pass; all115 old PNG pixels remain identical.
+All seven final gates232/1816/Ruff108 and minimum five browser workflows pass.
+New push/exact CI and full83 acceptance remain open.
+[Actual evidence](../../docs/workspace/owned-text-layout.md).

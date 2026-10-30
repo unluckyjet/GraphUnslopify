@@ -17,6 +17,7 @@ import {
 import { emitCategoryLayout, emitDateLayout, emitDecoratePanel, emitHelpers, emitLegend } from "./decorate.ts";
 import { emitHeadingLayout } from "./heading-layout.ts";
 import { emitLegendLayout, hasOutsideLegendLayout } from "./legend-layout.ts";
+import { emitSparklineLayout } from "./sparkline-layout.ts";
 import {
   emitAxisBreak,
   emitInset,
@@ -544,6 +545,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
 
   if (hasOutsideLegendLayout(spec)) out.push("        fit_outside_legends(fig, flat, df)");
+  else if (spec.kind === "sparkline_grid") out.push("        fit_sparkline_layout(fig, flat)");
   else if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
   out.push(
     hasOutsideLegendLayout(spec)
@@ -636,6 +638,7 @@ export function emitPython(spec: FigureSpec): string {
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitLegendLayout(spec, out);
+  emitSparklineLayout(spec, out);
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);

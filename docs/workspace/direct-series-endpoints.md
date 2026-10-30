@@ -84,3 +84,15 @@ the local results. The earlier full1790 run passed before the additional pooled-
 control; the final1791 run includes it. The initial browser helper used a nonexistent
 target bbox field; corrected normalized bounds are exercised in both passing
 96-workflow runs. Product endpoint code remained unchanged during final checks.
+
+
+## Exact source checkpoint accepted
+
+Complete d7e32f0 passes [main41129703718](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41129703718)
+(all nine jobs) and [Figure41129703804](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41129703804).
+Both final workflow metadata and all ten checks were verified. Actual downloaded
+[benchmark evidence](direct-series-endpoints/ci-certified-summary.json) confirms72
+expected outcomes; [editor evidence](direct-series-endpoints/ci-editor-checks.json)
+confirms96 workflows/21 kinds/8 headings/18 diagnostics/4 series with zero JS errors
+or external requests. [Acceptance](direct-series-endpoints/ci-acceptance.json).
+[Child/table text](owned-text-layout.md) is the next separate correction.

@@ -21732,7 +21732,76 @@ ${spec.x.temporal ? "            fit_date_labels(fig, axes, tight=False)" : ""}
 
 // src/codegen/heading-layout.ts
 function emitHeadingLayout(spec, out) {
-  if (spec.kind === "table" || !spec.axis_break && spec.group && spec.legend.show && spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position) && !hasOutsideLegendLayout(spec)) return;
+  if (spec.kind === "table" || !spec.axis_break && spec.group && spec.legend.show && spec.legend.style === "box" && ["outside_right", "outside_bottom"].includes(spec.legend.position) && !hasOutsideLegendLayout(spec) && spec.kind !== "sparkline_grid") return;
+  emitTextWrapping(out);
+  out.push("", ...String.raw`
+def fit_headings(fig):
+    minimum_heights = {ax: getattr(ax, "_graphunslopify_heading_height", ax.bbox.height)
+                       for ax in fig.axes if ax.get_visible()}
+    for attempt in range(8):
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        candidates = [(text, fig.bbox.width * 0.94, False) for text in fig.texts
+                      if getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"]
+        for ax in fig.axes:
+            if not ax.get_visible():
+                continue
+            candidates.extend((text, ax.bbox.width * 0.98, False)
+                              for text in (ax.title, ax._left_title, ax._right_title))
+            if ax.axison:
+                # Axis wording may use free margins beyond the data rectangle.
+                available_height = max(ax.bbox.height, minimum_heights[ax])
+                grid = ax.get_subplotspec()
+                if grid is not None:
+                    rows = grid.get_gridspec().nrows
+                    bottom = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.stop / rows)
+                    top = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.start / rows)
+                    center = ax.yaxis.label.get_transform().transform(ax.yaxis.label.get_position())[1]
+                    available_height = max(available_height, 2 * min(center - bottom, top - center))
+                candidates.extend([(ax.xaxis.label, ax.bbox.width * 0.98, False),
+                                   (ax.yaxis.label, available_height * 0.98, True)])
+        changed = False
+        for artist, width, vertical in candidates:
+            target = getattr(artist, "_graphunslopify_text_target", {})
+            if target.get("role") not in {"title", "panel_title", "axis_label", "metric_label"}:
+                continue
+            if not artist.get_visible() or not artist.get_text().strip() or width <= 0:
+                continue
+            box = artist.get_window_extent(renderer)
+            if (box.height if vertical else box.width) <= width:
+                continue
+            original = getattr(artist, "_graphunslopify_heading_original", artist.get_text())
+            wrapped = wrap_heading(original, artist, renderer, width)
+            if wrapped != artist.get_text():
+                artist._graphunslopify_heading_original = original
+                artist.set_text(wrapped)
+                changed = True
+        if not changed:
+            return
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        row_heights = {}
+        for ax, minimum in minimum_heights.items():
+            grid = ax.get_subplotspec()
+            if grid is None:
+                continue
+            ax._graphunslopify_heading_height = minimum
+            box = ax.get_tightbbox(renderer)
+            if box is None:
+                continue
+            height = minimum + max(0, box.y1 - ax.bbox.y1) + max(0, ax.bbox.y0 - box.y0)
+            rows = list(grid.rowspan)
+            for row in rows:
+                row_heights[row] = max(row_heights.get(row, 0), height / len(rows))
+        title_height = max((text.get_window_extent(renderer).height for text in fig.texts
+                            if text.get_visible() and getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"), default=0)
+        required_height = sum(row_heights.values()) + title_height + fig.dpi * 0.3
+        if row_heights and required_height > fig.bbox.height + 1:
+            fig.set_size_inches(fig.get_figwidth(), required_height / fig.dpi)
+        fig.tight_layout()
+`.trim().split("\n"), "");
+}
+function emitTextWrapping(out) {
   out.push("", ...String.raw`
 def heading_dollars(text):
     return text.count("$") - text.count(r"\$")
@@ -21819,71 +21888,182 @@ def wrap_heading(original, artist, renderer, width):
         lines.extend(paragraph_lines)
     return "\n".join(lines)
 
+`.trim().split("\n"), "");
+}
 
-def fit_headings(fig):
-    minimum_heights = {ax: getattr(ax, "_graphunslopify_heading_height", ax.bbox.height)
-                       for ax in fig.axes if ax.get_visible()}
+// src/codegen/sparkline-layout.ts
+function emitSparklineLayout(spec, out) {
+  if (spec.kind !== "sparkline_grid") return;
+  out.push("", ...String.raw`
+def fit_sparkline_layout(fig, axes):
+    from matplotlib.transforms import Bbox
+    def owned(ax):
+        return [child for child in ax.child_axes if hasattr(child, "_graphunslopify_sparkline_cell")]
+    axes = [ax for ax in axes if ax.get_visible() and owned(ax)]
+    fig.canvas.draw()
+    for ax in axes:
+        for child in owned(ax):
+            if not hasattr(child, "_graphunslopify_sparkline_height"):
+                child._graphunslopify_sparkline_height = child.bbox.height / fig.dpi
+    active = any(hasattr(ax, "_graphunslopify_sparkline_layout") for ax in axes)
+    grid_rows = max((ax.get_subplotspec().get_gridspec().nrows for ax in axes), default=1)
     for attempt in range(8):
         fig.canvas.draw()
         renderer = fig.canvas.get_renderer()
-        candidates = [(text, fig.bbox.width * 0.94, False) for text in fig.texts
-                      if getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"]
-        for ax in fig.axes:
-            if not ax.get_visible():
-                continue
-            candidates.extend((text, ax.bbox.width * 0.98, False)
-                              for text in (ax.title, ax._left_title, ax._right_title))
-            if ax.axison:
-                # Axis wording may use free margins beyond the data rectangle.
-                available_height = max(ax.bbox.height, minimum_heights[ax])
-                grid = ax.get_subplotspec()
-                if grid is not None:
-                    rows = grid.get_gridspec().nrows
-                    bottom = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.stop / rows)
-                    top = fig.bbox.y0 + fig.bbox.height * (1 - grid.rowspan.start / rows)
-                    center = ax.yaxis.label.get_transform().transform(ax.yaxis.label.get_position())[1]
-                    available_height = max(available_height, 2 * min(center - bottom, top - center))
-                candidates.extend([(ax.xaxis.label, ax.bbox.width * 0.98, False),
-                                   (ax.yaxis.label, available_height * 0.98, True)])
         changed = False
-        for artist, width, vertical in candidates:
-            target = getattr(artist, "_graphunslopify_text_target", {})
-            if target.get("role") not in {"title", "panel_title", "axis_label", "metric_label"}:
-                continue
-            if not artist.get_visible() or not artist.get_text().strip() or width <= 0:
-                continue
-            box = artist.get_window_extent(renderer)
-            if (box.height if vertical else box.width) <= width:
-                continue
-            original = getattr(artist, "_graphunslopify_heading_original", artist.get_text())
-            wrapped = wrap_heading(original, artist, renderer, width)
-            if wrapped != artist.get_text():
-                artist._graphunslopify_heading_original = original
-                artist.set_text(wrapped)
-                changed = True
-        if not changed:
-            return
+        for ax in axes:
+            for child in owned(ax):
+                text = child.title
+                if not text.get_visible() or not text.get_text():
+                    continue
+                width = child.bbox.width * 0.98
+                if text.get_window_extent(renderer).width <= width:
+                    continue
+                original = getattr(text, "_graphunslopify_heading_original", text.get_text())
+                wrapped = wrap_heading(original, text, renderer, width)
+                if wrapped != text.get_text():
+                    text._graphunslopify_heading_original = original
+                    text.set_text(wrapped)
+                    changed = active = True
+        if not active:
+            fit_headings(fig)
+            fig.canvas.draw()
+            if all(child.bbox.height / fig.dpi >= child._graphunslopify_sparkline_height - 1 / fig.dpi
+                   for ax in axes for child in owned(ax)):
+                return
+            active = True
         fig.canvas.draw()
         renderer = fig.canvas.get_renderer()
-        row_heights = {}
-        for ax, minimum in minimum_heights.items():
-            grid = ax.get_subplotspec()
-            if grid is None:
-                continue
-            ax._graphunslopify_heading_height = minimum
-            box = ax.get_tightbbox(renderer)
-            if box is None:
-                continue
-            height = minimum + max(0, box.y1 - ax.bbox.y1) + max(0, ax.bbox.y0 - box.y0)
-            rows = list(grid.rowspan)
-            for row in rows:
-                row_heights[row] = max(row_heights.get(row, 0), height / len(rows))
-        title_height = max((text.get_window_extent(renderer).height for text in fig.texts
-                            if text.get_visible() and getattr(text, "_graphunslopify_text_target", {}).get("role") == "title"), default=0)
-        required_height = sum(row_heights.values()) + title_height + fig.dpi * 0.3
-        if row_heights and required_height > fig.bbox.height + 1:
-            fig.set_size_inches(fig.get_figwidth(), required_height / fig.dpi)
-        fig.tight_layout()
+        groups = {}
+        for ax in axes:
+            children = owned(ax)
+            rows = children[0]._graphunslopify_sparkline_cell[2]
+            key = (ax.get_subplotspec().rowspan.start, rows)
+            plan = groups.setdefault(key, [[0, 0] for row in range(rows)])
+            for child in children:
+                row = child._graphunslopify_sparkline_cell[0]
+                plan[row][0] = max(plan[row][0], child._graphunslopify_sparkline_height)
+                title_height = child.title.get_window_extent(renderer).height / fig.dpi
+                plan[row][1] = max(plan[row][1], title_height + 2 / 72 + 0.04)
+            ax._graphunslopify_sparkline_layout = plan
+        deficit = 0
+        for ax in axes:
+            plan = ax._graphunslopify_sparkline_layout
+            required = sum(body + heading + 0.04 for body, heading in plan) + 0.04
+            deficit = max(deficit, required - ax.bbox.height / fig.dpi)
+            for child in owned(ax):
+                row, column, rows, columns = child._graphunslopify_sparkline_cell
+
+                def locate(cell, renderer, owner=ax, layout=plan, row=row, column=column, columns=columns):
+                    box = owner.get_window_extent(renderer)
+                    dpi = cell.figure.dpi
+                    top = box.y1 - (sum(body + heading + 0.04 for body, heading in layout[:row])
+                                    + layout[row][1]) * dpi
+                    rectangle = Bbox.from_bounds(
+                        box.x0 + (column / columns + 0.012) * box.width,
+                        top - layout[row][0] * dpi,
+                        (1 / columns - 0.024) * box.width,
+                        layout[row][0] * dpi)
+                    # Delay the inverse until draw, after figure/crop resizing.
+                    return rectangle.transformed(cell.figure.transSubfigure.inverted())
+
+                child.set_axes_locator(locate)
+        if deficit > 1 / fig.dpi:
+            fig.set_size_inches(fig.get_figwidth(), fig.get_figheight() + grid_rows * deficit + 0.04)
+            continue
+        fit_headings(fig)
+        fig.canvas.draw()
+        if not changed and all(
+                ax.bbox.height / fig.dpi >= sum(body + heading + 0.04
+                for body, heading in ax._graphunslopify_sparkline_layout) + 0.04 - 1 / fig.dpi
+                for ax in axes):
+            return
+`.trim().split("\n"), "");
+}
+
+// src/codegen/table-layout.ts
+function emitTableLayout(out) {
+  out.push("", ...String.raw`
+def fit_table_layout(fig, ax, drawn, context):
+    from matplotlib.text import Text
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    budget = fig.bbox.width * 0.92
+    if (drawn.get_window_extent(renderer).width <= budget and
+            all(text.get_window_extent(renderer).width <= budget for text in context)):
+        return
+    cells = drawn.get_celld()
+    rows = sorted({row for row, column in cells})
+    columns = sorted({column for row, column in cells})
+    original_heights = {row: max(cell.get_height() * ax.bbox.height / fig.dpi
+                                for (r, column), cell in cells.items() if r == row) for row in rows}
+    padding = {row: max(0, original_heights[row] - max(
+                       cell.get_text().get_window_extent(renderer).height / fig.dpi
+                       for (r, column), cell in cells.items() if r == row)) for row in rows}
+
+    def word_width(artist):
+        probe = Text(fontproperties=artist.get_fontproperties(), parse_math=False, usetex=False)
+        probe.set_figure(fig)
+        widths = []
+        for word in artist.get_text().split():
+            probe.set_text(word)
+            widths.append(probe.get_window_extent(renderer).width)
+        return max(widths, default=0)
+
+    minimum, natural = {}, {}
+    for column in columns:
+        entries = [(row, cell) for (row, col), cell in cells.items() if col == column]
+        natural[column] = max(cell.get_required_width(renderer) * ax.bbox.width
+                              for row, cell in entries)
+        minimum[column] = max((word_width(cell.get_text()) if row == 0 or column == -1
+                               else cell.get_text().get_window_extent(renderer).width)
+                              * (1 + 2 * cell.PAD) for row, cell in entries)
+    remaining = max(0, budget - sum(minimum.values()))
+    demand = sum(max(0, natural[column] - minimum[column]) for column in columns)
+    widths = {column: minimum[column] + min(1, remaining / demand if demand else 0)
+              * max(0, natural[column] - minimum[column]) for column in columns}
+    for (row, column), cell in cells.items():
+        if row == 0 or column == -1:
+            text = cell.get_text()
+            original = text.get_text()
+            wrapped = wrap_heading(original, text, renderer, widths[column] / (1 + 2 * cell.PAD))
+            if wrapped != original:
+                text._graphunslopify_heading_original = original
+                text.set_text(wrapped)
+    for text in context:
+        original = text.get_text()
+        if text.get_window_extent(renderer).width > budget:
+            text._graphunslopify_heading_original = original
+            text.set_text(wrap_heading(original, text, renderer, budget))
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    row_heights = {row: max(original_heights[row], padding[row] + max(
+                          cell.get_text().get_window_extent(renderer).height / fig.dpi
+                          for (r, column), cell in cells.items() if r == row)) for row in rows}
+    column_widths = {column: max(cell.get_width() * ax.bbox.width / fig.dpi
+                               for (row, col), cell in cells.items() if col == column)
+                     for column in columns}
+    context_heights = [text.get_window_extent(renderer).height / fig.dpi for text in context]
+    header = 0.08 + sum(height + 0.04 for height in context_heights)
+    body = max(ax.bbox.height / fig.dpi, sum(row_heights.values()) + 0.16)
+    bottom = ax.get_position().y0 * fig.get_figheight()
+    height = max(fig.get_figheight(), header + body + bottom)
+    width = fig.get_figwidth()
+    fig.set_size_inches(width, height)
+    # Native centered tables center their numeric grid, excluding row names.
+    # Use the measured numeric width as the hidden axes width so the complete
+    # table is centered without an oversized invisible axes export boundary.
+    numeric_width = max(0.05, sum(value for column, value in column_widths.items() if column >= 0))
+    total_width = sum(column_widths.values())
+    left = (width - total_width) / 2 + column_widths.get(-1, 0)
+    ax.set_position([left / width, bottom / height, numeric_width / width, body / height])
+    offset = 0.04
+    for text, text_height in zip(context, context_heights):
+        text.set_position((0.5, 1 - offset / height))
+        offset += text_height + 0.04
+    for (row, column), cell in cells.items():
+        cell.set_height(row_heights[row] / body)
+    fig.canvas.draw()
 `.trim().split("\n"), "");
 }
 
@@ -22047,9 +22227,10 @@ function emitInset(spec, out) {
     "        spine.set_color(INSET_EDGE)",
     "        spine.set_linewidth(0.9)",
     "",
-    "    outline, connectors = ax.indicate_inset_zoom(",
+    "    indicator = ax.indicate_inset_zoom(",
     "        zoom, edgecolor=INSET_EDGE, alpha=1.0, linewidth=0.9",
     "    )",
+    "    outline, connectors = indicator.rectangle, indicator.connectors",
     '    outline.set_facecolor("none")',
     "    for line in connectors or ():",
     "        line.set_visible(False)",
@@ -22136,6 +22317,8 @@ function emitRepeat(spec, out) {
   );
 }
 function emitTable(spec, out) {
+  emitTextWrapping(out);
+  emitTableLayout(out);
   const digits = spec.precision;
   const displayed = spec.y.percent ? "value * 100" : "value";
   const suffix = spec.y.percent ? "%" : "";
@@ -22285,10 +22468,11 @@ function emitTable(spec, out) {
     "        height = 0.32 * (len(table.index) + 2) + header_height",
     "        fig, ax = plt.subplots(figsize=(FIGSIZE[0], height))",
     "        fig.subplots_adjust(left=0.04, right=0.96, bottom=0.08, top=1 - header_height / height)",
+    "        context_texts = []",
     "        for index, label in enumerate(context):",
-    "            fig.text(0.5, 1 - (0.04 + index * line_height) / height, label,",
+    "            context_texts.append(fig.text(0.5, 1 - (0.04 + index * line_height) / height, label,",
     '                     ha="center", va="top", fontsize=RC_PARAMS["font.size"] + 1,',
-    "                     parse_math=False, usetex=False)",
+    "                     parse_math=False, usetex=False))",
     '        ax.axis("off")',
     "        body = [",
     "            [table_cell(table, low, high, r, c) for c in table.columns]",
@@ -22318,6 +22502,7 @@ function emitTable(spec, out) {
     "            for position, column in enumerate(table.columns):",
     "                if (row, column) in winners:",
     '                    drawn[index + 1, position].set_text_props(weight="bold")',
+    "        fit_table_layout(fig, ax, drawn, context_texts)",
     "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
@@ -23802,6 +23987,7 @@ function emitSparklineGrid(spec, out) {
     "                usable_height / rows - 0.024,",
     "            ], sharex=ax, sharey=ax",
     "        )",
+    "        cell._graphunslopify_sparkline_cell = (row, column, rows, columns)",
     "        style = series_style(name, index, len(names))",
     "        cell.plot(",
     "            block[X_FIELD],",
@@ -26363,6 +26549,7 @@ function emitMain(spec, out) {
   }
   const outsideLegend = spec.group !== void 0 && spec.legend.show && spec.legend.style === "box" && (spec.legend.position === "outside_right" || spec.legend.position === "outside_bottom");
   if (hasOutsideLegendLayout(spec)) out.push("        fit_outside_legends(fig, flat, df)");
+  else if (spec.kind === "sparkline_grid") out.push("        fit_sparkline_layout(fig, flat)");
   else if (!outsideLegend) out.push("        fit_headings(fig)", "        fit_category_labels(fig, flat)");
   out.push(
     hasOutsideLegendLayout(spec) ? "        # Complete outside legends retain source ownership and final export cropping." : outsideLegend ? "        # tight_layout is skipped: it fights a legend anchored outside the axes." : "        fig.tight_layout()"
@@ -26447,6 +26634,7 @@ function emitPython(spec) {
   emitDecoratePanel(spec, out);
   emitLegend(spec, out);
   emitLegendLayout(spec, out);
+  emitSparklineLayout(spec, out);
   emitDataFingerprint(out);
   emitClaimTests(spec.claims ?? [], out);
   emitAltText(spec, out);

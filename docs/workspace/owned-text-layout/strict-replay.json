@@ -1,0 +1,818 @@
+{
+  "before_revision": "d7e32f0929009c91c005ed36c5dd5429c9390390",
+  "current_parent_revision": "d7e32f0929009c91c005ed36c5dd5429c9390390",
+  "scope": "Actual original complete source wording and same source bytes/strict PNG SVG PDF/unchanged inspector; layout-only evidence, not productivity or human evaluation",
+  "cases": [
+    {
+      "name": "sparkline_grid",
+      "spec": {
+        "kind": "sparkline_grid",
+        "data": {
+          "path": "data.csv"
+        },
+        "x": {
+          "field": "step",
+          "label": "Step"
+        },
+        "y": {
+          "field": "value",
+          "label": "Value"
+        },
+        "group": "method",
+        "facet": {
+          "by": "site",
+          "columns": 2
+        },
+        "legend": {
+          "position": "outside_bottom"
+        },
+        "output": {
+          "stem": "series",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "size": "double_column",
+          "dpi": 150
+        },
+        "series_order": [
+          "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+          "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+        ],
+        "title": "Observed responses"
+      },
+      "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n",
+      "original_quantities_scales_limits_unchanged": true,
+      "markdown_tex_bytes_unchanged": null,
+      "original_fonts_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "796291f3cbd792d11f1792fe0c98cd2e8301ce8366fe7ebd45422db74007c66d",
+          "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+          "png": "sparkline_grid-before.png",
+          "labels": [
+            {
+              "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                -122.3607954545455,
+                335.2721513888889,
+                666.3125,
+                11.669270833333314
+              ]
+            },
+            {
+              "text": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                106.11931818181813,
+                335.2721513888889,
+                677.875,
+                11.669270833333314
+              ]
+            },
+            {
+              "text": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                235.19602272727263,
+                335.2721513888889,
+                666.3125,
+                11.669270833333314
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 10.425804800136524,
+                "series.svg": 10.337738319444442,
+                "series.pdf": 10.341540404040279
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 10.425804800136524,
+              "text_scale": 0.6714109974424551,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "warning",
+              "code": "text_near_minimum",
+              "message": "\"Reference treatment c...\" renders at 5.4pt, close to the 5pt floor.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            },
+            {
+              "severity": "error",
+              "code": "labels_collide",
+              "message": "\"Reference treatment condition measured with the original experimental preparation and complete follow-up schedule\" and \"Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule\" are drawn on top of each other (an inset over its parent).",
+              "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+              "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+            }
+          ]
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0",
+          "program_sha256": "1eac9ba7904a5f52dce2a4902aadea898c63f1ca01f89849f64f2df4d701955f",
+          "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+          "png": "sparkline_grid-after.png",
+          "labels": [
+            {
+              "text": "Reference treatment condition measured\nwith the original experimental\npreparation and complete follow-up\nschedule",
+              "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                94.4204545454545,
+                350.83150249333346,
+                232.75,
+                55.574652777777715
+              ]
+            },
+            {
+              "text": "Alternative\ntreatment condition\nmeasured with the\nmodified\nexperimental\npreparation and\ncomplete follow-up\nschedule",
+              "source": "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                389.681818181818,
+                350.83150249333346,
+                110.75,
+                111.14930555555554
+              ]
+            },
+            {
+              "text": "Reference\ntreatment condition\nmeasured with the\noriginal\nexperimental\npreparation and\ncomplete follow-up\nschedule",
+              "source": "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=8.0",
+              "body_height_in": 2.8508284444444443,
+              "title_bbox": [
+                512.9772727272726,
+                350.83150249333346,
+                110.75,
+                111.14930555555554
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 5.799520572965969,
+                "series.svg": 5.805565319444444,
+                "series.pdf": 5.805636935763889
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 5.805636935763889,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "grouped-table",
+      "spec": {
+        "kind": "table",
+        "title": "Observed responses across the complete original experimental measurement period",
+        "x": {
+          "field": "dataset",
+          "label": "Dataset"
+        },
+        "y": {
+          "field": "value",
+          "label": "Observed response across the complete original experimental measurement period",
+          "unit": "fraction"
+        },
+        "legend": {
+          "show": false
+        },
+        "output": {
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 150,
+          "stem": "context"
+        },
+        "group": "condition",
+        "data": {
+          "path": "data.csv"
+        }
+      },
+      "csv": "dataset,value,condition\nA,0.6,Base\nA,0.8,Ours\nB,0.7,Base\nB,0.9,Ours\n",
+      "original_quantities_scales_limits_unchanged": true,
+      "markdown_tex_bytes_unchanged": true,
+      "original_fonts_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "0ea260c4182fdf58e9db3c243ca3a10f679dfdac674b6b4b3f261f51f8734c93",
+          "data_sha256": "27ede3e03ed9e4f6397ce30a5dfe28a63d308cbe77b079c5c16f0f4b14f33946",
+          "png": "grouped-table-before.png",
+          "labels": [
+            {
+              "text": "0.60",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                0
+              ]
+            },
+            {
+              "text": "0.80",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                1
+              ]
+            },
+            {
+              "text": "0.70",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                0
+              ]
+            },
+            {
+              "text": "0.90",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                1
+              ]
+            },
+            {
+              "text": "Base",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                0
+              ]
+            },
+            {
+              "text": "Ours",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                1
+              ]
+            },
+            {
+              "text": "A",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                -1
+              ]
+            },
+            {
+              "text": "B",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                -1
+              ]
+            },
+            {
+              "text": "Dataset",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                -1
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 6.779439566329184,
+                "context.svg": 6.712152777777777,
+                "context.pdf": 6.712152777777778
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 6.779439566329184,
+              "text_scale": 0.5015163815142575,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "text_too_small",
+              "message": "\"0.0\" renders at 4.01213105211406pt, below the required 5pt at the target width.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ]
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0",
+          "program_sha256": "618fe3ef56e5f40004199e16393cf016487e46422a62597791ac08eae963cdb9",
+          "data_sha256": "27ede3e03ed9e4f6397ce30a5dfe28a63d308cbe77b079c5c16f0f4b14f33946",
+          "png": "grouped-table-after.png",
+          "labels": [
+            {
+              "text": "0.60",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                0
+              ]
+            },
+            {
+              "text": "0.80",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                1
+              ]
+            },
+            {
+              "text": "0.70",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                0
+              ]
+            },
+            {
+              "text": "0.90",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                1
+              ]
+            },
+            {
+              "text": "Base",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                0
+              ]
+            },
+            {
+              "text": "Ours",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                1
+              ]
+            },
+            {
+              "text": "A",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                -1
+              ]
+            },
+            {
+              "text": "B",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                -1
+              ]
+            },
+            {
+              "text": "Dataset",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                -1
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 3.2064016041340584,
+                "context.svg": 3.184440111111111,
+                "context.pdf": 3.184592013888889
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.2064016041340584,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ungrouped-table",
+      "spec": {
+        "kind": "table",
+        "title": "Observed responses across the complete original experimental measurement period",
+        "x": {
+          "field": "dataset",
+          "label": "Dataset"
+        },
+        "y": {
+          "field": "value",
+          "label": "Observed response across the complete original experimental measurement period",
+          "unit": "fraction"
+        },
+        "legend": {
+          "show": false
+        },
+        "output": {
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 150,
+          "stem": "context"
+        },
+        "data": {
+          "path": "data.csv"
+        }
+      },
+      "csv": "dataset,value\nA,0.6\nB,0.7\n",
+      "original_quantities_scales_limits_unchanged": true,
+      "markdown_tex_bytes_unchanged": true,
+      "original_fonts_unchanged": true,
+      "outputs": [
+        {
+          "phase": "before",
+          "exit_code": 2,
+          "status": "failed",
+          "translator_sha256": "6941aeae3a25601dbc90cd5f3bf2565d434b8fb4eed9e647e6f69b03955d45e5",
+          "program_sha256": "2da9ec5ae41da34a0bf99116d489b64fe3da85370664dcfe81d0dad00ece0446",
+          "data_sha256": "96f6bcf6332b48fb6f9fcba63ef9e4dc76a039c66c6b1a2701ed06fb0c9a7be2",
+          "png": "ungrouped-table-before.png",
+          "labels": [
+            {
+              "text": "0.60",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                0
+              ]
+            },
+            {
+              "text": "0.70",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                0
+              ]
+            },
+            {
+              "text": "Observed response across the complete original experimental measurement period (fraction)",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                0
+              ]
+            },
+            {
+              "text": "A",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                -1
+              ]
+            },
+            {
+              "text": "B",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                -1
+              ]
+            },
+            {
+              "text": "Dataset",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                -1
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 8.999256061498917,
+                "context.svg": 8.80025,
+                "context.pdf": 8.801041666666666
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 8.999256061498917,
+              "text_scale": 0.37780900740740736,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            },
+            {
+              "severity": "error",
+              "code": "text_too_small",
+              "message": "\"0.0\" renders at 3.022472059259259pt, below the required 5pt at the target width.",
+              "consequence": "Text may be unreadable after the actual export is placed at the intended publication width.",
+              "correction": "Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview."
+            }
+          ]
+        },
+        {
+          "phase": "after",
+          "exit_code": 0,
+          "status": "passed",
+          "translator_sha256": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0",
+          "program_sha256": "acee305cea6ec001a88a9d86b69bbb64dc09c9427a58b70d4cbec5443c52f9bc",
+          "data_sha256": "96f6bcf6332b48fb6f9fcba63ef9e4dc76a039c66c6b1a2701ed06fb0c9a7be2",
+          "png": "ungrouped-table-after.png",
+          "labels": [
+            {
+              "text": "0.60",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                0
+              ]
+            },
+            {
+              "text": "0.70",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                0
+              ]
+            },
+            {
+              "text": "Observed response across\nthe complete original\nexperimental\nmeasurement period\n(fraction)",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                0
+              ]
+            },
+            {
+              "text": "A",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                1,
+                -1
+              ]
+            },
+            {
+              "text": "B",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=9.0",
+              "cell": [
+                2,
+                -1
+              ]
+            },
+            {
+              "text": "Dataset",
+              "font": "sans\\-serif:style=normal:variant=normal:weight=bold:stretch=normal:size=9.0",
+              "cell": [
+                0,
+                -1
+              ]
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 3.213067719735169,
+                "context.svg": 3.2042200555555556,
+                "context.pdf": 3.2042960069444444
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.213067719735169,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

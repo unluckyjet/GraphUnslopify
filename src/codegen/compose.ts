@@ -3,6 +3,8 @@ import { layerCoordinateLimitations } from "../capabilities.ts";
 import { confidencePercent } from "../alttext.ts";
 import { pyList, pyOptStr, pyStr, pyValue } from "./py.ts";
 import { PRESETS } from "./theme.ts";
+import { emitTextWrapping } from "./heading-layout.ts";
+import { emitTableLayout } from "./table-layout.ts";
 
 /**
  * Composition: extra marks, repeated panels, a cut axis, and a zoomed inset.
@@ -182,9 +184,10 @@ export function emitInset(spec: FigureSpec, out: string[]): void {
     "        spine.set_color(INSET_EDGE)",
     "        spine.set_linewidth(0.9)",
     "",
-    "    outline, connectors = ax.indicate_inset_zoom(",
+    "    indicator = ax.indicate_inset_zoom(",
     "        zoom, edgecolor=INSET_EDGE, alpha=1.0, linewidth=0.9",
     "    )",
+    "    outline, connectors = indicator.rectangle, indicator.connectors",
     "    outline.set_facecolor(\"none\")",
     "    for line in connectors or ():",
     "        line.set_visible(False)",
@@ -290,6 +293,8 @@ export function emitRepeat(spec: FigureSpec, out: string[]): void {
  * numbers means they cannot drift apart.
  */
 export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): void {
+  emitTextWrapping(out);
+  emitTableLayout(out);
   const digits = spec.precision;
   const displayed = spec.y.percent ? "value * 100" : "value";
   const suffix = spec.y.percent ? "%" : "";
@@ -441,10 +446,11 @@ export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): 
     "        height = 0.32 * (len(table.index) + 2) + header_height",
     "        fig, ax = plt.subplots(figsize=(FIGSIZE[0], height))",
     "        fig.subplots_adjust(left=0.04, right=0.96, bottom=0.08, top=1 - header_height / height)",
+    "        context_texts = []",
     "        for index, label in enumerate(context):",
-    "            fig.text(0.5, 1 - (0.04 + index * line_height) / height, label,",
+    "            context_texts.append(fig.text(0.5, 1 - (0.04 + index * line_height) / height, label,",
     '                     ha="center", va="top", fontsize=RC_PARAMS["font.size"] + 1,',
-    "                     parse_math=False, usetex=False)",
+    "                     parse_math=False, usetex=False))",
     "        ax.axis(\"off\")",
     "        body = [",
     "            [table_cell(table, low, high, r, c) for c in table.columns]",
@@ -474,6 +480,7 @@ export function emitTable(spec: FigureSpec & { kind: "table" }, out: string[]): 
     "            for position, column in enumerate(table.columns):",
     "                if (row, column) in winners:",
     "                    drawn[index + 1, position].set_text_props(weight=\"bold\")",
+    "        fit_table_layout(fig, ax, drawn, context_texts)",
     "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     "            path = f\"{STEM}.{fmt}\"",

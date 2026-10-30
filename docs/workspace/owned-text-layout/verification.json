@@ -1,0 +1,45 @@
+{
+  "scope": "Final current child/table owned-text source milestone; new push/exact CI pending; not a PyPI release",
+  "all_seven_gates_passed": true,
+  "node_tests": 232,
+  "python_tests": 1816,
+  "skips": 0,
+  "warnings": 1,
+  "warning_scope": "Existing MLflow/SQLAlchemy deprecation",
+  "ruff_formatted_files": 108,
+  "new_native_controls": 25,
+  "minimum_combined_native_controls": 236,
+  "fresh_combined_native_controls": 236,
+  "source_browser_workflows": 101,
+  "fresh_browser_workflows": 101,
+  "controlled_kinds": 21,
+  "new_owned_text_workflows": 5,
+  "minimum_owned_text_browser_workflows": 5,
+  "javascript_errors": 0,
+  "external_browser_requests": 0,
+  "matching_installed_assets": 19,
+  "genuine_baselines": 15,
+  "genuine_maintained_references": 7,
+  "gallery_passed": 15,
+  "existing_pngs_compared": 115,
+  "same_rgba_and_dimensions": 115,
+  "original_paired_layout_cases": 3,
+  "original_pairs_exit_codes": [
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ]
+  ],
+  "fonts_source_words_quantities_preserved": true,
+  "table_markdown_tex_bytes_preserved": true,
+  "frozen_certified_runs": 72,
+  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3"
+}

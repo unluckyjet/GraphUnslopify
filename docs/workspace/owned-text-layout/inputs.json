@@ -1,0 +1,112 @@
+{
+  "scope": "Original measured complete source words and CSVs from clean9cbd0f6; no label/data shortening",
+  "sparkline": {
+    "spec": {
+      "kind": "sparkline_grid",
+      "data": {
+        "path": "data.csv"
+      },
+      "x": {
+        "field": "step",
+        "label": "Step"
+      },
+      "y": {
+        "field": "value",
+        "label": "Value"
+      },
+      "group": "method",
+      "facet": {
+        "by": "site",
+        "columns": 2
+      },
+      "legend": {
+        "position": "outside_bottom"
+      },
+      "output": {
+        "stem": "series",
+        "formats": [
+          "png",
+          "svg",
+          "pdf"
+        ],
+        "size": "double_column",
+        "dpi": 150
+      },
+      "series_order": [
+        "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+        "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+      ],
+      "title": "Observed responses"
+    },
+    "csv": "step,value,other,prob,event,method,site\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,first\n1,1,2,0.25,0,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n2,2,4,0.75,1,Reference treatment condition measured with the original experimental preparation and complete follow-up schedule,second\n1,3,6,0.25,0,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n2,4,8,0.75,1,Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule,second\n"
+  },
+  "tables": [
+    {
+      "name": "grouped-table",
+      "spec": {
+        "kind": "table",
+        "title": "Observed responses across the complete original experimental measurement period",
+        "x": {
+          "field": "dataset",
+          "label": "Dataset"
+        },
+        "y": {
+          "field": "value",
+          "label": "Observed response across the complete original experimental measurement period",
+          "unit": "fraction"
+        },
+        "legend": {
+          "show": false
+        },
+        "output": {
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 150,
+          "stem": "context"
+        },
+        "group": "condition",
+        "data": {
+          "path": "data.csv"
+        }
+      },
+      "csv": "dataset,value,condition\nA,0.6,Base\nA,0.8,Ours\nB,0.7,Base\nB,0.9,Ours\n"
+    },
+    {
+      "name": "ungrouped-table",
+      "spec": {
+        "kind": "table",
+        "title": "Observed responses across the complete original experimental measurement period",
+        "x": {
+          "field": "dataset",
+          "label": "Dataset"
+        },
+        "y": {
+          "field": "value",
+          "label": "Observed response across the complete original experimental measurement period",
+          "unit": "fraction"
+        },
+        "legend": {
+          "show": false
+        },
+        "output": {
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 150,
+          "stem": "context"
+        },
+        "data": {
+          "path": "data.csv"
+        }
+      },
+      "csv": "dataset,value\nA,0.6\nB,0.7\n"
+    }
+  ]
+}

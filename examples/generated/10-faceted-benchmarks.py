@@ -1238,10 +1238,7 @@ def main():
         for spare in flat[len(blocks) :]:
             spare.set_visible(False)
 
-        if len(blocks) > 1:
-            edit_target(fig.suptitle("Accuracy per benchmark"), ["title"], "title")
-        else:
-            edit_target(flat[0].set_title("Accuracy per benchmark"), ["title"], "title")
+        edit_target(fig.suptitle("Accuracy per benchmark"), ["title"], "title")
         fit_headings(fig)
         fit_category_labels(fig, flat)
         fig.tight_layout()

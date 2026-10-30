@@ -60,7 +60,13 @@ evidence. The regression cases live in
 `python/tests/test_heading_literal_context.py`; run them with the documented
 Python test environment and `PYTHONPATH=python python -m pytest -q`.
 
-This correction follows accepted margin checkpoint `d404a7e`. Its new exact
-commit must pass main and Figure CI before advancing. Outside legends, table
+This correction follows accepted margin checkpoint `d404a7e`. Committed
+`4cfdf9d` passed exact [main](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41104445012)
+and [Figure](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41104445231)
+CI before the next implementation. Downloaded
+[NIST evidence](heading-literal-context/ci-certified-summary.json) confirms all72
+expected outcomes; [editor evidence](heading-literal-context/ci-editor-checks.json)
+confirms90 workflows/6 headings/18 diagnostics with zero JavaScript errors or
+external requests. Outside legends, table
 context, full task 83 acceptance, and tasks 84–89 remain open. This source work
 has not been published as a new PyPI release.

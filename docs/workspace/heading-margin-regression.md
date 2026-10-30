@@ -42,7 +42,7 @@ Command Line Tools git directory first in this command's PATH because the system
 git launcher exits69; do not change benchmark sources to bypass that environment
 problem.
 
-This is a correction to83e2's CI regression. Literal/math context, outside
+This is a correction to83e2's CI regression. The later literal/math context correction4cfdf9d is accepted; outside
 legends, table context, full83 acceptance and84–89 remain open.
 
 ## Local checkpoint verification
@@ -58,4 +58,4 @@ All15 baselines and7 references were genuinely regenerated; gallery passes15/15.
 84 of85 stored PNGs keep identical pixels/dimensions. The seed-spread image is
 restored to its pre-heading12763f8 pixels. [Verification](heading-margin-regression/verification.json)
 and adjacent image/browser/installation JSON preserve the evidence. Exact
-new-commit CI remains required before the next implementation.
+new-commit CI passed atd404a7e: main41097811521 all9/Figure41097811524.

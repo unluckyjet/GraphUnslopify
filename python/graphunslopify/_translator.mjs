@@ -21938,6 +21938,26 @@ function emitAxisBreak(spec, out) {
     "    upper.plot([0, 1], [0, 0], transform=upper.transAxes, **marks)",
     "    lower.plot([0, 1], [1, 1], transform=lower.transAxes, **marks)",
     "    return upper, lower",
+    "",
+    "",
+    "def fit_break_layout(fig, upper, lower):",
+    "    fig.canvas.draw()",
+    "    axes = (upper, lower)",
+    "    minimum = [ax.bbox.height / fig.dpi for ax in axes]",
+    "    for ax in axes:",
+    "        ax._graphunslopify_heading_height = ax.bbox.height",
+    "    # Let the native layout engine measure ticks at both sides of the gap.",
+    "    # A fixed GridSpec hspace excludes these axes from tight_layout.",
+    "    upper.get_subplotspec().get_gridspec().update(hspace=None)",
+    "    fit_headings(fig)",
+    "    for attempt in range(4):",
+    "        fig.tight_layout()",
+    "        fig.canvas.draw()",
+    "        deficit = max(height - ax.bbox.height / fig.dpi for ax, height in zip(axes, minimum))",
+    "        if deficit <= 1 / fig.dpi:",
+    "            return",
+    "        usable = max(0.1, fig.subplotpars.top - fig.subplotpars.bottom)",
+    "        fig.set_size_inches(fig.get_figwidth(), fig.get_figheight() + 2 * deficit / usable + 0.05)",
     ""
   );
 }
@@ -26122,7 +26142,8 @@ function emitMain(spec, out) {
       "        legend = lower.get_legend()",
       "        if legend is not None:",
       "            legend.remove()",
-      "        fit_headings(fig)"
+      ...spec.title ? [`        edit_target(upper.set_title(${pyStr(spec.title)}), ["title"], "title")`] : [],
+      "        fit_break_layout(fig, upper, lower)"
     );
     emitSaveBlock(spec, out);
     return;
@@ -26178,7 +26199,8 @@ function emitMain(spec, out) {
     ""
   );
   if (spec.title) {
-    out.push(
+    if (spec.facet) out.push(`        edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`);
+    else out.push(
       "        if len(blocks) > 1:",
       `            edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`,
       "        else:",

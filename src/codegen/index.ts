@@ -454,7 +454,8 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       "        legend = lower.get_legend()",
       "        if legend is not None:",
       "            legend.remove()",
-      "        fit_headings(fig)",
+      ...(spec.title ? [`        edit_target(upper.set_title(${pyStr(spec.title)}), ["title"], "title")`] : []),
+      "        fit_break_layout(fig, upper, lower)",
     );
     emitSaveBlock(spec, out);
     return;
@@ -524,7 +525,8 @@ function emitMain(spec: FigureSpec, out: string[]): void {
   );
 
   if (spec.title) {
-    out.push(
+    if (spec.facet) out.push(`        edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`);
+    else out.push(
       "        if len(blocks) > 1:",
       `            edit_target(fig.suptitle(${pyStr(spec.title)}), ["title"], "title")`,
       "        else:",

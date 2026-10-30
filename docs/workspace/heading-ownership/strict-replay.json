@@ -1,0 +1,1154 @@
+{
+  "before_revision": "4cfdf9db4a3256e111579c6a3ae3fb32d175c0e1",
+  "scope": "Actual old and current shipped bundle emission and strict PNG/SVG/PDF execution; original synthetic CSV and full wording retained",
+  "cases": [
+    {
+      "case": "single-facet",
+      "phase": "before",
+      "exit_code": 2,
+      "status": "failed",
+      "data_sha256": "8e11415eba40b17619727d11eb3a4a6ef19dd879878a5a578283ab62145ed99f",
+      "code_sha256": "0fd22bb71c06c6b6ca6a56fc3169f8e0eb62f1729d341c025d95c92d1fcf8b58",
+      "translator_sha256": "ebef1af0d3ca402e372e05a46f8ced4eecbc3640d5c3e24656ee4b1f6f0f9d0c",
+      "report": {
+        "schema_version": 1,
+        "tool": "GraphUnslopify 0.8.0",
+        "spec_hash": "6120442ce97dffd0",
+        "spec": {
+          "title": "Observed responses across the complete original experimental measurement period",
+          "facet": {
+            "labels": [
+              {
+                "value": "A",
+                "text": "Original treatment cohort followed across the complete observation period"
+              }
+            ],
+            "by": "condition",
+            "columns": 2,
+            "share_x": true,
+            "share_y": true,
+            "panel_letters": true
+          },
+          "legend": {
+            "show": false,
+            "position": "best",
+            "style": "box"
+          },
+          "output": {
+            "interactive": false,
+            "latex": false,
+            "size": "single_column",
+            "formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "dpi": 150,
+            "stem": "context"
+          },
+          "style": {
+            "preset": "paper",
+            "grid": false,
+            "despine": true,
+            "venue": "none"
+          },
+          "data": {
+            "path": "data.csv",
+            "format": "csv"
+          },
+          "x": {
+            "field": "epoch",
+            "label": "Epoch",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "y": {
+            "field": "value",
+            "label": "Response",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "kind": "line",
+          "marker": false,
+          "sort_x": true,
+          "aggregation": "none"
+        },
+        "status": "failed",
+        "ok": false,
+        "data": {
+          "path": "data.csv",
+          "sha256_prefix": "8e11415eba40b176",
+          "counts": {
+            "read": 6,
+            "after_filter": 6,
+            "prepared": 6,
+            "missing_plot_keys": 0,
+            "measurements": {
+              "value": {
+                "finite": 6,
+                "nonfinite": 0
+              }
+            },
+            "finite": 6,
+            "nonfinite": 0
+          }
+        },
+        "environment": {
+          "schema_version": 1,
+          "capture_stage": "before_export",
+          "python": {
+            "version": "3.12.14",
+            "implementation": "CPython",
+            "optimize": 0,
+            "hash_randomization": true
+          },
+          "platform": {
+            "system": "Darwin",
+            "machine": "arm64"
+          },
+          "loaded_core_versions": {
+            "numpy": "2.5.4",
+            "pandas": "3.1.0",
+            "matplotlib": "3.11.2",
+            "Pillow": "13.0.0",
+            "freetype": "2.14.3"
+          },
+          "installed_optional_versions": {
+            "graphunslopify": "0.8.0",
+            "plotly": "7.1.0",
+            "scipy": "1.18.1",
+            "pypdf": "6.21.2"
+          },
+          "rendering": {
+            "backend": "Agg",
+            "figure_inches": [
+              3.4,
+              3.255495551215278
+            ],
+            "figure_dpi": 100.0,
+            "export_dpi": 150,
+            "target_width_in": 3.4,
+            "requested_formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "requested_interactive": false,
+            "rc_parameters": {
+              "font.family": [
+                "sans-serif"
+              ],
+              "font.size": 9.0,
+              "font.style": "normal",
+              "font.weight": "normal",
+              "font.variant": "normal",
+              "font.stretch": "normal",
+              "mathtext.fontset": "dejavusans",
+              "text.usetex": false,
+              "text.parse_math": true,
+              "svg.fonttype": "path",
+              "pdf.fonttype": 42,
+              "ps.fonttype": 42,
+              "savefig.transparent": false,
+              "savefig.facecolor": "auto",
+              "figure.facecolor": "white",
+              "axes.facecolor": "white",
+              "path.simplify": true,
+              "path.simplify_threshold": 0.111111111111,
+              "agg.path.chunksize": 0,
+              "svg.hashsalt": "6120442ce97dffd0"
+            },
+            "default_font": {
+              "family": "DejaVu Sans",
+              "file": "DejaVuSans.ttf",
+              "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+            }
+          },
+          "execution": {
+            "strict": true,
+            "fail_on_warning": false,
+            "source": "cli"
+          },
+          "random_constants": {},
+          "unavailable": []
+        },
+        "findings": [
+          {
+            "severity": "warning",
+            "code": "low_dpi_raster",
+            "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+            "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+            "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+          },
+          {
+            "severity": "warning",
+            "code": "line_implies_continuity",
+            "message": "A line asserts that the space between two x values means something. If x is a set of unordered categories, a bar chart makes the same comparison without that claim. Only the author can tell, so this one carries no automatic fix.",
+            "consequence": "Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.",
+            "correction": "Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion."
+          },
+          {
+            "severity": "error",
+            "code": "labels_collide",
+            "message": "\"Observed responses across the\ncomplete original experimental\nmeasurement period\" and \"(a) Original treatment cohort\nfollowed across the complete\nobservation period\" are drawn on top of each other.",
+            "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+            "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+          }
+        ],
+        "inspection": {
+          "available": true,
+          "checked": true,
+          "measurements": {
+            "basis": "exports",
+            "nominal_width_in": 3.4,
+            "widths_in": {
+              "context.png": 3.3330578005551543,
+              "context.svg": 3.3313888888888887,
+              "context.pdf": 3.3314930555555557
+            },
+            "target_width_in": 3.4,
+            "evaluated_width_in": 3.3330578005551543,
+            "text_scale": 1.0,
+            "data_view": [
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "axes_bounds",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  -3.45,
+                  94.45
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 0,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "panels": [
+          {
+            "index": 0,
+            "name": "A",
+            "metric": "value"
+          }
+        ],
+        "claims": [],
+        "significance": [],
+        "annotations": [],
+        "outputs": [
+          {
+            "path": "context.png",
+            "format": "png",
+            "sha256": "12c847bb35e4df474c3e70e78c9d2396d198f7c1a2eae2400ed2d15f75d86145",
+            "bytes": 36017
+          },
+          {
+            "path": "context.svg",
+            "format": "svg",
+            "sha256": "b34f64adfe488b830404814217180166952d48bd0f9242a493602090f8bf8672",
+            "bytes": 37788
+          },
+          {
+            "path": "context.pdf",
+            "format": "pdf",
+            "sha256": "ec283102b2c31c7fb0b3e69ae6fa96027ba342384f1ccc22e848bea8ab63437c",
+            "bytes": 16570
+          }
+        ],
+        "skipped_outputs": [],
+        "untested": [],
+        "alt_text": "Line chart of Response against Epoch. Split into one panel per condition. Values run from 1 to 90. The mean is 41. Panel display names: Original treatment cohort followed across the complete observation period means source panel condition=A.",
+        "script": {
+          "sha256": "0fd22bb71c06c6b6ca6a56fc3169f8e0eb62f1729d341c025d95c92d1fcf8b58"
+        },
+        "exit_code": 2,
+        "policy": {
+          "strict": true,
+          "fail_on_warning": false,
+          "passed": false
+        }
+      }
+    },
+    {
+      "case": "single-facet",
+      "phase": "after",
+      "exit_code": 0,
+      "status": "passed",
+      "data_sha256": "8e11415eba40b17619727d11eb3a4a6ef19dd879878a5a578283ab62145ed99f",
+      "code_sha256": "93e8eef6dfbec771e8057f2edf319239dc9c2b08f6cea6d67b43b2e184b23366",
+      "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+      "report": {
+        "schema_version": 1,
+        "tool": "GraphUnslopify 0.8.0",
+        "spec_hash": "6120442ce97dffd0",
+        "spec": {
+          "title": "Observed responses across the complete original experimental measurement period",
+          "facet": {
+            "labels": [
+              {
+                "value": "A",
+                "text": "Original treatment cohort followed across the complete observation period"
+              }
+            ],
+            "by": "condition",
+            "columns": 2,
+            "share_x": true,
+            "share_y": true,
+            "panel_letters": true
+          },
+          "legend": {
+            "show": false,
+            "position": "best",
+            "style": "box"
+          },
+          "output": {
+            "interactive": false,
+            "latex": false,
+            "size": "single_column",
+            "formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "dpi": 150,
+            "stem": "context"
+          },
+          "style": {
+            "preset": "paper",
+            "grid": false,
+            "despine": true,
+            "venue": "none"
+          },
+          "data": {
+            "path": "data.csv",
+            "format": "csv"
+          },
+          "x": {
+            "field": "epoch",
+            "label": "Epoch",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "y": {
+            "field": "value",
+            "label": "Response",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "kind": "line",
+          "marker": false,
+          "sort_x": true,
+          "aggregation": "none"
+        },
+        "status": "passed",
+        "ok": true,
+        "data": {
+          "path": "data.csv",
+          "sha256_prefix": "8e11415eba40b176",
+          "counts": {
+            "read": 6,
+            "after_filter": 6,
+            "prepared": 6,
+            "missing_plot_keys": 0,
+            "measurements": {
+              "value": {
+                "finite": 6,
+                "nonfinite": 0
+              }
+            },
+            "finite": 6,
+            "nonfinite": 0
+          }
+        },
+        "environment": {
+          "schema_version": 1,
+          "capture_stage": "before_export",
+          "python": {
+            "version": "3.12.14",
+            "implementation": "CPython",
+            "optimize": 0,
+            "hash_randomization": true
+          },
+          "platform": {
+            "system": "Darwin",
+            "machine": "arm64"
+          },
+          "loaded_core_versions": {
+            "numpy": "2.5.4",
+            "pandas": "3.1.0",
+            "matplotlib": "3.11.2",
+            "Pillow": "13.0.0",
+            "freetype": "2.14.3"
+          },
+          "installed_optional_versions": {
+            "graphunslopify": "0.8.0",
+            "plotly": "7.1.0",
+            "scipy": "1.18.1",
+            "pypdf": "6.21.2"
+          },
+          "rendering": {
+            "backend": "Agg",
+            "figure_inches": [
+              3.4,
+              3.7955834418402783
+            ],
+            "figure_dpi": 100.0,
+            "export_dpi": 150,
+            "target_width_in": 3.4,
+            "requested_formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "requested_interactive": false,
+            "rc_parameters": {
+              "font.family": [
+                "sans-serif"
+              ],
+              "font.size": 9.0,
+              "font.style": "normal",
+              "font.weight": "normal",
+              "font.variant": "normal",
+              "font.stretch": "normal",
+              "mathtext.fontset": "dejavusans",
+              "text.usetex": false,
+              "text.parse_math": true,
+              "svg.fonttype": "path",
+              "pdf.fonttype": 42,
+              "ps.fonttype": 42,
+              "savefig.transparent": false,
+              "savefig.facecolor": "auto",
+              "figure.facecolor": "white",
+              "axes.facecolor": "white",
+              "path.simplify": true,
+              "path.simplify_threshold": 0.111111111111,
+              "agg.path.chunksize": 0,
+              "svg.hashsalt": "6120442ce97dffd0"
+            },
+            "default_font": {
+              "family": "DejaVu Sans",
+              "file": "DejaVuSans.ttf",
+              "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+            }
+          },
+          "execution": {
+            "strict": true,
+            "fail_on_warning": false,
+            "source": "cli"
+          },
+          "random_constants": {},
+          "unavailable": []
+        },
+        "findings": [
+          {
+            "severity": "warning",
+            "code": "low_dpi_raster",
+            "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+            "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+            "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+          },
+          {
+            "severity": "warning",
+            "code": "line_implies_continuity",
+            "message": "A line asserts that the space between two x values means something. If x is a set of unordered categories, a bar chart makes the same comparison without that claim. Only the author can tell, so this one carries no automatic fix.",
+            "consequence": "Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.",
+            "correction": "Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion."
+          }
+        ],
+        "inspection": {
+          "available": true,
+          "checked": true,
+          "measurements": {
+            "basis": "exports",
+            "nominal_width_in": 3.4,
+            "widths_in": {
+              "context.png": 3.3597222629595955,
+              "context.svg": 3.3313888888888887,
+              "context.pdf": 3.3314930555555557
+            },
+            "target_width_in": 3.4,
+            "evaluated_width_in": 3.3597222629595955,
+            "text_scale": 1.0,
+            "data_view": [
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "axes_bounds",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  -3.45,
+                  94.45
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 0,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "panels": [
+          {
+            "index": 0,
+            "name": "A",
+            "metric": "value"
+          }
+        ],
+        "claims": [],
+        "significance": [],
+        "annotations": [],
+        "outputs": [
+          {
+            "path": "context.png",
+            "format": "png",
+            "sha256": "eabc0b44baa2f2d69a5b3653629e214ff0f26690f859438719536f45fd354a81",
+            "bytes": 40922
+          },
+          {
+            "path": "context.svg",
+            "format": "svg",
+            "sha256": "93e85747c545a44ce8a7c0d42b8af671e0297210deecbb2022dbd1a4d5c21af4",
+            "bytes": 37692
+          },
+          {
+            "path": "context.pdf",
+            "format": "pdf",
+            "sha256": "48de95ea98553c1f7d525406cb9a74ad391f37a202ec8a89ded3d4060cf340bd",
+            "bytes": 16666
+          }
+        ],
+        "skipped_outputs": [],
+        "untested": [],
+        "alt_text": "Line chart of Response against Epoch. Split into one panel per condition. Values run from 1 to 90. The mean is 41. Panel display names: Original treatment cohort followed across the complete observation period means source panel condition=A.",
+        "script": {
+          "sha256": "93e8eef6dfbec771e8057f2edf319239dc9c2b08f6cea6d67b43b2e184b23366"
+        },
+        "exit_code": 0,
+        "policy": {
+          "strict": true,
+          "fail_on_warning": false,
+          "passed": true
+        }
+      }
+    },
+    {
+      "case": "broken-axis",
+      "phase": "before",
+      "exit_code": 2,
+      "status": "failed",
+      "data_sha256": "8e11415eba40b17619727d11eb3a4a6ef19dd879878a5a578283ab62145ed99f",
+      "code_sha256": "460db6f084e4412f47cc6eeb8895aad36de9b8ba75c9bf5e30dd780a90fb6f76",
+      "translator_sha256": "ebef1af0d3ca402e372e05a46f8ced4eecbc3640d5c3e24656ee4b1f6f0f9d0c",
+      "report": {
+        "schema_version": 1,
+        "tool": "GraphUnslopify 0.8.0",
+        "spec_hash": "c34e78493e8eb01a",
+        "spec": {
+          "title": "Observed responses across the complete original experimental measurement period",
+          "legend": {
+            "show": false,
+            "position": "best",
+            "style": "box"
+          },
+          "output": {
+            "interactive": false,
+            "latex": false,
+            "size": "single_column",
+            "formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "dpi": 150,
+            "stem": "context"
+          },
+          "style": {
+            "preset": "paper",
+            "grid": false,
+            "despine": true,
+            "venue": "none"
+          },
+          "data": {
+            "path": "data.csv",
+            "format": "csv"
+          },
+          "axis_break": {
+            "axis": "y",
+            "from": 20,
+            "to": 60
+          },
+          "x": {
+            "field": "epoch",
+            "label": "Epoch",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "y": {
+            "field": "value",
+            "label": "Response",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "kind": "line",
+          "marker": false,
+          "sort_x": true,
+          "aggregation": "none"
+        },
+        "status": "failed",
+        "ok": false,
+        "data": {
+          "path": "data.csv",
+          "sha256_prefix": "8e11415eba40b176",
+          "counts": {
+            "read": 6,
+            "after_filter": 6,
+            "prepared": 6,
+            "missing_plot_keys": 0,
+            "measurements": {
+              "value": {
+                "finite": 6,
+                "nonfinite": 0
+              }
+            },
+            "finite": 6,
+            "nonfinite": 0
+          }
+        },
+        "environment": {
+          "schema_version": 1,
+          "capture_stage": "before_export",
+          "python": {
+            "version": "3.12.14",
+            "implementation": "CPython",
+            "optimize": 0,
+            "hash_randomization": true
+          },
+          "platform": {
+            "system": "Darwin",
+            "machine": "arm64"
+          },
+          "loaded_core_versions": {
+            "numpy": "2.5.4",
+            "pandas": "3.1.0",
+            "matplotlib": "3.11.2",
+            "Pillow": "13.0.0",
+            "freetype": "2.14.3"
+          },
+          "installed_optional_versions": {
+            "graphunslopify": "0.8.0",
+            "plotly": "7.1.0",
+            "scipy": "1.18.1",
+            "pypdf": "6.21.2"
+          },
+          "rendering": {
+            "backend": "Agg",
+            "figure_inches": [
+              3.4,
+              3.25
+            ],
+            "figure_dpi": 100.0,
+            "export_dpi": 150,
+            "target_width_in": 3.4,
+            "requested_formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "requested_interactive": false,
+            "rc_parameters": {
+              "font.family": [
+                "sans-serif"
+              ],
+              "font.size": 9.0,
+              "font.style": "normal",
+              "font.weight": "normal",
+              "font.variant": "normal",
+              "font.stretch": "normal",
+              "mathtext.fontset": "dejavusans",
+              "text.usetex": false,
+              "text.parse_math": true,
+              "svg.fonttype": "path",
+              "pdf.fonttype": 42,
+              "ps.fonttype": 42,
+              "savefig.transparent": false,
+              "savefig.facecolor": "auto",
+              "figure.facecolor": "white",
+              "axes.facecolor": "white",
+              "path.simplify": true,
+              "path.simplify_threshold": 0.111111111111,
+              "agg.path.chunksize": 0,
+              "svg.hashsalt": "c34e78493e8eb01a"
+            },
+            "default_font": {
+              "family": "DejaVu Sans",
+              "file": "DejaVuSans.ttf",
+              "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+            }
+          },
+          "execution": {
+            "strict": true,
+            "fail_on_warning": false,
+            "source": "cli"
+          },
+          "random_constants": {},
+          "unavailable": []
+        },
+        "findings": [
+          {
+            "severity": "warning",
+            "code": "low_dpi_raster",
+            "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+            "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+            "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+          },
+          {
+            "severity": "warning",
+            "code": "line_implies_continuity",
+            "message": "A line asserts that the space between two x values means something. If x is a set of unordered categories, a bar chart makes the same comparison without that claim. Only the author can tell, so this one carries no automatic fix.",
+            "consequence": "Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.",
+            "correction": "Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion."
+          },
+          {
+            "severity": "error",
+            "code": "labels_collide",
+            "message": "\"60\" and \"20\" are drawn on top of each other (an inset over its parent).",
+            "consequence": "Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.",
+            "correction": "Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export."
+          }
+        ],
+        "inspection": {
+          "available": true,
+          "checked": true,
+          "measurements": {
+            "basis": "exports",
+            "nominal_width_in": 3.4,
+            "widths_in": {
+              "context.png": 3.306393338150713,
+              "context.svg": 3.3027777777777776,
+              "context.pdf": 3.3028819444444446
+            },
+            "target_width_in": 3.4,
+            "evaluated_width_in": 3.306393338150713,
+            "text_scale": 1.0,
+            "data_view": [
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "intentional_axis_break",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  60.0,
+                  94.45
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 3,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              },
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "intentional_axis_break",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  -3.45,
+                  20.0
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 3,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "panels": [
+          {
+            "index": 0,
+            "name": null,
+            "metric": "value"
+          }
+        ],
+        "claims": [],
+        "significance": [],
+        "annotations": [],
+        "outputs": [
+          {
+            "path": "context.png",
+            "format": "png",
+            "sha256": "1413573b98b3f23ae344074367f41989251381f1c6a95d69cbca592c1b903da8",
+            "bytes": 20853
+          },
+          {
+            "path": "context.svg",
+            "format": "svg",
+            "sha256": "01a7227d5b7ac12b92886992f5edda26e7f6e67a26ffb4a9b485ac6a515b652d",
+            "bytes": 23063
+          },
+          {
+            "path": "context.pdf",
+            "format": "pdf",
+            "sha256": "99329f66b5e0bda8b4c0b8c19d6bc3a63ccb08790a5eaf6920aa3b85bd7f605e",
+            "bytes": 12461
+          }
+        ],
+        "skipped_outputs": [],
+        "untested": [],
+        "alt_text": "Line chart of Response against Epoch. The vertical axis is cut between 20 and 60, so distances across the gap are not comparable. Values run from 1 to 90. The mean is 41.",
+        "script": {
+          "sha256": "460db6f084e4412f47cc6eeb8895aad36de9b8ba75c9bf5e30dd780a90fb6f76"
+        },
+        "exit_code": 2,
+        "policy": {
+          "strict": true,
+          "fail_on_warning": false,
+          "passed": false
+        }
+      }
+    },
+    {
+      "case": "broken-axis",
+      "phase": "after",
+      "exit_code": 0,
+      "status": "passed",
+      "data_sha256": "8e11415eba40b17619727d11eb3a4a6ef19dd879878a5a578283ab62145ed99f",
+      "code_sha256": "c776bd7427cc4c79c250a912feef8d39db98564347310e53bc4710e84e253ba3",
+      "translator_sha256": "39ac75061117d3172152eb525165aad266e0a209e50da92cee905751abb13f90",
+      "report": {
+        "schema_version": 1,
+        "tool": "GraphUnslopify 0.8.0",
+        "spec_hash": "c34e78493e8eb01a",
+        "spec": {
+          "title": "Observed responses across the complete original experimental measurement period",
+          "legend": {
+            "show": false,
+            "position": "best",
+            "style": "box"
+          },
+          "output": {
+            "interactive": false,
+            "latex": false,
+            "size": "single_column",
+            "formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "dpi": 150,
+            "stem": "context"
+          },
+          "style": {
+            "preset": "paper",
+            "grid": false,
+            "despine": true,
+            "venue": "none"
+          },
+          "data": {
+            "path": "data.csv",
+            "format": "csv"
+          },
+          "axis_break": {
+            "axis": "y",
+            "from": 20,
+            "to": 60
+          },
+          "x": {
+            "field": "epoch",
+            "label": "Epoch",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "y": {
+            "field": "value",
+            "label": "Response",
+            "scale": "linear",
+            "percent": false,
+            "temporal": false
+          },
+          "kind": "line",
+          "marker": false,
+          "sort_x": true,
+          "aggregation": "none"
+        },
+        "status": "passed",
+        "ok": true,
+        "data": {
+          "path": "data.csv",
+          "sha256_prefix": "8e11415eba40b176",
+          "counts": {
+            "read": 6,
+            "after_filter": 6,
+            "prepared": 6,
+            "missing_plot_keys": 0,
+            "measurements": {
+              "value": {
+                "finite": 6,
+                "nonfinite": 0
+              }
+            },
+            "finite": 6,
+            "nonfinite": 0
+          }
+        },
+        "environment": {
+          "schema_version": 1,
+          "capture_stage": "before_export",
+          "python": {
+            "version": "3.12.14",
+            "implementation": "CPython",
+            "optimize": 0,
+            "hash_randomization": true
+          },
+          "platform": {
+            "system": "Darwin",
+            "machine": "arm64"
+          },
+          "loaded_core_versions": {
+            "numpy": "2.5.4",
+            "pandas": "3.1.0",
+            "matplotlib": "3.11.2",
+            "Pillow": "13.0.0",
+            "freetype": "2.14.3"
+          },
+          "installed_optional_versions": {
+            "graphunslopify": "0.8.0",
+            "plotly": "7.1.0",
+            "scipy": "1.18.1",
+            "pypdf": "6.21.2"
+          },
+          "rendering": {
+            "backend": "Agg",
+            "figure_inches": [
+              3.4,
+              3.9912896978661005
+            ],
+            "figure_dpi": 100.0,
+            "export_dpi": 150,
+            "target_width_in": 3.4,
+            "requested_formats": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "requested_interactive": false,
+            "rc_parameters": {
+              "font.family": [
+                "sans-serif"
+              ],
+              "font.size": 9.0,
+              "font.style": "normal",
+              "font.weight": "normal",
+              "font.variant": "normal",
+              "font.stretch": "normal",
+              "mathtext.fontset": "dejavusans",
+              "text.usetex": false,
+              "text.parse_math": true,
+              "svg.fonttype": "path",
+              "pdf.fonttype": 42,
+              "ps.fonttype": 42,
+              "savefig.transparent": false,
+              "savefig.facecolor": "auto",
+              "figure.facecolor": "white",
+              "axes.facecolor": "white",
+              "path.simplify": true,
+              "path.simplify_threshold": 0.111111111111,
+              "agg.path.chunksize": 0,
+              "svg.hashsalt": "c34e78493e8eb01a"
+            },
+            "default_font": {
+              "family": "DejaVu Sans",
+              "file": "DejaVuSans.ttf",
+              "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+            }
+          },
+          "execution": {
+            "strict": true,
+            "fail_on_warning": false,
+            "source": "cli"
+          },
+          "random_constants": {},
+          "unavailable": []
+        },
+        "findings": [
+          {
+            "severity": "warning",
+            "code": "low_dpi_raster",
+            "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+            "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+            "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+          },
+          {
+            "severity": "warning",
+            "code": "line_implies_continuity",
+            "message": "A line asserts that the space between two x values means something. If x is a set of unordered categories, a bar chart makes the same comparison without that claim. Only the author can tell, so this one carries no automatic fix.",
+            "consequence": "Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.",
+            "correction": "Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion."
+          }
+        ],
+        "inspection": {
+          "available": true,
+          "checked": true,
+          "measurements": {
+            "basis": "exports",
+            "nominal_width_in": 3.4,
+            "widths_in": {
+              "context.png": 3.3330578005551543,
+              "context.svg": 3.3313888888888887,
+              "context.pdf": 3.3314930555555557
+            },
+            "target_width_in": 3.4,
+            "evaluated_width_in": 3.3330578005551543,
+            "text_scale": 1.0,
+            "data_view": [
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "intentional_axis_break",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  60.0,
+                  94.45
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 3,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              },
+              {
+                "basis": "artist_coordinates_not_source_sample_sizes",
+                "scope": "intentional_axis_break",
+                "x_scale": "linear",
+                "y_scale": "linear",
+                "x_limits": [
+                  0.75,
+                  6.25
+                ],
+                "y_limits": [
+                  -3.45,
+                  20.0
+                ],
+                "artists": [
+                  {
+                    "kind": "line",
+                    "finite_coordinates": 6,
+                    "unavailable_coordinates": 0,
+                    "clip_on": true,
+                    "outside_axes": 3,
+                    "nonpositive_x": 0,
+                    "nonpositive_y": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "panels": [
+          {
+            "index": 0,
+            "name": null,
+            "metric": "value"
+          }
+        ],
+        "claims": [],
+        "significance": [],
+        "annotations": [],
+        "outputs": [
+          {
+            "path": "context.png",
+            "format": "png",
+            "sha256": "1d67c572e9d53082a4692afc1be70bb078164e57b4b2cdb8d99d9b6a406576c8",
+            "bytes": 32317
+          },
+          {
+            "path": "context.svg",
+            "format": "svg",
+            "sha256": "7088ef01c9933be0a83919ba796ac185b946bd1dc4195afd9d5874ac18e77dbb",
+            "bytes": 34185
+          },
+          {
+            "path": "context.pdf",
+            "format": "pdf",
+            "sha256": "d00de704b32fde9dd4e59b30b94634eeb64d3e34762501bfa767d4049ada53f3",
+            "bytes": 14796
+          }
+        ],
+        "skipped_outputs": [],
+        "untested": [],
+        "alt_text": "Line chart of Response against Epoch. The vertical axis is cut between 20 and 60, so distances across the gap are not comparable. Values run from 1 to 90. The mean is 41.",
+        "script": {
+          "sha256": "c776bd7427cc4c79c250a912feef8d39db98564347310e53bc4710e84e253ba3"
+        },
+        "exit_code": 0,
+        "policy": {
+          "strict": true,
+          "fail_on_warning": false,
+          "passed": true
+        }
+      }
+    }
+  ]
+}

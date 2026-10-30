@@ -110,6 +110,20 @@ open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.
 production available-margin correction preserves three publisher labels and
 passes the unchanged full72-case comparison. Three native regression cases plus
 234/1659/seven gates and source/fresh90 browser cases pass. [Failure and repair
-proof](../../docs/workspace/heading-margin-regression.md). New push/exact CI must
-pass before advancing. A separately observed odd-currency math-context change
-also remains to fix before full83 acceptance, alongside legends/table context.
+proof](../../docs/workspace/heading-margin-regression.md). Margin correctiond404a7e
+passed exact main41097811521 all9/Figure41097811524. The subsequent native
+literal/math correction4cfdf9d passed exact main41104445012 all9/Figure41104445231;
+actual downloaded CI evidence confirms72 NIST outcomes and90 editor workflows.
+[Literal/math evidence](../../docs/workspace/heading-literal-context.md).
+
+83e3 separates a one-panel facet's global and panel headings, retains a requested
+broken-axis title and measures native tick spacing across the cut while preserving
+original data-panel heights. Fourteen new controls cover actual numeric marks,
+short/long/math/literal/absent titles, letters, cut bounds, strict negatives and
+preview geometry. All seven gates234/1721 pass;113 native controls pass minimum/
+fresh, source/fresh92 editor workflows and minimum8 heading workflows pass,19
+assets match and all89 prior PNG pixels remain unchanged. The unchanged72 NIST
+outcomes pass. [Heading ownership](../../docs/workspace/heading-ownership.md).
+New push and exact main/Figure CI are required before the next implementation.
+Outside legends, long table context/headers and full83 acceptance remain open;
+84–89 retain their entire scope.

@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-30",
+  "base_revision": "4cfdf9db4a3256e111579c6a3ae3fb32d175c0e1",
+  "status": "Local heading ownership correction; new exact-commit CI required",
+  "node_tests": 234,
+  "python_tests": 1721,
+  "skipped": 0,
+  "python_warnings": 1,
+  "warning_scope": "Existing upstream MLflow/SQLAlchemy deprecation",
+  "new_native_cases": 14,
+  "native_controls": {
+    "current_full_suite": "All 113 heading/export controls included in full1721 passed",
+    "minimum_python310": 113,
+    "fresh_installed_python312": 113
+  },
+  "browser": {
+    "source": 92,
+    "fresh_offline_wheel": 92,
+    "kinds": 21,
+    "headings": 8,
+    "diagnostics": 18,
+    "minimum_python310_headings": 8,
+    "javascript_errors": 0,
+    "external_requests": 0
+  },
+  "installed_assets_matched": 19,
+  "genuinely_regenerated": {
+    "baselines": 15,
+    "references": 7,
+    "gallery_passed": 15
+  },
+  "existing_pngs": {
+    "compared": 89,
+    "identical_dimensions_and_rgba": 89
+  },
+  "frozen_nist_cases": 72,
+  "frozen_nist_passed": true,
+  "tested_source_manifest_sha256": "86c5502a264cf5f87b0c80ad5b02613dbc0269c7a5073a60da8f8b22ede5f9d6",
+  "scope": "Synthetic owned-heading layout and source identity controls; no PyPI release, independent human evidence, new timing comparison or guarantee for arbitrary wording."
+}

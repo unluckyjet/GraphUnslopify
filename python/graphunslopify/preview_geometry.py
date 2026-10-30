@@ -14,7 +14,7 @@ TARGET_ATTRIBUTE = "_graphunslopify_text_target"
 
 
 @contextmanager
-def capture_png_geometry(figure: Any, png: Path, destination: Path):
+def capture_png_geometry(figure: Any, png: Path, destination: Path, *, diagnostics: Any = None):
     """Observe savefig without redrawing or changing the saved figure.
 
     savefig may draw twice for tight cropping. The last draw owns the final
@@ -27,6 +27,12 @@ def capture_png_geometry(figure: Any, png: Path, destination: Path):
         from matplotlib.axes import Axes
         from matplotlib.axis import Axis
         from matplotlib.text import Text
+
+        if diagnostics is not None:
+            try:
+                diagnostics.capture(figure, event.renderer)
+            except (AttributeError, TypeError, ValueError, RuntimeError) as problem:
+                diagnostics.error = str(problem)
 
         def visible_text(artist: Any):
             if not artist.get_visible():
@@ -68,6 +74,9 @@ def capture_png_geometry(figure: Any, png: Path, destination: Path):
         yield
     finally:
         figure.canvas.mpl_disconnect(callback)
+
+    if diagnostics is not None:
+        diagnostics.finish(png)
 
     try:
         from PIL import Image

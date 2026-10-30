@@ -28,6 +28,12 @@ from .data_view import inspect_data_view
 from .export_size import export_width_in
 
 Severity = Literal["error", "warning"]
+SourceLocator = tuple[str, int, int | None]
+
+
+def _source(artist: Any, kind: str = "text", part: int | None = None) -> SourceLocator:
+    return kind, id(artist), part
+
 
 #: Below this, a reader with normal vision cannot separate two series.
 MIN_COLOUR_DISTANCE = 11.0
@@ -77,8 +83,14 @@ class Report:
     def ok(self) -> bool:
         return not any(f.severity == "error" for f in self.findings)
 
-    def add(self, severity: Severity, code: str, message: str) -> None:
-        self.findings.append(Finding(severity, code, message))
+    def add(
+        self, severity: Severity, code: str, message: str, *, sources: Iterable[SourceLocator] = ()
+    ) -> None:
+        item = Finding(severity, code, message)
+        # Non-owning, process-local locators. These are deliberately not public
+        # dataclass fields: ordinary reports must not serialize IDs or retain figures.
+        item._spatial_sources = tuple(sources)
+        self.findings.append(item)
 
     def __bool__(self) -> bool:
         return bool(self.findings)
@@ -154,31 +166,34 @@ def _check_text_size(figure: Any, report: Report, scale: float, floor: float) ->
     for artist in _visible_texts(figure):
         effective = artist.get_fontsize() * scale
         if smallest is None or effective < smallest[0]:
-            smallest = (effective, artist.get_text())
+            smallest = (effective, artist)
 
     if smallest is None:
         return
 
-    size, text = smallest
+    size, artist = smallest
+    text = artist.get_text()
     label = text if len(text) <= 24 else text[:21] + "..."
     if size < floor and not math.isclose(size, floor, rel_tol=1e-12, abs_tol=1e-12):
         report.add(
             "error",
             "text_too_small",
             f'"{label}" renders at {size!r}pt, below the required {floor}pt at the target width.',
+            sources=(_source(artist),),
         )
     elif size < floor + 1.0:
         report.add(
             "warning",
             "text_near_minimum",
             f'"{label}" renders at {size:.1f}pt, close to the {floor}pt floor.',
+            sources=(_source(artist),),
         )
 
 
 def _check_tick_collisions(axes: Any, renderer: Any, report: Report) -> None:
     for name in ("x", "y"):
         boxes = [
-            (label.get_text(), label.get_window_extent(renderer))
+            (label.get_text(), label.get_window_extent(renderer), label)
             for label in _drawn_tick_labels(axes, name)
         ]
         for i in range(len(boxes) - 1):
@@ -189,6 +204,7 @@ def _check_tick_collisions(axes: Any, renderer: Any, report: Report) -> None:
                     "tick_labels_collide",
                     f'{name} tick labels "{left[0]}" and "{right[0]}" overlap. '
                     "Rotate them, thin them out, or widen the figure.",
+                    sources=(_source(left[2]), _source(right[2])),
                 )
                 break
 
@@ -203,7 +219,7 @@ def _check_text_collisions(figure: Any, renderer: Any, report: Report) -> None:
     """
     from matplotlib.text import Text
 
-    entries: list[tuple[str, Any, int, bool]] = []
+    entries: list[tuple[str, Any, int, bool, Any]] = []
     undrawn = _undrawn_tick_ids(figure)
     for axes in figure.get_axes():
         if not axes.get_visible():
@@ -225,7 +241,7 @@ def _check_text_collisions(figure: Any, renderer: Any, report: Report) -> None:
                 continue
             if box.width <= 0 or box.height <= 0:
                 continue
-            entries.append((artist.get_text(), box, owner, id(artist) in ticks))
+            entries.append((artist.get_text(), box, owner, id(artist) in ticks, artist))
 
     for text in figure.texts:
         if not text.get_visible() or not (text.get_text() or "").strip():
@@ -234,12 +250,12 @@ def _check_text_collisions(figure: Any, renderer: Any, report: Report) -> None:
             box = text.get_window_extent(renderer)
         except (ValueError, RuntimeError):
             continue
-        entries.append((text.get_text(), box, 0, False))
+        entries.append((text.get_text(), box, 0, False, text))
 
     for i in range(len(entries)):
         for j in range(i + 1, len(entries)):
-            left_text, left_box, left_axes, left_tick = entries[i]
-            right_text, right_box, right_axes, right_tick = entries[j]
+            left_text, left_box, left_axes, left_tick, left_artist = entries[i]
+            right_text, right_box, right_axes, right_tick, right_artist = entries[j]
             # Two tick labels on the same axes are the other check's business.
             if left_tick and right_tick and left_axes == right_axes:
                 continue
@@ -256,6 +272,7 @@ def _check_text_collisions(figure: Any, renderer: Any, report: Report) -> None:
                 "error",
                 "labels_collide",
                 f'"{left_text}" and "{right_text}" are drawn on top of each other{across}.',
+                sources=(_source(left_artist), _source(right_artist)),
             )
             return
 
@@ -307,6 +324,7 @@ def _check_legend_occlusion(axes: Any, renderer: Any, report: Report) -> None:
             "legend_covers_data",
             f"the legend sits on top of {covered} plotted point(s). "
             'Move it, or set legend.position to "outside_right".',
+            sources=(_source(legend, "legend"),),
         )
 
 
@@ -522,6 +540,8 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
     bounds = axes.get_window_extent()
     clipped = 0
     clipped_intervals = 0
+    bar_sources = []
+    interval_sources = []
     for container in axes.containers:
         if not isinstance(container, BarContainer):
             continue
@@ -533,7 +553,7 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
             for collection in container.errorbar.lines[2]:
                 if not collection.get_visible() or not collection.get_clip_on():
                     continue
-                for segment in collection.get_segments():
+                for segment_index, segment in enumerate(collection.get_segments()):
                     if not len(segment):
                         continue
                     display = collection.get_transform().transform(segment)[:, coordinate]
@@ -541,6 +561,7 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
                         min(display) < lower - 1e-7 or max(display) > upper + 1e-7
                     ):
                         clipped_intervals += 1
+                        interval_sources.append(_source(collection, "bar_interval", segment_index))
         for bar in container.patches:
             if not bar.get_visible() or not bar.get_clip_on():
                 continue
@@ -555,12 +576,14 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
                 low < lower - 1e-7 or high > upper + 1e-7
             ):
                 clipped += 1
+                bar_sources.append(_source(bar, "bar"))
     if clipped:
         report.add(
             "error",
             "bar_mark_clipped",
             f"{clipped} bar value extents are clipped by the axes; widen the value limits "
             "so complete lengths are visible, or use a non-length-bearing mark.",
+            sources=bar_sources,
         )
     if clipped_intervals:
         report.add(
@@ -568,6 +591,7 @@ def _check_truncated_bars(axes: Any, report: Report) -> None:
             "bar_interval_clipped",
             f"{clipped_intervals} bar uncertainty intervals are clipped by the axes; widen "
             "the value limits so both true endpoints remain visible.",
+            sources=interval_sources,
         )
 
     which = _bar_value_axis(axes)

@@ -1,0 +1,91 @@
+{
+  "scope": "83c actual diagnostic/final-PNG backend; frontend overlay interaction and owned layout remain open, plus full84\u201389. Source wheel, not release.",
+  "base_revision": "34dd28d52f801601f5b074cc50ddbfcfe76acfc9",
+  "previous_exact_main_all9": 41068733016,
+  "previous_exact_figure_success": 41068733020,
+  "required_gates": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 0.26
+    },
+    {
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 29.5
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "test:python"
+      ],
+      "exit_code": 0,
+      "seconds": 322.23
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "baseline",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.19
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "render-check"
+      ],
+      "exit_code": 0,
+      "seconds": 6.8
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "recipe-check"
+      ],
+      "exit_code": 0,
+      "seconds": 16.68
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "compose-check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.88
+    }
+  ],
+  "source_test_files_unchanged_during_gates": true,
+  "checked_source_manifest_sha256": "a0f1cb7d4384a71a7b8911736b518c8fd280899b9403627b1000814b5cd26b9f",
+  "node_tests": 234,
+  "python_tests": 1637,
+  "python_skips": 0,
+  "python_warnings": "1 existing upstream MLflow/SQLAlchemy deprecation",
+  "focused_current_python_cases": 34,
+  "focused_minimum_python_cases": 34,
+  "focused_fresh_installed_cases": 34,
+  "existing_inspector_editor_controls": 106,
+  "gallery_passed": 15,
+  "translator_rebuild": "No bundle difference; emitter/layout unchanged. Baseline --check passes; no stale artifact patching.",
+  "source_installed_browser_workflows_each": 66,
+  "native_kinds": 21,
+  "installed_assets_matched": 18,
+  "model_browser_provider": "Controlled provider double; no new inference claim.",
+  "tracked_pngs_byte_identical": 75,
+  "actual_source_preview": "Clipped interval remains strict failed/exit2; measured interval target available; unrelated checks unlocated; text map preserved.",
+  "exact_ci": "Pending new checkpoint push."
+}

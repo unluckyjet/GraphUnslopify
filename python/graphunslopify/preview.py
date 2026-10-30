@@ -240,6 +240,8 @@ class PreviewState:
                     ),
                     "--geometry",
                     f"{stem}.edit-map.json",
+                    "--diagnostics",
+                    f"{stem}.diagnostic-map.json",
                     "--png",
                     f"{stem}.png",
                     str(script),
@@ -320,6 +322,26 @@ class PreviewState:
                 except (OSError, ValueError, KeyError, TypeError) as problem:
                     geometry["error"] = str(problem)
             answer["edit_map"] = geometry
+            from .preview_diagnostics import bind_diagnostic_map
+
+            diagnostic_path = folder / f"{stem}.diagnostic-map.json"
+            try:
+                candidate = json.loads(diagnostic_path.read_text(encoding="utf8"))
+            except (OSError, ValueError) as problem:
+                candidate = {"schema_version": 1, "available": False, "error": str(problem)}
+            if stale:
+                candidate = {
+                    "schema_version": 1,
+                    "available": False,
+                    "error": "Diagnostic geometry belongs to a stale render",
+                }
+            answer["diagnostic_map"] = bind_diagnostic_map(
+                candidate,
+                folder / f"{stem}.png",
+                next((item for item in exports if item["format"] == "png"), None),
+                report,
+                identity,
+            )
             return answer
 
     def bundle(self, identity: str, include_data: bool) -> bytes:

@@ -72,5 +72,13 @@ refusals and the existing semantic facet/group guard. The original8-row/4-panel
 false alarm disappears with identical data/spec hash/final PNG pixels. See
 [measured evidence](../../docs/workspace/panel-duplicate-keys.md). Its seven gates,
 source/installed checks, push and exact CI gate must complete before advancing.
+83b is pushed34dd28d; exact main41068733016 all9/Figure41068733020 passed before83c.
+83c exposes actual inspector-source/final-PNG diagnostic geometry in the preview
+API, with strict version/image/finding/bounds/generation ownership and explicit
+unlocated findings. Its34 controls cover original pixels/findings, actual interval
+ink, native/inverted axes, missing/custom/capped/capture-failure cases and actual
+preview IPC. See [backend contract](../../docs/workspace/diagnostic-geometry.md).
+Full gates/source-installed controls, push and exact CI are required before the
+clickable overlay frontend; this backend alone does not complete that interaction.
 Spatial overlays, panel-aware duplicate warnings and measured owned layout remain
 open until their checkpoint acceptance;83a/b do not complete83 or narrow84–89.

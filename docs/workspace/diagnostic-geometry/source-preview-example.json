@@ -1,0 +1,340 @@
+{
+  "scope": "Actual synthetic preview API; clipped1..9 interval into0..5 remains strict failed/exit2; geometry availability does not confer scientific acceptance.",
+  "exit_code": 2,
+  "report": {
+    "schema_version": 1,
+    "tool": "GraphUnslopify 0.8.0",
+    "spec_hash": "905ffe44f895f306",
+    "spec": {
+      "legend": {
+        "show": false,
+        "position": "best",
+        "style": "box"
+      },
+      "output": {
+        "interactive": false,
+        "latex": false,
+        "size": "single_column",
+        "formats": [
+          "png",
+          "svg",
+          "pdf"
+        ],
+        "dpi": 600,
+        "stem": "interval"
+      },
+      "style": {
+        "preset": "paper",
+        "grid": false,
+        "despine": true,
+        "venue": "none"
+      },
+      "data": {
+        "path": "data.csv",
+        "format": "csv",
+        "columns": [
+          "category",
+          "value"
+        ]
+      },
+      "x": {
+        "field": "category",
+        "label": "Category",
+        "scale": "linear",
+        "percent": false,
+        "temporal": false
+      },
+      "y": {
+        "field": "value",
+        "label": "Value",
+        "scale": "linear",
+        "limits": [
+          0,
+          5
+        ],
+        "percent": false,
+        "temporal": false
+      },
+      "kind": "bar",
+      "orientation": "vertical",
+      "aggregation": "mean",
+      "baseline_zero": true,
+      "stacked": false,
+      "value_labels": false,
+      "uncertainty": {
+        "kind": "range",
+        "level": 0.95,
+        "display": "band"
+      }
+    },
+    "status": "failed",
+    "ok": false,
+    "data": {
+      "path": "data.csv",
+      "sha256_prefix": "320dd44118830f2c",
+      "counts": {
+        "read": 3,
+        "after_filter": 3,
+        "prepared": 3,
+        "missing_plot_keys": 0,
+        "measurements": {
+          "value": {
+            "finite": 3,
+            "nonfinite": 0
+          }
+        },
+        "finite": 3,
+        "nonfinite": 0,
+        "sample_sizes": [
+          3
+        ]
+      }
+    },
+    "environment": {
+      "schema_version": 1,
+      "capture_stage": "before_export",
+      "python": {
+        "version": "3.12.14",
+        "implementation": "CPython",
+        "optimize": 0,
+        "hash_randomization": true
+      },
+      "platform": {
+        "system": "Darwin",
+        "machine": "arm64"
+      },
+      "loaded_core_versions": {
+        "numpy": "2.5.4",
+        "pandas": "3.1.0",
+        "matplotlib": "3.11.2",
+        "Pillow": "13.0.0",
+        "freetype": "2.14.3"
+      },
+      "installed_optional_versions": {
+        "graphunslopify": "0.8.0",
+        "plotly": "7.1.0",
+        "scipy": "1.18.1",
+        "pypdf": "6.21.2"
+      },
+      "rendering": {
+        "backend": "Agg",
+        "figure_inches": [
+          3.4,
+          2.6
+        ],
+        "figure_dpi": 100.0,
+        "export_dpi": 600,
+        "target_width_in": 3.4,
+        "requested_formats": [
+          "png",
+          "svg",
+          "pdf"
+        ],
+        "requested_interactive": false,
+        "rc_parameters": {
+          "font.family": [
+            "sans-serif"
+          ],
+          "font.size": 9.0,
+          "font.style": "normal",
+          "font.weight": "normal",
+          "font.variant": "normal",
+          "font.stretch": "normal",
+          "mathtext.fontset": "dejavusans",
+          "text.usetex": false,
+          "text.parse_math": true,
+          "svg.fonttype": "path",
+          "pdf.fonttype": 42,
+          "ps.fonttype": 42,
+          "savefig.transparent": false,
+          "savefig.facecolor": "auto",
+          "figure.facecolor": "white",
+          "axes.facecolor": "white",
+          "path.simplify": true,
+          "path.simplify_threshold": 0.111111111111,
+          "agg.path.chunksize": 0,
+          "svg.hashsalt": "905ffe44f895f306"
+        },
+        "default_font": {
+          "family": "DejaVu Sans",
+          "file": "DejaVuSans.ttf",
+          "sha256": "3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22"
+        }
+      },
+      "execution": {
+        "strict": true,
+        "fail_on_warning": false,
+        "source": "cli"
+      },
+      "random_constants": {
+        "BOOTSTRAP_SEED": 20260902,
+        "BOOTSTRAP_DRAWS": 2000
+      },
+      "unavailable": []
+    },
+    "findings": [
+      {
+        "severity": "warning",
+        "code": "band_on_categories",
+        "message": "A shaded band across categories implies continuity between them. Use display bar.",
+        "consequence": "A continuous shaded region between unordered categories implies unsupported intermediate uncertainty.",
+        "correction": "Use interval bars for the categorical points. Retain a band only for a genuinely ordered/continuous domain supported by the analysis."
+      },
+      {
+        "severity": "warning",
+        "code": "data_outside_view",
+        "message": "2 finite artist coordinates lie outside the axes with clipping enabled. Marker centers/vertices outside a view are not source sample counts; segments may still be visible. Widen limits or disclose this zoom and inspect the retained evidence.",
+        "consequence": "The visible figure omits plotted coordinates or true uncertainty/value extents and can overstate the apparent evidence.",
+        "correction": "Inspect which marks or interval endpoints are outside the view. Widen the limits to show the complete intended evidence, or explicitly justify/disclose the restricted view; do not truncate intervals to fit."
+      },
+      {
+        "severity": "error",
+        "code": "bar_interval_clipped",
+        "message": "1 bar uncertainty intervals are clipped by the axes; widen the value limits so both true endpoints remain visible.",
+        "consequence": "The visible figure omits plotted coordinates or true uncertainty/value extents and can overstate the apparent evidence.",
+        "correction": "Inspect which marks or interval endpoints are outside the view. Widen the limits to show the complete intended evidence, or explicitly justify/disclose the restricted view; do not truncate intervals to fit."
+      }
+    ],
+    "inspection": {
+      "available": true,
+      "checked": true,
+      "measurements": {
+        "basis": "exports",
+        "nominal_width_in": 3.4,
+        "widths_in": {
+          "interval.png": 3.316673300013267,
+          "interval.svg": 3.315674916666666,
+          "interval.pdf": 3.315798611111111
+        },
+        "target_width_in": 3.4,
+        "evaluated_width_in": 3.316673300013267,
+        "text_scale": 1.0,
+        "data_view": [
+          {
+            "basis": "artist_coordinates_not_source_sample_sizes",
+            "scope": "axes_bounds",
+            "x_scale": "linear",
+            "y_scale": "linear",
+            "x_limits": [
+              -0.38499999999999995,
+              0.38499999999999995
+            ],
+            "y_limits": [
+              0.0,
+              5.0
+            ],
+            "artists": [
+              {
+                "kind": "line",
+                "finite_coordinates": 1,
+                "unavailable_coordinates": 0,
+                "clip_on": true,
+                "outside_axes": 0,
+                "nonpositive_x": 0,
+                "nonpositive_y": 0
+              },
+              {
+                "kind": "line",
+                "finite_coordinates": 1,
+                "unavailable_coordinates": 0,
+                "clip_on": true,
+                "outside_axes": 1,
+                "nonpositive_x": 0,
+                "nonpositive_y": 0
+              },
+              {
+                "kind": "segments",
+                "finite_coordinates": 2,
+                "unavailable_coordinates": 0,
+                "clip_on": true,
+                "outside_axes": 1,
+                "nonpositive_x": 0,
+                "nonpositive_y": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "panels": [
+      {
+        "index": 0,
+        "name": null,
+        "metric": "value"
+      }
+    ],
+    "claims": [],
+    "significance": [],
+    "annotations": [],
+    "outputs": [
+      {
+        "path": "interval.png",
+        "format": "png",
+        "sha256": "05e57128273b40cf3712ceeafeac57845b89634bc62b0f4d3baddc13ef5c52ac",
+        "bytes": 43016
+      },
+      {
+        "path": "interval.svg",
+        "format": "svg",
+        "sha256": "623e80a043fc97b88c14a81cef3c83cc9ac2fc5038f53897bf645b87193f0716",
+        "bytes": 17308
+      },
+      {
+        "path": "interval.pdf",
+        "format": "pdf",
+        "sha256": "60e4a96ac70ddb2813fe60f120939c88e0f69f585ea282ddb2434dc359c1458d",
+        "bytes": 12475
+      }
+    ],
+    "skipped_outputs": [],
+    "untested": [],
+    "alt_text": "Bar chart of Value against Category. Shaded full ranges. Value view is limited to 0 through 5 in source axis units; summary statistics describe retained data, which may extend beyond this view. N = 3 per point. Values run from 4 to 4. The mean is 4.",
+    "script": {
+      "sha256": "9f4ce8b1c6761213aef14c8dbb6fe011f538c145e7a3b35d79ebfe895fab4ba4"
+    },
+    "exit_code": 2,
+    "policy": {
+      "strict": true,
+      "fail_on_warning": false,
+      "passed": false
+    }
+  },
+  "diagnostic_map": {
+    "schema_version": 1,
+    "available": true,
+    "coordinates": "pixels_top_left",
+    "image": {
+      "name": "interval.png",
+      "width": 1990,
+      "height": 1518,
+      "sha256": "05e57128273b40cf3712ceeafeac57845b89634bc62b0f4d3baddc13ef5c52ac"
+    },
+    "spec_hash": "905ffe44f895f306",
+    "run_id": "3589efc4a8e74c598dc5fcd8abe21b16",
+    "targets": [
+      {
+        "id": "2:0",
+        "finding_index": 2,
+        "kind": "bar_interval",
+        "bounds": [
+          1093.5921223958333,
+          85.32552083333371,
+          12.5,
+          917.7229166666664
+        ]
+      }
+    ],
+    "truncated": false,
+    "unlocated": [
+      {
+        "finding_index": 0,
+        "reason": "This check did not provide a reliable visible location"
+      },
+      {
+        "finding_index": 1,
+        "reason": "No reliable visible location was captured for this finding"
+      }
+    ]
+  },
+  "edit_map_available": true
+}

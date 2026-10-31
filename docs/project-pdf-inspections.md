@@ -19,7 +19,10 @@ graphunslopify project-inspections paper
 The `--pdf` path is resolved from the current working directory.
 Use the revision from `project-inspections`. It guards the current native inputs,
 inspection history, source PDF hashes and saved asset state. A stale revision is
-rejected. Inspection IDs must differ from native figure IDs. Reusing an inspection
+rejected. The captured native snapshot must match the reviewed context, and the
+inspection revision is checked again before creating history. External edits
+between review and capture are refused without creating a new event.
+Inspection IDs must differ from native figure IDs. Reusing an inspection
 ID records a new immutable attempt; a failed attempt does not fall back to an
 older successful preparation.
 

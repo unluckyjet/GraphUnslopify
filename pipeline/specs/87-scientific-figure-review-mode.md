@@ -143,3 +143,33 @@ science untested. All68 source/wheel/installed resources match; wheel SHA
 Independent Poppler raster compared visually with actual saved preview.
 Initial wrong-fixture harness failure is retained, not counted as acceptance.
 Commit/push/exact CI still required; full87 and88–89 remain open.
+
+
+87c1 delivery16d701518a1cbf9ea7cac49cc12a97707ab8a555 passed exact all-nine
+main41239441711/Figure41239441685 at2026-10-31 21:18:33UTC. Post-push real
+probes identified a token-to-capture race despite those passing checks: native
+data or a registered PDF could change after the first token query and enter an
+inspection under the old token. Visual evidence remained strict incomplete2.
+
+### Focused87c1 guard repair
+
+The captured native snapshot must match the reviewed native revision, and the
+full inspection revision is checked again before creating history. Two real-file
+regression cases fail against unchanged16 package code and pass after repair;
+all71 focused project/review/PDF controls pass on both source3.12 and minimum3.10.
+Actual worker/report outcomes are never mocked. Full checks, fresh installation,
+Git/push and exact new-commit CI remain required. This repair precedes87c2;
+remaining87 and88–89 scope is unchanged.
+
+
+Guard repair local acceptance2026-10-31: complete Ruff168, all seven checks and
+gallery15/15 pass;232 Node/1957 Python/zero skips/one upstream warning on845
+unchanged protected paths. Source/minimum71 focused controls each pass. Actual
+clean-installed PDF-extra wheel passes both real races without changing history,
+releases locks and preserves its fixture; normal CLI inspection still records
+strict2/untested with native acceptance unchanged. All68 resources match
+source/wheel/install, wheel SHA
+93420603363ead8e768c968dbc553e95b334f27c6a01a16f2b515f496b79e768.
+The two new cases first fail against original16 package code. Existing browser,
+math/emitter/reference sources and README graphics are unchanged from16.
+Git/push/exact repair-commit CI still required before87c2.

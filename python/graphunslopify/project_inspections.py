@@ -215,6 +215,13 @@ def inspect_project_pdf(
         if any(item["id"] == identity for item in snapshot["figures"]):
             raise ProjectError("An inspection source ID must differ from native figure IDs.")
         file, digest = _source(pdf)
+        if (
+            snapshot["revision"] != before["native_revision"]
+            or project_inspections(source)["revision"] != expected_revision
+        ):
+            raise ProjectError(
+                "Project/inspection evidence changed during capture; refresh before inspecting."
+            )
         paper = (source.parent / config["manifest"]).resolve().parent
         execution_source = _execution_source()
         folder, event = _event(source.parent, "inspection")

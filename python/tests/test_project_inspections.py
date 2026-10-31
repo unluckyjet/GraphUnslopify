@@ -262,3 +262,38 @@ def test_actual_native_input_change_during_inspection_is_not_current(paper, monk
         inspections.project_inspections(paper)["sources"][0]["evidence_state"]
         == "historical_or_needs_inspection"
     )
+
+
+@pytest.mark.parametrize("changed", ["native_data", "registered_pdf"])
+def test_actual_edit_between_revision_review_and_capture_is_refused(paper, monkeypatch, changed):
+    before = inspections.project_inspections(paper)
+    history = model.project_history(paper)
+    read = inspections.project_inspections
+    calls = 0
+
+    def read_then_edit(*args, **kwargs):
+        nonlocal calls
+        result = read(*args, **kwargs)
+        calls += 1
+        if calls == 1:
+            if changed == "native_data":
+                data = paper / "results.csv"
+                data.write_bytes(data.read_bytes() + b"\n")
+            else:
+                shutil.copyfile(OTHER_PDF, paper / "external.pdf")
+        return result
+
+    monkeypatch.setattr(inspections, "project_inspections", read_then_edit)
+    with pytest.raises(model.ProjectError, match="changed during capture"):
+        inspections.inspect_project_pdf(
+            paper,
+            paper / "external.pdf",
+            identity="external",
+            expected_revision=before["revision"],
+            pages=[1],
+            dpi=72,
+        )
+    assert [event["id"] for event in model.project_history(paper)["events"]] == [
+        event["id"] for event in history["events"]
+    ]
+    assert read(paper)["revision"] != before["revision"]

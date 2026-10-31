@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "scope": "HTML provenance compatibility repair after exact73e acceptance, no statistical/visual/performance improvement claim. Full86 measurements/87\u201389 remain open.",
+  "source_parent_revision": "73e85e75116cb340c5ef7c4844ef9a9135487618",
+  "source_minimum_installed_executions": 270,
+  "standalone_executions": 30,
+  "supplemental_no_package_executions": 8,
+  "interactive_actual_artifact_tests_each_source_and_minimum": 16,
+  "static_programs_with_unchanged_source": 30,
+  "package_files": 64,
+  "gates": 10,
+  "raw_sha256": "e5601ef8095a6df9802a8a3e2e9c024bcc1c7f9a35987eb65d0555614bfca9f2",
+  "raw_bytes": 81002528,
+  "minimum_environment_recreated_with_complete_metadata_and_schema_resources": true
+}

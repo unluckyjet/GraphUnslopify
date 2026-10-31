@@ -1,0 +1,41 @@
+{
+  "interpreter": "/Users/shooter/.cache/graphunslopify/verification-py310/bin/python",
+  "python": "3.10.22 (main, Oct  9 2026, 15:10:41) [Clang 22.1.3 ]",
+  "base_prefix": "/Users/shooter/.cache/graphunslopify/python-runtimes/cpython-3.10.22-macos-aarch64-none",
+  "versions": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "matplotlib": "3.10.9",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "scipy": "1.14.1",
+    "pypdf": "6.21.4",
+    "plotly": "7.1.0",
+    "pyarrow": "25.0.1",
+    "python-calamine": "0.8.3"
+  },
+  "schemas": [
+    "http://json-schema.org/draft-03/schema",
+    "https://json-schema.org/draft/2019-09/meta/validation",
+    "https://json-schema.org/draft/2020-12/meta/validation",
+    "https://json-schema.org/draft/2019-09/meta/applicator",
+    "https://json-schema.org/draft/2019-09/meta/content",
+    "https://json-schema.org/draft/2020-12/meta/meta-data",
+    "https://json-schema.org/draft/2020-12/meta/format-annotation",
+    "https://json-schema.org/draft/2019-09/meta/format",
+    "https://json-schema.org/draft/2019-09/meta/core",
+    "http://json-schema.org/draft-04/schema",
+    "https://json-schema.org/draft/2020-12/meta/applicator",
+    "https://json-schema.org/draft/2020-12/meta/content",
+    "http://json-schema.org/draft-06/schema",
+    "http://json-schema.org/draft-07/schema",
+    "https://json-schema.org/draft/2020-12/meta/core",
+    "https://json-schema.org/draft/2020-12/schema",
+    "https://json-schema.org/draft/2019-09/meta/meta-data",
+    "https://json-schema.org/draft/2020-12/meta/unevaluated",
+    "https://json-schema.org/draft/2019-09/schema",
+    "https://json-schema.org/draft/2020-12/meta/format-assertion"
+  ],
+  "draft3_and_202012_actual_validation_passed": true
+}

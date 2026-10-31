@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -176,6 +177,13 @@ def test_self_contained_html_has_no_external_scripts_and_keeps_safe_provenance(t
     evidence = json.loads(payload)
     assert evidence["alt_text"] == report["alt_text"]
     assert evidence["spec_hash"] == report["spec_hash"]
+    assert evidence["runtime"] == report["script"]["runtime"]
+    from graphunslopify import figure_runtime
+
+    assert (
+        evidence["runtime"]["source_sha256"]
+        == hashlib.sha256(Path(figure_runtime.__file__).read_bytes()).hexdigest()
+    )
     assert read_provenance(tmp_path / "figure.html") == evidence
 
 

@@ -24439,7 +24439,7 @@ function emitInteractive(spec, out) {
   out.push(
     '    path = f"{STEM}.html"',
     '    body = figure.to_html(include_plotlyjs=True, full_html=True, div_id=f"figure-{SPEC_HASH}")',
-    '    evidence = json.dumps({"schema_version":1, "tool":TOOL, "script_sha256":script_fingerprint(), "spec":json.loads(SPEC_JSON), "spec_hash":SPEC_HASH, "data_sha256_prefix":DATA_HASH, "alt_text":ALT_TEXT, "environment":capture_environment()}, ensure_ascii=False).replace("<", r"\\u003c")',
+    '    evidence = json.dumps({"schema_version":1, "tool":TOOL, "script_sha256":script_fingerprint(), "spec":json.loads(SPEC_JSON), "spec_hash":SPEC_HASH, "data_sha256_prefix":DATA_HASH, "alt_text":ALT_TEXT, "environment":capture_environment(), **({"runtime": globals()["RUNTIME_BINDING"]} if "RUNTIME_BINDING" in globals() else {})}, ensure_ascii=False).replace("<", r"\\u003c")',
     `    description = f'<p id="figure-description">{escape(ALT_TEXT)}</p><script type="application/json" id="graphunslopify-provenance">{evidence}</script>'`,
     '    before, after = body.rsplit("</body>", 1)',
     '    Path(path).write_text(before + description + "</body>" + after, encoding="utf8")',

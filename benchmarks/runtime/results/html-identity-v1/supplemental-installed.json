@@ -1,0 +1,364 @@
+{
+  "scope": "Supplementary conformance, not an added/replaced frozen benchmark case or performance observation.",
+  "graphunslopify_import_and_distribution_absent_before_launcher": true,
+  "invalid_node_override": true,
+  "parent_package_root": "/private/tmp/graphunslopify-compact-installed/fresh environment/lib/python3.12/site-packages/graphunslopify",
+  "actual_installed_parent": true,
+  "requested_modes": [
+    "excel",
+    "parquet",
+    "html",
+    "gif"
+  ],
+  "records": [
+    {
+      "mode": "excel",
+      "actual_exit_code": 0,
+      "status": "passed",
+      "input_sha256": "3148762b902cad6077e1dda1de67599188c0380d644fe6bf6cef423d1303672d",
+      "requirements": "jsonschema>=4\nmatplotlib>=3.9\nnumpy>=1.24\npandas>=2.2\npillow>=9\npypdf>=5\npython-calamine>=0.3.1\ntyping_extensions>=4.4\n",
+      "outputs": [
+        {
+          "path": "figure.png",
+          "format": "png",
+          "sha256": "72401a8b8d8692c6597649cc5a13611fafab8140cd2c28229188ebe3b44ad477",
+          "bytes": 11641
+        },
+        {
+          "path": "figure.svg",
+          "format": "svg",
+          "sha256": "6e72b8a33b2b9cb8b80d540fb8c0d28427c2c352879354032e56701cca57b14d",
+          "bytes": 22942
+        },
+        {
+          "path": "figure.pdf",
+          "format": "pdf",
+          "sha256": "e4abeaa48a73d063773e6623569121e339c7dcb71029c86130e79ce0d960d5c7",
+          "bytes": 14727
+        }
+      ],
+      "runtime": {
+        "abi": 1,
+        "source_sha256": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+        "functions": [
+          "_aligned",
+          "_interval_overlap",
+          "alt_text",
+          "capture_environment",
+          "check_claim",
+          "data_fingerprint",
+          "diagnostic_text",
+          "disclose_legend_aliases",
+          "disclose_panel_aliases",
+          "edit_target",
+          "facet_key",
+          "finding",
+          "heading_dollars",
+          "layer_artist",
+          "legend_alias",
+          "legend_alias_path",
+          "legend_handle_key",
+          "literal_heading_lines",
+          "mark_panel_text",
+          "metadata_for",
+          "metric_label",
+          "metric_label_path",
+          "new_report",
+          "normalize_identities",
+          "overlap_phrase",
+          "panel_label_value",
+          "record_output",
+          "run_cli",
+          "script_fingerprint",
+          "series_artist",
+          "significance_result",
+          "skip_output",
+          "source_legend_handles",
+          "validate_legend_aliases",
+          "validate_panel_aliases",
+          "verify_claims",
+          "wrap_heading"
+        ],
+        "components": {
+          "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+          "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+          "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+          "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+          "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+          "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+          "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+          "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+          "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+          "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+          "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "parquet",
+      "actual_exit_code": 0,
+      "status": "passed",
+      "input_sha256": "7e55d8d1c9b7ae351c404692f45a2ba3f1a591054e392d4c51fc7897d8eb416e",
+      "requirements": "jsonschema>=4\nmatplotlib>=3.9\nnumpy>=1.24\npandas>=2.0\npillow>=9\npyarrow>=15\npypdf>=5\ntyping_extensions>=4.4\n",
+      "outputs": [
+        {
+          "path": "figure.png",
+          "format": "png",
+          "sha256": "8ecf1f82001e3a4d3927b6a1781048759f002f47e33b359a1de0769a8b6d3b0e",
+          "bytes": 11567
+        },
+        {
+          "path": "figure.svg",
+          "format": "svg",
+          "sha256": "abfe23a48494b985f86bf806dc0f98d1b270f252a82914ca7b2c91c62bb0a30b",
+          "bytes": 22890
+        },
+        {
+          "path": "figure.pdf",
+          "format": "pdf",
+          "sha256": "5444a77c7717eea717c446ccc2cad402392a31758d9b589916e1208805570717",
+          "bytes": 14653
+        }
+      ],
+      "runtime": {
+        "abi": 1,
+        "source_sha256": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+        "functions": [
+          "_aligned",
+          "_interval_overlap",
+          "alt_text",
+          "capture_environment",
+          "check_claim",
+          "data_fingerprint",
+          "diagnostic_text",
+          "disclose_legend_aliases",
+          "disclose_panel_aliases",
+          "edit_target",
+          "facet_key",
+          "finding",
+          "heading_dollars",
+          "layer_artist",
+          "legend_alias",
+          "legend_alias_path",
+          "legend_handle_key",
+          "literal_heading_lines",
+          "mark_panel_text",
+          "metadata_for",
+          "metric_label",
+          "metric_label_path",
+          "new_report",
+          "normalize_identities",
+          "overlap_phrase",
+          "panel_label_value",
+          "record_output",
+          "run_cli",
+          "script_fingerprint",
+          "series_artist",
+          "significance_result",
+          "skip_output",
+          "source_legend_handles",
+          "validate_legend_aliases",
+          "validate_panel_aliases",
+          "verify_claims",
+          "wrap_heading"
+        ],
+        "components": {
+          "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+          "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+          "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+          "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+          "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+          "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+          "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+          "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+          "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+          "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+          "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "html",
+      "actual_exit_code": 0,
+      "status": "passed",
+      "input_sha256": "214ce1edd0453432d32375e8d7f661b71f81121e584319f1baf76de3ac5a544a",
+      "requirements": "jsonschema>=4\nmatplotlib>=3.9\nnumpy>=1.24\npandas>=2.0\npillow>=9\nplotly>=5.24\npypdf>=5\ntyping_extensions>=4.4\n",
+      "outputs": [
+        {
+          "path": "figure.png",
+          "format": "png",
+          "sha256": "8caff3a2aaf3d32d7fa02578860b3b0c9745fdf6cfb6084e24a3320a9f27f626",
+          "bytes": 12386
+        },
+        {
+          "path": "figure.svg",
+          "format": "svg",
+          "sha256": "acac29ee78ff31c9e7ac4cf51fed9748d5bd9ea92fbe00c6f87d0e629b0b8f18",
+          "bytes": 25686
+        },
+        {
+          "path": "figure.pdf",
+          "format": "pdf",
+          "sha256": "0fd0b7f81dc637a88c4f4a4ad080374a08a29dfe0a99047019c7dc141418a34d",
+          "bytes": 14880
+        },
+        {
+          "path": "figure.html",
+          "format": "html",
+          "sha256": "b668803ca8009d49bdb1df8b297fa36a8f10e8a90a986c8470e16b9b814a6e0f",
+          "bytes": 4829527
+        }
+      ],
+      "runtime": {
+        "abi": 1,
+        "source_sha256": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+        "functions": [
+          "_aligned",
+          "_interval_overlap",
+          "alt_text",
+          "capture_environment",
+          "check_claim",
+          "data_fingerprint",
+          "diagnostic_text",
+          "disclose_legend_aliases",
+          "disclose_panel_aliases",
+          "edit_target",
+          "facet_key",
+          "finding",
+          "heading_dollars",
+          "layer_artist",
+          "legend_alias",
+          "legend_alias_path",
+          "legend_handle_key",
+          "literal_heading_lines",
+          "mark_panel_text",
+          "metadata_for",
+          "metric_label",
+          "metric_label_path",
+          "new_report",
+          "normalize_identities",
+          "overlap_phrase",
+          "panel_label_value",
+          "record_output",
+          "run_cli",
+          "script_fingerprint",
+          "series_artist",
+          "significance_result",
+          "skip_output",
+          "source_legend_handles",
+          "validate_legend_aliases",
+          "validate_panel_aliases",
+          "verify_claims",
+          "wrap_heading"
+        ],
+        "components": {
+          "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+          "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+          "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+          "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+          "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+          "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+          "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+          "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+          "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+          "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+          "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+        }
+      },
+      "passed": true
+    },
+    {
+      "mode": "gif",
+      "actual_exit_code": 0,
+      "status": "passed",
+      "input_sha256": "214ce1edd0453432d32375e8d7f661b71f81121e584319f1baf76de3ac5a544a",
+      "requirements": "jsonschema>=4\nmatplotlib>=3.9\nnumpy>=1.24\npandas>=2.0\npillow>=9\npypdf>=5\ntyping_extensions>=4.4\n",
+      "outputs": [
+        {
+          "path": "figure.png",
+          "format": "png",
+          "sha256": "440be2ae4579e08596b5c3c04b1ed1b0d0c50cc76bd1180c7ce221a6fe15e779",
+          "bytes": 12632
+        },
+        {
+          "path": "figure.svg",
+          "format": "svg",
+          "sha256": "fcd57f847a589652d38ac97a250338f30501a0f6ee78c8a87624a620218f7ea7",
+          "bytes": 25817
+        },
+        {
+          "path": "figure.pdf",
+          "format": "pdf",
+          "sha256": "8eb2ce513320fd2bdb46168e854af5c9062f371e00cf65f1fc64043af94f4a4c",
+          "bytes": 15126
+        },
+        {
+          "path": "figure.gif",
+          "format": "gif",
+          "sha256": "34986bb7cf097c37b4c22f0b2c4cf702e8aa0a5128c873116386248d01fd6a2c",
+          "bytes": 18525
+        }
+      ],
+      "runtime": {
+        "abi": 1,
+        "source_sha256": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+        "functions": [
+          "_aligned",
+          "_interval_overlap",
+          "alt_text",
+          "capture_environment",
+          "check_claim",
+          "data_fingerprint",
+          "diagnostic_text",
+          "disclose_legend_aliases",
+          "disclose_panel_aliases",
+          "edit_target",
+          "facet_key",
+          "finding",
+          "heading_dollars",
+          "layer_artist",
+          "legend_alias",
+          "legend_alias_path",
+          "legend_handle_key",
+          "literal_heading_lines",
+          "mark_panel_text",
+          "metadata_for",
+          "metric_label",
+          "metric_label_path",
+          "new_report",
+          "normalize_identities",
+          "overlap_phrase",
+          "panel_label_value",
+          "record_output",
+          "run_cli",
+          "script_fingerprint",
+          "series_artist",
+          "significance_result",
+          "skip_output",
+          "source_legend_handles",
+          "validate_legend_aliases",
+          "validate_panel_aliases",
+          "verify_claims",
+          "wrap_heading"
+        ],
+        "components": {
+          "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+          "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+          "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+          "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+          "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+          "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+          "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+          "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+          "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+          "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+          "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+        }
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

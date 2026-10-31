@@ -99,3 +99,19 @@ Actual minimum3.10 and installed-wheel advice checks pass. All required gates
 are repeated before the repair's separate push/exact CI. Original c89 CI also
 retains all72 expected NIST outcomes/nine datasets with unchanged literal protocol;
 this partial evidence does not make the failed workflow accepted.
+
+
+###86b HTML provenance repair after accepted73e
+
+73e passed exact main41205420567 all nine/Figure41205420557 before this edit.
+Supplemental valid-category HTML rendered strictly but lacked its new runtime
+identity, so the emitter now adds the actual binding to its separate envelope.
+Actual HTML/report/source-hash assertions pass16 source/minimum interactive
+tests. Eight source/installed genuine no-package Excel/Parquet/HTML/GIF controls
+pass; source/minimum/fresh270 and standalone30 preserve the frozen outcomes.
+All30 static program hashes are unchanged. Seven+gallery/Ruff160/232 Node/
+1929 Python pass on835 stable paths. The corrupt original temporary minimum
+venv failure is explicit; a fresh cached3.10.22 replacement passes90/16.
+Actual raw evidence is in benchmarks/runtime/results/html-identity-v1.
+Push/exact CI acceptance follows this local milestone; full86 cost comparisons
+and all87–89 scope remain open.

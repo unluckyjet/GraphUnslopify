@@ -93,6 +93,12 @@ try {
       assert.ok(Number.isInteger(execution.pid) && execution.pid > 0);
       assert.match(execution.request_id, /^[0-9a-f]{32}$/);
       assert.match(execution.runtime_source_sha256, /^[0-9a-f]{64}$/);
+      const cache = execution.statistics_cache;
+      assert.equal(cache?.enabled, true, "editor must enable its owned numerical cache");
+      assert.equal(cache.version, 1);
+      assert.equal(cache.pid, execution.pid);
+      assert.equal(cache.runtime_source_sha256, execution.runtime_source_sha256);
+      assert.ok(cache.entries <= cache.max_entries && cache.serialized_bytes <= cache.max_bytes);
       workerExecutions.push(execution);
       const compiler = body.translation_execution;
       assert.equal(compiler?.mode, "worker", "editor conversion must use its owned translator");

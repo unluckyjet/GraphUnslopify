@@ -1,0 +1,51 @@
+{
+  "kind": "line",
+  "data": {
+    "path": "data.csv",
+    "format": "csv",
+    "columns": [
+      "epoch",
+      "score",
+      "model",
+      "seed"
+    ]
+  },
+  "x": {
+    "field": "epoch",
+    "label": "Epoch"
+  },
+  "y": {
+    "field": "score",
+    "label": "Score"
+  },
+  "group": "model",
+  "series_order": [
+    "base",
+    "ours"
+  ],
+  "aggregation": "mean",
+  "uncertainty": {
+    "kind": "ci",
+    "over": "seed",
+    "display": "band"
+  },
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "claims": [
+    {
+      "kind": "beats_everywhere",
+      "subject": "base",
+      "reference": "ours"
+    }
+  ],
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ]
+  },
+  "title": "Figure (B)"
+}

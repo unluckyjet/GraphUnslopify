@@ -100,6 +100,11 @@ collisions, small text or clipped bars/intervals and read their guidance. Unknow
 explicit. Selecting a region leaves the figure unchanged; offered fixes rerun strict verification
 and support undo, including with live preview off.
 
+Current source reuses bounded numerical summaries during compatible title/style edits,
+while rerunning current scientific checks and exports. [Measured numerical reuse](benchmarks/incremental/README.md)
+records the useful dense-bootstrap gain and the small cases that barely change.
+Staged unverified previews remain unfinished.
+
 For optional [model-backed drafts](docs/workspace/model-drafts.md), configure a provider,
 review exactly which metadata and authored intent will be sent, then explicitly
 request and review a proposal. Applying it reruns strict checks and supports undo.

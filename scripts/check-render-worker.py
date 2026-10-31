@@ -107,6 +107,7 @@ def main():
     assets = [
         "preview.py",
         "preview_worker.py",
+        "numerical_cache.py",
         "translator_worker.py",
         "transport.py",
         "drafts.py",
@@ -197,7 +198,11 @@ def main():
     )
     process = PreviewState(out / "process", 100 * 1024 * 1024)
     worker = PreviewState(
-        out / "worker", 100 * 1024 * 1024, reuse_renderer=True, reuse_translator=True
+        out / "worker",
+        100 * 1024 * 1024,
+        reuse_renderer=True,
+        reuse_translator=True,
+        cache_statistics=True,
     )
     result = {
         "scope": __doc__,
@@ -271,6 +276,11 @@ def main():
                 )
                 assert compiler["runtime_source_sha256"] == hashes["_translator.mjs"]
                 assert pair[0][1]["translation_execution"]["mode"] == "process"
+                cached = pair[1][1]["execution"]["statistics_cache"]
+                assert (
+                    cached["enabled"]
+                    and cached["pid"] == pair[1][1]["execution"]["pid"]
+                )
                 record.update(
                     passed=True,
                     exit_code=case["exit"],

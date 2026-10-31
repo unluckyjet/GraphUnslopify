@@ -96,6 +96,11 @@ def main() -> None:
         help="require current-source bounded Node ownership, canonical responses and teardown",
     )
     parser.add_argument(
+        "--require-statistics-cache",
+        action="store_true",
+        help="require real installed editor numerical reuse with current strict checks",
+    )
+    parser.add_argument(
         "--require-project",
         action="store_true",
         help="require current-source project history and shared settings; older releases may omit them",
@@ -116,6 +121,10 @@ def main() -> None:
         help="require current-source physical PDF inspection (also requires --pdf)",
     )
     args = parser.parse_args()
+    if args.require_statistics_cache and not (
+        args.require_render_worker and args.require_translator_worker
+    ):
+        parser.error("--require-statistics-cache requires both worker checks")
     if args.require_pdf_visual and not args.pdf:
         parser.error("--require-pdf-visual requires --pdf")
     if args.wheel is None:
@@ -1384,6 +1393,15 @@ def main() -> None:
             "        assert compiler_second['request_id']!=compiler_first['request_id'] and not compiler_second['process_started']\n"
             "        assert compiler_first['runtime_source_sha256']==compiler_second['runtime_source_sha256']\n"
             if args.require_render_worker and args.require_translator_worker
+            else ""
+        )
+        + (
+            "        cached=execution['statistics_cache'];initial_cache=first['statistics_cache']\n"
+            "        assert initial_cache['enabled'] and cached['enabled'] and cached['version']==1\n"
+            "        assert cached['pid']==execution['pid'] and cached['runtime_source_sha256']==execution['runtime_source_sha256']\n"
+            "        assert cached['hits']>0 and cached['misses']==0\n"
+            "        assert cached['serialized_bytes']<=cached['max_bytes'] and cached['entries']<=cached['max_entries']\n"
+            if args.require_statistics_cache
             else ""
         )
         + "    finally:\n"

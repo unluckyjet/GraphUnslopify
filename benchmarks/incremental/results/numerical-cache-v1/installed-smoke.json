@@ -1,0 +1,329 @@
+{
+  "status": "passed",
+  "wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+  "python": "3.12.14",
+  "translator": {
+    "version": "0.8.0",
+    "kinds": [
+      "line",
+      "scatter",
+      "bar",
+      "box",
+      "violin",
+      "ecdf",
+      "raincloud",
+      "ridgeline",
+      "forest",
+      "paired_difference",
+      "slope",
+      "dumbbell",
+      "calibration",
+      "qq",
+      "kaplan_meier",
+      "scaling_fit",
+      "confusion_matrix",
+      "waterfall",
+      "sparkline_grid",
+      "heatmap",
+      "table"
+    ],
+    "node": "v24.19.0"
+  },
+  "network": "external connections blocked after install",
+  "agent": true,
+  "pdf": true,
+  "registry_version": null,
+  "getting_started": {
+    "status": "passed",
+    "python_package": "0.8.0",
+    "steps": {
+      "demo": "passed",
+      "rerun": "passed",
+      "false_claim": "failed",
+      "recovered": "passed"
+    },
+    "exit_codes": [
+      0,
+      2,
+      0
+    ],
+    "data_sha256_prefix": "3a6c3eb05c4dc08c",
+    "elapsed_seconds": 5.495,
+    "timing_scope": "automated walkthrough after installation, not novice completion time",
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/guided tour"
+  },
+  "visual_comparison": {
+    "status": "passed",
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/visual comparison",
+    "html": "/private/tmp/graphunslopify-numerical-cache-installed/visual comparison/audit/runs/6f7ec9de957546a69c7af011fd4fa0eb/comparison/index.html",
+    "svg_html": "/private/tmp/graphunslopify-numerical-cache-installed/visual comparison/svg-review/index.html",
+    "exit_codes": [
+      0,
+      2,
+      2
+    ],
+    "changed_visible_pixels": 3154
+  },
+  "research_workflow": {
+    "status": "passed",
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/research workflow",
+    "config": "/private/tmp/graphunslopify-numerical-cache-installed/research workflow/paper with spaces/graphunslopify-workflow/workflow.json",
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    "editor_process_exit": 0,
+    "latex": "prepared; compilation separate",
+    "inputs_unchanged": true,
+    "notebook": "cleared; kernel execution covered separately"
+  },
+  "experiment_tracking": {
+    "status": "passed",
+    "mlflow": "3.17.2",
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/experiment tracking",
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      2
+    ],
+    "retrieved_files": 6,
+    "owned_run": "FINISHED",
+    "attached_rejected_run": "RUNNING; caller-owned",
+    "tampered_export": "refused before creating run",
+    "raw_inputs_uploaded": false,
+    "global_context_unchanged": true
+  },
+  "project_management": {
+    "status": "passed",
+    "figures": 2,
+    "completed_events": 5,
+    "first_record_unchanged": true,
+    "sources_unchanged": true,
+    "moved_project_and_damaged_export_checked": true,
+    "command_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/project management"
+  },
+  "project_interface": {
+    "status": "passed",
+    "interface": "real loopback CLI/server",
+    "figures": 2,
+    "shared_settings": "applied to actual reports",
+    "strict_run_exits": [
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    "source_binding_history_and_stale_guard": "verified",
+    "preview_export_and_comparison": "verified bytes",
+    "data_unchanged": true,
+    "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed/project interface"
+  },
+  "diagnostics": {
+    "status": "passed",
+    "codes": 139,
+    "strict_failure_recovery": true,
+    "source_data_unchanged": true,
+    "package_free_advice": true,
+    "where": "/private/tmp/graphunslopify-numerical-cache-installed/diagnostics"
+  },
+  "pdf_visual": {
+    "status": "passed",
+    "native_pt": 8.0,
+    "reduced_pt": 4.0,
+    "strict_default_exit": 2,
+    "prepare_only_exit": 0,
+    "scientific_status": "incomplete",
+    "source_bytes_unchanged": true,
+    "where": "/private/tmp/graphunslopify-numerical-cache-installed/pdf visual"
+  },
+  "excel_input": {
+    "status": "passed",
+    "source_sha256": "1f3508348c872e8a5ddc4b12f44fdc9a077b167e959e0aaaf16d24b2783a9a7f",
+    "rows": 3,
+    "worksheet": "Measurements",
+    "exports": {
+      "excel.png": "a5a08c218c871b0cc16e1928de1ed0d8c181c80c535727798c438edbe8048b8c",
+      "excel.svg": "ed7f9906d38874cbbfd545a5975135580e448e20c61c88ff719a30d4ce7a4a6e",
+      "excel.pdf": "12db33b55a1ddd0547d9655e9fdf42810def38720f11ea91d2d15d562d105771"
+    },
+    "package": "/private/tmp/graphunslopify-numerical-cache-installed/fresh environment/lib/python3.12/site-packages/graphunslopify/__init__.py",
+    "reader_version": "0.9.0"
+  },
+  "translator_worker": {
+    "passed": true,
+    "first": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 16995,
+      "request_id": "f0a95bd633684c7ea86ee618d60cc359",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "second": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 16995,
+      "request_id": "287f450edecd42168b0201fb21b2ce5f",
+      "request_number": 2,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "third": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 17000,
+      "request_id": "0c233c9ad1aa44d2baf475ab7147a3af",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 2,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "closed": true
+  },
+  "editor_workers": {
+    "passed": true,
+    "renderer_first": {
+      "mode": "worker",
+      "kind": "renderer",
+      "pid": 17008,
+      "request_id": "6457194fb4114160a7397e1aa157ecbf",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "3f8f5b71a965cdedad8cd8615c20172e55235e85e2b23e81958e9c7bf096e45e",
+      "instrumented": false,
+      "statistics_cache": {
+        "enabled": true,
+        "version": 1,
+        "pid": 17008,
+        "runtime_source_sha256": "3f8f5b71a965cdedad8cd8615c20172e55235e85e2b23e81958e9c7bf096e45e",
+        "hits": 3,
+        "misses": 3,
+        "stores": 3,
+        "evictions": 0,
+        "bypassed": 0,
+        "invalid": 0,
+        "functions": {
+          "summary_input": {
+            "misses": 1,
+            "stores": 1,
+            "hits": 2
+          },
+          "summarise": {
+            "misses": 1,
+            "stores": 1,
+            "hits": 1
+          },
+          "bootstrap_interval": {
+            "misses": 1,
+            "stores": 1
+          }
+        },
+        "entries": 3,
+        "serialized_bytes": 3784,
+        "max_entries": 64,
+        "max_bytes": 33554432,
+        "max_entry_bytes": 8388608
+      }
+    },
+    "renderer_second": {
+      "mode": "worker",
+      "kind": "renderer",
+      "pid": 17008,
+      "request_id": "a5c4c5d4c0d24eb890076310d80a4e33",
+      "request_number": 2,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "3f8f5b71a965cdedad8cd8615c20172e55235e85e2b23e81958e9c7bf096e45e",
+      "instrumented": false,
+      "statistics_cache": {
+        "enabled": true,
+        "version": 1,
+        "pid": 17008,
+        "runtime_source_sha256": "3f8f5b71a965cdedad8cd8615c20172e55235e85e2b23e81958e9c7bf096e45e",
+        "hits": 4,
+        "misses": 0,
+        "stores": 0,
+        "evictions": 0,
+        "bypassed": 0,
+        "invalid": 0,
+        "functions": {
+          "summary_input": {
+            "hits": 2
+          },
+          "summarise": {
+            "hits": 2
+          }
+        },
+        "entries": 3,
+        "serialized_bytes": 3784,
+        "max_entries": 64,
+        "max_bytes": 33554432,
+        "max_entry_bytes": 8388608
+      }
+    },
+    "compiler_first": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 17004,
+      "request_id": "cdf0cde671f7459abb0b84271b81f0dd",
+      "request_number": 4,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "compiler_second": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 17004,
+      "request_id": "833e9b67ad32418aa0b40f03b68a44e9",
+      "request_number": 5,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "closed": true
+  },
+  "work_dir": "/private/tmp/graphunslopify-numerical-cache-installed"
+}

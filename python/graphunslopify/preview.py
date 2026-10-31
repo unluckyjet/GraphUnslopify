@@ -41,6 +41,7 @@ class PreviewState:
         *,
         reuse_renderer: bool = False,
         reuse_translator: bool = False,
+        cache_statistics: bool = False,
         profile_driver: Path | None = None,
     ):
         self.root, self.max_upload = root.resolve(), max_upload
@@ -60,7 +61,9 @@ class PreviewState:
         if reuse_renderer:
             from .preview_worker import RenderWorker
 
-            self.worker = RenderWorker(self.root, profile_driver=profile_driver)
+            self.worker = RenderWorker(
+                self.root, profile_driver=profile_driver, cache_statistics=cache_statistics
+            )
 
     def close(self):
         try:
@@ -416,6 +419,7 @@ class PreviewServer(ThreadingHTTPServer):
         max_upload_mb: int = 100,
         reuse_renderer: bool = True,
         reuse_translator: bool = True,
+        cache_statistics: bool = True,
     ):
         self.temporary = tempfile.TemporaryDirectory(prefix="gu-preview-")
         self.state = PreviewState(
@@ -423,6 +427,7 @@ class PreviewServer(ThreadingHTTPServer):
             max_upload_mb * 1024 * 1024,
             reuse_renderer=reuse_renderer,
             reuse_translator=reuse_translator,
+            cache_statistics=cache_statistics and reuse_renderer,
         )
         super().__init__(("127.0.0.1", port), PreviewHandler)
 

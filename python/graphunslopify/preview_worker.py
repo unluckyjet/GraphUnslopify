@@ -83,7 +83,14 @@ def arguments(script: Path, stem: str):
 class RenderWorker:
     """Owned by a server; callers outside a server must close it explicitly."""
 
-    def __init__(self, root: Path, *, max_jobs: int = 16, profile_driver: Path | None = None):
+    def __init__(
+        self,
+        root: Path,
+        *,
+        max_jobs: int = 16,
+        profile_driver: Path | None = None,
+        cache_statistics: bool = False,
+    ):
         self.root = root.resolve()
         self.runs = self.root / "runs"
         self.runs.mkdir(parents=True, exist_ok=True)
@@ -103,6 +110,9 @@ class RenderWorker:
             "--max-jobs",
             str(max_jobs),
         ]
+        self.cache_statistics = cache_statistics
+        if cache_statistics:
+            command.append("--cache-statistics")
         if self.profile_driver is not None:
             command += [
                 "--profile-driver",
@@ -110,7 +120,13 @@ class RenderWorker:
                 "--profile-sha256",
                 _digest(self.profile_driver),
             ]
-        self.process = JsonWorker(command, self.root, kind="renderer", max_requests=max_jobs)
+        self.process = JsonWorker(
+            command,
+            self.root,
+            kind="renderer",
+            max_requests=max_jobs,
+            expected_ready={"statistics_cache": cache_statistics, "statistics_cache_version": 1},
+        )
         self.last_execution = None
         self.source_signature = _package_signature()
 
@@ -168,6 +184,17 @@ class RenderWorker:
             raise WorkerError("Worker script changed during execution")
         execution["runtime_source_sha256"] = self.source_signature
         execution["instrumented"] = profiled
+        cache = result.get("statistics_cache")
+        if (
+            not isinstance(cache, dict)
+            or cache.get("version") != 1
+            or cache.get("enabled") is not self.cache_statistics
+            or cache.get("pid") != execution["pid"]
+            or cache.get("runtime_source_sha256") != self.source_signature
+        ):
+            self.close()
+            raise WorkerError("Numerical cache completion identity changed")
+        execution["statistics_cache"] = cache
         self.last_execution = execution
         completed = subprocess.CompletedProcess(
             command, result["returncode"], result["stdout"], result["stderr"]
@@ -194,6 +221,7 @@ def main():
     parser.add_argument("--max-jobs", type=int, default=16)
     parser.add_argument("--profile-driver", type=Path)
     parser.add_argument("--profile-sha256")
+    parser.add_argument("--cache-statistics", action="store_true")
     config = parser.parse_args()
     if not 1 <= config.max_jobs <= 128:
         parser.error("Worker job bound must be between1 and128")
@@ -215,6 +243,10 @@ def main():
     import graphunslopify
 
     from . import preview_render
+    from .numerical_cache import ACTIVE, VERSION, NumericalCache
+
+    source_signature = _package_signature()
+    numerical = NumericalCache(source_signature) if config.cache_statistics else None
 
     matplotlib.use("Agg")
     baseline = {
@@ -239,7 +271,15 @@ def main():
         protocol_output.write(frame)
         protocol_output.flush()
 
-    send({"ready": True, "kind": "renderer", "pid": os.getpid()})
+    send(
+        {
+            "ready": True,
+            "kind": "renderer",
+            "pid": os.getpid(),
+            "statistics_cache": config.cache_statistics,
+            "statistics_cache_version": VERSION,
+        }
+    )
     for number in range(1, config.max_jobs + 1):
         raw = sys.stdin.buffer.readline(MAX_REQUEST + 1)
         if not raw:
@@ -270,6 +310,8 @@ def main():
                 raise WorkerError("No matching measurement driver is owned by this service")
             stdout, stderr = LimitedLog(), LimitedLog()
             code = 0
+            numerical_request = numerical.request() if numerical is not None else None
+            token = ACTIVE.set(numerical_request)
             try:
                 os.chdir(folder)
                 sys.argv = ["preview-worker", *arguments(script, payload["stem"])]
@@ -288,6 +330,7 @@ def main():
                     except SystemExit as end:
                         code = end.code if type(end.code) is int else 0 if end.code is None else 1
             finally:
+                ACTIVE.reset(token)
                 # Canonical data is untrusted; arbitrary Python is not a public API.
                 Figure.savefig = baseline["savefig"]
                 graphunslopify.inspect_figure = baseline["inspect"]
@@ -312,6 +355,14 @@ def main():
                         "returncode": code,
                         "stdout": stdout.getvalue(),
                         "stderr": stderr.getvalue(),
+                        "statistics_cache": numerical_request.trace()
+                        if numerical_request is not None
+                        else {
+                            "enabled": False,
+                            "version": VERSION,
+                            "pid": os.getpid(),
+                            "runtime_source_sha256": source_signature,
+                        },
                     },
                     "retire": number == config.max_jobs,
                 }

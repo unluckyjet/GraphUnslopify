@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import functools
 import json
-import runpy
 import sys
 import time
 from pathlib import Path
@@ -19,7 +18,6 @@ expected = options.profile_script.resolve()
 assert not options.timings.exists()
 exclusive, inclusive, calls, stack = {}, {}, {}, []
 last = start
-original_run_path = runpy.run_path
 
 
 def timed(label, function):
@@ -44,14 +42,23 @@ def timed(label, function):
     return wrapped
 
 
-def run_path(path, *args, **kwargs):
-    if Path(path).resolve() != expected or kwargs.get("run_name") != "__main__":
-        return original_run_path(path, *args, **kwargs)
-    exclusive["initialization_before_script"] = time.perf_counter() - start
-    began = time.perf_counter()
-    namespace = original_run_path(path, run_name="__preview_phase_probe__")
-    exclusive["script_module_initialization"] = time.perf_counter() - began
-    context = namespace["run_cli"].__globals__
+module_start = None
+old_save = old_inspect = None
+
+
+def observe(event, context):
+    global module_start, old_save, old_inspect
+    if event == "before_module":
+        if Path(context["__file__"]).resolve() != expected:
+            raise ValueError(
+                "Observed script differs from the declared profiling input"
+            )
+        exclusive["initialization_before_script"] = time.perf_counter() - start
+        module_start = time.perf_counter()
+        return
+    if event == "after_module":
+        exclusive["script_module_initialization"] = time.perf_counter() - module_start
+        return
     groups = {
         "main": "draw_and_other_main",
         "load": "data_read",
@@ -75,24 +82,24 @@ def run_path(path, *args, **kwargs):
     old_save, old_inspect = Figure.savefig, graphunslopify.inspect_figure
     Figure.savefig = timed("export_and_geometry", old_save)
     graphunslopify.inspect_figure = timed("inspection_and_projection", old_inspect)
-    try:
-        code = context["run_cli"](sys.argv[1:])
-    finally:
-        Figure.savefig, graphunslopify.inspect_figure = old_save, old_inspect
-    raise SystemExit(code)
 
 
-runpy.run_path = run_path
 sys.argv = ["preview-phase-probe", *native_args]
-try:
-    from graphunslopify import preview_render
+from graphunslopify import preview_render
 
+observer_token = preview_render.NAMESPACE_OBSERVER.set(observe)
+try:
     preview_render.main()
 finally:
-    runpy.run_path = original_run_path
+    preview_render.NAMESPACE_OBSERVER.reset(observer_token)
+    if old_save is not None:
+        import graphunslopify
+        from matplotlib.figure import Figure
+
+        Figure.savefig, graphunslopify.inspect_figure = old_save, old_inspect
     total = time.perf_counter() - start
     result = {
-        "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+        "scope": "Instrumented native preview_render namespace observer. Invokes original run_cli after inert module load and optional numerical hooks; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
         "total_instrumented_child_seconds": total,
         "exclusive_seconds": exclusive,
         "inclusive_seconds": inclusive,

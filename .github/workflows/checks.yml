@@ -37,8 +37,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install ruff
-      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/profile-preview-phases.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
-      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/profile-preview-phases.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
+      - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/benchmark-statistics-cache.py scripts/profile-preview-phases.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
+      - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/benchmark-statistics-cache.py scripts/profile-preview-phases.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
       - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf,tracking,excel]"
       - run: python -m pytest python/tests -q
       - run: python scripts/rendering-benchmark.py --smoke --executor compare --out-dir /tmp/gu-rendering-profile-${{ matrix.python }}
@@ -47,6 +47,14 @@ jobs:
         with:
           name: rendering-profile-${{ matrix.python }}
           path: /tmp/gu-rendering-profile-${{ matrix.python }}/**
+          if-no-files-found: ignore
+          retention-days: 7
+      - run: python scripts/benchmark-statistics-cache.py --smoke --out-dir /tmp/gu-numerical-cache-${{ matrix.python }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: numerical-cache-${{ matrix.python }}
+          path: /tmp/gu-numerical-cache-${{ matrix.python }}/**
           if-no-files-found: ignore
           retention-days: 7
 
@@ -224,7 +232,7 @@ jobs:
       - run: git diff --exit-code -- src/codegen/cell-colour-source.ts python/graphunslopify/_translator.mjs python/graphunslopify/diagnostics.json python/graphunslopify/ZOD-LICENSE.txt python/graphunslopify/schemas python/graphunslopify/examples python/LICENSE
       - run: python -m pip install build
       - run: python -m build python --outdir dist
-      - run: python scripts/install-smoke.py --work-dir "${{ runner.temp }}/gu-installed-check" --agent --pdf --excel --require-environment --require-comparison --require-workflow --tracking --require-editor-controls --require-render-worker --require-translator-worker --require-project --require-project-interface --require-diagnostics --require-pdf-visual
+      - run: python scripts/install-smoke.py --work-dir "${{ runner.temp }}/gu-installed-check" --agent --pdf --excel --require-environment --require-comparison --require-workflow --tracking --require-editor-controls --require-render-worker --require-translator-worker --require-statistics-cache --require-project --require-project-interface --require-diagnostics --require-pdf-visual
       - uses: actions/upload-artifact@v4
         with:
           name: distribution-${{ matrix.os }}-py${{ matrix.python }}

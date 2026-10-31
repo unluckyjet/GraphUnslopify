@@ -44,5 +44,6 @@ after the immutable PyPI0.8.0 release.
 
 
 Complete [spatial diagnostics and owned-layout acceptance](spatial-layout-acceptance.md)
-records milestone83, exact CI evidence and retained strict limits. Performance
-and review-workspace milestones84–89 remain open.
+records milestone83, exact CI evidence and retained strict limits. Measured worker milestone84 is accepted at179784f with exact main/Figure CI.
+[Numerical reuse85a](../../benchmarks/incremental/README.md) is under acceptance;
+staged preview85b and full review-workspace milestones86–89 remain open.

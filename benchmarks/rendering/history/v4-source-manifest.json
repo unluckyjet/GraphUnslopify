@@ -1,0 +1,13 @@
+{
+  "source_commit": "179784f0fa25b8954822a7e70dfb9f6522b50197",
+  "purpose": "Exact v4 evaluator/phase bytes retained before85; original source paths/revision remain the reproduction reference.",
+  "sha256": {
+    "scripts/rendering-benchmark.py": "692b6657217e2ece507dd8030776f5f72a1025465de9e55ddb42f505142721d6",
+    "scripts/profile-preview-phases.py": "a19905665ae1f0c72999456988c7b543802f5cf2c9649d367088bba96ca78c51",
+    "python/graphunslopify/preview.py": "68fcdb7220ebf2f7b2850577bb7a8fb9164a34d8f4ba2e09ff9bd979b5b6521c",
+    "python/graphunslopify/preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "python/graphunslopify/preview_worker.py": "39346f175e9c9800d1a779de7dc1cc4c5d6a7f00e626a6e9230ed6003de0ebc2",
+    "python/graphunslopify/worker_process.py": "2c19907b29f7b7f35048f0ba66b98642bf16bd55f2ed485c7f712d682076e3ee",
+    "python/graphunslopify/translator_worker.py": "951cbd7cd6d15b61c238fc0724d8c78c52ba096e2b0453c3a1463c748a5d7956"
+  }
+}

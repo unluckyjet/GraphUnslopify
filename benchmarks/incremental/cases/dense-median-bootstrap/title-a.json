@@ -1,0 +1,45 @@
+{
+  "kind": "line",
+  "data": {
+    "path": "data.csv",
+    "format": "csv",
+    "columns": [
+      "epoch",
+      "score",
+      "model",
+      "seed"
+    ]
+  },
+  "x": {
+    "field": "epoch",
+    "label": "Epoch"
+  },
+  "y": {
+    "field": "score",
+    "label": "Score"
+  },
+  "group": "model",
+  "series_order": [
+    "base",
+    "ours"
+  ],
+  "aggregation": "median",
+  "uncertainty": {
+    "kind": "ci",
+    "over": "seed",
+    "display": "band"
+  },
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column"
+  },
+  "title": "Synthetic repeated-unit responses (A)"
+}

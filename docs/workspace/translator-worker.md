@@ -29,7 +29,7 @@ is a canonical local transport, not an arbitrary-code sandbox or network service
 
 Foundation e525808 passed exact main41158916220 all nine/Figure41158916126 before
 integration. Local integrated controls and full acceptance are tracked in
-[84](../../pipeline/specs/84-measured-rendering-overhead.md). Run scientific Python
+[84](../../pipeline/done/84-measured-rendering-overhead.md). Run scientific Python
 pytest on test_preview_translator.py, test_preview_drafts.py,
 test_translator_worker.py and test_preview_worker.py for lifecycle, consent,
 concurrency/current traces, strict negatives, framing and source controls.

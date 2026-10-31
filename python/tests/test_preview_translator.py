@@ -59,8 +59,17 @@ def test_current_compiler_trace_strict_negative_recovery_and_shutdown(tmp_path):
         state.local_request("info")
 
 
-def test_concurrent_editor_replies_keep_their_own_compiler_trace(tmp_path, monkeypatch):
-    state = PreviewState(tmp_path, 1000000, reuse_renderer=True, reuse_translator=True)
+@pytest.mark.parametrize("cache_statistics", [False, True])
+def test_concurrent_editor_replies_keep_their_own_compiler_trace(
+    tmp_path, monkeypatch, cache_statistics
+):
+    state = PreviewState(
+        tmp_path,
+        1000000,
+        reuse_renderer=True,
+        reuse_translator=True,
+        cache_statistics=cache_statistics,
+    )
     original = state._compiler_request
     barrier = threading.Barrier(2)
     traces = {}

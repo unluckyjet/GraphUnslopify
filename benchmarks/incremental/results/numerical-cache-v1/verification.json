@@ -1,0 +1,119 @@
+{
+  "scope": "85a bounded numerical reuse only;85b and86\u201389 remain open",
+  "source_base": "179784f0fa25b8954822a7e70dfb9f6522b50197",
+  "source_git_dirty": true,
+  "local_checks": {
+    "seven": true,
+    "stable_files": 361,
+    "node_tests": 232,
+    "python_tests": 1887,
+    "python_skipped": 0,
+    "python_upstream_warnings": 1,
+    "ruff_files": 149
+  },
+  "focused_controls": {
+    "source": 54,
+    "minimum_python310": 86,
+    "fresh_installed_python312": 86
+  },
+  "formal": {
+    "records": 510,
+    "clean_exit0": 408,
+    "original_false_claim_exit2": 102,
+    "cycles_per_edit": 7,
+    "edits_per_case": 7,
+    "original_cases": 5,
+    "native_epochs_per_arm_case": 4,
+    "full_sources_and_outputs_match": true
+  },
+  "minimum_and_fresh_smoke": {
+    "records_each": 90,
+    "clean_exit0_each": 72,
+    "original_false_claim_exit2_each": 18,
+    "actual_matching_assets_each": 13
+  },
+  "actual_native_kinds": {
+    "environments": [
+      "source",
+      "minimum",
+      "installed"
+    ],
+    "kinds_each": 21,
+    "pairs_each": 30,
+    "renders_each": 60,
+    "matching_assets_each": 12,
+    "fixture_source": "accepted84c2 recipe log; unchanged translator775390f1; current recipe-check independently passes25"
+  },
+  "gui": {
+    "source": {
+      "workflows": 101,
+      "native_responses": 91,
+      "compiler_responses": 91,
+      "external_requests": 0,
+      "javascript_errors": 0
+    },
+    "fresh_installed": {
+      "workflows": 101,
+      "native_responses": 91,
+      "compiler_responses": 91,
+      "external_requests": 0,
+      "javascript_errors": 0
+    }
+  },
+  "installed": {
+    "python_and_bundle_assets": 39,
+    "plus_diagnostics_and_license": 41,
+    "actual_http_second_hits": 4,
+    "actual_http_second_misses": 0,
+    "workers_closed": true,
+    "pypi_release": false
+  },
+  "limits": "64 entries/32MiB serialized values/8MiB individual keys-values; not RSS; known useful helpers only",
+  "ci": "Not yet pushed/accepted for new85a commit",
+  "evidence": {
+    "formal-comparison.json": {
+      "sha256": "73dda17092f15393a08ab6ffd72525674fe84981679a0f980ac3b7342b852ecf",
+      "bytes": 1914402
+    },
+    "initial-formal-comparison.json": {
+      "sha256": "85815f5bb2b6bf0bf561d9987fa09111eae02477051fd840921eea1513e6f4e7",
+      "bytes": 1914423
+    },
+    "minimum-smoke.json": {
+      "sha256": "488f2918dd6f8afb8a9ab87b4481afb4b8a2823d5a1371d46c302c60ea0a1a37",
+      "bytes": 799233
+    },
+    "installed-comparison-smoke.json": {
+      "sha256": "5ed3666ec8e1d95157f53e039ea82d31db6785ddeae5b630b1c9f5285f373172",
+      "bytes": 799462
+    },
+    "source-kindchecks.json": {
+      "sha256": "444d76f8f1d6bbcfe03eb3caaee7813e6b7cd7e97847c334ae5d63d00bf3ec94",
+      "bytes": 51381
+    },
+    "minimum-kindchecks.json": {
+      "sha256": "c5f0bd35903a9c0acf6e71eb860e06e810b3091515d87ca92633b8cc2951dc6d",
+      "bytes": 51377
+    },
+    "installed-kindchecks.json": {
+      "sha256": "39e25a10400f8cdbe4a991b9034d6246d10e01152831337c5a01c3b1bd0993ad",
+      "bytes": 51431
+    },
+    "source-editor.json": {
+      "sha256": "a60b9914855a9c3007dc8d285b016d2ee04bceae8fbc5428fc772e0d9009d32f",
+      "bytes": 147145
+    },
+    "installed-editor.json": {
+      "sha256": "886b7612c6ecab524b45b4df52b0f6d6894aa210613655951163035345d51e6b",
+      "bytes": 147145
+    },
+    "installed-smoke.json": {
+      "sha256": "12f0d83ca37c0edb92f876dfda761e63012ecb1be5172a2cd0da34180db15782",
+      "bytes": 9204
+    },
+    "installed-source-binding.json": {
+      "sha256": "e8c1ce2003a87d546d5f847bbddacc8c0d1ca70e757681968bb34142cd6efe63",
+      "bytes": 4041
+    }
+  }
+}

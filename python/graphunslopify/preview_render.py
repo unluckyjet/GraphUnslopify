@@ -6,11 +6,32 @@ import argparse
 import json
 import runpy
 import sys
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
+from .numerical_cache import ACTIVE
 from .preview_diagnostics import DiagnosticSnapshot
 from .preview_geometry import capture_png_geometry
+
+NAMESPACE_OBSERVER: ContextVar = ContextVar("graphunslopify_namespace_observer", default=None)
+
+
+def _execute(script):
+    cache, observer = ACTIVE.get(), NAMESPACE_OBSERVER.get()
+    if cache is None and observer is None:
+        return runpy.run_path(str(script), run_name="__main__")
+    if observer is not None:
+        observer("before_module", {"__file__": str(script)})
+    namespace = runpy.run_path(str(script), run_name="__preview_runtime__")
+    context = namespace["run_cli"].__globals__
+    if observer is not None:
+        observer("after_module", context)
+    if cache is not None:
+        cache.install(context)
+    if observer is not None:
+        observer("ready", context)
+    raise SystemExit(context["run_cli"](sys.argv[1:]))
 
 
 def main() -> None:
@@ -63,7 +84,7 @@ def main() -> None:
         graphunslopify.inspect_figure = inspect
     sys.argv = [str(args.script), *args.arguments]
     try:
-        runpy.run_path(str(args.script), run_name="__main__")
+        _execute(args.script)
     finally:
         Figure.savefig = original
         graphunslopify.inspect_figure = original_inspect

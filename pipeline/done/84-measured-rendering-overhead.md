@@ -1,7 +1,7 @@
 ---
 id: 84
 slug: measured-rendering-overhead
-status: in_progress
+status: done
 priority: P1
 title: Measure rendering costs and safely reuse beneficial local workers
 source_idea: User visual-workspace advice profile before persistent rendering and translation
@@ -81,5 +81,8 @@ fresh helper performs60 real paired native renders/21 kinds, including original
 strict false claim and GIF/JSON/Parquet controls. Actual38 installed Python/bundle
 assets match. All seven gates232/1860, zero skips/one upstream warning, Ruff145
 pass on314 unchanged source/test/fixture files. See results/combined-workers-v4/.
-New push/exact all-nine/Figure acceptance is next. Full84 remains in progress
-until that acceptance;85–89 retain full scope. No release is published here.
+179784f exact main41163254722 all nine/Figure41163254777 completed success; final
+metadata/all ten named checks verified2026-10-31 03:38UTC. Current downloaded
+CI native21-kind/editor101/NIST72 archives and actual Windows both-worker
+reuse/close traces are verified. Full84 is complete;85–89 retain full scope.
+No release is published here.

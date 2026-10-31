@@ -1,0 +1,516 @@
+"""Measure the real editor engine against a prospectively frozen workload."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import platform
+import re
+import statistics
+import subprocess
+import sys
+import time
+from contextlib import contextmanager
+from pathlib import Path
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def protocol():
+    base = ROOT / "benchmarks/rendering"
+    path = base / "protocol.json"
+    value = json.loads(path.read_text())
+    for case in value["cases"]:
+        for kind in ["spec", "data"]:
+            source = (base / case[kind]).resolve()
+            if (
+                not source.is_relative_to(base.resolve())
+                or digest(source) != case[f"{kind}_sha256"]
+            ):
+                raise ValueError(f"Frozen {kind} changed: {case['id']}")
+    return base, path, value
+
+
+@contextmanager
+def font_directory(path):
+    with patch.dict(os.environ, {"MPLCONFIGDIR": str(path), "MPLBACKEND": "Agg"}):
+        yield
+
+
+def artifacts(state, answer):
+    from PIL import Image
+
+    record = state.runs[answer["run_id"]]
+    pixels, text = None, {}
+    exported = set()
+    files = {}
+    for name, source in record["files"].items():
+        if source.suffix[1:] in {"png", "svg", "pdf"}:
+            exported.add(source.suffix[1:])
+            files[name] = digest(source)
+        if source.suffix == ".png":
+            with Image.open(source) as image:
+                rgba = image.convert("RGBA")
+                pixels = {
+                    "size": list(rgba.size),
+                    "rgba_sha256": hashlib.sha256(rgba.tobytes()).hexdigest(),
+                }
+    for suffix in ["md", "tex"]:
+        p = record["folder"] / f"{answer['spec']['output']['stem']}.{suffix}"
+        if p.exists():
+            text[suffix] = digest(p)
+    return {
+        "png": pixels,
+        "table_text": text,
+        "formats": sorted(exported),
+        "file_hashes": files,
+    }
+
+
+def semantic(report):
+    fields = [
+        "schema_version",
+        "spec_hash",
+        "spec",
+        "status",
+        "ok",
+        "data",
+        "findings",
+        "inspection",
+        "panels",
+        "claims",
+        "significance",
+        "annotations",
+        "untested",
+        "alt_text",
+        "policy",
+        "exit_code",
+        "script",
+    ]
+    return {key: report.get(key) for key in fields}
+
+
+def percentile90(values):
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * 0.9
+    low = int(position)
+    return ordered[low] + (ordered[min(low + 1, len(ordered) - 1)] - ordered[low]) * (
+        position - low
+    )
+
+
+def run_case(case, executor, base, out, rules, repetitions, result, preview):
+    folder = out / case["id"] / executor
+    folder.mkdir(parents=True)
+    native_worker = executor != "process"
+    setup_start = time.perf_counter()
+    state = preview.PreviewState(
+        folder,
+        100 * 1024 * 1024,
+        reuse_renderer=native_worker,
+        reuse_translator=executor == "combined-worker",
+        profile_driver=ROOT / "scripts/profile-preview-phases.py"
+        if native_worker
+        else None,
+    )
+    setup_seconds = time.perf_counter() - setup_start
+    original_request = state._compiler_request
+    original_run = state._run_generated
+    try:
+        raw = (base / case["data"]).read_bytes()
+        input_spec = json.loads((base / case["spec"]).read_text())
+        upload_start = time.perf_counter()
+        upload = state.upload("data.csv", raw)
+        upload_seconds = time.perf_counter() - upload_start
+        case_result = {
+            "id": case["id"],
+            "executor": executor,
+            "expected_exit_code": case["expected_exit_code"],
+            "expected_status": case["expected_status"],
+            "upload_seconds": upload_seconds,
+            "session_constructor_seconds": setup_seconds,
+            "records": [],
+        }
+        result["cases"].append(case_result)
+        reference = None
+        for generation in range(repetitions + 2):
+            instrumented = generation == repetitions + 1
+            counters = {
+                "translation_calls": 0,
+                "translation_seconds": 0.0,
+                "renderer_calls": 0,
+                "renderer_seconds": 0.0,
+            }
+            phase_path = None
+
+            def request(operation, payload=None, _counters=counters):
+                start = time.perf_counter()
+                try:
+                    return original_request(operation, payload)
+                finally:
+                    _counters["translation_calls"] += 1
+                    _counters["translation_seconds"] += time.perf_counter() - start
+
+            def run(
+                command,
+                run_folder,
+                timeout,
+                _counters=counters,
+                _instrumented=instrumented,
+            ):
+                nonlocal phase_path
+                if _instrumented:
+                    native = command[3:]
+                    program = next(
+                        Path(item)
+                        for item in native
+                        if item.endswith(".py") and Path(item).is_absolute()
+                    )
+                    phase_path = run_folder / "phase-timings.json"
+                    prefix, separator, _ = command[2].partition("import runpy;")
+                    if not separator:
+                        raise ValueError(
+                            "Native isolation bootstrap changed; review the instrumented executor"
+                        )
+                    bootstrap = (
+                        prefix
+                        + f'import runpy; runpy.run_path({str(ROOT / "scripts/profile-preview-phases.py")!r},run_name="__main__")'
+                    )
+                    command = [
+                        *command[:2],
+                        bootstrap,
+                        "--timings",
+                        str(phase_path),
+                        "--profile-script",
+                        str(program),
+                        *native,
+                    ]
+                start = time.perf_counter()
+                try:
+                    return original_run(command, run_folder, timeout)
+                finally:
+                    _counters["renderer_calls"] += 1
+                    _counters["renderer_seconds"] += time.perf_counter() - start
+
+            entry = {
+                "generation": generation,
+                "phase": "instrumented-warm-font"
+                if instrumented
+                else "first-fresh-font"
+                if generation == 0
+                else "ordinary-warm-font",
+                "passed": False,
+            }
+            case_result["records"].append(entry)
+            try:
+                with (
+                    font_directory(folder / "font-cache"),
+                    patch.object(state, "_compiler_request", request),
+                    patch.object(state, "_run_generated", run),
+                ):
+                    start = time.perf_counter()
+                    answer = state.render(
+                        {
+                            "client": case["id"],
+                            "generation": generation,
+                            "data_id": upload["id"],
+                            "spec": input_spec,
+                        }
+                    )
+                    entry["engine_seconds"] = time.perf_counter() - start
+                entry["translation"] = answer["translation"]
+                report = answer["report"]
+                if report is None or answer["run_id"] is None:
+                    raise ValueError("Canonical compiler produced no runnable figure")
+                evidence = artifacts(state, answer)
+                if (
+                    answer["stale"]
+                    or answer["exit_code"] != case["expected_exit_code"]
+                    or report["status"] != case["expected_status"]
+                ):
+                    raise ValueError(
+                        "Actual strict outcome differs from frozen expectation"
+                    )
+                if (
+                    not report["policy"]["strict"]
+                    or answer["export_errors"]
+                    or evidence["formats"] != sorted(rules["formats"])
+                ):
+                    raise ValueError(
+                        "Strict policy or actual requested exports changed"
+                    )
+                if (
+                    report["data"]["sha256_prefix"] != case["data_sha256"][:16]
+                    or digest(state.uploads[upload["id"]]["path"])
+                    != case["data_sha256"]
+                ):
+                    raise ValueError("Actual source bytes/digest changed")
+                for key in ["edit_map", "diagnostic_map"]:
+                    location = answer[key]
+                    if (
+                        not location["available"]
+                        or location["run_id"] != answer["run_id"]
+                        or location["spec_hash"] != report["spec_hash"]
+                    ):
+                        raise ValueError(f"Current {key} ownership unavailable")
+                current = {
+                    "semantic_report": semantic(report),
+                    "script_sha256": digest(
+                        state.runs[answer["run_id"]]["folder"]
+                        / f"{answer['spec']['output']['stem']}.py"
+                    ),
+                    "png": evidence["png"],
+                    "table_text": evidence["table_text"],
+                }
+                if reference is None:
+                    reference = current
+                    case_result["reference"] = current
+                elif current != reference:
+                    raise ValueError(
+                        "Original semantic report, PNG pixels or table text changed across repetitions"
+                    )
+                if (
+                    counters["translation_calls"] != 1
+                    or counters["renderer_calls"] != 1
+                ):
+                    raise ValueError(
+                        "Expected actual one-conversion/one-render sequence changed"
+                    )
+                execution = answer.get("execution", {})
+                if execution.get("mode") != ("worker" if native_worker else "process"):
+                    raise ValueError("Measured executor did not actually run")
+                if native_worker and (
+                    type(execution.get("pid")) is not int
+                    or execution.get("request_number") != generation + 1
+                ):
+                    raise ValueError("Worker lifecycle/response identity changed")
+                entry["execution"] = execution
+                compiler = answer.get("translation_execution", {})
+                expected_compiler = (
+                    "worker" if executor == "combined-worker" else "process"
+                )
+                if compiler.get("mode") != expected_compiler:
+                    raise ValueError("Declared compiler backend did not actually run")
+                if executor == "combined-worker" and (
+                    compiler.get("kind") != "translator"
+                    or type(compiler.get("pid")) is not int
+                    or compiler.get("request_number") != generation + 1
+                    or not re.fullmatch(r"[0-9a-f]{32}", compiler.get("request_id", ""))
+                    or compiler.get("runtime_source_sha256")
+                    != digest(Path(preview.__file__).parent / "_translator.mjs")
+                ):
+                    raise ValueError(
+                        "Compiler lifecycle/source/response identity changed"
+                    )
+                entry["translation_execution"] = compiler
+                entry.update(
+                    passed=True,
+                    exit_code=answer["exit_code"],
+                    status=report["status"],
+                    run_id=answer["run_id"],
+                    counters=counters,
+                    artifact_hashes=evidence["file_hashes"],
+                )
+                entry["prepare_and_post_seconds"] = (
+                    entry["engine_seconds"]
+                    - counters["translation_seconds"]
+                    - counters["renderer_seconds"]
+                )
+                if instrumented:
+                    entry["instrumented_phases"] = json.loads(phase_path.read_text())
+            except Exception as problem:  # noqa: BLE001 -- retain every actual failed run
+                entry["error"] = f"{type(problem).__name__}: {problem}"
+            (out / "results.json").write_text(
+                json.dumps(result, indent=2, allow_nan=False) + "\n"
+            )
+        warm = [
+            r["engine_seconds"]
+            for r in case_result["records"]
+            if r["phase"] == "ordinary-warm-font" and r["passed"]
+        ]
+        case_result["summary"] = {
+            "expected_warm_runs": repetitions,
+            "accepted_warm_runs": len(warm),
+            "median_engine_seconds": statistics.median(warm) if warm else None,
+            "p90_engine_seconds_linear": percentile90(warm) if warm else None,
+            "all_runs_match_original_semantics_and_png": all(
+                r["passed"] for r in case_result["records"]
+            ),
+        }
+        print(case["id"], executor, json.dumps(case_result["summary"]), flush=True)
+    finally:
+        state.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="One warm repetition per case; conformance smoke, not the formal seven-repeat baseline",
+    )
+    parser.add_argument(
+        "--installed",
+        action="store_true",
+        help="Use the selected interpreter's installed package and require actual source-asset matches",
+    )
+    parser.add_argument(
+        "--executor",
+        choices=["process", "worker", "combined-worker", "compare"],
+        default="process",
+    )
+    args = parser.parse_args()
+    base, protocol_path, rules = protocol()
+    out = args.out_dir.resolve()
+    out.mkdir(parents=True, exist_ok=False)
+    if not args.installed:
+        sys.path.insert(0, str(ROOT / "python"))
+    from importlib.metadata import version
+
+    from graphunslopify import preview
+
+    package_root = Path(preview.__file__).resolve().parent
+    selected_assets = [
+        "preview.py",
+        "preview_render.py",
+        "preview_geometry.py",
+        "preview_diagnostics.py",
+        "audit.py",
+        "worker_process.py",
+        "preview_worker.py",
+        "translator_worker.py",
+        "transport.py",
+        "drafts.py",
+        "preview_drafts.py",
+        "_translator.mjs",
+    ]
+    if args.installed and package_root == (ROOT / "python/graphunslopify").resolve():
+        raise ValueError(
+            "--installed resolved to source; use a genuine fresh environment"
+        )
+    package_matches = all(
+        digest(package_root / name) == digest(ROOT / "python/graphunslopify" / name)
+        for name in selected_assets
+    )
+    if not package_matches:
+        raise ValueError(
+            "Invoked package assets differ from this source; version strings are insufficient"
+        )
+    repetitions = 1 if args.smoke else rules["schedule"]["warm_repetitions"]
+    source_commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+    ).strip()
+    result = {
+        "schema_version": 3,
+        "protocol_sha256": digest(protocol_path),
+        "mode": "conformance-smoke"
+        if args.smoke
+        else "formal-three-arm-worker-comparison"
+        if args.executor == "compare"
+        else "formal-" + args.executor + "-baseline",
+        "executor": "actual PreviewState.render; literal v4 backend selection="
+        + args.executor,
+        "scope": rules["scope"],
+        "source_commit": source_commit,
+        "source_git_dirty": bool(
+            subprocess.check_output(
+                ["git", "status", "--porcelain"], cwd=ROOT, text=True
+            ).strip()
+        ),
+        "package_mode": "installed" if args.installed else "source",
+        "package_root": str(package_root),
+        "invoked_package_matches_source": package_matches,
+        "invoked_package_files": {
+            name: digest(package_root / name) for name in selected_assets
+        },
+        "sources": {
+            str(p.relative_to(ROOT)): digest(p)
+            for p in [
+                Path(__file__),
+                ROOT / "scripts/profile-preview-phases.py",
+                ROOT / "python/graphunslopify/preview.py",
+                ROOT / "python/graphunslopify/preview_render.py",
+                ROOT / "python/graphunslopify/_translator.mjs",
+            ]
+        },
+        "environment": {
+            "python": sys.version,
+            "executable": sys.executable,
+            "platform": platform.platform(),
+            "dependencies": {
+                name: version(name)
+                for name in [
+                    "numpy",
+                    "pandas",
+                    "matplotlib",
+                    "pillow",
+                    "graphunslopify",
+                ]
+            },
+        },
+        "warm_repetitions": repetitions,
+        "cases": [],
+        "complete": False,
+        "expected_records": len(rules["cases"])
+        * (repetitions + 2)
+        * (3 if args.executor == "compare" else 1),
+        "passed": False,
+    }
+    result["comparison"] = []
+    for index, case in enumerate(rules["cases"]):
+        arms = ["process", "worker", "combined-worker"]
+        offset = index % len(arms)
+        order = (
+            arms[offset:] + arms[:offset]
+            if args.executor == "compare"
+            else [args.executor]
+        )
+        for executor in order:
+            run_case(case, executor, base, out, rules, repetitions, result, preview)
+        if args.executor == "compare":
+            pair = {c["executor"]: c for c in result["cases"] if c["id"] == case["id"]}
+            matches = all(
+                pair["process"].get("reference") == item.get("reference")
+                for item in pair.values()
+            )
+            medians = {
+                key: item["summary"]["median_engine_seconds"]
+                for key, item in pair.items()
+            }
+            result["comparison"].append(
+                {
+                    "case": case["id"],
+                    "order": order,
+                    "same_original_semantic_report_png_and_table_text": matches,
+                    "median_engine_seconds": medians,
+                }
+            )
+    result["complete"] = True
+    result["observed_records"] = sum(len(c["records"]) for c in result["cases"])
+    result["passed"] = all(
+        c["summary"]["all_runs_match_original_semantics_and_png"]
+        for c in result["cases"]
+    )
+    result["passed"] = result["passed"] and all(
+        c["same_original_semantic_report_png_and_table_text"]
+        for c in result["comparison"]
+    )
+    result["passed"] = (
+        result["passed"] and result["observed_records"] == result["expected_records"]
+    )
+    (out / "results.json").write_text(
+        json.dumps(result, indent=2, allow_nan=False) + "\n"
+    )
+    return 0 if result["passed"] else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

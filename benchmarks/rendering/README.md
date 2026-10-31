@@ -1,7 +1,7 @@
 # Rendering-engine measurements
 
-The local editor now reuses a private Python renderer. This workload compares its
-actual `PreviewState.render` engine with the original fresh-process path, using
+The local editor now reuses private compiler and Python renderer workers. This
+workload compares its actual `PreviewState.render` engine across three modes, using
 the same inputs, strict checks and exports. It measures local engine costs;
 browser/application startup, human productivity and blind visual quality are
 outside its scope. Public PyPI0.8.0 predates these source changes.
@@ -16,17 +16,18 @@ python scripts/rendering-benchmark.py --executor compare --out-dir /absolute/new
 python scripts/rendering-benchmark.py --smoke --executor compare --out-dir /absolute/another-new-directory
 ```
 
-The paired formal run has90 records: five cases × two backends × one first request
-with a fresh owned font cache, seven ordinary warm iterations and one separately
-instrumented warm request. Case order alternates which backend runs first. The
-smoke has30 records and tests conformance; its timings are not pooled into formal
-results. `--executor process` or `worker` measures one backend (45 formal or15
-smoke records). Output directories must be new. All outcomes and raw per-run
-artifacts stay in that directory, including strict failed-claim review exports.
+The literal v4 formal run has135 records: five unchanged cases × three backends
+× one first request with a fresh owned font cache, seven ordinary warm iterations
+and one separately instrumented request. Rotate process/worker/combined-worker
+blocks by case index. **worker retains v3 meaning:** one-shot compiler plus warm
+native renderer. combined-worker warms both; process keeps both original fresh
+paths. Smoke has45 conformance records; its timings never enter formal medians.
+A named single arm has45 formal/15 smoke records. Output directories must be new.
+All failed/negative outcomes and raw artifacts remain, including review exports.
 
 Ordinary controller time includes prepare, one local conversion, native dispatch
 and strict report/export/geometry binding. Worker readiness/IPC/cleanup belongs to
-that clock. Upload is measured separately. Artifact hashing, harness/browser/HTTP
+that clock. Upload and session constructor/setup are measured separately. Artifact hashing, harness/browser/HTTP
 and application startup are excluded. First font discovery, warm font cache and
 warm interpreter are distinct conditions; OS/page caches are uncontrolled.
 
@@ -35,6 +36,32 @@ hooks, with nested-aware exclusive costs. Inclusive timings overlap and cannot
 be summed. Instrumented requests never enter ordinary medians. There are no CI
 latency thresholds. Developer-selected cases were informed by exploration and
 are not held out.
+
+## Current working-tree v4 comparison2026-10-30
+
+[All135 actual outcomes](results/combined-workers-v4/formal-comparison.json) pass:
+108 clean exit0/27 original false-claim exit2, matching original generated script
+bytes, semantic/spec/data/PNG/table and current-map controls. This measured dirty
+working tree is based on accepted e525808; actual12 package assets and evaluator
+hashes accompany it. Do not describe it as a clean final commit or public release.
+
+| Case | Process | Python worker | Both workers |
+| --- | ---: | ---: | ---: |
+| demo-bootstrap |0.575192s|0.252245s|0.196771s|
+| long-sparkline |0.658729s|0.329772s|0.275982s|
+| long-grouped-table |0.524548s|0.196249s|0.142189s|
+| dense-median-bootstrap |1.453129s|1.125722s|1.059998s|
+| false-comparison |0.586971s|0.256757s|0.198936s|
+
+These are seven ordinary warm-render medians per case/arm on the recorded
+Python3.12.14/Matplotlib3.11.2/macOS ARM64 host. First-font requests still take
+6.721–7.779s. Constructors are recorded separately: process44–54µs, native
+1.11–2.12ms, combined1.58–2.06ms. The workload is developer-selected and OS caches
+uncontrolled. It establishes no human, general or first-start advantage.
+[Initial45 conformance](results/combined-workers-v4/initial-smoke.json) remains
+separate. Source101 browser workflows observe91 actual native and91 compiler
+replies,21 selected control types and zero JS/external requests; these are actual
+response counts, distinct from actual21-kind paired native coverage. Full local source/minimum/fresh acceptance and all seven gates now pass:232 Node/1860 Python, zero skips/one existing upstream warning, Ruff145 and314 unchanged source/test/fixture files. [Verification](results/combined-workers-v4/verification.json) binds source/minimum/fresh59 controls each, source/fresh101 workflows/91 replies per worker and actual21-kind60-render controls per environment. New exact CI remains required before the next implementation.
 
 ## Initial source comparison57d9b9e,2026-10-30
 
@@ -61,19 +88,19 @@ has separate clocks and is not substituted for the paired process arm.
 
 ## Runtime and conformance boundaries
 
-`PreviewServer` owns the lazy renderer. Direct internal `PreviewState` defaults
+`PreviewServer` owns both lazy workers. Direct internal `PreviewState` defaults
 retain process mode for reference checks. The private binary JSON service
 serializes owned requests, checks script/runtime identity, includes startup in
 deadlines, bounds frames/logs and recycles after16 jobs. It runs each canonical
 program through the original strict `preview_render.main` with fresh globals;
 known figure/rcParams/path/environment/argument/warning/RNG state is restored.
 Timeouts/crashes/protocol failures cannot publish scientific acceptance. Closing
-the server joins request threads, kills its worker and removes session files.
+the server joins request threads, closes both workers and removes session files.
 This is a canonical-render boundary, not an arbitrary-Python security sandbox.
 
 For a genuine matching local wheel, run its interpreter with `--installed`. That
-mode rejects source imports and verifies eight actual package assets; matching
-the version string alone is insufficient. CI runs the paired30-record smoke on
+mode rejects source imports and verifies twelve actual package assets; matching
+the version string alone is insufficient. CI runs the three-arm45-record smoke on
 Python3.10 and3.12 and retains complete artifacts.
 
 `scripts/check-render-worker.py` provides separate actual21-kind coverage. Run
@@ -86,16 +113,13 @@ python scripts/check-render-worker.py --recipe-log /absolute/recipe-check.log --
 
 It requires scientific dependencies including the statistics and Parquet extras.25 real recipes
 cover19 kinds; added native violin/table reach21. With the original strict false
-claim and JSON/Parquet transitions, it compares30 cases/60 actual native renders,
+claim and JSON/Parquet transitions, it compares fresh processes against both workers for30 cases/60 actual native renders,
 requests PNG/SVG/PDF, checks scientific/PNG/table identity and animation frame
-pixels/durations/loop. Entire SVG/PDF binary identity is not asserted. Source
-[kind conformance](results/worker-kinds-source.json) and [editor evidence](results/worker-editor-source.json)
-retain different denominators:101 workflows,21 control types and90 observed
-worker responses. Selecting a kind's controls does not prove it rendered.
+pixels/durations/loop. Entire SVG/PDF binary identity is not asserted. Historical native-only [kind conformance](results/worker-kinds-source.json) and [editor evidence](results/worker-editor-source.json) retain their original denominators. Current combined-worker source/minimum/installed records are under results/combined-workers-v4/; each has30 cases/60 native renders/21 actual kinds. Current source/fresh editor counts are101 workflows,21 control types and91 replies per worker. Selecting a kind's controls does not prove it rendered.
 
 ## Frozen protocol and retained history
 
-[Current v3](protocol.json) pins the public24-row demo, original long child/table
+[Retained literal v3](protocol-v3.json) pins the public24-row demo, original long child/table
 inputs,20000-row synthetic median/seed-bootstrap stress and the original-data
 false claim. [The v3 amendment](history/amendment-v3.json) adds actual backend
 binding/counterbalanced blocks and the native dispatch seam while preserving
@@ -176,16 +200,13 @@ and Figure41154926926 completed success; final metadata/ten named checks verifie
 downloaded native-kind/editor/certified and both actual30-record Python smoke
 archives under that folder. Original failed-source evidence remains unchanged.
 
-The next [compiler transport foundation](../../docs/workspace/translator-worker.md)
-is separate from editor integration. It preserves one-shot dispatch and the
-existing literal v3 workload; its converter tests do not render or verify data.
-The editor still uses one-shot translation. A prospective new full-engine protocol
-and integration are required before claiming combined-worker performance.
-
-
-Compiler transport foundation local acceptance:16 compiler+24 native controls
-pass in each source/minimum/fresh context; seven gates232/1856/Ruff144 pass on309
-unchanged files. [Actual verification](results/translator-worker-foundation/verification.json)
-and [installed trace](results/translator-worker-foundation/installed-smoke.json)
-retain identity/reuse/recycle/close evidence. This does not activate GUI compiler
-reuse or replace the retained v3 timing results; new exact CI is still required.
+The [compiler transport foundation](../../docs/workspace/translator-worker.md)
+e525808 passed exact main41158916220 all nine/Figure41158916126 before editor
+integration. Its16 compiler+24 native controls pass source/minimum/fresh, with
+seven gates232/1856/Ruff144 on309 unchanged files. Actual Windows confirms
+same-PID requests1/2, max2 recycle and shutdown. [Acceptance](results/translator-worker-foundation/ci-acceptance.json)
+and original verification/installed traces remain. Current84c2 connects the editor
+and drafts, returns per-call compiler traces and closes both workers. The
+standalone converter tests alone do not render or verify observations. v3 timing
+results retain their original meaning; v4 is a separate comparison. Full84
+acceptance and85–89 remain open; this publishes no release.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "id": "render-engine-v3",
-  "scope": "Prospective engine latency/phase and worker-conformance workload. Not browser/app-startup or human authoring time, blind quality, independent research evaluation or a speed claim. Three small exploratory fixtures informed selection; this is not held-out evaluation. Frozen before this formal baseline, before any worker implementation. v1 failed its preflight intent: one case included an invalid empty optional claims array; v2 omits that property and preserves all data/statistics/outcome gates. Prior protocol, inputs, executor and all45 attempted outcomes remain. v3 retains every v2 case/input/outcome/primary clock and adds explicit native dispatch/worker execution metadata and paired executor collection; preliminary warm-library and30-request smoke results informed this engineering implementation, not held-out selection.",
+  "id": "render-engine-v4",
+  "scope": "Prospective three-arm engineering comparison frozen after accepted compiler foundation, before editor integration/formal v4 timing. Retains all five exact v3 inputs, strict outcomes, exports, outer render clock and seven ordinary warm repeats. Earlier experiments informed this developer-selected workload; not held-out or independent/human evaluation. Original v1/v2/v3 protocols, failures, evaluator and vectors remain. No timing threshold or promised improvement.",
   "formats": [
     "png",
     "svg",
@@ -63,16 +63,16 @@
     "first_request": "fresh owned font/config directory per case; record separately, do not pool with warm fonts",
     "warm_repetitions": 7,
     "instrumented_requests": 1,
-    "order": "listed case order; compare mode alternates process-first/worker-first by case index, each in an independent fresh owned font directory. Each block: one cold-font ordinary request, seven ordinary warm-font requests, one separate instrumented warm request",
-    "future_worker_order": "counterbalance one-shot/worker blocks per case with independent equivalent initially fresh owned font/config directories; preserve first startup separately",
+    "order": "Listed cases; rotate process/worker/combined-worker blocks by case index, each with independent initially fresh owned font/config directory. Each block: one cold-font ordinary request, seven ordinary warm-font requests, one separate instrumented warm request.",
     "os_page_cache": "uncontrolled; no OS cache flush or human/general inference"
   },
   "clock": {
     "primary": "perf_counter around the same actual PreviewState.render; includes prepare/convert/native dispatch (fresh process or private worker, including first-start readiness)/strict exports/report/geometry binding; excludes upload, artifact hashing, harness/browser/HTTP/app startup as before",
     "upload": "separate perf_counter around actual PreviewState.upload",
-    "translation": "one-shot current local_request convert wall time, parent timing wrapper",
-    "renderer": "wall time around PreviewState._run_generated, which delegates unchanged to preview._run in process mode and to the private request in worker mode; the earlier v2 baseline used the direct preview._run seam",
-    "instrumentation": "separate request with explicit nested-aware direct timers; not pooled into primary medians; inclusive phases overlap"
+    "translation": "Session-owned compiler dispatch seam; includes actual backend RPC/startup/checks; exactly one conversion per render.",
+    "renderer": "Wall time around PreviewState._run_generated; fresh process for process, same canonical owned native service for worker and combined-worker.",
+    "instrumentation": "separate request with explicit nested-aware direct timers; not pooled into primary medians; inclusive phases overlap",
+    "session_constructor": "Record PreviewState constructor/setup separately for every arm; excluded from render clock and never hidden or pooled into warm medians."
   },
   "acceptance": {
     "unchanged_source_input_bytes": true,
@@ -86,7 +86,9 @@
     "no_timing_thresholds": true,
     "never_drop_negative_or_failed_runs": true,
     "actual_declared_executor_and_worker_identity": true,
-    "identical_cross_executor_semantic_report_png_and_table_text": true
+    "identical_cross_executor_semantic_report_png_and_table_text": true,
+    "same_generated_script_bytes_across_arms": true,
+    "actual_combined_compiler_pid_request_and_bundle_binding": true
   },
   "required_worker_controls": [
     "fresh script namespace and closed figures for every request",
@@ -98,9 +100,20 @@
     "same full strict checks and requested export behavior",
     "minimum/current/fresh-installed controls and exact all9/Figure CI"
   ],
-  "amendments": "Changing case membership, accepted outcomes or metric/gate definitions requires a new version retaining original protocol, runs and reasons. Executor/instrumentation source hashes accompany every run; this baseline has no worker.",
+  "amendments": "Changed cases, gates or metric definitions require a new retained version. Preserve failed/partial attempts. v4 adds compiler integration while preserving v3 worker meaning; first font discovery and startup remain explicit, OS caches uncontrolled.",
   "executors": {
-    "process": "fresh original strict preview_render subprocess per request",
-    "worker": "same canonical generated bytes through original preview_render in owned service; fresh runpy namespace, bounded lifecycle, cleanup and current response identity"
+    "process": "Existing one-shot compiler plus fresh canonical native subprocess. Legacy compiler API does not expose its PID.",
+    "worker": "Retain literal v3 meaning: existing one-shot compiler plus owned warm native renderer.",
+    "combined-worker": "Owned warm compiler plus owned warm native renderer; same canonical dispatch/generated bytes and strict renderer."
+  },
+  "frozen_at": "2026-10-31T02:41:20.517185+00:00",
+  "accepted_base": "e525808dd4299d6ad9da810536921f6ae5c7a939",
+  "expected_records": {
+    "formal": 135,
+    "formal_clean_exit0": 108,
+    "formal_false_claim_exit2": 27,
+    "smoke": 45,
+    "smoke_clean_exit0": 36,
+    "smoke_false_claim_exit2": 9
   }
 }

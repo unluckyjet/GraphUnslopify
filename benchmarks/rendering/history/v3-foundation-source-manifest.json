@@ -1,0 +1,13 @@
+{
+  "source_commit": "e525808dd4299d6ad9da810536921f6ae5c7a939",
+  "sha256": {
+    "scripts/rendering-benchmark.py": "9c0097d833ec73429c7d413a9cb897ecb90d1d0f49055cac27a9fe32748fd7e8",
+    "scripts/profile-preview-phases.py": "a19905665ae1f0c72999456988c7b543802f5cf2c9649d367088bba96ca78c51",
+    "python/graphunslopify/preview.py": "0793947e1a6f5d0d9e6ab7162d90f953a00d005d2042cd639928f9780acd057c",
+    "python/graphunslopify/preview_worker.py": "39346f175e9c9800d1a779de7dc1cc4c5d6a7f00e626a6e9230ed6003de0ebc2",
+    "python/graphunslopify/worker_process.py": "2c19907b29f7b7f35048f0ba66b98642bf16bd55f2ed485c7f712d682076e3ee",
+    "python/graphunslopify/translator_worker.py": "951cbd7cd6d15b61c238fc0724d8c78c52ba096e2b0453c3a1463c748a5d7956",
+    "python/graphunslopify/_translator.mjs": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+  },
+  "scope": "Exact evaluator bytes retained for audit; reproduce original paths via the recorded revision."
+}

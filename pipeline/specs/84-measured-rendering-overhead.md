@@ -35,87 +35,51 @@ first-start/setup costs.
 - Run seven checks/push/exact main all9 and Figure per coherent milestone before
   advancing; preserve original frozen NIST checks. Maintain canonical Obsidian.
 
-## Checkpoint84a — accepted e3aa13a
+## Accepted foundations
 
-Read-only exploration of accepted83 source located6-second macOS font discovery
-versus0.46–0.59s warm-font fresh processes on three small existing fixtures; no
-worker existed. Explicit timers found roughly0.25s module initialization and only
-milliseconds reading/statistics in those small inputs. This selected investigation,
-not a held-out or general benchmark. Raw controls/methods are in Obsidian Rendering
-Performance; original script/data/spec/PNG controls match.
+- 84a e3aa13a: prospective actual-controller baseline, retained v1 invalid optional
+ claims failure, corrected v2 exact five inputs/45 outcomes, font/startup/phase
+ separation. Exact main41145500570 all nine/Figure41145500539 passed.
+- 84b721e6d0: bounded private native worker with original canonical runpy/strict
+ reports/exports, fresh namespaces, known state reset, response/source/PID binding,
+ timeout/crash/tree cleanup/recovery and current generations. Initial57d9b9e
+ failed Windows because its venv launcher PID differed; repair preserves actual
+ interpreter/venv identity without weakening checks. Exact main41154926924 all
+ nine/Figure41154926926 passed. Original failed CI and formal90 paired vectors,
+ actual21-kind60-render controls and101-workflow editor proof remain in results/.
+- 84c1 e525808: private framed canonical translator and actual Node owner.16 compiler
+ plus24 native controls pass source/minimum/fresh; seven gates232/1856/Ruff144
+ on309 stable files. Exact main41158916220 all nine/Figure41158916126 passed,
+ final metadata/all ten named checks verified2026-10-31 02:40UTC before integration.
+ Actual Windows trace shows same-PID requests1/2, max2 recycle and closed=true.
+ See results/translator-worker-foundation/ci-acceptance.json and Obsidian proof.
 
-benchmarks/rendering/protocol-v2.json freezes five actual-controller cases before the
-formal baseline: existing demo, original complete child/table text,20000-row median
-bootstrap stress and an original-data false-comparison negative. Preserve all
-outcomes and font state, rather than attributing warm cache to a future worker.
-This checkpoint measures and retains the baseline; it does not complete84 or
-implement persistent workers.85–89 remain pending in the full roadmap.
+## Active84c2 — editor integration and separate compiler/native measurement
 
+PreviewServer now owns both workers by default. Direct PreviewState keeps explicit
+process/reference defaults. Session info/schema/recipes/suggestions/conversion/fix
+and injected DraftPlan input-schema/validation use its owned compiler; public
+one-shot APIs and other DraftPlan consumers keep their existing defaults.
+/api/validate intentionally keeps its current convert operation. Render results
+carry a trace returned with that particular compiler call; no shared-last-result
+lookup. Both workers close before owned files, even if native teardown fails.
 
-The initial v1 kept an invalid empty optional claims array in the dense spec;
-all45 attempts and original sources/inputs remain. v2 omits only that optional
-property and reruns the entire workload. Final45 expected outcomes pass:36 clean
-exit0/nine false-claim exit2, seven ordinary warm repeats per case, current
-source/spec/data/PNG/table identity controls and separate nested-aware phases.
-Current package assets match in actual minimum-Python15 and fresh offline
-installed15 conformance runs; the installed mode rejects source/stale-package
-imports. A copied CLI rejects changed frozen CSV before creating a render.
-Ruff110 and all seven final gates232/1816 pass on unchanged source/test/fixtures.
-Exact main41145500570 all nine/Figure41145500539 passed before worker implementation; actual downloaded CI smoke vectors and NIST/editor records are retained in benchmarks/rendering/results/baseline-ci/.
+Literal v3, evaluator and source manifest are retained before literal v4 freeze
+on accepted e525808. v4 preserves every original input/outcome/export/outer clock,
+rotates process (one-shot/fresh native), worker (original v3 one-shot/warm native)
+and combined-worker (warm compiler/warm native), and records constructor time.
+135 formal/45 smoke records retain108/36 clean exits and27/9 original false-claim
+exits2. First font/startup and instrumented runs remain separate from seven
+ordinary warm repeats. Require exact generated script, semantic/spec/data/PNG/
+table/current-map agreement and actual compiler/native response/source identity.
+No OS-cache, first-user, human productivity or general speed claim follows.
 
-
-## Checkpoint84b — private Python worker acceptance in progress
-
-PreviewServer now owns a lazy canonical-render worker with fresh script globals,
-known process/plot state reset, bounded frame/log/job count, request/PID/script
-identity, source/environment-change handling and timeout/crash/tree cleanup.
-Original strict native rendering/report/export/geometry paths remain. Direct
-PreviewState process mode remains available for reference. This is not a public
-arbitrary-code worker or security sandbox.
-
-Protocol v3 is frozen before the formal paired run; v2 inputs, outer clock, font
-conditions, seven ordinary repetitions and original negatives remain.90 expected
-outcomes pass with matching original science/script/data/PNG/table controls.
-Warm engine medians improve in this five-case local workload while first-font
-startup remains6.7–7.7s. See benchmarks/rendering/README.md for exact methods,
-raw vectors, controls and limits. Actual source101 browser workflows observe90
-worker replies; a separate60-render paired helper establishes actual21-kind
-coverage, including animation and JSON/Parquet transitions. Coverage selection
-alone is not rendered-kind evidence. Source/minimum/fresh acceptance passes:21 worker controls per environment,
-60 actual paired native renders per environment, minimum/fresh30-record smoke,
-source/fresh101 workflows with90 worker responses, and the genuine installed
-reuse/shutdown gate. Seven stable gates pass232 Node/1837 Python, zero skips,
-one upstream warning, Ruff142 on306 unchanged source/test/fixture files.
-New push/exact CI are next. Translator investigation and full84
-remain open;85–89 remain pending.
-
-
-###84b Windows acceptance repair
-
-Initial57d9b9e passed eight main jobs/Figure but Windows installed editor returned
-HTTP500. The repair launches the actual base interpreter while preserving its
-venv, matching CPython multiprocessing; strict Popen/worker PID identity stays.
-HTTP smoke surfaces error bodies. Local seven gates232/1840/Ruff142 on306 stable
-files,24 source/minimum/fresh controls each, new formal90, current source60 native
-renders/21 kinds, minimum/fresh30-record smoke and installed reuse/shutdown pass.
-Original failed CI/attempts and vectors remain in benchmarks/rendering/results/windows-launch-repair/.
-Repair push/new exact all9/Figure, actual Windows acceptance and full84 translator
-evaluation remain open;85–89 remain pending. No translator implementation yet.
-
-
-###84b repair accepted;84c1 compiler transport foundation in progress
-
-721e6d0 exact main41154926924 all nine/Figure41154926926 completed success;
-final metadata/all ten expected named checks verified01:43UTC. Actual downloaded
-source-bound editor/native-kind/certified/both Python smoke JSON and ZIP digests
-are retained under results/windows-launch-repair/ci-*.json. Windows reuse/shutdown
-passed. No further implementation began before that exact acceptance.
-
-84c1 adds a real private bounded translator entry/client with canonical one-shot
-responses, source/limit/PID/request binding, lifecycle/recovery and actual binary
-ownership. Current source/minimum/fresh combined40 controls and installed
-same-PID/recycling/close gate pass. All seven stable gates232/1856/Ruff144 pass
-on309 unchanged source/test/fixture files; new push/exact CI is next. The default
-editor translation path remains one-shot. See docs/workspace/translator-worker.md.
-This is a transport milestone: editor/draft integration and a prospective frozen
-three-arm full-engine comparison remain84c2. Full84 and85–89 remain open.
+Formal135, initial45 and minimum/fresh45 conformance outcomes pass;59 focused
+controls pass each source/minimum/fresh. Source/fresh101 workflows observe91
+native and91 compiler replies, zero JS/external requests. Each source/minimum/
+fresh helper performs60 real paired native renders/21 kinds, including original
+strict false claim and GIF/JSON/Parquet controls. Actual38 installed Python/bundle
+assets match. All seven gates232/1860, zero skips/one upstream warning, Ruff145
+pass on314 unchanged source/test/fixture files. See results/combined-workers-v4/.
+New push/exact all-nine/Figure acceptance is next. Full84 remains in progress
+until that acceptance;85–89 retain full scope. No release is published here.

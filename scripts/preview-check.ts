@@ -1,6 +1,7 @@
 /** Real browser/editor contract, including stale responses and exported reproduction. */
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
@@ -79,6 +80,8 @@ try {
     external: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const workerExecutions: Array<{pid:number; request_id:string; request_number:number; runtime_source_sha256:string}> = [];
+  const translatorExecutions: typeof workerExecutions = [];
+  const bundleHash = createHash("sha256").update(readFileSync(resolve("python/graphunslopify/_translator.mjs"))).digest("hex");
   const workerObservations: Promise<void>[] = [];
   page.on("response", (response) => {
     if (!response.url().endsWith("/api/render") || response.status() !== 200) return;
@@ -91,6 +94,13 @@ try {
       assert.match(execution.request_id, /^[0-9a-f]{32}$/);
       assert.match(execution.runtime_source_sha256, /^[0-9a-f]{64}$/);
       workerExecutions.push(execution);
+      const compiler = body.translation_execution;
+      assert.equal(compiler?.mode, "worker", "editor conversion must use its owned translator");
+      assert.equal(compiler.kind, "translator");
+      assert.ok(Number.isInteger(compiler.pid) && compiler.pid > 0);
+      assert.match(compiler.request_id, /^[0-9a-f]{32}$/);
+      assert.equal(compiler.runtime_source_sha256, bundleHash);
+      translatorExecutions.push(compiler);
     })().catch(error => { errors.push(String(error)); }));
   });
 
@@ -1046,6 +1056,8 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const ownedText = await checkOwnedText(page, evidence);
   await Promise.all(workerObservations);
   assert.ok(workerExecutions.length >= 10);
+  assert.equal(translatorExecutions.length, workerExecutions.length);
+  assert.equal(new Set(translatorExecutions.map(e => e.request_id)).size, translatorExecutions.length);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -1057,6 +1069,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         javascript_errors: errors.length,
         controlled_kinds: controlledKinds,
         renderer_worker: {native_responses:workerExecutions.length, process_ids:[...new Set(workerExecutions.map(e=>e.pid))], executions:workerExecutions},
+        translator_worker: {render_responses:translatorExecutions.length, process_ids:[...new Set(translatorExecutions.map(e=>e.pid))], executions:translatorExecutions},
         model_drafts: modelDrafts,
         diagnostic_overlays: diagnosticOverlays,
         owned_headings: ownedHeadings,

@@ -344,8 +344,10 @@ def test_server_shutdown_closes_worker_before_removing_owned_files():
         )
         assert answer["report"]["status"] == "passed"
         process = server.state.worker.process.connection.process
+        compiler = server.state.translator.process.connection.process
         directory = server.state.root
     assert process.poll() is not None and not directory.exists()
+    assert compiler.poll() is not None
 
 
 def test_stale_generation_cannot_republish_worker_output(tmp_path, monkeypatch):

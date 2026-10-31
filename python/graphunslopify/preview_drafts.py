@@ -102,6 +102,7 @@ class PreviewDrafts:
             payload.get("prompt"),
             payload.get("author_context"),
             palette_id=palette["id"] if palette else None,
+            compiler_request=self.state.local_request,
         )
         with self.lock:
             self._note(client, generation)

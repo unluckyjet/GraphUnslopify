@@ -179,6 +179,31 @@ def test_review_accept_then_explicit_strict_render_with_owned_data(editor, model
     assert len(model_api.calls) == 1
 
 
+def test_draft_schema_and_validation_use_the_owned_compiler(editor, model_api, monkeypatch):
+    from graphunslopify import drafts, preview
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Editor requests must not fall back to one-shot compilation")
+
+    monkeypatch.setattr(preview, "local_request", forbidden)
+    monkeypatch.setattr(drafts, "local_request", forbidden)
+    original = editor.state._compiler_request
+    operations = []
+
+    def observed(operation, value=None):
+        result, trace = original(operation, value)
+        assert trace["kind"] == "translator" and trace["mode"] == "worker"
+        operations.append(operation)
+        return result, trace
+
+    monkeypatch.setattr(editor.state, "_compiler_request", observed)
+    payload, _ = disclosed(editor, model_api)
+    assert not model_api.calls and operations == ["input-schema"]
+    status, proposal = call(editor, "/api/draft/propose", {**payload, "consent": True})
+    assert status == 200 and not proposal["verified"] and not proposal["applied"]
+    assert operations == ["input-schema", "validate"] and len(model_api.calls) == 1
+
+
 @pytest.mark.parametrize("change", ["data", "spec", "provider", "revision", "client"])
 def test_stale_disclosure_is_refused_before_transmission(editor, model_api, change):
     payload, _ = disclosed(editor, model_api)

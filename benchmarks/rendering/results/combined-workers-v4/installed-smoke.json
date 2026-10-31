@@ -1,0 +1,271 @@
+{
+  "status": "passed",
+  "wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+  "python": "3.12.14",
+  "translator": {
+    "version": "0.8.0",
+    "kinds": [
+      "line",
+      "scatter",
+      "bar",
+      "box",
+      "violin",
+      "ecdf",
+      "raincloud",
+      "ridgeline",
+      "forest",
+      "paired_difference",
+      "slope",
+      "dumbbell",
+      "calibration",
+      "qq",
+      "kaplan_meier",
+      "scaling_fit",
+      "confusion_matrix",
+      "waterfall",
+      "sparkline_grid",
+      "heatmap",
+      "table"
+    ],
+    "node": "v24.19.0"
+  },
+  "network": "external connections blocked after install",
+  "agent": true,
+  "pdf": true,
+  "registry_version": null,
+  "getting_started": {
+    "status": "passed",
+    "python_package": "0.8.0",
+    "steps": {
+      "demo": "passed",
+      "rerun": "passed",
+      "false_claim": "failed",
+      "recovered": "passed"
+    },
+    "exit_codes": [
+      0,
+      2,
+      0
+    ],
+    "data_sha256_prefix": "3a6c3eb05c4dc08c",
+    "elapsed_seconds": 5.06,
+    "timing_scope": "automated walkthrough after installation, not novice completion time",
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/guided tour"
+  },
+  "visual_comparison": {
+    "status": "passed",
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/visual comparison",
+    "html": "/private/tmp/graphunslopify-combined-editor-installed/visual comparison/audit/runs/d52eec1ee0c5432f9ae5146409738624/comparison/index.html",
+    "svg_html": "/private/tmp/graphunslopify-combined-editor-installed/visual comparison/svg-review/index.html",
+    "exit_codes": [
+      0,
+      2,
+      2
+    ],
+    "changed_visible_pixels": 3154
+  },
+  "research_workflow": {
+    "status": "passed",
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/research workflow",
+    "config": "/private/tmp/graphunslopify-combined-editor-installed/research workflow/paper with spaces/graphunslopify-workflow/workflow.json",
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    "editor_process_exit": 0,
+    "latex": "prepared; compilation separate",
+    "inputs_unchanged": true,
+    "notebook": "cleared; kernel execution covered separately"
+  },
+  "experiment_tracking": {
+    "status": "passed",
+    "mlflow": "3.17.2",
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/experiment tracking",
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      2
+    ],
+    "retrieved_files": 6,
+    "owned_run": "FINISHED",
+    "attached_rejected_run": "RUNNING; caller-owned",
+    "tampered_export": "refused before creating run",
+    "raw_inputs_uploaded": false,
+    "global_context_unchanged": true
+  },
+  "project_management": {
+    "status": "passed",
+    "figures": 2,
+    "completed_events": 5,
+    "first_record_unchanged": true,
+    "sources_unchanged": true,
+    "moved_project_and_damaged_export_checked": true,
+    "command_exits": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/project management"
+  },
+  "project_interface": {
+    "status": "passed",
+    "interface": "real loopback CLI/server",
+    "figures": 2,
+    "shared_settings": "applied to actual reports",
+    "strict_run_exits": [
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    "source_binding_history_and_stale_guard": "verified",
+    "preview_export_and_comparison": "verified bytes",
+    "data_unchanged": true,
+    "work_dir": "/private/tmp/graphunslopify-combined-editor-installed/project interface"
+  },
+  "diagnostics": {
+    "status": "passed",
+    "codes": 139,
+    "strict_failure_recovery": true,
+    "source_data_unchanged": true,
+    "package_free_advice": true,
+    "where": "/private/tmp/graphunslopify-combined-editor-installed/diagnostics"
+  },
+  "pdf_visual": {
+    "status": "passed",
+    "native_pt": 8.0,
+    "reduced_pt": 4.0,
+    "strict_default_exit": 2,
+    "prepare_only_exit": 0,
+    "scientific_status": "incomplete",
+    "source_bytes_unchanged": true,
+    "where": "/private/tmp/graphunslopify-combined-editor-installed/pdf visual"
+  },
+  "excel_input": {
+    "status": "passed",
+    "source_sha256": "1f3508348c872e8a5ddc4b12f44fdc9a077b167e959e0aaaf16d24b2783a9a7f",
+    "rows": 3,
+    "worksheet": "Measurements",
+    "exports": {
+      "excel.png": "a5a08c218c871b0cc16e1928de1ed0d8c181c80c535727798c438edbe8048b8c",
+      "excel.svg": "ed7f9906d38874cbbfd545a5975135580e448e20c61c88ff719a30d4ce7a4a6e",
+      "excel.pdf": "12db33b55a1ddd0547d9655e9fdf42810def38720f11ea91d2d15d562d105771"
+    },
+    "package": "/private/tmp/graphunslopify-combined-editor-installed/fresh environment/lib/python3.12/site-packages/graphunslopify/__init__.py",
+    "reader_version": "0.9.0"
+  },
+  "translator_worker": {
+    "passed": true,
+    "first": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 4989,
+      "request_id": "91bca8a2bd864074bfe87765a83b14df",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "second": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 4989,
+      "request_id": "fa672cd1da544a8a920f0c06817c2a6f",
+      "request_number": 2,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "third": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 4995,
+      "request_id": "6823ecff76e54b4ca7538dd33a9ddc30",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 2,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "closed": true
+  },
+  "editor_workers": {
+    "passed": true,
+    "renderer_first": {
+      "mode": "worker",
+      "kind": "renderer",
+      "pid": 5004,
+      "request_id": "e6c9f18eb3db46cabb6870870204bf13",
+      "request_number": 1,
+      "process_started": true,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "7662069c4fee5ffbdcb5993808eff3c724ca49054c3db7bf36b4401115d90213",
+      "instrumented": false
+    },
+    "renderer_second": {
+      "mode": "worker",
+      "kind": "renderer",
+      "pid": 5004,
+      "request_id": "de57730590fe41ec976ac3bcd34ef875",
+      "request_number": 2,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "7662069c4fee5ffbdcb5993808eff3c724ca49054c3db7bf36b4401115d90213",
+      "instrumented": false
+    },
+    "compiler_first": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 5003,
+      "request_id": "f1d14c72d84b4cf2baac880186afb76b",
+      "request_number": 4,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "compiler_second": {
+      "mode": "worker",
+      "kind": "translator",
+      "pid": 5003,
+      "request_id": "d24a03474c86480ea9fe0bf55e02dde8",
+      "request_number": 5,
+      "process_started": false,
+      "process_starts": 1,
+      "protocol": 1,
+      "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+    },
+    "closed": true
+  },
+  "work_dir": "/private/tmp/graphunslopify-combined-editor-installed"
+}

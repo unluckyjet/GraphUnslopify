@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import statistics
 import subprocess
 import sys
@@ -108,15 +109,19 @@ def percentile90(values):
 def run_case(case, executor, base, out, rules, repetitions, result, preview):
     folder = out / case["id"] / executor
     folder.mkdir(parents=True)
+    native_worker = executor != "process"
+    setup_start = time.perf_counter()
     state = preview.PreviewState(
         folder,
         100 * 1024 * 1024,
-        reuse_renderer=executor == "worker",
+        reuse_renderer=native_worker,
+        reuse_translator=executor == "combined-worker",
         profile_driver=ROOT / "scripts/profile-preview-phases.py"
-        if executor == "worker"
+        if native_worker
         else None,
     )
-    original_request = preview.local_request
+    setup_seconds = time.perf_counter() - setup_start
+    original_request = state._compiler_request
     original_run = state._run_generated
     try:
         raw = (base / case["data"]).read_bytes()
@@ -130,6 +135,7 @@ def run_case(case, executor, base, out, rules, repetitions, result, preview):
             "expected_exit_code": case["expected_exit_code"],
             "expected_status": case["expected_status"],
             "upload_seconds": upload_seconds,
+            "session_constructor_seconds": setup_seconds,
             "records": [],
         }
         result["cases"].append(case_result)
@@ -206,7 +212,7 @@ def run_case(case, executor, base, out, rules, repetitions, result, preview):
             try:
                 with (
                     font_directory(folder / "font-cache"),
-                    patch.object(preview, "local_request", request),
+                    patch.object(state, "_compiler_request", request),
                     patch.object(state, "_run_generated", run),
                 ):
                     start = time.perf_counter()
@@ -256,6 +262,10 @@ def run_case(case, executor, base, out, rules, repetitions, result, preview):
                         raise ValueError(f"Current {key} ownership unavailable")
                 current = {
                     "semantic_report": semantic(report),
+                    "script_sha256": digest(
+                        state.runs[answer["run_id"]]["folder"]
+                        / f"{answer['spec']['output']['stem']}.py"
+                    ),
                     "png": evidence["png"],
                     "table_text": evidence["table_text"],
                 }
@@ -271,19 +281,35 @@ def run_case(case, executor, base, out, rules, repetitions, result, preview):
                     or counters["renderer_calls"] != 1
                 ):
                     raise ValueError(
-                        "Expected actual one-shot convert/render sequence changed"
+                        "Expected actual one-conversion/one-render sequence changed"
                     )
                 execution = answer.get("execution", {})
-                if execution.get("mode") != (
-                    "worker" if executor == "worker" else "process"
-                ):
+                if execution.get("mode") != ("worker" if native_worker else "process"):
                     raise ValueError("Measured executor did not actually run")
-                if executor == "worker" and (
+                if native_worker and (
                     type(execution.get("pid")) is not int
                     or execution.get("request_number") != generation + 1
                 ):
                     raise ValueError("Worker lifecycle/response identity changed")
                 entry["execution"] = execution
+                compiler = answer.get("translation_execution", {})
+                expected_compiler = (
+                    "worker" if executor == "combined-worker" else "process"
+                )
+                if compiler.get("mode") != expected_compiler:
+                    raise ValueError("Declared compiler backend did not actually run")
+                if executor == "combined-worker" and (
+                    compiler.get("kind") != "translator"
+                    or type(compiler.get("pid")) is not int
+                    or compiler.get("request_number") != generation + 1
+                    or not re.fullmatch(r"[0-9a-f]{32}", compiler.get("request_id", ""))
+                    or compiler.get("runtime_source_sha256")
+                    != digest(Path(preview.__file__).parent / "_translator.mjs")
+                ):
+                    raise ValueError(
+                        "Compiler lifecycle/source/response identity changed"
+                    )
+                entry["translation_execution"] = compiler
                 entry.update(
                     passed=True,
                     exit_code=answer["exit_code"],
@@ -337,7 +363,9 @@ def main():
         help="Use the selected interpreter's installed package and require actual source-asset matches",
     )
     parser.add_argument(
-        "--executor", choices=["process", "worker", "compare"], default="process"
+        "--executor",
+        choices=["process", "worker", "combined-worker", "compare"],
+        default="process",
     )
     args = parser.parse_args()
     base, protocol_path, rules = protocol()
@@ -358,6 +386,10 @@ def main():
         "audit.py",
         "worker_process.py",
         "preview_worker.py",
+        "translator_worker.py",
+        "transport.py",
+        "drafts.py",
+        "preview_drafts.py",
         "_translator.mjs",
     ]
     if args.installed and package_root == (ROOT / "python/graphunslopify").resolve():
@@ -377,17 +409,22 @@ def main():
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
     ).strip()
     result = {
-        "schema_version": 2,
+        "schema_version": 3,
         "protocol_sha256": digest(protocol_path),
         "mode": "conformance-smoke"
         if args.smoke
-        else "formal-paired-worker-comparison"
+        else "formal-three-arm-worker-comparison"
         if args.executor == "compare"
         else "formal-" + args.executor + "-baseline",
-        "executor": "actual PreviewState.render, one-shot translator; selected native renderer="
+        "executor": "actual PreviewState.render; literal v4 backend selection="
         + args.executor,
         "scope": rules["scope"],
         "source_commit": source_commit,
+        "source_git_dirty": bool(
+            subprocess.check_output(
+                ["git", "status", "--porcelain"], cwd=ROOT, text=True
+            ).strip()
+        ),
         "package_mode": "installed" if args.installed else "source",
         "package_root": str(package_root),
         "invoked_package_matches_source": package_matches,
@@ -422,12 +459,17 @@ def main():
         "warm_repetitions": repetitions,
         "cases": [],
         "complete": False,
+        "expected_records": len(rules["cases"])
+        * (repetitions + 2)
+        * (3 if args.executor == "compare" else 1),
         "passed": False,
     }
     result["comparison"] = []
     for index, case in enumerate(rules["cases"]):
+        arms = ["process", "worker", "combined-worker"]
+        offset = index % len(arms)
         order = (
-            (["process", "worker"] if index % 2 == 0 else ["worker", "process"])
+            arms[offset:] + arms[:offset]
             if args.executor == "compare"
             else [args.executor]
         )
@@ -435,8 +477,9 @@ def main():
             run_case(case, executor, base, out, rules, repetitions, result, preview)
         if args.executor == "compare":
             pair = {c["executor"]: c for c in result["cases"] if c["id"] == case["id"]}
-            matches = pair["process"].get("reference") == pair["worker"].get(
-                "reference"
+            matches = all(
+                pair["process"].get("reference") == item.get("reference")
+                for item in pair.values()
             )
             medians = {
                 key: item["summary"]["median_engine_seconds"]
@@ -451,6 +494,7 @@ def main():
                 }
             )
     result["complete"] = True
+    result["observed_records"] = sum(len(c["records"]) for c in result["cases"])
     result["passed"] = all(
         c["summary"]["all_runs_match_original_semantics_and_png"]
         for c in result["cases"]
@@ -458,6 +502,9 @@ def main():
     result["passed"] = result["passed"] and all(
         c["same_original_semantic_report_png_and_table_text"]
         for c in result["comparison"]
+    )
+    result["passed"] = (
+        result["passed"] and result["observed_records"] == result["expected_records"]
     )
     (out / "results.json").write_text(
         json.dumps(result, indent=2, allow_nan=False) + "\n"

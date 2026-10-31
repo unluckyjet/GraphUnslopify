@@ -1,0 +1,55 @@
+{
+  "scope": "Working-tree84c2 acceptance before new push/exact CI. Not public release or human/general productivity evidence.",
+  "accepted_base": "e525808dd4299d6ad9da810536921f6ae5c7a939",
+  "protocol_sha256": "7315366b39dd7844fb311842172811334b42a583a0e7e27566a00d6647f3643d",
+  "formal_records": 135,
+  "formal_expected_clean_exit0": 108,
+  "formal_expected_false_claim_exit2": 27,
+  "initial_source_smoke_records": 45,
+  "minimum_smoke_records": 45,
+  "fresh_smoke_records": 45,
+  "source_focused_controls": 59,
+  "minimum_focused_controls": 59,
+  "fresh_focused_controls": 59,
+  "node_tests": 232,
+  "python_tests": 1860,
+  "python_skips": 0,
+  "python_warnings": "1 existing upstream MLflow SQLAlchemy deprecation",
+  "ruff_files": 145,
+  "stable_source_test_fixture_files": 314,
+  "source_gui": {
+    "workflows": 101,
+    "selected_control_kinds": 21,
+    "native_replies": 91,
+    "compiler_replies": 91,
+    "javascript_errors": 0,
+    "external_requests": 0
+  },
+  "fresh_gui": {
+    "workflows": 101,
+    "selected_control_kinds": 21,
+    "native_replies": 91,
+    "compiler_replies": 91,
+    "javascript_errors": 0,
+    "external_requests": 0
+  },
+  "kind_conformance_each_source_minimum_fresh": {
+    "cases": 30,
+    "native_renders": 60,
+    "actual_kinds": 21,
+    "current_package_assets": 11,
+    "mode": "fresh processes versus both workers",
+    "false_claim_exit_code": 2,
+    "matching": "original science/spec/data/script/PNG/table;GIF frame pixels/durations/loop;requested formats/current maps"
+  },
+  "fresh_package_assets_matched": 38,
+  "fresh_statistics_version": "1.18.1",
+  "minimum_statistics_version": "1.14.1, host Mach-O compatibility workaround retained",
+  "wheel_sha256": "f352e872a60e715bc7279a6ecfdd5a4db13ed6f7b8b20df0d7e8a8e20b44ddec",
+  "new_exact_CI": "pending before next implementation",
+  "retained_development_failures": [
+    "Initial python -m build resolved local build namespace without build.__main__; actual pip wheel build passed.",
+    "Initial artifact reader assumed historical90 native replies; current actual91 native/compiler replies and101 workflows pass. No product change to force a count.",
+    "Ruff identified missing strict= in a new zip; corrected before stable full gates."
+  ]
+}

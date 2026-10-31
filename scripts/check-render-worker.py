@@ -1,4 +1,4 @@
-"""Compare actual process/worker exports for every supported kind and mixed inputs."""
+"""Compare fresh processes with both owned workers for every kind and mixed input."""
 
 from __future__ import annotations
 
@@ -68,6 +68,9 @@ def fingerprint(state, answer):
                     ],
                 }
     return {
+        "script_sha256": hashlib.sha256(
+            (folder / f"{stem}.py").read_bytes()
+        ).hexdigest(),
         "animated_exports": animated,
         "report": {key: answer["report"].get(key) for key in FIELDS},
         "pixels": pixels,
@@ -104,6 +107,10 @@ def main():
     assets = [
         "preview.py",
         "preview_worker.py",
+        "translator_worker.py",
+        "transport.py",
+        "drafts.py",
+        "preview_drafts.py",
         "worker_process.py",
         "preview_render.py",
         "preview_geometry.py",
@@ -189,7 +196,9 @@ def main():
         }
     )
     process = PreviewState(out / "process", 100 * 1024 * 1024)
-    worker = PreviewState(out / "worker", 100 * 1024 * 1024, reuse_renderer=True)
+    worker = PreviewState(
+        out / "worker", 100 * 1024 * 1024, reuse_renderer=True, reuse_translator=True
+    )
     result = {
         "scope": __doc__,
         "package_mode": "installed" if args.installed else "source",
@@ -254,10 +263,19 @@ def main():
                     pair[0][1]["execution"]["mode"] == "process"
                     and pair[1][1]["execution"]["mode"] == "worker"
                 )
+                compiler = pair[1][1]["translation_execution"]
+                assert compiler["mode"] == "worker" and compiler["kind"] == "translator"
+                assert compiler["request_number"] == number + 1
+                assert (
+                    compiler["pid"] == worker.translator.process.connection.process.pid
+                )
+                assert compiler["runtime_source_sha256"] == hashes["_translator.mjs"]
+                assert pair[0][1]["translation_execution"]["mode"] == "process"
                 record.update(
                     passed=True,
                     exit_code=case["exit"],
                     worker=pair[1][1]["execution"],
+                    translator=compiler,
                     matching_original_semantic_report_png_and_table_text=True,
                 )
             except Exception as problem:  # noqa: BLE001 -- preserve every failed native case

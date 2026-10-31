@@ -365,10 +365,13 @@ def _scientific_context(base, candidate, context, columns):
 class DraftPlan:
     """Immutable disclosed request; a consented attempt can be made only once."""
 
-    def __init__(self, provider, data, spec, prompt, context=None, *, palette_id=None):
+    def __init__(
+        self, provider, data, spec, prompt, context=None, *, palette_id=None, compiler_request=None
+    ):
         if not isinstance(prompt, str) or not 1 <= len(prompt.strip()) <= 12000:
             raise ValueError("Describe the figure in 1-12000 characters")
         self._provider = provider
+        self._compiler = compiler_request
         self._base = copy.deepcopy(spec)
         if not isinstance(self._base, dict) or any(
             not isinstance(self._base.get(key, {}), dict)
@@ -391,7 +394,7 @@ class DraftPlan:
         _scientific_context(self._base, self._base, self._context, self._columns)
         # Output schemas require compiler-populated defaults; requests need input semantics.
         # Refuse unknown keys rather than letting Zod silently discard model output.
-        self._schema = _strict_objects(local_request("input-schema"))
+        self._schema = _strict_objects(self._compiler_request("input-schema"))
         current = copy.deepcopy(self._base)
         current.pop("data", None)
         current.pop("palette_lock", None)
@@ -448,6 +451,10 @@ class DraftPlan:
         self._attempted = False
         self._lock = threading.Lock()
 
+    def _compiler_request(self, operation, payload=None):
+        request = self._compiler if self._compiler is not None else local_request
+        return request(operation, payload)
+
     def disclosure(self):
         return {
             "provider": self._provider.public(),
@@ -499,7 +506,7 @@ class DraftPlan:
                 "The proposed specification does not match the canonical schema", envelope, problems
             )
         _scientific_context(self._base, candidate, self._context, self._columns)
-        checked = local_request("validate", candidate)
+        checked = self._compiler_request("validate", candidate)
         if not checked.get("ok"):
             raise ValueError(
                 "The proposed specification failed canonical static checks; no intent was applied"

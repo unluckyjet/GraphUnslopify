@@ -1375,16 +1375,38 @@ def main() -> None:
             if args.require_render_worker
             else ""
         )
+        + (
+            "        compiler_first=result['translation_execution'];compiler_second=second['translation_execution']\n"
+            "        compiler_process=server.state.translator.process.connection.process\n"
+            "        assert compiler_first['mode']=='worker' and compiler_first['kind']=='translator'\n"
+            "        assert compiler_first['pid']==compiler_second['pid']==compiler_process.pid\n"
+            "        assert compiler_second['request_number']==compiler_first['request_number']+1\n"
+            "        assert compiler_second['request_id']!=compiler_first['request_id'] and not compiler_second['process_started']\n"
+            "        assert compiler_first['runtime_source_sha256']==compiler_second['runtime_source_sha256']\n"
+            if args.require_render_worker and args.require_translator_worker
+            else ""
+        )
         + "    finally:\n"
         "        server.shutdown();thread.join(5)\n"
         + (
             "assert owned_process.poll() is not None\n"
             if args.require_render_worker
             else ""
+        )
+        + (
+            "assert compiler_process.poll() is not None\n"
+            "print(json.dumps({'passed':True,'renderer_first':first,'renderer_second':execution,'compiler_first':compiler_first,'compiler_second':compiler_second,'closed':True}))\n"
+            if args.require_render_worker and args.require_translator_worker
+            else ""
         ),
         encoding="utf8",
     )
-    run([str(python), str(editor_script)], cwd=where, env=env)
+    editor_stdout = run([str(python), str(editor_script)], cwd=where, env=env)
+    editor_workers_result = (
+        json.loads(editor_stdout)
+        if args.require_render_worker and args.require_translator_worker
+        else None
+    )
     # The SDK resolves nested relative input paths and separate output directories.
     sdk = where / "sdk.py"
     sdk.write_text(
@@ -1602,6 +1624,7 @@ def main() -> None:
                 "pdf_visual": pdf_visual,
                 "excel_input": excel_input,
                 "translator_worker": translator_worker_result,
+                "editor_workers": editor_workers_result,
                 "work_dir": str(where),
             }
         )

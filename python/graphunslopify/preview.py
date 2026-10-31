@@ -40,6 +40,7 @@ class PreviewState:
         max_upload: int,
         *,
         reuse_renderer: bool = False,
+        reuse_translator: bool = False,
         profile_driver: Path | None = None,
     ):
         self.root, self.max_upload = root.resolve(), max_upload
@@ -51,14 +52,31 @@ class PreviewState:
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
         self.worker = None
+        self.translator = None
+        if reuse_translator:
+            from .translator_worker import TranslatorWorker
+
+            self.translator = TranslatorWorker(self.root)
         if reuse_renderer:
             from .preview_worker import RenderWorker
 
             self.worker = RenderWorker(self.root, profile_driver=profile_driver)
 
     def close(self):
-        if self.worker is not None:
-            self.worker.close()
+        try:
+            if self.worker is not None:
+                self.worker.close()
+        finally:
+            if self.translator is not None:
+                self.translator.close()
+
+    def _compiler_request(self, operation, payload=None):
+        if self.translator is not None:
+            return self.translator.request(operation, payload)
+        return local_request(operation, payload), {"mode": "process"}
+
+    def local_request(self, operation, payload=None):
+        return self._compiler_request(operation, payload)[0]
 
     def _run_generated(self, command, folder, timeout):
         return (
@@ -222,11 +240,12 @@ class PreviewState:
         with self.lock:
             self.generations[client] = max(generation, self.generations.get(client, -1))
         spec, data, palette = self.prepare(payload)
-        translated = local_request("convert", spec)
+        translated, translation_execution = self._compiler_request("convert", spec)
         answer = {
             "generation": generation,
             "spec": spec,
             "translation": {k: v for k, v in translated.items() if k != "code"},
+            "translation_execution": translation_execution,
             "report": None,
             "files": [],
             "run_id": None,
@@ -390,10 +409,20 @@ class PreviewServer(ThreadingHTTPServer):
     # Complete bounded workers before removing the session directory.
     daemon_threads = False
 
-    def __init__(self, port: int = 0, *, max_upload_mb: int = 100, reuse_renderer: bool = True):
+    def __init__(
+        self,
+        port: int = 0,
+        *,
+        max_upload_mb: int = 100,
+        reuse_renderer: bool = True,
+        reuse_translator: bool = True,
+    ):
         self.temporary = tempfile.TemporaryDirectory(prefix="gu-preview-")
         self.state = PreviewState(
-            Path(self.temporary.name), max_upload_mb * 1024 * 1024, reuse_renderer=reuse_renderer
+            Path(self.temporary.name),
+            max_upload_mb * 1024 * 1024,
+            reuse_renderer=reuse_renderer,
+            reuse_translator=reuse_translator,
         )
         super().__init__(("127.0.0.1", port), PreviewHandler)
 
@@ -511,12 +540,12 @@ class PreviewHandler(BaseHTTPRequestHandler):
         if route == "/api/info":
             from .diagnostics import catalog
 
-            info = local_request("info")
+            info = self.server.state.local_request("info")
             self.json(
                 {
                     "kinds": info["kinds"],
-                    "recipes": local_request("recipes"),
-                    "schema": local_request("schema"),
+                    "recipes": self.server.state.local_request("recipes"),
+                    "schema": self.server.state.local_request("schema"),
                     "diagnostics": catalog(),
                     "max_upload_mb": self.server.state.max_upload // 1024 // 1024,
                 }
@@ -588,7 +617,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             elif route == "/api/suggest":
                 data = self.server.state.selected_data(payload.get("data_id", ""))
                 self.json(
-                    local_request(
+                    self.server.state.local_request(
                         "suggest", {"profile": {**data["profile"], "path": data["filename"]}}
                     )
                 )
@@ -599,9 +628,11 @@ class PreviewHandler(BaseHTTPRequestHandler):
             elif route in {"/api/validate", "/api/fix"}:
                 spec, _, _ = self.server.state.prepare(payload)
                 result = (
-                    local_request("fix", {"spec": spec, "code": payload.get("code")})
+                    self.server.state.local_request(
+                        "fix", {"spec": spec, "code": payload.get("code")}
+                    )
                     if route == "/api/fix"
-                    else local_request("convert", spec)
+                    else self.server.state.local_request("convert", spec)
                 )
                 self.json({k: v for k, v in result.items() if k != "code"})
             elif route == "/api/render":

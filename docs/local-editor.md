@@ -158,6 +158,20 @@ limit is 100 MiB; use `--max-upload-mb 250` to increase it. `--port 9000` choose
 `--port 0` asks the OS for a free one. This is a single-machine editing service; network hosting,
 shared workspaces and persistent project storage are outside its supported workflow.
 
+## Reusing the local renderer (current source)
+
+The server owns a lazy Python worker that keeps plotting libraries loaded between
+edits. Each canonical generated program gets fresh script globals and the original
+strict inspection/export path. Figures close and known plotting/process state is
+restored after every job. Workers recycle after16 jobs, restart after a crash or
+timeout, and stop before session files are removed. Changes to loaded source require
+restarting the editor. This private protocol accepts only owned canonical runs;
+it is not an arbitrary Python execution service or security sandbox.
+
+[The measured engine comparison](../benchmarks/rendering/README.md) keeps first-font
+startup separate from warm iteration, preserves failed-claim checks, and records
+its workload and limits. Public PyPI0.8.0 predates these source changes.
+
 ## Verification
 
 `PYTHON=python npm run preview-check` launches the real CLI and Chromium, selects a real file,

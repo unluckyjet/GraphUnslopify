@@ -1,0 +1,5 @@
+{
+  "protocol_sha256": "5f9cb24be3c79fe9f5ffc9c03a3b8f1434e49399dfecf05f1be322d3a8873e13",
+  "clarification": "The literal v3 scope/amendments text retains v1/v2 descriptions saying before any worker implementation and this baseline has no worker. Those describe the original baseline, not the later v3 executor. v3 was fixed after warm-library and preliminary worker engineering/smoke and before the formal paired90 requests. No held-out or pre-development comparison is claimed. The exact frozen bytes, metrics, cases, outcomes and all vectors remain unchanged.",
+  "effect": "Prose clarification only; no evaluator, membership, outcome, metric or timing change."
+}

@@ -1,0 +1,12 @@
+{
+  "from_protocol_sha256": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+  "to_protocol_sha256": "5f9cb24be3c79fe9f5ffc9c03a3b8f1434e49399dfecf05f1be322d3a8873e13",
+  "reason": "Add explicit worker executor binding and the native dispatch seam, retaining the exact same outer engine clock, source inputs, case membership, expected strict outcomes, font conditions and seven ordinary repetitions. The process endpoint still delegates to original preview._run; worker endpoint includes readiness/IPC/native completion.",
+  "preserved": "protocol-v2.json and original45-run baseline/history; preliminary30-run smoke source and vectors are not formal speed evidence",
+  "new_required_controls": [
+    "actual worker PID/request number/source signature, not just a label",
+    "same complete semantic report, original spec/data/script, actual PNG and table text between both backends",
+    "explicit counterbalanced paired blocks, separate first startup and instrumented timings"
+  ],
+  "scope": "Project-run local engine comparison, not human/browser/app-startup or Matplotlib productivity evidence"
+}

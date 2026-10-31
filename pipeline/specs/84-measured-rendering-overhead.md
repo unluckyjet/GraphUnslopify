@@ -35,7 +35,7 @@ first-start/setup costs.
 - Run seven checks/push/exact main all9 and Figure per coherent milestone before
   advancing; preserve original frozen NIST checks. Maintain canonical Obsidian.
 
-## Checkpoint84a — prospective baseline in progress
+## Checkpoint84a — accepted e3aa13a
 
 Read-only exploration of accepted83 source located6-second macOS font discovery
 versus0.46–0.59s warm-font fresh processes on three small existing fixtures; no
@@ -44,7 +44,7 @@ milliseconds reading/statistics in those small inputs. This selected investigati
 not a held-out or general benchmark. Raw controls/methods are in Obsidian Rendering
 Performance; original script/data/spec/PNG controls match.
 
-benchmarks/rendering/protocol.json freezes five actual-controller cases before the
+benchmarks/rendering/protocol-v2.json freezes five actual-controller cases before the
 formal baseline: existing demo, original complete child/table text,20000-row median
 bootstrap stress and an original-data false-comparison negative. Preserve all
 outcomes and font state, rather than attributing warm cache to a future worker.
@@ -61,5 +61,30 @@ Current package assets match in actual minimum-Python15 and fresh offline
 installed15 conformance runs; the installed mode rejects source/stale-package
 imports. A copied CLI rejects changed frozen CSV before creating a render.
 Ruff110 and all seven final gates232/1816 pass on unchanged source/test/fixtures.
-Push/exact CI are next; worker reuse,
-timeout/state/concurrency acceptance and full84 remain open.
+Exact main41145500570 all nine/Figure41145500539 passed before worker implementation; actual downloaded CI smoke vectors and NIST/editor records are retained in benchmarks/rendering/results/baseline-ci/.
+
+
+## Checkpoint84b — private Python worker acceptance in progress
+
+PreviewServer now owns a lazy canonical-render worker with fresh script globals,
+known process/plot state reset, bounded frame/log/job count, request/PID/script
+identity, source/environment-change handling and timeout/crash/tree cleanup.
+Original strict native rendering/report/export/geometry paths remain. Direct
+PreviewState process mode remains available for reference. This is not a public
+arbitrary-code worker or security sandbox.
+
+Protocol v3 is frozen before the formal paired run; v2 inputs, outer clock, font
+conditions, seven ordinary repetitions and original negatives remain.90 expected
+outcomes pass with matching original science/script/data/PNG/table controls.
+Warm engine medians improve in this five-case local workload while first-font
+startup remains6.7–7.7s. See benchmarks/rendering/README.md for exact methods,
+raw vectors, controls and limits. Actual source101 browser workflows observe90
+worker replies; a separate60-render paired helper establishes actual21-kind
+coverage, including animation and JSON/Parquet transitions. Coverage selection
+alone is not rendered-kind evidence. Source/minimum/fresh acceptance passes:21 worker controls per environment,
+60 actual paired native renders per environment, minimum/fresh30-record smoke,
+source/fresh101 workflows with90 worker responses, and the genuine installed
+reuse/shutdown gate. Seven stable gates pass232 Node/1837 Python, zero skips,
+one upstream warning, Ruff142 on306 unchanged source/test/fixture files.
+New push/exact CI are next. Translator investigation and full84
+remain open;85–89 remain pending.

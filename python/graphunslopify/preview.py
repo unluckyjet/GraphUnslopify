@@ -34,7 +34,14 @@ from .workbook import EXCEL_SUFFIXES, workbook_sheets
 
 
 class PreviewState:
-    def __init__(self, root: Path, max_upload: int):
+    def __init__(
+        self,
+        root: Path,
+        max_upload: int,
+        *,
+        reuse_renderer: bool = False,
+        profile_driver: Path | None = None,
+    ):
         self.root, self.max_upload = root.resolve(), max_upload
         self.token = secrets.token_urlsafe(32)
         self.uploads: dict[str, dict[str, Any]] = {}
@@ -43,6 +50,22 @@ class PreviewState:
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
+        self.worker = None
+        if reuse_renderer:
+            from .preview_worker import RenderWorker
+
+            self.worker = RenderWorker(self.root, profile_driver=profile_driver)
+
+    def close(self):
+        if self.worker is not None:
+            self.worker.close()
+
+    def _run_generated(self, command, folder, timeout):
+        return (
+            self.worker.run(command, folder, timeout)
+            if self.worker is not None
+            else _run(command, folder, timeout)
+        )
 
     def upload(self, name: str, content: bytes, *, palette: bool = False) -> dict[str, Any]:
         suffix = Path(name).suffix.lower()
@@ -226,7 +249,7 @@ class PreviewState:
             stem = spec.get("output", {}).get("stem", "figure")
             script = folder / f"{stem}.py"
             script.write_text(translated["code"], encoding="utf8")
-            completed = _run(
+            completed = self._run_generated(
                 [
                     sys.executable,
                     "-c",
@@ -299,6 +322,7 @@ class PreviewState:
                     ],
                     "stale": stale,
                     "exit_code": completed.returncode,
+                    "execution": getattr(completed, "execution", {"mode": "process"}),
                 }
             )
             geometry_path = folder / f"{stem}.edit-map.json"
@@ -366,14 +390,21 @@ class PreviewServer(ThreadingHTTPServer):
     # Complete bounded workers before removing the session directory.
     daemon_threads = False
 
-    def __init__(self, port: int = 0, *, max_upload_mb: int = 100):
+    def __init__(self, port: int = 0, *, max_upload_mb: int = 100, reuse_renderer: bool = True):
         self.temporary = tempfile.TemporaryDirectory(prefix="gu-preview-")
-        self.state = PreviewState(Path(self.temporary.name), max_upload_mb * 1024 * 1024)
+        self.state = PreviewState(
+            Path(self.temporary.name), max_upload_mb * 1024 * 1024, reuse_renderer=reuse_renderer
+        )
         super().__init__(("127.0.0.1", port), PreviewHandler)
 
     def server_close(self):
-        super().server_close()
-        self.temporary.cleanup()
+        try:
+            super().server_close()
+        finally:
+            try:
+                self.state.close()
+            finally:
+                self.temporary.cleanup()
 
 
 class PreviewHandler(BaseHTTPRequestHandler):

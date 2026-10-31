@@ -1,0 +1,153 @@
+{
+  "observed_at": "2026-10-31T00:49:23.525192+00:00",
+  "base_revision": "e3aa13a60f138a1806d5bde141b405401316bda9",
+  "scope": "84b source/minimum/fresh-installed Python worker milestone; full84 translator investigation and85\u201389 remain open; public0.8.0 unchanged",
+  "source_files_unchanged": 306,
+  "seven_local_gates": "worker-local-gates.json",
+  "tests": {
+    "node_passed": 232,
+    "python_passed": 1837,
+    "skipped": 0,
+    "warnings": 1,
+    "warning": "existing MLflow SQLAlchemy noload deprecation",
+    "focused_worker_per_environment": 21,
+    "focused_environments": [
+      "source3.12.14",
+      "minimum3.10.22",
+      "genuine fresh local wheel3.12.14"
+    ],
+    "existing_preview_diagnostic_geometry": 59,
+    "ruff": "full CI lint/format commands passed;142 maintained files formatted"
+  },
+  "formal": {
+    "protocol_sha256": "5f9cb24be3c79fe9f5ffc9c03a3b8f1434e49399dfecf05f1be322d3a8873e13",
+    "records": 90,
+    "expected_clean0": 72,
+    "expected_false_claim2": 18,
+    "file": "worker-comparison-v3.json",
+    "scope": "ordinary source engine medians only; first-font/instrumented/smoke records separate"
+  },
+  "native_kind_conformance": {
+    "kinds": 21,
+    "paired_cases_per_environment": 30,
+    "actual_native_renders_per_environment": 60,
+    "environments": [
+      "source",
+      "minimum",
+      "installed"
+    ],
+    "files": [
+      "worker-kinds-source.json",
+      "worker-kinds-minimum.json",
+      "worker-kinds-installed.json"
+    ],
+    "checks": "original semantic/spec/data/script/PNG/table text; GIF frame pixels/duration/loop; requested exports/current native map ownership; entire SVG/PDF binary identity not asserted"
+  },
+  "comparative_smoke": {
+    "records_per_environment": 30,
+    "files": [
+      "worker-minimum-smoke.json",
+      "worker-installed-smoke.json"
+    ],
+    "scope": "conformance only, not formal performance"
+  },
+  "browser": {
+    "workflows_per_environment": 101,
+    "control_kinds": 21,
+    "native_worker_responses_per_environment": 90,
+    "javascript_errors": 0,
+    "external_requests": 0,
+    "files": [
+      "worker-editor-source.json",
+      "worker-editor-installed.json"
+    ],
+    "scope": "21 control kinds alone are not21 actual renders"
+  },
+  "fresh_wheel": {
+    "name": "graphunslopify-0.8.0-py3-none-any.whl",
+    "sha256": "4f7a5e63b371aca48ea630f75637e4c092fa3019a38858d066cc8fd702d5f92c",
+    "required_gate": "scripts/install-smoke.py --require-editor-controls --require-render-worker --excel --parquet",
+    "actual_generated_editor_check_sha256": "5328ff186b85347f84267cb1a9f1a2fa4208972b638ca3a7806bb63604cb88f6",
+    "result": {
+      "status": "passed",
+      "wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+      "python": "3.12.14",
+      "translator": {
+        "version": "0.8.0",
+        "kinds": [
+          "line",
+          "scatter",
+          "bar",
+          "box",
+          "violin",
+          "ecdf",
+          "raincloud",
+          "ridgeline",
+          "forest",
+          "paired_difference",
+          "slope",
+          "dumbbell",
+          "calibration",
+          "qq",
+          "kaplan_meier",
+          "scaling_fit",
+          "confusion_matrix",
+          "waterfall",
+          "sparkline_grid",
+          "heatmap",
+          "table"
+        ],
+        "node": "v24.19.0"
+      },
+      "network": "external connections blocked after install",
+      "agent": false,
+      "pdf": false,
+      "registry_version": null,
+      "getting_started": {
+        "status": "passed",
+        "python_package": "0.8.0",
+        "steps": {
+          "demo": "passed",
+          "rerun": "passed",
+          "false_claim": "failed",
+          "recovered": "passed"
+        },
+        "exit_codes": [
+          0,
+          2,
+          0
+        ],
+        "data_sha256_prefix": "3a6c3eb05c4dc08c",
+        "elapsed_seconds": 4.974,
+        "timing_scope": "automated walkthrough after installation, not novice completion time",
+        "work_dir": "/private/tmp/graphunslopify-worker-required-installed/guided tour"
+      },
+      "visual_comparison": null,
+      "research_workflow": null,
+      "experiment_tracking": null,
+      "project_management": null,
+      "project_interface": null,
+      "diagnostics": null,
+      "pdf_visual": null,
+      "excel_input": {
+        "status": "passed",
+        "source_sha256": "1f3508348c872e8a5ddc4b12f44fdc9a077b167e959e0aaaf16d24b2783a9a7f",
+        "rows": 3,
+        "worksheet": "Measurements",
+        "exports": {
+          "excel.png": "a5a08c218c871b0cc16e1928de1ed0d8c181c80c535727798c438edbe8048b8c",
+          "excel.svg": "ed7f9906d38874cbbfd545a5975135580e448e20c61c88ff719a30d4ce7a4a6e",
+          "excel.pdf": "12db33b55a1ddd0547d9655e9fdf42810def38720f11ea91d2d15d562d105771"
+        },
+        "package": "/private/tmp/graphunslopify-worker-required-installed/fresh environment/lib/python3.12/site-packages/graphunslopify/__init__.py",
+        "reader_version": "0.9.0"
+      },
+      "work_dir": "/private/tmp/graphunslopify-worker-required-installed"
+    }
+  },
+  "retained_failures": [
+    "initial macOS crash cleanup killpg EPERM corrected; crash/recovery/descendant timeout pass",
+    "history retains missing optional statistics and minimumSciPy1.15.3 Mach-O load failures; no case/gate removed; actualSciPy1.14.1 minimum calculation succeeds"
+  ],
+  "ci": "new push/exact main all9/Figure acceptance pending"
+}

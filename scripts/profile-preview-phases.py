@@ -85,7 +85,9 @@ def run_path(path, *args, **kwargs):
 runpy.run_path = run_path
 sys.argv = ["preview-phase-probe", *native_args]
 try:
-    runpy.run_module("graphunslopify.preview_render", run_name="__main__")
+    from graphunslopify import preview_render
+
+    preview_render.main()
 finally:
     runpy.run_path = original_run_path
     total = time.perf_counter() - start

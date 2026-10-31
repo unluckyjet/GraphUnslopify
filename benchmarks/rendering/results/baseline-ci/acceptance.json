@@ -1,0 +1,89 @@
+{
+  "commit": "e3aa13a60f138a1806d5bde141b405401316bda9",
+  "verified_at": "2026-10-31T00:01:49.102875+00:00",
+  "all_nine_main_jobs_and_figure_passed": true,
+  "source_binding_matches": true,
+  "expected_check_names_match": true,
+  "missing_checks": [],
+  "unexpected_checks": [],
+  "workflows": [
+    {
+      "id": 41145500570,
+      "name": "checks",
+      "head_sha": "e3aa13a60f138a1806d5bde141b405401316bda9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570"
+    },
+    {
+      "id": 41145500539,
+      "name": "Figure CI integration",
+      "head_sha": "e3aa13a60f138a1806d5bde141b405401316bda9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500539"
+    }
+  ],
+  "checks": [
+    {
+      "name": "typescript",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515158"
+    },
+    {
+      "name": "distribution (windows-latest, 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515142"
+    },
+    {
+      "name": "distribution (macos-latest, 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515079"
+    },
+    {
+      "name": "distribution (ubuntu-latest, 3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515070"
+    },
+    {
+      "name": "python (3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515053"
+    },
+    {
+      "name": "distribution (ubuntu-latest, 3.10)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515022"
+    },
+    {
+      "name": "render",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515016"
+    },
+    {
+      "name": "python (3.12)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369515007"
+    },
+    {
+      "name": "published-papers",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500570/job/124369514840"
+    },
+    {
+      "name": "consumer",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/unluckyjet/GraphUnslopify/actions/runs/41145500539/job/124369514493"
+    }
+  ]
+}

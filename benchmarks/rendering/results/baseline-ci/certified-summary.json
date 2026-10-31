@@ -1,0 +1,68 @@
+{
+  "complete": true,
+  "passed": true,
+  "runs": 72,
+  "expected_runs": 72,
+  "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+  "arms": {
+    "matplotlib": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "7.450580596923828125E-10",
+        "low": "2.2351741790771484375E-9",
+        "high": "7.450580596923828125E-10",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.03260496049999517,
+        "execution_seconds_median": 0.922923549500041,
+        "instrumented_execution_seconds_median": 0.34178700799999717,
+        "save_seconds_median": 0.23835111550003774
+      }
+    },
+    "graphunslopify": {
+      "runs": 36,
+      "clean_runs": 18,
+      "clean_accepted": 18,
+      "clean_quality_passed": 18,
+      "sentinel_runs": 18,
+      "sentinels_correctly_rejected": 18,
+      "execution_failures": 0,
+      "max_clean_absolute_error": {
+        "mean": "1.11758708953857421875E-9",
+        "low": "3.7252902984619140625E-10",
+        "high": "2.60770320892333984375E-9",
+        "half_span": "1.490116119384765625E-9"
+      },
+      "measured_clean_values": {
+        "mean": 54,
+        "low": 54,
+        "high": 54,
+        "half_span": 54
+      },
+      "machine_timing": {
+        "build_seconds_median": 0.46388584150000156,
+        "execution_seconds_median": 1.2611876114999916,
+        "instrumented_execution_seconds_median": 0.6340991550000012,
+        "save_seconds_median": 0.2720766880000127
+      }
+    }
+  },
+  "scope": "Project-run evaluation against external NIST facts; live author clocks describe one familiar AI operator, not human or causal productivity; quality proxies are not human judgments",
+  "commit": "e3aa13a60f138a1806d5bde141b405401316bda9",
+  "run_id": 41145500570,
+  "artifact_id": 13021070791,
+  "zip_sha256": "b284f0649f45cc673f180226477f616d0300b02e0ba912d45921bd2849f379ac"
+}

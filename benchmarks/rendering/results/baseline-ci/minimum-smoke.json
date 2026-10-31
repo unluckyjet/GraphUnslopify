@@ -1,0 +1,1790 @@
+{
+  "schema_version": 1,
+  "protocol_sha256": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+  "mode": "conformance-smoke",
+  "executor": "actual PreviewState.render, existing one-shot translator and renderer",
+  "scope": "Prospective engine latency/phase and worker-conformance workload. Not browser/app-startup or human authoring time, blind quality, independent research evaluation or a speed claim. Three small exploratory fixtures informed selection; this is not held-out evaluation. Frozen before this formal baseline, before any worker implementation. v1 failed its preflight intent: one case included an invalid empty optional claims array; v2 omits that property and preserves all data/statistics/outcome gates. Prior protocol, inputs, executor and all45 attempted outcomes remain.",
+  "source_commit": "e3aa13a60f138a1806d5bde141b405401316bda9",
+  "package_mode": "source",
+  "package_root": "/home/runner/work/GraphUnslopify/GraphUnslopify/python/graphunslopify",
+  "invoked_package_matches_source": true,
+  "invoked_package_files": {
+    "preview.py": "576a68d73e5c1b67dcf205992c03a20be38fc8ec3c52a11dea9a52d1c5ca3d4a",
+    "preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "preview_geometry.py": "9f903957198b95ed71bd85d5f13b0b022a1acbb21c70af527a03626721d35dbd",
+    "preview_diagnostics.py": "d0eacc6830fb3516401b416492673a8174b5e6763d07513aac9538f00fec357c",
+    "audit.py": "fc8bb77dde8ddcc3eea7d25085e1140bcbd265f1e2d582e163cd906974194d08",
+    "_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "sources": {
+    "scripts/rendering-benchmark.py": "f56fd01f843c94611310b6510f95816fd3cd39cf4342356554d36e7dea7bf207",
+    "scripts/profile-preview-phases.py": "d233125febdad783bf9c2131b9828d0863ca58567ae755322128aa7c20d1cf2e",
+    "python/graphunslopify/preview.py": "576a68d73e5c1b67dcf205992c03a20be38fc8ec3c52a11dea9a52d1c5ca3d4a",
+    "python/graphunslopify/preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "python/graphunslopify/_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "environment": {
+    "python": "3.10.22 (main, Oct  1 2026, 14:32:29) [GCC 15.2.0]",
+    "executable": "/opt/hostedtoolcache/Python/3.10.22/x64/bin/python",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.43",
+    "dependencies": {
+      "numpy": "2.2.6",
+      "pandas": "2.3.3",
+      "matplotlib": "3.10.9",
+      "pillow": "12.3.0",
+      "graphunslopify": "0.8.0"
+    }
+  },
+  "warm_repetitions": 1,
+  "cases": [
+    {
+      "id": "demo-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.2663400390001698,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 2.1803759720000926,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "224ff5d835cf402a87add05666cc459b",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12798182799997448,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.9313094350000028
+          },
+          "artifact_hashes": {
+            "figure.png": "9cbb42c43c028b97f9c330b6469e761b584f02a9630307e26e6c7279b285cf85",
+            "figure.svg": "30c9fabf3f989d6cf95f726e25e77cb025d0288bb92e4e67c8bad81c110895b2",
+            "figure.pdf": "f94c5a6ea152cb8c6ff44a784f6eab2eaff7f3b048035ab4eb715253b89381bb"
+          },
+          "prepare_and_post_seconds": 0.12108470900011525
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.9906751519999943,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "23bff1b9b75049729852c138095dd8f5",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.1289290689999234,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.750449314999969
+          },
+          "artifact_hashes": {
+            "figure.png": "9cbb42c43c028b97f9c330b6469e761b584f02a9630307e26e6c7279b285cf85",
+            "figure.svg": "30c9fabf3f989d6cf95f726e25e77cb025d0288bb92e4e67c8bad81c110895b2",
+            "figure.pdf": "f94c5a6ea152cb8c6ff44a784f6eab2eaff7f3b048035ab4eb715253b89381bb"
+          },
+          "prepare_and_post_seconds": 0.11129676800010202
+        },
+        {
+          "generation": 2,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 2.0181593750000957,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "633bb4e2e8c8444b9ff4749793269ceb",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12335915099993144,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.7826173420000941
+          },
+          "artifact_hashes": {
+            "figure.png": "9cbb42c43c028b97f9c330b6469e761b584f02a9630307e26e6c7279b285cf85",
+            "figure.svg": "30c9fabf3f989d6cf95f726e25e77cb025d0288bb92e4e67c8bad81c110895b2",
+            "figure.pdf": "f94c5a6ea152cb8c6ff44a784f6eab2eaff7f3b048035ab4eb715253b89381bb"
+          },
+          "prepare_and_post_seconds": 0.1121828820000701,
+          "instrumented_phases": {
+            "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 1.6087538609999683,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.48977497500004574,
+              "script_module_initialization": 0.2632744879999791,
+              "draw_and_other_main": 0.0334695889998784,
+              "data_read": 0.0035147159999269206,
+              "data_prepare": 0.0011793999999554217,
+              "statistics": 0.01923360099999627,
+              "owned_layout": 0.22521901699997215,
+              "description_and_claims": 0.02455025500012198,
+              "export_and_geometry": 0.49758987900008833,
+              "inspection_and_projection": 0.04947514100012995
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0035147159999269206,
+              "data_prepare": 0.0011793999999554217,
+              "statistics": 0.02341413499993905,
+              "owned_layout": 0.262426380000079,
+              "description_and_claims": 0.032217522000109966,
+              "export_and_geometry": 0.49758987900008833,
+              "inspection_and_projection": 0.04947514100012995,
+              "draw_and_other_main": 0.8542315980000694
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0014727999998740415
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "147d34abe833c594",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "ours",
+                "reference": "base"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3216733100132867,
+                "figure.svg": 3.3211154444444446,
+                "figure.pdf": 3.321336805555555
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3216733100132867,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "ours",
+              "reference": "base",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "0 of 3 x values are not above base",
+              "verdict": "holds",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2. Ours is above base at every x, though the intervals overlap at 3 of 3 x values.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "ca7176d0656f1ffeecd90aa31a463b658483eac46ba26aa5ec1e5868ce782d27"
+          }
+        },
+        "png": {
+          "size": [
+            1993,
+            1781
+          ],
+          "rgba_sha256": "168c5612eab4926d5e5331ff6faee3a4182dcb9f998ef9bad989ba3e9dbc8733"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 1,
+        "accepted_warm_runs": 1,
+        "median_engine_seconds": 1.9906751519999943,
+        "p90_engine_seconds_linear": 1.9906751519999943,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-sparkline",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.007301472000108333,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 2.0301945270000488,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "01042d51566e451681bef6078525e369",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12600539000004574,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.8777664490000916
+          },
+          "artifact_hashes": {
+            "series.png": "1ed803a72f8e46916262e1b8c5c8878dcbc75b6acc8cbe1e62e2ec2b74eca524",
+            "series.svg": "07db36f70ca8ade9e543ee11c5e4feb4623690937883589a16636fd26f3cb4fe",
+            "series.pdf": "f248b443ca88eaeda8b7e354849de302ab64c23e7d069b604a37ed1dc8018120"
+          },
+          "prepare_and_post_seconds": 0.02642268799991143
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.8953782860000956,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "64b563939ed3496ca43f9cc31c716454",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.1287844230000701,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.7452138239998476
+          },
+          "artifact_hashes": {
+            "series.png": "1ed803a72f8e46916262e1b8c5c8878dcbc75b6acc8cbe1e62e2ec2b74eca524",
+            "series.svg": "07db36f70ca8ade9e543ee11c5e4feb4623690937883589a16636fd26f3cb4fe",
+            "series.pdf": "f248b443ca88eaeda8b7e354849de302ab64c23e7d069b604a37ed1dc8018120"
+          },
+          "prepare_and_post_seconds": 0.02138003900017793
+        },
+        {
+          "generation": 2,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 1.8574705659998472,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "series.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "27803e82956f4d8388c134ef1c997098",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12682786999994278,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.7087287669999114
+          },
+          "artifact_hashes": {
+            "series.png": "1ed803a72f8e46916262e1b8c5c8878dcbc75b6acc8cbe1e62e2ec2b74eca524",
+            "series.svg": "07db36f70ca8ade9e543ee11c5e4feb4623690937883589a16636fd26f3cb4fe",
+            "series.pdf": "f248b443ca88eaeda8b7e354849de302ab64c23e7d069b604a37ed1dc8018120"
+          },
+          "prepare_and_post_seconds": 0.021913928999993004,
+          "instrumented_phases": {
+            "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 1.557291942999882,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.4919185789999574,
+              "script_module_initialization": 0.25717499899997165,
+              "draw_and_other_main": 0.060855193999714174,
+              "data_read": 0.0038197080000372807,
+              "data_prepare": 0.0016401190000578936,
+              "owned_layout": 0.26065442000003713,
+              "description_and_claims": 0.004907533000050535,
+              "export_and_geometry": 0.43356850400004987,
+              "inspection_and_projection": 0.041406606999998985
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0038197080000372807,
+              "data_prepare": 0.0016401190000578936,
+              "owned_layout": 0.28571585899999263,
+              "description_and_claims": 0.004907533000050535,
+              "export_and_geometry": 0.43356850400004987,
+              "inspection_and_projection": 0.041406606999998985,
+              "draw_and_other_main": 0.8068520849999459
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "owned_layout": 2,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0013462800000070274
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "75226738ea54f809",
+          "spec": {
+            "title": "Observed responses",
+            "group": "method",
+            "series_order": [
+              "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+              "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+            ],
+            "facet": {
+              "by": "site",
+              "columns": 2,
+              "share_x": true,
+              "share_y": true,
+              "panel_letters": true
+            },
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "series"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "step",
+                "value",
+                "other",
+                "prob",
+                "event",
+                "method",
+                "site"
+              ]
+            },
+            "x": {
+              "field": "step",
+              "label": "Step",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Value",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "sparkline_grid",
+            "columns": 4
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "a2454cfd3075110b",
+            "counts": {
+              "read": 6,
+              "after_filter": 6,
+              "prepared": 6,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "value": {
+                  "finite": 6,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 6,
+              "nonfinite": 0
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "series.png": 5.806186688567079,
+                "series.svg": 5.8015321111111104,
+                "series.pdf": 5.801649305555555
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 5.806186688567079,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                },
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.95,
+                    2.05
+                  ],
+                  "y_limits": [
+                    0.76,
+                    4.24
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": "first",
+              "metric": "value"
+            },
+            {
+              "index": 1,
+              "name": "second",
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Grid of sparklines on a shared scale, one per series of Value against Step. One series per method, with expected order Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule. Split into one panel per site. Panel first: At the largest step, Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is 2. Panel second: At the largest step, Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule is highest at 4 and Reference treatment condition measured with the original experimental preparation and complete follow-up schedule is lowest at 2. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "366574da065a323f8c7bb3781476244ffd315018b63c291f379deef364a7c001"
+          }
+        },
+        "png": {
+          "size": [
+            871,
+            720
+          ],
+          "rgba_sha256": "357717743b3b0ce084887b637959540c5d237541b418b3dd931c2fa6e3fbca69"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 1,
+        "accepted_warm_runs": 1,
+        "median_engine_seconds": 1.8953782860000956,
+        "p90_engine_seconds_linear": 1.8953782860000956,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "long-grouped-table",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.003891532000125153,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 1.7407367759999488,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "eaf1a8a3963f4972998c36f85fe2f752",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12754208800015476,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.6014927280000393
+          },
+          "artifact_hashes": {
+            "context.png": "52ee90013c24a517a9dfff255221501367e4c0e44a680ea4f45de5a9a9df9261",
+            "context.svg": "5fbb1a882cb6159f48000e155e645062670f5224b652e1bdd610c185470fd0cb",
+            "context.pdf": "850582b19a75c290c6b29128eca3a77fa2ebc323f132b92039ff7ab56eb45d11"
+          },
+          "prepare_and_post_seconds": 0.011701959999754763
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.6075676460000068,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e33b3bf9960749bca38ec7c69a4cb454",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12522715499994774,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.47064353199994
+          },
+          "artifact_hashes": {
+            "context.png": "52ee90013c24a517a9dfff255221501367e4c0e44a680ea4f45de5a9a9df9261",
+            "context.svg": "5fbb1a882cb6159f48000e155e645062670f5224b652e1bdd610c185470fd0cb",
+            "context.pdf": "850582b19a75c290c6b29128eca3a77fa2ebc323f132b92039ff7ab56eb45d11"
+          },
+          "prepare_and_post_seconds": 0.011696959000119023
+        },
+        {
+          "generation": 2,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 1.5838938839999628,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [
+              {
+                "severity": "warning",
+                "code": "low_dpi_raster",
+                "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+                "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+                "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+              }
+            ],
+            "filename": "context.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "13407405eef9458dabc6fb42c87fcf5f",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12464997400002176,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.4475366350000058
+          },
+          "artifact_hashes": {
+            "context.png": "52ee90013c24a517a9dfff255221501367e4c0e44a680ea4f45de5a9a9df9261",
+            "context.svg": "5fbb1a882cb6159f48000e155e645062670f5224b652e1bdd610c185470fd0cb",
+            "context.pdf": "850582b19a75c290c6b29128eca3a77fa2ebc323f132b92039ff7ab56eb45d11"
+          },
+          "prepare_and_post_seconds": 0.01170727499993518,
+          "instrumented_phases": {
+            "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 1.29283811099981,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.49116806799997903,
+              "script_module_initialization": 0.2595432109999365,
+              "draw_and_other_main": 0.028973990999702437,
+              "data_read": 0.0034269489999587677,
+              "data_prepare": 0.0006809270000758261,
+              "statistics": 0.006667538000101558,
+              "description_and_claims": 0.00046021299999665644,
+              "owned_layout": 0.06782395800019003,
+              "export_and_geometry": 0.39062591299989435,
+              "inspection_and_projection": 0.04207875600013722
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0034269489999587677,
+              "data_prepare": 0.0006809270000758261,
+              "statistics": 0.009110572000054162,
+              "description_and_claims": 0.0019937699998990865,
+              "owned_layout": 0.06782395800019003,
+              "export_and_geometry": 0.39062591299989435,
+              "inspection_and_projection": 0.04207875600013722,
+              "draw_and_other_main": 0.5407382450000568
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "description_and_claims": 1,
+              "owned_layout": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.001388586999837571
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "20882059cb7fbed0",
+          "spec": {
+            "title": "Observed responses across the complete original experimental measurement period",
+            "group": "condition",
+            "legend": {
+              "show": false,
+              "position": "best",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 150,
+              "stem": "context"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "dataset",
+                "value",
+                "condition"
+              ]
+            },
+            "kind": "table",
+            "x": {
+              "field": "dataset",
+              "label": "Dataset",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "value",
+              "label": "Observed response across the complete original experimental measurement period",
+              "unit": "fraction",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "aggregation": "mean",
+            "precision": 2,
+            "highlight": "none",
+            "higher_is_better": true
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "27ede3e03ed9e4f6",
+            "counts": {
+              "read": 4,
+              "after_filter": 4,
+              "prepared": 4,
+              "missing_plot_keys": 0,
+              "measurements": {
+                "value": {
+                  "finite": 4,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 4,
+              "nonfinite": 0,
+              "sample_sizes": [
+                1,
+                1,
+                1,
+                1
+              ]
+            }
+          },
+          "findings": [
+            {
+              "severity": "warning",
+              "code": "low_dpi_raster",
+              "message": "dpi is 150. Most venues want at least 300 for raster figures.",
+              "consequence": "Raster marks and text may lose detail when the figure is printed or resized to its publication width.",
+              "correction": "Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content."
+            }
+          ],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "context.png": 3.1864032573307277,
+                "context.svg": 3.1843749999999997,
+                "context.pdf": 3.186328125
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.1864032573307277,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "y_limits": [
+                    0.0,
+                    1.0
+                  ],
+                  "artists": []
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "value"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Table of Observed response across the complete original experimental measurement period in fraction, one row per dataset. One column per condition. N = 1 per point. Displayed cells run from 0.60 to 0.90. The mean of displayed cells is 0.75.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "aa91096697b96202e113e360f1d866dfe5bc234dd9090c5aa2688c365812a363"
+          }
+        },
+        "png": {
+          "size": [
+            478,
+            333
+          ],
+          "rgba_sha256": "7c5f771880f5eae04b8fd912e207b37afab2fe018241e76447ba72e1b0f281ea"
+        },
+        "table_text": {
+          "md": "0f4eb3e4b8e52be620228c114b30fe2fdd86536877631aab44fee7b426c9cdbd",
+          "tex": "1a702b2bf7b2aef4dee8c507090d3bb6a91c9791a5d8f838ffc768463eab8e28"
+        }
+      },
+      "summary": {
+        "expected_warm_runs": 1,
+        "accepted_warm_runs": 1,
+        "median_engine_seconds": 1.6075676460000068,
+        "p90_engine_seconds_linear": 1.6075676460000068,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "dense-median-bootstrap",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "upload_seconds": 0.014999361000036515,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 4.41229635600007,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "e27a4a3789a34da59251aff976c25c09",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.14526290599997083,
+            "renderer_calls": 1,
+            "renderer_seconds": 3.892479455000057
+          },
+          "artifact_hashes": {
+            "figure.png": "fa687763630584035ca92fca478286004e1ed21de369a1bce3ac013f26b5f29b",
+            "figure.svg": "6e1159898dd7002b1e7df2bde3084092693009c0f34983337cc8ad293ac073a2",
+            "figure.pdf": "556623a3543d7c7a6ae305bafe8b083a1f9d0e21850c38da5d0e958aca1a824a"
+          },
+          "prepare_and_post_seconds": 0.37455399500004205
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 4.23247950699988,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "851d707b822841cf9f0b91b2435e11b0",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.1294574650000868,
+            "renderer_calls": 1,
+            "renderer_seconds": 3.7238758910000342
+          },
+          "artifact_hashes": {
+            "figure.png": "fa687763630584035ca92fca478286004e1ed21de369a1bce3ac013f26b5f29b",
+            "figure.svg": "6e1159898dd7002b1e7df2bde3084092693009c0f34983337cc8ad293ac073a2",
+            "figure.pdf": "556623a3543d7c7a6ae305bafe8b083a1f9d0e21850c38da5d0e958aca1a824a"
+          },
+          "prepare_and_post_seconds": 0.3791461509997589
+        },
+        {
+          "generation": 2,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 4.175977439999997,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 0,
+          "status": "passed",
+          "run_id": "74dfc6a82ace449f9149ddca59e464cd",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.1280703600000379,
+            "renderer_calls": 1,
+            "renderer_seconds": 3.6746882709999227
+          },
+          "artifact_hashes": {
+            "figure.png": "fa687763630584035ca92fca478286004e1ed21de369a1bce3ac013f26b5f29b",
+            "figure.svg": "6e1159898dd7002b1e7df2bde3084092693009c0f34983337cc8ad293ac073a2",
+            "figure.pdf": "556623a3543d7c7a6ae305bafe8b083a1f9d0e21850c38da5d0e958aca1a824a"
+          },
+          "prepare_and_post_seconds": 0.37321880900003634,
+          "instrumented_phases": {
+            "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 3.520386548000033,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.5012867640000422,
+              "script_module_initialization": 0.2595117030000438,
+              "draw_and_other_main": 0.038198291999606226,
+              "data_read": 0.01571300999989944,
+              "data_prepare": 0.055853432000049,
+              "statistics": 1.49349450300042,
+              "owned_layout": 0.20458771000016895,
+              "description_and_claims": 0.0032246189998659247,
+              "export_and_geometry": 0.883525938000048,
+              "inspection_and_projection": 0.06356346799998391
+            },
+            "inclusive_seconds": {
+              "data_read": 0.01571300999989944,
+              "data_prepare": 0.055853432000049,
+              "statistics": 1.503952006000418,
+              "owned_layout": 0.23397284300017418,
+              "description_and_claims": 0.7316619919999994,
+              "export_and_geometry": 0.883525938000048,
+              "inspection_and_projection": 0.06356346799998391,
+              "draw_and_other_main": 2.7581609720000415
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 2,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.001427108999905613
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "4de6bc25532655ba",
+          "spec": {
+            "title": "Synthetic repeated-unit responses",
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "double_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "median",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "passed",
+          "ok": true,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "9f0560bfec5a1acb",
+            "counts": {
+              "read": 20000,
+              "after_filter": 20000,
+              "prepared": 20000,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 20000,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 20000,
+              "nonfinite": 0,
+              "sample_sizes": [
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500,
+                500
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 20000
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 7.0,
+              "widths_in": {
+                "figure.png": 6.92001384002768,
+                "figure.svg": 6.919865458333334,
+                "figure.pdf": 6.920086805555555
+              },
+              "target_width_in": 7,
+              "evaluated_width_in": 6.920086805555555,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.04999999999999993,
+                    20.95
+                  ],
+                  "y_limits": [
+                    39.82005,
+                    54.67995
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 20,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 20,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 42,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 42,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 500 per point (unit IDs: seed). At the largest epoch, ours is highest at 54 and base is lowest at 50. A spread of 4.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": true
+          },
+          "exit_code": 0,
+          "script": {
+            "sha256": "3d6950b691b7b550c8c88931ace6eaf1def76ec2d4741635b5d1e1a3dcc2372b"
+          }
+        },
+        "png": {
+          "size": [
+            4152,
+            2675
+          ],
+          "rgba_sha256": "959b885925dcc6d43f6fb616adeac8badc705ecf8c540f8784edd25d10e0db3b"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 1,
+        "accepted_warm_runs": 1,
+        "median_engine_seconds": 4.23247950699988,
+        "p90_engine_seconds_linear": 4.23247950699988,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    },
+    {
+      "id": "false-comparison",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "upload_seconds": 0.005345184000134395,
+      "records": [
+        {
+          "generation": 0,
+          "phase": "first-fresh-font",
+          "passed": true,
+          "engine_seconds": 2.1145334020000064,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "1c44609e803c4ee48f06e0599b2cdd03",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12751262699998733,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.876300793999917
+          },
+          "artifact_hashes": {
+            "figure.png": "545209c11ebaf7939c3b4c46a6c230c19a2b5078a8fc08afa9fdaab1a6f0636b",
+            "figure.svg": "041952132330613f14f954cee1f349330e2d71f0081b7f434c79493e6f259504",
+            "figure.pdf": "601a82b7f95b5f19ff49e19a876669fcae7f7a336b31b15404a9b586a21191e0"
+          },
+          "prepare_and_post_seconds": 0.11071998100010205
+        },
+        {
+          "generation": 1,
+          "phase": "ordinary-warm-font",
+          "passed": true,
+          "engine_seconds": 1.9851660960000572,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "1be0856f8f3f41c9a4467f9fbd75ce1d",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12864119799996843,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.7435213660000954
+          },
+          "artifact_hashes": {
+            "figure.png": "545209c11ebaf7939c3b4c46a6c230c19a2b5078a8fc08afa9fdaab1a6f0636b",
+            "figure.svg": "041952132330613f14f954cee1f349330e2d71f0081b7f434c79493e6f259504",
+            "figure.pdf": "601a82b7f95b5f19ff49e19a876669fcae7f7a336b31b15404a9b586a21191e0"
+          },
+          "prepare_and_post_seconds": 0.11300353199999336
+        },
+        {
+          "generation": 2,
+          "phase": "instrumented-warm-font",
+          "passed": true,
+          "engine_seconds": 2.0071970090000377,
+          "translation": {
+            "status": "translated",
+            "ok": true,
+            "findings": [],
+            "filename": "figure.py"
+          },
+          "exit_code": 2,
+          "status": "failed",
+          "run_id": "76eb734de86b4fd89ee3e6ef8587c73c",
+          "counters": {
+            "translation_calls": 1,
+            "translation_seconds": 0.12427869999987706,
+            "renderer_calls": 1,
+            "renderer_seconds": 1.7690883450000001
+          },
+          "artifact_hashes": {
+            "figure.png": "545209c11ebaf7939c3b4c46a6c230c19a2b5078a8fc08afa9fdaab1a6f0636b",
+            "figure.svg": "041952132330613f14f954cee1f349330e2d71f0081b7f434c79493e6f259504",
+            "figure.pdf": "601a82b7f95b5f19ff49e19a876669fcae7f7a336b31b15404a9b586a21191e0"
+          },
+          "prepare_and_post_seconds": 0.11382996400016054,
+          "instrumented_phases": {
+            "scope": "Instrumented native preview_render. Explicitly invokes original run_cli after inert module load; byte/PNG/spec/data controls required. Exclusive phases avoid nested double counting; inclusive phases overlap. No worker or speed claim.",
+            "total_instrumented_child_seconds": 1.6142352209999444,
+            "exclusive_seconds": {
+              "initialization_before_script": 0.4954958710000028,
+              "script_module_initialization": 0.2697810810000192,
+              "draw_and_other_main": 0.03504056099995978,
+              "data_read": 0.0037613459999192855,
+              "data_prepare": 0.0012677510001140035,
+              "statistics": 0.019981947999895056,
+              "owned_layout": 0.22683608700003788,
+              "description_and_claims": 0.018164579000085723,
+              "export_and_geometry": 0.493088096000065,
+              "inspection_and_projection": 0.049383338000097865
+            },
+            "inclusive_seconds": {
+              "data_read": 0.0037613459999192855,
+              "data_prepare": 0.0012677510001140035,
+              "statistics": 0.024527440999918326,
+              "owned_layout": 0.2643176809999659,
+              "description_and_claims": 0.02594637600009264,
+              "export_and_geometry": 0.493088096000065,
+              "inspection_and_projection": 0.049383338000097865,
+              "draw_and_other_main": 0.8475237060001746
+            },
+            "calls": {
+              "data_read": 1,
+              "data_prepare": 1,
+              "statistics": 6,
+              "owned_layout": 3,
+              "description_and_claims": 1,
+              "export_and_geometry": 3,
+              "inspection_and_projection": 1,
+              "draw_and_other_main": 1
+            },
+            "unattributed_seconds": 0.0014345629997478682
+          }
+        }
+      ],
+      "reference": {
+        "semantic_report": {
+          "schema_version": 1,
+          "spec_hash": "27d50eab38e31e8b",
+          "spec": {
+            "group": "model",
+            "series_order": [
+              "base",
+              "ours"
+            ],
+            "legend": {
+              "show": true,
+              "position": "outside_bottom",
+              "style": "box"
+            },
+            "output": {
+              "interactive": false,
+              "latex": false,
+              "size": "single_column",
+              "formats": [
+                "png",
+                "svg",
+                "pdf"
+              ],
+              "dpi": 600,
+              "stem": "figure"
+            },
+            "style": {
+              "preset": "paper",
+              "grid": false,
+              "despine": true,
+              "venue": "none"
+            },
+            "data": {
+              "path": "data.csv",
+              "format": "csv",
+              "columns": [
+                "epoch",
+                "score",
+                "model",
+                "seed"
+              ]
+            },
+            "claims": [
+              {
+                "kind": "beats_everywhere",
+                "subject": "base",
+                "reference": "ours"
+              }
+            ],
+            "x": {
+              "field": "epoch",
+              "label": "Epoch",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "y": {
+              "field": "score",
+              "label": "Score",
+              "scale": "linear",
+              "percent": false,
+              "temporal": false
+            },
+            "kind": "line",
+            "marker": false,
+            "sort_x": true,
+            "aggregation": "mean",
+            "uncertainty": {
+              "kind": "ci",
+              "level": 0.95,
+              "over": "seed",
+              "display": "band"
+            }
+          },
+          "status": "failed",
+          "ok": false,
+          "data": {
+            "path": "data.csv",
+            "sha256_prefix": "3a6c3eb05c4dc08c",
+            "counts": {
+              "read": 24,
+              "after_filter": 24,
+              "prepared": 24,
+              "missing_plot_keys": 0,
+              "unlisted_series": [],
+              "measurements": {
+                "score": {
+                  "finite": 24,
+                  "nonfinite": 0
+                }
+              },
+              "finite": 24,
+              "nonfinite": 0,
+              "sample_sizes": [
+                4,
+                4,
+                4,
+                4,
+                4,
+                4
+              ],
+              "unit_column": "seed",
+              "missing_unit_ids": 0,
+              "unit_observations": 24
+            }
+          },
+          "findings": [],
+          "inspection": {
+            "available": true,
+            "checked": true,
+            "measurements": {
+              "basis": "exports",
+              "nominal_width_in": 3.4,
+              "widths_in": {
+                "figure.png": 3.3216733100132867,
+                "figure.svg": 3.3211154444444446,
+                "figure.pdf": 3.321336805555555
+              },
+              "target_width_in": 3.4,
+              "evaluated_width_in": 3.3216733100132867,
+              "text_scale": 1.0,
+              "data_view": [
+                {
+                  "basis": "artist_coordinates_not_source_sample_sizes",
+                  "scope": "axes_bounds",
+                  "x_scale": "linear",
+                  "y_scale": "linear",
+                  "x_limits": [
+                    0.9,
+                    3.1
+                  ],
+                  "y_limits": [
+                    51.2,
+                    57.8
+                  ],
+                  "artists": [
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "line",
+                      "finite_coordinates": 3,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    },
+                    {
+                      "kind": "polygon",
+                      "finite_coordinates": 8,
+                      "unavailable_coordinates": 0,
+                      "clip_on": true,
+                      "outside_axes": 0,
+                      "nonpositive_x": 0,
+                      "nonpositive_y": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "panels": [
+            {
+              "index": 0,
+              "name": null,
+              "metric": "score"
+            }
+          ],
+          "claims": [
+            {
+              "kind": "beats_everywhere",
+              "subject": "base",
+              "reference": "ours",
+              "tolerance": null,
+              "wording": "is above {reference} at every x",
+              "panel": 0,
+              "metric": "score",
+              "detail": "3 of 3 x values are not above ours",
+              "verdict": "fails",
+              "interval_overlap": [
+                3,
+                3
+              ]
+            }
+          ],
+          "significance": [],
+          "annotations": [],
+          "untested": [],
+          "alt_text": "Line chart of Score against Epoch. One series per model, with expected order base, ours. Shaded 95 percent confidence intervals. N = 4 per point (unit IDs: seed). At the largest epoch, ours is highest at 56.5 and base is lowest at 54.5. A spread of 2.",
+          "policy": {
+            "strict": true,
+            "fail_on_warning": false,
+            "passed": false
+          },
+          "exit_code": 2,
+          "script": {
+            "sha256": "183920d2fde25dc62bbf7ad167f76a2623b391cfa277110eb0ca7c5982683980"
+          }
+        },
+        "png": {
+          "size": [
+            1993,
+            1781
+          ],
+          "rgba_sha256": "168c5612eab4926d5e5331ff6faee3a4182dcb9f998ef9bad989ba3e9dbc8733"
+        },
+        "table_text": {}
+      },
+      "summary": {
+        "expected_warm_runs": 1,
+        "accepted_warm_runs": 1,
+        "median_engine_seconds": 1.9851660960000572,
+        "p90_engine_seconds_linear": 1.9851660960000572,
+        "all_runs_match_original_semantics_and_png": true
+      }
+    }
+  ],
+  "complete": true,
+  "passed": true,
+  "ci_artifact_id": 13021637736,
+  "ci_zip_sha256": "bb59f6340aca0184f980f5c78a27ed6cd8c7b055976f89e47d1a53ecf3726127",
+  "ci_run_id": 41145500570
+}

@@ -86,6 +86,11 @@ def main() -> None:
         help="require current-source schema-backed editor assets; older releases may omit them",
     )
     parser.add_argument(
+        "--require-render-worker",
+        action="store_true",
+        help="require actual current-source worker reuse and server-owned cleanup",
+    )
+    parser.add_argument(
         "--require-project",
         action="store_true",
         help="require current-source project history and shared settings; older releases may omit them",
@@ -1318,8 +1323,26 @@ def main() -> None:
         "        with urllib.request.urlopen(request,timeout=120) as response: result=json.load(response)\n"
         "        assert result['report']['status']=='passed'\n"
         "        assert any(f['format']=='png' for f in result['files'])\n"
-        "    finally:\n"
-        "        server.shutdown();thread.join(5)\n",
+        + (
+            "        first=result['execution'];assert first['mode']=='worker' and first['process_started']\n"
+            "        owned_process=server.state.worker.process.connection.process\n"
+            "        assert first['pid']==owned_process.pid and first['request_number']==1\n"
+            "        payload['generation']=2\n"
+            "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
+            "        with urllib.request.urlopen(request,timeout=120) as response: second=json.load(response)\n"
+            "        assert second['report']['status']=='passed' and not second['export_errors']\n"
+            "        execution=second['execution'];assert execution['pid']==first['pid'] and execution['request_number']==2 and not execution['process_started']\n"
+            "        assert execution['request_id']!=first['request_id'] and execution['runtime_source_sha256']==first['runtime_source_sha256']\n"
+            if args.require_render_worker
+            else ""
+        )
+        + "    finally:\n"
+        "        server.shutdown();thread.join(5)\n"
+        + (
+            "assert owned_process.poll() is not None\n"
+            if args.require_render_worker
+            else ""
+        ),
         encoding="utf8",
     )
     run([str(python), str(editor_script)], cwd=where, env=env)

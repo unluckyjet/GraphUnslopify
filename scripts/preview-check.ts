@@ -78,6 +78,22 @@ try {
   const errors: string[] = [],
     external: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  const workerExecutions: Array<{pid:number; request_id:string; request_number:number; runtime_source_sha256:string}> = [];
+  const workerObservations: Promise<void>[] = [];
+  page.on("response", (response) => {
+    if (!response.url().endsWith("/api/render") || response.status() !== 200) return;
+    workerObservations.push((async () => {
+      const body = await response.json();
+      if (!body.report || body.stale) return;
+      const execution = body.execution;
+      assert.equal(execution?.mode, "worker", "native editor render must actually use its owned worker");
+      assert.ok(Number.isInteger(execution.pid) && execution.pid > 0);
+      assert.match(execution.request_id, /^[0-9a-f]{32}$/);
+      assert.match(execution.runtime_source_sha256, /^[0-9a-f]{64}$/);
+      workerExecutions.push(execution);
+    })().catch(error => { errors.push(String(error)); }));
+  });
+
   page.on("request", (request) => {
     if (!request.url().startsWith(url) && !request.url().startsWith("data:"))
       external.push(request.url());
@@ -1028,6 +1044,8 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const ownedHeadings = await checkHeadings(page, evidence);
   const ownedLegends = await checkOutsideLegends(page, evidence);
   const ownedText = await checkOwnedText(page, evidence);
+  await Promise.all(workerObservations);
+  assert.ok(workerExecutions.length >= 10);
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   writeFileSync(
@@ -1038,6 +1056,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         external_requests: external.length,
         javascript_errors: errors.length,
         controlled_kinds: controlledKinds,
+        renderer_worker: {native_responses:workerExecutions.length, process_ids:[...new Set(workerExecutions.map(e=>e.pid))], executions:workerExecutions},
         model_drafts: modelDrafts,
         diagnostic_overlays: diagnosticOverlays,
         owned_headings: ownedHeadings,

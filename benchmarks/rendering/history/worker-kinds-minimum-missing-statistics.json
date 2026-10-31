@@ -1,0 +1,628 @@
+{
+  "scope": "Compare actual process/worker exports for every supported kind and mixed inputs.",
+  "package_mode": "source",
+  "package_root": "/Users/shooter/Desktop/Projects/JSONTranslator/python/graphunslopify",
+  "package_assets": {
+    "preview.py": "0793947e1a6f5d0d9e6ab7162d90f953a00d005d2042cd639928f9780acd057c",
+    "preview_worker.py": "39346f175e9c9800d1a779de7dc1cc4c5d6a7f00e626a6e9230ed6003de0ebc2",
+    "worker_process.py": "ad0e40fc9e974cf6b6c777a5262475101def2c3d53a86a7e35933c4c35ee7691",
+    "preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "preview_geometry.py": "9f903957198b95ed71bd85d5f13b0b022a1acbb21c70af527a03626721d35dbd",
+    "preview_diagnostics.py": "d0eacc6830fb3516401b416492673a8174b5e6763d07513aac9538f00fec357c",
+    "_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "complete": true,
+  "passed": false,
+  "records": [
+    {
+      "id": "confusion_row_normalised",
+      "kind": "confusion_matrix",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "d20e694674b94913ad86bca9df69b361",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ablation_waterfall",
+      "kind": "waterfall",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "a9fd00f4beda4b219aed63678b1d0760",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "head_sparklines",
+      "kind": "sparkline_grid",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "5baadd83ca3f4b3890977808ab67666e",
+        "request_number": 3,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "reliability_diagram",
+      "kind": "calibration",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "bd99a0d4ea8f4ee38228c516382a3067",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "normal_qq",
+      "kind": "qq",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "9b53fea3f37b424ca54f6973e6365d86",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "survival_curve",
+      "kind": "kaplan_meier",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "5bcfc5d70a324a2b95d1597852396679",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "power_law_fit",
+      "kind": "scaling_fit",
+      "format": "csv",
+      "passed": false,
+      "error": "AssertionError: {'schema_version': 1, 'tool': 'GraphUnslopify 0.8.0', 'spec_hash': '16aadc978c90b63a', 'spec': {'group': 'family', 'legend': {'show': True, 'position': 'best', 'style': 'box'}, 'output': {'interactive': False, 'latex': False, 'size': 'double_column', 'formats': ['png', 'svg', 'pdf'], 'dpi': 150, 'stem': 'figure'}, 'style': {'preset': 'paper', 'grid': False, 'despine': True, 'venue': 'none'}, 'data': {'path': 'data.csv', 'format': 'csv', 'columns': ['family', 'params_m', 'loss']}, 'x': {'field': 'params_m', 'label': 'Parameters', 'unit': 'M', 'scale': 'log', 'percent': False, 'temporal': False}, 'y': {'field': 'loss', 'label': 'Validation loss', 'scale': 'log', 'percent': False, 'temporal': False}, 'kind': 'scaling_fit', 'show_points': True, 'interval': 't95'}, 'status': 'incomplete', 'ok': False, 'data': {'path': 'data.csv', 'sha256_prefix': '7bbd2bb3569b2190', 'counts': {'read': 12, 'after_filter': 12, 'prepared': 12, 'missing_plot_keys': 0, 'measurements': {'loss': {'finite': 12, 'nonfinite': 0}}, 'finite': 12, 'nonfinite': 0, 'scaling_fits': [{'observations': 6, 'df': 4, 'slope': -0.17834387545195812, 'intercept': 0.4008310637720798, 'stderr': 0.0014698838671518431, 'residual_se': 0.0030626775655348878, 'log_x_center': 1.2385606273598313, 'log_y_center': 0.17994136150651888, 'r_squared': 0.9997283612950763, 'constant_response': False, 'interval': {'method': 'student_t', 'level': 0.95, 'status': 'unavailable', 'low': None, 'high': None, 'critical': None, 'margin': None, 'reason': 'install graphunslopify[statistics] for the requested Student-t interval'}, 'panel': 0, 'series': 'dense', 'metric': 'loss', 'method': 'least_squares_log10'}, {'observations': 6, 'df': 4, 'slope': -0.17879821447181732, 'intercept': 0.39849202806389095, 'stderr': 0.0007802815418820388, 'residual_se': 0.0016258092401229295, 'log_x_center': 1.2385606273598313, 'log_y_center': 0.1770395993768592, 'r_squared': 0.9999238266211151, 'constant_response': False, 'interval': {'method': 'student_t', 'level': 0.95, 'status': 'unavailable', 'low': None, 'high': None, 'critical': None, 'margin': None, 'reason': 'install graphunslopify[statistics] for the requested Student-t interval'}, 'panel': 0, 'series': 'sparse', 'metric': 'loss', 'method': 'least_squares_log10'}]}}, 'environment': {'schema_version': 1, 'capture_stage': 'before_export', 'python': {'version': '3.10.22', 'implementation': 'CPython', 'optimize': 0, 'hash_randomization': True}, 'platform': {'system': 'Darwin', 'machine': 'arm64'}, 'loaded_core_versions': {'numpy': '2.2.6', 'pandas': '2.3.3', 'matplotlib': '3.10.9', 'Pillow': '12.3.0', 'freetype': '2.6.1'}, 'installed_optional_versions': {'graphunslopify': '0.8.0', 'plotly': '7.1.0', 'scipy': None, 'pypdf': '6.21.4'}, 'rendering': {'backend': 'Agg', 'figure_inches': [7.0, 4.2], 'figure_dpi': 100.0, 'export_dpi': 150, 'target_width_in': 7, 'requested_formats': ['png', 'svg', 'pdf'], 'requested_interactive': False, 'rc_parameters': {'font.family': ['sans-serif'], 'font.size': 9.0, 'font.style': 'normal', 'font.weight': 'normal', 'font.variant': 'normal', 'font.stretch': 'normal', 'mathtext.fontset': 'dejavusans', 'text.usetex': False, 'text.parse_math': True, 'svg.fonttype': 'path', 'pdf.fonttype': 42, 'ps.fonttype': 42, 'savefig.transparent': False, 'savefig.facecolor': 'auto', 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'path.simplify': True, 'path.simplify_threshold': 0.111111111111, 'agg.path.chunksize': 0, 'svg.hashsalt': '16aadc978c90b63a'}, 'default_font': {'family': 'DejaVu Sans', 'file': 'DejaVuSans.ttf', 'sha256': '3fdf69cabf06049ea70a00b5919340e2ce1e6d02b0cc3c4b44fb6801bd1e0d22'}}, 'execution': {'strict': True, 'fail_on_warning': False, 'source': 'cli'}, 'random_constants': {}, 'unavailable': []}, 'findings': [{'severity': 'warning', 'code': 'low_dpi_raster', 'message': 'dpi is 150. Most venues want at least 300 for raster figures.', 'consequence': 'Raster marks and text may lose detail when the figure is printed or resized to its publication width.', 'correction': 'Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content.'}, {'severity': 'warning', 'code': 'scaling_interval_unavailable', 'message': 'Scaling panel 0, series dense: interval unavailable; install graphunslopify[statistics] for the requested Student-t interval', 'consequence': 'The requested fit uncertainty/residual variance is not established by this sample or installed capability; an unavailable estimate is not zero error.', 'correction': 'Read the recorded reason and check distinct positive scales, independent evidence and residual degrees of freedom. Install the matching statistics extra if that is the missing capability, or explicitly report a justified point-only fit without inventing uncertainty.'}, {'severity': 'warning', 'code': 'scaling_interval_unavailable', 'message': 'Scaling panel 0, series sparse: interval unavailable; install graphunslopify[statistics] for the requested Student-t interval', 'consequence': 'The requested fit uncertainty/residual variance is not established by this sample or installed capability; an unavailable estimate is not zero error.', 'correction': 'Read the recorded reason and check distinct positive scales, independent evidence and residual degrees of freedom. Install the matching statistics extra if that is the missing capability, or explicitly report a justified point-only fit without inventing uncertainty.'}], 'inspection': {'available': True, 'checked': True, 'measurements': {'basis': 'exports', 'nominal_width_in': 7.0, 'widths_in': {'figure.png': 6.91276187835139, 'figure.svg': 6.907923041666666, 'figure.pdf': 6.910818006727777}, 'target_width_in': 7, 'evaluated_width_in': 6.91276187835139, 'text_scale': 1.0, 'data_view': [{'basis': 'artist_coordinates_not_source_sample_sizes', 'scope': 'axes_bounds', 'x_scale': 'log', 'y_scale': 'log', 'x_limits': [0.7518720440245741, 399.00406243884083], 'y_limits': [0.8547958622098052, 2.649493780463683], 'artists': [{'kind': 'line', 'finite_coordinates': 100, 'unavailable_coordinates': 0, 'clip_on': True, 'outside_axes': 0, 'nonpositive_x': 0, 'nonpositive_y': 0}, {'kind': 'line', 'finite_coordinates': 100, 'unavailable_coordinates': 0, 'clip_on': True, 'outside_axes': 0, 'nonpositive_x': 0, 'nonpositive_y': 0}, {'kind': 'scatter', 'finite_coordinates': 6, 'unavailable_coordinates': 0, 'clip_on': True, 'outside_axes': 0, 'nonpositive_x': 0, 'nonpositive_y': 0}, {'kind': 'scatter', 'finite_coordinates': 6, 'unavailable_coordinates': 0, 'clip_on': True, 'outside_axes': 0, 'nonpositive_x': 0, 'nonpositive_y': 0}]}]}}, 'panels': [{'index': 0, 'name': None, 'metric': 'loss'}], 'claims': [], 'significance': [], 'annotations': [], 'outputs': [{'path': 'figure.png', 'format': 'png', 'sha256': '3d0b5ae22e877e97097a83db401a50a6f508fb788bd0fe0407241d55c4e3043a', 'bytes': 42830}, {'path': 'figure.svg', 'format': 'svg', 'sha256': '3d564ebe417bba82ab411167e0ead8099f6e38e1b08cedc8bd416ac2f377ed33', 'bytes': 35210}, {'path': 'figure.pdf', 'format': 'pdf', 'sha256': '6ae43548aa940dd178dd6213f50d0011097cc46e30be53a944855ddf773c1726', 'bytes': 16761}], 'skipped_outputs': [], 'untested': ['Scaling panel 0, series dense: interval unavailable; install graphunslopify[statistics] for the requested Student-t interval', 'Scaling panel 0, series sparse: interval unavailable; install graphunslopify[statistics] for the requested Student-t interval'], 'alt_text': 'Scaling plot with a fitted power law of Validation loss against Parameters in M. One series per family. The horizontal axis is logarithmic. The vertical axis is logarithmic. Dense: fitted exponent is -0.1783 over 6 observations. Least squares in base-10 log space gives intercept 0.4008. Slope standard error is 0.00147, with 4 residual degrees of freedom. Confidence interval unavailable: install graphunslopify[statistics] for the requested Student-t interval. Sparse: fitted exponent is -0.1788 over 6 observations. Least squares in base-10 log space gives intercept 0.3985. Slope standard error is 0.0007803, with 4 residual degrees of freedom. Confidence interval unavailable: install graphunslopify[statistics] for the requested Student-t interval. The fitted model and conditional intervals do not establish a power law or its error assumptions.', 'script': {'sha256': 'a16e68bb2b24aed05448687cfaa1c8d916474140f5c41decfed19cb9db0111a1'}, 'exit_code': 2, 'policy': {'strict': True, 'fail_on_warning': False, 'passed': False}}"
+    },
+    {
+      "id": "ablation_forest",
+      "kind": "forest",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "0eb6325d9ad447fe80ff4a785f9d22a4",
+        "request_number": 7,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "paired_gain",
+      "kind": "paired_difference",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "0ad81f221e5c442dbe953cb06c085b78",
+        "request_number": 8,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "before_after_slope",
+      "kind": "slope",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "6265ce9504ef40c7905cf918ef7ac1bc",
+        "request_number": 9,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "before_after_dumbbell",
+      "kind": "dumbbell",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "50bb9374fccb473e94a370c09815ef0e",
+        "request_number": 10,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "latency_ecdf",
+      "kind": "ecdf",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "1a5aa9d0827440aca78a69810bfdfc88",
+        "request_number": 11,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "raincloud_by_model",
+      "kind": "raincloud",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "ac486fbb48e7415a8aaf525b680d69b4",
+        "request_number": 12,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ridgeline_by_model",
+      "kind": "ridgeline",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "f665191d4359460cafd2b89e0f0d21fb",
+        "request_number": 13,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "training_curve",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "3939f176a1944cf4bae337fc9d863a15",
+        "request_number": 14,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ablation_bar",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "d5f46293381241c8b7c6eec1eb23f2b3",
+        "request_number": 15,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "benchmark_comparison",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77590,
+        "request_id": "ad451490cfde4a6ca83654cbaf835e16",
+        "request_number": 16,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "pareto",
+      "kind": "scatter",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "ec4dee7926de4bb5abed2090504bc308",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "seed_distribution",
+      "kind": "box",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "c22d34cbf3f1470d974cc2fde5b0ec12",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "confusion_matrix",
+      "kind": "heatmap",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "621e5f1e0ed9473899e08b8e8c7f530a",
+        "request_number": 3,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "hyperparameter_grid",
+      "kind": "heatmap",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "6dc8b37ab8e741d0af4879c230568cfa",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "faceted_curves",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "ff9bbd7f953049dba2e8ed82ebe4ffcc",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "delta_vs_baseline",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "da556fbff13d4287a74dfb0615a5f05f",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "scaling_law",
+      "kind": "scatter",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "801cd694a0d346d18d743621d56c3e62",
+        "request_number": 7,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "animated_curve",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "6ad011158c8d4d1d9913763aab43a0bc",
+        "request_number": 8,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "native-violin",
+      "kind": "violin",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "a8fa9b04237249538ccc1156183b7d68",
+        "request_number": 9,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "native-table",
+      "kind": "table",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "ec91fcc150074c77abee3111bd0b74cd",
+        "request_number": 10,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "original-false-comparison",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 2,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "ad838da256be489682f362367ba67594",
+        "request_number": 11,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "json-after-csv",
+      "kind": "line",
+      "format": "json",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "ed83c7f49af5443db4501c6df115c83e",
+        "request_number": 12,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "parquet-after-json",
+      "kind": "line",
+      "format": "parquet",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 77828,
+        "request_id": "493e1a6c01fa48fb91cd192ac988bc95",
+        "request_number": 13,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "923b843618d115de24a118fba72e0810c3f44e733ca10aa45c1baac879617623",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    }
+  ],
+  "kinds": [
+    "bar",
+    "box",
+    "calibration",
+    "confusion_matrix",
+    "dumbbell",
+    "ecdf",
+    "forest",
+    "heatmap",
+    "kaplan_meier",
+    "line",
+    "paired_difference",
+    "qq",
+    "raincloud",
+    "ridgeline",
+    "scaling_fit",
+    "scatter",
+    "slope",
+    "sparkline_grid",
+    "table",
+    "violin",
+    "waterfall"
+  ]
+}

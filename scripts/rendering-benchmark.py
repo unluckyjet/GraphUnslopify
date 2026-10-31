@@ -105,102 +105,20 @@ def percentile90(values):
     )
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out-dir", type=Path, required=True)
-    parser.add_argument(
-        "--smoke",
-        action="store_true",
-        help="One warm repetition per case; conformance smoke, not the formal seven-repeat baseline",
+def run_case(case, executor, base, out, rules, repetitions, result, preview):
+    folder = out / case["id"] / executor
+    folder.mkdir(parents=True)
+    state = preview.PreviewState(
+        folder,
+        100 * 1024 * 1024,
+        reuse_renderer=executor == "worker",
+        profile_driver=ROOT / "scripts/profile-preview-phases.py"
+        if executor == "worker"
+        else None,
     )
-    parser.add_argument(
-        "--installed",
-        action="store_true",
-        help="Use the selected interpreter's installed package and require actual source-asset matches",
-    )
-    args = parser.parse_args()
-    base, protocol_path, rules = protocol()
-    out = args.out_dir.resolve()
-    out.mkdir(parents=True, exist_ok=False)
-    if not args.installed:
-        sys.path.insert(0, str(ROOT / "python"))
-    from importlib.metadata import version
-
-    from graphunslopify import preview
-
-    package_root = Path(preview.__file__).resolve().parent
-    selected_assets = [
-        "preview.py",
-        "preview_render.py",
-        "preview_geometry.py",
-        "preview_diagnostics.py",
-        "audit.py",
-        "_translator.mjs",
-    ]
-    if args.installed and package_root == (ROOT / "python/graphunslopify").resolve():
-        raise ValueError(
-            "--installed resolved to source; use a genuine fresh environment"
-        )
-    package_matches = all(
-        digest(package_root / name) == digest(ROOT / "python/graphunslopify" / name)
-        for name in selected_assets
-    )
-    if not package_matches:
-        raise ValueError(
-            "Invoked package assets differ from this source; version strings are insufficient"
-        )
-    repetitions = 1 if args.smoke else rules["schedule"]["warm_repetitions"]
-    source_commit = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
-    ).strip()
-    result = {
-        "schema_version": 1,
-        "protocol_sha256": digest(protocol_path),
-        "mode": "conformance-smoke" if args.smoke else "formal-one-shot-baseline",
-        "executor": "actual PreviewState.render, existing one-shot translator and renderer",
-        "scope": rules["scope"],
-        "source_commit": source_commit,
-        "package_mode": "installed" if args.installed else "source",
-        "package_root": str(package_root),
-        "invoked_package_matches_source": package_matches,
-        "invoked_package_files": {
-            name: digest(package_root / name) for name in selected_assets
-        },
-        "sources": {
-            str(p.relative_to(ROOT)): digest(p)
-            for p in [
-                Path(__file__),
-                ROOT / "scripts/profile-preview-phases.py",
-                ROOT / "python/graphunslopify/preview.py",
-                ROOT / "python/graphunslopify/preview_render.py",
-                ROOT / "python/graphunslopify/_translator.mjs",
-            ]
-        },
-        "environment": {
-            "python": sys.version,
-            "executable": sys.executable,
-            "platform": platform.platform(),
-            "dependencies": {
-                name: version(name)
-                for name in [
-                    "numpy",
-                    "pandas",
-                    "matplotlib",
-                    "pillow",
-                    "graphunslopify",
-                ]
-            },
-        },
-        "warm_repetitions": repetitions,
-        "cases": [],
-        "complete": False,
-        "passed": False,
-    }
-    original_request, original_run = preview.local_request, preview._run
-    for case in rules["cases"]:
-        folder = out / case["id"]
-        folder.mkdir()
-        state = preview.PreviewState(folder, 100 * 1024 * 1024)
+    original_request = preview.local_request
+    original_run = state._run_generated
+    try:
         raw = (base / case["data"]).read_bytes()
         input_spec = json.loads((base / case["spec"]).read_text())
         upload_start = time.perf_counter()
@@ -208,6 +126,7 @@ def main():
         upload_seconds = time.perf_counter() - upload_start
         case_result = {
             "id": case["id"],
+            "executor": executor,
             "expected_exit_code": case["expected_exit_code"],
             "expected_status": case["expected_status"],
             "upload_seconds": upload_seconds,
@@ -288,7 +207,7 @@ def main():
                 with (
                     font_directory(folder / "font-cache"),
                     patch.object(preview, "local_request", request),
-                    patch.object(preview, "_run", run),
+                    patch.object(state, "_run_generated", run),
                 ):
                     start = time.perf_counter()
                     answer = state.render(
@@ -354,6 +273,17 @@ def main():
                     raise ValueError(
                         "Expected actual one-shot convert/render sequence changed"
                     )
+                execution = answer.get("execution", {})
+                if execution.get("mode") != (
+                    "worker" if executor == "worker" else "process"
+                ):
+                    raise ValueError("Measured executor did not actually run")
+                if executor == "worker" and (
+                    type(execution.get("pid")) is not int
+                    or execution.get("request_number") != generation + 1
+                ):
+                    raise ValueError("Worker lifecycle/response identity changed")
+                entry["execution"] = execution
                 entry.update(
                     passed=True,
                     exit_code=answer["exit_code"],
@@ -388,11 +318,146 @@ def main():
                 r["passed"] for r in case_result["records"]
             ),
         }
-        print(case["id"], json.dumps(case_result["summary"]), flush=True)
+        print(case["id"], executor, json.dumps(case_result["summary"]), flush=True)
+    finally:
+        state.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="One warm repetition per case; conformance smoke, not the formal seven-repeat baseline",
+    )
+    parser.add_argument(
+        "--installed",
+        action="store_true",
+        help="Use the selected interpreter's installed package and require actual source-asset matches",
+    )
+    parser.add_argument(
+        "--executor", choices=["process", "worker", "compare"], default="process"
+    )
+    args = parser.parse_args()
+    base, protocol_path, rules = protocol()
+    out = args.out_dir.resolve()
+    out.mkdir(parents=True, exist_ok=False)
+    if not args.installed:
+        sys.path.insert(0, str(ROOT / "python"))
+    from importlib.metadata import version
+
+    from graphunslopify import preview
+
+    package_root = Path(preview.__file__).resolve().parent
+    selected_assets = [
+        "preview.py",
+        "preview_render.py",
+        "preview_geometry.py",
+        "preview_diagnostics.py",
+        "audit.py",
+        "worker_process.py",
+        "preview_worker.py",
+        "_translator.mjs",
+    ]
+    if args.installed and package_root == (ROOT / "python/graphunslopify").resolve():
+        raise ValueError(
+            "--installed resolved to source; use a genuine fresh environment"
+        )
+    package_matches = all(
+        digest(package_root / name) == digest(ROOT / "python/graphunslopify" / name)
+        for name in selected_assets
+    )
+    if not package_matches:
+        raise ValueError(
+            "Invoked package assets differ from this source; version strings are insufficient"
+        )
+    repetitions = 1 if args.smoke else rules["schedule"]["warm_repetitions"]
+    source_commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+    ).strip()
+    result = {
+        "schema_version": 2,
+        "protocol_sha256": digest(protocol_path),
+        "mode": "conformance-smoke"
+        if args.smoke
+        else "formal-paired-worker-comparison"
+        if args.executor == "compare"
+        else "formal-" + args.executor + "-baseline",
+        "executor": "actual PreviewState.render, one-shot translator; selected native renderer="
+        + args.executor,
+        "scope": rules["scope"],
+        "source_commit": source_commit,
+        "package_mode": "installed" if args.installed else "source",
+        "package_root": str(package_root),
+        "invoked_package_matches_source": package_matches,
+        "invoked_package_files": {
+            name: digest(package_root / name) for name in selected_assets
+        },
+        "sources": {
+            str(p.relative_to(ROOT)): digest(p)
+            for p in [
+                Path(__file__),
+                ROOT / "scripts/profile-preview-phases.py",
+                ROOT / "python/graphunslopify/preview.py",
+                ROOT / "python/graphunslopify/preview_render.py",
+                ROOT / "python/graphunslopify/_translator.mjs",
+            ]
+        },
+        "environment": {
+            "python": sys.version,
+            "executable": sys.executable,
+            "platform": platform.platform(),
+            "dependencies": {
+                name: version(name)
+                for name in [
+                    "numpy",
+                    "pandas",
+                    "matplotlib",
+                    "pillow",
+                    "graphunslopify",
+                ]
+            },
+        },
+        "warm_repetitions": repetitions,
+        "cases": [],
+        "complete": False,
+        "passed": False,
+    }
+    result["comparison"] = []
+    for index, case in enumerate(rules["cases"]):
+        order = (
+            (["process", "worker"] if index % 2 == 0 else ["worker", "process"])
+            if args.executor == "compare"
+            else [args.executor]
+        )
+        for executor in order:
+            run_case(case, executor, base, out, rules, repetitions, result, preview)
+        if args.executor == "compare":
+            pair = {c["executor"]: c for c in result["cases"] if c["id"] == case["id"]}
+            matches = pair["process"].get("reference") == pair["worker"].get(
+                "reference"
+            )
+            medians = {
+                key: item["summary"]["median_engine_seconds"]
+                for key, item in pair.items()
+            }
+            result["comparison"].append(
+                {
+                    "case": case["id"],
+                    "order": order,
+                    "same_original_semantic_report_png_and_table_text": matches,
+                    "median_engine_seconds": medians,
+                }
+            )
     result["complete"] = True
     result["passed"] = all(
         c["summary"]["all_runs_match_original_semantics_and_png"]
         for c in result["cases"]
+    )
+    result["passed"] = result["passed"] and all(
+        c["same_original_semantic_report_png_and_table_text"]
+        for c in result["comparison"]
     )
     (out / "results.json").write_text(
         json.dumps(result, indent=2, allow_nan=False) + "\n"

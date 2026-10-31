@@ -208,3 +208,13 @@ desktop/mobile screenshots. This is automated evidence, not a researcher usabili
 study or independent scientific benchmark. Browser previews/downloads are bounded
 to20MiB and decoded rasters to30million pixels; use the saved files directly for
 larger exports. Creation-time environment evidence is not a full dependency image.
+
+
+## Review PDFs without a native manifest
+
+`graphunslopify project-init PAPER --review-only` creates an owned PDF-only paper
+with no dummy native figure or numerical acceptance. The browser can also upload
+PDFs beside source-backed figures. Use the shared scientific review pane for
+actual page previews, visual metrics and historical evidence; PDF numerical
+claims remain untested. See [PDF review in paper projects](project-pdf-inspections.md).
+Current source after public0.8.0; no release is implied.

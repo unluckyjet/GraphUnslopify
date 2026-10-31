@@ -157,7 +157,7 @@ def _groups(report, current, event, exports_verified=False, execution_source=Non
     }
 
 
-def project_review(path=".", *, event_id: str | None = None):
+def _native_review(path=".", *, event_id: str | None = None):
     """Group actual saved evidence and keep current inputs/history distinct."""
     current = project_status(path)
     history = project_history(path)
@@ -279,3 +279,93 @@ def project_review(path=".", *, event_id: str | None = None):
         "figures": rows,
         "scope": "Read-only saved scientific evidence. Current-input matching is not a new execution, cross-machine reproduction or universal scientific acceptance.",
     }
+
+
+def _pdf_review_row(row):
+    report = row["inspection"] or {}
+    checks = {item["name"]: item for item in report.get("checks", [])}
+    return {
+        "id": row["id"],
+        "key": "pdf:" + row["id"],
+        "source_type": "pdf",
+        "name": row["name"],
+        "freshness": row["freshness"],
+        "evidence_state": row["evidence_state"],
+        "matches_latest_accepted_inputs": False,
+        "rerun_recommended": row["evidence_state"] != "saved_visual_evidence",
+        "execution_status": row["operation_status"],
+        "inspection": row,
+        "groups": {
+            "claims": {
+                "state": "untested",
+                "reason": checks.get("numerical_claims", {}).get(
+                    "reason", "Original data and supported numerical claims were not supplied."
+                ),
+            },
+            "uncertainty": {
+                "state": "untested",
+                "reason": "Sample counts, interval calculations and experimental units cannot be verified from a PDF page.",
+            },
+            "legibility": {
+                "state": "visual_only" if report else "unavailable",
+                "reason": "Recorded page text-size and raster-density measurements only; no automatic figure interpretation.",
+                "pages": copy.deepcopy(report.get("pages", [])),
+                "renderer": copy.deepcopy(report.get("renderer")),
+            },
+            "reproduction": {
+                "state": "visual_only",
+                "assets_verified": row["assets_verified"],
+                "recorded_sha256": row["recorded_sha256"],
+                "current_sha256": row["current_sha256"],
+                "freshness": row["freshness"],
+                "source_data": "untested",
+                "native_programs_executed": False,
+                "scope": "Source/asset consistency only; no original-data reproduction or author authentication.",
+            },
+        },
+        "errors": copy.deepcopy(row["errors"]),
+        "audit_errors": [],
+        "policy_errors": [],
+    }
+
+
+def project_review(path=".", *, event_id: str | None = None):
+    """One read-only review collection, with native science and visual-only PDFs distinct."""
+    from .project_inspections import project_inspections
+
+    before = project_history(path)
+    chosen = next((event for event in before["events"] if event["id"] == event_id), None)
+    pdf_selection = bool(chosen and chosen.get("action") == "inspection")
+    native = _native_review(path, event_id=None if pdf_selection else event_id)
+    for row in native["figures"]:
+        row["key"] = row["id"]
+    if event_id is None or pdf_selection:
+        pdfs = project_inspections(path, event_id=event_id if pdf_selection else None)
+        if native["current_revision"] != pdfs["native_revision"]:
+            raise ProjectError(
+                "Project inputs changed while reading the review collection; refresh."
+            )
+        if pdf_selection:
+            native["figures"] = []
+            native["selection"] = {
+                "event": event_id,
+                "state": "intact_inspection",
+                "snapshot_revision": None,
+                "matches_current_revision": False,
+                "explicit_history_selection": True,
+            }
+        native["figures"].extend(_pdf_review_row(row) for row in pdfs["sources"])
+        native["inspection_revision"] = pdfs["revision"]
+        native["query_status"] = pdfs["query_status"]
+    after = project_history(path)
+    if [(event["id"], event["integrity"]) for event in before["events"]] != [
+        (event["id"], event["integrity"]) for event in after["events"]
+    ]:
+        raise ProjectError("Project history changed while reading the review collection; refresh.")
+    native["selection"]["kind"] = "pdf" if pdf_selection else "native" if event_id else "current"
+    native["schema_version"] = 2
+    native["scope"] = (
+        "Read-only native scientific evidence and PDF visual-only evidence. PDF data/numerical "
+        "claims remain untested; reading performs no new execution or scientific acceptance."
+    )
+    return native

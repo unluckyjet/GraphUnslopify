@@ -14,18 +14,21 @@ function detail(parent, label, value) {
   node("summary", label, box); node("pre", pretty(value), box);
 }
 
-export function createScientificReview({ api, protect, edit, audit }) {
+export function createScientificReview({ api, protect, edit, audit, inspect, selection = () => {} }) {
   let context, generation = 0, signature = "", selectedInEditor = "";
   let loadedSignature = "", lastQuery = 0, pending = 0;
+  let desiredSelection = "", loadedRow = null, pageSource = "";
   const eventSelect = $("review-event"), figureSelect = $("review-figure");
   const status = $("review-status"), preview = $("review-preview");
   const groups = $("review-groups"), downloads = $("review-downloads");
   const note = $("review-preview-note");
+  const pageSelect = $("review-page");
   const current = () => !eventSelect.value;
   function clear(message) {
     preview.hidden = true; preview.removeAttribute("src");
     note.hidden = false; note.textContent = message;
     groups.replaceChildren(); downloads.replaceChildren();
+    $("review-page-label").hidden = true;
     status.dataset.state = "unknown";
   }
   function unavailable(message) {
@@ -33,6 +36,7 @@ export function createScientificReview({ api, protect, edit, audit }) {
     clear(message); status.textContent = message;
     $("review-context").textContent = "Current project evidence cannot be verified. Saved history remains below.";
     $("review-audit").disabled = true; $("review-edit").disabled = true;
+    $("review-inspect").disabled = true;
   }
   function options(select, entries, previous) {
     select.replaceChildren();
@@ -122,12 +126,83 @@ export function createScientificReview({ api, protect, edit, audit }) {
       messages.forEach((message) => node("p", message, errors));
     }
   }
+  function renderPdf(row, result) {
+    clear("No intact saved page preview is available.");
+    const evidence = row.inspection, saved = evidence.explicit_history_selection;
+    const available = evidence.evidence_state === "saved_visual_evidence";
+    status.dataset.state = saved || !available ? "saved" : "visual-only";
+    const label = saved ? "Saved historical PDF inspection" : available ? "Source-free PDF inspection" : evidence.inspection ? "Historical PDF visual evidence" : "PDF visual evidence unavailable";
+    status.textContent = `${label} · ${words(row.execution_status)}. Numerical claims and original data remain untested.`;
+    $("review-context").textContent = `${row.name} · source ${words(row.freshness)} · saved inspection ${evidence.event}. Page rendering does not locate figures automatically.`;
+    let root = card("claims", "Claims", row.groups.claims);
+    if (root) { node("p", row.groups.claims.reason, root).dataset.verdict = "untested"; }
+    root = card("uncertainty", "Uncertainty", row.groups.uncertainty);
+    if (root) node("p", row.groups.uncertainty.reason, root);
+    root = card("legibility", "Legibility", row.groups.legibility);
+    const page = row.groups.legibility.pages.find((item) => String(item.page) === pageSelect.value);
+    if (root) {
+      node("p", row.groups.legibility.reason, root);
+      if (page) {
+        for (const check of page.visual?.checks || []) {
+          const label = check.name === "text_size" ? "Text size" : check.name === "raster_resolution" ? "Image resolution" : words(check.name);
+          let text = `${label}: ${words(check.status)}.`;
+          if (check.name === "text_size" && typeof check.minimum_pt === "number") text += ` Minimum measured text ${check.minimum_pt.toPrecision(3)}pt; review threshold ${check.threshold_pt}pt.`;
+          if (check.name === "raster_resolution" && typeof check.minimum_dpi === "number") text += ` Minimum measured image resolution ${check.minimum_dpi.toPrecision(3)}dpi; review threshold ${check.threshold_dpi}dpi.`;
+          node("p", text, root);
+        }
+        detail(root, `Page ${page.page} recorded visual measurements`, page.visual);
+        node("p", `Text: ${words(page.text?.status)}. These measurements do not establish scientific correctness.`, root);
+      }
+      detail(root, "PDF renderer and DPI", row.groups.legibility.renderer);
+    }
+    root = card("reproduction", "Reproduction", row.groups.reproduction);
+    if (root) {
+      node("p", evidence.assets_verified ? "Saved page, text and report bytes match their recorded hashes." : "Saved visual assets are unavailable or changed.", root);
+      node("p", evidence.freshness === "unchanged" ? "The current PDF bytes match this inspection's source hash." : "The current PDF is changed or unavailable. Saved evidence remains historical.", root);
+      node("p", "Original data and plotting programs were not reproduced. No native plotting program executes during PDF inspection.", root);
+      if (evidence.origin === "uploaded_local_copy") node("p", "The uploaded source copy stays in this local project; original PDFs are excluded from inspection history.", root);
+      detail(root, "Recorded and current PDF source hashes", row.groups.reproduction);
+    }
+    for (const message of row.errors) node("p", message, groups).className = "review-errors";
+    $("review-page-label").hidden = !pageSelect.options.length;
+    $("review-inspect").textContent = pageSelect.options.length ? "Inspect selected page again" : "Inspect page 1 again";
+    node("p", "To correct a source-free figure, edit its original source and inspect an updated PDF. These page metrics do not infer numerical claims.", groups).className = "muted";
+    return page;
+  }
+  async function displayPreview(path, version, alt, caption) {
+    const response = await fetch(path);
+    if (!response.ok) throw Error((await response.json()).error || "Saved preview is unavailable.");
+    const blob = await response.blob();
+    const source = await new Promise((accept, reject) => {
+      const reader = new FileReader(); reader.onload = () => accept(reader.result);
+      reader.onerror = () => reject(Error("Saved preview could not be read.")); reader.readAsDataURL(blob);
+    });
+    if (version !== generation) return;
+    preview.onload = () => { if (version === generation) { note.hidden = false; note.textContent = caption; } };
+    preview.onerror = () => { if (version === generation) { preview.hidden = true; note.textContent = "The browser could not display the saved export."; } };
+    preview.alt = alt; preview.src = source; preview.hidden = false;
+  }
+  async function pdfPreview(row, page, version) {
+    if (!row.inspection.assets_verified) return;
+    for (const [index, asset] of row.inspection.assets.entries()) {
+      if (!asset.path.endsWith(".png") && !asset.path.endsWith(".json") && !asset.path.endsWith(".txt")) continue;
+      const link = node("a", "Saved " + asset.path.split("/").at(-1), downloads);
+      link.className = "download";
+      link.href = protect("/api/pdf-asset", { event: row.inspection.event, index });
+    }
+    if (!page) return;
+    const index = row.inspection.assets.findIndex((asset) => asset.path === "packet/" + page.preview.path);
+    if (index < 0) throw Error("The selected page is absent from the saved asset inventory.");
+    await displayPreview(protect("/api/pdf-asset", { event: row.inspection.event, index, view: 1 }), version,
+      `Saved PDF page ${page.page} from ${row.name}`,
+      `Saved page ${page.page} from ${row.inspection.event}. Numerical claims remain untested.`);
+  }
   async function load(background = false) {
     if (!context?.state || !figureSelect.value) { unavailable("Project unavailable. Refresh before reviewing a figure."); return; }
     const version = ++generation;
     const selectedEvent = eventSelect.value, identity = figureSelect.value;
     lastQuery = Date.now();
-    if (!background) { clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
+    if (!background) { loadedRow = null; $("review-inspect").disabled = true; clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
     if (current() && context.dirty) {
       status.textContent = "Unsaved draft. Save and audit before reviewing this version.";
       $("review-context").textContent = "Saved history remains available in the evidence selector and below.";
@@ -140,10 +215,21 @@ export function createScientificReview({ api, protect, edit, audit }) {
       const result = await api("/api/review" + query);
       if (version !== generation) return;
       if (result.current_revision !== context.state.revision) throw Error("Project inputs changed. Refresh before reviewing this version.");
-      const row = result.figures.find((item) => item.id === identity);
+      if (result.inspection_revision && result.inspection_revision !== context.state.inspection_revision) throw Error("PDF source or visual evidence changed. Refresh before reviewing this version.");
+      const row = result.figures.find((item) => (item.key || item.id) === identity);
       if (!row) throw Error("This binding is absent from the current project. Its saved source and results remain in the history below.");
-      const incoming = pretty([row, result.selection, context.busy, context.dirty, eventSelect.value]);
+      loadedRow = row;
+      $("review-inspect").disabled = row.source_type !== "pdf" || context.busy || context.dirty || !(context.state.inspections || []).find((item) => item.id === row.id)?.current_sha256;
+      if (row.source_type === "pdf") {
+        options(pageSelect, row.groups.legibility.pages.map((page) => [String(page.page), "Page " + page.page]), pageSource === row.id ? pageSelect.value : "");
+        pageSource = row.id;
+      }
+      const incoming = pretty([row, result.selection, context.busy, context.dirty, eventSelect.value, row.source_type === "pdf" ? pageSelect.value : ""]);
       if (background && incoming === loadedSignature) return;
+      if (row.source_type === "pdf") {
+        const page = renderPdf(row, result); loadedSignature = incoming;
+        await pdfPreview(row, page, version); return;
+      }
       render(row, result);
       loadedSignature = incoming;
       if (result.selection.state !== "intact_run" || !row.groups.reproduction.saved_exports_verified) return;
@@ -155,18 +241,8 @@ export function createScientificReview({ api, protect, edit, audit }) {
         link.className = "download";
         link.href = protect("/api/artifact", { event: savedEvent.id, figure: identity, index });
       }
-      const response = await fetch(protect("/api/preview", { event: savedEvent.id, figure: identity }));
-      if (!response.ok) throw Error((await response.json()).error || "Saved preview is unavailable.");
-      const blob = await response.blob();
-      const source = await new Promise((accept, reject) => {
-        const reader = new FileReader(); reader.onload = () => accept(reader.result);
-        reader.onerror = () => reject(Error("Saved preview could not be read.")); reader.readAsDataURL(blob);
-      });
-      if (version !== generation) return;
-      preview.onload = () => { if (version === generation) { note.hidden = false; note.textContent = "Saved export from " + savedEvent.id + "."; } };
-      preview.onerror = () => { if (version === generation) { preview.hidden = true; note.textContent = "The browser could not display the saved export."; } };
-      preview.alt = figure?.report?.alt_text || "Saved figure " + identity;
-      preview.src = source; preview.hidden = false;
+      await displayPreview(protect("/api/preview", { event: savedEvent.id, figure: identity }), version,
+        figure?.report?.alt_text || "Saved figure " + identity, "Saved export from " + savedEvent.id + ".");
     } catch (problem) {
       if (version !== generation) return;
       preview.hidden = true; preview.removeAttribute("src"); downloads.replaceChildren();
@@ -175,33 +251,54 @@ export function createScientificReview({ api, protect, edit, audit }) {
       note.hidden = false; note.textContent = "No current preview is available for this selection.";
     } finally { pending--; }
   }
-  eventSelect.onchange = () => { signature = ""; load(); };
-  figureSelect.onchange = () => { signature = ""; load(); };
+  eventSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
+  figureSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
+  pageSelect.onchange = () => { signature = ""; load(); };
   $("review-latest").onclick = () => { eventSelect.value = ""; signature = ""; load(); };
   $("review-audit").onclick = audit;
   $("review-edit").onclick = () => edit(figureSelect.value);
-  return {
-    refresh: () => load(),
-    unavailable,
-    update(next) {
+  $("review-inspect").onclick = () => {
+    if (loadedRow?.source_type !== "pdf" || loadedRow.key !== figureSelect.value) return;
+    inspect?.(loadedRow.id, pageSelect.value ? [Number(pageSelect.value)] : [1], loadedRow.groups.legibility.renderer?.dpi || 144);
+  };
+  function update(next) {
       context = next;
       if (!next.state) return;
-      if (!next.state.revision || !next.state.figures.length) {
+      if (!next.state.revision || !(next.state.figures.length + (next.state.inspections?.length || 0))) {
         figureSelect.replaceChildren();
-        unavailable("Project unavailable. " + (next.state.error || "No current figure evidence can be read."));
+        unavailable(next.state.mode === "review_only" && !next.state.error ? "Review-only project. Add a PDF to create visual evidence; numerical claims remain untested." : "Project unavailable. " + (next.state.error || "No current figure evidence can be read."));
         return;
       }
-      options(eventSelect, [["", "Current inputs"], ...next.state.history.filter((item) => item.action === "run" && item.integrity).map((item) => [item.id, "Saved " + item.id + " · " + words(item.status)])], eventSelect.value);
-      const previous = selectedInEditor !== next.selected ? next.selected : figureSelect.value;
+      options(eventSelect, [["", "Current inputs"], ...next.state.history.filter((item) => ["run", "inspection"].includes(item.action) && item.integrity).map((item) => [item.id, "Saved " + item.id + " · " + words(item.action) + " · " + words(item.status)])], eventSelect.value);
+      const previous = desiredSelection || (selectedInEditor !== next.selected ? next.selected : figureSelect.value);
       selectedInEditor = next.selected;
-      options(figureSelect, next.state.figures.map((item) => [item.id, item.id]), previous);
-      $("review-audit").disabled = next.busy || next.dirty || !next.state.revision;
-      $("review-edit").disabled = next.busy || next.dirty || !figureSelect.value;
+      const saved = next.state.history.find((item) => item.id === eventSelect.value);
+      const entries = saved?.action === "inspection" ? [["pdf:" + saved.inspection_id, "PDF · " + saved.inspection_id]] : next.state.figures.map((item) => [item.id, item.id]);
+      if (!saved) entries.push(...(next.state.inspections || []).map((item) => ["pdf:" + item.id, "PDF · " + item.name]));
+      options(figureSelect, entries, previous);
+      if (entries.some(([key]) => key === desiredSelection)) desiredSelection = "";
+      const pdf = figureSelect.value.startsWith("pdf:");
+      selection(pdf ? "pdf" : "native", figureSelect.value);
+      $("review-inspect").hidden = !pdf;
+      $("review-inspect").disabled = next.busy || next.dirty || !next.state.inspection_revision || loadedRow?.key !== figureSelect.value || !(next.state.inspections || []).find((item) => "pdf:" + item.id === figureSelect.value)?.current_sha256;
+      $("review-audit").disabled = next.busy || next.dirty || !next.state.revision || !next.state.figures.length;
+      $("review-audit").textContent = pdf ? "Check source-backed figures" : "Run paper checks";
+      $("review-edit").disabled = next.busy || next.dirty || !figureSelect.value || pdf;
       const key = pretty([next.state.revision, next.state.status, next.state.history.length, next.state.history_integrity,
         next.state.figures.map((item) => [item.id, item.freshness, item.last_accepted, item.artifacts_verified, item.errors]),
+        next.state.inspection_revision, next.state.inspections,
         next.dirty, next.busy, eventSelect.value, figureSelect.value]);
       if (signature !== key) { signature = key; load(); }
       else if (!pending && Date.now() - lastQuery >= 10000) load(true);
+  }
+  return {
+    refresh: () => load(), unavailable, update,
+    selected: () => figureSelect.value,
+    select(key) {
+      const saved = context?.state.history.find((item) => item.id === eventSelect.value);
+      if (saved && ((key.startsWith("pdf:") ? saved.action !== "inspection" || "pdf:" + saved.inspection_id !== key : saved.action !== "run"))) eventSelect.value = "";
+      desiredSelection = key; signature = ""; update(context);
     },
+    openEvent(identity) { eventSelect.value = identity; desiredSelection = ""; signature = ""; update(context); },
   };
 }

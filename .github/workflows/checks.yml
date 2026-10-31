@@ -101,7 +101,7 @@ jobs:
           python-version: "3.12"
       - run: npm ci
       - run: pip install -r requirements.txt
-      - run: pip install -e "./python[dev,interactive,statistics,excel,parquet]"
+      - run: pip install -e "./python[dev,interactive,statistics,excel,parquet,pdf]"
       # The behavioural tests skip themselves without matplotlib, so the
       # typescript job above cannot run them. This is where they actually run.
       - run: npm test
@@ -171,6 +171,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - run: npm run project-check
+      - run: npm run project-pdf-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: paper-pdf-workspace-verification
+          path: /tmp/gu-pdf-paper-check-*/**
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

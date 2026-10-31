@@ -1,30 +1,22 @@
----
-id: 87
-slug: scientific-review-workspace
-status: ready
-priority: P1
-title: Connect figures and paper projects in an auditable scientific review workspace
-source_idea: User visual-workspace advice unified Scientific Figure Review Mode and paper-wide batch maintenance
----
+# Scientific review workspace — specification link
 
-# 87 — Scientific Figure Review Mode
+The active milestone87 contract and delivery evidence are in
+[Scientific Figure Review Mode](87-scientific-figure-review-mode.md).
+This older path remains available for existing links and carries no separate
+queue item. Milestone87 is still in progress.
 
-Depends on86 and its exact acceptance. Preserve existing data/export consent.
+The original six acceptance scopes are preserved there:
 
-## Acceptance
-
-1. Connect existing paper projects, local data/figures and generated or inspected
-   outputs in one working interface, with current evidence and usable navigation.
-2. Review claims, uncertainty, legibility and reproducibility, propose supported
-   fixes and rerun checks. Foreign outputs/source-free inspection must preserve
-   unknown numerical/scientific facts and existing PDF ownership limitations.
-3. Apply shared paper style/batch edits through canonical intent with review/undo;
-   selectively regenerate affected figures, retain current dependency bindings
-   and display unresolved/failed work rather than retaining old acceptance.
-4. Connect actual history, original input/runtime provenance and auditable exports.
-   Distinguish previous outputs from the current project revision and data.
-5. Exercise actual source/fresh browser paper workflows, mixed generated/foreign
-   evidence, failures/recovery, batch changes and selective rebuild counts. Keep
-   all original strict/reference checks and explicit unsupported cases.
-6. Seven stable checks/push/exact all-nine/Figure per milestone; maintain Obsidian.
-   No human adoption, blind-quality or general productivity claim from automation.
+1. Existing paper projects, local data/figures and generated or inspected outputs
+   in one usable interface: canonical criteria1/6.
+2. Claims, uncertainty, legibility, reproduction, supported fixes and explicit
+   source-free/unknown limits: criteria1–3.
+3. Reviewed canonical batch/shared style changes, undo, selective regeneration,
+   dependency ownership and unresolved/failed states: criteria4–5.
+4. Actual history, original input/runtime provenance and auditable exports:
+   criteria2–3/6.
+5. Source/fresh browser workflows, mixed native/foreign evidence, real failures,
+   rebuild counts and unchanged strict/reference checks: criteria5–6.
+6. Seven checks, per-milestone push/exact CI and maintained Obsidian knowledge;
+   no human/blind/general-productivity claim from automation: criterion6 and the
+   canonical scope/qualification notes.

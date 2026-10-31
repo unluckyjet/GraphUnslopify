@@ -416,7 +416,7 @@ def _project(args: argparse.Namespace) -> int:
 
     try:
         if args.command == "project-init":
-            result = initialize_project(args.path, folder=args.folder)
+            result = initialize_project(args.path, folder=args.folder, review_only=args.review_only)
         elif args.command == "project-status":
             result = project_status(args.path)
         elif args.command == "project-history":
@@ -428,7 +428,7 @@ def _project(args: argparse.Namespace) -> int:
         elif args.command == "project-inspections":
             from .project_inspections import project_inspections
 
-            result = project_inspections(args.path)
+            result = project_inspections(args.path, event_id=args.event)
         elif args.command == "project-inspect-pdf":
             from .project_inspections import inspect_project_pdf
 
@@ -630,6 +630,11 @@ def build_parser() -> argparse.ArgumentParser:
         project.set_defaults(handler=_project)
         if name == "project-init":
             project.add_argument("--folder", default="graphunslopify-project")
+            project.add_argument(
+                "--review-only",
+                action="store_true",
+                help="create a PDF review project without a native plotting manifest",
+            )
         if name == "project-shared":
             project.add_argument(
                 "--settings",
@@ -637,8 +642,13 @@ def build_parser() -> argparse.ArgumentParser:
                 help="JSON object containing style/output/palette settings",
             )
             project.add_argument("--expected-revision", required=True)
-        if name == "project-review":
-            project.add_argument("--event", help="intact completed historical audit run ID")
+        if name in ("project-review", "project-inspections"):
+            project.add_argument(
+                "--event",
+                help="completed native audit or PDF inspection ID"
+                if name == "project-review"
+                else "completed PDF inspection ID",
+            )
         if name == "project-inspect-pdf":
             project.add_argument("--pdf", required=True)
             project.add_argument("--id", required=True)

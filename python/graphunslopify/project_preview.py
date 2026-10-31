@@ -16,7 +16,7 @@ import webbrowser
 from http.server import ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from .comparison import _explain, _metrics, _png_bytes, _preview, _select, _verified_bytes
 from .errors import SpecError
@@ -26,6 +26,7 @@ from .project import (
     ProjectError,
     _config,
     _inside,
+    _native,
     _owner,
     _read,
     _review_token,
@@ -45,6 +46,7 @@ class ProjectState:
     def __init__(self, path):
         self.source, config = _config(path)
         self.project_id = config["project_id"]
+        self.mode = config.get("mode", "source_backed")
         self.token = secrets.token_urlsafe(32)
         self.job_lock = threading.Lock()
         self.media_lock = threading.Lock()
@@ -67,12 +69,42 @@ class ProjectState:
         history = project_history(self.source)
         try:
             state = project_status(self.source)
+            from .project_inspections import project_inspections
+
+            pdfs = project_inspections(self.source)
+            after = project_history(self.source)
+            if state["revision"] != pdfs["native_revision"] or [
+                (event["id"], event["integrity"]) for event in history["events"]
+            ] != [(event["id"], event["integrity"]) for event in after["events"]]:
+                raise ProjectError("Project changed while reading its collection; refresh.")
+            state["inspection_revision"] = pdfs["revision"]
+            state["inspections"] = [
+                {
+                    key: row[key]
+                    for key in (
+                        "id",
+                        "name",
+                        "origin",
+                        "event",
+                        "freshness",
+                        "operation_status",
+                        "evidence_state",
+                        "assets_verified",
+                        "current_sha256",
+                        "errors",
+                    )
+                }
+                for row in pdfs["sources"]
+            ]
         except (OSError, ValueError, KeyError, TypeError, SpecError) as problem:
             state = {
                 "status": "unavailable",
                 "revision": None,
                 "figures": [],
                 "shared": {},
+                "mode": self.mode,
+                "inspections": [],
+                "inspection_revision": None,
                 "error": str(problem),
             }
         state["history"] = [
@@ -83,6 +115,7 @@ class ProjectState:
             | {
                 "status": event.get("result", {}).get("status"),
                 "exit_code": event.get("result", {}).get("exit_code"),
+                "inspection_id": (event.get("result", {}).get("inspection_source") or {}).get("id"),
             }
             for event in history["events"]
         ]
@@ -249,6 +282,7 @@ class ProjectState:
 
     def start(self, payload):
         self.check_owner()
+        _native(_config(self.source)[1])
         _review_token(payload.get("expected_revision"))
         timeout = payload.get("timeout", 120)
         if (
@@ -263,24 +297,76 @@ class ProjectState:
         baseline = payload.get("baseline", "latest")
         if baseline is not None and not isinstance(baseline, str):
             raise ProjectError("Choose a saved baseline ID, latest or no baseline.")
+        return self._start_job(
+            lambda: run_project(
+                self.source,
+                expected_revision=payload["expected_revision"],
+                baseline=baseline,
+                fail_on_warning=payload.get("fail_on_warning", False),
+                fail_on_change=payload.get("fail_on_change", False),
+                timeout=timeout,
+            ),
+            "audit",
+        )
+
+    def start_inspection(self, payload, *, data=None, name=None):
+        from .project_inspections import (
+            _inspection_options,
+            inspect_project_pdf,
+            inspect_uploaded_pdf,
+            project_inspections,
+        )
+
+        self.check_owner()
+        options = {
+            "identity": payload.get("id"),
+            "expected_revision": payload.get("expected_revision"),
+            "pages": payload.get("pages"),
+            "dpi": payload.get("dpi", 144),
+            "timeout": payload.get("timeout", 120),
+        }
+        _inspection_options(**options)
+        if data is not None:
+            if (
+                not isinstance(name, str)
+                or not name
+                or len(name) > 255
+                or any(ord(c) < 32 for c in name)
+            ):
+                raise ProjectError("Choose a PDF filename of 1-255 printable characters.")
+            operation = lambda: inspect_uploaded_pdf(self.source, data, name=name, **options)
+        else:
+            current = project_inspections(self.source)
+            if current["revision"] != options["expected_revision"]:
+                raise ProjectError("Inspection evidence changed since review; refresh.")
+            row = next(
+                (row for row in current["sources"] if row["id"] == options["identity"]), None
+            )
+            if row is None:
+                raise ProjectError("Choose a registered PDF source to inspect again.")
+            file = self.source.parent.parent / row["path"]
+            operation = lambda: inspect_project_pdf(
+                self.source,
+                file,
+                source_name=row["name"],
+                source_origin=row["origin"],
+                **options,
+            )
+        return self._start_job(operation, "inspection")
+
+    def _start_job(self, operation, kind):
         with self.job_lock:
             if self.closing or (self.job and self.job["phase"] == "running"):
                 raise ProjectError("A paper audit is already running or the workspace is closing.")
-            self.job = {"phase": "running", "result": None, "error": None}
+            self.job = {"phase": "running", "kind": kind, "result": None, "error": None}
 
             def work():
                 try:
                     self.check_owner()
-                    result = run_project(
-                        self.source,
-                        expected_revision=payload["expected_revision"],
-                        baseline=baseline,
-                        fail_on_warning=payload.get("fail_on_warning", False),
-                        fail_on_change=payload.get("fail_on_change", False),
-                        timeout=timeout,
-                    )
+                    result = operation()
                     outcome = {
                         "phase": "complete",
+                        "kind": kind,
                         "result": {
                             key: result.get(key)
                             for key in ("id", "status", "audit_status", "exit_code")
@@ -288,11 +374,16 @@ class ProjectState:
                         "error": None,
                     }
                 except Exception as problem:  # noqa: BLE001 -- keep an explicit terminal job result
-                    outcome = {"phase": "failed", "result": None, "error": str(problem)}
+                    outcome = {
+                        "phase": "failed",
+                        "kind": kind,
+                        "result": None,
+                        "error": str(problem),
+                    }
                 with self.job_lock:
                     self.job = outcome
 
-            self.worker = threading.Thread(target=work, name="paper-audit", daemon=False)
+            self.worker = threading.Thread(target=work, name="paper-" + kind, daemon=False)
             self.worker.start()
             return copy.deepcopy(self.job)
 
@@ -361,6 +452,14 @@ class ProjectHandler(PreviewHandler):
                 from .project_review import project_review
 
                 self.json(project_review(state.source, event_id=value("event") or None))
+            elif route == "/api/pdf-asset":
+                from .project_inspections import inspection_asset
+
+                data, name = inspection_asset(state.source, value("event"), int(value("index")))
+                if value("view") == "1" and name.endswith(".png"):
+                    self.send(data, "image/png")
+                else:
+                    self.send(data, "application/octet-stream", download=name)
             elif route == "/api/saved-source":
                 self.json(state.saved_source(value("event"), value("figure")))
             elif route == "/api/job":
@@ -384,17 +483,46 @@ class ProjectHandler(PreviewHandler):
             self.json({"error": "This local project request is not authorized"}, 403)
             return
         try:
+            route = urlsplit(self.path).path
+            state = self.server.state
+            state.check_owner()
             length = int(self.headers.get("Content-Length", "0"))
+            if route == "/api/pdf-upload":
+                from .project_inspections import MAX_PDF_BYTES
+
+                if not 0 < length <= MAX_PDF_BYTES:
+                    raise ProjectError("Upload a PDF no larger than 50 MiB.")
+                if self.headers.get("Content-Type", "").split(";")[0] != "application/pdf":
+                    raise ProjectError("Upload the selected file as application/pdf.")
+                data = self.rfile.read(length)
+                if len(data) != length or not data.startswith(b"%PDF-"):
+                    raise ProjectError("The uploaded file is not a complete PDF.")
+                query = parse_qs(urlsplit(self.path).query)
+                value = lambda key, default="": query.get(key, [default])[0]
+                pages = value("pages").replace(",", " ").split()
+                payload = {
+                    "id": value("id"),
+                    "expected_revision": value("expected_revision"),
+                    "pages": [int(page) for page in pages] if pages else None,
+                    "dpi": int(value("dpi", "144")),
+                    "timeout": float(value("timeout", "120")),
+                }
+                self.json(
+                    state.start_inspection(
+                        payload, data=data, name=unquote(self.headers.get("X-File-Name", ""))
+                    ),
+                    202,
+                )
+                return
             if not 0 < length <= MAX_SOURCE_BYTES:
                 raise ProjectError("Choose a nonempty request smaller than 20 MiB.")
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, dict):
                 raise ProjectError("Request must be a JSON object.")
-            state = self.server.state
-            state.check_owner()
-            route = urlsplit(self.path).path
             if route == "/api/run":
                 self.json(state.start(payload), 202)
+            elif route == "/api/pdf-inspection":
+                self.json(state.start_inspection(payload), 202)
             elif route in ("/api/shared", "/api/definition", "/api/entry"):
                 with state.job_lock:
                     if state.closing or (state.job and state.job["phase"] == "running"):

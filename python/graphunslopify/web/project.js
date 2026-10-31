@@ -9,6 +9,8 @@ let sourceError = "", sharedError = "", sourceValid = false, sharedValid = true;
 let navigation = 0, evidence = 0, refreshVersion = 0, saving = false, loadingFigure = false;
 let historyChoice = 0, auditNavigation = 0;
 let refreshFailure = "";
+let pendingPDF = "", automaticPdfId = "";
+let activeJobKind = "audit";
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");
@@ -41,8 +43,10 @@ function object(text, label) {
 }
 function lockControls() {
   const busy = running || saving;
-  $("audit").disabled = busy || dirty() || !state?.revision;
+  $("audit").disabled = busy || dirty() || !state?.revision || !state?.figures.length;
+  $("audit").textContent = state?.inspections?.length || state?.mode === "review_only" ? "Audit source-backed figures" : "Audit paper";
   $("running").hidden = !running;
+  $("running").textContent = activeJobKind === "inspection" ? "Preparing PDF visual evidence. Numerical claims remain untested." : "Auditing the paper. Definitions stay locked until this audit finishes.";
   $("shared-controls").disabled = busy || sourceDirty || entryDirty || !sharedValid;
   $("shared-json").disabled = busy || sourceDirty || entryDirty;
   $("save-shared").disabled = busy || !sharedDirty || !!sharedError;
@@ -57,7 +61,26 @@ function lockControls() {
   $("duplicate").disabled = busy || dirty() || !record;
   $("remove").disabled = busy || dirty() || !record || (state?.figures.length || 0) < 2;
   $("undo-controls").disabled = busy || sharedDirty || entryDirty || !undo.length;
+  const file = $("pdf-file").files[0];
+  let problem = "";
+  if (file) {
+    if (file.size > 50 * 1024 * 1024) problem = "Choose a PDF no larger than 50 MiB.";
+    else if (!$("pdf-id").value || !$("pdf-id").checkValidity()) problem = "Choose a source ID using 1-64 letters, digits, dots, hyphens or underscores.";
+    else if (state?.figures.some((item) => item.id === $("pdf-id").value)) problem = "Choose a source ID different from the source-backed figures.";
+    else { try { pdfOptions(); } catch (issue) { problem = issue.message; } }
+  }
+  $("pdf-error").textContent = problem; $("pdf-error").hidden = !problem;
+  $("pdf-upload").disabled = busy || dirty() || !state?.inspection_revision || !file || !!problem;
+  for (const id of ["pdf-file", "pdf-id", "pdf-pages", "pdf-dpi"]) $(id).disabled = busy || dirty();
   review?.update({ state, selected, dirty: dirty(), busy, info });
+}
+function pdfOptions() {
+  const text = $("pdf-pages").value.trim();
+  const pages = text ? text.replaceAll(",", " ").split(/\s+/).map(Number) : [];
+  if (pages.length > 50 || new Set(pages).size !== pages.length || pages.some((page) => !Number.isInteger(page) || page < 1)) throw Error("Choose up to 50 distinct positive page numbers.");
+  const dpi = Number($("pdf-dpi").value);
+  if (!Number.isInteger(dpi) || dpi < 72 || dpi > 300 || !$("pdf-dpi").checkValidity()) throw Error("Choose a whole-number DPI from 72 to 300.");
+  return { pages, dpi };
 }
 function draft(kind) {
   if (kind === "source") sourceDirty = true;
@@ -165,20 +188,43 @@ function options(select, values, previous) {
   if (values.some(([value]) => value === previous)) select.value = previous;
 }
 function lists() {
-  $("figure-count").textContent = String(state.figures.length);
+  const pdfs = state.inspections || [];
+  $("figure-count").textContent = pdfs.length ? `${state.figures.length} source-backed · ${pdfs.length} PDF` : String(state.figures.length);
   $("project-name").textContent = state.project_name;
-  $("project-status").textContent = state.status === "inputs_match_last_run" ? "Inputs match accepted audit" : state.status === "unavailable" ? "Project unavailable" : "Audit needed";
+  $("project-status").textContent = state.status === "review_only" ? "PDF visual review · numerical claims untested" : state.status === "inputs_match_last_run" ? "Inputs match accepted audit" + (pdfs.length ? " · PDF claims remain untested" : "") : state.status === "unavailable" ? "Project unavailable" : "Audit needed";
   $("project-status").dataset.state = state.status === "inputs_match_last_run" ? "passed" : "incomplete";
   $("figure-list").replaceChildren();
+  document.querySelector(".shared-card").hidden = state.mode === "review_only";
+  document.querySelector(".definition-card").hidden = state.mode === "review_only" || review?.selected().startsWith("pdf:");
+  const active = review?.selected() || selected;
   state.figures.forEach((figure) => {
     const button = el("button", undefined, $("figure-list"));
     button.className = "figure-choice";
     button.dataset.figure = figure.id;
-    button.setAttribute("aria-pressed", String(figure.id === selected));
+    button.dataset.reviewKey = figure.id;
+    button.setAttribute("aria-pressed", String(figure.id === active));
     el("strong", figure.id, button);
     el("small", words(figure.kind || figure.source_type) + " · " + words(figure.last_status), button);
     el("small", "Inputs: " + words(figure.freshness), button);
     button.onclick = action(() => choose(figure.id));
+  });
+  pdfs.forEach((source) => {
+    const button = el("button", undefined, $("figure-list"));
+    button.className = "figure-choice"; button.dataset.pdf = source.id;
+    button.dataset.reviewKey = "pdf:" + source.id;
+    button.setAttribute("aria-pressed", String(active === "pdf:" + source.id));
+    el("strong", source.name, button);
+    el("small", "PDF · visual only · " + words(source.operation_status), button);
+    el("small", "Source: " + words(source.freshness) + " · numerical claims untested", button);
+    button.onclick = action(async () => {
+      if (dirty()) {
+        if (!confirm("Discard unsaved changes and review this PDF?")) return;
+        sourceDirty = entryDirty = sharedDirty = false;
+        await refresh({ reload: true });
+      }
+      review.select("pdf:" + source.id);
+      document.querySelector(".review-card").scrollIntoView({ behavior: "smooth" });
+    });
   });
   const history = state.history.map((item) => [item.id, `${item.created_at ? item.created_at.slice(0, 19).replace("T", " ") + " UTC" : "Interrupted"} · ${actionNames[item.action] || "Event"} · ${words(item.status || item.phase)}`]);
   options($("history"), history, $("history").value);
@@ -195,6 +241,7 @@ async function refresh({ reload = false } = {}) {
   const previousError = state?.error;
   state = next;
   running = state.job?.phase === "running";
+  activeJobKind = state.job?.kind || activeJobKind;
   lists();
   if (state.error) error(state.error);
   else if ([previousError, refreshFailure].filter(Boolean).includes($("error").textContent)) error();
@@ -213,6 +260,7 @@ async function choose(identity, automatic = false) {
     loadShared();
   }
   const version = ++navigation;
+  if (!automatic) review?.select(identity);
   selected = identity; record = null; loadingFigure = true;
   controls.discard(); lockControls();
   let next;
@@ -268,7 +316,10 @@ async function showFigure() {
   if (event.action === "inspection") {
     el("p", "This event stores source-free PDF visual evidence. Original data and numerical claims remain untested.", $("checks"));
     (event.result.errors || []).forEach((message) => el("p", message, $("checks")));
-    $("preview-note").textContent = "Visual packet paths and hashes are in Selected event evidence below. The integrated imported-figure viewer is not available yet.";
+    const open = el("button", "Open saved PDF in scientific review", $("checks"));
+    open.className = "secondary";
+    open.onclick = () => { review.openEvent(event.id); document.querySelector(".review-card").scrollIntoView({ behavior: "smooth" }); };
+    $("preview-note").textContent = "Browse the saved pages and four evidence groups in the scientific review pane. Numerical claims remain untested.";
     return;
   }
   $("show-source").disabled = false;
@@ -326,8 +377,19 @@ async function compare() {
   else el("p", "Pixel metrics are unavailable for these formats or different canvas sizes.", root);
   el("p", result.scope, root).className = "muted";
 }
-function action(work) { return async () => { error(); try { await work(); } catch (problem) { error(problem.message); } }; }
-review = createScientificReview({ api, protect, audit: () => $("audit").click(), edit: action(async (id) => { if (id !== selected) await choose(id); document.querySelector(".definition-card").scrollIntoView({ behavior: "smooth" }); }) });
+function action(work) { return async (...args) => { error(); try { await work(...args); } catch (problem) { error(problem.message); } }; }
+review = createScientificReview({ api, protect, audit: () => $("audit").click(),
+  edit: action(async (id) => { if (id !== selected) await choose(id); document.querySelector(".definition-card").scrollIntoView({ behavior: "smooth" }); }),
+  selection: (kind, key) => {
+    document.querySelector(".definition-card").hidden = kind === "pdf" || state?.mode === "review_only";
+    for (const button of $("figure-list").querySelectorAll("[data-review-key]")) button.setAttribute("aria-pressed", String(button.dataset.reviewKey === key));
+  },
+  inspect: action(async (id, pages, dpi) => {
+    auditNavigation = historyChoice;
+    await api("/api/pdf-inspection", { id, pages, dpi, expected_revision: state.inspection_revision });
+    pendingPDF = id; activeJobKind = "inspection"; running = true; lockControls(); notice("PDF inspection started. Original data and numerical claims remain untested.");
+  }),
+});
 async function save(route, body) {
   saving = true; lockControls();
   try { await api(route, body); sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await loadEvent(); notice("Saved. Audit the paper to check this version."); }
@@ -358,10 +420,39 @@ $("history").onchange = action(async () => { historyChoice++; await loadEvent();
 $("history-figure").onchange = action(async () => { historyChoice++; await showFigure(); });
 $("show-comparison").onclick = action(compare);
 $("show-source").onclick = action(async () => { const version = evidence; const result = await api("/api/saved-source?" + new URLSearchParams({ event: event.id, figure: $("history-figure").value })); if (version !== evidence) return; $("saved-source").value = result.text; $("saved-source-label").textContent = result.context; $("saved-source-panel").hidden = false; $("saved-source-panel").open = true; });
+$("pdf-file").onchange = () => {
+  const file = $("pdf-file").files[0];
+  if (file && (!$("pdf-id").value || $("pdf-id").value === automaticPdfId)) {
+    automaticPdfId = "pdf-" + (file.name.replace(/\.pdf$/i, "").replace(/[^A-Za-z0-9_.-]+/g, "-").slice(0, 59) || "paper");
+    $("pdf-id").value = automaticPdfId;
+  }
+  lockControls();
+};
+for (const id of ["pdf-id", "pdf-pages", "pdf-dpi"]) $(id).oninput = lockControls;
+$("pdf-drop").ondragover = (event) => { if (event.dataTransfer.types.includes("Files")) event.preventDefault(); };
+$("pdf-drop").ondrop = (event) => {
+  event.preventDefault();
+  if (running || saving || dirty() || event.dataTransfer.files.length !== 1) return;
+  $("pdf-file").files = event.dataTransfer.files; $("pdf-file").dispatchEvent(new Event("change"));
+};
+$("pdf-upload").onclick = action(async () => {
+  const file = $("pdf-file").files[0], id = $("pdf-id").value;
+  const options = pdfOptions();
+  if (!file || $("pdf-upload").disabled) return;
+  saving = true; lockControls();
+  try {
+    const query = new URLSearchParams({ id, expected_revision: state.inspection_revision, pages: options.pages.join(","), dpi: options.dpi });
+    const response = await fetch("/api/pdf-upload?" + query, { method: "POST", headers: { "X-Preview-Token": token, "Content-Type": "application/pdf", "X-File-Name": encodeURIComponent(file.name) }, body: file });
+    const result = await response.json();
+    if (!response.ok) throw Error(result.error || "The PDF upload failed.");
+    auditNavigation = historyChoice; pendingPDF = id; activeJobKind = "inspection"; running = true; $("pdf-file").value = "";
+    notice("PDF source copied to this local project. Preparing visual evidence; numerical claims remain untested.");
+  } finally { saving = false; lockControls(); }
+});
 $("audit").onclick = action(async () => {
   auditNavigation = historyChoice;
   await api("/api/run", { expected_revision: state.revision, baseline: $("baseline").value || null, fail_on_warning: $("fail-warning").checked, fail_on_change: $("fail-change").checked });
-  running = true; lockControls(); notice("Paper audit started. Saved history remains available while it runs.");
+  activeJobKind = "audit"; running = true; lockControls(); notice("Paper audit started. Saved history remains available while it runs.");
 });
 async function poll() {
   try {
@@ -369,10 +460,12 @@ async function poll() {
     await refresh();
     if (wasRunning && !running) {
       if (state.job?.error) error(state.job.error);
-      else notice("Audit finished: " + words(state.job?.result?.status) + ". Choose the newest history event to review it.");
+      else notice((state.job?.kind === "inspection" ? "PDF inspection finished: " : "Audit finished: ") + words(state.job?.result?.status) + (state.job?.kind === "inspection" ? ". Numerical claims remain untested." : ". Choose the newest history event to review it."));
+      if (pendingPDF && state.inspections?.some((item) => item.id === pendingPDF)) review.select("pdf:" + pendingPDF);
+      pendingPDF = "";
       if (state.job?.result?.id && historyChoice === auditNavigation) { $("history").value = state.job.result.id; await loadEvent(); }
     }
   } catch (problem) { refreshFailure = "Could not refresh the project: " + problem.message; error(refreshFailure); review.unavailable(refreshFailure); }
   setTimeout(poll, 2500);
 }
-action(async () => { info = await api("/api/info"); await refresh({ reload: true }); await loadEvent(); notice("Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();
+action(async () => { info = await api("/api/info"); await refresh({ reload: true }); await loadEvent(); notice(state.mode === "review_only" ? "Ready for PDF visual review. Add a PDF; original data and numerical claims remain untested." : "Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();

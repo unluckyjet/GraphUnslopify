@@ -27,6 +27,16 @@
         <h2>Figures <span id="figure-count" class="muted"></span></h2>
         <p id="project-status" class="badge" role="status"></p>
         <div id="figure-list" aria-label="Paper figures"></div>
+        <div id="pdf-drop" class="pdf-import">
+          <h3>PDF visual review</h3>
+          <p class="muted">Choose or drop a PDF. A copy stays in this local project. Numerical claims and original data remain untested.</p>
+          <label>PDF file<input id="pdf-file" type="file" accept="application/pdf,.pdf" /></label>
+          <label>Source ID<input id="pdf-id" type="text" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" placeholder="pdf-paper" /></label>
+          <div class="pdf-options"><label>Pages<input id="pdf-pages" type="text" value="1" placeholder="1, 2, 5" /></label><label>Preview DPI<input id="pdf-dpi" type="number" min="72" max="300" value="144" /></label></div>
+          <p class="muted">Up to 50 MiB and 50 selected pages. Page previews do not automatically locate figures.</p>
+          <button id="pdf-upload" class="secondary" disabled>Add PDF for visual review</button>
+          <p id="pdf-error" role="alert" hidden></p>
+        </div>
         <details><summary>Add or remove a figure</summary>
           <label>New figure ID<input id="new-id" type="text" placeholder="ablation-results" /></label>
           <button id="duplicate" class="secondary" disabled>Duplicate selected figure</button>
@@ -51,12 +61,12 @@
           </details>
         </section>
         <section class="card review-card" aria-labelledby="review-heading">
-          <div class="section-head"><h2 id="review-heading">Scientific figure review</h2><div class="actions"><button id="review-latest" class="quiet">Review latest inputs</button><button id="review-audit" disabled>Run paper checks</button><button id="review-edit" class="secondary" disabled>Edit current definition</button></div></div>
+          <div class="section-head"><h2 id="review-heading">Scientific figure review</h2><div class="actions"><button id="review-latest" class="quiet">Review latest inputs</button><button id="review-audit" disabled>Run paper checks</button><button id="review-inspect" class="secondary" hidden disabled>Inspect current PDF again</button><button id="review-edit" class="secondary" disabled>Edit current definition</button></div></div>
           <div class="history-selectors"><label>Evidence to review<select id="review-event"><option value="">Current inputs</option></select></label><label>Figure to review<select id="review-figure"></select></label></div>
           <p id="review-status" role="status" data-state="unknown">No review loaded yet.</p>
           <p id="review-context" class="muted">Saved results and current inputs remain distinct.</p>
-          <div class="review-layout"><div class="review-image"><img id="review-preview" alt="Saved figure under review" hidden /><p id="review-preview-note">Run paper checks to create evidence.</p><div id="review-downloads" class="downloads"></div></div><div id="review-groups" aria-live="polite"></div></div>
-          <p class="muted">Only current bindings appear here. Captured source and results for removed figures remain in Saved runs &amp; changes below.</p>
+          <div class="review-layout"><div class="review-image"><label id="review-page-label" hidden>PDF page<select id="review-page"></select></label><img id="review-preview" alt="Saved figure under review" hidden /><p id="review-preview-note">Run paper checks to create evidence.</p><div id="review-downloads" class="downloads"></div></div><div id="review-groups" aria-live="polite"></div></div>
+          <p class="muted">Source-backed figures and PDF visual evidence have separate scopes. Captured source and results for removed figures remain in Saved runs &amp; changes below.</p>
         </section>
         <section class="card definition-card">
           <div class="section-head"><h2 id="selected-title">Choose a figure</h2><button id="undo-controls" class="quiet" disabled>Undo control change</button></div>

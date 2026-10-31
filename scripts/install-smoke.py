@@ -1596,12 +1596,15 @@ def main() -> None:
                     ),
                     "--work-dir",
                     str(where / "project interface"),
+                    *(["--require-pdf-review"] if args.pdf else []),
                 ],
                 cwd=where,
                 env=env,
             )
         )
         assert project_interface["status"] == "passed"
+        if args.pdf:
+            assert project_interface["pdf_review"]["status"] == "passed"
     diagnostics = None
     if args.require_diagnostics:
         diagnostics = json.loads(

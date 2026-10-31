@@ -97,3 +97,15 @@ The [persistent PDF-inspection backend](project-pdf-inspections.md) records
 source-free visual evidence in an existing project without borrowing native
 scientific acceptance. Browser import/viewing and review-only initialization
 remain separate work.
+
+
+## PDF-only and mixed papers
+
+The same review pane now includes uploaded PDFs and actual saved page previews.
+Create a paper with `project-init PAPER --review-only` when no native plotting
+manifest exists, or add a PDF beside native figures. PDF claims/data remain
+untested, even when page preparation succeeds. Native audit acceptance stays
+separate. [PDF workflow and limits](project-pdf-inspections.md) explains local
+source copies, pages, hashes, historical selection and strict incomplete results.
+The current `project-review` schema2 collection marks PDF rows explicitly;
+source-backed IDs and original strict native semantics remain intact.

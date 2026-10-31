@@ -147,13 +147,28 @@ def _config(path: str | Path) -> tuple[Path, dict]:
     source = _source(path)
     owner = _owner(source.parent)
     value = _read(_inside(source.parent, source.name))
+    native = isinstance(value, dict) and (
+        set(value) == {"schema_version", "kind", "project_id", "manifest", "shared"}
+        and value.get("schema_version") == 1
+    )
+    review_only = isinstance(value, dict) and (
+        set(value) == {"schema_version", "kind", "project_id", "manifest", "shared", "mode"}
+        and value.get("schema_version") == 2
+        and value.get("mode") == "review_only"
+        and value.get("manifest") is None
+        and value.get("shared") == {}
+    )
     if (
         not isinstance(value, dict)
-        or set(value) != {"schema_version", "kind", "project_id", "manifest", "shared"}
-        or value.get("schema_version") != 1
+        or not (native or review_only)
         or value.get("kind") != KIND
         or value.get("project_id") != owner["project_id"]
-        or not isinstance(value.get("manifest"), str)
+    ):
+        raise ProjectError("Invalid project.json; preserve its owner and project mode.")
+    if review_only:
+        return source, value
+    if (
+        not isinstance(value.get("manifest"), str)
         or Path(value["manifest"]).parts[:1] != ("..",)
         or len(Path(value["manifest"]).parts) != 2
         or "\\" in value["manifest"]
@@ -165,6 +180,13 @@ def _config(path: str | Path) -> tuple[Path, dict]:
     if (source.parent / value["manifest"]).resolve().parent != source.parent.parent:
         raise ProjectError("Project manifest must remain beside its owned project folder.")
     return source, value
+
+
+def _native(config: dict) -> None:
+    if config.get("mode") == "review_only":
+        raise ProjectError(
+            "This review-only project has no source-backed figures. Inspect PDFs instead."
+        )
 
 
 @contextmanager
@@ -189,23 +211,53 @@ def _operation(folder: Path):
             pass  # Never erase a replaced/corrupt lock or hide the primary result.
 
 
-def initialize_project(path: str | Path = ".", *, folder: str = DEFAULT_FOLDER) -> dict:
-    source, _ = load_manifest(path)
+def initialize_project(
+    path: str | Path = ".", *, folder: str = DEFAULT_FOLDER, review_only: bool = False
+) -> dict:
+    if type(review_only) is not bool:
+        raise ProjectError("Review-only mode must be a boolean.")
+    if review_only:
+        paper = Path(path).expanduser().resolve()
+        if not paper.is_dir():
+            raise ProjectError("Choose an existing paper folder for review-only initialization.")
+        source = None
+    else:
+        source, _ = load_manifest(path)
+        paper = source.parent
     folder = _folder_name(folder)
-    target = source.parent / folder
+    target = paper / folder
     target.mkdir(exist_ok=False)
     owner = {"kind": KIND, "project_id": uuid.uuid4().hex}
     (target / "owner.json").write_bytes(_bytes(owner))
-    config = {"schema_version": 1, **owner, "manifest": "../" + source.name, "shared": {}}
+    config = {
+        "schema_version": 2 if review_only else 1,
+        **owner,
+        "manifest": None if review_only else "../" + source.name,
+        "shared": {},
+        **({"mode": "review_only"} if review_only else {}),
+    }
     (target / "project.json").write_bytes(_bytes(config))
-    (target / ".gitignore").write_text("history/\n.operation.lock\n.write-*\n", encoding="utf8")
+    (target / ".gitignore").write_text(
+        "history/\nsources/\n.operation.lock\n.write-*\n", encoding="utf8"
+    )
     (target / "README.md").write_text(
-        "# Paper project\n\nThe original manifest/specs/data remain authoritative.\n"
-        "Use project-status, project-run and project-history with this folder.\n"
-        "Shared settings live in project.json; change them with a current revision token.\n"
-        "History is local and includes source definitions/reports/exports, not raw dataset copies.\n"
-        "Selected scripts execute as trusted Python during an explicit audit.\n"
-        "A stored result does not verify later edits or untracked dependencies.\n",
+        "# Paper project\n\n"
+        + (
+            "Review-only project: no native plotting manifest or scientific acceptance.\n"
+            "Use project-inspect-pdf and project-preview to review PDF visual evidence.\n"
+            if review_only
+            else "The original manifest/specs/data remain authoritative.\n"
+        )
+        + (
+            "Use project-inspections and project-history to read visual evidence.\n"
+            "Uploaded source copies stay in ignored sources/; only derived assets enter history.\n"
+            if review_only
+            else "Use project-status, project-run and project-history with this folder.\n"
+            "Shared settings live in project.json; change them with a current revision token.\n"
+            "History is local and includes source definitions/reports/exports, not raw dataset copies.\n"
+            "Selected scripts execute as trusted Python during an explicit audit.\n"
+        )
+        + "A stored result does not verify later edits or untracked dependencies.\n",
         encoding="utf8",
     )
     return {"project_id": owner["project_id"], "config": str(target / "project.json")}
@@ -216,10 +268,24 @@ def _locator(path: Path, paper: Path) -> str:
     return path.relative_to(paper).as_posix() if path.is_relative_to(paper) else str(path)
 
 
-def _capture(source: Path, config: dict) -> tuple[dict, dict, dict[str, bytes]]:
+def _capture(source: Path, config: dict) -> tuple[dict, dict | None, dict[str, bytes]]:
     config_raw = source.read_bytes()
     if json.loads(config_raw) != config:
         raise ProjectError("Project settings changed during capture; refresh and retry.")
+    if config.get("mode") == "review_only":
+        snapshot = {
+            "manifest": None,
+            "manifest_sha256": None,
+            "project_id": config["project_id"],
+            "mode": "review_only",
+            "shared": {},
+            "figures": [],
+        }
+        raw_sha = hashlib.sha256(config_raw).hexdigest()
+        if _digest(source) != raw_sha:
+            raise ProjectError("Project settings changed during capture; refresh and retry.")
+        snapshot["revision"] = _hash({**snapshot, "config_sha256": raw_sha})
+        return snapshot, None, {"source/project.json": config_raw}
     manifest_path, manifest = load_manifest(source.parent / config["manifest"])
     paper = manifest_path.parent
     raw = manifest_path.read_bytes()
@@ -530,13 +596,18 @@ def project_status(path: str | Path = ".") -> dict:
         for x in rows
     )
     return {
-        "schema_version": 1,
+        "schema_version": config["schema_version"],
         "project_id": config["project_id"],
         "config": str(source),
         "revision": snapshot["revision"],
         "shared": config["shared"],
         "figures": rows,
-        "status": "inputs_match_last_run" if matches else "needs_audit",
+        "mode": config.get("mode", "source_backed"),
+        "status": "review_only"
+        if config.get("mode") == "review_only"
+        else "inputs_match_last_run"
+        if matches
+        else "needs_audit",
         "history_integrity": history["integrity"],
         "history_count": len(history["events"]),
         "matches_last_run_revision": revision_matches,
@@ -580,6 +651,7 @@ def _authoring_target(source: Path, target: Path, snapshot: dict) -> Path:
 def project_figure(path: str | Path, identity: str) -> dict:
     """Return one captured authoring definition without importing a selected script."""
     source, config = _config(path)
+    _native(config)
     snapshot, effective, originals = _capture(source, config)
     manifest = json.loads(originals["source/manifest.json"])
     index = next(
@@ -688,6 +760,7 @@ def _write_authoring(paper: Path, target: Path, content: bytes, expected_sha: st
 def _edit_definition(path, identity, value, *, expected_revision, entry_mode=None):
     _review_token(expected_revision)
     source, config = _config(path)
+    _native(config)
     with _operation(source.parent):
         before, _, originals = _capture(source, config)
         _expected(expected_revision, before)
@@ -791,8 +864,9 @@ def set_project_shared(path: str | Path, shared: dict, *, expected_revision: str
         r"[a-f0-9]{64}", expected_revision
     ):
         raise ProjectError("Shared changes need the current project-status revision token.")
-    _validate_shared(shared)
     source, config = _config(path)
+    _native(config)
+    _validate_shared(shared)
     with _operation(source.parent):
         before, _, originals = _capture(source, config)
         _expected(expected_revision, before)
@@ -858,6 +932,7 @@ def run_project(
     if not math.isfinite(timeout) or timeout <= 0:
         raise ProjectError("Project audit timeout must be finite and positive.")
     source, config = _config(path)
+    _native(config)
     with _operation(source.parent):
         try:
             snapshot, effective, originals = _capture(source, config)

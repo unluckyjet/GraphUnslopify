@@ -50,3 +50,13 @@ pd.DataFrame({"epoch": [1, 2, 3], "score": [7, 11, 13]}).to_parquet(
 ```
 
 All fixtures are authored test inputs, not observations from people or papers.
+
+`project-review-pages.pdf` is a two-page visual-review fixture created2026-10-31
+by copying the single pages of the existing synthetic baseline
+`examples/baseline/01-training-curve.pdf` and `02-loss-log.pdf` with pypdf.
+It exercises real page selection, different saved PNG bytes and PDF-only review;
+its embedded plotting metadata supplies no original data to that review.
+Both pages were rendered with Poppler and visually inspected. SHA256:
+`48b1e64c6da5a1d449016c385a65faf6d146aae250a2e737944ce53bbc0bb9a7`.
+The source PDFs have SHA256 `d338f872a1278b6587f438f8d794497e1a7efb8d2044769d6d658e4b239030c5`
+and `1917e98e1cfb8922a1c20d2045f575a0fdf42279c28ea9868684e7d7eb1d69be`.

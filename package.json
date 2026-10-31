@@ -20,6 +20,7 @@
     "preview-check": "node --experimental-strip-types scripts/preview-check.ts",
     "benchmark:staged": "node scripts/benchmark-staged-preview.cjs",
     "project-check": "node --experimental-strip-types scripts/project-check.ts",
+    "project-pdf-check": "node --experimental-strip-types scripts/project-pdf-check.ts",
     "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts",
     "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts"
   },

@@ -173,3 +173,25 @@ source/wheel/install, wheel SHA
 The two new cases first fail against original16 package code. Existing browser,
 math/emitter/reference sources and README graphics are unchanged from16.
 Git/push/exact repair-commit CI still required before87c2.
+
+
+37f5f241e7a39b51cc10ddf662e84da05ba867a7 passed exact all-nine
+main41243920883/Figure41243920852 at2026-10-31 22:11:50UTC before87c2.
+
+## 87c2 — integrated PDF review and genuine review-only projects
+
+In progress: explicit review-only schema2 ownership/config/snapshot with no
+native manifest or false acceptance; native actions refuse before fake history.
+Existing native project1 remains compatible. Local uploads retain an explicitly
+chosen source copy under ignored owned sources; only derived assets enter
+inspection history. PDF and native jobs share operation/job ownership.
+
+The existing four-group pane now has typed native/PDF choices, actual selected
+pages/downloads, current/historical/failure/source/asset states and reinspection.
+Source-free claims/data/uncertainty stay untested; successful preparation remains
+strict incomplete2. Scientific review DTO schema2 separates selected native
+audits from selected old PDF events. One canonical PDF evidence parser serves
+latest/saved views and independently guarded assets. Existing callbacks now
+forward their selected IDs to real edit/reinspection actions.
+
+Current local evidence: source/minimum99 backend controls each pass, plus17 minimum review-only/HTTP controls after clearer actual worker errors. Source/fresh32 mixed/review-only PDF workflows and24 native workflows each pass with0 page errors/external requests. Real installed CLI/HTTP recipe and all68 source/wheel/installed resources match. Initial harness wording error and actual dropped-callback failure are retained. Desktop/mobile views were inspected. All seven/gallery/Ruff170/232 Node/1974 Python/zero skips/one upstream warning pass on849 unchanged protected paths. Git/push/exact CI remain required. Full87 batch/undo/selective regeneration/auditable export and entire88–89 stay open.

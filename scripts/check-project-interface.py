@@ -14,11 +14,143 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlencode
+
+
+def check_pdf_review(where, env, cli, pdf):
+    paper = where / "PDF-only paper ü"
+    paper.mkdir()
+    cli("project-init", paper, "--review-only")
+    log = (where / "pdf-server.stderr.log").open("w", encoding="utf8")
+    server = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "graphunslopify.cli",
+            "project-preview",
+            str(paper),
+            "--port",
+            "0",
+        ],
+        env=env,
+        cwd=where,
+        stdout=subprocess.PIPE,
+        stderr=log,
+        text=True,
+        encoding="utf8",
+    )
+    try:
+        root = json.loads(server.stdout.readline())["url"]
+
+        def request(path, body=None, *, headers=None, expected=200):
+            call = urllib.request.Request(root + path, data=body, headers=headers or {})
+            try:
+                response = urllib.request.urlopen(call, timeout=90)
+            except urllib.error.HTTPError as problem:
+                response = problem
+            with response:
+                data = response.read()
+                assert response.code == expected, data
+                return data, dict(response.headers)
+
+        token = re.search(
+            r'name="preview-token" content="([^"]+)"', request("/")[0].decode()
+        )[1]
+        headers = {"X-Preview-Token": token}
+
+        def api(path, payload=None, expected=200):
+            return json.loads(
+                request(
+                    path,
+                    None if payload is None else json.dumps(payload).encode(),
+                    headers=headers,
+                    expected=expected,
+                )[0]
+            )
+
+        state = api("/api/state")
+        assert state["status"] == "review_only" and not state["figures"]
+        api("/api/run", {"expected_revision": state["revision"]}, expected=400)
+        query = urlencode(
+            {
+                "id": "external",
+                "expected_revision": state["inspection_revision"],
+                "pages": "1",
+                "dpi": 72,
+            }
+        )
+        request(
+            "/api/pdf-upload?" + query,
+            pdf,
+            headers={
+                **headers,
+                "Content-Type": "application/pdf",
+                "X-File-Name": "Synthetic-native-export.pdf",
+            },
+            expected=202,
+        )
+        deadline = time.monotonic() + 90
+        while time.monotonic() < deadline:
+            job = api("/api/job")
+            if job["phase"] != "running":
+                break
+            time.sleep(0.05)
+        assert (
+            job["phase"] == "complete"
+            and job["result"]["status"] == "incomplete"
+            and job["result"]["exit_code"] == 2
+        ), job
+        review = api("/api/review")
+        assert review["schema_version"] == 2 and len(review["figures"]) == 1
+        row = review["figures"][0]
+        assert row["source_type"] == "pdf" and not row["matches_latest_accepted_inputs"]
+        assert row["groups"]["claims"]["state"] == "untested"
+        assert row["groups"]["uncertainty"]["state"] == "untested"
+        assert (paper / row["inspection"]["path"]).read_bytes() == pdf
+        event = job["result"]["id"]
+        assert not list(
+            (paper / "graphunslopify-project/history" / event).rglob("*.pdf")
+        )
+        index, asset = next(
+            (i, item)
+            for i, item in enumerate(row["inspection"]["assets"])
+            if item["path"].endswith(".png")
+        )
+        path = "/api/pdf-asset?" + urlencode(
+            {"event": event, "index": index, "view": 1}
+        )
+        data, response = request(path, headers=headers)
+        assert (
+            response["Content-Type"] == "image/png"
+            and hashlib.sha256(data).hexdigest() == asset["sha256"]
+        )
+        request(path, expected=403)
+        request("/sources/source.pdf", headers=headers, expected=404)
+        request(
+            "/api/pdf-asset?event=../../outside&index=0", headers=headers, expected=400
+        )
+        assert api("/api/state")["status"] == "review_only"
+        return {
+            "status": "passed",
+            "science_status": "untested",
+            "strict_exit": 2,
+            "actual_uploaded_source_and_page_hash_verified": True,
+            "no_fake_native_manifest_or_audit": True,
+        }
+    finally:
+        server.terminate()
+        try:
+            server.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            server.kill()
+            server.wait(timeout=5)
+        log.close()
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work-dir", type=Path)
+    parser.add_argument("--require-pdf-review", action="store_true")
     args = parser.parse_args()
     where = (
         args.work_dir or Path(tempfile.mkdtemp(prefix="gu-project-interface-"))
@@ -268,6 +400,21 @@ def main():
             "grouped_scientific_review": "actual CLI/HTTP groups, source identity, failed claims and explicit historical selection",
             "work_dir": str(where),
         }
+        if args.require_pdf_review:
+            output = next(
+                item
+                for item in first["result"]["audit"]["figures"][0]["outputs"]
+                if item["format"] == "pdf"
+            )
+            pdf = (
+                paper
+                / "graphunslopify-project/history"
+                / first["id"]
+                / "audit"
+                / output["path"]
+            ).read_bytes()
+            assert hashlib.sha256(pdf).hexdigest() == output["sha256"]
+            result["pdf_review"] = check_pdf_review(where, env, cli, pdf)
         (where / "checks.json").write_text(
             json.dumps(result, indent=2) + "\n", encoding="utf8"
         )

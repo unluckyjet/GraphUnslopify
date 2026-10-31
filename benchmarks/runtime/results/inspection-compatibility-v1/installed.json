@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "codes": 139,
+  "strict_failure_recovery": true,
+  "source_data_unchanged": true,
+  "advice_without_inspection": true,
+  "where": "/private/tmp/graphunslopify-compact-diagnostics-installed-v2"
+}

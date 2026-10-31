@@ -50,18 +50,20 @@ def main():
     with contextlib.redirect_stdout(sys.stderr):
         passed = figure.render(cwd=where / "corrected")["report"]
     assert passed["status"] == "passed" and data.read_bytes() == original
-    # Deny the optional checker import: advice must still be embedded in the plot.
+    # Deny inspection while retaining the matching shared runtime/advice. Whole-
+    # package absence is separately checked by actual standalone archive controls.
     script = where / "corrected/figure.py"
     wrapper = (
         "import builtins,runpy,sys\noriginal=builtins.__import__\n"
-        "def guarded(name,*args,**kwargs):\n"
-        " if name.split('.')[0]=='graphunslopify': raise ImportError('checker intentionally absent')\n"
-        " return original(name,*args,**kwargs)\n"
+        "def guarded(name,globals=None,locals=None,fromlist=(),level=0):\n"
+        " if name=='graphunslopify' and 'inspect_figure' in (fromlist or ()):\n"
+        "  raise ImportError('checker intentionally absent')\n"
+        " return original(name,globals,locals,fromlist,level)\n"
         "builtins.__import__=guarded\n"
         "sys.argv=[sys.argv[1],'--strict','--json']\n"
         "runpy.run_path(sys.argv[0],run_name='__main__')\n"
     )
-    standalone = subprocess.run(
+    without_inspection = subprocess.run(
         [sys.executable, "-c", wrapper, str(script)],
         cwd=script.parent,
         text=True,
@@ -69,8 +71,8 @@ def main():
         check=False,
         timeout=120,
     )
-    assert standalone.returncode == 2, standalone.stderr
-    report = json.loads(standalone.stdout)
+    assert without_inspection.returncode == 2, without_inspection.stderr
+    report = json.loads(without_inspection.stdout)
     finding = next(
         item for item in report["findings"] if item["code"] == "inspection_unavailable"
     )
@@ -103,7 +105,7 @@ def main():
                 "codes": len(catalog()["advice"]),
                 "strict_failure_recovery": True,
                 "source_data_unchanged": True,
-                "package_free_advice": True,
+                "advice_without_inspection": True,
                 "where": str(where),
             }
         )

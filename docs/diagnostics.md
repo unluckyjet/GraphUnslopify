@@ -25,8 +25,10 @@ They never acquire an invented scientific correction.
 
 - Compiler findings and schema issues include `consequence` and `correction`.
   Schema issues retain their field path and actual validation message.
-- Generated programs embed the catalog, so runtime explanations remain available
-  when the optional Python inspection package cannot be imported.
+- Current compact programs load the catalog from their matching, hash-validated
+  scientific runtime. Explanations remain available when inspection is unavailable;
+  missing inspection keeps the result incomplete and strict. Complete standalone
+  bundles include the actual runtime/catalog. See [runtime archives](figure-runtime.md).
 - Human generated-script/CLI output names the problem, why it matters and the
   recommended correction. Failed and untested claims also receive bounded guidance.
 - Python inspection findings expose `.consequence`/`.correction`, and `str(report)`
@@ -57,7 +59,9 @@ Coverage checks inspect actual compiler/runtime and Python inspection call sites
 `test/diagnostics.test.ts` and `python/tests/test_diagnostics.py` exercise source
 coverage, invalid-spec paths, actual log-domain failure/recovery without changing
 observations, final-artist text repair, and bounded unknown codes.
-`scripts/check-diagnostics.py` repeats real installed-package and package-free
-checks; `scripts/install-smoke.py --require-diagnostics` runs it after blocking
+`scripts/check-diagnostics.py` repeats real installed-package and unavailable-inspector
+checks while retaining the required runtime; `scripts/check-runtime-bundles.py`
+separately proves all21-kind reproduction without an installed project package.
+`scripts/install-smoke.py --require-diagnostics` runs the advice checks after blocking
 external network access. Browser checks verify displayed guidance and strict
 failure/recovery in both workspaces.

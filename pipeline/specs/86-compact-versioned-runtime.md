@@ -83,3 +83,19 @@ local checkpoint; complete86 still requires the frozen measurements.
 See docs/figure-runtime.md. Full86 still requires the unchanged frozen complete
 entry/runtime/package/bundle footprint and native/direct startup/execution comparison;
 smaller entry code is not evidence of a speed advantage. Entire87–89 remains open.
+
+
+###86b installed-check compatibility repair
+
+The first c89bf02 push passed local controls and Figure CI, but all four
+distribution jobs failed the same older diagnostics smoke test: it denied the
+entire project package to simulate missing inspection. Shared entries now require
+the scientific runtime. The repair denies only inspect_figure while preserving
+strict2/incomplete reports, actual advice and unchanged data. Its evidence label
+is advice_without_inspection. Whole-package absence remains a separate genuine
+30-case/all21 standalone control. No scientific package files change.
+
+Actual minimum3.10 and installed-wheel advice checks pass. All required gates
+are repeated before the repair's separate push/exact CI. Original c89 CI also
+retains all72 expected NIST outcomes/nine datasets with unchanged literal protocol;
+this partial evidence does not make the failed workflow accepted.

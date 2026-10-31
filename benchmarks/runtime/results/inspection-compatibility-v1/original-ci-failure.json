@@ -1,0 +1,51 @@
+{
+  "commit": "c89bf02ec21ae556fffb063534a7ca0919b56037",
+  "main_run": 41204119180,
+  "figure_run": 41204119142,
+  "accepted": false,
+  "reason": "All four distribution jobs reached the same old smoke guard that blocked the whole runtime when only inspector availability should be denied.",
+  "job_ids": [
+    124545607993,
+    124545607880,
+    124545607928,
+    124545608031
+  ],
+  "failure_excerpts": [
+    [
+      "2026-10-31T13:09:38.5552660Z RuntimeError: ['/home/runner/work/_temp/gu-installed-check/fresh environment/bin/python', '/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py', '--work-dir', '/home/runner/work/_temp/gu-installed-check/diagnostics']:",
+      "2026-10-31T13:09:38.5567486Z   File \"/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 114, in <module>",
+      "2026-10-31T13:09:38.5568019Z   File \"/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 72, in main",
+      "2026-10-31T13:09:38.5569579Z ImportError: checker intentionally absent",
+      "2026-10-31T13:09:38.5572893Z     raise RuntimeError(\"This figure needs its matching GraphUnslopify scientific runtime. \"",
+      "2026-10-31T13:09:38.5573466Z RuntimeError: This figure needs its matching GraphUnslopify scientific runtime. Install the source version that generated it or use its complete standalone bundle. checker intentionally absent",
+      "2026-10-31T13:09:41.2428301Z ##[error]Process completed with exit code 1."
+    ],
+    [
+      "2026-10-31T13:12:48.2008850Z RuntimeError: ['/Users/runner/work/_temp/gu-installed-check/fresh environment/bin/python', '/Users/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py', '--work-dir', '/Users/runner/work/_temp/gu-installed-check/diagnostics']:",
+      "2026-10-31T13:12:48.2066400Z   File \"/Users/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 114, in <module>",
+      "2026-10-31T13:12:48.2067730Z   File \"/Users/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 72, in main",
+      "2026-10-31T13:12:48.2072350Z ImportError: checker intentionally absent",
+      "2026-10-31T13:12:48.2077550Z     raise RuntimeError(\"This figure needs its matching GraphUnslopify scientific runtime. \"",
+      "2026-10-31T13:12:48.2079410Z RuntimeError: This figure needs its matching GraphUnslopify scientific runtime. Install the source version that generated it or use its complete standalone bundle. checker intentionally absent",
+      "2026-10-31T13:12:50.1137930Z ##[error]Process completed with exit code 1."
+    ],
+    [
+      "2026-10-31T13:11:04.0057035Z RuntimeError: ['/home/runner/work/_temp/gu-installed-check/fresh environment/bin/python', '/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py', '--work-dir', '/home/runner/work/_temp/gu-installed-check/diagnostics']:",
+      "2026-10-31T13:11:04.0095332Z   File \"/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 114, in <module>",
+      "2026-10-31T13:11:04.0096993Z   File \"/home/runner/work/GraphUnslopify/GraphUnslopify/scripts/check-diagnostics.py\", line 72, in main",
+      "2026-10-31T13:11:04.0101296Z ImportError: checker intentionally absent",
+      "2026-10-31T13:11:04.0106374Z     raise RuntimeError(\"This figure needs its matching GraphUnslopify scientific runtime. \"",
+      "2026-10-31T13:11:04.0107722Z RuntimeError: This figure needs its matching GraphUnslopify scientific runtime. Install the source version that generated it or use its complete standalone bundle. checker intentionally absent",
+      "2026-10-31T13:11:07.5348423Z ##[error]Process completed with exit code 1."
+    ],
+    [
+      "2026-10-31T13:12:38.4867181Z RuntimeError: ['D:\\\\a\\\\_temp\\\\gu-installed-check\\\\fresh environment\\\\Scripts\\\\python.exe', 'D:\\\\a\\\\GraphUnslopify\\\\GraphUnslopify\\\\scripts\\\\check-diagnostics.py', '--work-dir', 'D:\\\\a\\\\_temp\\\\gu-installed-check\\\\diagnostics']:\r",
+      "2026-10-31T13:12:38.4908424Z   File \"D:\\a\\GraphUnslopify\\GraphUnslopify\\scripts\\check-diagnostics.py\", line 114, in <module>\r",
+      "2026-10-31T13:12:38.4909551Z   File \"D:\\a\\GraphUnslopify\\GraphUnslopify\\scripts\\check-diagnostics.py\", line 72, in main\r",
+      "2026-10-31T13:12:38.4912662Z ImportError: checker intentionally absent\r",
+      "2026-10-31T13:12:38.4916138Z     raise RuntimeError(\"This figure needs its matching GraphUnslopify scientific runtime. \"\r",
+      "2026-10-31T13:12:38.4917883Z RuntimeError: This figure needs its matching GraphUnslopify scientific runtime. Install the source version that generated it or use its complete standalone bundle. checker intentionally absent\r",
+      "2026-10-31T13:12:41.2386756Z ##[error]Process completed with exit code 1.\r"
+    ]
+  ]
+}

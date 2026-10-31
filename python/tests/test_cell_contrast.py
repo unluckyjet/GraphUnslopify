@@ -291,7 +291,7 @@ def test_generated_cell_colours_export_but_stay_incomplete_when_inspector_unavai
         "import builtins, runpy, sys\n"
         "original = builtins.__import__\n"
         "def guarded(name, globals=None, locals=None, fromlist=(), level=0):\n"
-        "    if name == 'graphunslopify' and 'inspect_figure' in fromlist:\n"
+        "    if name == 'graphunslopify' and 'inspect_figure' in (fromlist or ()):\n"
         "        raise ImportError('inspector unavailable')\n"
         "    return original(name, globals, locals, fromlist, level)\n"
         "builtins.__import__ = guarded\n"

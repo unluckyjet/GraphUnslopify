@@ -3,6 +3,7 @@ import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
 import { createDraftEditor } from "/drafts.js";
 import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.js";
+import { createStagedPreview } from "/staged-preview.js";
 let draftEditor = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
@@ -26,6 +27,27 @@ const initial = {
   y: { field: "score", label: "Score" },
   output: { stem: "figure", formats: ["png", "svg", "pdf"] },
 };
+const stagedPreview = createStagedPreview({
+  token, client,
+  current: () => ({generation: revision, data_id: data?.id, palette_id: palette?.id}),
+  mount: ({url, stage, identity}) => {
+    latest = null;
+    textEditor.clear();
+    diagnosticOverlays.clear();
+    $("bundle").disabled = true;
+    $("files").replaceChildren();
+    const image = $("preview");
+    image.src = url;
+    image.alt = "Unverified figure preview. Checks and exports are still running.";
+    image.dataset.phase = "unverified";
+    image.dataset.generation = String(identity.generation);
+    image.dataset.imageSha256 = stage.image.sha256;
+    image.hidden = false;
+    $("figure-surface").hidden = false;
+    $("empty").hidden = true;
+    status("Unverified preview", "unverified");
+  },
+});
 const controlHistory = [];
 function controlError(text) {
   $("control-error").textContent = text;
@@ -107,6 +129,7 @@ function setSpec(spec) {
 }
 function invalidate() {
   revision++;
+  stagedPreview.invalidate();
   draftEditor?.invalidate();
   latest = null;
   textEditor.clear();
@@ -116,6 +139,8 @@ function invalidate() {
   $("files").replaceChildren();
   $("preview").hidden = true;
   $("preview").removeAttribute("src");
+  for (const key of ["phase", "generation", "imageSha256", "runId"])
+    delete $("preview").dataset[key];
   $("empty").hidden = false;
   $("empty").firstElementChild.textContent = data
     ? "Preview needs updating"
@@ -316,6 +341,7 @@ async function update(force) {
   textEditor.clear();
   diagnosticOverlays.clear();
   const current = revision;
+  const attempt = stagedPreview.begin({generation: current, data_id: data.id, palette_id: palette?.id});
   status("Checking…");
   try {
     const payload = {
@@ -326,7 +352,7 @@ async function update(force) {
       generation: current,
     };
     const checked = await api("/api/validate", payload);
-    if (current !== revision) return;
+    if (!attempt.isCurrent()) return;
     findings(checked.findings || [], spec);
     if (checked.status === "invalid_spec") {
       findings(checked.issues.map((issue) => ({...issue, code: "invalid_spec", severity: "error", message: `${issue.path}: ${issue.message}`})));
@@ -342,8 +368,11 @@ async function update(force) {
       return;
     }
     status("Rendering…");
-    const result = await api("/api/render", payload);
-    if (current !== revision || result.stale) return;
+    const final = api("/api/render", {...payload, ...attempt.payload});
+    attempt.start();
+    const result = await final;
+    attempt.finish();
+    if (!attempt.isCurrent() || result.stale) return;
     if (!result.report) {
       findings(result.translation.findings || [], spec);
       status("Fix specification", "failed");
@@ -370,6 +399,10 @@ async function update(force) {
     if (image) {
       $("preview").src = artifact(result.run_id, image.name);
       $("preview").alt = report.alt_text;
+      $("preview").dataset.phase = "final";
+      $("preview").dataset.generation = String(current);
+      $("preview").dataset.runId = result.run_id;
+      delete $("preview").dataset.imageSha256;
       $("preview").hidden = false;
       $("figure-surface").hidden = false;
       textEditor.mount(result);
@@ -421,9 +454,11 @@ async function update(force) {
     );
     $("bundle").disabled = report.outputs.length === 0;
   } catch (error) {
-    if (current !== revision) return;
+    if (!attempt.isCurrent()) return;
     message(error.message);
     status("Needs attention", "failed");
+  } finally {
+    attempt.finish();
   }
 }
 $("spec").addEventListener("input", () => {
@@ -649,6 +684,7 @@ $("spec").addEventListener("keydown", (event) => {
 setSpec(initial);
 api("/api/info")
   .then((info) => {
+    stagedPreview.configure(info.staged_preview);
     diagnosticCatalog = info.diagnostics;
     maxUploadBytes = info.max_upload_mb * 1024 * 1024;
     recipes = info.recipes;

@@ -1,0 +1,96 @@
+{
+  "scope": "85b2a actual staged editor correctness only;85b2b frozen612/108 comparison and86\u201389 remain open",
+  "source_base": "45b4431ae2eb2db55d73ff8084272eee0ce835e2",
+  "working_tree_ahead": true,
+  "local_checks": {
+    "seven_passed": true,
+    "unchanged_source_test_fixture_files": 419,
+    "node_tests": 232,
+    "python_tests": 1904,
+    "python_skipped": 0,
+    "python_upstream_warning": 1,
+    "ruff_files": 152,
+    "documentation_checks_after_prose_changes": true
+  },
+  "source_gui": {
+    "workflows": 107,
+    "base_native_responses": 91,
+    "base_compiler_responses": 91,
+    "controlled_workflows": 6,
+    "controlled_native_responses": 7,
+    "js_errors": 0,
+    "external_requests": 0
+  },
+  "fresh_gui": {
+    "workflows": 107,
+    "base_native_responses": 90,
+    "base_compiler_responses": 90,
+    "controlled_workflows": 6,
+    "controlled_native_responses": 7,
+    "js_errors": 0,
+    "external_requests": 0
+  },
+  "minimum_gui": {
+    "workflows": 6,
+    "actual_native_replies": 7,
+    "js_errors": 0,
+    "external_requests": 0
+  },
+  "actual_ui": [
+    "decoded current unverified PNG while original checker held",
+    "no pending reports,exports,text/diagnostic targets",
+    "original strict2 visibly failed after release",
+    "late metadata cannot replace final result",
+    "late image decode cannot replace final result",
+    "authoring with live off rejects old image/final acceptance",
+    "malformed verified:true progress refused, original strict final preserved",
+    "closed native/compiler/temporary root"
+  ],
+  "native_mode": "All base default editor replies require actual provisional:true; controlled replies additionally require instrumented:true. Controlled holds are not timing evidence.",
+  "installed": {
+    "all_package_files_match_source_and_wheel": 60,
+    "actual_fresh_science_library_paths_verified": true,
+    "base_optional_absence_before_science_addons": true,
+    "actual_backend_image_equality_and_owned_close": true,
+    "pypi_release": false
+  },
+  "timing": {
+    "protocol_sha256": "cea35240ac9567bb2df5a93c1f074c645991fe0b78ada431b3cb98e6ca74d53d",
+    "formal_expected": 612,
+    "smoke_expected": 108,
+    "not_yet_measured": true,
+    "original42_intent_preflight": "35 clean0/7 original strict2 on accepted backend before UI implementation"
+  },
+  "attempts": "Initial old hidden-image assertion updated to intended unverified/no-export/no-map contract; controlled fixture CSP string predicate and nullable absent title were corrected without weakening product CSP or checks. All failed attempts retained in investigation log.",
+  "ci": "New UI commit not yet pushed/accepted; exact backend prerequisite accepted",
+  "evidence": {
+    "minimum-controlled-editor.json": {
+      "sha256": "c1cda4ad0079a68230df6b56e86aeb0e1bdf254e02ed3171c827aff09e3a8108",
+      "bytes": 12484
+    },
+    "local-gates.json": {
+      "sha256": "ca76feaaf7f770b6a2e4073fdd03aa917f9a5336fda1c74c8294d9f0f36dacdf",
+      "bytes": 1157
+    },
+    "tested-source-manifest.json": {
+      "sha256": "3e6cac196661208d390df131019ebdeb64fce6ca719439769470cc21b78ff1e7",
+      "bytes": 48159
+    },
+    "installed-smoke.json": {
+      "sha256": "31bbed41f282eb6713f4ae31335d5b15449ae5af29012fc2401b96709a81f347",
+      "bytes": 9941
+    },
+    "source-editor.json": {
+      "sha256": "2a5eb4486c2dc5d6dd5f804d69adf156960efe97031e65498553d42e62f85380",
+      "bytes": 163611
+    },
+    "installed-editor.json": {
+      "sha256": "e3239f6340e22667fdb87a18146e3f831adc2063d109611a7cd9b8cb4eecf0fb",
+      "bytes": 161908
+    },
+    "installed-source-binding.json": {
+      "sha256": "6d712c052cc45d3c8e987e973f4a557267962b1aba39b121e74471a10ad1374e",
+      "bytes": 6791
+    }
+  }
+}

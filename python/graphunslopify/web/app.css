@@ -306,7 +306,7 @@ summary:focus-visible {
   background: #fbe7e8;
   color: var(--red);
 }
-.badge[data-state="incomplete"] {
+.badge[data-state="incomplete"], .badge[data-state="unverified"] {
   background: #fff1df;
   color: var(--orange);
 }

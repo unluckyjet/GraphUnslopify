@@ -103,7 +103,10 @@ and support undo, including with live preview off.
 Current source reuses bounded numerical summaries during compatible title/style edits,
 while rerunning current scientific checks and exports. [Measured numerical reuse](benchmarks/incremental/README.md)
 records the useful dense-bootstrap gain and the small cases that barely change.
-Staged unverified previews remain unfinished.
+[Staged previews](docs/workspace/staged-preview.md) can show the current image
+labelled Unverified while full checks and exports continue. Downloads and
+inspection controls wait for the current final result; failures remain visible.
+The separate preview-latency comparison is still pending.
 
 For optional [model-backed drafts](docs/workspace/model-drafts.md), configure a provider,
 review exactly which metadata and authored intent will be sent, then explicitly

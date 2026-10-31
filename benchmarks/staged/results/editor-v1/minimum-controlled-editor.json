@@ -1,0 +1,409 @@
+{
+  "passed": true,
+  "scope": "Controlled genuine original checker holds, not latency evidence",
+  "workflows": [
+    "actual unverified GUI image before genuine checker with exports/maps unavailable",
+    "original false claim remains visible strict failure after unverified preview",
+    "late provisional metadata cannot replace a current final result",
+    "late provisional image cannot replace a current final result",
+    "authoring while unverified cancels image and rejects late final acceptance with live preview off",
+    "malformed progress cannot certify an image or suppress original final verification"
+  ],
+  "external_requests": 0,
+  "javascript_errors": 0,
+  "executions": [
+    {
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "1c65365f49cc4d25907f630b029b90d9",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 3,
+          "misses": 3,
+          "stores": 3,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 2
+            },
+            "summarise": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 1
+            },
+            "bootstrap_interval": {
+              "misses": 1,
+              "stores": 1
+            }
+          },
+          "entries": 3,
+          "serialized_bytes": 2763,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "8becbd6863fd4baabe63affc1b60c328",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage genuine clean",
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "04224756ab4f4e878526c533de1d5f64",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 3,
+          "serialized_bytes": 2763,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "3cff5d25c83e4542a533a3551bfef23b",
+        "request_number": 10,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage genuine strict failure",
+      "status": "failed",
+      "exit_code": 2,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "5c495214f3454c5eafe96677c7d3077c",
+        "request_number": 3,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 3,
+          "misses": 3,
+          "stores": 3,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 2
+            },
+            "summarise": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 1
+            },
+            "bootstrap_interval": {
+              "misses": 1,
+              "stores": 1
+            }
+          },
+          "entries": 6,
+          "serialized_bytes": 5526,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "870c815c93f44df981ae8273dc5708fb",
+        "request_number": 14,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage delayed metadata",
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "a4bcb23c055940c4b084b6f12470087e",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 6,
+          "serialized_bytes": 5526,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "f048745d5866468abac541dd92ebae8a",
+        "request_number": 16,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage delayed image",
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "1f57ed1865954e71bdf647743298bc70",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 6,
+          "serialized_bytes": 5526,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "452f32aa53b04f86a548174ebab315e0",
+        "request_number": 18,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage invalidated while checking",
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "e6a3dd4381eb484cb8e1edd2cad3bf41",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 6,
+          "serialized_bytes": 5526,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "2fadc873d047484fb4fd41e1cd1f584c",
+        "request_number": 20,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    },
+    {
+      "title": "Stage rejected progress certificate",
+      "status": "passed",
+      "exit_code": 0,
+      "execution": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 39480,
+        "request_id": "afffd495f634412c806cccdcdd062f84",
+        "request_number": 7,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": true,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 39480,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 6,
+          "serialized_bytes": 5526,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "translation_execution": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 39473,
+        "request_id": "fe268245cc2b4774bee2b4c23514bf31",
+        "request_number": 23,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      }
+    }
+  ]
+}

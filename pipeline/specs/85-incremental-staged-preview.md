@@ -63,7 +63,7 @@ Dense title-B warm medians1.078802s uncached/0.338521s cached; small-case change
 are mostly milliseconds and include slower edits. Minimum/fresh86 controls,
 source/fresh101 editor workflows,21-kind60 renders per environment and
 minimum/fresh90 smoke pass. Exact39 Python/bundle plus JSON/license match.
-All seven stable checks pass232/1887/Ruff149 on361 unchanged source/test/fixture files; zero skips and one upstream warning. 85a bbcef49 exact main41169738321 all-nine/Figure41169738378 passed05:10UTC.85b backend is now under acceptance; UI/measurement remain open.
+All seven stable checks pass232/1887/Ruff149 on361 unchanged source/test/fixture files; zero skips and one upstream warning. 85a bbcef49 exact main41169738321 all-nine/Figure41169738378 passed05:10UTC.85b1 backend45b4431 is now exact-CI accepted; UI/measurement follow.
 See benchmarks/incremental/README.md for frozen scope, clocks and actual vectors.
 
 
@@ -86,5 +86,21 @@ until UI, full comparison, required checks and exact CI are accepted.
 source/minimum/fresh stage matches/13 assets, source old101 GUI, fresh103 controls
 and all59 package files pass.17 new stage cases include real held-genuine-check
 strict0/2, both race types and owned in-flight cleanup. See benchmarks/staged/
-results/backend-v1/verification.json for retries/scope. Push/exact CI pending;
-85b2 actual GUI/612+108 remains unimplemented/unmeasured.
+results/backend-v1/verification.json for retries/scope. Exact CI subsequently
+passed as recorded below;85b2a implements GUI, while612/108 stays unmeasured.
+
+
+85b1 exact45b4431 main41173792837 all-nine/Figure41173792881 accepted06:16UTC.
+85b2a now implements actual unverified-image UI with per-attempt decode/current
+fences, unchanged strict final POST and unavailable pending exports/maps. Source
+107 workflows, minimum6 controls, fresh107/60 package files and all seven
+stable checks pass. Push/exact UI CI is under acceptance. This checkpoint preserves the whole85b2 scope;
+85b2b must still deliver the frozen612 formal/108 smoke browser comparison and
+complete85 audit before86. No timing claim comes from controlled holds.
+
+85b2a local acceptance passes seven232/1904/Ruff152/419 unchanged files,
+source/fresh107 browser workflows, minimum6 genuine-check workflows, actual
+60-file installed package and unchanged translator775390f1. Source91/fresh90
+base worker replies and seven separate controlled replies each are retained.
+Push/exact UI CI pending; do not describe full85 as complete or infer latency
+from artificial correctness holds.85b2b frozen612/108 and86–89 stay open.

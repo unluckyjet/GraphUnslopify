@@ -531,6 +531,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/text-editing.js",
                 "/drafts.js",
                 "/diagnostic-overlays.js",
+                "/staged-preview.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -544,6 +545,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/text-editing.js",
             "/drafts.js",
             "/diagnostic-overlays.js",
+            "/staged-preview.js",
         }:
             name = {
                 "/": "index.html",
@@ -554,6 +556,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/diagnostics.js": "diagnostics.js",
                 "/drafts.js": "drafts.js",
                 "/diagnostic-overlays.js": "diagnostic-overlays.js",
+                "/staged-preview.js": "staged-preview.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -567,6 +570,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "diagnostics.js": "text/javascript; charset=utf-8",
                     "drafts.js": "text/javascript; charset=utf-8",
                     "diagnostic-overlays.js": "text/javascript; charset=utf-8",
+                    "staged-preview.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )

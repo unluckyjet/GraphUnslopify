@@ -1358,7 +1358,7 @@ def main() -> None:
         "        url=f'http://127.0.0.1:{server.server_address[1]}'\n"
         "        with urllib.request.urlopen(url) as response: html=response.read()\n"
         "        assert b'Make the figure' in html and server.state.token.encode() in html\n"
-        f"        assets={['/app.js', '/app.css', *(['/controls.js', '/drafts.js'] if args.require_editor_controls else [])]!r}\n"
+        f"        assets={['/app.js', '/app.css', '/staged-preview.js', *(['/controls.js', '/drafts.js'] if args.require_editor_controls else [])]!r}\n"
         "        for asset in assets:\n"
         "            with urllib.request.urlopen(url+asset) as response: assert len(response.read())>1000\n"
         + (

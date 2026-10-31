@@ -1,8 +1,8 @@
 # Staged preview progress and verification
 
-The85b backend is under acceptance. The editor still shows final-only results;
-its staged UI and the prospective browser comparison are unfinished.85a numerical
-reuse is accepted at bbcef49 with exact all-nine/Figure CI. Public0.8.0 remains
+The85b1 backend is accepted at45b4431 with exact all-nine/Figure CI. The working
+editor now shows current unverified images under acceptance; the prospective
+browser comparison is unfinished.85a numerical reuse is accepted at bbcef49. Public0.8.0 remains
 unchanged; no release is published here.
 
 ## Backend boundary
@@ -61,5 +61,14 @@ final-only GUI regression passes101 workflows/91 replies per worker. Fresh103
 controls and all59 wheel package files match/test outside the checkout. Minimum
 103 distinct controls pass after two fixture-only title errors were corrected.
 [Local acceptance records](results/backend-v1/verification.json) retain attempts
-and actual scopes. New push/exact main/Figure CI remains required. Actual staged GUI, formal612/108 and exact staging CI remain
-unfinished; full85 and all86–89 scope stay open. See the [full specification](../../pipeline/specs/85-incremental-staged-preview.md) and the shared Obsidian Staged Preview Lifecycle note.
+and actual scopes. New push/exact main/Figure CI remains required. Source staged GUI passes107 workflows, with six genuine-check-held cases also
+passing on minimum Python. Fresh107 GUI and all60 package files pass, along with seven stable checks
+232/1904/Ruff152 on419 unchanged files. Push/exact UI CI remains pending;
+formal612/108 is unmeasured. Full85 and all86–89 scope stay open. See the [full specification](../../pipeline/specs/85-incremental-staged-preview.md) and the shared Obsidian Staged Preview Lifecycle note.
+
+
+Actual staged-editor correctness records: [editor-v1](results/editor-v1/verification.json).
+The source browser observes91 base native/compiler replies; the fresh browser
+observes90. Each separately controls seven additional actual native replies
+across six workflows. Minimum Python also passes those six/seven controls.
+Counts and original strict failures are retained; no timing result is inferred.

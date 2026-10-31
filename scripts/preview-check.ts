@@ -13,6 +13,7 @@ import { checkDiagnostics } from "./preview-diagnostics-check.ts";
 import { checkHeadings } from "./preview-headings-check.ts";
 import { checkOutsideLegends } from "./preview-legends-check.ts";
 import { checkOwnedText } from "./preview-owned-text-check.ts";
+import { checkStaging } from "./preview-staging-check.ts";
 
 // Module-local browser globals; importing lib.dom changes unrelated Node stream types.
 declare const document: {
@@ -99,6 +100,7 @@ try {
       assert.equal(cache.pid, execution.pid);
       assert.equal(cache.runtime_source_sha256, execution.runtime_source_sha256);
       assert.ok(cache.entries <= cache.max_entries && cache.serialized_bytes <= cache.max_bytes);
+      assert.equal(execution.provisional, true, "staged editor request must use its actual native image progress mode");
       workerExecutions.push(execution);
       const compiler = body.translation_execution;
       assert.equal(compiler?.mode, "worker", "editor conversion must use its owned translator");
@@ -419,7 +421,13 @@ try {
       throw Error("Older render was not intercepted");
     }),
   ]);
-  assert.equal(await page.locator("#preview").isHidden(), true);
+  await page.locator('#status[data-state="unverified"]').waitFor();
+  assert.equal(await page.locator("#preview").isVisible(), true);
+  assert.equal(await page.locator("#preview").getAttribute("data-phase"), "unverified");
+  assert.equal(await page.locator("#bundle").isDisabled(), true);
+  assert.equal(await page.locator("#files a").count(), 0);
+  assert.equal(await page.locator("#text-targets").isHidden(), true);
+  assert.equal(await page.locator("#diagnostic-targets").isHidden(), true);
   await edit({ ...demo, title: "Current revision" });
   await verified();
   const currentSource = await page.locator("#preview").getAttribute("src");
@@ -1060,6 +1068,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const ownedHeadings = await checkHeadings(page, evidence);
   const ownedLegends = await checkOutsideLegends(page, evidence);
   const ownedText = await checkOwnedText(page, evidence);
+  const staged = await checkStaging(browser, evidence, env, python);
   await Promise.all(workerObservations);
   assert.ok(workerExecutions.length >= 10);
   assert.equal(translatorExecutions.length, workerExecutions.length);
@@ -1081,7 +1090,9 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         owned_headings: ownedHeadings,
         owned_legends: ownedLegends,
         owned_text: ownedText,
+        staged_preview: staged,
         workflows: [
+          ...staged.workflows,
           ...diagnosticOverlays.workflows,
           ...ownedHeadings.workflows,
           ...ownedLegends.workflows,

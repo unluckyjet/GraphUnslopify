@@ -1,5 +1,6 @@
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
+import { createScientificReview } from "/project-review.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "", sharedRevision = "";
@@ -7,6 +8,7 @@ let sourceDirty = false, entryDirty = false, sharedDirty = false, running = fals
 let sourceError = "", sharedError = "", sourceValid = false, sharedValid = true;
 let navigation = 0, evidence = 0, refreshVersion = 0, saving = false, loadingFigure = false;
 let historyChoice = 0, auditNavigation = 0;
+let refreshFailure = "";
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");
@@ -20,6 +22,7 @@ const el = (tag, text, parent) => {
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
 const dirty = () => sourceDirty || entryDirty || sharedDirty;
+let review;
 async function api(path, body) {
   const response = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
@@ -54,6 +57,7 @@ function lockControls() {
   $("duplicate").disabled = busy || dirty() || !record;
   $("remove").disabled = busy || dirty() || !record || (state?.figures.length || 0) < 2;
   $("undo-controls").disabled = busy || sharedDirty || entryDirty || !undo.length;
+  review?.update({ state, selected, dirty: dirty(), busy, info });
 }
 function draft(kind) {
   if (kind === "source") sourceDirty = true;
@@ -188,10 +192,13 @@ async function refresh({ reload = false } = {}) {
   const next = await api("/api/state");
   if (version !== refreshVersion) return;
   const changed = state && state.revision !== next.revision;
+  const previousError = state?.error;
   state = next;
   running = state.job?.phase === "running";
   lists();
   if (state.error) error(state.error);
+  else if ([previousError, refreshFailure].filter(Boolean).includes($("error").textContent)) error();
+  refreshFailure = "";
   if (!dirty() && !loadingFigure && (reload || changed || !record)) {
     loadShared();
     const id = state.figures.some((figure) => figure.id === selected) ? selected : state.figures[0]?.id;
@@ -314,6 +321,7 @@ async function compare() {
   el("p", result.scope, root).className = "muted";
 }
 function action(work) { return async () => { error(); try { await work(); } catch (problem) { error(problem.message); } }; }
+review = createScientificReview({ api, protect, audit: () => $("audit").click(), edit: action(async (id) => { if (id !== selected) await choose(id); document.querySelector(".definition-card").scrollIntoView({ behavior: "smooth" }); }) });
 async function save(route, body) {
   saving = true; lockControls();
   try { await api(route, body); sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await loadEvent(); notice("Saved. Audit the paper to check this version."); }
@@ -339,7 +347,7 @@ $("remove").onclick = action(async () => {
   if (!confirm("Remove " + selected + " from the paper manifest? Its source files, data and history are kept.")) return;
   await save("/api/entry", { id: selected, mode: "remove", expected_revision: record.revision });
 });
-$("refresh").onclick = action(async () => { if (dirty() && !confirm("Discard unsaved changes and refresh the project?")) return; sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await loadEvent(); notice("Project refreshed."); });
+$("refresh").onclick = action(async () => { if (dirty() && !confirm("Discard unsaved changes and refresh the project?")) return; sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await review.refresh(); await loadEvent(); notice("Project refreshed."); });
 $("history").onchange = action(async () => { historyChoice++; await loadEvent(); });
 $("history-figure").onchange = action(async () => { historyChoice++; await showFigure(); });
 $("show-comparison").onclick = action(compare);
@@ -358,7 +366,7 @@ async function poll() {
       else notice("Audit finished: " + words(state.job?.result?.status) + ". Choose the newest history event to review it.");
       if (state.job?.result?.id && historyChoice === auditNavigation) { $("history").value = state.job.result.id; await loadEvent(); }
     }
-  } catch (problem) { error("Could not refresh the project: " + problem.message); }
+  } catch (problem) { refreshFailure = "Could not refresh the project: " + problem.message; error(refreshFailure); review.unavailable(refreshFailure); }
   setTimeout(poll, 2500);
 }
 action(async () => { info = await api("/api/info"); await refresh({ reload: true }); await loadEvent(); notice("Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();

@@ -313,6 +313,7 @@ class ProjectHandler(PreviewHandler):
         assets = {
             "/": "project.html",
             "/project.js": "project.js",
+            "/project-review.js": "project-review.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
             "/controls.js": "controls.js",

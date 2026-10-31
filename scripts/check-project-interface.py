@@ -119,7 +119,13 @@ def main():
 
         request("/api/state", expected=403)
         request("/api/review", expected=403)
-        for asset in ("project.js", "project.css", "controls.js", "app.css"):
+        for asset in (
+            "project.js",
+            "project-review.js",
+            "project.css",
+            "controls.js",
+            "app.css",
+        ):
             assert request("/" + asset)[0]
         assert len(api("/api/info")["schema"]["oneOf"]) == 21
         first = audit()

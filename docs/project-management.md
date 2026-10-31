@@ -12,8 +12,8 @@ backend as these commands. The [single-figure editor](local-editor.md) is useful
 for starting a standalone figure or working with uploaded data.
 
 For grouped saved claims, uncertainty, legibility and reproduction evidence, use
-the read-only [`project-review` query](scientific-review.md). It keeps failed and
-historical results explicit and does not run or repair the paper.
+the [Scientific figure review panel and `project-review` query](scientific-review.md). They keep failed and
+historical results explicit. Reading evidence does not run or repair the paper.
 
 ## Open the paper workspace
 

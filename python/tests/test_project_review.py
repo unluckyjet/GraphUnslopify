@@ -191,6 +191,29 @@ def test_changed_audit_compiler_sources_remain_explicit(paper, monkeypatch):
     assert all(r["rerun_recommended"] for r in result["figures"])
 
 
+def test_historical_coverage_comes_from_its_saved_binding(paper):
+    spec = json.loads((paper / "training.figure.json").read_text())
+    spec["data"]["path"] = str(paper / "results.csv")
+    (paper / "training.py").write_text(Figure(spec).translate(api="local")["code"])
+    path = paper / "graphunslopify.json"
+    original = json.loads(path.read_text())
+    manifest = json.loads(path.read_text())
+    manifest["figures"][0] = {"id": "training", "script": "training.py"}
+    path.write_text(json.dumps(manifest))
+    result = model.run_project(paper)
+    assert result["exit_code"] == 0
+    event = model.project_history(paper)["events"][0]["id"]
+    path.write_text(json.dumps(original))
+    row = next(
+        r for r in review.project_review(paper, event_id=event)["figures"] if r["id"] == "training"
+    )
+    reproduction = row["groups"]["reproduction"]
+    assert reproduction["declared_input_coverage"] == "unknown_script_inputs"
+    assert reproduction["current_declared_input_coverage"] == "declared"
+    assert reproduction["source_input_scope"] == "declared_script_inputs_only"
+    assert not row["matches_latest_accepted_inputs"]
+
+
 def test_actual_audit_is_rejected_if_its_sources_change_mid_run(paper, monkeypatch):
     actual = model._execution_source()
     calls = 0

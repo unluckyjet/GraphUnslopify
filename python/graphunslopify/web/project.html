@@ -50,6 +50,14 @@
             <div class="actions"><button id="save-shared" disabled>Save shared settings</button><button id="discard-shared" class="quiet">Reload saved settings</button></div>
           </details>
         </section>
+        <section class="card review-card" aria-labelledby="review-heading">
+          <div class="section-head"><h2 id="review-heading">Scientific figure review</h2><div class="actions"><button id="review-latest" class="quiet">Review latest inputs</button><button id="review-audit" disabled>Run paper checks</button><button id="review-edit" class="secondary" disabled>Edit current definition</button></div></div>
+          <div class="history-selectors"><label>Evidence to review<select id="review-event"><option value="">Current inputs</option></select></label><label>Figure to review<select id="review-figure"></select></label></div>
+          <p id="review-status" role="status" data-state="unknown">No review loaded yet.</p>
+          <p id="review-context" class="muted">Saved results and current inputs remain distinct.</p>
+          <div class="review-layout"><div class="review-image"><img id="review-preview" alt="Saved figure under review" hidden /><p id="review-preview-note">Run paper checks to create evidence.</p><div id="review-downloads" class="downloads"></div></div><div id="review-groups" aria-live="polite"></div></div>
+          <p class="muted">Only current bindings appear here. Captured source and results for removed figures remain in Saved runs &amp; changes below.</p>
+        </section>
         <section class="card definition-card">
           <div class="section-head"><h2 id="selected-title">Choose a figure</h2><button id="undo-controls" class="quiet" disabled>Undo control change</button></div>
           <p id="source" class="muted"></p><p id="source-note" class="muted"></p>

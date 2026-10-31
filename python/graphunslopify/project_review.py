@@ -95,6 +95,14 @@ def _groups(report, current, event, exports_verified=False, execution_source=Non
     inspection = copy.deepcopy(report.get("inspection", {}))
     recorded_execution = event["result"].get("execution_source")
     recorded_execution = recorded_execution if isinstance(recorded_execution, dict) else {}
+    recorded_input = next(
+        (
+            item
+            for item in event["result"].get("snapshot", {}).get("figures", [])
+            if item["id"] == current["id"]
+        ),
+        {},
+    )
     return {
         "claims": {
             "state": "recorded_results" if claims else "not_declared",
@@ -124,10 +132,13 @@ def _groups(report, current, event, exports_verified=False, execution_source=Non
             "event": event["id"],
             "script": copy.deepcopy(report.get("script")),
             "data": copy.deepcopy(report.get("data")),
-            "declared_input_coverage": current["input_coverage"],
+            "declared_input_coverage": recorded_input.get("input_coverage", "not_recorded"),
+            "current_declared_input_coverage": current["input_coverage"],
             "source_input_scope": "canonical_spec_inputs"
-            if current["source_type"] == "spec"
-            else "declared_script_inputs_only",
+            if recorded_input.get("source_type") == "spec"
+            else "declared_script_inputs_only"
+            if recorded_input.get("source_type") == "script"
+            else "not_recorded",
             "saved_exports_verified": exports_verified,
             "runtime": _runtime(report.get("script", {}).get("runtime")),
             "environment": _environment(report.get("environment")),

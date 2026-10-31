@@ -64,7 +64,24 @@ try {
     return state.job.result.id as string;
   };
   assert.equal((await api("/api/state")).status, "needs_audit");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("No audit yet"));
+  assert.equal(await page.locator("[data-review-group]").count(), 4);
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  workflows.push("four unavailable review groups before any science executes");
   const first = await audit("passed");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("match this accepted saved audit"));
+  await page.waitForFunction(() => document.querySelector("#review-preview")?.naturalWidth && !document.querySelector("#review-preview")?.hidden);
+  assert.equal(await page.locator("[data-review-group]").count(), 4);
+  assert.ok(await page.locator('[data-review-group="claims"] [data-verdict="holds"]').count());
+  assert.match(await page.locator('[data-review-group="reproduction"]').innerText(), /Selected export bytes match/);
+  workflows.push("connected actual preview and four executed scientific evidence groups");
+  await page.locator(".review-card").screenshot({ path: join(evidence, "review-current-desktop.png") });
+  const countsDetails = page.locator('[data-review-group="uncertainty"] details').first();
+  await countsDetails.locator("summary").click();
+  await page.waitForResponse((response) => new URL(response.url()).pathname === "/api/review" && !new URL(response.url()).search && response.status() === 200);
+  assert.notEqual(await countsDetails.getAttribute("open"), null);
+  await countsDetails.locator("summary").click();
+  workflows.push("unchanged background review refresh preserves open evidence details");
   const firstFolder = join(paper, "graphunslopify-project/history", first);
   const firstBytes = inventory(firstFolder);
   workflows.push("two-figure strict audit and actual preview");
@@ -91,6 +108,14 @@ try {
 
   const title = "Project <literal> Δ title";
   await page.getByRole("textbox", { name: "Figure title", exact: true }).fill(title);
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("Unsaved draft"));
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  assert.equal(await page.locator("#review-downloads a").count(), 0);
+  await page.locator("#review-event").selectOption(first);
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("current draft is unverified"));
+  assert.equal(await page.locator("#review-status").getAttribute("data-state"), "saved");
+  await page.locator("#review-event").selectOption("");
+  workflows.push("drafts hide current acceptance and exports while explicit saved evidence stays labeled");
   assert.equal(await page.locator("#preview").isHidden(), true);
   assert.equal(await page.locator("#audit").isDisabled(), true);
   await page.locator("#save-definition").click();
@@ -140,6 +165,10 @@ try {
   await page.locator("#save-definition").click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
   const failed = await audit("failed");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("Audit recommended"));
+  assert.ok(await page.locator('[data-review-group="claims"] [data-verdict="fails"]').count());
+  assert.notEqual(await page.locator("#review-status").getAttribute("data-state"), "matches");
+  workflows.push("failed declared claims remain visible in connected review");
   assert.ok((await page.locator("#checks").innerText()).includes("fails"));
   assert.match(await page.locator("#checks").innerText(), /Why it matters:[\s\S]*Recommended correction:/);
   await page.locator("#show-comparison").click();
@@ -219,6 +248,99 @@ try {
   await page.waitForFunction(() => document.querySelector("#event-summary")?.textContent.includes("scientific checks: failed"));
   assert.equal((await api("/api/state")).status, "inputs_match_last_run");
   workflows.push("historical failures remain distinct from current accepted inputs");
+  await page.locator("#review-figure").selectOption("figure");
+  await page.locator("#review-event").selectOption(failed);
+  await page.waitForFunction((id: string) => document.querySelector("#review-status")?.textContent.includes(id), failed);
+  assert.equal(await page.locator("#review-status").getAttribute("data-state"), "saved");
+  assert.ok(await page.locator('[data-review-group="claims"] [data-verdict="fails"]').count());
+  workflows.push("explicit old failed review never borrows current acceptance");
+  await page.locator(".review-card").screenshot({ path: join(evidence, "review-failed-history-desktop.png") });
+
+  let releaseReview: (() => void) | undefined, capturedReview: (() => void) | undefined, completedReview: (() => void) | undefined;
+  const reviewCaptured = new Promise<void>((accept) => { capturedReview = accept; });
+  const reviewHeld = new Promise<void>((accept) => { releaseReview = accept; });
+  const reviewCompleted = new Promise<void>((accept) => { completedReview = accept; });
+  await page.route("**/api/review?event=" + first, async (route) => { const response = await route.fetch(); capturedReview?.(); await reviewHeld; await route.fulfill({ response }); completedReview?.(); });
+  await page.locator("#review-event").selectOption(first);
+  await reviewCaptured;
+  await page.locator("#review-event").selectOption(failed);
+  await page.waitForFunction((id: string) => document.querySelector("#review-status")?.textContent.includes(id), failed);
+  releaseReview?.();
+  await reviewCompleted;
+  await page.unroute("**/api/review?event=" + first);
+  assert.ok(await page.locator('[data-review-group="claims"] [data-verdict="fails"]').count());
+  assert.ok((await page.locator("#review-status").innerText()).includes(failed));
+  workflows.push("late review responses cannot replace a newer selected saved run");
+
+  await page.locator("#review-event").selectOption("");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("match this accepted saved audit"));
+  const latestState = await api("/api/state");
+  const latestId = latestState.figures.find((item: { id: string }) => item.id === "figure").last_run;
+  const latestEvent = await api("/api/event?id=" + latestId);
+  const latestOutput = latestEvent.result.audit.figures.find((item: { id: string }) => item.id === "figure").outputs.find((item: { format: string }) => item.format === "png");
+  const latestPath = join(paper, "graphunslopify-project/history", latestId, "audit", latestOutput.path);
+  const latestBytes = readFileSync(latestPath);
+  writeFileSync(latestPath, "changed output bytes");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("Audit recommended"));
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  assert.equal(await page.locator("#review-downloads a").count(), 0);
+  assert.equal((await api("/api/state")).history_integrity, "verified");
+  writeFileSync(latestPath, latestBytes);
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("match this accepted saved audit"));
+  workflows.push("polling detects actual changed and restored exports without manual refresh despite intact receipts");
+  const missingInspector = join(paper, "inspection-missing.py");
+  execFileSync(python, ["-c", [
+    "import json,sys",
+    "from pathlib import Path",
+    "from graphunslopify import Figure",
+    "source=Path(sys.argv[1]); spec=json.loads(source.read_text())",
+    "spec['data']['path']=str(source.parent/'results.csv')",
+    "shared=json.loads((source.parent/'graphunslopify-project/project.json').read_text())['shared']",
+    "for key in ('style','output'): spec[key]={**spec.get(key,{}),**shared.get(key,{})}",
+    "code=Figure(spec).translate(api='local')['code']",
+    "prefix=\"import builtins as _builtins\\n_original_import = _builtins.__import__\\ndef _missing(name, globals=None, locals=None, fromlist=(), level=0):\\n    if name == 'graphunslopify' and 'inspect_figure' in (fromlist or ()):\\n        raise ImportError('actual inspector unavailable control')\\n    return _original_import(name, globals, locals, fromlist, level)\\n_builtins.__import__ = _missing\\n\"",
+    "Path(sys.argv[2]).write_text(prefix+'exec(compile('+repr(code)+\", __file__, 'exec'), globals())\\n\")",
+  ].join("\n"), join(paper, "figure.json"), missingInspector], { env, encoding: "utf8", timeout: 60_000 });
+  await page.locator("#review-edit").click();
+  await page.waitForFunction(() => document.querySelector("#selected-title")?.textContent === "figure");
+  if (await page.locator("#binding-panel").getAttribute("open") === null) await page.locator("#binding-panel > summary").click();
+  await page.locator("#entry").fill(JSON.stringify({ id: "figure", script: "inspection-missing.py", data: "results.csv" }));
+  await page.locator("#save-entry").click();
+  await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
+  const incomplete = await audit("incomplete");
+  const incompleteResult = (await api("/api/event?id=" + incomplete)).result;
+  assert.equal(Object.values(incompleteResult.policy_errors).flat().length, 0);
+  const incompleteFigure = incompleteResult.audit.figures.find((item: { id: string }) => item.id === "figure");
+  assert.equal(incompleteFigure.report.status, "incomplete");
+  assert.equal(incompleteFigure.report.inspection.available, false);
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("Audit recommended"));
+  assert.match(await page.locator('[data-review-group="legibility"]').innerText(), /Recorded inspection is unavailable/);
+  assert.match(await page.locator('[data-review-group="legibility"]').innerText(), /inspection unavailable/);
+  assert.doesNotMatch(await page.locator('[data-review-group="legibility"]').innerText(), /No executed evidence/);
+  await page.locator("#entry").fill(JSON.stringify(binding));
+  await page.locator("#save-entry").click();
+  await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
+  await audit("passed");
+  workflows.push("actual unavailable inspector stays incomplete with recorded diagnostics and recovery");
+  const manifestPath = join(paper, "graphunslopify.json");
+  const manifestBytes = readFileSync(manifestPath);
+  writeFileSync(manifestPath, "{");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.startsWith("Project unavailable"));
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  assert.equal(await page.locator("#review-downloads a").count(), 0);
+  assert.equal(await page.locator("#review-audit").isDisabled(), true);
+  writeFileSync(manifestPath, manifestBytes);
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("match this accepted saved audit"));
+  assert.equal(await page.locator("#error").isHidden(), true);
+  workflows.push("actual unreadable manifest clears current review and recovers without stale acceptance");
+  await page.route("**/api/state", (route) => route.abort("failed"));
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("Could not refresh the project"));
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  assert.equal(await page.locator("#review-downloads a").count(), 0);
+  await page.unroute("**/api/state");
+  await page.waitForFunction(() => document.querySelector("#review-status")?.textContent.includes("match this accepted saved audit"));
+  assert.equal(await page.locator("#error").isHidden(), true);
+  workflows.push("failed state transport clears current review until an actual successful recovery");
   await page.locator("#history").selectOption(first);
   await page.locator("#history-figure").selectOption("figure");
   await page.waitForFunction(() => document.querySelector("#preview")?.naturalWidth && !document.querySelector("#preview")?.hidden);
@@ -229,6 +351,7 @@ try {
   await page.locator("header").scrollIntoViewIfNeeded();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   await page.screenshot({ path: join(evidence, "mobile.png"), fullPage: true });
+  await page.locator(".review-card").screenshot({ path: join(evidence, "review-current-mobile.png") });
   await page.locator(".history-card").scrollIntoViewIfNeeded();
   await page.screenshot({ path: join(evidence, "mobile-history.png") });
   assert.deepEqual(firstBytes, inventory(firstFolder));

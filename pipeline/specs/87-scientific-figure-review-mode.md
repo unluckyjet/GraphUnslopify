@@ -69,3 +69,38 @@ also remains open. No release, volunteer/human/blind study or superiority claim.
   one upstream SQLAlchemy warning and841 protected paths unchanged. Tested Git
   blobs, push and exact main/Figure acceptance are still pending. This is87a only; all remaining87 browser/foreign/batch/undo/reuse/
   export acceptance and entire88–89 remain open. No new release.
+
+
+87a is complete:05b63bc68281096f9bd9b027ceadbe6cb800d898 passed exact
+all-nine main41226988302/Figure41226988304 at2026-10-31 18:35:07UTC, before
+87b source changes. All841 tested/committed blobs match.
+
+## 87b — connected browser review
+
+Integrate the real four-group evidence into the existing paper workspace, beside
+actual saved previews and canonical authoring/rerun controls. Keep saved/current/
+draft/missing/failed evidence distinct, discard late asynchronous responses,
+preserve removed-figure history and safe text rendering, and provide actual
+source/fresh-wheel desktop/mobile workflows plus minimum Python controls.
+Foreign/source-free storage/inspection, reviewed batch/undo, selective reuse and
+auditable review export still remain separate required87 milestones.
+
+
+87b local delivery2026-10-31: actual connected browser panel, current/saved/
+draft/unavailable states, scoped recorded input coverage, verified preview/
+downloads and real edit/audit actions are implemented.24 unique real desktop/
+mobile workflows each pass in source/minimum3.10/fresh-wheel contexts; original
+data/first history unchanged, zero external requests/page errors. Includes
+late responses, automatic changed/restored output handling, preserved open
+details, actual missing inspector/incomplete strict2, unreadable manifest and
+failed-state transport recovery. Minimum69 backend controls pass. All67 actual
+package resources match source/wheel/installed bytes (wheel SHA
+1ce4904edd5f3ea7ad95a4f763751c4cae5fba84723ee6a09df1ca4b04274d2c).
+
+Full seven+gallery/Ruff166/232 Node/1944 Python/zero skips/one upstream warning
+pass on843 unchanged paths. Initial harness failures and the first deliberately
+interrupted1107-pass suite are retained; they are not acceptance. Original
+README graphics, mathematical helpers and frozen reference protocols unchanged.
+Push/exact new-commit CI still required before the next implementation milestone.
+Full87 foreign/source-free, reviewed batch/undo, selective regeneration/auditable
+export and entire88–89 remain open. No new release or human-study claim.

@@ -18948,6 +18948,239 @@ async function serveLocalWorker(dispatch2, entry) {
   }
 }
 
+// src/codegen/runtime-source.ts
+var RUNTIME_HELPERS = {
+  "_aligned": 'def _aligned(frame, subject, reference):\n    """Require complete, finite x coverage for the named series."""\n    if GROUP is None or Y_FIELD not in frame:\n        return None\n    columns = [subject] if reference is None else [subject, reference]\n    selected = frame[frame[GROUP].isin(columns)]\n    if (\n        selected.empty\n        or selected[X_FIELD].isna().any()\n        or selected.duplicated([X_FIELD, GROUP]).any()\n    ):\n        return None\n    pivot = selected.pivot_table(\n        index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True\n    )\n    if any(column not in pivot.columns for column in columns):\n        return None\n    pair = pivot[columns].sort_index()\n    if not len(pair) or not np.isfinite(pair.to_numpy(dtype=float)).all():\n        return None\n    return pair',
+  "_interval_overlap": 'def _interval_overlap(frame, subject, reference):\n    """How many shared x values have overlapping intervals, or None.\n\n    None when there is nothing to measure: no reference, no grouping, or no\n    uncertainty in the spec, in which case _low was never written.\n    """\n    if reference is None or GROUP is None or "_low" not in frame:\n        return None\n    lows = frame.pivot_table(\n        index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True\n    )\n    highs = frame.pivot_table(\n        index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True\n    )\n    for column in (subject, reference):\n        if column not in lows.columns or column not in highs.columns:\n            return None\n    shared = lows.index.intersection(highs.index).sort_values()\n    bounds = [\n        lows.loc[shared, subject].to_numpy(dtype=float),\n        highs.loc[shared, subject].to_numpy(dtype=float),\n        lows.loc[shared, reference].to_numpy(dtype=float),\n        highs.loc[shared, reference].to_numpy(dtype=float),\n    ]\n    usable = np.all([np.isfinite(edge) for edge in bounds], axis=0)\n    if not usable.any():\n        return None\n    mine_low, mine_high, their_low, their_high = (edge[usable] for edge in bounds)\n    touching = (mine_low <= their_high) & (their_low <= mine_high)\n    return int(np.sum(touching)), int(usable.sum())',
+  "alt_text": `def alt_text(frame):
+    detail = describe_figure(frame)
+    body = ENCODING_SENTENCE + (f" {detail}" if detail else "")
+    for claim in CLAIMS:
+        if claim.get("_verdict") is not True:
+            continue
+        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))
+        sentence = f"{claim['subject']} {wording}"
+        # A claim the spread does not separate is not quoted bare. The bands
+        # are what persuade a reader to trust the verdict, so a reader who
+        # cannot see them is owed the same caveat.
+        overlap = overlap_phrase(claim.get("_overlap"))
+        if overlap is not None:
+            sentence += f", though {overlap}"
+        body += " " + sentence[:1].upper() + sentence[1:] + "."
+    return body`,
+  "capture_environment": 'def capture_environment(fig=None):\n    if RUN_REPORT.get("environment") is not None:\n        return RUN_REPORT["environment"]\n    import importlib.metadata as package_metadata\n    import platform\n\n    unavailable = []\n\n    def installed(name):\n        try:\n            return package_metadata.version(name)\n        except package_metadata.PackageNotFoundError:\n            return None\n        except Exception:  # noqa: BLE001 -- unreadable distribution metadata stays unavailable\n            unavailable.append(name + ".version")\n            return None\n\n    def text(value):\n        return str(value) if value else None\n\n    core = {\n        name: text(getattr(module, "__version__", None))\n        for name, module in (\n            ("numpy", np),\n            ("pandas", pd),\n            ("matplotlib", matplotlib),\n            ("Pillow", sys.modules.get("PIL")),\n        )\n    }\n    core["freetype"] = text(\n        getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None)\n    )\n    rc = None\n    font = None\n    if fig is not None:\n        keys = (\n            "font.family",\n            "font.size",\n            "font.style",\n            "font.weight",\n            "font.variant",\n            "font.stretch",\n            "mathtext.fontset",\n            "text.usetex",\n            "text.parse_math",\n            "svg.fonttype",\n            "pdf.fonttype",\n            "ps.fonttype",\n            "savefig.transparent",\n            "savefig.facecolor",\n            "figure.facecolor",\n            "axes.facecolor",\n            "path.simplify",\n            "path.simplify_threshold",\n            "agg.path.chunksize",\n            "svg.hashsalt",\n        )\n        rc = {key: matplotlib.rcParams.get(key) for key in keys}\n        try:\n            from matplotlib import font_manager\n\n            path = Path(font_manager.findfont(font_manager.FontProperties()))\n            font = {\n                "family": font_manager.get_font(str(path)).family_name,\n                "file": path.name,\n                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),\n            }\n        except Exception:  # noqa: BLE001 -- any failed actual font capture stays unavailable\n            unavailable.append("default_font")\n    snapshot = {\n        "schema_version": 1,\n        "capture_stage": "before_export" if fig is not None else "no_export_snapshot",\n        "python": {\n            "version": platform.python_version(),\n            "implementation": platform.python_implementation(),\n            "optimize": sys.flags.optimize,\n            "hash_randomization": bool(sys.flags.hash_randomization),\n        },\n        "platform": {"system": text(platform.system()), "machine": text(platform.machine())},\n        "loaded_core_versions": core,\n        "installed_optional_versions": {\n            name: installed(name) for name in RUNTIME_OPTIONAL_PACKAGES\n        },\n        "rendering": {\n            "backend": str(matplotlib.get_backend()),\n            "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,\n            "figure_dpi": float(fig.dpi) if fig is not None else None,\n            "export_dpi": DPI,\n            "target_width_in": TARGET_WIDTH_IN,\n            "requested_formats": list(FORMATS),\n            "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],\n            "rc_parameters": rc,\n            "default_font": font,\n        },\n        "execution": dict(\n            RUN_REPORT.get(\n                "_execution_policy",\n                {"strict": None, "fail_on_warning": None, "source": "direct_call"},\n            )\n        ),\n        "random_constants": {\n            key: globals()[key]\n            for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED")\n            if key in globals()\n        },\n        "unavailable": unavailable,\n    }\n    # Detach mutable rc lists and normalize the stored snapshot to JSON types.\n    snapshot = json.loads(json.dumps(snapshot, allow_nan=False))\n    RUN_REPORT["environment"] = snapshot\n    return snapshot',
+  "check_claim": 'def check_claim(frame, claim):\n    """Return (holds, detail). None means the claim could not be tested."""\n    subject, reference = claim["subject"], claim.get("reference")\n    tolerance = claim.get("tolerance") or 0.0\n    pair = _aligned(frame, subject, reference)\n    if pair is None:\n        return (\n            None,\n            "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements",\n        )\n\n    mine = pair[subject].to_numpy(dtype=float)\n    theirs = pair[reference].to_numpy(dtype=float) if reference else None\n    kind = claim["kind"]\n    if (\n        kind\n        in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges")\n        and len(mine) < 2\n    ):\n        return None, "at least two x values are required for a trend claim"\n\n    if kind == "beats_everywhere":\n        losses = int(np.sum(mine <= theirs))\n        return losses == 0, f"{losses} of {len(mine)} x values are not above {reference}"\n\n    if kind == "beats_on_average":\n        gap = float(mine.mean() - theirs.mean())\n        return gap > 0, f"mean difference is {gap:+.4g}"\n\n    if kind == "beats_at_end":\n        gap = float(mine[-1] - theirs[-1])\n        return gap > 0, f"difference at the largest x is {gap:+.4g}"\n\n    if kind in ("gap_widens", "gap_narrows"):\n        gap = mine - theirs\n        half = max(len(gap) // 2, 1)\n        early, late = float(gap[:half].mean()), float(gap[half:].mean())\n        change = late - early\n        widening = kind == "gap_widens"\n        holds = change > 0 if widening else change < 0\n        return holds, f"gap moves from {early:+.4g} to {late:+.4g}, a change of {change:+.4g}"\n\n    if kind in ("monotone_increasing", "monotone_decreasing"):\n        steps = np.diff(mine)\n        rising = kind == "monotone_increasing"\n        breaks = int(np.sum(steps < -tolerance if rising else steps > tolerance))\n        return breaks == 0, f"{breaks} of {len(steps)} steps go the wrong way"\n\n    if kind == "converges":\n        tail = max(len(mine) // 5, 1)\n        spread = float(np.abs(mine - theirs)[-tail:].max())\n        return spread <= tolerance, f"largest gap over the final fifth is {spread:.4g}"\n\n    if kind == "no_worse_than":\n        deficit = float(np.max(theirs - mine))\n        return deficit <= tolerance, f"largest shortfall against {reference} is {deficit:.4g}"\n\n    if kind == "within_tolerance":\n        spread = float(np.max(np.abs(mine - theirs)))\n        return spread <= tolerance, f"largest absolute difference is {spread:.4g}"\n\n    return None, f"no test implemented for {kind}"',
+  "data_fingerprint": 'def data_fingerprint():\n    # A figure built from a file that has since changed is worse than no\n    # figure, because it looks current.\n    try:\n        with open(DATA_PATH, "rb") as handle:\n            digest = hashlib.sha256()\n            for block in iter(lambda: handle.read(65536), b""):\n                digest.update(block)\n        return digest.hexdigest()[:16]\n    except OSError:\n        return "unreadable"',
+  "diagnostic_text": `def diagnostic_text(code, message, severity="warning"):
+    advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
+    return (
+        f"{severity.upper()} [{code}] {message}\\n"
+        f"  Why it matters: {advice['consequence']}\\n"
+        f"  Recommended correction: {advice['correction']}"
+    )`,
+  "disclose_legend_aliases": `def disclose_legend_aliases(description):
+    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
+    if not labels:
+        return description
+    mappings = [f"{item['text']} means source series {item['series']}" for item in labels]
+    return description + " Display names: " + "; ".join(mappings) + "."`,
+  "disclose_panel_aliases": `def disclose_panel_aliases(description):
+    spec = RUN_REPORT["spec"]
+    mappings = [
+        f"{item['text']} means source metric {item['field']}"
+        for item in spec.get("repeat", {}).get("labels", [])
+    ]
+    facet = spec.get("facet", {})
+    for item in facet.get("labels", []):
+        source = f"{facet['by']}={item['value']}"
+        if "row" in item:
+            source += f", {facet['rows']}={item['row']}"
+        mappings.append(f"{item['text']} means source panel {source}")
+    return (
+        description
+        if not mappings
+        else description + " Panel display names: " + "; ".join(mappings) + "."
+    )`,
+  "edit_target": 'def edit_target(artist, path, role, source=None, value=None):\n    artist._graphunslopify_text_target = {\n        "path": path,\n        "role": role,\n        "source": source,\n        "editable": path is not None,\n    }\n    if value is not None:\n        artist._graphunslopify_text_target["value"] = value\n    return artist',
+  "facet_key": 'def facet_key(item):\n    return tuple((field, item[field]) for field in ("value", "row") if field in item)',
+  "finding": 'def finding(severity, code, message):\n    item = {\n        "severity": severity,\n        "code": code,\n        "message": message,\n        **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC),\n    }\n    if item not in RUN_REPORT["findings"]:\n        RUN_REPORT["findings"].append(item)',
+  "heading_dollars": 'def heading_dollars(text):\n    return text.count("$") - text.count(r"\\$")',
+  "layer_artist": 'def layer_artist(artist, index):\n    layer = RUN_REPORT["spec"]["layers"][index]\n    if layer.get("label"):\n        target = {\n            "path": ["layers", index, "label"],\n            "role": "layer_label",\n            "source": {"layer": index, "mark": layer["mark"]},\n        }\n        for item in artist if isinstance(artist, list) else [artist]:\n            item._graphunslopify_legend_text_target = target\n    return artist',
+  "legend_alias": 'def legend_alias(source):\n    key = str(source)\n    return next(\n        (\n            item["text"]\n            for item in RUN_REPORT["spec"]["legend"].get("labels", [])\n            if item["series"] == key\n        ),\n        key,\n    )',
+  "legend_alias_path": 'def legend_alias_path(source):\n    labels = RUN_REPORT["spec"]["legend"].get("labels", [])\n    index = next(\n        (index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels)\n    )\n    return ["legend", "labels", index, "text"]',
+  "legend_handle_key": 'def legend_handle_key(handle, label):\n    identity = getattr(handle, "_graphunslopify_legend_identity", None)\n    target = getattr(handle, "_graphunslopify_legend_text_target", None)\n    if identity is not None:\n        return ("series", identity["series"])\n    if target is not None:\n        return ("layer", target["source"]["layer"])\n    return ("external", label)',
+  "literal_heading_lines": 'def literal_heading_lines(lines, original):\n    # An originally literal paragraph must not acquire a MathText line.\n    index = 0\n    while index < len(lines):\n        count = heading_dollars(lines[index])\n        if count == 0 or count % 2:\n            index += 1\n            continue\n        line = lines[index]\n        cuts = [\n            match\n            for match in re.finditer(r"\\s+", line)\n            if heading_dollars(line[: match.start()]) % 2\n        ]\n        if cuts:\n            cut = cuts[-1]\n            lines[index : index + 1] = [line[: cut.start()], line[cut.end() :]]\n            index += 2\n            continue\n        # A dollar pair inside one word cannot be split without changing it.\n        # Keep it with an odd-dollar neighbor; ordinary inspection still owns\n        # acceptance if the resulting complete wording cannot fit the column.\n        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]\n        if not odd:\n            return [original]\n        neighbor = min(odd, key=lambda i: abs(i - index))\n        low, high = sorted((index, neighbor))\n        lines[low : high + 1] = [" ".join(lines[low : high + 1])]\n        index = low + 1\n    return lines',
+  "mark_panel_text": 'def mark_panel_text(artist, index):\n    spec = RUN_REPORT["spec"]\n    if "repeat" in spec:\n        field = spec["repeat"]["fields"][index]\n        return edit_target(\n            artist, metric_label_path(field), "metric_label", field, metric_label(field)\n        )\n    if "facet" in spec:\n        labels = spec["facet"].get("labels", [])\n        source = PANEL_SOURCE_KEYS[index]\n        slot = next(\n            (i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)),\n            len(labels),\n        )\n        return edit_target(\n            artist,\n            ["facet", "labels", slot, "text"],\n            "panel_title",\n            source,\n            panel_label_value(index, PANEL_ORIGINAL_NAMES[index]),\n        )\n    return artist',
+  "metadata_for": 'def metadata_for(fmt):\n    # Embedding the spec means a reviewer can recover what produced the figure.\n    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"\n    provenance = json.dumps(\n        {\n            "schema_version": 1,\n            "tool": TOOL,\n            "spec_hash": SPEC_HASH,\n            "data_sha256_prefix": DATA_HASH,\n            "script_sha256": script_fingerprint(),\n            "spec": json.loads(SPEC_JSON),\n            "alt_text": ALT_TEXT,\n            "environment": capture_environment(),\n        },\n        ensure_ascii=False,\n    )\n    if fmt == "png":\n        return {\n            "Software": stamp,\n            "Description": SPEC_JSON,\n            "Comment": ALT_TEXT,\n            "GraphUnslopify": provenance,\n        }\n    if fmt == "svg":\n        return {\n            "Creator": stamp,\n            "Description": ALT_TEXT,\n            "Title": FIGURE_TITLE or Path(STEM).name,\n            "Identifier": SPEC_HASH,\n            "Source": provenance,\n            "Date": None,\n        }\n    return {\n        "Creator": stamp,\n        "Subject": SPEC_JSON,\n        "Keywords": provenance,\n        "Title": FIGURE_TITLE or Path(STEM).name,\n        "CreationDate": None,\n        "ModDate": None,\n    }',
+  "metric_label": 'def metric_label(source):\n    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])\n    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))',
+  "metric_label_path": 'def metric_label_path(source):\n    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])\n    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))\n    return ["repeat", "labels", index, "text"]',
+  "new_report": 'def new_report():\n    return {\n        "schema_version": 1,\n        "tool": TOOL,\n        "spec_hash": SPEC_HASH,\n        "spec": json.loads(SPEC_JSON),\n        "status": "incomplete",\n        "ok": False,\n        "data": {},\n        "environment": None,\n        "findings": [dict(f) for f in STATIC_FINDINGS],\n        "inspection": {"available": None, "checked": False},\n        "panels": [],\n        "claims": [],\n        "significance": [],\n        "annotations": [],\n        "outputs": [],\n        "skipped_outputs": [],\n        "untested": [],\n        "alt_text": "",\n    }',
+  "normalize_identities": 'def normalize_identities(frame, *, final=True):\n    if IDENTITY_CONFLICTS:\n        raise ValueError(\n            "Columns cannot serve both identifier and measurement roles: "\n            + ", ".join(IDENTITY_CONFLICTS)\n        )\n    for key in ("series_order", "category_order"):\n        order = RUN_REPORT["spec"].get(key)\n        if order is not None and len(order) != len(set(order)):\n            raise ValueError(key + " must contain unique identifiers")\n    source = frame.copy()\n    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})\n    for field in IDENTITY_FIELDS:\n        if field not in source:\n            if final and field in REQUIRED_IDENTITY_FIELDS:\n                raise ValueError(f"Required identifier column {field} is missing")\n            continue\n        values = source[field].tolist()\n        if field in lexical:\n            values = [lexical[field][int(index)] for index in source.index]\n        seen = {}\n\n        def as_identifier(value, field=field, seen=seen):\n            if not pd.api.types.is_scalar(value):\n                raise ValueError(f"Identifier {field} must contain scalar values")\n            if pd.isna(value):\n                return None\n            if isinstance(value, (float, np.floating)) and not np.isfinite(value):\n                raise ValueError(f"Numeric identifier {field} must be finite")\n            text = str(value)\n            if not text.strip():\n                raise ValueError(f"Identifier {field} must be nonempty")\n            if text in seen and seen[text] != value:\n                raise ValueError(\n                    f"Distinct identifiers in {field} collide as textual name {text!r}"\n                )\n            seen[text] = value\n            return text\n\n        normalized = [as_identifier(value) for value in values]\n        dtype = source[field].dtype\n        if isinstance(dtype, pd.CategoricalDtype):\n            categories = [as_identifier(value) for value in dtype.categories]\n            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)\n        else:\n            source[field] = pd.Series(normalized, index=source.index, dtype=object)\n        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():\n            raise ValueError(f"Required identifier {field} is missing for retained observations")\n    return source',
+  "overlap_phrase": `def overlap_phrase(measured):
+    # Counts, not a p-value. Non-overlapping intervals imply a difference;
+    # overlapping ones do not imply its absence, and Cumming's mapping from
+    # overlap to significance is conditioned on n. Report what was measured.
+    if measured is None or measured[0] == 0:
+        return None
+    return f"the intervals overlap at {measured[0]} of {measured[1]} x values"`,
+  "panel_label_value": 'def panel_label_value(index, original):\n    labels = RUN_REPORT["spec"].get("facet", {}).get("labels", [])\n    if not labels:\n        return str(original)\n    key = facet_key(PANEL_SOURCE_KEYS[index])\n    return next((item["text"] for item in labels if facet_key(item) == key), str(original))',
+  "record_output": `def record_output(path):
+    path = Path(path)
+    if path.suffix.lower() == ".svg":
+        text = path.read_text(encoding="utf8")
+        title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
+        if f'<desc id="{description_id}">' not in text:
+            end = text.index(">", text.index("<svg "))
+            attributes = (
+                f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
+            )
+            text = text[:end] + attributes + text[end:]
+            text = text.replace("<title>", f'<title id="{title_id}">', 1)
+            description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
+            text = text.replace("</title>", "</title>\\n " + description, 1)
+            # Normalize path formatting, preserving meaningful metadata whitespace.
+            text = re.sub(
+                r'(<path\\b[^>]*\\bd=")([^"]*)(")',
+                lambda m: m[1] + "\\n".join(line.rstrip() for line in m[2].split("\\n")) + m[3],
+                text,
+            )
+            path.write_text(text, encoding="utf8")
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(65536), b""):
+            digest.update(block)
+    RUN_REPORT["outputs"].append(
+        {
+            "path": str(path),
+            "format": path.suffix[1:],
+            "sha256": digest.hexdigest(),
+            "bytes": path.stat().st_size,
+        }
+    )`,
+  "run_cli": `def run_cli(argv=None):
+    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD  # noqa: PLW0603 -- reset the bound program context
+    parser = argparse.ArgumentParser(
+        description="Render this figure and write its verification evidence"
+    )
+    policy = parser.add_mutually_exclusive_group()
+    policy.add_argument(
+        "--strict",
+        action="store_true",
+        default=True,
+        help="reject failed or incomplete verification (default)",
+    )
+    policy.add_argument(
+        "--no-strict",
+        dest="strict",
+        action="store_false",
+        help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2",
+    )
+    parser.add_argument(
+        "--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings"
+    )
+    parser.add_argument(
+        "--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination"
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr"
+    )
+    args = parser.parse_args(argv)
+    if args.report == "-":
+        parser.error("use --json for JSON stdout; --report expects a file path")
+    RUN_REPORT = new_report()
+    RUN_REPORT["_execution_policy"] = {
+        "strict": args.strict or args.fail_on_warning,
+        "fail_on_warning": args.fail_on_warning,
+        "source": "cli",
+    }
+    DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
+    Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
+    ROW_COUNTS.clear()
+    globals().get("MISSING_INTERVALS", {}).clear()
+    logs = io.StringIO()
+    runtime_failure = False
+    try:
+        with contextlib.redirect_stdout(logs):
+            main()
+    except (Exception, SystemExit) as problem:  # noqa: BLE001 -- CLI records all runtime failures
+        runtime_failure = True
+        finding("error", "runtime_error", str(problem) or type(problem).__name__)
+    report = finish_report()
+    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]) or (
+        args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"])
+    )
+    report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
+    report["policy"] = {
+        "strict": args.strict or args.fail_on_warning,
+        "fail_on_warning": args.fail_on_warning,
+        "passed": report["exit_code"] == 0,
+    }
+    encoded = json.dumps(report, indent=2, allow_nan=False) + "\\n"
+    path = Path(args.report)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(encoded, encoding="utf8")
+    except OSError as problem:
+        print(f"could not write report {path}: {problem}", file=sys.stderr)
+        return 1
+    if logs.getvalue():
+        print(logs.getvalue(), end="", file=sys.stderr if args.json else sys.stdout)
+    if args.json:
+        print(encoded, end="")
+    else:
+        print(f"verification: {report['status']}; wrote {path}")
+        for item in report["findings"]:
+            print(
+                diagnostic_text(item["code"], item["message"], item["severity"]),
+                file=sys.stderr if item["code"] == "runtime_error" else sys.stdout,
+            )
+        for reason in report["untested"]:
+            print(diagnostic_text("check_untested", reason))
+        for claim in report["claims"]:
+            if claim["verdict"] in {"fails", "untested"}:
+                print(
+                    diagnostic_text(
+                        "claim_failed" if claim["verdict"] == "fails" else "check_untested",
+                        claim.get("detail", claim["kind"]),
+                        "error" if claim["verdict"] == "fails" else "warning",
+                    )
+                )
+    return report["exit_code"]`,
+  "script_fingerprint": 'def script_fingerprint():\n    try:\n        with open(__file__, "rb") as handle:\n            digest = hashlib.sha256()\n            for block in iter(lambda: handle.read(65536), b""):\n                digest.update(block)\n        return digest.hexdigest()\n    except (NameError, OSError):\n        return None',
+  "series_artist": 'def series_artist(artist, source, suffix="", legend=True):\n    if source is not None:\n        for target in artist if isinstance(artist, list) else [artist]:\n            target._graphunslopify_legend_identity = {\n                "series": str(source),\n                "suffix": suffix,\n                "legend": legend,\n            }\n    return artist',
+  "significance_result": 'def significance_result(left, right, **details):\n    item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}\n    # Insets and broken axes redraw the same logical comparison.\n    RUN_REPORT["significance"] = [\n        old\n        for old in RUN_REPORT["significance"]\n        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])\n    ]\n    RUN_REPORT["significance"].append(item)',
+  "skip_output": 'def skip_output(kind, reason):\n    RUN_REPORT["skipped_outputs"].append({"format": kind, "reason": reason})\n    finding("warning", "output_skipped", f"{kind}: {reason}")',
+  "source_legend_handles": 'def source_legend_handles(axes):\n    ordinary, labels = axes.get_legend_handles_labels()\n    public = {id(handle): label for handle, label in zip(ordinary, labels, strict=False)}\n    handles, names, seen = [], [], set()\n    for handle in [*axes.get_children(), *axes.containers]:\n        identity = getattr(handle, "_graphunslopify_legend_identity", None)\n        include = (\n            identity.get("legend", True)\n            if identity is not None\n            else (\n                id(handle) in public\n                or getattr(handle, "_graphunslopify_legend_text_target", None) is not None\n            )\n        )\n        if include and id(handle) not in seen:\n            handles.append(handle)\n            names.append(public.get(id(handle), handle.get_label()))\n            seen.add(id(handle))\n    return handles, names',
+  "validate_legend_aliases": 'def validate_legend_aliases(frame):\n    labels = RUN_REPORT["spec"]["legend"].get("labels", [])\n    if not labels:\n        return\n    if GROUP is None or GROUP not in frame:\n        raise ValueError("Legend display names require a source grouping column")\n    names = [str(name) for name in series_names(frame)]\n    if len(set(names)) != len(names):\n        raise ValueError("Source series IDs have ambiguous string representations")\n    requested = [item["series"] for item in labels]\n    if len(set(requested)) != len(requested):\n        raise ValueError("Each source series may have only one legend display name")\n    unknown = sorted(set(requested) - set(names))\n    if unknown:\n        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")\n    if any(not item["text"].strip() for item in labels):\n        raise ValueError("Legend display names must contain visible text")\n    displayed = [legend_alias(name).strip() for name in names]\n    if len(set(displayed)) != len(displayed):\n        raise ValueError("Legend display names must uniquely identify source series")',
+  "validate_panel_aliases": 'def validate_panel_aliases(frame, blocks):\n    spec = RUN_REPORT["spec"]\n    repeat = spec.get("repeat", {})\n    labels = repeat.get("labels", [])\n    if labels:\n        fields = repeat["fields"]\n        requested = [item["field"] for item in labels]\n        if len(set(fields)) != len(fields) or len(set(requested)) != len(requested):\n            raise ValueError("Repeated metric labels require unique source fields and overrides")\n        if any(field not in fields or field not in frame for field in requested):\n            raise ValueError("Metric display names refer to unknown prepared source fields")\n        shown = [metric_label(field).strip() for field in fields]\n        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):\n            raise ValueError(\n                "Metric display names must visibly and uniquely identify source fields"\n            )\n    facet = spec.get("facet", {})\n    labels = facet.get("labels", [])\n    if labels:\n        keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]\n        requested = [facet_key(item) for item in labels]\n        if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):\n            raise ValueError(\n                "Facet display names require unambiguous source values and unique overrides"\n            )\n        if any(("row" in item) != ("rows" in facet) for item in labels):\n            raise ValueError(\n                "Facet display names must include row values exactly for two-dimensional facets"\n            )\n        if any(key not in keys for key in requested):\n            raise ValueError("Facet display names refer to unknown prepared source panels")\n        shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]\n        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):\n            raise ValueError("Facet display names must visibly and uniquely identify source panels")',
+  "verify_claims": `def verify_claims(frame):
+    """Test every claim. Returns True when none of them failed."""
+    if not CLAIMS:
+        return True
+    print("claims:")
+    ok = True
+    for claim in CLAIMS:
+        holds, detail = check_claim(frame, claim)
+        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))
+        sentence = f"{claim['subject']} {wording}"
+        if holds is None:
+            print(f"  UNTESTED  {sentence} ({detail})")
+            continue
+        if holds:
+            print(f"  HOLDS     {sentence} ({detail})")
+            overlap = overlap_phrase(
+                _interval_overlap(frame, claim["subject"], claim.get("reference"))
+            )
+            if overlap is not None:
+                print(f"            but {overlap}, so the spread does not separate them")
+        else:
+            ok = False
+            print(f"  FAILS     {sentence} ({detail})")
+            print("            the figure does not support this. Do not write it in the caption.")
+    return ok`,
+  "wrap_heading": 'def wrap_heading(original, artist, renderer, width):\n    from matplotlib.text import Text\n\n    probe = Text(\n        fontproperties=artist.get_fontproperties(),\n        usetex=artist.get_usetex(),\n        parse_math=artist.get_parse_math(),\n    )\n    probe.set_figure(artist.get_figure())\n    parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()\n    lines = []\n    for paragraph in original.split("\\n"):\n        dollars = heading_dollars(paragraph)\n        mathematical = (parse_math or use_tex) and dollars > 0 and dollars % 2 == 0\n        probe.set_parse_math(parse_math and mathematical)\n        paragraph_lines = []\n        tokens, token = [], ""\n        math_mode, depth, escaped, space = False, 0, False, False\n        for position, char in enumerate(paragraph):\n            separable = char.isspace() and not math_mode and depth == 0 and not escaped\n            if token and separable != space:\n                tokens.append(token)\n                token = ""\n            token += char\n            space = separable\n            dollar_boundary = (\n                not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\\\"\n            )\n            if char == "$" and mathematical and dollar_boundary:\n                math_mode = not math_mode\n            elif not escaped:\n                if char == "{" and (math_mode or use_tex):\n                    depth += 1\n                elif char == "}" and depth:\n                    depth -= 1\n            escaped = char == "\\\\" and not escaped\n        if token:\n            tokens.append(token)\n        line, separator = "", ""\n        for token in tokens:\n            if token.isspace():\n                separator += token\n                continue\n            candidate = line + separator + token\n            probe.set_text(\n                candidate.replace(r"\\$", "$")\n                if parse_math and not mathematical and not use_tex\n                else candidate\n            )\n            if line and probe.get_window_extent(renderer).width > width:\n                paragraph_lines.append(line)\n                line = token\n            else:\n                line = candidate\n            separator = ""\n        paragraph_lines.append(line + separator)\n        if parse_math and not mathematical and not use_tex and dollars > 1:\n            paragraph_lines = literal_heading_lines(paragraph_lines, paragraph)\n        lines.extend(paragraph_lines)\n    return "\\n".join(lines)'
+};
+
 // src/claims.ts
 var CLAIM_KINDS = [
   "beats_everywhere",
@@ -18995,140 +19228,19 @@ function emitClaimTests(claims2, out) {
   void claims2;
   out.push(
     "",
-    "def _aligned(frame, subject, reference):",
-    '    """Require complete, finite x coverage for the named series."""',
-    "    if GROUP is None or Y_FIELD not in frame:",
-    "        return None",
-    "    columns = [subject] if reference is None else [subject, reference]",
-    "    selected = frame[frame[GROUP].isin(columns)]",
-    "    if selected.empty or selected[X_FIELD].isna().any() or selected.duplicated([X_FIELD, GROUP]).any():",
-    "        return None",
-    '    pivot = selected.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True)',
-    "    if any(column not in pivot.columns for column in columns):",
-    "        return None",
-    "    pair = pivot[columns].sort_index()",
-    "    if not len(pair) or not np.isfinite(pair.to_numpy(dtype=float)).all():",
-    "        return None",
-    "    return pair",
+    RUNTIME_HELPERS._aligned,
     "",
     "",
-    "def _interval_overlap(frame, subject, reference):",
-    '    """How many shared x values have overlapping intervals, or None.',
-    "",
-    "    None when there is nothing to measure: no reference, no grouping, or no",
-    "    uncertainty in the spec, in which case _low was never written.",
-    '    """',
-    '    if reference is None or GROUP is None or "_low" not in frame:',
-    "        return None",
-    '    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)',
-    '    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)',
-    "    for column in (subject, reference):",
-    "        if column not in lows.columns or column not in highs.columns:",
-    "            return None",
-    "    shared = lows.index.intersection(highs.index).sort_values()",
-    "    bounds = [",
-    "        lows.loc[shared, subject].to_numpy(dtype=float),",
-    "        highs.loc[shared, subject].to_numpy(dtype=float),",
-    "        lows.loc[shared, reference].to_numpy(dtype=float),",
-    "        highs.loc[shared, reference].to_numpy(dtype=float),",
-    "    ]",
-    "    usable = np.all([np.isfinite(edge) for edge in bounds], axis=0)",
-    "    if not usable.any():",
-    "        return None",
-    "    mine_low, mine_high, their_low, their_high = (edge[usable] for edge in bounds)",
-    "    touching = (mine_low <= their_high) & (their_low <= mine_high)",
-    "    return int(np.sum(touching)), int(usable.sum())",
+    RUNTIME_HELPERS._interval_overlap,
     "",
     "",
-    "def overlap_phrase(measured):",
-    "    # Counts, not a p-value. Non-overlapping intervals imply a difference;",
-    "    # overlapping ones do not imply its absence, and Cumming's mapping from",
-    "    # overlap to significance is conditioned on n. Report what was measured.",
-    "    if measured is None or measured[0] == 0:",
-    "        return None",
-    '    return f"the intervals overlap at {measured[0]} of {measured[1]} x values"',
+    RUNTIME_HELPERS.overlap_phrase,
     "",
     "",
-    "def check_claim(frame, claim):",
-    '    """Return (holds, detail). None means the claim could not be tested."""',
-    '    subject, reference = claim["subject"], claim.get("reference")',
-    '    tolerance = claim.get("tolerance") or 0.0',
-    "    pair = _aligned(frame, subject, reference)",
-    "    if pair is None:",
-    '        return None, "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements"',
-    "",
-    "    mine = pair[subject].to_numpy(dtype=float)",
-    "    theirs = pair[reference].to_numpy(dtype=float) if reference else None",
-    '    kind = claim["kind"]',
-    '    if kind in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges") and len(mine) < 2:',
-    '        return None, "at least two x values are required for a trend claim"',
-    "",
-    '    if kind == "beats_everywhere":',
-    "        losses = int(np.sum(mine <= theirs))",
-    '        return losses == 0, f"{losses} of {len(mine)} x values are not above {reference}"',
-    "",
-    '    if kind == "beats_on_average":',
-    "        gap = float(mine.mean() - theirs.mean())",
-    '        return gap > 0, f"mean difference is {gap:+.4g}"',
-    "",
-    '    if kind == "beats_at_end":',
-    "        gap = float(mine[-1] - theirs[-1])",
-    '        return gap > 0, f"difference at the largest x is {gap:+.4g}"',
-    "",
-    '    if kind in ("gap_widens", "gap_narrows"):',
-    "        gap = mine - theirs",
-    "        half = max(len(gap) // 2, 1)",
-    "        early, late = float(gap[:half].mean()), float(gap[half:].mean())",
-    "        change = late - early",
-    '        widening = kind == "gap_widens"',
-    "        holds = change > 0 if widening else change < 0",
-    '        return holds, f"gap moves from {early:+.4g} to {late:+.4g}, a change of {change:+.4g}"',
-    "",
-    '    if kind in ("monotone_increasing", "monotone_decreasing"):',
-    "        steps = np.diff(mine)",
-    '        rising = kind == "monotone_increasing"',
-    "        breaks = int(np.sum(steps < -tolerance if rising else steps > tolerance))",
-    '        return breaks == 0, f"{breaks} of {len(steps)} steps go the wrong way"',
-    "",
-    '    if kind == "converges":',
-    "        tail = max(len(mine) // 5, 1)",
-    "        spread = float(np.abs(mine - theirs)[-tail:].max())",
-    '        return spread <= tolerance, f"largest gap over the final fifth is {spread:.4g}"',
-    "",
-    '    if kind == "no_worse_than":',
-    "        deficit = float(np.max(theirs - mine))",
-    '        return deficit <= tolerance, f"largest shortfall against {reference} is {deficit:.4g}"',
-    "",
-    '    if kind == "within_tolerance":',
-    "        spread = float(np.max(np.abs(mine - theirs)))",
-    '        return spread <= tolerance, f"largest absolute difference is {spread:.4g}"',
-    "",
-    '    return None, f"no test implemented for {kind}"',
+    RUNTIME_HELPERS.check_claim,
     "",
     "",
-    "def verify_claims(frame):",
-    '    """Test every claim. Returns True when none of them failed."""',
-    "    if not CLAIMS:",
-    "        return True",
-    '    print("claims:")',
-    "    ok = True",
-    "    for claim in CLAIMS:",
-    "        holds, detail = check_claim(frame, claim)",
-    '        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))',
-    `        sentence = f"{claim['subject']} {wording}"`,
-    "        if holds is None:",
-    '            print(f"  UNTESTED  {sentence} ({detail})")',
-    "            continue",
-    "        if holds:",
-    '            print(f"  HOLDS     {sentence} ({detail})")',
-    '            overlap = overlap_phrase(_interval_overlap(frame, claim["subject"], claim.get("reference")))',
-    "            if overlap is not None:",
-    '                print(f"            but {overlap}, so the spread does not separate them")',
-    "        else:",
-    "            ok = False",
-    '            print(f"  FAILS     {sentence} ({detail})")',
-    '            print(f"            the figure does not support this. Do not write it in the caption.")',
-    "    return ok",
+    RUNTIME_HELPERS.verify_claims,
     ""
   );
 }
@@ -19871,22 +19983,7 @@ function emitAltText(spec, out) {
     '    return ". ".join(part[:1].upper() + part[1:] for part in parts) + "."',
     "",
     "",
-    "def alt_text(frame):",
-    "    detail = describe_figure(frame)",
-    '    body = ENCODING_SENTENCE + (f" {detail}" if detail else "")',
-    "    for claim in CLAIMS:",
-    '        if claim.get("_verdict") is not True:',
-    "            continue",
-    '        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))',
-    `        sentence = f"{claim['subject']} {wording}"`,
-    "        # A claim the spread does not separate is not quoted bare. The bands",
-    "        # are what persuade a reader to trust the verdict, so a reader who",
-    "        # cannot see them is owed the same caveat.",
-    '        overlap = overlap_phrase(claim.get("_overlap"))',
-    "        if overlap is not None:",
-    '            sentence += f", though {overlap}"',
-    '        body += " " + sentence[:1].upper() + sentence[1:] + "."',
-    "    return body",
+    RUNTIME_HELPERS.alt_text,
     ""
   );
 }
@@ -20321,48 +20418,7 @@ function emitLoad(spec, out) {
   );
   out.push(...String.raw`
 
-def normalize_identities(frame, *, final=True):
-    if IDENTITY_CONFLICTS:
-        raise ValueError("Columns cannot serve both identifier and measurement roles: " + ", ".join(IDENTITY_CONFLICTS))
-    for key in ("series_order", "category_order"):
-        order = RUN_REPORT["spec"].get(key)
-        if order is not None and len(order) != len(set(order)):
-            raise ValueError(key + " must contain unique identifiers")
-    source = frame.copy()
-    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})
-    for field in IDENTITY_FIELDS:
-        if field not in source:
-            if final and field in REQUIRED_IDENTITY_FIELDS:
-                raise ValueError(f"Required identifier column {field} is missing")
-            continue
-        values = source[field].tolist()
-        if field in lexical:
-            values = [lexical[field][int(index)] for index in source.index]
-        seen = {}
-        def as_identifier(value):
-            if not pd.api.types.is_scalar(value):
-                raise ValueError(f"Identifier {field} must contain scalar values")
-            if pd.isna(value):
-                return None
-            if isinstance(value, (float, np.floating)) and not np.isfinite(value):
-                raise ValueError(f"Numeric identifier {field} must be finite")
-            text = str(value)
-            if not text.strip():
-                raise ValueError(f"Identifier {field} must be nonempty")
-            if text in seen and seen[text] != value:
-                raise ValueError(f"Distinct identifiers in {field} collide as textual name {text!r}")
-            seen[text] = value
-            return text
-        normalized = [as_identifier(value) for value in values]
-        dtype = source[field].dtype
-        if isinstance(dtype, pd.CategoricalDtype):
-            categories = [as_identifier(value) for value in dtype.categories]
-            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)
-        else:
-            source[field] = pd.Series(normalized, index=source.index, dtype=object)
-        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():
-            raise ValueError(f"Required identifier {field} is missing for retained observations")
-    return source
+${RUNTIME_HELPERS.normalize_identities}
 `.split("\n"));
   out.push(
     "",
@@ -21877,90 +21933,13 @@ def fit_headings(fig):
 }
 function emitTextWrapping(out) {
   out.push("", ...String.raw`
-def heading_dollars(text):
-    return text.count("$") - text.count(r"\$")
+${RUNTIME_HELPERS.heading_dollars}
 
 
-def literal_heading_lines(lines, original):
-    # An originally literal paragraph must not acquire a MathText line.
-    index = 0
-    while index < len(lines):
-        count = heading_dollars(lines[index])
-        if count == 0 or count % 2:
-            index += 1
-            continue
-        line = lines[index]
-        cuts = [match for match in re.finditer(r"\s+", line)
-                if heading_dollars(line[:match.start()]) % 2]
-        if cuts:
-            cut = cuts[-1]
-            lines[index:index + 1] = [line[:cut.start()], line[cut.end():]]
-            index += 2
-            continue
-        # A dollar pair inside one word cannot be split without changing it.
-        # Keep it with an odd-dollar neighbor; ordinary inspection still owns
-        # acceptance if the resulting complete wording cannot fit the column.
-        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]
-        if not odd:
-            return [original]
-        neighbor = min(odd, key=lambda i: abs(i - index))
-        low, high = sorted((index, neighbor))
-        lines[low:high + 1] = [" ".join(lines[low:high + 1])]
-        index = low + 1
-    return lines
+${RUNTIME_HELPERS.literal_heading_lines}
 
 
-def wrap_heading(original, artist, renderer, width):
-    from matplotlib.text import Text
-    probe = Text(fontproperties=artist.get_fontproperties(),
-                 usetex=artist.get_usetex(), parse_math=artist.get_parse_math())
-    probe.set_figure(artist.get_figure())
-    parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()
-    lines = []
-    for paragraph in original.split("\n"):
-        dollars = heading_dollars(paragraph)
-        mathematical = (parse_math or use_tex) and dollars > 0 and dollars % 2 == 0
-        probe.set_parse_math(parse_math and mathematical)
-        paragraph_lines = []
-        tokens, token = [], ""
-        math_mode, depth, escaped, space = False, 0, False, False
-        for position, char in enumerate(paragraph):
-            separable = char.isspace() and not math_mode and depth == 0 and not escaped
-            if token and separable != space:
-                tokens.append(token)
-                token = ""
-            token += char
-            space = separable
-            dollar_boundary = not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
-            if char == "$" and mathematical and dollar_boundary:
-                math_mode = not math_mode
-            elif not escaped:
-                if char == "{" and (math_mode or use_tex):
-                    depth += 1
-                elif char == "}" and depth:
-                    depth -= 1
-            escaped = char == "\\" and not escaped
-        if token:
-            tokens.append(token)
-        line, separator = "", ""
-        for token in tokens:
-            if token.isspace():
-                separator += token
-                continue
-            candidate = line + separator + token
-            probe.set_text(candidate.replace(r"\$", "$")
-                           if parse_math and not mathematical and not use_tex else candidate)
-            if line and probe.get_window_extent(renderer).width > width:
-                paragraph_lines.append(line)
-                line = token
-            else:
-                line = candidate
-            separator = ""
-        paragraph_lines.append(line + separator)
-        if parse_math and not mathematical and not use_tex and dollars > 1:
-            paragraph_lines = literal_heading_lines(paragraph_lines, paragraph)
-        lines.extend(paragraph_lines)
-    return "\n".join(lines)
+${RUNTIME_HELPERS.wrap_heading}
 
 `.trim().split("\n"), "");
 }
@@ -24222,28 +24201,10 @@ var CELL_COLOUR_SOURCE = '"""Cell annotation colours shared with standalone gene
 function emitDataFingerprint(out) {
   out.push(
     "",
-    "def data_fingerprint():",
-    "    # A figure built from a file that has since changed is worse than no",
-    "    # figure, because it looks current.",
-    "    try:",
-    '        with open(DATA_PATH, "rb") as handle:',
-    "            digest = hashlib.sha256()",
-    '            for block in iter(lambda: handle.read(65536), b""):',
-    "                digest.update(block)",
-    "        return digest.hexdigest()[:16]",
-    "    except OSError:",
-    '        return "unreadable"',
+    RUNTIME_HELPERS.data_fingerprint,
     "",
     "",
-    "def script_fingerprint():",
-    "    try:",
-    '        with open(__file__, "rb") as handle:',
-    "            digest = hashlib.sha256()",
-    '            for block in iter(lambda: handle.read(65536), b""):',
-    "                digest.update(block)",
-    "        return digest.hexdigest()",
-    "    except (NameError, OSError):",
-    "        return None",
+    RUNTIME_HELPERS.script_fingerprint,
     ""
   );
 }
@@ -25727,246 +25688,78 @@ function emitRuntime(spec, out) {
   );
   out.push(...`
 
-def edit_target(artist, path, role, source=None, value=None):
-    artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
-                                         "editable": path is not None}
-    if value is not None:
-        artist._graphunslopify_text_target["value"] = value
-    return artist
+${RUNTIME_HELPERS.edit_target}
 
 
-def series_artist(artist, source, suffix="", legend=True):
-    if source is not None:
-        for target in artist if isinstance(artist, list) else [artist]:
-            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
-    return artist
+${RUNTIME_HELPERS.series_artist}
 
 
-def layer_artist(artist, index):
-    layer = RUN_REPORT["spec"]["layers"][index]
-    if layer.get("label"):
-        target = {"path": ["layers", index, "label"], "role": "layer_label",
-                  "source": {"layer": index, "mark": layer["mark"]}}
-        for item in artist if isinstance(artist, list) else [artist]:
-            item._graphunslopify_legend_text_target = target
-    return artist
+${RUNTIME_HELPERS.layer_artist}
 
 
-def legend_handle_key(handle, label):
-    identity = getattr(handle, "_graphunslopify_legend_identity", None)
-    target = getattr(handle, "_graphunslopify_legend_text_target", None)
-    if identity is not None:
-        return ("series", identity["series"])
-    if target is not None:
-        return ("layer", target["source"]["layer"])
-    return ("external", label)
+${RUNTIME_HELPERS.legend_handle_key}
 
 
-def source_legend_handles(axes):
-    ordinary, labels = axes.get_legend_handles_labels()
-    public = {id(handle): label for handle, label in zip(ordinary, labels)}
-    handles, names, seen = [], [], set()
-    for handle in [*axes.get_children(), *axes.containers]:
-        identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else (
-            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
-        if include and id(handle) not in seen:
-            handles.append(handle)
-            names.append(public.get(id(handle), handle.get_label()))
-            seen.add(id(handle))
-    return handles, names
+${RUNTIME_HELPERS.source_legend_handles}
 
 
-def legend_alias(source):
-    key = str(source)
-    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
-                 if item["series"] == key), key)
+${RUNTIME_HELPERS.legend_alias}
 
 
-def legend_alias_path(source):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
-    return ["legend", "labels", index, "text"]
+${RUNTIME_HELPERS.legend_alias_path}
 
 
-def validate_legend_aliases(frame):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return
-    if GROUP is None or GROUP not in frame:
-        raise ValueError("Legend display names require a source grouping column")
-    names = [str(name) for name in series_names(frame)]
-    if len(set(names)) != len(names):
-        raise ValueError("Source series IDs have ambiguous string representations")
-    requested = [item["series"] for item in labels]
-    if len(set(requested)) != len(requested):
-        raise ValueError("Each source series may have only one legend display name")
-    unknown = sorted(set(requested) - set(names))
-    if unknown:
-        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
-    if any(not item["text"].strip() for item in labels):
-        raise ValueError("Legend display names must contain visible text")
-    displayed = [legend_alias(name).strip() for name in names]
-    if len(set(displayed)) != len(displayed):
-        raise ValueError("Legend display names must uniquely identify source series")
+${RUNTIME_HELPERS.validate_legend_aliases}
 
 
-def disclose_legend_aliases(description):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return description
-    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
-    return description + " Display names: " + "; ".join(mappings) + "."
+${RUNTIME_HELPERS.disclose_legend_aliases}
 
 
 PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
 
-def metric_label(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))
+${RUNTIME_HELPERS.metric_label}
 
 
-def metric_label_path(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))
-    return ["repeat", "labels", index, "text"]
+${RUNTIME_HELPERS.metric_label_path}
 
 
-def facet_key(item):
-    return tuple((field, item[field]) for field in ("value", "row") if field in item)
+${RUNTIME_HELPERS.facet_key}
 
 
-def panel_label_value(index, original):
-    labels = RUN_REPORT["spec"].get("facet", {}).get("labels", [])
-    if not labels:
-        return str(original)
-    key = facet_key(PANEL_SOURCE_KEYS[index])
-    return next((item["text"] for item in labels if facet_key(item) == key), str(original))
+${RUNTIME_HELPERS.panel_label_value}
 
 
-def mark_panel_text(artist, index):
-    spec = RUN_REPORT["spec"]
-    if "repeat" in spec:
-        field = spec["repeat"]["fields"][index]
-        return edit_target(artist, metric_label_path(field), "metric_label", field, metric_label(field))
-    if "facet" in spec:
-        labels = spec["facet"].get("labels", [])
-        source = PANEL_SOURCE_KEYS[index]
-        slot = next((i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)), len(labels))
-        return edit_target(artist, ["facet", "labels", slot, "text"], "panel_title", source,
-                           panel_label_value(index, PANEL_ORIGINAL_NAMES[index]))
-    return artist
+${RUNTIME_HELPERS.mark_panel_text}
 
 
-def validate_panel_aliases(frame, blocks):
-    spec = RUN_REPORT["spec"]
-    repeat = spec.get("repeat", {})
-    labels = repeat.get("labels", [])
-    if labels:
-        fields = repeat["fields"]
-        requested = [item["field"] for item in labels]
-        if len(set(fields)) != len(fields) or len(set(requested)) != len(requested):
-            raise ValueError("Repeated metric labels require unique source fields and overrides")
-        if any(field not in fields or field not in frame for field in requested):
-            raise ValueError("Metric display names refer to unknown prepared source fields")
-        shown = [metric_label(field).strip() for field in fields]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Metric display names must visibly and uniquely identify source fields")
-    facet = spec.get("facet", {})
-    labels = facet.get("labels", [])
-    if labels:
-        keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]
-        requested = [facet_key(item) for item in labels]
-        if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):
-            raise ValueError("Facet display names require unambiguous source values and unique overrides")
-        if any(("row" in item) != ("rows" in facet) for item in labels):
-            raise ValueError("Facet display names must include row values exactly for two-dimensional facets")
-        if any(key not in keys for key in requested):
-            raise ValueError("Facet display names refer to unknown prepared source panels")
-        shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Facet display names must visibly and uniquely identify source panels")
+${RUNTIME_HELPERS.validate_panel_aliases}
 
 
-def disclose_panel_aliases(description):
-    spec = RUN_REPORT["spec"]
-    mappings = [f'{item["text"]} means source metric {item["field"]}'
-                for item in spec.get("repeat", {}).get("labels", [])]
-    facet = spec.get("facet", {})
-    for item in facet.get("labels", []):
-        source = f'{facet["by"]}={item["value"]}'
-        if "row" in item:
-            source += f', {facet["rows"]}={item["row"]}'
-        mappings.append(f'{item["text"]} means source panel {source}')
-    return description if not mappings else description + " Panel display names: " + "; ".join(mappings) + "."
+${RUNTIME_HELPERS.disclose_panel_aliases}
 
 
-def new_report():
-    return {
-        "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
-        "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
-        "data": {}, "environment": None, "findings": [dict(f) for f in STATIC_FINDINGS],
-        "inspection": {"available": None, "checked": False},
-        "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
-        "skipped_outputs": [], "untested": [], "alt_text": "",
-    }
+${RUNTIME_HELPERS.new_report}
 
 
 RUN_REPORT = new_report()
 CURRENT_PANEL = 0
 
 
-def finding(severity, code, message):
-    item = {"severity": severity, "code": code, "message": message,
-            **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)}
-    if item not in RUN_REPORT["findings"]:
-        RUN_REPORT["findings"].append(item)
+${RUNTIME_HELPERS.finding}
 
 
-def diagnostic_text(code, message, severity="warning"):
-    advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
-    return (f"{severity.upper()} [{code}] {message}\\n"
-            f"  Why it matters: {advice['consequence']}\\n"
-            f"  Recommended correction: {advice['correction']}")
+${RUNTIME_HELPERS.diagnostic_text}
 
 
-def record_output(path):
-    path = Path(path)
-    if path.suffix.lower() == ".svg":
-        text = path.read_text(encoding="utf8")
-        title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
-        if f'<desc id="{description_id}">' not in text:
-            end = text.index(">", text.index("<svg "))
-            attributes = f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
-            text = text[:end] + attributes + text[end:]
-            text = text.replace("<title>", f'<title id="{title_id}">', 1)
-            description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
-            text = text.replace("</title>", "</title>\\n " + description, 1)
-            # Normalize path formatting, preserving meaningful metadata whitespace.
-            text = re.sub(r'(<path\\b[^>]*\\bd=")([^"]*)(")',
-                          lambda m: m[1] + "\\n".join(line.rstrip() for line in m[2].split("\\n")) + m[3], text)
-            path.write_text(text, encoding="utf8")
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(65536), b""):
-            digest.update(block)
-    RUN_REPORT["outputs"].append({"path": str(path), "format": path.suffix[1:],
-                                  "sha256": digest.hexdigest(), "bytes": path.stat().st_size})
+${RUNTIME_HELPERS.record_output}
 
 
-def skip_output(kind, reason):
-    RUN_REPORT["skipped_outputs"].append({"format": kind, "reason": reason})
-    finding("warning", "output_skipped", f"{kind}: {reason}")
+${RUNTIME_HELPERS.skip_output}
 
 
-def significance_result(left, right, **details):
-    item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}
-    # Insets and broken axes redraw the same logical comparison.
-    RUN_REPORT["significance"] = [old for old in RUN_REPORT["significance"]
-        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])]
-    RUN_REPORT["significance"].append(item)
+${RUNTIME_HELPERS.significance_result}
 
 
 def describe_panels(blocks):
@@ -26053,132 +25846,22 @@ ${spec.annotate?.length ? "    finalize_annotations()\n" : ""}    failed = (any(
     return RUN_REPORT
 
 
-def run_cli(argv=None):
-    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD
-    parser = argparse.ArgumentParser(description="Render this figure and write its verification evidence")
-    policy = parser.add_mutually_exclusive_group()
-    policy.add_argument("--strict", action="store_true", default=True, help="reject failed or incomplete verification (default)")
-    policy.add_argument("--no-strict", dest="strict", action="store_false", help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2")
-    parser.add_argument("--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings")
-    parser.add_argument("--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination")
-    parser.add_argument("--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr")
-    args = parser.parse_args(argv)
-    if args.report == "-":
-        parser.error("use --json for JSON stdout; --report expects a file path")
-    RUN_REPORT = new_report()
-    RUN_REPORT["_execution_policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning, "source": "cli"}
-    DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
-    Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
-    ROW_COUNTS.clear()
-    globals().get("MISSING_INTERVALS", {}).clear()
-    logs = io.StringIO()
-    runtime_failure = False
-    try:
-        with contextlib.redirect_stdout(logs):
-            main()
-    except (Exception, SystemExit) as problem:
-        runtime_failure = True
-        finding("error", "runtime_error", str(problem) or type(problem).__name__)
-    report = finish_report()
-    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]
-                or args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"]))
-    report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
-    report["policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning,
-                        "passed": report["exit_code"] == 0}
-    encoded = json.dumps(report, indent=2, allow_nan=False) + "\\n"
-    path = Path(args.report)
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(encoded, encoding="utf8")
-    except OSError as problem:
-        print(f"could not write report {path}: {problem}", file=sys.stderr)
-        return 1
-    if logs.getvalue():
-        print(logs.getvalue(), end="", file=sys.stderr if args.json else sys.stdout)
-    if args.json:
-        print(encoded, end="")
-    else:
-        print(f"verification: {report['status']}; wrote {path}")
-        for item in report["findings"]:
-            print(diagnostic_text(item["code"], item["message"], item["severity"]),
-                  file=sys.stderr if item["code"] == "runtime_error" else sys.stdout)
-        for reason in report["untested"]:
-            print(diagnostic_text("check_untested", reason))
-        for claim in report["claims"]:
-            if claim["verdict"] in {"fails", "untested"}:
-                print(diagnostic_text("claim_failed" if claim["verdict"] == "fails" else "check_untested",
-                      claim.get("detail", claim["kind"]), "error" if claim["verdict"] == "fails" else "warning"))
-    return report["exit_code"]
+${RUNTIME_HELPERS.run_cli}
 
 `.trimEnd().split("\n"));
 }
 
 // src/codegen/environment.ts
 function emitEnvironment(out, excel = false) {
-  const source = String.raw`
-
-def capture_environment(fig=None):
-    if RUN_REPORT.get("environment") is not None:
-        return RUN_REPORT["environment"]
-    import importlib.metadata as package_metadata
-    import platform
-    unavailable = []
-    def installed(name):
-        try:
-            return package_metadata.version(name)
-        except package_metadata.PackageNotFoundError:
-            return None
-        except Exception:
-            unavailable.append(name + ".version")
-            return None
-    def text(value):
-        return str(value) if value else None
-    core = {name: text(getattr(module, "__version__", None)) for name, module in
-            (("numpy", np), ("pandas", pd), ("matplotlib", matplotlib), ("Pillow", sys.modules.get("PIL")))}
-    core["freetype"] = text(getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None))
-    rc = None
-    font = None
-    if fig is not None:
-        keys = ("font.family", "font.size", "font.style", "font.weight", "font.variant", "font.stretch", "mathtext.fontset",
-                "text.usetex", "text.parse_math", "svg.fonttype", "pdf.fonttype", "ps.fonttype",
-                "savefig.transparent", "savefig.facecolor", "figure.facecolor", "axes.facecolor",
-                "path.simplify", "path.simplify_threshold", "agg.path.chunksize", "svg.hashsalt")
-        rc = {key: matplotlib.rcParams.get(key) for key in keys}
-        try:
-            from matplotlib import font_manager
-            path = Path(font_manager.findfont(font_manager.FontProperties()))
-            font = {"family": font_manager.get_font(str(path)).family_name,
-                    "file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        except Exception:
-            unavailable.append("default_font")
-    snapshot = {
-        "schema_version": 1,
-        "capture_stage": "before_export" if fig is not None else "no_export_snapshot",
-        "python": {"version": platform.python_version(), "implementation": platform.python_implementation(),
-                   "optimize": sys.flags.optimize, "hash_randomization": bool(sys.flags.hash_randomization)},
-        "platform": {"system": text(platform.system()), "machine": text(platform.machine())},
-        "loaded_core_versions": core,
-        "installed_optional_versions": {name: installed(name) for name in ("graphunslopify", "plotly", "scipy", "pypdf")},
-        "rendering": {"backend": str(matplotlib.get_backend()),
-                      "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,
-                      "figure_dpi": float(fig.dpi) if fig is not None else None,
-                      "export_dpi": DPI, "target_width_in": TARGET_WIDTH_IN,
-                      "requested_formats": list(FORMATS),
-                      "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],
-                      "rc_parameters": rc, "default_font": font},
-        "execution": dict(RUN_REPORT.get("_execution_policy", {"strict": None, "fail_on_warning": None, "source": "direct_call"})),
-        "random_constants": {key: globals()[key] for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED") if key in globals()},
-        "unavailable": unavailable,
-    }
-    # Detach mutable rc lists and normalize the stored snapshot to JSON types.
-    snapshot = json.loads(json.dumps(snapshot, allow_nan=False))
-    RUN_REPORT["environment"] = snapshot
-    return snapshot
-`;
-  out.push(...(excel ? source.replace(
-    '("graphunslopify", "plotly", "scipy", "pypdf")',
-    '("graphunslopify", "plotly", "scipy", "pypdf", "python-calamine")'
-  ) : source).split("\n"));
+  const optional2 = ["graphunslopify", "plotly", "scipy", "pypdf"];
+  if (excel) optional2.push("python-calamine");
+  out.push(
+    "",
+    `RUNTIME_OPTIONAL_PACKAGES = ${JSON.stringify(optional2)}`,
+    "",
+    RUNTIME_HELPERS.capture_environment,
+    ""
+  );
 }
 
 // src/codegen/index.ts
@@ -26417,19 +26100,7 @@ function emitMain(spec, out) {
   }
   out.push(
     "",
-    "def metadata_for(fmt):",
-    "    # Embedding the spec means a reviewer can recover what produced the figure.",
-    '    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"',
-    '    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,',
-    '        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),',
-    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT, "environment": capture_environment()}, ensure_ascii=False)',
-    '    if fmt == "png":',
-    '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}',
-    '    if fmt == "svg":',
-    '        return {"Creator": stamp, "Description": ALT_TEXT, "Title": FIGURE_TITLE or Path(STEM).name,',
-    '                "Identifier": SPEC_HASH, "Source": provenance, "Date": None}',
-    '    return {"Creator": stamp, "Subject": SPEC_JSON, "Keywords": provenance,',
-    '            "Title": FIGURE_TITLE or Path(STEM).name, "CreationDate": None, "ModDate": None}',
+    RUNTIME_HELPERS.metadata_for,
     "",
     "",
     "def check(fig):",

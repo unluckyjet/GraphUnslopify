@@ -1,3 +1,4 @@
+import { RUNTIME_HELPERS } from "./runtime-source.ts";
 import type { FigureSpec } from "../schema.ts";
 import { verify } from "../verify.ts";
 import { pyStr } from "./py.ts";
@@ -16,246 +17,78 @@ export function emitRuntime(spec: FigureSpec, out: string[]): void {
     `UNKNOWN_DIAGNOSTIC = json.loads(${pyStr(JSON.stringify(UNKNOWN_DIAGNOSTIC))})`);
   out.push(...`
 
-def edit_target(artist, path, role, source=None, value=None):
-    artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
-                                         "editable": path is not None}
-    if value is not None:
-        artist._graphunslopify_text_target["value"] = value
-    return artist
+${RUNTIME_HELPERS.edit_target}
 
 
-def series_artist(artist, source, suffix="", legend=True):
-    if source is not None:
-        for target in artist if isinstance(artist, list) else [artist]:
-            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
-    return artist
+${RUNTIME_HELPERS.series_artist}
 
 
-def layer_artist(artist, index):
-    layer = RUN_REPORT["spec"]["layers"][index]
-    if layer.get("label"):
-        target = {"path": ["layers", index, "label"], "role": "layer_label",
-                  "source": {"layer": index, "mark": layer["mark"]}}
-        for item in artist if isinstance(artist, list) else [artist]:
-            item._graphunslopify_legend_text_target = target
-    return artist
+${RUNTIME_HELPERS.layer_artist}
 
 
-def legend_handle_key(handle, label):
-    identity = getattr(handle, "_graphunslopify_legend_identity", None)
-    target = getattr(handle, "_graphunslopify_legend_text_target", None)
-    if identity is not None:
-        return ("series", identity["series"])
-    if target is not None:
-        return ("layer", target["source"]["layer"])
-    return ("external", label)
+${RUNTIME_HELPERS.legend_handle_key}
 
 
-def source_legend_handles(axes):
-    ordinary, labels = axes.get_legend_handles_labels()
-    public = {id(handle): label for handle, label in zip(ordinary, labels)}
-    handles, names, seen = [], [], set()
-    for handle in [*axes.get_children(), *axes.containers]:
-        identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else (
-            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
-        if include and id(handle) not in seen:
-            handles.append(handle)
-            names.append(public.get(id(handle), handle.get_label()))
-            seen.add(id(handle))
-    return handles, names
+${RUNTIME_HELPERS.source_legend_handles}
 
 
-def legend_alias(source):
-    key = str(source)
-    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
-                 if item["series"] == key), key)
+${RUNTIME_HELPERS.legend_alias}
 
 
-def legend_alias_path(source):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
-    return ["legend", "labels", index, "text"]
+${RUNTIME_HELPERS.legend_alias_path}
 
 
-def validate_legend_aliases(frame):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return
-    if GROUP is None or GROUP not in frame:
-        raise ValueError("Legend display names require a source grouping column")
-    names = [str(name) for name in series_names(frame)]
-    if len(set(names)) != len(names):
-        raise ValueError("Source series IDs have ambiguous string representations")
-    requested = [item["series"] for item in labels]
-    if len(set(requested)) != len(requested):
-        raise ValueError("Each source series may have only one legend display name")
-    unknown = sorted(set(requested) - set(names))
-    if unknown:
-        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
-    if any(not item["text"].strip() for item in labels):
-        raise ValueError("Legend display names must contain visible text")
-    displayed = [legend_alias(name).strip() for name in names]
-    if len(set(displayed)) != len(displayed):
-        raise ValueError("Legend display names must uniquely identify source series")
+${RUNTIME_HELPERS.validate_legend_aliases}
 
 
-def disclose_legend_aliases(description):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return description
-    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
-    return description + " Display names: " + "; ".join(mappings) + "."
+${RUNTIME_HELPERS.disclose_legend_aliases}
 
 
 PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
 
-def metric_label(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))
+${RUNTIME_HELPERS.metric_label}
 
 
-def metric_label_path(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))
-    return ["repeat", "labels", index, "text"]
+${RUNTIME_HELPERS.metric_label_path}
 
 
-def facet_key(item):
-    return tuple((field, item[field]) for field in ("value", "row") if field in item)
+${RUNTIME_HELPERS.facet_key}
 
 
-def panel_label_value(index, original):
-    labels = RUN_REPORT["spec"].get("facet", {}).get("labels", [])
-    if not labels:
-        return str(original)
-    key = facet_key(PANEL_SOURCE_KEYS[index])
-    return next((item["text"] for item in labels if facet_key(item) == key), str(original))
+${RUNTIME_HELPERS.panel_label_value}
 
 
-def mark_panel_text(artist, index):
-    spec = RUN_REPORT["spec"]
-    if "repeat" in spec:
-        field = spec["repeat"]["fields"][index]
-        return edit_target(artist, metric_label_path(field), "metric_label", field, metric_label(field))
-    if "facet" in spec:
-        labels = spec["facet"].get("labels", [])
-        source = PANEL_SOURCE_KEYS[index]
-        slot = next((i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)), len(labels))
-        return edit_target(artist, ["facet", "labels", slot, "text"], "panel_title", source,
-                           panel_label_value(index, PANEL_ORIGINAL_NAMES[index]))
-    return artist
+${RUNTIME_HELPERS.mark_panel_text}
 
 
-def validate_panel_aliases(frame, blocks):
-    spec = RUN_REPORT["spec"]
-    repeat = spec.get("repeat", {})
-    labels = repeat.get("labels", [])
-    if labels:
-        fields = repeat["fields"]
-        requested = [item["field"] for item in labels]
-        if len(set(fields)) != len(fields) or len(set(requested)) != len(requested):
-            raise ValueError("Repeated metric labels require unique source fields and overrides")
-        if any(field not in fields or field not in frame for field in requested):
-            raise ValueError("Metric display names refer to unknown prepared source fields")
-        shown = [metric_label(field).strip() for field in fields]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Metric display names must visibly and uniquely identify source fields")
-    facet = spec.get("facet", {})
-    labels = facet.get("labels", [])
-    if labels:
-        keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]
-        requested = [facet_key(item) for item in labels]
-        if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):
-            raise ValueError("Facet display names require unambiguous source values and unique overrides")
-        if any(("row" in item) != ("rows" in facet) for item in labels):
-            raise ValueError("Facet display names must include row values exactly for two-dimensional facets")
-        if any(key not in keys for key in requested):
-            raise ValueError("Facet display names refer to unknown prepared source panels")
-        shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Facet display names must visibly and uniquely identify source panels")
+${RUNTIME_HELPERS.validate_panel_aliases}
 
 
-def disclose_panel_aliases(description):
-    spec = RUN_REPORT["spec"]
-    mappings = [f'{item["text"]} means source metric {item["field"]}'
-                for item in spec.get("repeat", {}).get("labels", [])]
-    facet = spec.get("facet", {})
-    for item in facet.get("labels", []):
-        source = f'{facet["by"]}={item["value"]}'
-        if "row" in item:
-            source += f', {facet["rows"]}={item["row"]}'
-        mappings.append(f'{item["text"]} means source panel {source}')
-    return description if not mappings else description + " Panel display names: " + "; ".join(mappings) + "."
+${RUNTIME_HELPERS.disclose_panel_aliases}
 
 
-def new_report():
-    return {
-        "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
-        "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
-        "data": {}, "environment": None, "findings": [dict(f) for f in STATIC_FINDINGS],
-        "inspection": {"available": None, "checked": False},
-        "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
-        "skipped_outputs": [], "untested": [], "alt_text": "",
-    }
+${RUNTIME_HELPERS.new_report}
 
 
 RUN_REPORT = new_report()
 CURRENT_PANEL = 0
 
 
-def finding(severity, code, message):
-    item = {"severity": severity, "code": code, "message": message,
-            **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)}
-    if item not in RUN_REPORT["findings"]:
-        RUN_REPORT["findings"].append(item)
+${RUNTIME_HELPERS.finding}
 
 
-def diagnostic_text(code, message, severity="warning"):
-    advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
-    return (f"{severity.upper()} [{code}] {message}\\n"
-            f"  Why it matters: {advice['consequence']}\\n"
-            f"  Recommended correction: {advice['correction']}")
+${RUNTIME_HELPERS.diagnostic_text}
 
 
-def record_output(path):
-    path = Path(path)
-    if path.suffix.lower() == ".svg":
-        text = path.read_text(encoding="utf8")
-        title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
-        if f'<desc id="{description_id}">' not in text:
-            end = text.index(">", text.index("<svg "))
-            attributes = f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
-            text = text[:end] + attributes + text[end:]
-            text = text.replace("<title>", f'<title id="{title_id}">', 1)
-            description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
-            text = text.replace("</title>", "</title>\\n " + description, 1)
-            # Normalize path formatting, preserving meaningful metadata whitespace.
-            text = re.sub(r'(<path\\b[^>]*\\bd=")([^"]*)(")',
-                          lambda m: m[1] + "\\n".join(line.rstrip() for line in m[2].split("\\n")) + m[3], text)
-            path.write_text(text, encoding="utf8")
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(65536), b""):
-            digest.update(block)
-    RUN_REPORT["outputs"].append({"path": str(path), "format": path.suffix[1:],
-                                  "sha256": digest.hexdigest(), "bytes": path.stat().st_size})
+${RUNTIME_HELPERS.record_output}
 
 
-def skip_output(kind, reason):
-    RUN_REPORT["skipped_outputs"].append({"format": kind, "reason": reason})
-    finding("warning", "output_skipped", f"{kind}: {reason}")
+${RUNTIME_HELPERS.skip_output}
 
 
-def significance_result(left, right, **details):
-    item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}
-    # Insets and broken axes redraw the same logical comparison.
-    RUN_REPORT["significance"] = [old for old in RUN_REPORT["significance"]
-        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])]
-    RUN_REPORT["significance"].append(item)
+${RUNTIME_HELPERS.significance_result}
 
 
 def describe_panels(blocks):
@@ -342,62 +175,7 @@ ${spec.annotate?.length ? "    finalize_annotations()\n" : ""}    failed = (any(
     return RUN_REPORT
 
 
-def run_cli(argv=None):
-    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD
-    parser = argparse.ArgumentParser(description="Render this figure and write its verification evidence")
-    policy = parser.add_mutually_exclusive_group()
-    policy.add_argument("--strict", action="store_true", default=True, help="reject failed or incomplete verification (default)")
-    policy.add_argument("--no-strict", dest="strict", action="store_false", help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2")
-    parser.add_argument("--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings")
-    parser.add_argument("--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination")
-    parser.add_argument("--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr")
-    args = parser.parse_args(argv)
-    if args.report == "-":
-        parser.error("use --json for JSON stdout; --report expects a file path")
-    RUN_REPORT = new_report()
-    RUN_REPORT["_execution_policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning, "source": "cli"}
-    DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
-    Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
-    ROW_COUNTS.clear()
-    globals().get("MISSING_INTERVALS", {}).clear()
-    logs = io.StringIO()
-    runtime_failure = False
-    try:
-        with contextlib.redirect_stdout(logs):
-            main()
-    except (Exception, SystemExit) as problem:
-        runtime_failure = True
-        finding("error", "runtime_error", str(problem) or type(problem).__name__)
-    report = finish_report()
-    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]
-                or args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"]))
-    report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
-    report["policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning,
-                        "passed": report["exit_code"] == 0}
-    encoded = json.dumps(report, indent=2, allow_nan=False) + "\\n"
-    path = Path(args.report)
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(encoded, encoding="utf8")
-    except OSError as problem:
-        print(f"could not write report {path}: {problem}", file=sys.stderr)
-        return 1
-    if logs.getvalue():
-        print(logs.getvalue(), end="", file=sys.stderr if args.json else sys.stdout)
-    if args.json:
-        print(encoded, end="")
-    else:
-        print(f"verification: {report['status']}; wrote {path}")
-        for item in report["findings"]:
-            print(diagnostic_text(item["code"], item["message"], item["severity"]),
-                  file=sys.stderr if item["code"] == "runtime_error" else sys.stdout)
-        for reason in report["untested"]:
-            print(diagnostic_text("check_untested", reason))
-        for claim in report["claims"]:
-            if claim["verdict"] in {"fails", "untested"}:
-                print(diagnostic_text("claim_failed" if claim["verdict"] == "fails" else "check_untested",
-                      claim.get("detail", claim["kind"]), "error" if claim["verdict"] == "fails" else "warning"))
-    return report["exit_code"]
+${RUNTIME_HELPERS.run_cli}
 
 `.trimEnd().split("\n"));
 }

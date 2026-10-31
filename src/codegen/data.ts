@@ -1,3 +1,4 @@
+import { RUNTIME_HELPERS } from "./runtime-source.ts";
 import { derivedAxis, type FigureSpec, type FilterOp } from "../schema.ts";
 import { pyList, pyStr, pyValue } from "./py.ts";
 import { READERS } from "./theme.ts";
@@ -31,48 +32,7 @@ export function emitLoad(spec: FigureSpec, out: string[]): void {
     `IDENTITY_CONFLICTS = ${pyList(identityConflicts(spec))}`);
   out.push(...String.raw`
 
-def normalize_identities(frame, *, final=True):
-    if IDENTITY_CONFLICTS:
-        raise ValueError("Columns cannot serve both identifier and measurement roles: " + ", ".join(IDENTITY_CONFLICTS))
-    for key in ("series_order", "category_order"):
-        order = RUN_REPORT["spec"].get(key)
-        if order is not None and len(order) != len(set(order)):
-            raise ValueError(key + " must contain unique identifiers")
-    source = frame.copy()
-    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})
-    for field in IDENTITY_FIELDS:
-        if field not in source:
-            if final and field in REQUIRED_IDENTITY_FIELDS:
-                raise ValueError(f"Required identifier column {field} is missing")
-            continue
-        values = source[field].tolist()
-        if field in lexical:
-            values = [lexical[field][int(index)] for index in source.index]
-        seen = {}
-        def as_identifier(value):
-            if not pd.api.types.is_scalar(value):
-                raise ValueError(f"Identifier {field} must contain scalar values")
-            if pd.isna(value):
-                return None
-            if isinstance(value, (float, np.floating)) and not np.isfinite(value):
-                raise ValueError(f"Numeric identifier {field} must be finite")
-            text = str(value)
-            if not text.strip():
-                raise ValueError(f"Identifier {field} must be nonempty")
-            if text in seen and seen[text] != value:
-                raise ValueError(f"Distinct identifiers in {field} collide as textual name {text!r}")
-            seen[text] = value
-            return text
-        normalized = [as_identifier(value) for value in values]
-        dtype = source[field].dtype
-        if isinstance(dtype, pd.CategoricalDtype):
-            categories = [as_identifier(value) for value in dtype.categories]
-            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)
-        else:
-            source[field] = pd.Series(normalized, index=source.index, dtype=object)
-        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():
-            raise ValueError(f"Required identifier {field} is missing for retained observations")
-    return source
+${RUNTIME_HELPERS.normalize_identities}
 `.split("\n"));
   out.push("", "def load():", "    global DATA_HASH",
     '    with pd.io.common.get_handle(DATA_PATH, "rb", compression=None, is_text=False) as raw:',

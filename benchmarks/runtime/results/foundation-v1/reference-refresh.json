@@ -1,0 +1,134 @@
+{
+  "all7_reference_png_pixels_and_dimensions_unchanged": true,
+  "all_committed_reference_inputs_unchanged": true,
+  "reference_inputs": {
+    "examples/references/confusion.figure.json": "7eafe00bf2661331be44885259acc3a080c375ecef5f7fa9e43cafe00a400da3",
+    "examples/references/heatmap.csv": "7837bad1fc05a992dedbdd0ead1bc3f0af2c04e02acd0e1cb8308936ea5505e8",
+    "examples/references/table.csv": "44590a126f239aaa393fb0611870d128e6630cb348fb608f45e0595e1e997eb9",
+    "examples/references/heatmap.figure.json": "26dbc751089ce540f77b1528bee293c5177a8d9a1428484960ef86540c2a49a0",
+    "examples/references/scaling.csv": "fcfcd34c8c5f4e72071a775d230a5ccbd642362a5e301cfa29734cf9be0cf15b",
+    "examples/references/confusion.csv": "7794ae8c58ef43c4d87b4f2c1b6b066ccc040aa14f30e0271fc411d6c30523e0",
+    "examples/references/qq.csv": "81fe140a9c0919942905040be655c443044b4d8dff3376e943c626b3ce9ef09e",
+    "examples/references/scaling.figure.json": "4db3303a9eac37c253c59a4e016c1dcaa2cf19efa41afd2e52eda1c38e674d21",
+    "examples/references/qq.figure.json": "534b03dafceb41be42d2784f427aafe1e6f4cb87d8066a50ea0cce5ed184d0c9",
+    "examples/references/table.figure.json": "cb8794a06d025726003e9dc321a27da46e78e68329ab1a329d8c6c827b779c87",
+    "examples/references/density.figure.json": "2d8739daf4d5ca1d80c63dc42830cfbd24aabf9300e2ca6b2a761d9161486499",
+    "examples/references/sparklines.csv": "ce9148dd4470f190db14ae542029b2918e7cdf5bf99ab76de1e4630b74a50608",
+    "examples/references/sparklines.figure.json": "2d1dec359183ccb0a43298e60f1a996c0647ca54ce856606fe57693ff4596221",
+    "examples/references/density.csv": "345a30ec13441a8257ae00671a77e979c71f5ce4ac1b00c36d95fb5cd5dfffeb"
+  },
+  "before_pixels": {
+    "docs/density-evidence.png": {
+      "size": [
+        1366,
+        823
+      ],
+      "rgba_sha256": "43de7679d30afb5e7b1251be9cd8034870dd0b15bf501f0574be49c1bb85716a"
+    },
+    "docs/fifth-pass-table.png": {
+      "size": [
+        996,
+        370
+      ],
+      "rgba_sha256": "aa72263c32508d0564de90c66b8825ffe23095ec3918bfec069326fc7f806bfa"
+    },
+    "docs/seventh-pass-confusion.png": {
+      "size": [
+        491,
+        376
+      ],
+      "rgba_sha256": "d80795a5ae6a8d85acf11e2eae26b35cd5e53260f3b1f014fcdce822e2728194"
+    },
+    "docs/third-pass-heatmap.png": {
+      "size": [
+        998,
+        614
+      ],
+      "rgba_sha256": "2b42fee533bc1248f14833812960daac2ac0ed379438477c329eb090e505caf9"
+    },
+    "docs/seventh-pass-qq.png": {
+      "size": [
+        498,
+        449
+      ],
+      "rgba_sha256": "4bab8412f35b34608eb246b97150f94d08cc4d8aa8ae8dcc02f0e151120fd0df"
+    },
+    "docs/seventh-pass-scaling-fit.png": {
+      "size": [
+        498,
+        452
+      ],
+      "rgba_sha256": "0586a255b290b70e64692f30dba2b6e5fe751e82906a35dcfadcadf8628a269b"
+    },
+    "docs/sparkline-shared-scales.png": {
+      "size": [
+        1037,
+        614
+      ],
+      "rgba_sha256": "7f0e09b558279abe47c82aa692a0db91fff85dcb23960a3f063942d72c81a755"
+    }
+  },
+  "after_pixels": {
+    "docs/density-evidence.png": {
+      "size": [
+        1366,
+        823
+      ],
+      "rgba_sha256": "43de7679d30afb5e7b1251be9cd8034870dd0b15bf501f0574be49c1bb85716a"
+    },
+    "docs/fifth-pass-table.png": {
+      "size": [
+        996,
+        370
+      ],
+      "rgba_sha256": "aa72263c32508d0564de90c66b8825ffe23095ec3918bfec069326fc7f806bfa"
+    },
+    "docs/seventh-pass-confusion.png": {
+      "size": [
+        491,
+        376
+      ],
+      "rgba_sha256": "d80795a5ae6a8d85acf11e2eae26b35cd5e53260f3b1f014fcdce822e2728194"
+    },
+    "docs/third-pass-heatmap.png": {
+      "size": [
+        998,
+        614
+      ],
+      "rgba_sha256": "2b42fee533bc1248f14833812960daac2ac0ed379438477c329eb090e505caf9"
+    },
+    "docs/seventh-pass-qq.png": {
+      "size": [
+        498,
+        449
+      ],
+      "rgba_sha256": "4bab8412f35b34608eb246b97150f94d08cc4d8aa8ae8dcc02f0e151120fd0df"
+    },
+    "docs/seventh-pass-scaling-fit.png": {
+      "size": [
+        498,
+        452
+      ],
+      "rgba_sha256": "0586a255b290b70e64692f30dba2b6e5fe751e82906a35dcfadcadf8628a269b"
+    },
+    "docs/sparkline-shared-scales.png": {
+      "size": [
+        1037,
+        614
+      ],
+      "rgba_sha256": "7f0e09b558279abe47c82aa692a0db91fff85dcb23960a3f063942d72c81a755"
+    }
+  },
+  "all_original_literal_protocols_unchanged": {
+    "benchmarks/authoring/protocol.json": "303b8e4395357ec976ec790532ceb052794a856405ef6bbfc2b8c8c713dc979f",
+    "benchmarks/certified/protocol-v1.json": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+    "benchmarks/certified/protocol.json": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+    "benchmarks/incremental/protocol.json": "4ceea4fd44e4e412cc4cc38caa0380f04b4a0ead4e29695124030ecb91131bf0",
+    "benchmarks/rendering/history/protocol-v3-scope-clarification.json": "a3bf65eb6d2469ce918aeaf132e251b13653e57b99fa3d4724ff4638d1d71299",
+    "benchmarks/rendering/protocol-v1.json": "320cf1c796553c037cf3e27823a82928ef93b0183acb6f420098000741faf874",
+    "benchmarks/rendering/protocol-v2.json": "8d6662ff8954f698fbc03428ba9b6b4d21aab1820d0fbffdd7d75bf873dff14d",
+    "benchmarks/rendering/protocol-v3.json": "5f9cb24be3c79fe9f5ffc9c03a3b8f1434e49399dfecf05f1be322d3a8873e13",
+    "benchmarks/rendering/protocol.json": "7315366b39dd7844fb311842172811334b42a583a0e7e27566a00d6647f3643d",
+    "benchmarks/staged/protocol.json": "cea35240ac9567bb2df5a93c1f074c645991fe0b78ada431b3cb98e6ca74d53d"
+  }
+}

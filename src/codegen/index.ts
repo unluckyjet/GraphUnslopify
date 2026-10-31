@@ -1,3 +1,4 @@
+import { RUNTIME_HELPERS } from "./runtime-source.ts";
 import { createHash } from "node:crypto";
 import { hasCategoricalX, type FigureSpec } from "../schema.ts";
 import { emitAltText } from "../alttext.ts";
@@ -315,19 +316,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
 
   out.push(
     "",
-    "def metadata_for(fmt):",
-    "    # Embedding the spec means a reviewer can recover what produced the figure.",
-    "    stamp = f\"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}\"",
-    '    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,',
-    '        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),',
-    '        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT, "environment": capture_environment()}, ensure_ascii=False)',
-    '    if fmt == "png":',
-    '        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}',
-    '    if fmt == "svg":',
-    '        return {"Creator": stamp, "Description": ALT_TEXT, "Title": FIGURE_TITLE or Path(STEM).name,',
-    '                "Identifier": SPEC_HASH, "Source": provenance, "Date": None}',
-    '    return {"Creator": stamp, "Subject": SPEC_JSON, "Keywords": provenance,',
-    '            "Title": FIGURE_TITLE or Path(STEM).name, "CreationDate": None, "ModDate": None}',
+    RUNTIME_HELPERS.metadata_for,
     "",
     "",
     "def check(fig):",

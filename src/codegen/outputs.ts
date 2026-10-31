@@ -1,3 +1,4 @@
+import { RUNTIME_HELPERS } from "./runtime-source.ts";
 import { interactiveLimitations } from "../capabilities.ts";
 import type { FigureSpec } from "../schema.ts";
 import { encodingSentence } from "../alttext.ts";
@@ -15,26 +16,8 @@ import { pyOptStr, pyStr } from "./py.ts";
 export function emitDataFingerprint(out: string[]): void {
   out.push(
     "",
-    "def data_fingerprint():",
-    "    # A figure built from a file that has since changed is worse than no",
-    "    # figure, because it looks current.",
-    "    try:",
-    '        with open(DATA_PATH, "rb") as handle:',
-    "            digest = hashlib.sha256()",
-    '            for block in iter(lambda: handle.read(65536), b""):',
-    "                digest.update(block)",
-    "        return digest.hexdigest()[:16]",
-    "    except OSError:",
-    '        return "unreadable"',
-    "", "", "def script_fingerprint():",
-    "    try:",
-    '        with open(__file__, "rb") as handle:',
-    "            digest = hashlib.sha256()",
-    '            for block in iter(lambda: handle.read(65536), b""):',
-    "                digest.update(block)",
-    "        return digest.hexdigest()",
-    "    except (NameError, OSError):",
-    "        return None",
+    RUNTIME_HELPERS.data_fingerprint,
+    "", "", RUNTIME_HELPERS.script_fingerprint,
     "",
   );
 }

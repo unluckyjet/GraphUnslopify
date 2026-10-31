@@ -49,3 +49,11 @@ Structural references inspected through Mobbin:
 
 These inform hierarchy and placement; their branding and data are not part of
 GraphUnslopify. No usability or speed improvement has yet been measured.
+
+
+###86a checkpoint — canonical helper source foundation
+
+Local source/minimum/fresh all21-kind controls and all seven/gallery checks pass;
+see specs/86-compact-versioned-runtime.md. Ordinary scripts remain inline. Full86
+compact/default/runtime provenance/standalone/performance scope and full87–89
+remain open. Exact new-commit all-nine/Figure acceptance follows this push.

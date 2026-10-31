@@ -29,3 +29,26 @@ Depends on complete85 and its exact CI acceptance. No release is implied.
 6. Demonstrate source/minimum/fresh, missing/wrong runtime and genuine bundled
    reproduction. Run required baselines/references/gallery when emission/layout
    changes; seven checks/push/exact all-nine/Figure per milestone. Update Obsidian.
+
+## 86a — canonical source foundation (partial item,2026-10-31)
+
+37 existing helper implementations now have one plain Python source and generated
+TS text; ordinary entry scripts remain inline. Actual ABI/helper-source/capability
+checks and per-program namespace binding are tested. Source3.12/minimum3.10/fresh
+wheel each pass30 variants/all21 kinds/90 genuine strict executions, including the
+original29 passes/one strict failure per path. Eight actual-context/header controls
+pass. Accepted1b baseline/protocol were frozen before implementation.
+
+All seven checks, both full Ruff invocations and gallery pass:232 Node/1912 Python,
+zero skips/one upstream warning/Ruff157;828 protected paths unchanged. All15
+published baselines/seven reference PNGs retain their pixels;14 reference inputs
+and10 existing literal benchmark protocols are unchanged. The first full gate
+correctly rejected seven old reference-image script fingerprints; metadata was
+regenerated from unchanged inputs and the entire gate set repeated.
+
+See docs/workspace/shared-runtime.md and
+benchmarks/runtime/results/foundation-v1/README.md for actual raw artifacts.
+Commit/push/exact CI acceptance follows. Full86 remains open: default compact
+emission, full runtime provenance/source/capabilities, genuinely standalone bundle,
+missing/wrong-runtime entry controls and all planned whole-footprint/startup costs.
+No new release or general performance/adoption claim.

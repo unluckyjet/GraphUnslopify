@@ -1,0 +1,427 @@
+{
+  "source_revision": "1b942e33933182408ab59feb53f79a70f2ef6f6c",
+  "scope": "Warm in-memory Python compile() only,7 repetitions after one discarded warmup per30 actual entry programs; no imports, execution or rendering timed. Diagnostic profile, not a render-latency benefit.",
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "programs": [
+    {
+      "id": "ridgeline-2d34cfc702b33237",
+      "entry_bytes": 117320,
+      "entry_lines": 1278,
+      "compile_only_ms": [
+        4.649584,
+        4.607625,
+        4.346583,
+        4.272125,
+        4.458625,
+        4.182917,
+        4.252083
+      ]
+    },
+    {
+      "id": "bar-53692a606e3c8897",
+      "entry_bytes": 125028,
+      "entry_lines": 1457,
+      "compile_only_ms": [
+        4.913791,
+        4.929459,
+        4.965209,
+        4.880875,
+        4.809958,
+        4.99625,
+        4.87225
+      ]
+    },
+    {
+      "id": "kaplan_meier-7dde92806ecf5ef7",
+      "entry_bytes": 118264,
+      "entry_lines": 1323,
+      "compile_only_ms": [
+        4.523125,
+        4.3425,
+        4.310625,
+        4.219667,
+        4.398916,
+        4.404625,
+        4.349041
+      ]
+    },
+    {
+      "id": "scatter-ac042622f601b941",
+      "entry_bytes": 122096,
+      "entry_lines": 1412,
+      "compile_only_ms": [
+        4.656375,
+        4.65025,
+        4.828834,
+        4.526125,
+        4.586125,
+        4.667625,
+        4.635125
+      ]
+    },
+    {
+      "id": "line-f16d0ed5060f5220",
+      "entry_bytes": 126713,
+      "entry_lines": 1503,
+      "compile_only_ms": [
+        5.176625,
+        4.974042,
+        4.875042,
+        5.18275,
+        4.85925,
+        5.022334,
+        5.061666
+      ]
+    },
+    {
+      "id": "paired_difference-19dd38e873a72ae0",
+      "entry_bytes": 119609,
+      "entry_lines": 1329,
+      "compile_only_ms": [
+        4.530667,
+        4.662709,
+        4.441,
+        4.41975,
+        4.424791,
+        4.662334,
+        4.408375
+      ]
+    },
+    {
+      "id": "waterfall-679c8ffe74972501",
+      "entry_bytes": 115276,
+      "entry_lines": 1267,
+      "compile_only_ms": [
+        4.132583,
+        4.036542,
+        4.09925,
+        4.224583,
+        4.032917,
+        3.970875,
+        3.925833
+      ]
+    },
+    {
+      "id": "heatmap-f830c62f6c5b14ea",
+      "entry_bytes": 118649,
+      "entry_lines": 1361,
+      "compile_only_ms": [
+        4.326541,
+        4.354167,
+        4.455459,
+        4.351167,
+        4.190959,
+        4.169167,
+        4.342
+      ]
+    },
+    {
+      "id": "forest-090c43a7e9a08d51",
+      "entry_bytes": 117962,
+      "entry_lines": 1319,
+      "compile_only_ms": [
+        4.291083,
+        4.484,
+        4.192916,
+        4.168083,
+        4.411083,
+        4.235291,
+        4.371958
+      ]
+    },
+    {
+      "id": "calibration-92ab878f229f076f",
+      "entry_bytes": 118552,
+      "entry_lines": 1322,
+      "compile_only_ms": [
+        4.392708,
+        4.376708,
+        4.423,
+        4.542458,
+        4.32925,
+        4.283917,
+        4.222125
+      ]
+    },
+    {
+      "id": "line-cf2954451e96904c",
+      "entry_bytes": 125821,
+      "entry_lines": 1489,
+      "compile_only_ms": [
+        4.947458,
+        4.995083,
+        4.9265,
+        4.904458,
+        4.994458,
+        4.755292,
+        4.914875
+      ]
+    },
+    {
+      "id": "line-5af2338b87f0d9d1",
+      "entry_bytes": 126824,
+      "entry_lines": 1502,
+      "compile_only_ms": [
+        4.981417,
+        4.981834,
+        5.069458,
+        4.817833,
+        4.936083,
+        5.117542,
+        4.948291
+      ]
+    },
+    {
+      "id": "scaling_fit-16aadc978c90b63a",
+      "entry_bytes": 123414,
+      "entry_lines": 1405,
+      "compile_only_ms": [
+        4.728458,
+        4.616416,
+        4.542,
+        4.778292,
+        4.596584,
+        4.819833,
+        4.917334
+      ]
+    },
+    {
+      "id": "raincloud-b2c37c9fc161f051",
+      "entry_bytes": 114263,
+      "entry_lines": 1247,
+      "compile_only_ms": [
+        4.000166,
+        4.175666,
+        4.032625,
+        4.04425,
+        3.931875,
+        4.09025,
+        4.006542
+      ]
+    },
+    {
+      "id": "line-fc15eaad00d96376",
+      "entry_bytes": 120989,
+      "entry_lines": 1411,
+      "compile_only_ms": [
+        4.773542,
+        4.503959,
+        4.453333,
+        4.589209,
+        4.662792,
+        4.541458,
+        4.567583
+      ]
+    },
+    {
+      "id": "line-8af969b4888b9ef7",
+      "entry_bytes": 120465,
+      "entry_lines": 1383,
+      "compile_only_ms": [
+        4.582792,
+        4.505792,
+        4.810958,
+        4.47975,
+        4.478333,
+        4.583042,
+        4.408542
+      ]
+    },
+    {
+      "id": "table-7d893df8fae9f3e3",
+      "entry_bytes": 121439,
+      "entry_lines": 1381,
+      "compile_only_ms": [
+        4.921708,
+        4.6775,
+        4.639916,
+        4.731875,
+        4.57875,
+        4.679917,
+        4.513625
+      ]
+    },
+    {
+      "id": "scatter-b5a25f4717e41194",
+      "entry_bytes": 115674,
+      "entry_lines": 1283,
+      "compile_only_ms": [
+        4.172208,
+        4.075541,
+        4.338167,
+        4.089166,
+        4.208458,
+        4.112875,
+        4.2355
+      ]
+    },
+    {
+      "id": "confusion_matrix-9eee1569d3af2161",
+      "entry_bytes": 117298,
+      "entry_lines": 1325,
+      "compile_only_ms": [
+        4.332041,
+        4.260167,
+        4.10525,
+        4.080417,
+        4.19525,
+        4.2285,
+        4.102584
+      ]
+    },
+    {
+      "id": "sparkline_grid-19a33488881b6e75",
+      "entry_bytes": 120746,
+      "entry_lines": 1387,
+      "compile_only_ms": [
+        4.5015,
+        4.586958,
+        4.5145,
+        4.698667,
+        4.50525,
+        4.521292,
+        4.561541
+      ]
+    },
+    {
+      "id": "bar-446bd70876112ba3",
+      "entry_bytes": 120411,
+      "entry_lines": 1385,
+      "compile_only_ms": [
+        4.501666,
+        4.702708,
+        4.424,
+        4.392416,
+        4.506541,
+        4.597208,
+        4.433292
+      ]
+    },
+    {
+      "id": "box-2b2f74a7241a99c8",
+      "entry_bytes": 114062,
+      "entry_lines": 1238,
+      "compile_only_ms": [
+        4.027042,
+        4.253583,
+        3.993291,
+        5.442917,
+        4.47975,
+        4.238,
+        4.015542
+      ]
+    },
+    {
+      "id": "slope-a3b2cd4821260be1",
+      "entry_bytes": 117845,
+      "entry_lines": 1330,
+      "compile_only_ms": [
+        4.347917,
+        4.584042,
+        4.351042,
+        4.247792,
+        4.266125,
+        4.713917,
+        4.417167
+      ]
+    },
+    {
+      "id": "bar-4dc977d7faf8337c",
+      "entry_bytes": 118259,
+      "entry_lines": 1333,
+      "compile_only_ms": [
+        4.388709,
+        4.339417,
+        4.34275,
+        4.215209,
+        4.583167,
+        4.392208,
+        4.322375
+      ]
+    },
+    {
+      "id": "qq-1931c8e02399027c",
+      "entry_bytes": 117787,
+      "entry_lines": 1301,
+      "compile_only_ms": [
+        4.353208,
+        4.251709,
+        4.4985,
+        4.231417,
+        4.420666,
+        4.210458,
+        4.40075
+      ]
+    },
+    {
+      "id": "heatmap-167a2bdc6630e146",
+      "entry_bytes": 118431,
+      "entry_lines": 1359,
+      "compile_only_ms": [
+        4.501916,
+        4.363333,
+        4.303416,
+        4.299917,
+        4.452167,
+        4.323084,
+        4.35925
+      ]
+    },
+    {
+      "id": "line-838fb96743324d01",
+      "entry_bytes": 126811,
+      "entry_lines": 1500,
+      "compile_only_ms": [
+        4.8795,
+        4.788291,
+        5.240375,
+        5.0085,
+        5.017958,
+        5.137625,
+        4.926792
+      ]
+    },
+    {
+      "id": "dumbbell-d497931fa4bfcc9f",
+      "entry_bytes": 117861,
+      "entry_lines": 1325,
+      "compile_only_ms": [
+        4.609625,
+        4.267084,
+        4.3635,
+        4.554292,
+        4.352167,
+        4.303917,
+        4.261042
+      ]
+    },
+    {
+      "id": "ecdf-c28fb06360c75289",
+      "entry_bytes": 115686,
+      "entry_lines": 1278,
+      "compile_only_ms": [
+        4.244583,
+        4.105958,
+        4.359916,
+        4.133125,
+        4.057,
+        4.19325,
+        4.370875
+      ]
+    },
+    {
+      "id": "violin-e987758e17f6d8c1",
+      "entry_bytes": 113684,
+      "entry_lines": 1232,
+      "compile_only_ms": [
+        4.1395,
+        4.112709,
+        4.118625,
+        3.993709,
+        4.04825,
+        4.032583,
+        3.85575
+      ]
+    }
+  ]
+}

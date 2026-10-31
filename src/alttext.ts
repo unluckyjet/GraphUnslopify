@@ -1,3 +1,4 @@
+import { RUNTIME_HELPERS } from "./codegen/runtime-source.ts";
 import { hasCategoricalX, derivedAxis, type FigureSpec } from "./schema.ts";
 
 /**
@@ -403,22 +404,7 @@ export function emitAltText(spec: FigureSpec, out: string[]): void {
     '    return ". ".join(part[:1].upper() + part[1:] for part in parts) + "."',
     "",
     "",
-    "def alt_text(frame):",
-    "    detail = describe_figure(frame)",
-    '    body = ENCODING_SENTENCE + (f" {detail}" if detail else "")',
-    "    for claim in CLAIMS:",
-    '        if claim.get("_verdict") is not True:',
-    "            continue",
-    '        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))',
-    '        sentence = f"{claim[\'subject\']} {wording}"',
-    "        # A claim the spread does not separate is not quoted bare. The bands",
-    "        # are what persuade a reader to trust the verdict, so a reader who",
-    "        # cannot see them is owed the same caveat.",
-    '        overlap = overlap_phrase(claim.get("_overlap"))',
-    "        if overlap is not None:",
-    '            sentence += f", though {overlap}"',
-    '        body += " " + sentence[:1].upper() + sentence[1:] + "."',
-    "    return body",
+    RUNTIME_HELPERS.alt_text,
     "",
   );
 }

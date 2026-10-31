@@ -1,0 +1,8 @@
+{
+  "started_utc": "2026-10-31T10:57:44.061540+00:00",
+  "python": "/Users/shooter/.cache/graphunslopify/verification-py312/bin/python",
+  "source_scope": "Tracked/untracked non-ignored files except Markdown narratives and derived /results/ folders; both package READMEs included. Includes code/config/fixtures/protocols/golden assets.",
+  "tracked_head_before": "1b942e33933182408ab59feb53f79a70f2ef6f6c",
+  "source_paths": 828,
+  "driver_sha256": "f790eb628a9b653368f5d37cc1acd89786a19c56b0618f8c38635036bb7a989c"
+}

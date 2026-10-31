@@ -1,7 +1,14 @@
 /** Ship the same emitter in a wheel; users need no npm install or HTTP service. */
 import { build } from "esbuild";
+import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { DIAGNOSTIC_ADVICE, UNKNOWN_DIAGNOSTIC } from "../src/diagnostics.ts";
+
+// Parse plain canonical Python; translating figures still needs only Node.
+execFileSync(process.env.PYTHON ?? (process.platform === "win32" ? "python" : "python3"), [
+  "scripts/build-runtime-source.py", "--source", "python/graphunslopify/figure_runtime.py",
+  "--out", "src/codegen/runtime-source.ts",
+], { stdio: "inherit" });
 
 // One implementation serves installed inspection and package-free generated plots.
 const cellColour = readFileSync("python/graphunslopify/cell_colour.py", "utf8").replace(/\r\n/g, "\n");

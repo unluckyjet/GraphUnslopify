@@ -96,57 +96,113 @@ DISCLOSURE = (
 )
 
 
+RUNTIME_OPTIONAL_PACKAGES = ["graphunslopify","plotly","scipy","pypdf"]
+
 def capture_environment(fig=None):
     if RUN_REPORT.get("environment") is not None:
         return RUN_REPORT["environment"]
     import importlib.metadata as package_metadata
     import platform
+
     unavailable = []
+
     def installed(name):
         try:
             return package_metadata.version(name)
         except package_metadata.PackageNotFoundError:
             return None
-        except Exception:
+        except Exception:  # noqa: BLE001 -- unreadable distribution metadata stays unavailable
             unavailable.append(name + ".version")
             return None
+
     def text(value):
         return str(value) if value else None
-    core = {name: text(getattr(module, "__version__", None)) for name, module in
-            (("numpy", np), ("pandas", pd), ("matplotlib", matplotlib), ("Pillow", sys.modules.get("PIL")))}
-    core["freetype"] = text(getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None))
+
+    core = {
+        name: text(getattr(module, "__version__", None))
+        for name, module in (
+            ("numpy", np),
+            ("pandas", pd),
+            ("matplotlib", matplotlib),
+            ("Pillow", sys.modules.get("PIL")),
+        )
+    }
+    core["freetype"] = text(
+        getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None)
+    )
     rc = None
     font = None
     if fig is not None:
-        keys = ("font.family", "font.size", "font.style", "font.weight", "font.variant", "font.stretch", "mathtext.fontset",
-                "text.usetex", "text.parse_math", "svg.fonttype", "pdf.fonttype", "ps.fonttype",
-                "savefig.transparent", "savefig.facecolor", "figure.facecolor", "axes.facecolor",
-                "path.simplify", "path.simplify_threshold", "agg.path.chunksize", "svg.hashsalt")
+        keys = (
+            "font.family",
+            "font.size",
+            "font.style",
+            "font.weight",
+            "font.variant",
+            "font.stretch",
+            "mathtext.fontset",
+            "text.usetex",
+            "text.parse_math",
+            "svg.fonttype",
+            "pdf.fonttype",
+            "ps.fonttype",
+            "savefig.transparent",
+            "savefig.facecolor",
+            "figure.facecolor",
+            "axes.facecolor",
+            "path.simplify",
+            "path.simplify_threshold",
+            "agg.path.chunksize",
+            "svg.hashsalt",
+        )
         rc = {key: matplotlib.rcParams.get(key) for key in keys}
         try:
             from matplotlib import font_manager
+
             path = Path(font_manager.findfont(font_manager.FontProperties()))
-            font = {"family": font_manager.get_font(str(path)).family_name,
-                    "file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        except Exception:
+            font = {
+                "family": font_manager.get_font(str(path)).family_name,
+                "file": path.name,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            }
+        except Exception:  # noqa: BLE001 -- any failed actual font capture stays unavailable
             unavailable.append("default_font")
     snapshot = {
         "schema_version": 1,
         "capture_stage": "before_export" if fig is not None else "no_export_snapshot",
-        "python": {"version": platform.python_version(), "implementation": platform.python_implementation(),
-                   "optimize": sys.flags.optimize, "hash_randomization": bool(sys.flags.hash_randomization)},
+        "python": {
+            "version": platform.python_version(),
+            "implementation": platform.python_implementation(),
+            "optimize": sys.flags.optimize,
+            "hash_randomization": bool(sys.flags.hash_randomization),
+        },
         "platform": {"system": text(platform.system()), "machine": text(platform.machine())},
         "loaded_core_versions": core,
-        "installed_optional_versions": {name: installed(name) for name in ("graphunslopify", "plotly", "scipy", "pypdf")},
-        "rendering": {"backend": str(matplotlib.get_backend()),
-                      "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,
-                      "figure_dpi": float(fig.dpi) if fig is not None else None,
-                      "export_dpi": DPI, "target_width_in": TARGET_WIDTH_IN,
-                      "requested_formats": list(FORMATS),
-                      "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],
-                      "rc_parameters": rc, "default_font": font},
-        "execution": dict(RUN_REPORT.get("_execution_policy", {"strict": None, "fail_on_warning": None, "source": "direct_call"})),
-        "random_constants": {key: globals()[key] for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED") if key in globals()},
+        "installed_optional_versions": {
+            name: installed(name) for name in RUNTIME_OPTIONAL_PACKAGES
+        },
+        "rendering": {
+            "backend": str(matplotlib.get_backend()),
+            "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,
+            "figure_dpi": float(fig.dpi) if fig is not None else None,
+            "export_dpi": DPI,
+            "target_width_in": TARGET_WIDTH_IN,
+            "requested_formats": list(FORMATS),
+            "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],
+            "rc_parameters": rc,
+            "default_font": font,
+        },
+        "execution": dict(
+            RUN_REPORT.get(
+                "_execution_policy",
+                {"strict": None, "fail_on_warning": None, "source": "direct_call"},
+            )
+        ),
+        "random_constants": {
+            key: globals()[key]
+            for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED")
+            if key in globals()
+        },
         "unavailable": unavailable,
     }
     # Detach mutable rc lists and normalize the stored snapshot to JSON types.
@@ -161,8 +217,12 @@ UNKNOWN_DIAGNOSTIC = json.loads("{\"consequence\":\"This unrecognized finding ha
 
 
 def edit_target(artist, path, role, source=None, value=None):
-    artist._graphunslopify_text_target = {"path": path, "role": role, "source": source,
-                                         "editable": path is not None}
+    artist._graphunslopify_text_target = {
+        "path": path,
+        "role": role,
+        "source": source,
+        "editable": path is not None,
+    }
     if value is not None:
         artist._graphunslopify_text_target["value"] = value
     return artist
@@ -171,15 +231,22 @@ def edit_target(artist, path, role, source=None, value=None):
 def series_artist(artist, source, suffix="", legend=True):
     if source is not None:
         for target in artist if isinstance(artist, list) else [artist]:
-            target._graphunslopify_legend_identity = {"series": str(source), "suffix": suffix, "legend": legend}
+            target._graphunslopify_legend_identity = {
+                "series": str(source),
+                "suffix": suffix,
+                "legend": legend,
+            }
     return artist
 
 
 def layer_artist(artist, index):
     layer = RUN_REPORT["spec"]["layers"][index]
     if layer.get("label"):
-        target = {"path": ["layers", index, "label"], "role": "layer_label",
-                  "source": {"layer": index, "mark": layer["mark"]}}
+        target = {
+            "path": ["layers", index, "label"],
+            "role": "layer_label",
+            "source": {"layer": index, "mark": layer["mark"]},
+        }
         for item in artist if isinstance(artist, list) else [artist]:
             item._graphunslopify_legend_text_target = target
     return artist
@@ -197,12 +264,18 @@ def legend_handle_key(handle, label):
 
 def source_legend_handles(axes):
     ordinary, labels = axes.get_legend_handles_labels()
-    public = {id(handle): label for handle, label in zip(ordinary, labels)}
+    public = {id(handle): label for handle, label in zip(ordinary, labels, strict=False)}
     handles, names, seen = [], [], set()
     for handle in [*axes.get_children(), *axes.containers]:
         identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = identity.get("legend", True) if identity is not None else (
-            id(handle) in public or getattr(handle, "_graphunslopify_legend_text_target", None) is not None)
+        include = (
+            identity.get("legend", True)
+            if identity is not None
+            else (
+                id(handle) in public
+                or getattr(handle, "_graphunslopify_legend_text_target", None) is not None
+            )
+        )
         if include and id(handle) not in seen:
             handles.append(handle)
             names.append(public.get(id(handle), handle.get_label()))
@@ -212,13 +285,21 @@ def source_legend_handles(axes):
 
 def legend_alias(source):
     key = str(source)
-    return next((item["text"] for item in RUN_REPORT["spec"]["legend"].get("labels", [])
-                 if item["series"] == key), key)
+    return next(
+        (
+            item["text"]
+            for item in RUN_REPORT["spec"]["legend"].get("labels", [])
+            if item["series"] == key
+        ),
+        key,
+    )
 
 
 def legend_alias_path(source):
     labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    index = next((index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels))
+    index = next(
+        (index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels)
+    )
     return ["legend", "labels", index, "text"]
 
 
@@ -248,7 +329,7 @@ def disclose_legend_aliases(description):
     labels = RUN_REPORT["spec"]["legend"].get("labels", [])
     if not labels:
         return description
-    mappings = [f'{item["text"]} means source series {item["series"]}' for item in labels]
+    mappings = [f"{item['text']} means source series {item['series']}" for item in labels]
     return description + " Display names: " + "; ".join(mappings) + "."
 
 
@@ -283,13 +364,23 @@ def mark_panel_text(artist, index):
     spec = RUN_REPORT["spec"]
     if "repeat" in spec:
         field = spec["repeat"]["fields"][index]
-        return edit_target(artist, metric_label_path(field), "metric_label", field, metric_label(field))
+        return edit_target(
+            artist, metric_label_path(field), "metric_label", field, metric_label(field)
+        )
     if "facet" in spec:
         labels = spec["facet"].get("labels", [])
         source = PANEL_SOURCE_KEYS[index]
-        slot = next((i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)), len(labels))
-        return edit_target(artist, ["facet", "labels", slot, "text"], "panel_title", source,
-                           panel_label_value(index, PANEL_ORIGINAL_NAMES[index]))
+        slot = next(
+            (i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)),
+            len(labels),
+        )
+        return edit_target(
+            artist,
+            ["facet", "labels", slot, "text"],
+            "panel_title",
+            source,
+            panel_label_value(index, PANEL_ORIGINAL_NAMES[index]),
+        )
     return artist
 
 
@@ -306,16 +397,22 @@ def validate_panel_aliases(frame, blocks):
             raise ValueError("Metric display names refer to unknown prepared source fields")
         shown = [metric_label(field).strip() for field in fields]
         if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Metric display names must visibly and uniquely identify source fields")
+            raise ValueError(
+                "Metric display names must visibly and uniquely identify source fields"
+            )
     facet = spec.get("facet", {})
     labels = facet.get("labels", [])
     if labels:
         keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]
         requested = [facet_key(item) for item in labels]
         if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):
-            raise ValueError("Facet display names require unambiguous source values and unique overrides")
+            raise ValueError(
+                "Facet display names require unambiguous source values and unique overrides"
+            )
         if any(("row" in item) != ("rows" in facet) for item in labels):
-            raise ValueError("Facet display names must include row values exactly for two-dimensional facets")
+            raise ValueError(
+                "Facet display names must include row values exactly for two-dimensional facets"
+            )
         if any(key not in keys for key in requested):
             raise ValueError("Facet display names refer to unknown prepared source panels")
         shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]
@@ -325,25 +422,43 @@ def validate_panel_aliases(frame, blocks):
 
 def disclose_panel_aliases(description):
     spec = RUN_REPORT["spec"]
-    mappings = [f'{item["text"]} means source metric {item["field"]}'
-                for item in spec.get("repeat", {}).get("labels", [])]
+    mappings = [
+        f"{item['text']} means source metric {item['field']}"
+        for item in spec.get("repeat", {}).get("labels", [])
+    ]
     facet = spec.get("facet", {})
     for item in facet.get("labels", []):
-        source = f'{facet["by"]}={item["value"]}'
+        source = f"{facet['by']}={item['value']}"
         if "row" in item:
-            source += f', {facet["rows"]}={item["row"]}'
-        mappings.append(f'{item["text"]} means source panel {source}')
-    return description if not mappings else description + " Panel display names: " + "; ".join(mappings) + "."
+            source += f", {facet['rows']}={item['row']}"
+        mappings.append(f"{item['text']} means source panel {source}")
+    return (
+        description
+        if not mappings
+        else description + " Panel display names: " + "; ".join(mappings) + "."
+    )
 
 
 def new_report():
     return {
-        "schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
-        "spec": json.loads(SPEC_JSON), "status": "incomplete", "ok": False,
-        "data": {}, "environment": None, "findings": [dict(f) for f in STATIC_FINDINGS],
+        "schema_version": 1,
+        "tool": TOOL,
+        "spec_hash": SPEC_HASH,
+        "spec": json.loads(SPEC_JSON),
+        "status": "incomplete",
+        "ok": False,
+        "data": {},
+        "environment": None,
+        "findings": [dict(f) for f in STATIC_FINDINGS],
         "inspection": {"available": None, "checked": False},
-        "panels": [], "claims": [], "significance": [], "annotations": [], "outputs": [],
-        "skipped_outputs": [], "untested": [], "alt_text": "",
+        "panels": [],
+        "claims": [],
+        "significance": [],
+        "annotations": [],
+        "outputs": [],
+        "skipped_outputs": [],
+        "untested": [],
+        "alt_text": "",
     }
 
 
@@ -352,17 +467,23 @@ CURRENT_PANEL = 0
 
 
 def finding(severity, code, message):
-    item = {"severity": severity, "code": code, "message": message,
-            **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)}
+    item = {
+        "severity": severity,
+        "code": code,
+        "message": message,
+        **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC),
+    }
     if item not in RUN_REPORT["findings"]:
         RUN_REPORT["findings"].append(item)
 
 
 def diagnostic_text(code, message, severity="warning"):
     advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
-    return (f"{severity.upper()} [{code}] {message}\n"
-            f"  Why it matters: {advice['consequence']}\n"
-            f"  Recommended correction: {advice['correction']}")
+    return (
+        f"{severity.upper()} [{code}] {message}\n"
+        f"  Why it matters: {advice['consequence']}\n"
+        f"  Recommended correction: {advice['correction']}"
+    )
 
 
 def record_output(path):
@@ -372,21 +493,32 @@ def record_output(path):
         title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
         if f'<desc id="{description_id}">' not in text:
             end = text.index(">", text.index("<svg "))
-            attributes = f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
+            attributes = (
+                f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
+            )
             text = text[:end] + attributes + text[end:]
             text = text.replace("<title>", f'<title id="{title_id}">', 1)
             description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
             text = text.replace("</title>", "</title>\n " + description, 1)
             # Normalize path formatting, preserving meaningful metadata whitespace.
-            text = re.sub(r'(<path\b[^>]*\bd=")([^"]*)(")',
-                          lambda m: m[1] + "\n".join(line.rstrip() for line in m[2].split("\n")) + m[3], text)
+            text = re.sub(
+                r'(<path\b[^>]*\bd=")([^"]*)(")',
+                lambda m: m[1] + "\n".join(line.rstrip() for line in m[2].split("\n")) + m[3],
+                text,
+            )
             path.write_text(text, encoding="utf8")
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(65536), b""):
             digest.update(block)
-    RUN_REPORT["outputs"].append({"path": str(path), "format": path.suffix[1:],
-                                  "sha256": digest.hexdigest(), "bytes": path.stat().st_size})
+    RUN_REPORT["outputs"].append(
+        {
+            "path": str(path),
+            "format": path.suffix[1:],
+            "sha256": digest.hexdigest(),
+            "bytes": path.stat().st_size,
+        }
+    )
 
 
 def skip_output(kind, reason):
@@ -397,8 +529,11 @@ def skip_output(kind, reason):
 def significance_result(left, right, **details):
     item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}
     # Insets and broken axes redraw the same logical comparison.
-    RUN_REPORT["significance"] = [old for old in RUN_REPORT["significance"]
-        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])]
+    RUN_REPORT["significance"] = [
+        old
+        for old in RUN_REPORT["significance"]
+        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])
+    ]
     RUN_REPORT["significance"].append(item)
 
 
@@ -484,19 +619,41 @@ def finish_report():
 
 
 def run_cli(argv=None):
-    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD
-    parser = argparse.ArgumentParser(description="Render this figure and write its verification evidence")
+    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD  # noqa: PLW0603 -- reset the bound program context
+    parser = argparse.ArgumentParser(
+        description="Render this figure and write its verification evidence"
+    )
     policy = parser.add_mutually_exclusive_group()
-    policy.add_argument("--strict", action="store_true", default=True, help="reject failed or incomplete verification (default)")
-    policy.add_argument("--no-strict", dest="strict", action="store_false", help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2")
-    parser.add_argument("--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings")
-    parser.add_argument("--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination")
-    parser.add_argument("--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr")
+    policy.add_argument(
+        "--strict",
+        action="store_true",
+        default=True,
+        help="reject failed or incomplete verification (default)",
+    )
+    policy.add_argument(
+        "--no-strict",
+        dest="strict",
+        action="store_false",
+        help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2",
+    )
+    parser.add_argument(
+        "--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings"
+    )
+    parser.add_argument(
+        "--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination"
+    )
+    parser.add_argument(
+        "--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr"
+    )
     args = parser.parse_args(argv)
     if args.report == "-":
         parser.error("use --json for JSON stdout; --report expects a file path")
     RUN_REPORT = new_report()
-    RUN_REPORT["_execution_policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning, "source": "cli"}
+    RUN_REPORT["_execution_policy"] = {
+        "strict": args.strict or args.fail_on_warning,
+        "fail_on_warning": args.fail_on_warning,
+        "source": "cli",
+    }
     DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
     Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
     ROW_COUNTS.clear()
@@ -506,15 +663,19 @@ def run_cli(argv=None):
     try:
         with contextlib.redirect_stdout(logs):
             main()
-    except (Exception, SystemExit) as problem:
+    except (Exception, SystemExit) as problem:  # noqa: BLE001 -- CLI records all runtime failures
         runtime_failure = True
         finding("error", "runtime_error", str(problem) or type(problem).__name__)
     report = finish_report()
-    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]
-                or args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"]))
+    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]) or (
+        args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"])
+    )
     report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
-    report["policy"] = {"strict": args.strict or args.fail_on_warning, "fail_on_warning": args.fail_on_warning,
-                        "passed": report["exit_code"] == 0}
+    report["policy"] = {
+        "strict": args.strict or args.fail_on_warning,
+        "fail_on_warning": args.fail_on_warning,
+        "passed": report["exit_code"] == 0,
+    }
     encoded = json.dumps(report, indent=2, allow_nan=False) + "\n"
     path = Path(args.report)
     try:
@@ -530,14 +691,21 @@ def run_cli(argv=None):
     else:
         print(f"verification: {report['status']}; wrote {path}")
         for item in report["findings"]:
-            print(diagnostic_text(item["code"], item["message"], item["severity"]),
-                  file=sys.stderr if item["code"] == "runtime_error" else sys.stdout)
+            print(
+                diagnostic_text(item["code"], item["message"], item["severity"]),
+                file=sys.stderr if item["code"] == "runtime_error" else sys.stdout,
+            )
         for reason in report["untested"]:
             print(diagnostic_text("check_untested", reason))
         for claim in report["claims"]:
             if claim["verdict"] in {"fails", "untested"}:
-                print(diagnostic_text("claim_failed" if claim["verdict"] == "fails" else "check_untested",
-                      claim.get("detail", claim["kind"]), "error" if claim["verdict"] == "fails" else "warning"))
+                print(
+                    diagnostic_text(
+                        "claim_failed" if claim["verdict"] == "fails" else "check_untested",
+                        claim.get("detail", claim["kind"]),
+                        "error" if claim["verdict"] == "fails" else "warning",
+                    )
+                )
     return report["exit_code"]
 
 IDENTITY_FIELDS = ["model"]
@@ -547,7 +715,10 @@ IDENTITY_CONFLICTS = []
 
 def normalize_identities(frame, *, final=True):
     if IDENTITY_CONFLICTS:
-        raise ValueError("Columns cannot serve both identifier and measurement roles: " + ", ".join(IDENTITY_CONFLICTS))
+        raise ValueError(
+            "Columns cannot serve both identifier and measurement roles: "
+            + ", ".join(IDENTITY_CONFLICTS)
+        )
     for key in ("series_order", "category_order"):
         order = RUN_REPORT["spec"].get(key)
         if order is not None and len(order) != len(set(order)):
@@ -563,7 +734,8 @@ def normalize_identities(frame, *, final=True):
         if field in lexical:
             values = [lexical[field][int(index)] for index in source.index]
         seen = {}
-        def as_identifier(value):
+
+        def as_identifier(value, field=field, seen=seen):
             if not pd.api.types.is_scalar(value):
                 raise ValueError(f"Identifier {field} must contain scalar values")
             if pd.isna(value):
@@ -574,9 +746,12 @@ def normalize_identities(frame, *, final=True):
             if not text.strip():
                 raise ValueError(f"Identifier {field} must be nonempty")
             if text in seen and seen[text] != value:
-                raise ValueError(f"Distinct identifiers in {field} collide as textual name {text!r}")
+                raise ValueError(
+                    f"Distinct identifiers in {field} collide as textual name {text!r}"
+                )
             seen[text] = value
             return text
+
         normalized = [as_identifier(value) for value in values]
         dtype = source[field].dtype
         if isinstance(dtype, pd.CategoricalDtype):
@@ -840,11 +1015,14 @@ def literal_heading_lines(lines, original):
             index += 1
             continue
         line = lines[index]
-        cuts = [match for match in re.finditer(r"\s+", line)
-                if heading_dollars(line[:match.start()]) % 2]
+        cuts = [
+            match
+            for match in re.finditer(r"\s+", line)
+            if heading_dollars(line[: match.start()]) % 2
+        ]
         if cuts:
             cut = cuts[-1]
-            lines[index:index + 1] = [line[:cut.start()], line[cut.end():]]
+            lines[index : index + 1] = [line[: cut.start()], line[cut.end() :]]
             index += 2
             continue
         # A dollar pair inside one word cannot be split without changing it.
@@ -855,15 +1033,19 @@ def literal_heading_lines(lines, original):
             return [original]
         neighbor = min(odd, key=lambda i: abs(i - index))
         low, high = sorted((index, neighbor))
-        lines[low:high + 1] = [" ".join(lines[low:high + 1])]
+        lines[low : high + 1] = [" ".join(lines[low : high + 1])]
         index = low + 1
     return lines
 
 
 def wrap_heading(original, artist, renderer, width):
     from matplotlib.text import Text
-    probe = Text(fontproperties=artist.get_fontproperties(),
-                 usetex=artist.get_usetex(), parse_math=artist.get_parse_math())
+
+    probe = Text(
+        fontproperties=artist.get_fontproperties(),
+        usetex=artist.get_usetex(),
+        parse_math=artist.get_parse_math(),
+    )
     probe.set_figure(artist.get_figure())
     parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()
     lines = []
@@ -881,7 +1063,9 @@ def wrap_heading(original, artist, renderer, width):
                 token = ""
             token += char
             space = separable
-            dollar_boundary = not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
+            dollar_boundary = (
+                not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
+            )
             if char == "$" and mathematical and dollar_boundary:
                 math_mode = not math_mode
             elif not escaped:
@@ -898,8 +1082,11 @@ def wrap_heading(original, artist, renderer, width):
                 separator += token
                 continue
             candidate = line + separator + token
-            probe.set_text(candidate.replace(r"\$", "$")
-                           if parse_math and not mathematical and not use_tex else candidate)
+            probe.set_text(
+                candidate.replace(r"\$", "$")
+                if parse_math and not mathematical and not use_tex
+                else candidate
+            )
             if line and probe.get_window_extent(renderer).width > width:
                 paragraph_lines.append(line)
                 line = token
@@ -1027,9 +1214,15 @@ def _aligned(frame, subject, reference):
         return None
     columns = [subject] if reference is None else [subject, reference]
     selected = frame[frame[GROUP].isin(columns)]
-    if selected.empty or selected[X_FIELD].isna().any() or selected.duplicated([X_FIELD, GROUP]).any():
+    if (
+        selected.empty
+        or selected[X_FIELD].isna().any()
+        or selected.duplicated([X_FIELD, GROUP]).any()
+    ):
         return None
-    pivot = selected.pivot_table(index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True)
+    pivot = selected.pivot_table(
+        index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True
+    )
     if any(column not in pivot.columns for column in columns):
         return None
     pair = pivot[columns].sort_index()
@@ -1046,8 +1239,12 @@ def _interval_overlap(frame, subject, reference):
     """
     if reference is None or GROUP is None or "_low" not in frame:
         return None
-    lows = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True)
-    highs = frame.pivot_table(index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True)
+    lows = frame.pivot_table(
+        index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True
+    )
+    highs = frame.pivot_table(
+        index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True
+    )
     for column in (subject, reference):
         if column not in lows.columns or column not in highs.columns:
             return None
@@ -1081,12 +1278,19 @@ def check_claim(frame, claim):
     tolerance = claim.get("tolerance") or 0.0
     pair = _aligned(frame, subject, reference)
     if pair is None:
-        return None, "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements"
+        return (
+            None,
+            "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements",
+        )
 
     mine = pair[subject].to_numpy(dtype=float)
     theirs = pair[reference].to_numpy(dtype=float) if reference else None
     kind = claim["kind"]
-    if kind in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges") and len(mine) < 2:
+    if (
+        kind
+        in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges")
+        and len(mine) < 2
+    ):
         return None, "at least two x values are required for a trend claim"
 
     if kind == "beats_everywhere":
@@ -1147,13 +1351,15 @@ def verify_claims(frame):
             continue
         if holds:
             print(f"  HOLDS     {sentence} ({detail})")
-            overlap = overlap_phrase(_interval_overlap(frame, claim["subject"], claim.get("reference")))
+            overlap = overlap_phrase(
+                _interval_overlap(frame, claim["subject"], claim.get("reference"))
+            )
             if overlap is not None:
                 print(f"            but {overlap}, so the spread does not separate them")
         else:
             ok = False
             print(f"  FAILS     {sentence} ({detail})")
-            print(f"            the figure does not support this. Do not write it in the caption.")
+            print("            the figure does not support this. Do not write it in the caption.")
     return ok
 
 
@@ -1211,16 +1417,43 @@ def alt_text(frame):
 def metadata_for(fmt):
     # Embedding the spec means a reviewer can recover what produced the figure.
     stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"
-    provenance = json.dumps({"schema_version": 1, "tool": TOOL, "spec_hash": SPEC_HASH,
-        "data_sha256_prefix": DATA_HASH, "script_sha256": script_fingerprint(),
-        "spec": json.loads(SPEC_JSON), "alt_text": ALT_TEXT, "environment": capture_environment()}, ensure_ascii=False)
+    provenance = json.dumps(
+        {
+            "schema_version": 1,
+            "tool": TOOL,
+            "spec_hash": SPEC_HASH,
+            "data_sha256_prefix": DATA_HASH,
+            "script_sha256": script_fingerprint(),
+            "spec": json.loads(SPEC_JSON),
+            "alt_text": ALT_TEXT,
+            "environment": capture_environment(),
+        },
+        ensure_ascii=False,
+    )
     if fmt == "png":
-        return {"Software": stamp, "Description": SPEC_JSON, "Comment": ALT_TEXT, "GraphUnslopify": provenance}
+        return {
+            "Software": stamp,
+            "Description": SPEC_JSON,
+            "Comment": ALT_TEXT,
+            "GraphUnslopify": provenance,
+        }
     if fmt == "svg":
-        return {"Creator": stamp, "Description": ALT_TEXT, "Title": FIGURE_TITLE or Path(STEM).name,
-                "Identifier": SPEC_HASH, "Source": provenance, "Date": None}
-    return {"Creator": stamp, "Subject": SPEC_JSON, "Keywords": provenance,
-            "Title": FIGURE_TITLE or Path(STEM).name, "CreationDate": None, "ModDate": None}
+        return {
+            "Creator": stamp,
+            "Description": ALT_TEXT,
+            "Title": FIGURE_TITLE or Path(STEM).name,
+            "Identifier": SPEC_HASH,
+            "Source": provenance,
+            "Date": None,
+        }
+    return {
+        "Creator": stamp,
+        "Subject": SPEC_JSON,
+        "Keywords": provenance,
+        "Title": FIGURE_TITLE or Path(STEM).name,
+        "CreationDate": None,
+        "ModDate": None,
+    }
 
 
 def check(fig):

@@ -1,0 +1,10 @@
+{
+  "scope": "First full local gate attempt, not success. Seven stale published-image script fingerprints; no pixel or original-input change required.",
+  "gates": "/tmp/graphunslopify-runtime-foundation-gates-1",
+  "python_passed": 1905,
+  "python_failed": 7,
+  "warnings": 1,
+  "protected_paths_unchanged": 828,
+  "repair": "Run existing refresh-reference-artifacts.py; independently confirm all7 PNG pixels/dimensions,14 actual input files and10 original literal benchmark protocols unchanged; density strict2 retained.",
+  "repeat": "All required gates repeated on refreshed artifacts."
+}

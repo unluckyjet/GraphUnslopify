@@ -1,0 +1,11 @@
+{
+  "fixture": "examples/statistical-design/measurements.csv",
+  "preexisting_checkout_crlf": 17,
+  "committed_crlf": 0,
+  "only_line_endings_differ": true,
+  "parsed_dataframes_identical": true,
+  "before_sha256": "37d7790a4aee91d97ba1c1bc2059a2039bfa61dd96788e54c8903504d404cef1",
+  "committed_sha256": "9c749c9f242bdcb1376b540fc9b3ff05c09f32151624099e031ebe268c9fb1d1",
+  "prior_guarded_files_matching_index_exactly": 827,
+  "restoration_has_no_git_content_diff": true
+}

@@ -1,0 +1,547 @@
+{
+  "version": 1,
+  "frozen_before_runtime_edits": true,
+  "baseline_source_revision": "1b942e33933182408ab59feb53f79a70f2ef6f6c",
+  "baseline_archive": "baseline-1b942e3.zip",
+  "baseline_archive_sha256": "de16613a21faebf0dad64b1444f926269010a76c64e715870f1a5c0cddef94b4",
+  "scope": "Developer-controlled all21-kind comparison. No general human/productivity/independent-execution claim. No release implied.",
+  "cases": [
+    {
+      "id": "bar-446bd70876112ba3",
+      "kind": "bar",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "446bd70876112ba392a2bd30fa6766f8487d8abf6747d6a3788b21aa5ae4a6bd",
+      "program_sha256": "cea4d856b43e3f34de90cfaebf77f078ed7cda48c8bb638c388607478c5960a8",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/cf7d6b7a7af54bec96bacb6c159ca835/figure.py"
+    },
+    {
+      "id": "bar-4dc977d7faf8337c",
+      "kind": "bar",
+      "data": "data.csv",
+      "data_sha256": "90fdde9f68588d74698f59c004f9114b7f1bd67ea4a2d538ce4db49621b6898b",
+      "spec_sha256": "4dc977d7faf8337cb5e379191a47420cd73097a125ec77e715d07c7530ffdff9",
+      "program_sha256": "08f20c81b5a5e01feee49e091c328ee2989abdccfb118e1be7f19a01d7875b47",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/d9000fb6d49447d7afc933456bebedd6/figure.py"
+    },
+    {
+      "id": "bar-53692a606e3c8897",
+      "kind": "bar",
+      "data": "data.csv",
+      "data_sha256": "f5db316b67a55e4edfe23c3d592f71fdf3479201610132cecb906b4e3ffba303",
+      "spec_sha256": "53692a606e3c8897797cd1a1c65751ff5e3aed2ae824ba6ea56e35b84d5b1793",
+      "program_sha256": "687014916fca0c69c39e22693deb961af4680a0766b224c78795892509013bd0",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/0b795de7051a47cbbe99455263065ed3/figure.py"
+    },
+    {
+      "id": "box-2b2f74a7241a99c8",
+      "kind": "box",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "2b2f74a7241a99c8ef8439b20354843ada8509786ed4b8b7a48774354438d455",
+      "program_sha256": "189c3c55c9c53ce3f21bfb3c133cb7e9be1cdbaa114f06717791f8061029912b",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/d03630eaf12a40798a54b3a379096cb9/figure.py"
+    },
+    {
+      "id": "calibration-92ab878f229f076f",
+      "kind": "calibration",
+      "data": "data.csv",
+      "data_sha256": "3f73d0eb1e0f90e32587896dddff961e015ddfb4db03671652193837f4c915cb",
+      "spec_sha256": "92ab878f229f076f12e1963fce5e845d0948921ac30bfdc6fd177f1e8a5e0bef",
+      "program_sha256": "6a9ef33e20ae108508bfe9a64115ed520e9f061f240041f519a79eaa7d64e58b",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/3fd7ec35781943f5873e9ca85d2df532/figure.py"
+    },
+    {
+      "id": "confusion_matrix-9eee1569d3af2161",
+      "kind": "confusion_matrix",
+      "data": "data.csv",
+      "data_sha256": "68fb1dbbc3518828dad027dbbd81abaa4e69e01b5ba7e013371511f0e476421a",
+      "spec_sha256": "9eee1569d3af2161df4f65726a4f9695db25728c5eb668fa1d0ad64098d857d3",
+      "program_sha256": "1375a7d5071ac031420f604c0e8f1510b900ec5287a00b2505b5f342a640d39c",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/aae0ae6347614677844492f758a0f6fc/figure.py"
+    },
+    {
+      "id": "dumbbell-d497931fa4bfcc9f",
+      "kind": "dumbbell",
+      "data": "data.csv",
+      "data_sha256": "818c37d5768f3b7306f407f5708c4cf586c58215978def29545a347d128c8fe5",
+      "spec_sha256": "d497931fa4bfcc9f9373037a32606f1bc0c3de1d115c296e040deaf94f3ae2a1",
+      "program_sha256": "be05439d0ec4ce577263a6079da4046c7c40eacd8e6a94c1ccbbf8abe3bcf87b",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/e400e29f22cf4aa4b99b07ca21c5fd9f/figure.py"
+    },
+    {
+      "id": "ecdf-c28fb06360c75289",
+      "kind": "ecdf",
+      "data": "data.csv",
+      "data_sha256": "345e12825eb2839b71770fdd45b38d6e87d4b00d561f17c56556e1af40615504",
+      "spec_sha256": "c28fb06360c75289e7ee55b6fcb0308b86351437d052462f9125e4f3b0d8ff38",
+      "program_sha256": "586cc5c1686d5f4d756bb91f16a8ccb92e0c99e270373724cfe07fc4b63b67e7",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/ef3e2acdc87c4c75b6a76da531ed92e7/figure.py"
+    },
+    {
+      "id": "forest-090c43a7e9a08d51",
+      "kind": "forest",
+      "data": "data.csv",
+      "data_sha256": "7175da8b11425777c61b943c8e18ac44ed06e1205aae30d41739e2e3cd49c574",
+      "spec_sha256": "090c43a7e9a08d51839a8b7c2ddec23567878219273e32ec474bc59870f709ae",
+      "program_sha256": "b2109d05c12e1ed56e74d5e27504b7e373536ae73c044573e691e088aa967a5c",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/239c45865f8247d293071406f675736e/figure.py"
+    },
+    {
+      "id": "heatmap-167a2bdc6630e146",
+      "kind": "heatmap",
+      "data": "data.csv",
+      "data_sha256": "68fb1dbbc3518828dad027dbbd81abaa4e69e01b5ba7e013371511f0e476421a",
+      "spec_sha256": "167a2bdc6630e146303e01e9c5d654516d54ca4af50a1c671a9f5f45899650cd",
+      "program_sha256": "f262eaca38b8ce8eb88a353d1b48796a28ee3325fc3e0f19a800b482a8f7168b",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/e0a518b7cd384ea4839a8ddf3bbb7b80/figure.py"
+    },
+    {
+      "id": "heatmap-f830c62f6c5b14ea",
+      "kind": "heatmap",
+      "data": "data.csv",
+      "data_sha256": "4e6f531e9ebcba568de9a0df7e867f221c5eea0162fb76be1ce23bd07f787e1f",
+      "spec_sha256": "f830c62f6c5b14eac3a0828ef12d6eaec40b2f86a87a2651b1b4bbd9a27e387e",
+      "program_sha256": "4d165b9fe9f331c3c836add3f83e8645e319610e7643320ff99b74eed04bb544",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/1d5f59edc5674ff98a20e2b24ca92c08/figure.py"
+    },
+    {
+      "id": "kaplan_meier-7dde92806ecf5ef7",
+      "kind": "kaplan_meier",
+      "data": "data.csv",
+      "data_sha256": "c01937815ea1cac435e219858a1f666ae109e546a40c27a734d9b019cb642935",
+      "spec_sha256": "7dde92806ecf5ef796bcebb0f5e5437e725091599a596ffec128f6969c631c18",
+      "program_sha256": "93e596a2d0beda3d3f637c474c16c14514fa9e689e5403d203a9a27c0c960868",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/0faae2dac33e4bd79240df1dc3c8f85e/figure.py"
+    },
+    {
+      "id": "line-5af2338b87f0d9d1",
+      "kind": "line",
+      "data": "data.csv",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "spec_sha256": "5af2338b87f0d9d121492af825ebc8a90f0ce9b14adde92d328f9ee0c20dec52",
+      "program_sha256": "b1770680a6259cacab30a2ccd9ad61438af38b482a559dd24bebb2104f80cc73",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/6461feddd47941a7a6b185e118bcd5de/figure.py"
+    },
+    {
+      "id": "line-838fb96743324d01",
+      "kind": "line",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "838fb96743324d0108c1f4850aa96396fd18398571a769f6f524efe06f81801e",
+      "program_sha256": "3ce5e159ec4fbaafdd7c145a761cb5936cc8145e080468db3a52c35c7bd37563",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/e33819c53ca64e4c8f23e44ec0523d59/figure.py"
+    },
+    {
+      "id": "line-8af969b4888b9ef7",
+      "kind": "line",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "8af969b4888b9ef7c5bcba75dece4fda057cf5874e6ba6475da730e96ca8de78",
+      "program_sha256": "5ced6da5059b5bb8df01ab887f3b9169930c33481dc4649055dd504b93203ffb",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/868a47394a9240209cb563219390144c/figure.py"
+    },
+    {
+      "id": "line-cf2954451e96904c",
+      "kind": "line",
+      "data": "data.parquet",
+      "data_sha256": "7ccead16b881a0c0260f896efd61dfdb2278d7e8001d7507e4f7b4ef6cd18714",
+      "spec_sha256": "cf2954451e96904c74ed36e870e1651143d7bc9e9c98224d0ccc79aabea7c67c",
+      "program_sha256": "6a821618ba6cf6173a349cbb4ee2a72d2683dbdd92dbcca2200753a5bf7a8c56",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/5879f4cc194d45f6a3d5e252986d32f8/figure.py"
+    },
+    {
+      "id": "line-f16d0ed5060f5220",
+      "kind": "line",
+      "data": "data.json",
+      "data_sha256": "e90d9259a7bfb90b4bd08a84b6364b4483ca00e3660a187039cb290ade8f7da2",
+      "spec_sha256": "f16d0ed5060f522097439060f8998d9770ad97e9ae5e90617ada6b45fc774934",
+      "program_sha256": "e9fd6e590edd2a257d7303e6b18158830857022abc55e4e52f864ac5d6f60177",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/15036b155bfa4548b029d93a4cd721d8/figure.py"
+    },
+    {
+      "id": "line-fc15eaad00d96376",
+      "kind": "line",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "fc15eaad00d96376f46998cc72200a82b505f935e01a410bbe61c9b21396bdcf",
+      "program_sha256": "0036d630206702e439204f8634adfa6cd296095432061973caddf731405bd848",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/7e63c3f1730b4de4b8eef69acf3a9879/figure.py"
+    },
+    {
+      "id": "paired_difference-19dd38e873a72ae0",
+      "kind": "paired_difference",
+      "data": "data.csv",
+      "data_sha256": "fd6b8fc706c0697714719f33e65d986eadd17526df4986a86fa96dc57b3c0549",
+      "spec_sha256": "19dd38e873a72ae0890a61bf58b0298ffa6464dc962ddad9df04579d1e54377f",
+      "program_sha256": "f7234494acfd1ef85fbecf2eca69f452c8e0406bcf9dfc59d976750f3638b965",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/194c251fd73242c2ad123eb390395ee6/figure.py"
+    },
+    {
+      "id": "qq-1931c8e02399027c",
+      "kind": "qq",
+      "data": "data.csv",
+      "data_sha256": "7d93b8ec0f06431edc53956caa44ac5797b3ec79cf07066a4dc08dd7fff40e67",
+      "spec_sha256": "1931c8e02399027cc4af16e906bc8100dde3eee9e8909a6d49b1114edc44c1f4",
+      "program_sha256": "ae6393cdec2ec22a78cca46a2f643b7e6414ba227764e13d932b0423d2f7250e",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/d91104c11f584458af1287dc81a02c4d/figure.py"
+    },
+    {
+      "id": "raincloud-b2c37c9fc161f051",
+      "kind": "raincloud",
+      "data": "data.csv",
+      "data_sha256": "345e12825eb2839b71770fdd45b38d6e87d4b00d561f17c56556e1af40615504",
+      "spec_sha256": "b2c37c9fc161f051fdee583518cdf76c52a949c04da6af6b4cd23b95c67b0b10",
+      "program_sha256": "df40dac17df24b1f5d8efce23ab0116563c01fe09f1423ede0ce37bf5ff42013",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/7b87900521564b88b1f48f8954e2f66c/figure.py"
+    },
+    {
+      "id": "ridgeline-2d34cfc702b33237",
+      "kind": "ridgeline",
+      "data": "data.csv",
+      "data_sha256": "345e12825eb2839b71770fdd45b38d6e87d4b00d561f17c56556e1af40615504",
+      "spec_sha256": "2d34cfc702b3323720344deb1c42e23e43cc2ff893743519ad65d8c4f28095d9",
+      "program_sha256": "656343472993da8b515be44a9cabdc976c4318c33f83731ee6c0686214f70565",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/01e5b8097fae44aca6b220666f644bed/figure.py"
+    },
+    {
+      "id": "scaling_fit-16aadc978c90b63a",
+      "kind": "scaling_fit",
+      "data": "data.csv",
+      "data_sha256": "7bbd2bb3569b2190cc748c1a8dff10006b5fba94b3dd33d80830b396b3305e56",
+      "spec_sha256": "16aadc978c90b63ad2a6c205f22fad66d4851d22abd9fcbfa5e29f76be328dd8",
+      "program_sha256": "a16e68bb2b24aed05448687cfaa1c8d916474140f5c41decfed19cb9db0111a1",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/6eaaa159346a4a25942b175c718ad5d7/figure.py"
+    },
+    {
+      "id": "scatter-ac042622f601b941",
+      "kind": "scatter",
+      "data": "data.csv",
+      "data_sha256": "f5db316b67a55e4edfe23c3d592f71fdf3479201610132cecb906b4e3ffba303",
+      "spec_sha256": "ac042622f601b941b8ce95c69bcca1cc529e89c479d1b8ab1a0cad117d1f476d",
+      "program_sha256": "2187b75894e69b7a838376217e8585f5bc2d7edc43ba4a71b78e19c521b4c307",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/1361f5354dfd4f90bb3bcf106a0a0e2d/figure.py"
+    },
+    {
+      "id": "scatter-b5a25f4717e41194",
+      "kind": "scatter",
+      "data": "data.csv",
+      "data_sha256": "7bbd2bb3569b2190cc748c1a8dff10006b5fba94b3dd33d80830b396b3305e56",
+      "spec_sha256": "b5a25f4717e411942ff9eabbed574d269beb3cb74df55ce30596f3989dcd20de",
+      "program_sha256": "180ad45972f231d0ab4c8ebbbd04e1378a2928efe71e1124aac032b04bb22bdf",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/a8abc31365e543b7a18514c342837417/figure.py"
+    },
+    {
+      "id": "slope-a3b2cd4821260be1",
+      "kind": "slope",
+      "data": "data.csv",
+      "data_sha256": "818c37d5768f3b7306f407f5708c4cf586c58215978def29545a347d128c8fe5",
+      "spec_sha256": "a3b2cd4821260be1511e10ddd32570af2f80316e3c7b318235f370ef172b0c4f",
+      "program_sha256": "94c26580d3101b951177fc69eb2b9a0ec9b06666738a9104ff5d203a4edd2321",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/d0830612cf904da89bb1021468e51fea/figure.py"
+    },
+    {
+      "id": "sparkline_grid-19a33488881b6e75",
+      "kind": "sparkline_grid",
+      "data": "data.csv",
+      "data_sha256": "8929fcfafc37c1ce529841c06230e2c5e351a8b378e48524fb6b1e61243a0b19",
+      "spec_sha256": "19a33488881b6e754e517b476ba5e9cfb471b2eb787fbf11ce78a4b96bb5e257",
+      "program_sha256": "24b5795647a1b37899596aa741ad036860f3ff51dad11232d424cfa881905e58",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/bf9f1b82b1b34ba580efd8d8239c5df0/figure.py"
+    },
+    {
+      "id": "table-7d893df8fae9f3e3",
+      "kind": "table",
+      "data": "data.csv",
+      "data_sha256": "90fdde9f68588d74698f59c004f9114b7f1bd67ea4a2d538ce4db49621b6898b",
+      "spec_sha256": "7d893df8fae9f3e3e90b68db1defb80e2b5da76ceb5468d2074b69d309195072",
+      "program_sha256": "4a945253d79d6e1e44a949f572425564857d82c30e57c461f013d0c8d2379494",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/86ed75ce4d3f4e35be53cdef7d10c9bf/figure.py"
+    },
+    {
+      "id": "violin-e987758e17f6d8c1",
+      "kind": "violin",
+      "data": "data.csv",
+      "data_sha256": "bf0dec88f46dbefa1a53ff4920f4a24058718bff99e231499d13e961f352d4cd",
+      "spec_sha256": "e987758e17f6d8c157c9607649f10f684c2f935efd9a759b97c9f8af3b5c114b",
+      "program_sha256": "50e75b24ef1392c4428927fdba39bea0713a3e1ef2aa50f4c76e849a85fcefab",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/f779827a9a704245a8f7f0e04dc2d91f/figure.py"
+    },
+    {
+      "id": "waterfall-679c8ffe74972501",
+      "kind": "waterfall",
+      "data": "data.csv",
+      "data_sha256": "aefbfc516824d632612940d14887b1bf56520987745552caaa23034d46e00fa8",
+      "spec_sha256": "679c8ffe74972501cd1c40e66f4c7ea579b4c449e89c085d1ab7074d4ef9decd",
+      "program_sha256": "87b0449ea08a24ac97bbc7930e8a4724e07fd06830956e2ff38406a9adede6bc",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "formats": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "archive_source": "process/runs/1ba47944179f4684ba76b5955c519660/figure.py"
+    }
+  ],
+  "arms": [
+    "accepted-inline",
+    "default-shared",
+    "standalone-bundle"
+  ],
+  "native": {
+    "arms": [
+      "accepted-inline",
+      "default-shared"
+    ],
+    "cold_fonts": 1,
+    "warm_repetitions": 7,
+    "instrumented_original": 1,
+    "native_request_budget": 16,
+    "compiler_request_budget": 64,
+    "cache_entries": 64,
+    "cache_serialized_bytes": 33554432,
+    "arm_order": "alternate per case; fresh owned server/context/fonts per case and arm"
+  },
+  "direct": {
+    "arms": [
+      "accepted-inline",
+      "default-shared",
+      "standalone-bundle"
+    ],
+    "cold_fonts": 1,
+    "warm_repetitions": 3,
+    "outside_checkout": true,
+    "bundle_graphunslopify_distribution_installed": false,
+    "same_scientific_dependencies": true
+  },
+  "smoke": {
+    "warm_native_repetitions": 1,
+    "direct_repetitions": 1,
+    "retain_all30_cases": true
+  },
+  "measures": [
+    "entry bytes/lines",
+    "actual required runtime file bytes/lines",
+    "actual source package bytes/lines",
+    "complete bundle bytes and member bytes/lines",
+    "environment/setup separately",
+    "direct process startup/execution",
+    "native source load/compile/execution and full strict result",
+    "all raw repetitions and timed/untimed/unrun/failed counts"
+  ],
+  "conformance": [
+    "all original statuses/exit codes including negatives",
+    "original data/spec identifiers/units/seeded uncertainty/claims/formats",
+    "actual numeric artists/pixels/geometry/maps/report values with only validated ephemeral identity removed",
+    "source/minimum/fresh and absent/wrong runtime",
+    "bundled outside-checkout strict reproduction without an installed GraphUnslopify distribution",
+    "unchanged original independent-reference/NIST literal protocols"
+  ],
+  "analysis": "Report each exact case/arm separately with ordinary median/p90. Separate cold fonts, profile samples and setup. No pooling changed cases, fabricated verified time, discarded slower/failed/partial attempts or universal/human speed claims. Baseline/current use the same actual scientific dependencies; dependency changes reported explicitly. Whole runtime/bundle footprint cannot be replaced by entry-script size.",
+  "missing_wrong_runtime": "Require actual source/capability/ABI binding and actionable non-success for absent, outdated or tampered runtime. No nominal0.8.0-only acceptance.",
+  "delivery": "Every coherent milestone seven checks, relevant gallery/baselines/reference checks, push then exact all-nine/Figure CI before next implementation."
+}

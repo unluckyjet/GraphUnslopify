@@ -1,0 +1,218 @@
+{
+  "published_pngs": 15,
+  "all_actual_dimensions_and_pixels_unchanged": true,
+  "before": {
+    "examples/baseline/01-training-curve.png": {
+      "size": [
+        2668,
+        1691
+      ],
+      "rgba_sha256": "95a36784630970625dd40cf5b82505763d33b314ea2d01f70a98999044169def"
+    },
+    "examples/baseline/02-loss-log.png": {
+      "size": [
+        1988,
+        1500
+      ],
+      "rgba_sha256": "b759074132f200eb20036e2e62754f72bc72d6406f8bc513c805ce204ce44714"
+    },
+    "examples/baseline/03-single-run.png": {
+      "size": [
+        1991,
+        1509
+      ],
+      "rgba_sha256": "adf809cc82c06b66bb58707ed66ad7cd8a941f29a20c845ecd461a95cb81c501"
+    },
+    "examples/baseline/04-accuracy-by-dataset.png": {
+      "size": [
+        1991,
+        1993
+      ],
+      "rgba_sha256": "e66cfb70963ea3151951bb0eb5c7330977c5f0c5d6ef830a55409258cab72028"
+    },
+    "examples/baseline/05-latency-ranking.png": {
+      "size": [
+        1991,
+        1500
+      ],
+      "rgba_sha256": "0022efd09dfbafbed203be7321ba9e18dff13ae38e05b987e7c80d83bc496185"
+    },
+    "examples/baseline/06-accuracy-vs-latency.png": {
+      "size": [
+        1991,
+        2002
+      ],
+      "rgba_sha256": "811af0189f2c63bf38348cda407772f54ab4a8aefb220619f48539199af93a5b"
+    },
+    "examples/baseline/07-params-trendline.png": {
+      "size": [
+        1991,
+        1509
+      ],
+      "rgba_sha256": "0aa8d4547898ac03b32f768b839cfeb13a742fa50a4831aa96298f9a1b0bd7e8"
+    },
+    "examples/baseline/08-compact-double-column.png": {
+      "size": [
+        4175,
+        2490
+      ],
+      "rgba_sha256": "c40c12e2f784a7c7e2b582868b8cfabf3ae657325699530e9448e982d6ecebfc"
+    },
+    "examples/baseline/09-uncertainty-band.png": {
+      "size": [
+        4828,
+        2460
+      ],
+      "rgba_sha256": "073a42837b8008775254554724a02b3842d371ea959fbb7459a40734366eaa2f"
+    },
+    "examples/baseline/10-faceted-benchmarks.png": {
+      "size": [
+        4151,
+        2501
+      ],
+      "rgba_sha256": "ce8987c2f9c3a622fafa75d44eb2cb0b32c7c6d231637db951455d80ef40705f"
+    },
+    "examples/baseline/11-seed-spread.png": {
+      "size": [
+        1925,
+        1503
+      ],
+      "rgba_sha256": "6c1275c09a9ac4b134912a97acf455342ffa815bc84f21f55941e50bf26a33af"
+    },
+    "examples/baseline/12-sweep-heatmap.png": {
+      "size": [
+        1990,
+        1515
+      ],
+      "rgba_sha256": "a12a36fd5d3c4c7549fcc4211e02e7bc7a2d5aed5af8152e25c765b4691995ef"
+    },
+    "examples/baseline/13-direct-labels.png": {
+      "size": [
+        4151,
+        2469
+      ],
+      "rgba_sha256": "b531959b6ec90b6073f807fe4047d6cf1507c940c4cffc76f477ecf8eb729257"
+    },
+    "examples/baseline/14-animated-curve.png": {
+      "size": [
+        4828,
+        2466
+      ],
+      "rgba_sha256": "aa1863b112a0898a96dddea3b617cb0cb39640388dfb96abd36e29cc05e97770"
+    },
+    "examples/baseline/15-price-and-average.png": {
+      "size": [
+        4147,
+        2466
+      ],
+      "rgba_sha256": "da7eedab86dd785034965c5352c5a9dcb5a97b63b5c62495a24c441f4e4b4328"
+    }
+  },
+  "after": {
+    "examples/baseline/01-training-curve.png": {
+      "size": [
+        2668,
+        1691
+      ],
+      "rgba_sha256": "95a36784630970625dd40cf5b82505763d33b314ea2d01f70a98999044169def"
+    },
+    "examples/baseline/02-loss-log.png": {
+      "size": [
+        1988,
+        1500
+      ],
+      "rgba_sha256": "b759074132f200eb20036e2e62754f72bc72d6406f8bc513c805ce204ce44714"
+    },
+    "examples/baseline/03-single-run.png": {
+      "size": [
+        1991,
+        1509
+      ],
+      "rgba_sha256": "adf809cc82c06b66bb58707ed66ad7cd8a941f29a20c845ecd461a95cb81c501"
+    },
+    "examples/baseline/04-accuracy-by-dataset.png": {
+      "size": [
+        1991,
+        1993
+      ],
+      "rgba_sha256": "e66cfb70963ea3151951bb0eb5c7330977c5f0c5d6ef830a55409258cab72028"
+    },
+    "examples/baseline/05-latency-ranking.png": {
+      "size": [
+        1991,
+        1500
+      ],
+      "rgba_sha256": "0022efd09dfbafbed203be7321ba9e18dff13ae38e05b987e7c80d83bc496185"
+    },
+    "examples/baseline/06-accuracy-vs-latency.png": {
+      "size": [
+        1991,
+        2002
+      ],
+      "rgba_sha256": "811af0189f2c63bf38348cda407772f54ab4a8aefb220619f48539199af93a5b"
+    },
+    "examples/baseline/07-params-trendline.png": {
+      "size": [
+        1991,
+        1509
+      ],
+      "rgba_sha256": "0aa8d4547898ac03b32f768b839cfeb13a742fa50a4831aa96298f9a1b0bd7e8"
+    },
+    "examples/baseline/08-compact-double-column.png": {
+      "size": [
+        4175,
+        2490
+      ],
+      "rgba_sha256": "c40c12e2f784a7c7e2b582868b8cfabf3ae657325699530e9448e982d6ecebfc"
+    },
+    "examples/baseline/09-uncertainty-band.png": {
+      "size": [
+        4828,
+        2460
+      ],
+      "rgba_sha256": "073a42837b8008775254554724a02b3842d371ea959fbb7459a40734366eaa2f"
+    },
+    "examples/baseline/10-faceted-benchmarks.png": {
+      "size": [
+        4151,
+        2501
+      ],
+      "rgba_sha256": "ce8987c2f9c3a622fafa75d44eb2cb0b32c7c6d231637db951455d80ef40705f"
+    },
+    "examples/baseline/11-seed-spread.png": {
+      "size": [
+        1925,
+        1503
+      ],
+      "rgba_sha256": "6c1275c09a9ac4b134912a97acf455342ffa815bc84f21f55941e50bf26a33af"
+    },
+    "examples/baseline/12-sweep-heatmap.png": {
+      "size": [
+        1990,
+        1515
+      ],
+      "rgba_sha256": "a12a36fd5d3c4c7549fcc4211e02e7bc7a2d5aed5af8152e25c765b4691995ef"
+    },
+    "examples/baseline/13-direct-labels.png": {
+      "size": [
+        4151,
+        2469
+      ],
+      "rgba_sha256": "b531959b6ec90b6073f807fe4047d6cf1507c940c4cffc76f477ecf8eb729257"
+    },
+    "examples/baseline/14-animated-curve.png": {
+      "size": [
+        4828,
+        2466
+      ],
+      "rgba_sha256": "aa1863b112a0898a96dddea3b617cb0cb39640388dfb96abd36e29cc05e97770"
+    },
+    "examples/baseline/15-price-and-average.png": {
+      "size": [
+        4147,
+        2466
+      ],
+      "rgba_sha256": "da7eedab86dd785034965c5352c5a9dcb5a97b63b5c62495a24c441f4e4b4328"
+    }
+  }
+}

@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "id": "staged-preview-v1",
+  "accepted_base": "bbcef49da2637b35e9c77299ae87f14b30ead8ae",
+  "frozen_after_exact_ci": {
+    "main": 41169738321,
+    "figure": 41169738378,
+    "verified_at": "2026-10-31T05:10:08.899385+00:00"
+  },
+  "scope": "Developer-selected browser engineering comparison frozen before staged implementation/formal timing. No held-out, independent-execution, human productivity or general speed claim. Preserve literal numerical-cache-v1 and v4/NIST protocols.",
+  "numerical_cache_protocol_sha256": "4ceea4fd44e4e412cc4cc38caa0380f04b4a0ead4e29695124030ecb91131bf0",
+  "cases": [
+    {
+      "id": "demo-bootstrap",
+      "data": "../rendering/cases/demo-bootstrap/data.csv",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/demo-bootstrap/original.json",
+          "spec_sha256": "328cae4178e2263b6edd571ec53d6ed7408fd65305acda6b9abbeffa3a38d153"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/demo-bootstrap/title-a.json",
+          "spec_sha256": "46420302bfe8c7a975b60c7e1983e3a59f7dd09aedbd62c525d34956954c8c12"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/demo-bootstrap/title-b.json",
+          "spec_sha256": "54f0370fd723b0aaed886d71052da38d324f45bc3d629532b127657d2494789d"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/demo-bootstrap/dpi.json",
+          "spec_sha256": "71a513614703cffa6739a146e0e6baf32cd79d39a9004c54557163cfcff921e6"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/demo-bootstrap/numeric-filter-config.json",
+          "spec_sha256": "a114c39f0fb68fdea100bf5bf756eab0b276cbdc537481f532258573b419b51e"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/demo-bootstrap/title-after-filter.json",
+          "spec_sha256": "49481ae27044e09bcccbbdb6eae7406615cce48acb5e3fe0a5e29d8e35370816"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/demo-bootstrap/return-to-original-calculation.json",
+          "spec_sha256": "ae00d748361297041d93394179b96d3cb21e491977738fe078f916102e795cf3"
+        }
+      ]
+    },
+    {
+      "id": "long-sparkline",
+      "data": "../rendering/cases/long-sparkline/data.csv",
+      "data_sha256": "a2454cfd3075110b87a3b4d373a348bc8adfd83d68d579fece14dd9efdcc9a51",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/long-sparkline/original.json",
+          "spec_sha256": "62216c6432bec1245cfd37d3ff0c5595707e108935e7d1cdccb442b1ed541672"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/long-sparkline/title-a.json",
+          "spec_sha256": "2c41adf342278efd60e750ca4905b1623d6b5920d7ccf45bdeb0571a11a7ec98"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/long-sparkline/title-b.json",
+          "spec_sha256": "9bda5a56c8ea49b4bee0466a173533186bdea8377b1b6a87af0cec454901c006"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/long-sparkline/dpi.json",
+          "spec_sha256": "815f20357f3a913fe0951de1dea932f9eeff1e0dd9f29809fdee81a37bb5c2b4"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/long-sparkline/numeric-filter-config.json",
+          "spec_sha256": "437891b36c41eb9ad4cee2c47e5ab33f59f7bb6add53ef6114cc4f9970aec544"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/long-sparkline/title-after-filter.json",
+          "spec_sha256": "052593d840fa8fc8ec87ea10bab4fd0ce61129b719ec05b609512af1cfcbe8d5"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/long-sparkline/return-to-original-calculation.json",
+          "spec_sha256": "6e7616d9dc11b6033e52e26b41146cd0fe62a95377201d81ab30cf9629c5203e"
+        }
+      ]
+    },
+    {
+      "id": "long-grouped-table",
+      "data": "../rendering/cases/long-grouped-table/data.csv",
+      "data_sha256": "27ede3e03ed9e4f6397ce30a5dfe28a63d308cbe77b079c5c16f0f4b14f33946",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/long-grouped-table/original.json",
+          "spec_sha256": "6fe5d2d6fe80042579c636d7c65949485f0116b79be2423bcf79fb3d36589d6a"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/long-grouped-table/title-a.json",
+          "spec_sha256": "8b40a972dce9fbae649ab9ca874d1aa10ee7a3facb8f9a4c94a623de5496da87"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/long-grouped-table/title-b.json",
+          "spec_sha256": "a212f6b26c50e6bfbfb089239f326cedf0f546226fbcca617f88c05cc5d4caab"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/long-grouped-table/dpi.json",
+          "spec_sha256": "76f78d2ebfd5beb020ed4f0373b50da2ee5fd4b043f932b952fbf73bf02bd50e"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/long-grouped-table/numeric-filter-config.json",
+          "spec_sha256": "60b6fa34e159be27dfd6bfcfea41f32001865fd1a70e2144a1871886439c7e60"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/long-grouped-table/title-after-filter.json",
+          "spec_sha256": "f4a497cf47e14d278fea399a19c1bb828da9e92c088c167ee3d86c9edd207371"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/long-grouped-table/return-to-original-calculation.json",
+          "spec_sha256": "1f868cba2b0140c1ab74bd827d5c41a9f0d9ac9d6ac74223fd76ada4b8c04a74"
+        }
+      ]
+    },
+    {
+      "id": "dense-median-bootstrap",
+      "data": "../rendering/cases/dense-median-bootstrap-v2/data.csv",
+      "data_sha256": "9f0560bfec5a1acb9495008a0248cd2fd9ca5a36eb5c9aa65d58934e3e9ecae3",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/dense-median-bootstrap/original.json",
+          "spec_sha256": "4f21ef983b56a60e78727fc41b22b447e42321e8fe66329138c75409bb2abd15"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/dense-median-bootstrap/title-a.json",
+          "spec_sha256": "7fca000a1e9ff73d9c71882858cec9501236c88cffbf1ed61e6a9ebdfd0dbc13"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/dense-median-bootstrap/title-b.json",
+          "spec_sha256": "b94c2013d8fffdfef25a1f0c4ffa50699a4eb1b3f1b8a3d95f8b2a32612b61c2"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/dense-median-bootstrap/dpi.json",
+          "spec_sha256": "31b5240765763797695769943c384903611a23ea773c97094700594f1243064f"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/dense-median-bootstrap/numeric-filter-config.json",
+          "spec_sha256": "a0909b045dbcec6aad718f7b4c64040ea67efeb20bbf5f4f47b3e01d645b77d3"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/dense-median-bootstrap/title-after-filter.json",
+          "spec_sha256": "9a5e01cde5e126afa26f536102b790366bf0eb204d12ced0b814950456db666f"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/dense-median-bootstrap/return-to-original-calculation.json",
+          "spec_sha256": "c22c2b6ea9daf6fe71436611df74bd3f5d64ef454b058419cacb528d4d0fe1b1"
+        }
+      ]
+    },
+    {
+      "id": "false-comparison",
+      "data": "../rendering/cases/false-comparison/data.csv",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "expected_exit_code": 2,
+      "expected_status": "failed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/false-comparison/original.json",
+          "spec_sha256": "845d123b348d1bbd99dd43bdc861185f875b7c84a00fcea49bb117fc6fa73e60"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/false-comparison/title-a.json",
+          "spec_sha256": "cd22b2af7adfe1eafab6b1913fbef897c1bf54d79435530b825543d805deb763"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/false-comparison/title-b.json",
+          "spec_sha256": "3b532a73e37a8f7263aee0c4c37bb55571e32a13eaf7bb87ff15df9439f0e8eb"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/false-comparison/dpi.json",
+          "spec_sha256": "5eb6a5f2a8224fd8911d94b6d3260a5ed035e37e2794f97b562e19909b35e7e4"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/false-comparison/numeric-filter-config.json",
+          "spec_sha256": "bcdc3508e27ff6fb2a6370c281c5ff8912dd06f657cebd99fcbe1a1259741eaa"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/false-comparison/title-after-filter.json",
+          "spec_sha256": "bcccbaa959781359aef42c442936587c91b7847b74d6b24b52739ba4386faf0f"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/false-comparison/return-to-original-calculation.json",
+          "spec_sha256": "bd6aea48df0239c675d3214430f0649bdccc2c3d8fb00df42b6c53a9e47edc64"
+        }
+      ]
+    },
+    {
+      "id": "png-only-control",
+      "data": "../rendering/cases/demo-bootstrap/data.csv",
+      "data_sha256": "3a6c3eb05c4dc08cd33786da901bf70c15e7594480d5e215fce7d32237ba7a3e",
+      "expected_exit_code": 0,
+      "expected_status": "passed",
+      "edits": [
+        {
+          "id": "original",
+          "spec": "cases/png-only-control/original.json",
+          "spec_sha256": "b510d90fcba1c07d5e1aa747cea12c01e11278c69157589bf373365861082057"
+        },
+        {
+          "id": "title-a",
+          "spec": "cases/png-only-control/title-a.json",
+          "spec_sha256": "21d344400580ed843f2b35da3d0378452d187b407acfc56ec9ad648dd6627e40"
+        },
+        {
+          "id": "title-b",
+          "spec": "cases/png-only-control/title-b.json",
+          "spec_sha256": "1a67484a0138d850b4ed451a8d907bfa6e84da7e271ffe2264bd91e58943a8f6"
+        },
+        {
+          "id": "dpi",
+          "spec": "cases/png-only-control/dpi.json",
+          "spec_sha256": "15d17b5a4878e64e99d7b16c10f281e747b77287e01212ea8b0d4618c4df8350"
+        },
+        {
+          "id": "numeric-filter-config",
+          "spec": "cases/png-only-control/numeric-filter-config.json",
+          "spec_sha256": "7909005de2626e19cded964190b5ef588c12d1fc7d4505d7b5a29374cafd4d44"
+        },
+        {
+          "id": "title-after-filter",
+          "spec": "cases/png-only-control/title-after-filter.json",
+          "spec_sha256": "de824cdc05feb3d582aabbcc73eb017edbf510e1364bc554410ed7699c536f06"
+        },
+        {
+          "id": "return-to-original-calculation",
+          "spec": "cases/png-only-control/return-to-original-calculation.json",
+          "spec_sha256": "378f875fe50b2a5ec5ce6d77cffa83f2232de9faf2b16d94b3daf619d9cd72fb"
+        }
+      ],
+      "scope": "Separate PNG-only control; retain all five original three-format primary cases unchanged."
+    }
+  ],
+  "arms": [
+    "final-only",
+    "staged"
+  ],
+  "both_arms": {
+    "owned_native_and_compiler_workers": true,
+    "numerical_cache": true,
+    "native_max_requests": 16,
+    "compiler_max_requests": 64,
+    "same_original_strict_script": true,
+    "original_requested_format_order": true,
+    "extra_preview_renders": false
+  },
+  "schedule": {
+    "arm_order": "alternate by case; new server/context and initially fresh font directory per arm/case",
+    "cold": {
+      "edit": "original",
+      "calls": 1,
+      "separate": true
+    },
+    "ordinary": {
+      "cycles": 7,
+      "edits": "all seven in listed order per cycle"
+    },
+    "instrumented": {
+      "edit": "original",
+      "calls": 1,
+      "after_ordinary": true,
+      "separate": true
+    },
+    "smoke_cycles": 1,
+    "formal_records": 612,
+    "formal_clean_exit0": 510,
+    "formal_original_false_claim_exit2": 102,
+    "smoke_records": 108,
+    "smoke_clean_exit0": 90,
+    "smoke_original_false_claim_exit2": 18,
+    "preserve_actual_epochs_and_call_counts": "Real GUI validation and render conversions both count; retain all64-operation compiler and16-job native recycling/startup costs."
+  },
+  "clocks": {
+    "primary_start": "actual browser Render click after uploading/selecting data and entering frozen intent",
+    "first_image": "actual current-revision image decoded and mounted; distinguish provisional versus final, record no-provisional-observed explicitly",
+    "final_result": "actual current final strict result rendered, with expected status/exit and original final PNG/artifacts/maps; use final-failure latency for original negatives, verified time only for passed results",
+    "included": [
+      "browser validation",
+      "conversion",
+      "current data/math/cache work",
+      "owned startup/recycling",
+      "stage copying/hashing",
+      "stage transport/poll/decode",
+      "all original exports/inspection",
+      "current final report/map binding and DOM"
+    ],
+    "separate": [
+      "server/browser startup",
+      "dataset upload/selection",
+      "intent setup",
+      "first-font/cold calls",
+      "instrumented samples",
+      "post-render independent artifact hashing"
+    ],
+    "uncontrolled": [
+      "OS caches",
+      "host scheduling"
+    ],
+    "summary": "per case and exact edit seven ordinary medians/p90s; no pooling changed titles/DPI, no exclusion of slower/failed/partial/negative attempts",
+    "png_only_control": "report separately; early-image benefit may be absent, do not insert artificial delay into performance runs"
+  },
+  "gates": [
+    "exact literal protocol/spec/data hashes",
+    "identical final script/spec/data/science/PNG/table/maps across arms for each variant",
+    "actual source and installed import ownership",
+    "provisional image remains explicitly unverified with no final exports/maps",
+    "observed stage PNG bytes match its actual final PNG",
+    "original false claims remain strict exit2",
+    "all native/processor cache ownership and budgets",
+    "no timing or hit-rate threshold",
+    "retain stage-unavailable, no-early-observation and partial results"
+  ]
+}

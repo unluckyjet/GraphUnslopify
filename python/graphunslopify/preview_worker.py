@@ -148,6 +148,9 @@ class RenderWorker:
             profile_script = native[3]
             native = native[4:]
             profiled = True
+        provisional = native[:1] == ["--provisional"]
+        if provisional:
+            native = native[1:]
         if len(native) != 11:
             raise WorkerError("Worker native arguments are invalid")
         script = Path(native[6])
@@ -169,7 +172,14 @@ class RenderWorker:
         ):
             raise WorkerError("Worker arguments escape the current owned run")
         result, execution = self.process.request(
-            {"job": folder.name, "stem": stem, "sha256": signature, "profile": profiled}, timeout
+            {
+                "job": folder.name,
+                "stem": stem,
+                "sha256": signature,
+                "profile": profiled,
+                "provisional": provisional,
+            },
+            timeout,
         )
         if (
             not isinstance(result, dict)
@@ -184,6 +194,10 @@ class RenderWorker:
             raise WorkerError("Worker script changed during execution")
         execution["runtime_source_sha256"] = self.source_signature
         execution["instrumented"] = profiled
+        if result.get("provisional") is not provisional:
+            self.close()
+            raise WorkerError("Provisional render completion mode changed")
+        execution["provisional"] = provisional
         cache = result.get("statistics_cache")
         if (
             not isinstance(cache, dict)
@@ -299,8 +313,9 @@ def main():
             payload = message.get("payload")
             if (
                 not isinstance(payload, dict)
-                or set(payload) != {"job", "stem", "sha256", "profile"}
+                or set(payload) != {"job", "stem", "sha256", "profile", "provisional"}
                 or type(payload["profile"]) is not bool
+                or type(payload["provisional"]) is not bool
             ):
                 raise WorkerError("Private render request is invalid")
             folder, script = _program(runs, payload["job"], payload["stem"], payload["sha256"])
@@ -315,6 +330,8 @@ def main():
             try:
                 os.chdir(folder)
                 sys.argv = ["preview-worker", *arguments(script, payload["stem"])]
+                if payload["provisional"]:
+                    sys.argv.insert(1, "--provisional")
                 with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
                     try:
                         if payload["profile"]:
@@ -355,6 +372,7 @@ def main():
                         "returncode": code,
                         "stdout": stdout.getvalue(),
                         "stderr": stderr.getvalue(),
+                        "provisional": payload["provisional"],
                         "statistics_cache": numerical_request.trace()
                         if numerical_request is not None
                         else {

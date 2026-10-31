@@ -9,6 +9,7 @@ import io
 import json
 import re
 import sys
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -85,6 +86,7 @@ def main():
     recipe_input.add_argument("--recipe-log", type=Path)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--installed", action="store_true")
+    parser.add_argument("--require-provisional", action="store_true")
     args = parser.parse_args()
     out = args.out_dir.resolve()
     if args.recipe_log:
@@ -108,6 +110,7 @@ def main():
         "preview.py",
         "preview_worker.py",
         "numerical_cache.py",
+        "preview_staging.py",
         "translator_worker.py",
         "transport.py",
         "drafts.py",
@@ -203,6 +206,7 @@ def main():
         reuse_renderer=True,
         reuse_translator=True,
         cache_statistics=True,
+        staged_preview=args.require_provisional,
     )
     result = {
         "scope": __doc__,
@@ -242,6 +246,11 @@ def main():
                             "generation": number,
                             "data_id": upload["id"],
                             "spec": spec,
+                            **(
+                                {"stage_id": uuid.uuid4().hex}
+                                if state is worker and args.require_provisional
+                                else {}
+                            ),
                         }
                     )
                     if answer["report"] is None:
@@ -261,6 +270,32 @@ def main():
                                 == answer["report"]["spec_hash"]
                             )
                     pair.append((fingerprint(state, answer), answer))
+                    if state is worker and args.require_provisional:
+                        attempt = next(
+                            r
+                            for r in state.stages.records.values()
+                            if r.generation == number
+                        )
+                        stage = state.stages.poll(
+                            attempt.ticket, "all-kinds", number, wait=False
+                        )
+                        assert (
+                            stage["phase"] == "unverified"
+                            and stage["verified"] is False
+                        )
+                        raw = state.stages.image(
+                            attempt.ticket, "all-kinds", number, stage["attempt"]
+                        )
+                        png = next(f for f in answer["files"] if f["format"] == "png")
+                        assert (
+                            raw
+                            == state.runs[answer["run_id"]]["files"][
+                                png["name"]
+                            ].read_bytes()
+                        )
+                        assert stage["producer_pid"] == answer["execution"]["pid"]
+                        assert answer["execution"]["provisional"] is True
+                        record["provisional"] = stage
                 assert pair[0][0] == pair[1][0], (
                     "Actual scientific report, PNG or table text differs"
                 )

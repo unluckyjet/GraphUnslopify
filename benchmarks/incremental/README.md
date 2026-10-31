@@ -113,5 +113,5 @@ and18 original strict-negative outcomes, with13 actual package assets each.
 The kind runner consumes accepted84's unchanged generated recipe fixtures
 (translator775390f1); the current seven checks independently rerun all recipes.
 
-All seven stable checks pass232 Node/1887 Python/zero skips/one upstream warning, Ruff149,361 unchanged files. Push and exact new main/Figure CI acceptance remain pending.
+All seven stable checks pass232 Node/1887 Python/zero skips/one upstream warning, Ruff149,361 unchanged files. Pushed bbcef49; exact main41169738321 all-nine/Figure41169738378 passed05:10UTC. The final acceptance and both actual Python90/45 result vectors are retained alongside these local records.
 85b's provisional/final UI and all86–89 scope remain open.

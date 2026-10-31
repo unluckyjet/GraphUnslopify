@@ -1,0 +1,47 @@
+{
+  "kind": "sparkline_grid",
+  "data": {
+    "path": "data.csv",
+    "format": "csv",
+    "columns": [
+      "step",
+      "value",
+      "other",
+      "prob",
+      "event",
+      "method",
+      "site"
+    ]
+  },
+  "x": {
+    "field": "step",
+    "label": "Step"
+  },
+  "y": {
+    "field": "value",
+    "label": "Value"
+  },
+  "group": "method",
+  "facet": {
+    "by": "site",
+    "columns": 2
+  },
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "series",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 150
+  },
+  "series_order": [
+    "Alternative treatment condition measured with the modified experimental preparation and complete follow-up schedule",
+    "Reference treatment condition measured with the original experimental preparation and complete follow-up schedule"
+  ],
+  "title": "Observed responses"
+}

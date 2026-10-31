@@ -1,0 +1,105 @@
+{
+  "scope": "85b1 backend image progress only;85b2 staged editor UI/formal612/smoke108 and86\u201389 remain open",
+  "source_base": "bbcef49da2637b35e9c77299ae87f14b30ead8ae",
+  "working_tree_ahead": true,
+  "local_checks": {
+    "seven_passed": true,
+    "unchanged_files": 411,
+    "node_tests": 232,
+    "python_tests": 1904,
+    "python_skipped": 0,
+    "python_upstream_warning": 1,
+    "ruff_files": 151
+  },
+  "focused_controls": {
+    "new_staging_distinct": 17,
+    "source_distinct": 48,
+    "minimum_distinct": 103,
+    "minimum_attempts": "101 passed/2 fixture KeyErrors; fixture-only title default corrected, both failed cases then pass",
+    "fresh_final_single_run": 103,
+    "fresh_setup": "First all-kind attempt lacked PyArrow; after installing actual fresh SciPy/PyArrow and verifying five science library paths,103 repeated and all-kind run uses a new output directory"
+  },
+  "native_kinds": {
+    "environments": [
+      "source",
+      "minimum",
+      "installed"
+    ],
+    "kinds_each": 21,
+    "pairs_each": 30,
+    "native_renders_each": 60,
+    "actual_assets_each": 13,
+    "provisional_bytes_equal_actual_final": true,
+    "original_strict_negative_preserved": true,
+    "fixture_origin": "Accepted85a recipe log; unchanged translator775390f1; current recipe-check independently passes25"
+  },
+  "actual_http": {
+    "early_image_while_genuine_check_held": true,
+    "original_checker_runs_after_release": true,
+    "strict_success_and_false_claim_failure": true,
+    "wrong_client_and_auth_refused": true,
+    "no_pending_final_artifact_or_bundle": true,
+    "duplicate_generation_and_two_client_races": true,
+    "inflight_server_close_joins_native_compiler_and_deletes_root": true,
+    "controlled_delay_is_not_latency_evidence": true
+  },
+  "old_editor_regression": {
+    "source_workflows": 101,
+    "native_responses": 91,
+    "compiler_responses": 91,
+    "all_provisional_modes": false,
+    "external_requests": 0,
+    "javascript_errors": 0,
+    "staged_ui_implemented": false
+  },
+  "installed": {
+    "all_wheel_package_files_match_source": 59,
+    "actual_http_stage_bytes_match_final": true,
+    "stage_never_verified": true,
+    "workers_closed": true,
+    "pypi_release": false
+  },
+  "frozen_next_comparison": {
+    "protocol_sha256": "cea35240ac9567bb2df5a93c1f074c645991fe0b78ada431b3cb98e6ca74d53d",
+    "intents": 42,
+    "formal": 612,
+    "smoke": 108,
+    "not_yet_measured": true
+  },
+  "bounds": "64 metadata records/128 current-client identities/16MiB per copied PNG; not global RSS/disk limits",
+  "ci": "New backend commit not yet pushed/accepted; exact85a prerequisite passed",
+  "evidence": {
+    "source-final-only-editor.json": {
+      "sha256": "24ca3995925542a476e7e431479f1f50bdff79e4a830cc66314c8ff69b7c28ae",
+      "bytes": 149875
+    },
+    "minimum-kindchecks.json": {
+      "sha256": "706b5d86a668f26da36dc9bb6cf92d6718567087f4c4bac5c0cc4acec312c639",
+      "bytes": 76327
+    },
+    "source-kindchecks.json": {
+      "sha256": "934660b120b92c0d570214e3ebf0220cde0cdd107ea0add7b17f1a31c87fd911",
+      "bytes": 76332
+    },
+    "local-gates.json": {
+      "sha256": "9f92cca21af8587dda7f4d5acf7adc51626fe195b64b56386297f0844dd9dbea",
+      "bytes": 1157
+    },
+    "tested-source-manifest.json": {
+      "sha256": "60b48b94454deb22fdb1cba7198f90333e66cc0f477860a4399636274aeb4f08",
+      "bytes": 47141
+    },
+    "installed-smoke.json": {
+      "sha256": "dc80d3e46999aa68665daa2c3cb32d28e8fa82a4da0b05be839a026852c793ca",
+      "bytes": 10006
+    },
+    "installed-source-binding.json": {
+      "sha256": "c3e35dd3faab0a3b31483aa73d836c90fa368142477983b2b7478b9d6e22a573",
+      "bytes": 6674
+    },
+    "installed-kindchecks.json": {
+      "sha256": "12477184e98455ed0861c02467d2d6d5f6c0e4ac5cf7e27c9e2e30359dc7bf12",
+      "bytes": 76381
+    }
+  }
+}

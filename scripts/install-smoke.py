@@ -120,11 +120,16 @@ def main() -> None:
         action="store_true",
         help="require current-source physical PDF inspection (also requires --pdf)",
     )
+    parser.add_argument("--require-provisional", action="store_true")
     args = parser.parse_args()
     if args.require_statistics_cache and not (
         args.require_render_worker and args.require_translator_worker
     ):
         parser.error("--require-statistics-cache requires both worker checks")
+    if args.require_provisional and not (
+        args.require_render_worker and args.require_translator_worker
+    ):
+        parser.error("--require-provisional requires both worker checks")
     if args.require_pdf_visual and not args.pdf:
         parser.error("--require-pdf-visual requires --pdf")
     if args.wheel is None:
@@ -1340,7 +1345,7 @@ def main() -> None:
     # Exercise the installed HTTP UI and static assets outside the checkout.
     editor_script = where / "editor-check.py"
     editor_script.write_text(
-        "import json, threading, urllib.request\n"
+        "import hashlib, json, threading, urllib.parse, urllib.request\n"
         "from urllib.error import HTTPError\n"
         "from graphunslopify.preview import PreviewServer\n"
         "def open_render(request):\n"
@@ -1367,16 +1372,34 @@ def main() -> None:
         "        with urllib.request.urlopen(request) as response: demo=json.load(response)\n"
         "        assert demo['data']['rows']==24\n"
         "        payload={'spec':demo['spec'],'data_id':demo['data']['id'],'client':'wheel','generation':1}\n"
-        "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
+        + ("        payload['stage_id']='1'*32\n" if args.require_provisional else "")
+        + "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
         "        with open_render(request) as response: result=json.load(response)\n"
         "        assert result['report']['status']=='passed'\n"
         "        assert any(f['format']=='png' for f in result['files'])\n"
+        + (
+            "        query=urllib.parse.urlencode({'client':'wheel','generation':1,'token':server.state.token})\n"
+            "        with urllib.request.urlopen(url+'/stage/'+payload['stage_id']+'?'+query) as response: provisional=json.load(response)\n"
+            "        assert provisional['phase']=='unverified' and provisional['verified'] is False\n"
+            "        assert provisional['producer_pid']==result['execution']['pid'] and result['execution']['provisional'] is True\n"
+            "        with urllib.request.urlopen(url+'/stage/'+payload['stage_id']+'/png?'+query+'&attempt='+provisional['attempt']) as response: provisional_png=response.read()\n"
+            "        png=next(f for f in result['files'] if f['format']=='png')\n"
+            "        with urllib.request.urlopen(url+'/artifact/'+result['run_id']+'/'+png['name']+'?token='+server.state.token) as response: assert response.read()==provisional_png\n"
+            "        assert hashlib.sha256(provisional_png).hexdigest()==provisional['image']['sha256']\n"
+            if args.require_provisional
+            else ""
+        )
         + (
             "        first=result['execution'];assert first['mode']=='worker' and first['process_started']\n"
             "        owned_process=server.state.worker.process.connection.process\n"
             "        assert first['pid']==owned_process.pid and first['request_number']==1\n"
             "        payload['generation']=2\n"
-            "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
+            + (
+                "        payload['stage_id']='2'*32\n"
+                if args.require_provisional
+                else ""
+            )
+            + "        request=urllib.request.Request(url+'/api/render',data=json.dumps(payload).encode(),headers={'X-Preview-Token':server.state.token})\n"
             "        with open_render(request) as response: second=json.load(response)\n"
             "        assert second['report']['status']=='passed' and not second['export_errors']\n"
             "        execution=second['execution'];assert execution['pid']==first['pid'] and execution['request_number']==2 and not execution['process_started']\n"
@@ -1413,7 +1436,7 @@ def main() -> None:
         )
         + (
             "assert compiler_process.poll() is not None\n"
-            "print(json.dumps({'passed':True,'renderer_first':first,'renderer_second':execution,'compiler_first':compiler_first,'compiler_second':compiler_second,'closed':True}))\n"
+            "print(json.dumps({'passed':True,'renderer_first':first,'renderer_second':execution,'compiler_first':compiler_first,'compiler_second':compiler_second,'provisional':globals().get('provisional'),'closed':True}))\n"
             if args.require_render_worker and args.require_translator_worker
             else ""
         ),

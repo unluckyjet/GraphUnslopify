@@ -1,0 +1,36 @@
+{
+  "kind": "table",
+  "title": "Observed responses across the complete original experimental measurement period (B)",
+  "x": {
+    "field": "dataset",
+    "label": "Dataset"
+  },
+  "y": {
+    "field": "value",
+    "label": "Observed response across the complete original experimental measurement period",
+    "unit": "fraction"
+  },
+  "legend": {
+    "show": false
+  },
+  "output": {
+    "size": "single_column",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "dpi": 150,
+    "stem": "context"
+  },
+  "group": "condition",
+  "data": {
+    "path": "data.csv",
+    "format": "csv",
+    "columns": [
+      "dataset",
+      "value",
+      "condition"
+    ]
+  }
+}

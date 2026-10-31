@@ -39,6 +39,7 @@ def main() -> None:
     parser.add_argument("--geometry", type=Path, required=True)
     parser.add_argument("--png", type=Path, required=True)
     parser.add_argument("--diagnostics", type=Path)
+    parser.add_argument("--provisional", action="store_true")
     parser.add_argument("script", type=Path)
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -60,7 +61,15 @@ def main() -> None:
     def save(figure: Any, filename: Any, *positional: Any, **options: Any):
         if isinstance(filename, (str, Path)) and Path(filename).resolve() == expected:
             with capture_png_geometry(figure, expected, args.geometry, diagnostics=snapshot):
-                return original(figure, filename, *positional, **options)
+                result = original(figure, filename, *positional, **options)
+            if args.provisional:
+                from .preview_staging import publish_png
+
+                try:
+                    publish_png(expected, args.script)
+                except (OSError, ValueError, TypeError, KeyError) as problem:
+                    print(f"Provisional preview unavailable: {problem}", file=sys.stderr)
+            return result
         return original(figure, filename, *positional, **options)
 
     def inspect(figure: Any, *positional: Any, **options: Any):

@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "returncode": 0,
+    "seconds": 0.4111449718475342,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "returncode": 0,
+    "seconds": 16.946003913879395,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "test:python"
+    ],
+    "returncode": 0,
+    "seconds": 534.6883761882782,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "baseline",
+      "--",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.17983102798461914,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "render-check"
+    ],
+    "returncode": 0,
+    "seconds": 7.142000198364258,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "recipe-check"
+    ],
+    "returncode": 0,
+    "seconds": 17.46962809562683,
+    "source_unchanged": true
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "compose-check"
+    ],
+    "returncode": 0,
+    "seconds": 3.0519449710845947,
+    "source_unchanged": true
+  }
+]

@@ -29,6 +29,7 @@ from .describe import profile
 from .drafts import InvalidDraft
 from .errors import SpecError
 from .preview_drafts import PreviewDrafts
+from .preview_staging import PreviewStages
 from .transport import local_request
 from .workbook import EXCEL_SUFFIXES, workbook_sheets
 
@@ -42,6 +43,7 @@ class PreviewState:
         reuse_renderer: bool = False,
         reuse_translator: bool = False,
         cache_statistics: bool = False,
+        staged_preview: bool = False,
         profile_driver: Path | None = None,
     ):
         self.root, self.max_upload = root.resolve(), max_upload
@@ -52,6 +54,7 @@ class PreviewState:
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
+        self.stages = PreviewStages(self.root) if staged_preview else None
         self.worker = None
         self.translator = None
         if reuse_translator:
@@ -66,6 +69,8 @@ class PreviewState:
             )
 
     def close(self):
+        if self.stages is not None:
+            self.stages.close()
         try:
             if self.worker is not None:
                 self.worker.close()
@@ -240,6 +245,21 @@ class PreviewState:
             or generation < 0
         ):
             raise ValueError("Invalid preview revision")
+        if payload.get("stage_id") is not None and self.stages is None:
+            raise ValueError("Provisional previews are unavailable in this session")
+        attempt = (
+            self.stages.begin(client, generation, payload.get("stage_id"))
+            if self.stages is not None
+            else None
+        )
+        try:
+            return self._render(payload, attempt)
+        finally:
+            if attempt is not None:
+                self.stages.finish(attempt)
+
+    def _render(self, payload, attempt):
+        client, generation = payload["client"], payload["generation"]
         with self.lock:
             self.generations[client] = max(generation, self.generations.get(client, -1))
         spec, data, palette = self.prepare(payload)
@@ -257,7 +277,9 @@ class PreviewState:
             return answer
         with self.render_lock:
             with self.lock:
-                if generation != self.generations[client]:
+                if generation != self.generations[client] or (
+                    attempt is not None and not self.stages.is_current(attempt)
+                ):
                     return {"generation": generation, "stale": True}
             identity = uuid.uuid4().hex
             folder = self.root / "runs" / identity
@@ -271,6 +293,11 @@ class PreviewState:
             stem = spec.get("output", {}).get("stem", "figure")
             script = folder / f"{stem}.py"
             script.write_text(translated["code"], encoding="utf8")
+            provisional = attempt is not None and attempt.ticket is not None
+            if provisional:
+                self.stages.bind(
+                    attempt, folder, stem, payload["data_id"], folder / data["filename"]
+                )
             completed = self._run_generated(
                 [
                     sys.executable,
@@ -283,6 +310,7 @@ class PreviewState:
                         f"sys.path.insert(0,{str(Path(__file__).resolve().parent.parent)!r}); "
                         "import runpy; runpy.run_module('graphunslopify.preview_render',run_name='__main__')"
                     ),
+                    *(["--provisional"] if provisional else []),
                     "--geometry",
                     f"{stem}.edit-map.json",
                     "--diagnostics",
@@ -334,7 +362,9 @@ class PreviewState:
             }
             with self.lock:
                 self.runs[identity] = record
-                stale = generation != self.generations[client]
+                stale = generation != self.generations[client] or (
+                    attempt is not None and not self.stages.is_current(attempt)
+                )
             answer.update(
                 {
                     "run_id": identity,
@@ -420,6 +450,7 @@ class PreviewServer(ThreadingHTTPServer):
         reuse_renderer: bool = True,
         reuse_translator: bool = True,
         cache_statistics: bool = True,
+        staged_preview: bool = True,
     ):
         self.temporary = tempfile.TemporaryDirectory(prefix="gu-preview-")
         self.state = PreviewState(
@@ -428,6 +459,7 @@ class PreviewServer(ThreadingHTTPServer):
             reuse_renderer=reuse_renderer,
             reuse_translator=reuse_translator,
             cache_statistics=cache_statistics and reuse_renderer,
+            staged_preview=staged_preview,
         )
         super().__init__(("127.0.0.1", port), PreviewHandler)
 
@@ -553,10 +585,35 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "schema": self.server.state.local_request("schema"),
                     "diagnostics": catalog(),
                     "max_upload_mb": self.server.state.max_upload // 1024 // 1024,
+                    "staged_preview": self.server.state.stages is not None,
                 }
             )
             return
         parts = route.strip("/").split("/")
+        if len(parts) in {2, 3} and parts[0] == "stage":
+            try:
+                stages = self.server.state.stages
+                if stages is None:
+                    raise ValueError("Provisional previews are unavailable")
+                query = parse_qs(urlsplit(self.path).query)
+                client = query.get("client", [""])[0]
+                generation = query.get("generation", [""])[0]
+                if re.fullmatch("[0-9]{1,32}", generation) is None:
+                    raise ValueError("Invalid provisional revision")
+                if len(parts) == 2:
+                    self.json(stages.poll(parts[1], client, int(generation)))
+                elif parts[2] == "png":
+                    self.send(
+                        stages.image(
+                            parts[1], client, int(generation), query.get("attempt", [""])[0]
+                        ),
+                        "image/png",
+                    )
+                else:
+                    raise ValueError("Unknown provisional output")
+            except (ValueError, OSError, TypeError) as problem:
+                self.json({"error": str(problem), "verified": False}, 404)
+            return
         if len(parts) == 3 and parts[0] == "artifact":
             run = self.server.state.runs.get(parts[1])
             path = run["files"].get(unquote(parts[2])) if run else None

@@ -63,5 +63,28 @@ Dense title-B warm medians1.078802s uncached/0.338521s cached; small-case change
 are mostly milliseconds and include slower edits. Minimum/fresh86 controls,
 source/fresh101 editor workflows,21-kind60 renders per environment and
 minimum/fresh90 smoke pass. Exact39 Python/bundle plus JSON/license match.
-All seven stable checks pass232/1887/Ruff149 on361 unchanged source/test/fixture files; zero skips and one upstream warning. Push/exact CI remain pending.85b is unimplemented.
+All seven stable checks pass232/1887/Ruff149 on361 unchanged source/test/fixture files; zero skips and one upstream warning. 85a bbcef49 exact main41169738321 all-nine/Figure41169738378 passed05:10UTC.85b backend is now under acceptance; UI/measurement remain open.
 See benchmarks/incremental/README.md for frozen scope, clocks and actual vectors.
+
+
+###85b checkpoints
+
+85b1 delivers the actual image-only backend/HTTP boundary, strict per-job native
+mode/source/PID and per-attempt identity with current data/PNG provenance. It
+preserves the existing final POST and keeps provisional copies out of exports.
+Source/minimum/fresh HTTP/controls and all21-kind byte equivalence, original GUI
+regression and seven stable checks/exact CI must pass before advancing. This
+checkpoint does not claim the editor displays provisional images or timed gains.
+
+85b2 connects actual editor status/image/decode fencing, current final exports,
+undo/drafts/consent and real source/fresh browser controls. Complete frozen
+staged-preview-v1 (612 formal/108 smoke) separately measures first image/final
+result including costs, negatives and PNG-only control. Full85 remains open
+until UI, full comparison, required checks and exact CI are accepted.
+
+85b1 local acceptance: seven232/1904/Ruff151/411 stable files, actual21-kind60
+source/minimum/fresh stage matches/13 assets, source old101 GUI, fresh103 controls
+and all59 package files pass.17 new stage cases include real held-genuine-check
+strict0/2, both race types and owned in-flight cleanup. See benchmarks/staged/
+results/backend-v1/verification.json for retries/scope. Push/exact CI pending;
+85b2 actual GUI/612+108 remains unimplemented/unmeasured.

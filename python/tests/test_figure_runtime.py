@@ -87,3 +87,52 @@ def test_changed_source_after_import_refuses_without_partial_binding(tmp_path):
     with pytest.raises(RuntimeError, match="source changed after import"):
         module.bind(context, abi=1, source_sha256=imported_sha, required=module.FUNCTION_NAMES)
     assert context == {"existing": "preserved"}
+
+
+def actual_components():
+    import hashlib
+
+    return {
+        name: hashlib.sha256(
+            Path(figure_runtime.__file__).parent.joinpath(name).read_bytes()
+        ).hexdigest()
+        for name in figure_runtime.SOURCE_COMPONENTS
+    }
+
+
+@pytest.mark.parametrize("change", ["missing", "changed", "extra"])
+def test_actual_component_mismatches_refuse_atomically(change):
+    components = actual_components()
+    if change == "missing":
+        components.pop("diagnostics.json")
+    elif change == "changed":
+        components["inspect.py"] = "0" * 64
+    else:
+        components["invented.py"] = "0" * 64
+    context = {"existing": "preserved"}
+    with pytest.raises(RuntimeError, match="component"):
+        figure_runtime.bind(
+            context,
+            abi=1,
+            source_sha256=figure_runtime.runtime_info()["source_sha256"],
+            required=figure_runtime.FUNCTION_NAMES,
+            components=components,
+        )
+    assert context == {"existing": "preserved"}
+
+
+def test_bound_advice_data_is_isolated_between_actual_generated_contexts(tmp_path):
+    contexts = [generated_context(tmp_path / str(i), i) for i in range(2)]
+    for context in contexts:
+        figure_runtime.bind(
+            context,
+            abi=1,
+            source_sha256=figure_runtime.runtime_info()["source_sha256"],
+            required=figure_runtime.FUNCTION_NAMES,
+            components=actual_components(),
+        )
+    first, second = contexts
+    before = copy.deepcopy(second["DIAGNOSTIC_ADVICE"])
+    first["DIAGNOSTIC_ADVICE"].clear()
+    assert second["DIAGNOSTIC_ADVICE"] == before and before
+    assert first["UNKNOWN_DIAGNOSTIC"] is not second["UNKNOWN_DIAGNOSTIC"]

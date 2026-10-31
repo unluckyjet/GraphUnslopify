@@ -56,7 +56,8 @@ and join the normal undo history; selection leaves the current figure unchanged.
    server recomputes current findings and applies only that verifier-owned patch. Findings without
    an actual automatic fix require an author edit.
 7. Download an individual output, or **Download figure bundle**. The ZIP includes actual output
-   artifacts, generated Python, normalized effective spec and the original runtime report. Source
+   artifacts, generated Python, normalized effective spec, the original runtime report and the
+   matching readable scientific runtime with its licenses and dependency requirements. Source
    data is excluded unless **Include source data in ZIP** is selected. A chosen palette lock is
    included when the spec uses it. A PNG is explicitly added to requested formats for preview;
    the effective spec, generated program, report and provenance agree about it.
@@ -71,10 +72,14 @@ automatically. See [native Excel inputs](excel-input.md) for types and dependenc
 Extract a bundle with source data to a new directory, then reproduce it there:
 
 ```sh
-python figure.py --strict --json --report verification.json
+python -m pip install -r _graphunslopify/requirements.txt
+python reproduce.py --strict --json --report verification.json
 ```
 
-Replace `figure.py` with your chosen output stem. Without bundled data, place the selected data
+Use the launcher named in `REPRODUCE.md` (normally `reproduce.py`). It checks source/runtime
+and original input hashes before running the chosen figure. No GraphUnslopify installation or
+Node executable is needed for reproduction; scientific third-party dependencies remain required.
+Without bundled data, place the selected unchanged data
 beside the script under the relative filename in the exported spec (`data.csv`, `data.json` or
 `data.parquet`, `data.xlsx`, `data.xlsm` or `data.xls`). Keep the generated Python unchanged if comparing its embedded source digest.
 Supported interactive HTML needs `[interactive]`; animations may need external encoders. Missing

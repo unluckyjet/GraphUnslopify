@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy as _runtime_copy
 import hashlib as _runtime_hashlib
+import json as _runtime_json
 from pathlib import Path as _RuntimePath
 from types import FunctionType as _FunctionType
 from typing import Any
@@ -64,6 +65,22 @@ sys: Any = _UNBOUND_PROGRAM_GLOBAL
 
 RUNTIME_ABI = 1
 __all__ = ["bind", "runtime_info"]
+
+# Scientific helper/inspection/provenance sources, independent of unrelated UI
+# and SDK changes. No expected hashes are embedded here (including this file).
+SOURCE_COMPONENTS = (
+    "figure_runtime.py",
+    "inspect.py",
+    "diagnostics.py",
+    "diagnostics.json",
+    "export_size.py",
+    "data_view.py",
+    "colour.py",
+    "cell_colour.py",
+    "provenance.py",
+    "schemas/environment.schema.json",
+    "schemas/runtime-identity.schema.json",
+)
 
 FUNCTION_NAMES = (
     "_aligned",
@@ -548,6 +565,7 @@ def metadata_for(fmt):
             "spec": json.loads(SPEC_JSON),
             "alt_text": ALT_TEXT,
             "environment": capture_environment(),
+            **({"runtime": globals()["RUNTIME_BINDING"]} if "RUNTIME_BINDING" in globals() else {}),
         },
         ensure_ascii=False,
     )
@@ -1026,6 +1044,7 @@ def bind(
     abi: int,
     source_sha256: str,
     required: list[str] | tuple[str, ...],
+    components: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Install canonical function code with isolated per-program globals/defaults.
 
@@ -1033,6 +1052,7 @@ def bind(
     namespace, data or reports. Actual module source drift is also refused.
     """
     actual = runtime_info()
+    advice = None
     guidance = (
         "Install the exact GraphUnslopify runtime that generated this figure; "
         "an archival bundle must include its matching runtime."
@@ -1041,6 +1061,24 @@ def bind(
         raise RuntimeError(f"Figure runtime ABI/source mismatch. {guidance}")
     if _runtime_hashlib.sha256(_RuntimePath(__file__).read_bytes()).hexdigest() != _SOURCE_SHA256:
         raise RuntimeError(f"Figure runtime source changed after import. {guidance}")
+    if components is not None:
+        if not isinstance(components, dict) or set(components) != set(SOURCE_COMPONENTS):
+            raise RuntimeError(f"Figure runtime component capabilities mismatch. {guidance}")
+        try:
+            actual_components = {
+                name: _runtime_hashlib.sha256(
+                    _RuntimePath(__file__).parent.joinpath(name).read_bytes()
+                ).hexdigest()
+                for name in SOURCE_COMPONENTS
+            }
+        except OSError as problem:
+            raise RuntimeError(f"Figure runtime component is unavailable. {guidance}") from problem
+        if actual_components != components:
+            raise RuntimeError(f"Figure runtime component source mismatch. {guidance}")
+        actual["components"] = actual_components
+        advice = _runtime_json.loads(
+            _RuntimePath(__file__).with_name("diagnostics.json").read_text(encoding="utf8")
+        )
     if not isinstance(namespace, dict):
         raise TypeError("Figure runtime requires the generated program's own globals dictionary")
     if (
@@ -1063,5 +1101,8 @@ def bind(
         function.__annotations__ = dict(template.__annotations__)
         function.__dict__.update(_runtime_copy.deepcopy(template.__dict__))
         bindings[name] = function
+    if advice is not None:
+        bindings["DIAGNOSTIC_ADVICE"] = _runtime_copy.deepcopy(advice["advice"])
+        bindings["UNKNOWN_DIAGNOSTIC"] = _runtime_copy.deepcopy(advice["unknown"])
     namespace.update(bindings)
     return actual

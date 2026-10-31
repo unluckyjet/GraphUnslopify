@@ -283,17 +283,17 @@ def test_outlined_cell_text_is_explicitly_untested_in_required_runtime_checks(tm
     assert module.RUN_REPORT["untested"]
 
 
-def test_generated_cell_colours_work_without_the_optional_inspector_package(tmp_path):
+def test_generated_cell_colours_export_but_stay_incomplete_when_inspector_unavailable(tmp_path):
     _, path = generated(tmp_path)
     frame([[1, 2], [3, 4]]).to_csv(tmp_path / "data.csv", index=False)
     driver = tmp_path / "without_package.py"
     driver.write_text(
         "import builtins, runpy, sys\n"
         "original = builtins.__import__\n"
-        "def guarded(name, *args, **kwargs):\n"
-        "    if name == 'graphunslopify' or name.startswith('graphunslopify.'):\n"
-        "        raise ImportError('optional inspector unavailable')\n"
-        "    return original(name, *args, **kwargs)\n"
+        "def guarded(name, globals=None, locals=None, fromlist=(), level=0):\n"
+        "    if name == 'graphunslopify' and 'inspect_figure' in fromlist:\n"
+        "        raise ImportError('inspector unavailable')\n"
+        "    return original(name, globals, locals, fromlist, level)\n"
         "builtins.__import__ = guarded\n"
         "sys.argv = ['contrast.py', '--json']\n"
         "runpy.run_path('contrast.py', run_name='__main__')\n",

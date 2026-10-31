@@ -18949,6 +18949,21 @@ async function serveLocalWorker(dispatch2, entry) {
 }
 
 // src/codegen/runtime-source.ts
+var RUNTIME_ABI = 1;
+var RUNTIME_SOURCE_SHA256 = "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353";
+var RUNTIME_COMPONENTS = {
+  "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+  "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+  "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+  "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+  "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+  "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+  "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+  "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+  "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+  "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+  "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+};
 var RUNTIME_HELPERS = {
   "_aligned": 'def _aligned(frame, subject, reference):\n    """Require complete, finite x coverage for the named series."""\n    if GROUP is None or Y_FIELD not in frame:\n        return None\n    columns = [subject] if reference is None else [subject, reference]\n    selected = frame[frame[GROUP].isin(columns)]\n    if (\n        selected.empty\n        or selected[X_FIELD].isna().any()\n        or selected.duplicated([X_FIELD, GROUP]).any()\n    ):\n        return None\n    pivot = selected.pivot_table(\n        index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True\n    )\n    if any(column not in pivot.columns for column in columns):\n        return None\n    pair = pivot[columns].sort_index()\n    if not len(pair) or not np.isfinite(pair.to_numpy(dtype=float)).all():\n        return None\n    return pair',
   "_interval_overlap": 'def _interval_overlap(frame, subject, reference):\n    """How many shared x values have overlapping intervals, or None.\n\n    None when there is nothing to measure: no reference, no grouping, or no\n    uncertainty in the spec, in which case _low was never written.\n    """\n    if reference is None or GROUP is None or "_low" not in frame:\n        return None\n    lows = frame.pivot_table(\n        index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True\n    )\n    highs = frame.pivot_table(\n        index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True\n    )\n    for column in (subject, reference):\n        if column not in lows.columns or column not in highs.columns:\n            return None\n    shared = lows.index.intersection(highs.index).sort_values()\n    bounds = [\n        lows.loc[shared, subject].to_numpy(dtype=float),\n        highs.loc[shared, subject].to_numpy(dtype=float),\n        lows.loc[shared, reference].to_numpy(dtype=float),\n        highs.loc[shared, reference].to_numpy(dtype=float),\n    ]\n    usable = np.all([np.isfinite(edge) for edge in bounds], axis=0)\n    if not usable.any():\n        return None\n    mine_low, mine_high, their_low, their_high = (edge[usable] for edge in bounds)\n    touching = (mine_low <= their_high) & (their_low <= mine_high)\n    return int(np.sum(touching)), int(usable.sum())',
@@ -19011,7 +19026,7 @@ var RUNTIME_HELPERS = {
   "legend_handle_key": 'def legend_handle_key(handle, label):\n    identity = getattr(handle, "_graphunslopify_legend_identity", None)\n    target = getattr(handle, "_graphunslopify_legend_text_target", None)\n    if identity is not None:\n        return ("series", identity["series"])\n    if target is not None:\n        return ("layer", target["source"]["layer"])\n    return ("external", label)',
   "literal_heading_lines": 'def literal_heading_lines(lines, original):\n    # An originally literal paragraph must not acquire a MathText line.\n    index = 0\n    while index < len(lines):\n        count = heading_dollars(lines[index])\n        if count == 0 or count % 2:\n            index += 1\n            continue\n        line = lines[index]\n        cuts = [\n            match\n            for match in re.finditer(r"\\s+", line)\n            if heading_dollars(line[: match.start()]) % 2\n        ]\n        if cuts:\n            cut = cuts[-1]\n            lines[index : index + 1] = [line[: cut.start()], line[cut.end() :]]\n            index += 2\n            continue\n        # A dollar pair inside one word cannot be split without changing it.\n        # Keep it with an odd-dollar neighbor; ordinary inspection still owns\n        # acceptance if the resulting complete wording cannot fit the column.\n        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]\n        if not odd:\n            return [original]\n        neighbor = min(odd, key=lambda i: abs(i - index))\n        low, high = sorted((index, neighbor))\n        lines[low : high + 1] = [" ".join(lines[low : high + 1])]\n        index = low + 1\n    return lines',
   "mark_panel_text": 'def mark_panel_text(artist, index):\n    spec = RUN_REPORT["spec"]\n    if "repeat" in spec:\n        field = spec["repeat"]["fields"][index]\n        return edit_target(\n            artist, metric_label_path(field), "metric_label", field, metric_label(field)\n        )\n    if "facet" in spec:\n        labels = spec["facet"].get("labels", [])\n        source = PANEL_SOURCE_KEYS[index]\n        slot = next(\n            (i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)),\n            len(labels),\n        )\n        return edit_target(\n            artist,\n            ["facet", "labels", slot, "text"],\n            "panel_title",\n            source,\n            panel_label_value(index, PANEL_ORIGINAL_NAMES[index]),\n        )\n    return artist',
-  "metadata_for": 'def metadata_for(fmt):\n    # Embedding the spec means a reviewer can recover what produced the figure.\n    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"\n    provenance = json.dumps(\n        {\n            "schema_version": 1,\n            "tool": TOOL,\n            "spec_hash": SPEC_HASH,\n            "data_sha256_prefix": DATA_HASH,\n            "script_sha256": script_fingerprint(),\n            "spec": json.loads(SPEC_JSON),\n            "alt_text": ALT_TEXT,\n            "environment": capture_environment(),\n        },\n        ensure_ascii=False,\n    )\n    if fmt == "png":\n        return {\n            "Software": stamp,\n            "Description": SPEC_JSON,\n            "Comment": ALT_TEXT,\n            "GraphUnslopify": provenance,\n        }\n    if fmt == "svg":\n        return {\n            "Creator": stamp,\n            "Description": ALT_TEXT,\n            "Title": FIGURE_TITLE or Path(STEM).name,\n            "Identifier": SPEC_HASH,\n            "Source": provenance,\n            "Date": None,\n        }\n    return {\n        "Creator": stamp,\n        "Subject": SPEC_JSON,\n        "Keywords": provenance,\n        "Title": FIGURE_TITLE or Path(STEM).name,\n        "CreationDate": None,\n        "ModDate": None,\n    }',
+  "metadata_for": 'def metadata_for(fmt):\n    # Embedding the spec means a reviewer can recover what produced the figure.\n    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"\n    provenance = json.dumps(\n        {\n            "schema_version": 1,\n            "tool": TOOL,\n            "spec_hash": SPEC_HASH,\n            "data_sha256_prefix": DATA_HASH,\n            "script_sha256": script_fingerprint(),\n            "spec": json.loads(SPEC_JSON),\n            "alt_text": ALT_TEXT,\n            "environment": capture_environment(),\n            **({"runtime": globals()["RUNTIME_BINDING"]} if "RUNTIME_BINDING" in globals() else {}),\n        },\n        ensure_ascii=False,\n    )\n    if fmt == "png":\n        return {\n            "Software": stamp,\n            "Description": SPEC_JSON,\n            "Comment": ALT_TEXT,\n            "GraphUnslopify": provenance,\n        }\n    if fmt == "svg":\n        return {\n            "Creator": stamp,\n            "Description": ALT_TEXT,\n            "Title": FIGURE_TITLE or Path(STEM).name,\n            "Identifier": SPEC_HASH,\n            "Source": provenance,\n            "Date": None,\n        }\n    return {\n        "Creator": stamp,\n        "Subject": SPEC_JSON,\n        "Keywords": provenance,\n        "Title": FIGURE_TITLE or Path(STEM).name,\n        "CreationDate": None,\n        "ModDate": None,\n    }',
   "metric_label": 'def metric_label(source):\n    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])\n    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))',
   "metric_label_path": 'def metric_label_path(source):\n    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])\n    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))\n    return ["repeat", "labels", index, "text"]',
   "new_report": 'def new_report():\n    return {\n        "schema_version": 1,\n        "tool": TOOL,\n        "spec_hash": SPEC_HASH,\n        "spec": json.loads(SPEC_JSON),\n        "status": "incomplete",\n        "ok": False,\n        "data": {},\n        "environment": None,\n        "findings": [dict(f) for f in STATIC_FINDINGS],\n        "inspection": {"available": None, "checked": False},\n        "panels": [],\n        "claims": [],\n        "significance": [],\n        "annotations": [],\n        "outputs": [],\n        "skipped_outputs": [],\n        "untested": [],\n        "alt_text": "",\n    }',
@@ -19656,6 +19671,50 @@ function derivedAxis(spec, axis2) {
 }
 function hasCategoricalX(spec) {
   return spec.kind === "bar" || spec.kind === "box" || spec.kind === "violin" || spec.kind === "raincloud" || spec.kind === "ridgeline" || spec.kind === "forest" || spec.kind === "paired_difference" || spec.kind === "slope" || spec.kind === "dumbbell" || spec.kind === "waterfall";
+}
+
+// src/codegen/shared-runtime.ts
+function shareRuntime(source) {
+  for (const name of ["DIAGNOSTIC_ADVICE", "UNKNOWN_DIAGNOSTIC"]) {
+    const definition = new RegExp(`^${name} = json\\.loads\\([^\\n]+\\)\\n`, "gm");
+    if ([...source.matchAll(definition)].length !== 1) throw new Error(`Missing canonical ${name}`);
+    source = source.replace(definition, "");
+  }
+  for (const [name, helper] of Object.entries(RUNTIME_HELPERS)) {
+    const start = source.indexOf(helper);
+    if (start < 0 || source.indexOf(helper, start + helper.length) >= 0) {
+      throw new Error(`Cannot bind canonical runtime helper ${name}: expected one exact definition`);
+    }
+    source = source.slice(0, start) + source.slice(start + helper.length);
+  }
+  const expected = {
+    abi: RUNTIME_ABI,
+    source_sha256: RUNTIME_SOURCE_SHA256,
+    required: Object.keys(RUNTIME_HELPERS),
+    components: RUNTIME_COMPONENTS
+  };
+  const loader = `# This readable entry uses the exact scientific runtime below.
+# Download a complete bundle to archive the runtime with the figure.
+EXPECTED_RUNTIME = ${JSON.stringify(expected, null, 2)}
+try:
+    from graphunslopify import figure_runtime as _figure_runtime
+except ImportError as _runtime_problem:
+    raise RuntimeError("This figure needs its matching GraphUnslopify scientific runtime. "
+                       "Install the source version that generated it or use its complete standalone bundle. "
+                       + str(_runtime_problem)) from _runtime_problem
+if (type(getattr(_figure_runtime, "RUNTIME_ABI", None)) is not int
+        or _figure_runtime.RUNTIME_ABI != EXPECTED_RUNTIME["abi"]
+        or hashlib.sha256(Path(_figure_runtime.__file__).read_bytes()).hexdigest()
+           != EXPECTED_RUNTIME["source_sha256"]):
+    raise RuntimeError("GraphUnslopify scientific runtime ABI/source mismatch. "
+                       "Install the matching source version or use its complete standalone bundle.")
+RUNTIME_BINDING = _figure_runtime.bind(globals(), **EXPECTED_RUNTIME)
+`;
+  const marker = "\nSTATIC_FINDINGS = ";
+  if (!source.includes(marker)) throw new Error("Missing canonical runtime initialization boundary");
+  return source.replace(marker, `
+${loader}
+STATIC_FINDINGS = `).replace(/\n{3,}/g, "\n\n\n");
 }
 
 // src/codegen/index.ts
@@ -25814,6 +25873,8 @@ def finish_report():
     capture_environment()
     RUN_REPORT.pop("_execution_policy", None)
     RUN_REPORT["script"] = {"sha256": script_fingerprint()}
+    if "RUNTIME_BINDING" in globals():
+        RUN_REPORT["script"]["runtime"] = RUNTIME_BINDING
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
     for field, counts in ROW_COUNTS.get("measurements", {}).items():
@@ -26389,10 +26450,10 @@ function emitPython(spec) {
   emitAnimation(spec, out);
   emitMain(spec, out);
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";
-  return source.replace(
+  return shareRuntime(source.replace(
     "import matplotlib.pyplot as plt",
     "import matplotlib.colors as mcolors\nimport matplotlib.pyplot as plt"
-  );
+  ));
 }
 
 // src/translate.ts

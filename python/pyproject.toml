@@ -33,7 +33,7 @@ Documentation = "https://github.com/unluckyjet/GraphUnslopify/tree/v0.8.0/docs"
 Changelog = "https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0"
 
 [tool.setuptools.package-data]
-graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "diagnostics.json", "schemas/*.json", "examples/*.ipynb", "web/*"]
+graphunslopify = ["_translator.mjs", "ZOD-LICENSE.txt", "LICENSE.txt", "diagnostics.json", "schemas/*.json", "examples/*.ipynb", "web/*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "graphunslopify.__version__" }

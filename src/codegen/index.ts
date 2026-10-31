@@ -1,4 +1,5 @@
 import { RUNTIME_HELPERS } from "./runtime-source.ts";
+import { shareRuntime } from "./shared-runtime.ts";
 import { createHash } from "node:crypto";
 import { hasCategoricalX, type FigureSpec } from "../schema.ts";
 import { emitAltText } from "../alttext.ts";
@@ -638,8 +639,8 @@ export function emitPython(spec: FigureSpec): string {
   emitMain(spec, out);
 
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";
-  return source.replace(
+  return shareRuntime(source.replace(
     "import matplotlib.pyplot as plt",
     "import matplotlib.colors as mcolors\nimport matplotlib.pyplot as plt",
-  );
+  ));
 }

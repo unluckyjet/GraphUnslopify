@@ -99,443 +99,88 @@ DISCLOSURE = (
 
 RUNTIME_OPTIONAL_PACKAGES = ["graphunslopify","plotly","scipy","pypdf"]
 
-def capture_environment(fig=None):
-    if RUN_REPORT.get("environment") is not None:
-        return RUN_REPORT["environment"]
-    import importlib.metadata as package_metadata
-    import platform
 
-    unavailable = []
-
-    def installed(name):
-        try:
-            return package_metadata.version(name)
-        except package_metadata.PackageNotFoundError:
-            return None
-        except Exception:  # noqa: BLE001 -- unreadable distribution metadata stays unavailable
-            unavailable.append(name + ".version")
-            return None
-
-    def text(value):
-        return str(value) if value else None
-
-    core = {
-        name: text(getattr(module, "__version__", None))
-        for name, module in (
-            ("numpy", np),
-            ("pandas", pd),
-            ("matplotlib", matplotlib),
-            ("Pillow", sys.modules.get("PIL")),
-        )
-    }
-    core["freetype"] = text(
-        getattr(getattr(matplotlib, "ft2font", None), "__freetype_version__", None)
-    )
-    rc = None
-    font = None
-    if fig is not None:
-        keys = (
-            "font.family",
-            "font.size",
-            "font.style",
-            "font.weight",
-            "font.variant",
-            "font.stretch",
-            "mathtext.fontset",
-            "text.usetex",
-            "text.parse_math",
-            "svg.fonttype",
-            "pdf.fonttype",
-            "ps.fonttype",
-            "savefig.transparent",
-            "savefig.facecolor",
-            "figure.facecolor",
-            "axes.facecolor",
-            "path.simplify",
-            "path.simplify_threshold",
-            "agg.path.chunksize",
-            "svg.hashsalt",
-        )
-        rc = {key: matplotlib.rcParams.get(key) for key in keys}
-        try:
-            from matplotlib import font_manager
-
-            path = Path(font_manager.findfont(font_manager.FontProperties()))
-            font = {
-                "family": font_manager.get_font(str(path)).family_name,
-                "file": path.name,
-                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            }
-        except Exception:  # noqa: BLE001 -- any failed actual font capture stays unavailable
-            unavailable.append("default_font")
-    snapshot = {
-        "schema_version": 1,
-        "capture_stage": "before_export" if fig is not None else "no_export_snapshot",
-        "python": {
-            "version": platform.python_version(),
-            "implementation": platform.python_implementation(),
-            "optimize": sys.flags.optimize,
-            "hash_randomization": bool(sys.flags.hash_randomization),
-        },
-        "platform": {"system": text(platform.system()), "machine": text(platform.machine())},
-        "loaded_core_versions": core,
-        "installed_optional_versions": {
-            name: installed(name) for name in RUNTIME_OPTIONAL_PACKAGES
-        },
-        "rendering": {
-            "backend": str(matplotlib.get_backend()),
-            "figure_inches": list(map(float, fig.get_size_inches())) if fig is not None else None,
-            "figure_dpi": float(fig.dpi) if fig is not None else None,
-            "export_dpi": DPI,
-            "target_width_in": TARGET_WIDTH_IN,
-            "requested_formats": list(FORMATS),
-            "requested_interactive": RUN_REPORT["spec"]["output"]["interactive"],
-            "rc_parameters": rc,
-            "default_font": font,
-        },
-        "execution": dict(
-            RUN_REPORT.get(
-                "_execution_policy",
-                {"strict": None, "fail_on_warning": None, "source": "direct_call"},
-            )
-        ),
-        "random_constants": {
-            key: globals()[key]
-            for key in ("BOOTSTRAP_SEED", "BOOTSTRAP_DRAWS", "POINT_JITTER_SEED", "PAIR_SEED")
-            if key in globals()
-        },
-        "unavailable": unavailable,
-    }
-    # Detach mutable rc lists and normalize the stored snapshot to JSON types.
-    snapshot = json.loads(json.dumps(snapshot, allow_nan=False))
-    RUN_REPORT["environment"] = snapshot
-    return snapshot
-
+# This readable entry uses the exact scientific runtime below.
+# Download a complete bundle to archive the runtime with the figure.
+EXPECTED_RUNTIME = {
+  "abi": 1,
+  "source_sha256": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+  "required": [
+    "_aligned",
+    "_interval_overlap",
+    "alt_text",
+    "capture_environment",
+    "check_claim",
+    "data_fingerprint",
+    "diagnostic_text",
+    "disclose_legend_aliases",
+    "disclose_panel_aliases",
+    "edit_target",
+    "facet_key",
+    "finding",
+    "heading_dollars",
+    "layer_artist",
+    "legend_alias",
+    "legend_alias_path",
+    "legend_handle_key",
+    "literal_heading_lines",
+    "mark_panel_text",
+    "metadata_for",
+    "metric_label",
+    "metric_label_path",
+    "new_report",
+    "normalize_identities",
+    "overlap_phrase",
+    "panel_label_value",
+    "record_output",
+    "run_cli",
+    "script_fingerprint",
+    "series_artist",
+    "significance_result",
+    "skip_output",
+    "source_legend_handles",
+    "validate_legend_aliases",
+    "validate_panel_aliases",
+    "verify_claims",
+    "wrap_heading"
+  ],
+  "components": {
+    "figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+    "inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+    "diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+    "diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+    "export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+    "data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+    "colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+    "cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+    "provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+    "schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+    "schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b"
+  }
+}
+try:
+    from graphunslopify import figure_runtime as _figure_runtime
+except ImportError as _runtime_problem:
+    raise RuntimeError("This figure needs its matching GraphUnslopify scientific runtime. "
+                       "Install the source version that generated it or use its complete standalone bundle. "
+                       + str(_runtime_problem)) from _runtime_problem
+if (type(getattr(_figure_runtime, "RUNTIME_ABI", None)) is not int
+        or _figure_runtime.RUNTIME_ABI != EXPECTED_RUNTIME["abi"]
+        or hashlib.sha256(Path(_figure_runtime.__file__).read_bytes()).hexdigest()
+           != EXPECTED_RUNTIME["source_sha256"]):
+    raise RuntimeError("GraphUnslopify scientific runtime ABI/source mismatch. "
+                       "Install the matching source version or use its complete standalone bundle.")
+RUNTIME_BINDING = _figure_runtime.bind(globals(), **EXPECTED_RUNTIME)
 
 STATIC_FINDINGS = json.loads("[]")
-DIAGNOSTIC_ADVICE = json.loads("{\"invalid_spec\":{\"consequence\":\"No runnable figure was translated, so the requested data and claims have not been verified.\",\"correction\":\"Correct the indicated field using the expected type, range or required value in the problem message. Check JSON syntax and the canonical schema, then translate and audit again.\"},\"pdf_small_text\":{\"consequence\":\"Small text at the PDF's declared physical size can make axes, units, legends or qualifications unreadable. This visual warning does not establish whether the scientific result is correct.\",\"correction\":\"Review the cited selection at its intended publication size. Increase source text size or the figure's physical allocation and re-export, then rerun the inspection. Check whether a flagged character is an intentional subscript; do not change the data or treat absence of warnings as readability certification.\"},\"pdf_low_raster_resolution\":{\"consequence\":\"An embedded raster placement has few source pixels per physical inch, so visible detail or labels may blur. Increasing preview-render DPI cannot create missing source detail.\",\"correction\":\"Inspect the cited embedded placement and its x/y pixel densities. Re-export that component from its original data at suitable resolution, or use vector output when appropriate. Do not merely upscale the existing pixels; review complex clipping and whether the component is actually part of the figure.\"},\"pdf_visual_checks_partial\":{\"consequence\":\"Some selected PDF content could not be measured or the bounded scan stopped early. The measured subset cannot establish that the unexamined content is clear or scientifically valid.\",\"correction\":\"Read the recorded coverage/reason, use a matching PDF renderer and a smaller or simpler source PDF if needed, and inspect the retained crop manually. Obtain vector/source material for raster-only text; keep unavailable metrics and numerical claims explicitly untested.\"},\"axis_limits_inverted\":{\"consequence\":\"The requested view has no increasing lower-to-upper range and cannot represent the intended coordinates.\",\"correction\":\"Set the lower limit below the upper limit in the stated units. If an inverted display is scientifically intended, use an explicitly supported representation rather than reversed limits.\"},\"log_scale_nonpositive_limit\":{\"consequence\":\"A logarithmic axis cannot display zero or negative coordinates, so the requested baseline or reference cannot be represented faithfully.\",\"correction\":\"Check the quantity and units. Use a justified linear scale for nonpositive values, or a positive log-domain view/reference when appropriate; never replace zero with an invented small value.\"},\"reference_line_off_log_axis\":{\"consequence\":\"A logarithmic axis cannot display zero or negative coordinates, so the requested baseline or reference cannot be represented faithfully.\",\"correction\":\"Check the quantity and units. Use a justified linear scale for nonpositive values, or a positive log-domain view/reference when appropriate; never replace zero with an invented small value.\"},\"log_bar_baseline\":{\"consequence\":\"A logarithmic axis cannot display zero or negative coordinates, so the requested baseline or reference cannot be represented faithfully.\",\"correction\":\"Check the quantity and units. Use a justified linear scale for nonpositive values, or a positive log-domain view/reference when appropriate; never replace zero with an invented small value.\"},\"log_domain_hidden\":{\"consequence\":\"Finite observations disappear on a log axis, so the visible sample can differ from the data used to support a conclusion.\",\"correction\":\"Inspect the reported nonpositive observations and analysis plan. Use a justified linear scale that represents them, or explicitly justify and disclose any scientifically appropriate selection; do not silently drop them.\"},\"data_outside_view\":{\"consequence\":\"The visible figure omits plotted coordinates or true uncertainty/value extents and can overstate the apparent evidence.\",\"correction\":\"Inspect which marks or interval endpoints are outside the view. Widen the limits to show the complete intended evidence, or explicitly justify/disclose the restricted view; do not truncate intervals to fit.\"},\"bar_mark_clipped\":{\"consequence\":\"The visible figure omits plotted coordinates or true uncertainty/value extents and can overstate the apparent evidence.\",\"correction\":\"Inspect which marks or interval endpoints are outside the view. Widen the limits to show the complete intended evidence, or explicitly justify/disclose the restricted view; do not truncate intervals to fit.\"},\"bar_interval_clipped\":{\"consequence\":\"The visible figure omits plotted coordinates or true uncertainty/value extents and can overstate the apparent evidence.\",\"correction\":\"Inspect which marks or interval endpoints are outside the view. Widen the limits to show the complete intended evidence, or explicitly justify/disclose the restricted view; do not truncate intervals to fit.\"},\"truncated_bar_axis\":{\"consequence\":\"Cutting a length-bearing mark breaks the relationship between its visible length and the measured magnitude.\",\"correction\":\"Show complete bar/extents with a justified zero baseline, or choose a position-based representation if the scientific comparison needs a restricted range. Do not keep a cut that changes the apparent ratios.\"},\"axis_break_on_length_marks\":{\"consequence\":\"Cutting a length-bearing mark breaks the relationship between its visible length and the measured magnitude.\",\"correction\":\"Show complete bar/extents with a justified zero baseline, or choose a position-based representation if the scientific comparison needs a restricted range. Do not keep a cut that changes the apparent ratios.\"},\"axis_exaggeration\":{\"consequence\":\"A narrow numeric view can make small changes look large relative to the quantity's magnitude; the warning alone does not prove the chosen view is inappropriate.\",\"correction\":\"Review the absolute range, units and scientific question. Show a broader context or disclose the zoom and its reason so readers can judge the effect size.\"},\"temporal_y_axis\":{\"consequence\":\"The requested time encoding is not implemented for this axis/kind and could be read as an unrelated numeric or categorical comparison.\",\"correction\":\"Confirm whether values are dates or category names. Use supported linear temporal x for a time series, otherwise keep explicit categorical/numeric meaning; select dates with a documented data filter instead of numeric temporal limits.\"},\"temporal_x_on_categories\":{\"consequence\":\"The requested time encoding is not implemented for this axis/kind and could be read as an unrelated numeric or categorical comparison.\",\"correction\":\"Confirm whether values are dates or category names. Use supported linear temporal x for a time series, otherwise keep explicit categorical/numeric meaning; select dates with a documented data filter instead of numeric temporal limits.\"},\"temporal_log_axis\":{\"consequence\":\"The requested time encoding is not implemented for this axis/kind and could be read as an unrelated numeric or categorical comparison.\",\"correction\":\"Confirm whether values are dates or category names. Use supported linear temporal x for a time series, otherwise keep explicit categorical/numeric meaning; select dates with a documented data filter instead of numeric temporal limits.\"},\"temporal_axis_limits\":{\"consequence\":\"The requested time encoding is not implemented for this axis/kind and could be read as an unrelated numeric or categorical comparison.\",\"correction\":\"Confirm whether values are dates or category names. Use supported linear temporal x for a time series, otherwise keep explicit categorical/numeric meaning; select dates with a documented data filter instead of numeric temporal limits.\"},\"unknown_field\":{\"consequence\":\"A field reference does not match the declared columns, so the tool cannot establish that it is drawing the intended quantity or experimental unit.\",\"correction\":\"Check the actual local data headers and data.columns, then correct the indicated field. Review any suggested spelling against the source; a nearby name is not evidence that it is the intended variable.\"},\"unsupported_identity_roles\":{\"consequence\":\"Conflicting roles or repeated identifiers can change category membership, duplicate displayed observations or coerce names into measurements.\",\"correction\":\"Use distinct identifier and numeric measurement columns, preserve lexical IDs such as leading-zero names, and list each series/category once. Recheck the intended ordering and grouping.\"},\"duplicate_identity_order\":{\"consequence\":\"Conflicting roles or repeated identifiers can change category membership, duplicate displayed observations or coerce names into measurements.\",\"correction\":\"Use distinct identifier and numeric measurement columns, preserve lexical IDs such as leading-zero names, and list each series/category once. Recheck the intended ordering and grouping.\"},\"emphasis_without_group\":{\"consequence\":\"A series-specific instruction has no grouping variable, so it cannot distinguish the intended entities and may have no visible effect.\",\"correction\":\"Declare the real group column when there are multiple series. If the figure intentionally has one series, remove the inapplicable series-specific instruction rather than inventing a grouping variable.\"},\"annotation_series_without_group\":{\"consequence\":\"A series-specific instruction has no grouping variable, so it cannot distinguish the intended entities and may have no visible effect.\",\"correction\":\"Declare the real group column when there are multiple series. If the figure intentionally has one series, remove the inapplicable series-specific instruction rather than inventing a grouping variable.\"},\"direct_labels_without_group\":{\"consequence\":\"A series-specific instruction has no grouping variable, so it cannot distinguish the intended entities and may have no visible effect.\",\"correction\":\"Declare the real group column when there are multiple series. If the figure intentionally has one series, remove the inapplicable series-specific instruction rather than inventing a grouping variable.\"},\"legend_without_group\":{\"consequence\":\"A series-specific instruction has no grouping variable, so it cannot distinguish the intended entities and may have no visible effect.\",\"correction\":\"Declare the real group column when there are multiple series. If the figure intentionally has one series, remove the inapplicable series-specific instruction rather than inventing a grouping variable.\"},\"series_order_without_group\":{\"consequence\":\"A series-specific instruction has no grouping variable, so it cannot distinguish the intended entities and may have no visible effect.\",\"correction\":\"Declare the real group column when there are multiple series. If the figure intentionally has one series, remove the inapplicable series-specific instruction rather than inventing a grouping variable.\"},\"emphasis_series_unknown\":{\"consequence\":\"The highlighted or annotated entity is not unambiguously identified and could direct attention to the wrong observations.\",\"correction\":\"Check the actual series names and series_order, then name the intended series explicitly. Do not choose a different entity just because it is available.\"},\"annotation_series_unknown\":{\"consequence\":\"The highlighted or annotated entity is not unambiguously identified and could direct attention to the wrong observations.\",\"correction\":\"Check the actual series names and series_order, then name the intended series explicitly. Do not choose a different entity just because it is available.\"},\"annotation_without_series\":{\"consequence\":\"The highlighted or annotated entity is not unambiguously identified and could direct attention to the wrong observations.\",\"correction\":\"Check the actual series names and series_order, then name the intended series explicitly. Do not choose a different entity just because it is available.\"},\"annotation_unavailable\":{\"consequence\":\"The requested annotation could not be resolved to the displayed evidence, so its text or arrow cannot support the claimed location.\",\"correction\":\"Read the unresolved-target reason and inspect the displayed summaries/quantiles and panel. Correct the intended target or remove the unsupported annotation; do not place it at an arbitrary point.\"},\"qq_annotation_unavailable\":{\"consequence\":\"The requested annotation could not be resolved to the displayed evidence, so its text or arrow cannot support the claimed location.\",\"correction\":\"Read the unresolved-target reason and inspect the displayed summaries/quantiles and panel. Correct the intended target or remove the unsupported annotation; do not place it at an arbitrary point.\"},\"annotation_snapped_to_observation\":{\"consequence\":\"The displayed anchor differs from the requested coordinate and may imply more positional precision than the observed data provide.\",\"correction\":\"Review the requested and resolved coordinates in the annotation report and the actual figure. Use an observed target when appropriate, or state the intended coordinate explicitly with a supported annotation.\"},\"crossover_needs_two_series\":{\"consequence\":\"A crossover cannot be evaluated with only one represented series.\",\"correction\":\"Declare the genuinely comparable series and their grouping, or replace the crossover annotation with a statement supported by the available observations.\"},\"direct_labels_on_categories\":{\"consequence\":\"End-of-line placement is not meaningful for an unordered categorical layout and can detach names from the intended marks.\",\"correction\":\"Use a legend for categorical comparisons. Keep direct line labels only when the ordered/continuous endpoint has the intended meaning.\"},\"too_many_series\":{\"consequence\":\"At the intended manuscript width, readers may not reliably separate the entities or associate their values with the correct names.\",\"correction\":\"Consider shared-scale facets or a more focused comparison. Preserve and disclose the population/series selection; do not silently remove inconvenient results to reduce clutter.\"},\"too_many_bars_per_group\":{\"consequence\":\"At the intended manuscript width, readers may not reliably separate the entities or associate their values with the correct names.\",\"correction\":\"Consider shared-scale facets or a more focused comparison. Preserve and disclose the population/series selection; do not silently remove inconvenient results to reduce clutter.\"},\"too_many_stack_segments\":{\"consequence\":\"Most stacked segments do not share a baseline, so differences between those components are hard to compare accurately.\",\"correction\":\"If component comparison is the question, consider grouped bars or separate panels with a shared baseline. Keep a stack when the part-to-whole question is intended and make the components identifiable.\"},\"stacked_costs_a_baseline\":{\"consequence\":\"Most stacked segments do not share a baseline, so differences between those components are hard to compare accurately.\",\"correction\":\"If component comparison is the question, consider grouped bars or separate panels with a shared baseline. Keep a stack when the part-to-whole question is intended and make the components identifiable.\"},\"shading_is_the_weakest_channel\":{\"consequence\":\"A colour/shading impression may not communicate the exact cell values needed for a quantitative comparison.\",\"correction\":\"Show readable cell annotations or provide a numeric table, and inspect foreground/background contrast. Keep the colour scale and numeric values consistent.\"},\"line_implies_continuity\":{\"consequence\":\"Connecting unordered categories suggests meaningful intermediate values or continuity that the specification alone cannot establish.\",\"correction\":\"Confirm whether x represents time or an ordered continuum. Retain a line when justified; otherwise choose a discrete representation. This requires scientific judgment and is not an automatic line-to-bar conversion.\"},\"low_dpi_raster\":{\"consequence\":\"Raster marks and text may lose detail when the figure is printed or resized to its publication width.\",\"correction\":\"Use an appropriate vector export or increase output.dpi for the required manuscript width and venue, then inspect the written file at its final size. Raising DPI does not fix clipped or misleading content.\"},\"transform_needs_baseline\":{\"consequence\":\"A relative/difference transform lacks an identified comparison series and cannot establish the intended reference quantity.\",\"correction\":\"Declare the actual group field and preselected baseline, using a name present in the data/order. Confirm the baseline's scientific meaning before recomputing the transform.\"},\"transform_needs_group\":{\"consequence\":\"A relative/difference transform lacks an identified comparison series and cannot establish the intended reference quantity.\",\"correction\":\"Declare the actual group field and preselected baseline, using a name present in the data/order. Confirm the baseline's scientific meaning before recomputing the transform.\"},\"baseline_series_unknown\":{\"consequence\":\"A relative/difference transform lacks an identified comparison series and cannot establish the intended reference quantity.\",\"correction\":\"Declare the actual group field and preselected baseline, using a name present in the data/order. Confirm the baseline's scientific meaning before recomputing the transform.\"},\"series_from_columns_conflicts_with_group\":{\"consequence\":\"An ambiguous wide-to-long reshape can overwrite fields or change which measurements belong to each entity.\",\"correction\":\"Use distinct retained/source/output column names, set y to the new value field, and let the reshape create its grouping field. Check the resulting identity/value mapping against the source table.\"},\"invalid_series_reshape\":{\"consequence\":\"An ambiguous wide-to-long reshape can overwrite fields or change which measurements belong to each entity.\",\"correction\":\"Use distinct retained/source/output column names, set y to the new value field, and let the reshape create its grouping field. Check the resulting identity/value mapping against the source table.\"},\"uncertainty_without_aggregation\":{\"consequence\":\"The requested interval is not defined for the selected summary in this implementation, so the apparent uncertainty could describe a different quantity.\",\"correction\":\"Choose the estimator and experimental unit first. Use a supported mean/median summary with its matching interval, or provide a separately justified analysis for sums/counts instead of attaching an unrelated interval.\"},\"uncertainty_aggregation_unsupported\":{\"consequence\":\"The requested interval is not defined for the selected summary in this implementation, so the apparent uncertainty could describe a different quantity.\",\"correction\":\"Choose the estimator and experimental unit first. Use a supported mean/median summary with its matching interval, or provide a separately justified analysis for sums/counts instead of attaching an unrelated interval.\"},\"median_sem_unsupported\":{\"consequence\":\"The standard error of a mean does not quantify uncertainty of a median.\",\"correction\":\"Keep the intended estimator: use a justified bootstrap interval for median uncertainty or IQR for observational spread, or use mean with SEM if a mean is the scientific target.\"},\"iqr_around_a_mean\":{\"consequence\":\"The chosen center and spread describe different summary conventions and can mislead readers about what the interval represents.\",\"correction\":\"Decide whether the center is a mean or median and whether the interval is spread or estimation uncertainty. Use mean with SD/mean-appropriate uncertainty, or median with IQR/bootstrap uncertainty; review any proposed estimator change.\"},\"std_around_a_median\":{\"consequence\":\"The chosen center and spread describe different summary conventions and can mislead readers about what the interval represents.\",\"correction\":\"Decide whether the center is a mean or median and whether the interval is spread or estimation uncertainty. Use mean with SD/mean-appropriate uncertainty, or median with IQR/bootstrap uncertainty; review any proposed estimator change.\"},\"replicate_matches_grouping_key\":{\"consequence\":\"An experimental-unit identifier reused as a point/group key cannot vary within that point and can produce a false replicate count.\",\"correction\":\"Use the actual independent seed/subject/experiment ID in uncertainty.over and separate it from x, group and facet keys. Technical repeated rows do not create additional independent units.\"},\"band_on_categories\":{\"consequence\":\"A continuous shaded region between unordered categories implies unsupported intermediate uncertainty.\",\"correction\":\"Use interval bars for the categorical points. Retain a band only for a genuinely ordered/continuous domain supported by the analysis.\"},\"facet_by_the_group\":{\"consequence\":\"The requested panel arrangement cannot represent the distinct cohorts or metrics under the supported layout contract.\",\"correction\":\"Use distinct supported facet keys or repeated numeric metrics, and keep the requested cohorts/units explicit. Split the figure into separate supported panels when the combined layout is unavailable.\"},\"facet_keys_identical\":{\"consequence\":\"The requested panel arrangement cannot represent the distinct cohorts or metrics under the supported layout contract.\",\"correction\":\"Use distinct supported facet keys or repeated numeric metrics, and keep the requested cohorts/units explicit. Split the figure into separate supported panels when the combined layout is unavailable.\"},\"facet_repeat_conflict\":{\"consequence\":\"The requested panel arrangement cannot represent the distinct cohorts or metrics under the supported layout contract.\",\"correction\":\"Use distinct supported facet keys or repeated numeric metrics, and keep the requested cohorts/units explicit. Split the figure into separate supported panels when the combined layout is unavailable.\"},\"unsupported_repeat\":{\"consequence\":\"The requested panel arrangement cannot represent the distinct cohorts or metrics under the supported layout contract.\",\"correction\":\"Use distinct supported facet keys or repeated numeric metrics, and keep the requested cohorts/units explicit. Split the figure into separate supported panels when the combined layout is unavailable.\"},\"too_many_panels_per_row\":{\"consequence\":\"Narrow panels can make labels and effect differences unreadable at the manuscript's actual column width.\",\"correction\":\"Use fewer panels per row or a justified wider output size, then inspect the exported figure at its final width. Keep shared scales and cohort labels clear.\"},\"reference_line_outside_limits\":{\"consequence\":\"The reference is not visible, so readers cannot make the intended comparison against it.\",\"correction\":\"Confirm the reference's units and meaning, then expand the appropriate limits or explicitly justify the restricted view. Do not move a scientific threshold merely to fit the plot.\"},\"unaggregated_bar\":{\"consequence\":\"Repeated values at the same category draw on top of one another and may look like a summary that was never computed.\",\"correction\":\"Inspect whether rows are repeats. If a summary is intended, declare its estimator and independent unit; otherwise use a representation that shows the individual observations.\"},\"stacked_without_group\":{\"consequence\":\"The requested segments, signed differences or uncertainty cannot be represented faithfully by the supported stack.\",\"correction\":\"Use a real grouping field for valid part-to-whole stacks. For signed effects or individual uncertainty, choose supported grouped/position-based marks instead of silently dropping intervals or negative components.\"},\"stacked_uncertainty_unsupported\":{\"consequence\":\"The requested segments, signed differences or uncertainty cannot be represented faithfully by the supported stack.\",\"correction\":\"Use a real grouping field for valid part-to-whole stacks. For signed effects or individual uncertainty, choose supported grouped/position-based marks instead of silently dropping intervals or negative components.\"},\"stacking_signed_values\":{\"consequence\":\"The requested segments, signed differences or uncertainty cannot be represented faithfully by the supported stack.\",\"correction\":\"Use a real grouping field for valid part-to-whole stacks. For signed effects or individual uncertainty, choose supported grouped/position-based marks instead of silently dropping intervals or negative components.\"},\"significance_without_uncertainty\":{\"consequence\":\"A test or summary-level claim can look decisive while the reader cannot see observational spread or estimation uncertainty.\",\"correction\":\"Declare the real experimental unit and show estimator-appropriate uncertainty alongside the comparison. Check effect sizes and assumptions; an ID or a small p-value does not establish independence.\"},\"claims_without_uncertainty\":{\"consequence\":\"A test or summary-level claim can look decisive while the reader cannot see observational spread or estimation uncertainty.\",\"correction\":\"Declare the real experimental unit and show estimator-appropriate uncertainty alongside the comparison. Check effect sizes and assumptions; an ID or a small p-value does not establish independence.\"},\"significance_design_invalid\":{\"consequence\":\"The comparison's dependence structure may not match the experiment, which can invalidate its standard error or test interpretation. Reused labels alone do not prove dependence.\",\"correction\":\"Confirm the study design from the experiment records. For the same matched units use supported paired design and pair_by matching uncertainty.over; for genuinely independent units use the independent contract. More complex clustering needs a suitable external analysis.\"},\"possibly_paired_samples\":{\"consequence\":\"The comparison's dependence structure may not match the experiment, which can invalidate its standard error or test interpretation. Reused labels alone do not prove dependence.\",\"correction\":\"Confirm the study design from the experiment records. For the same matched units use supported paired design and pair_by matching uncertainty.over; for genuinely independent units use the independent contract. More complex clustering needs a suitable external analysis.\"},\"significance_estimator_mismatch\":{\"consequence\":\"The test and displayed center target different quantities; a rank comparison is not automatically a test of median equality.\",\"correction\":\"Choose the scientific estimand before choosing the test. Use the supported mean-difference or distribution/rank contract with matching displayed summaries/uncertainty, and describe the tested quantity accurately.\"},\"significance_group_unsupported\":{\"consequence\":\"Pooling separately displayed cohorts or stack segments would test a different population from the plotted comparison.\",\"correction\":\"Use supported per-cohort facets or an explicitly justified single-cohort selection, then compare categories within that population. Disclose the selection and do not silently pool groups.\"},\"significance_pair_invalid\":{\"consequence\":\"Duplicate/self comparisons or an uncorrected family can distort the number of hypotheses and increase false discoveries.\",\"correction\":\"Specify distinct planned comparisons once, then use the supported Holm or appropriate Benjamini-Hochberg family correction. Do not select the family after seeing which comparisons pass.\"},\"uncorrected_multiple_comparisons\":{\"consequence\":\"Duplicate/self comparisons or an uncorrected family can distort the number of hypotheses and increase false discoveries.\",\"correction\":\"Specify distinct planned comparisons once, then use the supported Holm or appropriate Benjamini-Hochberg family correction. Do not select the family after seeing which comparisons pass.\"},\"paired_complete_case_selection\":{\"consequence\":\"Matched complete cases can differ from all available observations, so the test/effect may describe a selected population rather than every displayed value.\",\"correction\":\"Inspect unmatched/nonfinite counts and justify the analysis population. Show the matched cohort consistently or disclose its difference from the displayed summaries; do not hide excluded units or assume they are missing at random.\"},\"paired_units_excluded\":{\"consequence\":\"Matched complete cases can differ from all available observations, so the test/effect may describe a selected population rather than every displayed value.\",\"correction\":\"Inspect unmatched/nonfinite counts and justify the analysis population. Show the matched cohort consistently or disclose its difference from the displayed summaries; do not hide excluded units or assume they are missing at random.\"},\"paired_technical_repeats_averaged\":{\"consequence\":\"Several rows for one unit/condition contribute one unit mean, not several independent observations.\",\"correction\":\"Confirm that averaging technical repeats matches the protocol and inspect the reported row/unit counts. Keep the real independent unit IDs rather than relabelling repeats to inflate n.\"},\"paired_interval_unavailable\":{\"consequence\":\"The available independent observations do not establish the requested uncertainty; an absent interval is not zero uncertainty.\",\"correction\":\"Review unit IDs, exclusions and sample counts. Collect additional independent observations when scientifically possible, or clearly report the interval as unavailable/use a justified supported point-only analysis. Do not invent repeats or zero-width intervals.\"},\"uncertainty_unavailable\":{\"consequence\":\"The available independent observations do not establish the requested uncertainty; an absent interval is not zero uncertainty.\",\"correction\":\"Review unit IDs, exclusions and sample counts. Collect additional independent observations when scientifically possible, or clearly report the interval as unavailable/use a justified supported point-only analysis. Do not invent repeats or zero-width intervals.\"},\"pair_is_the_condition\":{\"consequence\":\"The requested pairing or extra grouping does not identify the supported within-unit condition difference and could silently change the compared observations.\",\"correction\":\"Use distinct condition, numeric measurement and real unit-ID fields. Keep pairing explicit and use supported facets/separate analyses for other cohorts; do not reuse a condition name as the unit identifier.\"},\"paired_difference_group_ignored\":{\"consequence\":\"The requested pairing or extra grouping does not identify the supported within-unit condition difference and could silently change the compared observations.\",\"correction\":\"Use distinct condition, numeric measurement and real unit-ID fields. Keep pairing explicit and use supported facets/separate analyses for other cohorts; do not reuse a condition name as the unit identifier.\"},\"unsupported_paired_semantics\":{\"consequence\":\"The requested pairing or extra grouping does not identify the supported within-unit condition difference and could silently change the compared observations.\",\"correction\":\"Use distinct condition, numeric measurement and real unit-ID fields. Keep pairing explicit and use supported facets/separate analyses for other cohorts; do not reuse a condition name as the unit identifier.\"},\"sort_overrides_category_order\":{\"consequence\":\"The requested ordering has no effect under the selected sort, so readers may see a different ranking or comparison sequence.\",\"correction\":\"Choose one intended ordering rule and inspect the actual displayed categories. Remove the conflicting sort or explicit order rather than assuming both apply.\"},\"trendline_on_log_axis\":{\"consequence\":\"A straight fit in linear coordinates can suggest a different relationship when displayed on transformed axes.\",\"correction\":\"Choose the fitting domain from the scientific model, label any transform, and use a supported fit that matches that domain. Do not pick axes solely to make the relationship look linear.\"},\"dual_axis_in_use\":{\"consequence\":\"Independently chosen scales can create an apparent alignment/correlation and make it unclear which quantity belongs to which axis.\",\"correction\":\"Prefer separate clearly labelled panels. If a supported dual axis is scientifically necessary, state the units and justification and inspect both scales; do not tune them to manufacture agreement.\"},\"dual_axis_with_group\":{\"consequence\":\"Independently chosen scales can create an apparent alignment/correlation and make it unclear which quantity belongs to which axis.\",\"correction\":\"Prefer separate clearly labelled panels. If a supported dual axis is scientifically necessary, state the units and justification and inspect both scales; do not tune them to manufacture agreement.\"},\"smoothing_raw_repeats\":{\"consequence\":\"Smoothing across repeated rows can mix experimental repeats with the x trajectory and obscure their actual variation.\",\"correction\":\"Define the intended within-point summary and independent unit first, then apply justified smoothing to that trajectory. Preserve the raw-repeat/exclusion evidence.\"},\"diverging_counts\":{\"consequence\":\"A zero-centered diverging colour scale suggests signed deviations even though counts are nonnegative.\",\"correction\":\"Use the supported sequential count scale, or explicitly compute and label a scientifically meaningful signed quantity before choosing a diverging representation.\"},\"animation_with_vector_output\":{\"consequence\":\"Static vector files do not contain the animation's changing evidence, so a still cannot establish that every frame is correct.\",\"correction\":\"Review the actual animation and its frame/time mapping separately. Use and label static exports as stills; ensure the required motion export was produced rather than assuming the PDF/SVG animates.\"},\"trace_on_categories\":{\"consequence\":\"The selected animation motion implies an axis/mark meaning that this categorical or non-bar representation does not provide.\",\"correction\":\"Use a supported reveal/draw style for the actual mark/domain, or a bar grow style when bars are intended. Review frame ordering and avoid introducing unsupported continuity.\"},\"grow_outside_bars\":{\"consequence\":\"The selected animation motion implies an axis/mark meaning that this categorical or non-bar representation does not provide.\",\"correction\":\"Use a supported reveal/draw style for the actual mark/domain, or a bar grow style when bars are intended. Review frame ordering and avoid introducing unsupported continuity.\"},\"interactive_not_supported\":{\"consequence\":\"The requested overlay or interactive output cannot reproduce the stated coordinate/feature semantics and may omit or misplace scientific evidence.\",\"correction\":\"Read the named unsupported features. Use supported coordinates and complete band/rule parameters, or export a supported static/separate view; do not silently omit the scientific layer.\"},\"unsupported_layer_coordinates\":{\"consequence\":\"The requested overlay or interactive output cannot reproduce the stated coordinate/feature semantics and may omit or misplace scientific evidence.\",\"correction\":\"Read the named unsupported features. Use supported coordinates and complete band/rule parameters, or export a supported static/separate view; do not silently omit the scientific layer.\"},\"incomplete_layer\":{\"consequence\":\"The requested overlay or interactive output cannot reproduce the stated coordinate/feature semantics and may omit or misplace scientific evidence.\",\"correction\":\"Read the named unsupported features. Use supported coordinates and complete band/rule parameters, or export a supported static/separate view; do not silently omit the scientific layer.\"},\"invalid_axis_break\":{\"consequence\":\"The requested cut cannot be implemented with the stated axis/range/layout, so the resulting geometry would not express the intended view.\",\"correction\":\"Use a supported y-axis cut with from below to, without conflicting limits or composition. For unsupported arrangements, choose a complete unbroken view or separate clearly labelled panels.\"},\"x_break_unsupported\":{\"consequence\":\"The requested cut cannot be implemented with the stated axis/range/layout, so the resulting geometry would not express the intended view.\",\"correction\":\"Use a supported y-axis cut with from below to, without conflicting limits or composition. For unsupported arrangements, choose a complete unbroken view or separate clearly labelled panels.\"},\"axis_break_composition_unsupported\":{\"consequence\":\"The requested cut cannot be implemented with the stated axis/range/layout, so the resulting geometry would not express the intended view.\",\"correction\":\"Use a supported y-axis cut with from below to, without conflicting limits or composition. For unsupported arrangements, choose a complete unbroken view or separate clearly labelled panels.\"},\"table_composition_unsupported\":{\"consequence\":\"Table row identities/cell values do not have the plotted-axis semantics assumed by these options; unsupported composition can misstate what each cell means.\",\"correction\":\"Use supported table summaries, cell formatting and static/Markdown/LaTeX output. Remove incompatible plotted-axis/composition options or use a separate plot when those visual semantics are required.\"},\"unsupported_table_axes\":{\"consequence\":\"Table row identities/cell values do not have the plotted-axis semantics assumed by these options; unsupported composition can misstate what each cell means.\",\"correction\":\"Use supported table summaries, cell formatting and static/Markdown/LaTeX output. Remove incompatible plotted-axis/composition options or use a separate plot when those visual semantics are required.\"},\"unsupported_grouping\":{\"consequence\":\"The requested entity comparison is not represented by this kind/group combination; silently ignoring or pooling the groups would change its scientific meaning.\",\"correction\":\"Choose a kind that draws the intended groups or supported facets. Supply the real grouping column for a series comparison, and remove grouping only when pooling is explicitly intended.\"},\"comparison_without_group\":{\"consequence\":\"The requested entity comparison is not represented by this kind/group combination; silently ignoring or pooling the groups would change its scientific meaning.\",\"correction\":\"Choose a kind that draws the intended groups or supported facets. Supply the real grouping column for a series comparison, and remove grouping only when pooling is explicitly intended.\"},\"unsupported_survival_semantics\":{\"consequence\":\"This estimator has derived quantities and field roles that cannot be replaced by the requested raw-axis transform/overlay or ambiguous identifiers.\",\"correction\":\"Keep the estimator's original input domain and distinct supported field roles. Use its documented derived survival/calibration/quantile/scaling quantities for claims and annotations; justify any external preprocessing separately.\"},\"unsupported_calibration_semantics\":{\"consequence\":\"This estimator has derived quantities and field roles that cannot be replaced by the requested raw-axis transform/overlay or ambiguous identifiers.\",\"correction\":\"Keep the estimator's original input domain and distinct supported field roles. Use its documented derived survival/calibration/quantile/scaling quantities for claims and annotations; justify any external preprocessing separately.\"},\"unsupported_qq_semantics\":{\"consequence\":\"This estimator has derived quantities and field roles that cannot be replaced by the requested raw-axis transform/overlay or ambiguous identifiers.\",\"correction\":\"Keep the estimator's original input domain and distinct supported field roles. Use its documented derived survival/calibration/quantile/scaling quantities for claims and annotations; justify any external preprocessing separately.\"},\"unsupported_scaling_semantics\":{\"consequence\":\"This estimator has derived quantities and field roles that cannot be replaced by the requested raw-axis transform/overlay or ambiguous identifiers.\",\"correction\":\"Keep the estimator's original input domain and distinct supported field roles. Use its documented derived survival/calibration/quantile/scaling quantities for claims and annotations; justify any external preprocessing separately.\"},\"claim_without_group\":{\"consequence\":\"The hypothesis does not identify a supported distinct subject/reference comparison, so the tool cannot check the intended scientific statement.\",\"correction\":\"Use actual supported series/group names and the comparator chosen by the study question, or remove an inapplicable claim. Do not change the hypothesis merely to obtain a passing verdict.\"},\"claim_without_reference\":{\"consequence\":\"The hypothesis does not identify a supported distinct subject/reference comparison, so the tool cannot check the intended scientific statement.\",\"correction\":\"Use actual supported series/group names and the comparator chosen by the study question, or remove an inapplicable claim. Do not change the hypothesis merely to obtain a passing verdict.\"},\"claim_series_unknown\":{\"consequence\":\"The hypothesis does not identify a supported distinct subject/reference comparison, so the tool cannot check the intended scientific statement.\",\"correction\":\"Use actual supported series/group names and the comparator chosen by the study question, or remove an inapplicable claim. Do not change the hypothesis merely to obtain a passing verdict.\"},\"claim_compares_a_series_to_itself\":{\"consequence\":\"The hypothesis does not identify a supported distinct subject/reference comparison, so the tool cannot check the intended scientific statement.\",\"correction\":\"Use actual supported series/group names and the comparator chosen by the study question, or remove an inapplicable claim. Do not change the hypothesis merely to obtain a passing verdict.\"},\"claims_need_series\":{\"consequence\":\"The hypothesis does not identify a supported distinct subject/reference comparison, so the tool cannot check the intended scientific statement.\",\"correction\":\"Use actual supported series/group names and the comparator chosen by the study question, or remove an inapplicable claim. Do not change the hypothesis merely to obtain a passing verdict.\"},\"claim_without_tolerance\":{\"consequence\":\"A closeness/plateau claim without a tolerance has no defined scientific threshold.\",\"correction\":\"Specify a domain-justified tolerance in the quantity's units before interpreting the result. Do not pick a tolerance after seeing the data just to make the claim hold.\"},\"nonfinite_measurements\":{\"consequence\":\"Some rows cannot contribute to the intended quantity/group/unit calculation, so the analysed observations may differ from the source sample.\",\"correction\":\"Inspect the affected fields and reported exclusion counts. Correct genuine data errors or document a justified missing-data policy, then rerun; do not fill missing values with zero or silently discard rows to improve a result.\"},\"missing_plot_keys\":{\"consequence\":\"Some rows cannot contribute to the intended quantity/group/unit calculation, so the analysed observations may differ from the source sample.\",\"correction\":\"Inspect the affected fields and reported exclusion counts. Correct genuine data errors or document a justified missing-data policy, then rerun; do not fill missing values with zero or silently discard rows to improve a result.\"},\"missing_unit_ids\":{\"consequence\":\"Some rows cannot contribute to the intended quantity/group/unit calculation, so the analysed observations may differ from the source sample.\",\"correction\":\"Inspect the affected fields and reported exclusion counts. Correct genuine data errors or document a justified missing-data policy, then rerun; do not fill missing values with zero or silently discard rows to improve a result.\"},\"unlisted_series_retained\":{\"consequence\":\"The displayed population includes observed series absent from the requested order; dropping them silently would hide results.\",\"correction\":\"Review the actual series and intended analysis population. Extend the explicit order, or declare and disclose a scientifically justified selection rather than treating ordering as a filter.\"},\"unequal_sample_sizes\":{\"consequence\":\"Plotted estimates have different amounts of independent evidence and may have different uncertainty or selection patterns.\",\"correction\":\"Inspect per-point unit counts and missingness, show appropriate uncertainty/count context and justify comparisons. Do not duplicate or selectively remove observations merely to balance n.\"},\"empty_panel\":{\"consequence\":\"A requested panel contains no analysable observations and cannot support its intended estimate or claim.\",\"correction\":\"Check facet keys, filters, missingness and the intended population. Correct a genuine mapping error or explicitly disclose the unavailable panel; do not invent observations.\"},\"density_unavailable\":{\"consequence\":\"The observed sample cannot establish the requested distribution shape; a fabricated curve would imply evidence that is absent.\",\"correction\":\"Inspect sample size, finite values and measurement resolution. Show the actual observations or a justified summary when shape is unavailable; do not add artificial noise or copy rows to force a density/distribution fit.\"},\"qq_constant_sample\":{\"consequence\":\"The observed sample cannot establish the requested distribution shape; a fabricated curve would imply evidence that is absent.\",\"correction\":\"Inspect sample size, finite values and measurement resolution. Show the actual observations or a justified summary when shape is unavailable; do not add artificial noise or copy rows to force a density/distribution fit.\"},\"scaling_interval_unavailable\":{\"consequence\":\"The requested fit uncertainty/residual variance is not established by this sample or installed capability; an unavailable estimate is not zero error.\",\"correction\":\"Read the recorded reason and check distinct positive scales, independent evidence and residual degrees of freedom. Install the matching statistics extra if that is the missing capability, or explicitly report a justified point-only fit without inventing uncertainty.\"},\"scaling_residual_variance_unavailable\":{\"consequence\":\"The requested fit uncertainty/residual variance is not established by this sample or installed capability; an unavailable estimate is not zero error.\",\"correction\":\"Read the recorded reason and check distinct positive scales, independent evidence and residual degrees of freedom. Install the matching statistics extra if that is the missing capability, or explicitly report a justified point-only fit without inventing uncertainty.\"},\"output_skipped\":{\"consequence\":\"A requested output is missing, so a completed still or another format does not establish the entire requested export contract.\",\"correction\":\"Read the format-specific reason, provide the matching optional renderer/encoder when required, and rerun. Alternatively make an explicit supported export request; do not present a skipped format as produced.\"},\"inspection_unavailable\":{\"consequence\":\"Final readability/colour/data-view checks were not completed by the required inspection implementation, so successful rendering is incomplete verification.\",\"correction\":\"Install the graphunslopify inspector matching the generator, using the same checkout for unreleased source. Regenerate and rerun with the intended final export width; disabling inspection does not make these checks pass.\"},\"inspection_outdated\":{\"consequence\":\"Final readability/colour/data-view checks were not completed by the required inspection implementation, so successful rendering is incomplete verification.\",\"correction\":\"Install the graphunslopify inspector matching the generator, using the same checkout for unreleased source. Regenerate and rerun with the intended final export width; disabling inspection does not make these checks pass.\"},\"export_size_unavailable\":{\"consequence\":\"The physical written size is unknown, so the tool cannot establish text legibility in the final manuscript context.\",\"correction\":\"Supply intact supported static exports, correct any reported file/size problem and rerun inspection at the intended manuscript width. Do not substitute an assumed canvas size for missing written-file evidence.\"},\"text_too_small\":{\"consequence\":\"Text may be unreadable after the actual export is placed at the intended publication width.\",\"correction\":\"Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview.\"},\"text_near_minimum\":{\"consequence\":\"Text may be unreadable after the actual export is placed at the intended publication width.\",\"correction\":\"Inspect the named text in the written file at its final width. Use a suitable output size/venue layout, fewer crowded panels or shorter accurate labels; rerun final-width inspection rather than only zooming the screen preview.\"},\"labels_collide\":{\"consequence\":\"Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.\",\"correction\":\"Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export.\"},\"tick_labels_collide\":{\"consequence\":\"Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.\",\"correction\":\"Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export.\"},\"legend_covers_data\":{\"consequence\":\"Overlapping labels or legend coverage can hide values and associate text with the wrong evidence.\",\"correction\":\"Inspect the named objects, then move the legend to a supported outside position, simplify/rotate appropriate labels or use a suitable wider/panel layout. Retain scientific context and recheck the actual export.\"},\"overplotting\":{\"consequence\":\"Dense marker ink may hide observations or make frequency hard to judge; this is a density heuristic, not a measured count of overlapping pairs.\",\"correction\":\"Inspect the actual points and intended distribution. Consider justified transparency, smaller markers or supported summaries/facets while preserving sample counts and avoiding undisclosed selection.\"},\"series_indistinguishable\":{\"consequence\":\"Readers may not reliably identify the series under colour-vision differences or greyscale printing.\",\"correction\":\"Use distinct supported marker/line/hatch channels and a colour-safe presentation, then inspect the exported legend and marks in the relevant viewing conditions. Colour alone is insufficient.\"},\"greyscale_collision\":{\"consequence\":\"Readers may not reliably identify the series under colour-vision differences or greyscale printing.\",\"correction\":\"Use distinct supported marker/line/hatch channels and a colour-safe presentation, then inspect the exported legend and marks in the relevant viewing conditions. Colour alone is insufficient.\"},\"series_colour_drifts_between_panels\":{\"consequence\":\"The same named entity changes appearance across panels and can be mistaken for a different entity.\",\"correction\":\"Use one stable series identity/order and a shared palette lock for the intended entities. Check sparse panels and complete legend mappings rather than assigning colours independently per panel.\"},\"cell_text_low_contrast\":{\"consequence\":\"A cell's numeric annotation is unreadable or its foreground/background contrast was not established, weakening quantitative interpretation.\",\"correction\":\"Inspect the actual cell text/background pair and transparency in the final export. Use the supported automatic contrast choice on an assessable background, correct unavailable colours, then rerun; do not assume a value threshold proves contrast.\"},\"cell_text_contrast_untested\":{\"consequence\":\"A cell's numeric annotation is unreadable or its foreground/background contrast was not established, weakening quantitative interpretation.\",\"correction\":\"Inspect the actual cell text/background pair and transparency in the final export. Use the supported automatic contrast choice on an assessable background, correct unavailable colours, then rerun; do not assume a value threshold proves contrast.\"},\"runtime_error\":{\"consequence\":\"Execution did not complete its verification contract; partially written files are not a complete accepted result.\",\"correction\":\"Read the actual exception and execution log, check source paths/columns/types and required capabilities, correct the underlying cause and rerun the strict audit. Keep failed evidence; suppressing checks is not a repair.\"},\"claim_failed\":{\"consequence\":\"The evaluated data/summary do not support this stated relationship. A readable figure does not turn a failed hypothesis into evidence.\",\"correction\":\"Review the predeclared claim, comparison population, mappings and uncertainty against the actual results. Correct genuine input/analysis errors or report the unsupported claim; do not reverse comparators or change thresholds merely to pass.\"},\"repeated_x_values\":{\"consequence\":\"Multiple observations occupy the same series/x coordinate, so overlapping raw marks can hide multiplicity or suggest a single trajectory through repeated measurements.\",\"correction\":\"Check whether raw observations or a unit-level summary answer the question. Show individual observations explicitly, or use a justified summary and uncertainty over the correct independent units; do not average unrelated subjects or time points merely to remove overlap.\"},\"palette_lock_unavailable\":{\"consequence\":\"The requested shared appearance lock could not be used, so a series may change visual identity between figures even when the individual plot renders.\",\"correction\":\"Use a matching GraphUnslopify installation with its lockfile module available, verify the requested local palette-lock path and rerun the paper figures. Review actual cross-figure series appearances before relying on consistent colours or marks.\"},\"check_untested\":{\"consequence\":\"The required scientific or verification check was not established; absence of a failed verdict is not evidence that it passed.\",\"correction\":\"Read the recorded reason, provide the required valid data/capability and justified assumptions, then rerun. If the check remains unavailable, report it as untested rather than manufacturing evidence or disabling it to obtain a pass.\"}}")
-UNKNOWN_DIAGNOSTIC = json.loads("{\"consequence\":\"This unrecognized finding has no reviewed catalog entry; its scientific consequences have not been classified.\",\"correction\":\"Preserve the code and original message, consult that producer's documentation and review the source evidence before rerunning. No automatic scientific correction is inferred.\"}")
-
-
-def edit_target(artist, path, role, source=None, value=None):
-    artist._graphunslopify_text_target = {
-        "path": path,
-        "role": role,
-        "source": source,
-        "editable": path is not None,
-    }
-    if value is not None:
-        artist._graphunslopify_text_target["value"] = value
-    return artist
-
-
-def series_artist(artist, source, suffix="", legend=True):
-    if source is not None:
-        for target in artist if isinstance(artist, list) else [artist]:
-            target._graphunslopify_legend_identity = {
-                "series": str(source),
-                "suffix": suffix,
-                "legend": legend,
-            }
-    return artist
-
-
-def layer_artist(artist, index):
-    layer = RUN_REPORT["spec"]["layers"][index]
-    if layer.get("label"):
-        target = {
-            "path": ["layers", index, "label"],
-            "role": "layer_label",
-            "source": {"layer": index, "mark": layer["mark"]},
-        }
-        for item in artist if isinstance(artist, list) else [artist]:
-            item._graphunslopify_legend_text_target = target
-    return artist
-
-
-def legend_handle_key(handle, label):
-    identity = getattr(handle, "_graphunslopify_legend_identity", None)
-    target = getattr(handle, "_graphunslopify_legend_text_target", None)
-    if identity is not None:
-        return ("series", identity["series"])
-    if target is not None:
-        return ("layer", target["source"]["layer"])
-    return ("external", label)
-
-
-def source_legend_handles(axes):
-    ordinary, labels = axes.get_legend_handles_labels()
-    public = {id(handle): label for handle, label in zip(ordinary, labels, strict=False)}
-    handles, names, seen = [], [], set()
-    for handle in [*axes.get_children(), *axes.containers]:
-        identity = getattr(handle, "_graphunslopify_legend_identity", None)
-        include = (
-            identity.get("legend", True)
-            if identity is not None
-            else (
-                id(handle) in public
-                or getattr(handle, "_graphunslopify_legend_text_target", None) is not None
-            )
-        )
-        if include and id(handle) not in seen:
-            handles.append(handle)
-            names.append(public.get(id(handle), handle.get_label()))
-            seen.add(id(handle))
-    return handles, names
-
-
-def legend_alias(source):
-    key = str(source)
-    return next(
-        (
-            item["text"]
-            for item in RUN_REPORT["spec"]["legend"].get("labels", [])
-            if item["series"] == key
-        ),
-        key,
-    )
-
-
-def legend_alias_path(source):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    index = next(
-        (index for index, item in enumerate(labels) if item["series"] == str(source)), len(labels)
-    )
-    return ["legend", "labels", index, "text"]
-
-
-def validate_legend_aliases(frame):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return
-    if GROUP is None or GROUP not in frame:
-        raise ValueError("Legend display names require a source grouping column")
-    names = [str(name) for name in series_names(frame)]
-    if len(set(names)) != len(names):
-        raise ValueError("Source series IDs have ambiguous string representations")
-    requested = [item["series"] for item in labels]
-    if len(set(requested)) != len(requested):
-        raise ValueError("Each source series may have only one legend display name")
-    unknown = sorted(set(requested) - set(names))
-    if unknown:
-        raise ValueError(f"Legend display names refer to unknown source series: {unknown}")
-    if any(not item["text"].strip() for item in labels):
-        raise ValueError("Legend display names must contain visible text")
-    displayed = [legend_alias(name).strip() for name in names]
-    if len(set(displayed)) != len(displayed):
-        raise ValueError("Legend display names must uniquely identify source series")
-
-
-def disclose_legend_aliases(description):
-    labels = RUN_REPORT["spec"]["legend"].get("labels", [])
-    if not labels:
-        return description
-    mappings = [f"{item['text']} means source series {item['series']}" for item in labels]
-    return description + " Display names: " + "; ".join(mappings) + "."
 
 
 PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
 
-def metric_label(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    return next((item["text"] for item in labels if item["field"] == str(source)), pretty(source))
-
-
-def metric_label_path(source):
-    labels = RUN_REPORT["spec"].get("repeat", {}).get("labels", [])
-    index = next((i for i, item in enumerate(labels) if item["field"] == str(source)), len(labels))
-    return ["repeat", "labels", index, "text"]
-
-
-def facet_key(item):
-    return tuple((field, item[field]) for field in ("value", "row") if field in item)
-
-
-def panel_label_value(index, original):
-    labels = RUN_REPORT["spec"].get("facet", {}).get("labels", [])
-    if not labels:
-        return str(original)
-    key = facet_key(PANEL_SOURCE_KEYS[index])
-    return next((item["text"] for item in labels if facet_key(item) == key), str(original))
-
-
-def mark_panel_text(artist, index):
-    spec = RUN_REPORT["spec"]
-    if "repeat" in spec:
-        field = spec["repeat"]["fields"][index]
-        return edit_target(
-            artist, metric_label_path(field), "metric_label", field, metric_label(field)
-        )
-    if "facet" in spec:
-        labels = spec["facet"].get("labels", [])
-        source = PANEL_SOURCE_KEYS[index]
-        slot = next(
-            (i for i, item in enumerate(labels) if facet_key(item) == facet_key(source)),
-            len(labels),
-        )
-        return edit_target(
-            artist,
-            ["facet", "labels", slot, "text"],
-            "panel_title",
-            source,
-            panel_label_value(index, PANEL_ORIGINAL_NAMES[index]),
-        )
-    return artist
-
-
-def validate_panel_aliases(frame, blocks):
-    spec = RUN_REPORT["spec"]
-    repeat = spec.get("repeat", {})
-    labels = repeat.get("labels", [])
-    if labels:
-        fields = repeat["fields"]
-        requested = [item["field"] for item in labels]
-        if len(set(fields)) != len(fields) or len(set(requested)) != len(requested):
-            raise ValueError("Repeated metric labels require unique source fields and overrides")
-        if any(field not in fields or field not in frame for field in requested):
-            raise ValueError("Metric display names refer to unknown prepared source fields")
-        shown = [metric_label(field).strip() for field in fields]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError(
-                "Metric display names must visibly and uniquely identify source fields"
-            )
-    facet = spec.get("facet", {})
-    labels = facet.get("labels", [])
-    if labels:
-        keys = [facet_key(item) for item in PANEL_SOURCE_KEYS]
-        requested = [facet_key(item) for item in labels]
-        if len(set(keys)) != len(keys) or len(set(requested)) != len(requested):
-            raise ValueError(
-                "Facet display names require unambiguous source values and unique overrides"
-            )
-        if any(("row" in item) != ("rows" in facet) for item in labels):
-            raise ValueError(
-                "Facet display names must include row values exactly for two-dimensional facets"
-            )
-        if any(key not in keys for key in requested):
-            raise ValueError("Facet display names refer to unknown prepared source panels")
-        shown = [panel_label_value(i, name).strip() for i, (name, _) in enumerate(blocks)]
-        if any(not item["text"].strip() for item in labels) or len(set(shown)) != len(shown):
-            raise ValueError("Facet display names must visibly and uniquely identify source panels")
-
-
-def disclose_panel_aliases(description):
-    spec = RUN_REPORT["spec"]
-    mappings = [
-        f"{item['text']} means source metric {item['field']}"
-        for item in spec.get("repeat", {}).get("labels", [])
-    ]
-    facet = spec.get("facet", {})
-    for item in facet.get("labels", []):
-        source = f"{facet['by']}={item['value']}"
-        if "row" in item:
-            source += f", {facet['rows']}={item['row']}"
-        mappings.append(f"{item['text']} means source panel {source}")
-    return (
-        description
-        if not mappings
-        else description + " Panel display names: " + "; ".join(mappings) + "."
-    )
-
-
-def new_report():
-    return {
-        "schema_version": 1,
-        "tool": TOOL,
-        "spec_hash": SPEC_HASH,
-        "spec": json.loads(SPEC_JSON),
-        "status": "incomplete",
-        "ok": False,
-        "data": {},
-        "environment": None,
-        "findings": [dict(f) for f in STATIC_FINDINGS],
-        "inspection": {"available": None, "checked": False},
-        "panels": [],
-        "claims": [],
-        "significance": [],
-        "annotations": [],
-        "outputs": [],
-        "skipped_outputs": [],
-        "untested": [],
-        "alt_text": "",
-    }
-
-
 RUN_REPORT = new_report()
 CURRENT_PANEL = 0
-
-
-def finding(severity, code, message):
-    item = {
-        "severity": severity,
-        "code": code,
-        "message": message,
-        **DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC),
-    }
-    if item not in RUN_REPORT["findings"]:
-        RUN_REPORT["findings"].append(item)
-
-
-def diagnostic_text(code, message, severity="warning"):
-    advice = DIAGNOSTIC_ADVICE.get(code, UNKNOWN_DIAGNOSTIC)
-    return (
-        f"{severity.upper()} [{code}] {message}\n"
-        f"  Why it matters: {advice['consequence']}\n"
-        f"  Recommended correction: {advice['correction']}"
-    )
-
-
-def record_output(path):
-    path = Path(path)
-    if path.suffix.lower() == ".svg":
-        text = path.read_text(encoding="utf8")
-        title_id, description_id = f"title-{SPEC_HASH}", f"description-{SPEC_HASH}"
-        if f'<desc id="{description_id}">' not in text:
-            end = text.index(">", text.index("<svg "))
-            attributes = (
-                f' role="img" aria-labelledby="{title_id}" aria-describedby="{description_id}"'
-            )
-            text = text[:end] + attributes + text[end:]
-            text = text.replace("<title>", f'<title id="{title_id}">', 1)
-            description = f'<desc id="{description_id}">{escape(ALT_TEXT)}</desc>'
-            text = text.replace("</title>", "</title>\n " + description, 1)
-            # Normalize path formatting, preserving meaningful metadata whitespace.
-            text = re.sub(
-                r'(<path\b[^>]*\bd=")([^"]*)(")',
-                lambda m: m[1] + "\n".join(line.rstrip() for line in m[2].split("\n")) + m[3],
-                text,
-            )
-            path.write_text(text, encoding="utf8")
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(65536), b""):
-            digest.update(block)
-    RUN_REPORT["outputs"].append(
-        {
-            "path": str(path),
-            "format": path.suffix[1:],
-            "sha256": digest.hexdigest(),
-            "bytes": path.stat().st_size,
-        }
-    )
-
-
-def skip_output(kind, reason):
-    RUN_REPORT["skipped_outputs"].append({"format": kind, "reason": reason})
-    finding("warning", "output_skipped", f"{kind}: {reason}")
-
-
-def significance_result(left, right, **details):
-    item = {"panel": CURRENT_PANEL, "pair": [str(left), str(right)], **details}
-    # Insets and broken axes redraw the same logical comparison.
-    RUN_REPORT["significance"] = [
-        old
-        for old in RUN_REPORT["significance"]
-        if (old["panel"], old["pair"]) != (item["panel"], item["pair"])
-    ]
-    RUN_REPORT["significance"].append(item)
 
 
 def describe_panels(blocks):
@@ -587,6 +232,8 @@ def finish_report():
     capture_environment()
     RUN_REPORT.pop("_execution_policy", None)
     RUN_REPORT["script"] = {"sha256": script_fingerprint()}
+    if "RUNTIME_BINDING" in globals():
+        RUN_REPORT["script"]["runtime"] = RUNTIME_BINDING
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
     for field, counts in ROW_COUNTS.get("measurements", {}).items():
@@ -619,150 +266,9 @@ def finish_report():
     return RUN_REPORT
 
 
-def run_cli(argv=None):
-    global RUN_REPORT, DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT, Y_FIELD  # noqa: PLW0603 -- reset the bound program context
-    parser = argparse.ArgumentParser(
-        description="Render this figure and write its verification evidence"
-    )
-    policy = parser.add_mutually_exclusive_group()
-    policy.add_argument(
-        "--strict",
-        action="store_true",
-        default=True,
-        help="reject failed or incomplete verification (default)",
-    )
-    policy.add_argument(
-        "--no-strict",
-        dest="strict",
-        action="store_false",
-        help="explicit legacy opt-out; keep failed/incomplete reports without verification exit 2",
-    )
-    parser.add_argument(
-        "--fail-on-warning", action="store_true", help="strict mode, also rejecting warnings"
-    )
-    parser.add_argument(
-        "--report", default=f"{STEM}.report.json", metavar="FILE", help="JSON report destination"
-    )
-    parser.add_argument(
-        "--json", action="store_true", help="print only JSON on stdout; rendering logs go to stderr"
-    )
-    args = parser.parse_args(argv)
-    if args.report == "-":
-        parser.error("use --json for JSON stdout; --report expects a file path")
-    RUN_REPORT = new_report()
-    RUN_REPORT["_execution_policy"] = {
-        "strict": args.strict or args.fail_on_warning,
-        "fail_on_warning": args.fail_on_warning,
-        "source": "cli",
-    }
-    DATA_HASH, ALT_TEXT, SAMPLE_SIZE_TEXT = "unknown", "", ""
-    Y_FIELD = RUN_REPORT["spec"]["y"]["field"]
-    ROW_COUNTS.clear()
-    globals().get("MISSING_INTERVALS", {}).clear()
-    logs = io.StringIO()
-    runtime_failure = False
-    try:
-        with contextlib.redirect_stdout(logs):
-            main()
-    except (Exception, SystemExit) as problem:  # noqa: BLE001 -- CLI records all runtime failures
-        runtime_failure = True
-        finding("error", "runtime_error", str(problem) or type(problem).__name__)
-    report = finish_report()
-    rejected = ((args.strict or args.fail_on_warning) and not report["ok"]) or (
-        args.fail_on_warning and any(f["severity"] == "warning" for f in report["findings"])
-    )
-    report["exit_code"] = 1 if runtime_failure else 2 if rejected else 0
-    report["policy"] = {
-        "strict": args.strict or args.fail_on_warning,
-        "fail_on_warning": args.fail_on_warning,
-        "passed": report["exit_code"] == 0,
-    }
-    encoded = json.dumps(report, indent=2, allow_nan=False) + "\n"
-    path = Path(args.report)
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(encoded, encoding="utf8")
-    except OSError as problem:
-        print(f"could not write report {path}: {problem}", file=sys.stderr)
-        return 1
-    if logs.getvalue():
-        print(logs.getvalue(), end="", file=sys.stderr if args.json else sys.stdout)
-    if args.json:
-        print(encoded, end="")
-    else:
-        print(f"verification: {report['status']}; wrote {path}")
-        for item in report["findings"]:
-            print(
-                diagnostic_text(item["code"], item["message"], item["severity"]),
-                file=sys.stderr if item["code"] == "runtime_error" else sys.stdout,
-            )
-        for reason in report["untested"]:
-            print(diagnostic_text("check_untested", reason))
-        for claim in report["claims"]:
-            if claim["verdict"] in {"fails", "untested"}:
-                print(
-                    diagnostic_text(
-                        "claim_failed" if claim["verdict"] == "fails" else "check_untested",
-                        claim.get("detail", claim["kind"]),
-                        "error" if claim["verdict"] == "fails" else "warning",
-                    )
-                )
-    return report["exit_code"]
-
 IDENTITY_FIELDS = ["learning_rate", "batch_size"]
 REQUIRED_IDENTITY_FIELDS = ["learning_rate", "batch_size"]
 IDENTITY_CONFLICTS = []
-
-
-def normalize_identities(frame, *, final=True):
-    if IDENTITY_CONFLICTS:
-        raise ValueError(
-            "Columns cannot serve both identifier and measurement roles: "
-            + ", ".join(IDENTITY_CONFLICTS)
-        )
-    for key in ("series_order", "category_order"):
-        order = RUN_REPORT["spec"].get(key)
-        if order is not None and len(order) != len(set(order)):
-            raise ValueError(key + " must contain unique identifiers")
-    source = frame.copy()
-    lexical = source.attrs.pop("_graphunslopify_identity_rows", {})
-    for field in IDENTITY_FIELDS:
-        if field not in source:
-            if final and field in REQUIRED_IDENTITY_FIELDS:
-                raise ValueError(f"Required identifier column {field} is missing")
-            continue
-        values = source[field].tolist()
-        if field in lexical:
-            values = [lexical[field][int(index)] for index in source.index]
-        seen = {}
-
-        def as_identifier(value, field=field, seen=seen):
-            if not pd.api.types.is_scalar(value):
-                raise ValueError(f"Identifier {field} must contain scalar values")
-            if pd.isna(value):
-                return None
-            if isinstance(value, (float, np.floating)) and not np.isfinite(value):
-                raise ValueError(f"Numeric identifier {field} must be finite")
-            text = str(value)
-            if not text.strip():
-                raise ValueError(f"Identifier {field} must be nonempty")
-            if text in seen and seen[text] != value:
-                raise ValueError(
-                    f"Distinct identifiers in {field} collide as textual name {text!r}"
-                )
-            seen[text] = value
-            return text
-
-        normalized = [as_identifier(value) for value in values]
-        dtype = source[field].dtype
-        if isinstance(dtype, pd.CategoricalDtype):
-            categories = [as_identifier(value) for value in dtype.categories]
-            source[field] = pd.Categorical(normalized, categories=categories, ordered=dtype.ordered)
-        else:
-            source[field] = pd.Series(normalized, index=source.index, dtype=object)
-        if field in REQUIRED_IDENTITY_FIELDS and source[field].isna().any():
-            raise ValueError(f"Required identifier {field} is missing for retained observations")
-    return source
 
 
 def load():
@@ -1041,104 +547,6 @@ def fit_category_labels(fig, axes):
     return
 
 
-def heading_dollars(text):
-    return text.count("$") - text.count(r"\$")
-
-
-def literal_heading_lines(lines, original):
-    # An originally literal paragraph must not acquire a MathText line.
-    index = 0
-    while index < len(lines):
-        count = heading_dollars(lines[index])
-        if count == 0 or count % 2:
-            index += 1
-            continue
-        line = lines[index]
-        cuts = [
-            match
-            for match in re.finditer(r"\s+", line)
-            if heading_dollars(line[: match.start()]) % 2
-        ]
-        if cuts:
-            cut = cuts[-1]
-            lines[index : index + 1] = [line[: cut.start()], line[cut.end() :]]
-            index += 2
-            continue
-        # A dollar pair inside one word cannot be split without changing it.
-        # Keep it with an odd-dollar neighbor; ordinary inspection still owns
-        # acceptance if the resulting complete wording cannot fit the column.
-        odd = [i for i, text in enumerate(lines) if heading_dollars(text) % 2]
-        if not odd:
-            return [original]
-        neighbor = min(odd, key=lambda i: abs(i - index))
-        low, high = sorted((index, neighbor))
-        lines[low : high + 1] = [" ".join(lines[low : high + 1])]
-        index = low + 1
-    return lines
-
-
-def wrap_heading(original, artist, renderer, width):
-    from matplotlib.text import Text
-
-    probe = Text(
-        fontproperties=artist.get_fontproperties(),
-        usetex=artist.get_usetex(),
-        parse_math=artist.get_parse_math(),
-    )
-    probe.set_figure(artist.get_figure())
-    parse_math, use_tex = artist.get_parse_math(), artist.get_usetex()
-    lines = []
-    for paragraph in original.split("\n"):
-        dollars = heading_dollars(paragraph)
-        mathematical = (parse_math or use_tex) and dollars > 0 and dollars % 2 == 0
-        probe.set_parse_math(parse_math and mathematical)
-        paragraph_lines = []
-        tokens, token = [], ""
-        math_mode, depth, escaped, space = False, 0, False, False
-        for position, char in enumerate(paragraph):
-            separable = char.isspace() and not math_mode and depth == 0 and not escaped
-            if token and separable != space:
-                tokens.append(token)
-                token = ""
-            token += char
-            space = separable
-            dollar_boundary = (
-                not escaped if use_tex else position == 0 or paragraph[position - 1] != "\\"
-            )
-            if char == "$" and mathematical and dollar_boundary:
-                math_mode = not math_mode
-            elif not escaped:
-                if char == "{" and (math_mode or use_tex):
-                    depth += 1
-                elif char == "}" and depth:
-                    depth -= 1
-            escaped = char == "\\" and not escaped
-        if token:
-            tokens.append(token)
-        line, separator = "", ""
-        for token in tokens:
-            if token.isspace():
-                separator += token
-                continue
-            candidate = line + separator + token
-            probe.set_text(
-                candidate.replace(r"\$", "$")
-                if parse_math and not mathematical and not use_tex
-                else candidate
-            )
-            if line and probe.get_window_extent(renderer).width > width:
-                paragraph_lines.append(line)
-                line = token
-            else:
-                line = candidate
-            separator = ""
-        paragraph_lines.append(line + separator)
-        if parse_math and not mathematical and not use_tex and dollars > 1:
-            paragraph_lines = literal_heading_lines(paragraph_lines, paragraph)
-        lines.extend(paragraph_lines)
-    return "\n".join(lines)
-
-
 def fit_headings(fig):
     minimum_heights = {ax: getattr(ax, "_graphunslopify_heading_height", ax.bbox.height)
                        for ax in fig.axes if ax.get_visible()}
@@ -1221,185 +629,6 @@ def add_legend(fig, ax, frame, layout_columns=None):
     return
 
 
-def data_fingerprint():
-    # A figure built from a file that has since changed is worse than no
-    # figure, because it looks current.
-    try:
-        with open(DATA_PATH, "rb") as handle:
-            digest = hashlib.sha256()
-            for block in iter(lambda: handle.read(65536), b""):
-                digest.update(block)
-        return digest.hexdigest()[:16]
-    except OSError:
-        return "unreadable"
-
-
-def script_fingerprint():
-    try:
-        with open(__file__, "rb") as handle:
-            digest = hashlib.sha256()
-            for block in iter(lambda: handle.read(65536), b""):
-                digest.update(block)
-        return digest.hexdigest()
-    except (NameError, OSError):
-        return None
-
-
-def _aligned(frame, subject, reference):
-    """Require complete, finite x coverage for the named series."""
-    if GROUP is None or Y_FIELD not in frame:
-        return None
-    columns = [subject] if reference is None else [subject, reference]
-    selected = frame[frame[GROUP].isin(columns)]
-    if (
-        selected.empty
-        or selected[X_FIELD].isna().any()
-        or selected.duplicated([X_FIELD, GROUP]).any()
-    ):
-        return None
-    pivot = selected.pivot_table(
-        index=X_FIELD, columns=GROUP, values=Y_FIELD, aggfunc="mean", dropna=False, observed=True
-    )
-    if any(column not in pivot.columns for column in columns):
-        return None
-    pair = pivot[columns].sort_index()
-    if not len(pair) or not np.isfinite(pair.to_numpy(dtype=float)).all():
-        return None
-    return pair
-
-
-def _interval_overlap(frame, subject, reference):
-    """How many shared x values have overlapping intervals, or None.
-
-    None when there is nothing to measure: no reference, no grouping, or no
-    uncertainty in the spec, in which case _low was never written.
-    """
-    if reference is None or GROUP is None or "_low" not in frame:
-        return None
-    lows = frame.pivot_table(
-        index=X_FIELD, columns=GROUP, values="_low", aggfunc="mean", observed=True
-    )
-    highs = frame.pivot_table(
-        index=X_FIELD, columns=GROUP, values="_high", aggfunc="mean", observed=True
-    )
-    for column in (subject, reference):
-        if column not in lows.columns or column not in highs.columns:
-            return None
-    shared = lows.index.intersection(highs.index).sort_values()
-    bounds = [
-        lows.loc[shared, subject].to_numpy(dtype=float),
-        highs.loc[shared, subject].to_numpy(dtype=float),
-        lows.loc[shared, reference].to_numpy(dtype=float),
-        highs.loc[shared, reference].to_numpy(dtype=float),
-    ]
-    usable = np.all([np.isfinite(edge) for edge in bounds], axis=0)
-    if not usable.any():
-        return None
-    mine_low, mine_high, their_low, their_high = (edge[usable] for edge in bounds)
-    touching = (mine_low <= their_high) & (their_low <= mine_high)
-    return int(np.sum(touching)), int(usable.sum())
-
-
-def overlap_phrase(measured):
-    # Counts, not a p-value. Non-overlapping intervals imply a difference;
-    # overlapping ones do not imply its absence, and Cumming's mapping from
-    # overlap to significance is conditioned on n. Report what was measured.
-    if measured is None or measured[0] == 0:
-        return None
-    return f"the intervals overlap at {measured[0]} of {measured[1]} x values"
-
-
-def check_claim(frame, claim):
-    """Return (holds, detail). None means the claim could not be tested."""
-    subject, reference = claim["subject"], claim.get("reference")
-    tolerance = claim.get("tolerance") or 0.0
-    pair = _aligned(frame, subject, reference)
-    if pair is None:
-        return (
-            None,
-            "named series are missing, have incomplete x coverage, duplicate x values, or non-finite measurements",
-        )
-
-    mine = pair[subject].to_numpy(dtype=float)
-    theirs = pair[reference].to_numpy(dtype=float) if reference else None
-    kind = claim["kind"]
-    if (
-        kind
-        in ("gap_widens", "gap_narrows", "monotone_increasing", "monotone_decreasing", "converges")
-        and len(mine) < 2
-    ):
-        return None, "at least two x values are required for a trend claim"
-
-    if kind == "beats_everywhere":
-        losses = int(np.sum(mine <= theirs))
-        return losses == 0, f"{losses} of {len(mine)} x values are not above {reference}"
-
-    if kind == "beats_on_average":
-        gap = float(mine.mean() - theirs.mean())
-        return gap > 0, f"mean difference is {gap:+.4g}"
-
-    if kind == "beats_at_end":
-        gap = float(mine[-1] - theirs[-1])
-        return gap > 0, f"difference at the largest x is {gap:+.4g}"
-
-    if kind in ("gap_widens", "gap_narrows"):
-        gap = mine - theirs
-        half = max(len(gap) // 2, 1)
-        early, late = float(gap[:half].mean()), float(gap[half:].mean())
-        change = late - early
-        widening = kind == "gap_widens"
-        holds = change > 0 if widening else change < 0
-        return holds, f"gap moves from {early:+.4g} to {late:+.4g}, a change of {change:+.4g}"
-
-    if kind in ("monotone_increasing", "monotone_decreasing"):
-        steps = np.diff(mine)
-        rising = kind == "monotone_increasing"
-        breaks = int(np.sum(steps < -tolerance if rising else steps > tolerance))
-        return breaks == 0, f"{breaks} of {len(steps)} steps go the wrong way"
-
-    if kind == "converges":
-        tail = max(len(mine) // 5, 1)
-        spread = float(np.abs(mine - theirs)[-tail:].max())
-        return spread <= tolerance, f"largest gap over the final fifth is {spread:.4g}"
-
-    if kind == "no_worse_than":
-        deficit = float(np.max(theirs - mine))
-        return deficit <= tolerance, f"largest shortfall against {reference} is {deficit:.4g}"
-
-    if kind == "within_tolerance":
-        spread = float(np.max(np.abs(mine - theirs)))
-        return spread <= tolerance, f"largest absolute difference is {spread:.4g}"
-
-    return None, f"no test implemented for {kind}"
-
-
-def verify_claims(frame):
-    """Test every claim. Returns True when none of them failed."""
-    if not CLAIMS:
-        return True
-    print("claims:")
-    ok = True
-    for claim in CLAIMS:
-        holds, detail = check_claim(frame, claim)
-        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))
-        sentence = f"{claim['subject']} {wording}"
-        if holds is None:
-            print(f"  UNTESTED  {sentence} ({detail})")
-            continue
-        if holds:
-            print(f"  HOLDS     {sentence} ({detail})")
-            overlap = overlap_phrase(
-                _interval_overlap(frame, claim["subject"], claim.get("reference"))
-            )
-            if overlap is not None:
-                print(f"            but {overlap}, so the spread does not separate them")
-        else:
-            ok = False
-            print(f"  FAILS     {sentence} ({detail})")
-            print("            the figure does not support this. Do not write it in the caption.")
-    return ok
-
-
 def describe_figure(frame):
     """Levels 2 and 3 of the alt text: the numbers and the trend."""
     parts = []
@@ -1415,66 +644,6 @@ def describe_figure(frame):
         return ""
     # Every clause is its own sentence, so a screen reader pauses between them.
     return ". ".join(part[:1].upper() + part[1:] for part in parts) + "."
-
-
-def alt_text(frame):
-    detail = describe_figure(frame)
-    body = ENCODING_SENTENCE + (f" {detail}" if detail else "")
-    for claim in CLAIMS:
-        if claim.get("_verdict") is not True:
-            continue
-        wording = claim["wording"].replace("{reference}", str(claim.get("reference")))
-        sentence = f"{claim['subject']} {wording}"
-        # A claim the spread does not separate is not quoted bare. The bands
-        # are what persuade a reader to trust the verdict, so a reader who
-        # cannot see them is owed the same caveat.
-        overlap = overlap_phrase(claim.get("_overlap"))
-        if overlap is not None:
-            sentence += f", though {overlap}"
-        body += " " + sentence[:1].upper() + sentence[1:] + "."
-    return body
-
-
-def metadata_for(fmt):
-    # Embedding the spec means a reviewer can recover what produced the figure.
-    stamp = f"{TOOL} spec:{SPEC_HASH} data:{DATA_HASH}"
-    provenance = json.dumps(
-        {
-            "schema_version": 1,
-            "tool": TOOL,
-            "spec_hash": SPEC_HASH,
-            "data_sha256_prefix": DATA_HASH,
-            "script_sha256": script_fingerprint(),
-            "spec": json.loads(SPEC_JSON),
-            "alt_text": ALT_TEXT,
-            "environment": capture_environment(),
-        },
-        ensure_ascii=False,
-    )
-    if fmt == "png":
-        return {
-            "Software": stamp,
-            "Description": SPEC_JSON,
-            "Comment": ALT_TEXT,
-            "GraphUnslopify": provenance,
-        }
-    if fmt == "svg":
-        return {
-            "Creator": stamp,
-            "Description": ALT_TEXT,
-            "Title": FIGURE_TITLE or Path(STEM).name,
-            "Identifier": SPEC_HASH,
-            "Source": provenance,
-            "Date": None,
-        }
-    return {
-        "Creator": stamp,
-        "Subject": SPEC_JSON,
-        "Keywords": provenance,
-        "Title": FIGURE_TITLE or Path(STEM).name,
-        "CreationDate": None,
-        "ModDate": None,
-    }
 
 
 def check(fig):

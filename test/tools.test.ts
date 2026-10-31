@@ -86,9 +86,11 @@ test("a heatmap cannot carry claims", () => {
   assert.ok(found.includes("claims_need_series"));
 });
 
-test("a script with no claims still defines the claim machinery", () => {
+test("a script with no claims still requests the canonical claim machinery", () => {
   const result = translated(line);
-  assert.match(result.code, /def verify_claims\(frame\)/);
+  assert.match(result.code, /"verify_claims"/);
+  assert.match(result.code, /verify_claims\(summary\)/);
+  assert.match(result.code, /_figure_runtime\.bind\(globals\(\), \*\*EXPECTED_RUNTIME\)/);
   assert.match(result.code, /CLAIMS = \[\]/);
 });
 
@@ -414,6 +416,7 @@ test("a palette lock is read when one is given", () => {
 });
 
 test("every script fingerprints its data file", () => {
-  assert.match(translated(line).code, /def data_fingerprint/);
+  assert.match(translated(line).code, /"data_fingerprint"/);
+  assert.match(translated(line).code, /DATA_HASH = hashlib\.sha256\(snapshot\)\.hexdigest\(\)\[:16\]/);
   assert.match(translated(line).code, /hashlib\.sha256/);
 });

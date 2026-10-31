@@ -20,9 +20,15 @@ graphunslopify demo
 graphunslopify render graphunslopify-demo/figure.json --strict --json
 ```
 
-The demo creates public synthetic CSV data and PNG/SVG/PDF figures, a standalone Python program,
+The demo creates public synthetic CSV data and PNG/SVG/PDF figures, a reviewable Python program,
 and a JSON verification report. Data paths in a JSON spec resolve beside the spec file.
 `graphunslopify translate figure.json --output figure.py` emits code without rendering.
+
+Current development source uses a compact entry program bound to the exact scientific runtime
+that generated it. For a portable source archive, use `graphunslopify bundle figure.json --output
+figure.zip` or `Figure(...).bundle("figure.zip")`, then follow `REPRODUCE.md` in the ZIP.
+The archive includes runtime source and licenses; third-party scientific libraries stay external.
+This source feature does not change the published0.8.0 release. See [runtime and bundle details](../docs/figure-runtime.md).
 
 `graphunslopify preview --open` launches the packaged offline browser editor. Choose data, edit a
 spec or recipe, review live strict previews and apply an offered fix. Download figures, Python,

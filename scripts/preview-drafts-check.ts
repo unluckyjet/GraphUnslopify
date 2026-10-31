@@ -131,14 +131,20 @@ archive,expected_hash,expected_spec,target=sys.argv[1:]
 target=pathlib.Path(target).resolve();target.mkdir(parents=True,exist_ok=True)
 with zipfile.ZipFile(archive) as z:
  names=set(z.namelist())
- assert names <= {'figure.py','figure.figure.json','figure.report.json','figure.png','figure.svg','figure.pdf','data.csv'},names
+ manifest=json.loads(z.read('_graphunslopify/manifest.json'))
+ root_names={n for n in names if not n.startswith('_graphunslopify/')}
+ assert root_names <= {'figure.py','figure.figure.json','figure.report.json','figure.png','figure.svg','figure.pdf','data.csv',manifest['launcher'],manifest['instructions']},root_names
+ assert '_graphunslopify/runtime/graphunslopify/figure_runtime.py' in names
+ assert '_graphunslopify/runtime/graphunslopify/LICENSE.txt' in names
+ for name,item in manifest['files'].items():
+  raw=z.read(name);assert hashlib.sha256(raw).hexdigest()==item['sha256'] and len(raw)==item['bytes']
  source=z.read('data.csv')
  assert hashlib.sha256(source).hexdigest()==expected_hash
  packaged=json.loads(z.read('figure.report.json'))
  assert packaged['spec_hash']==expected_spec and packaged['data']['sha256_prefix']==expected_hash[:16]
  z.extractall(target)
 script=target/'figure.py'
-done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+done=subprocess.run([sys.executable,str(target/manifest['launcher']),'--strict','--json'],cwd=target,capture_output=True,text=True)
 assert done.returncode==0,done.stderr
 report=json.loads(done.stdout)
 assert report['status']=='passed' and report['spec_hash']==expected_spec

@@ -24,19 +24,44 @@ def sha(raw):
 
 
 def invoke(namespace, folder, archive):
-    """Run genuine CLI policy; verify the report against actual written artifacts."""
+    """Run genuine CLI policy and inspect its actual written artifacts."""
+    stdout, stderr = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+        exit_code = namespace["run_cli"](["--json"])
+    return inspect_artifacts(
+        namespace,
+        folder,
+        archive,
+        json.loads(stdout.getvalue()),
+        exit_code,
+        stderr.getvalue(),
+    )
+
+
+def inspect_artifacts(namespace, folder, archive, report, exit_code, stderr):
+    """Validate actual report/source/provenance/export bytes; never execute replacements."""
     from graphunslopify.provenance import read_provenance
     from PIL import Image
     from pypdf import PdfReader
 
-    stdout, stderr = io.StringIO(), io.StringIO()
-    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-        exit_code = namespace["run_cli"](["--json"])
-    report = json.loads(stdout.getvalue())
     assert report == json.loads((folder / "figure.report.json").read_text())
     assert report["exit_code"] == exit_code and report["policy"]["strict"]
     script_sha = sha((folder / "figure.py").read_bytes())
     assert report["script"]["sha256"] == script_sha
+    binding = namespace.get("RUNTIME_BINDING")
+    if binding is not None:
+        from graphunslopify import figure_runtime
+
+        assert binding["abi"] == figure_runtime.RUNTIME_ABI
+        assert (
+            binding["source_sha256"] == figure_runtime.runtime_info()["source_sha256"]
+        )
+        assert binding["functions"] == list(figure_runtime.FUNCTION_NAMES)
+        assert binding["components"] == {
+            name: sha(Path(figure_runtime.__file__).parent.joinpath(name).read_bytes())
+            for name in figure_runtime.SOURCE_COMPONENTS
+        }
+        assert report["script"]["runtime"] == binding
     outputs = {}
     for item in report["outputs"]:
         path = folder / item["path"]
@@ -49,6 +74,8 @@ def invoke(namespace, folder, archive):
             assert evidence["spec_hash"] == report["spec_hash"]
             assert evidence["spec"] == report["spec"]
             assert evidence["data_sha256_prefix"] == namespace["DATA_HASH"]
+            if binding is not None:
+                assert evidence["runtime"] == binding
         if fmt == "png":
             with Image.open(io.BytesIO(raw)) as image:
                 pixels = image.convert("RGBA")
@@ -97,7 +124,7 @@ def invoke(namespace, folder, archive):
         "scientific_report": semantic,
         "outputs": outputs,
         "script_sha256": script_sha,
-        "stderr_sha256": sha(stderr.getvalue().encode()),
+        "stderr_sha256": sha(stderr.encode()),
         "artifact_files": artifact_files,
     }
 
@@ -143,7 +170,7 @@ def main():
     archive = ROOT / "benchmarks/runtime" / protocol["baseline_archive"]
     assert sha(archive.read_bytes()) == protocol["baseline_archive_sha256"]
     result = {
-        "scope": "Actual conformance only; ordinary emission remains inline in this milestone.",
+        "scope": "Actual accepted-inline/bound/default-shared conformance; no performance claim.",
         "protocol_sha256": sha(protocol_bytes),
         "baseline_archive_sha256": protocol["baseline_archive_sha256"],
         "package_root": str(package),
@@ -211,12 +238,12 @@ def main():
                 assert translated["status"] == "translated" and translated["ok"]
                 script.write_text(translated["code"])
                 current = load_program(script)
-                record["current_inline"] = invoke(
-                    current, folder, artifacts / "current-inline"
+                record["current_shared"] = invoke(
+                    current, folder, artifacts / "current-shared"
                 )
                 before, after = (
                     copy.deepcopy(record["accepted_inline"]),
-                    copy.deepcopy(record["current_inline"]),
+                    copy.deepcopy(record["current_shared"]),
                 )
                 # Each actual script and embedded static-export provenance was
                 # checked above. Compare the actual drawing/science separately.
@@ -229,6 +256,12 @@ def main():
                 )
                 after["scientific_report"]["script"]["sha256"] = (
                     "validated actual script"
+                )
+                # Actual bound source/capabilities and all embedded descriptors
+                # were validated above; older inline artifacts had no binding.
+                assert (
+                    after["scientific_report"]["script"].pop("runtime")
+                    == current["RUNTIME_BINDING"]
                 )
                 assert before == after
                 record["passed"] = True

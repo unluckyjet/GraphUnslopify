@@ -1,0 +1,29 @@
+{
+  "inspected": 123,
+  "metadata_changed_paths": [
+    "docs/density-evidence.png",
+    "docs/fifth-pass-table.png",
+    "docs/seventh-pass-confusion.png",
+    "docs/seventh-pass-qq.png",
+    "docs/seventh-pass-scaling-fit.png",
+    "docs/sparkline-shared-scales.png",
+    "docs/third-pass-heatmap.png",
+    "examples/baseline/01-training-curve.png",
+    "examples/baseline/02-loss-log.png",
+    "examples/baseline/03-single-run.png",
+    "examples/baseline/04-accuracy-by-dataset.png",
+    "examples/baseline/05-latency-ranking.png",
+    "examples/baseline/06-accuracy-vs-latency.png",
+    "examples/baseline/07-params-trendline.png",
+    "examples/baseline/08-compact-double-column.png",
+    "examples/baseline/09-uncertainty-band.png",
+    "examples/baseline/10-faceted-benchmarks.png",
+    "examples/baseline/11-seed-spread.png",
+    "examples/baseline/12-sweep-heatmap.png",
+    "examples/baseline/13-direct-labels.png",
+    "examples/baseline/14-animated-curve.png",
+    "examples/baseline/15-price-and-average.png"
+  ],
+  "pixel_changed_paths": [],
+  "all_pixels_preserved": true
+}

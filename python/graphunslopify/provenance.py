@@ -54,6 +54,25 @@ def _valid_environment(value):
     return _environment_validator().is_valid(value)
 
 
+@lru_cache(maxsize=1)
+def _runtime_validator():
+    from jsonschema import Draft202012Validator
+
+    schema = json.loads(
+        (Path(__file__).with_name("schemas") / "runtime-identity.schema.json").read_text(
+            encoding="utf8"
+        )
+    )
+    return Draft202012Validator(schema)
+
+
+def _valid_runtime(value):
+    # Shape and self-consistency only; metadata does not authenticate source.
+    return _runtime_validator().is_valid(value) and (
+        value["source_sha256"] == value["components"]["figure_runtime.py"]
+    )
+
+
 def _legacy(spec_json: str | None, stamp: str, description: str = "") -> dict[str, Any]:
     if not stamp.startswith("GraphUnslopify") or not spec_json:
         raise ProvenanceError("No GraphUnslopify provenance found")
@@ -100,6 +119,8 @@ def _envelope(payload: str) -> dict[str, Any]:
         raise ProvenanceError("Incomplete embedded provenance")
     if "environment" in value and not _valid_environment(value["environment"]):
         raise ProvenanceError("Invalid embedded environment evidence")
+    if "runtime" in value and not _valid_runtime(value["runtime"]):
+        raise ProvenanceError("Invalid embedded scientific runtime evidence")
     return value
 
 

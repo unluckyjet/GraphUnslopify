@@ -1,0 +1,182 @@
+[
+  {
+    "command": [
+      "/Users/shooter/.cache/graphunslopify/verification-py312/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "python",
+      ".github/actions/figure-ci/run.py",
+      "scripts/check-getting-started.py",
+      "scripts/check-visual-comparison.py",
+      "scripts/check-research-workflow.py",
+      "scripts/check-experiment-tracking.py",
+      "scripts/check-project-management.py",
+      "scripts/check-project-interface.py",
+      "scripts/check-diagnostics.py",
+      "scripts/check-pdf-visual.py",
+      "scripts/check-excel-input.py",
+      "scripts/rendering-benchmark.py",
+      "scripts/benchmark-statistics-cache.py",
+      "scripts/profile-preview-phases.py",
+      "scripts/serve-preview-staging-check.py",
+      "scripts/serve-staged-benchmark.py",
+      "scripts/build-runtime-source.py",
+      "scripts/check-runtime-foundation.py",
+      "scripts/check-runtime-bundles.py",
+      "scripts/check-render-worker.py",
+      "scripts/install-smoke.py",
+      "benchmarks/certified/corpus.py",
+      "scripts/prepare-certified-data.py",
+      "benchmarks/certified/measurement.py",
+      "scripts/measure-certified-figure.py",
+      "benchmarks/certified/runner.py",
+      "scripts/certified-benchmark.py",
+      "scripts/publish-certified-results.py",
+      "scripts/authoring-benchmark.py",
+      "scripts/replay-authoring.py",
+      "scripts/publish-authoring-results.py",
+      "benchmarks/authoring",
+      "benchmarks/certified/producers"
+    ],
+    "returncode": 0,
+    "seconds": 0.0759181670146063,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "/Users/shooter/.cache/graphunslopify/verification-py312/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "python",
+      ".github/actions/figure-ci/run.py",
+      "scripts/check-getting-started.py",
+      "scripts/check-visual-comparison.py",
+      "scripts/check-research-workflow.py",
+      "scripts/check-experiment-tracking.py",
+      "scripts/check-project-management.py",
+      "scripts/check-project-interface.py",
+      "scripts/check-diagnostics.py",
+      "scripts/check-pdf-visual.py",
+      "scripts/check-excel-input.py",
+      "scripts/rendering-benchmark.py",
+      "scripts/benchmark-statistics-cache.py",
+      "scripts/profile-preview-phases.py",
+      "scripts/serve-preview-staging-check.py",
+      "scripts/serve-staged-benchmark.py",
+      "scripts/build-runtime-source.py",
+      "scripts/check-runtime-foundation.py",
+      "scripts/check-runtime-bundles.py",
+      "scripts/check-render-worker.py",
+      "scripts/install-smoke.py",
+      "benchmarks/certified/corpus.py",
+      "scripts/prepare-certified-data.py",
+      "benchmarks/certified/measurement.py",
+      "scripts/measure-certified-figure.py",
+      "benchmarks/certified/runner.py",
+      "scripts/certified-benchmark.py",
+      "scripts/publish-certified-results.py",
+      "scripts/authoring-benchmark.py",
+      "scripts/replay-authoring.py",
+      "scripts/publish-authoring-results.py",
+      "benchmarks/authoring",
+      "benchmarks/certified/producers"
+    ],
+    "returncode": 0,
+    "seconds": 0.049245540983974934,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "returncode": 0,
+    "seconds": 0.2533969589858316,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "test"
+    ],
+    "returncode": 0,
+    "seconds": 12.872488041000906,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "test:python"
+    ],
+    "returncode": 0,
+    "seconds": 495.95445400004974,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "baseline",
+      "--",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.17210725002223626,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "render-check"
+    ],
+    "returncode": 0,
+    "seconds": 7.207967665977776,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "recipe-check"
+    ],
+    "returncode": 0,
+    "seconds": 17.533011042047292,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "compose-check"
+    ],
+    "returncode": 0,
+    "seconds": 3.098356250033248,
+    "source_unchanged": true,
+    "changed_paths": []
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "gallery-check"
+    ],
+    "returncode": 0,
+    "seconds": 15.197982000012416,
+    "source_unchanged": true,
+    "changed_paths": []
+  }
+]

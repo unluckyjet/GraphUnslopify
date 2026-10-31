@@ -177,3 +177,30 @@ def test_unsupported_or_incomplete_envelopes_fail_explicitly(tmp_path, payload):
     Image.new("RGB", (2, 2)).save(path, pnginfo=info)
     with pytest.raises(ValueError):
         read_provenance(path)
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["boolean_abi", "bad_hash", "missing_component", "duplicate_function", "source_disagrees"],
+)
+def test_malformed_runtime_identity_is_rejected_without_executing_source(
+    rendered, tmp_path, change
+):
+    evidence = read_provenance(rendered / "figure.png")
+    runtime = evidence["runtime"]
+    if change == "boolean_abi":
+        runtime["abi"] = True
+    elif change == "bad_hash":
+        runtime["source_sha256"] = "unknown"
+    elif change == "missing_component":
+        runtime["components"].pop("figure_runtime.py")
+    elif change == "duplicate_function":
+        runtime["functions"].append(runtime["functions"][0])
+    else:
+        runtime["source_sha256"] = "0" * 64
+    info = PngImagePlugin.PngInfo()
+    info.add_text("GraphUnslopify", json.dumps(evidence))
+    path = tmp_path / "invalid-runtime.png"
+    Image.new("RGB", (2, 2)).save(path, pnginfo=info)
+    with pytest.raises(ValueError, match="Invalid embedded scientific runtime"):
+        read_provenance(path)

@@ -526,14 +526,15 @@ assert form_report['spec']['output']['size']=='double_column' and form_report['s
 assert form_report['spec']['output']['formats']==['png','pdf']
 assert form_report['spec']['uncertainty']['over']=='seed'
 _validate_report(form_report);assert len(_outputs(form_report,controlled,controlled))==2
-done=subprocess.run([sys.executable,'figure.py','--strict','--json'],cwd=controlled,capture_output=True,text=True)
+done=subprocess.run([sys.executable,'reproduce.py','--strict','--json'],cwd=controlled,capture_output=True,text=True)
 assert done.returncode==0,done.stderr
 assert json.loads(done.stdout)['spec_hash']==form_report['spec_hash']
 with zipfile.ZipFile(root/'without-data.zip') as archive:
     assert not any(n.endswith(('.csv','.parquet')) or n=='data.json' for n in archive.namelist())
 with zipfile.ZipFile(root/'with-data.zip') as archive:
     assert 'data.csv' in archive.namelist()
-    assert all(pathlib.PurePosixPath(n).name==n for n in archive.namelist())
+    assert all(not pathlib.PurePosixPath(n).is_absolute() and '..' not in pathlib.PurePosixPath(n).parts for n in archive.namelist())
+    assert '_graphunslopify/runtime/graphunslopify/figure_runtime.py' in archive.namelist()
     target=root/'reproduced';archive.extractall(target)
 target=target.resolve()
 spec=json.loads((target/'experiment.figure.json').read_text())
@@ -542,7 +543,7 @@ assert spec==report['spec']
 assert spec['data']['path']=='data.csv'
 _validate_report(report);assert len(_outputs(report,target,target))==3
 assert (target/'experiment.pdf').read_bytes().startswith(b'%PDF')
-result=subprocess.run([sys.executable,'experiment.py','--strict','--json','--report','roundtrip.json'],cwd=target,text=True,capture_output=True)
+result=subprocess.run([sys.executable,'reproduce.py','--strict','--json','--report','roundtrip.json'],cwd=target,text=True,capture_output=True)
 assert result.returncode==0,result.stderr
 again=json.loads(result.stdout);assert again['spec_hash']==report['spec_hash']
 assert again['data']['sha256_prefix']==report['data']['sha256_prefix']
@@ -675,7 +676,7 @@ spec=json.loads(specs[0].read_text());stem=spec['output']['stem']
 report=json.loads((target/(stem+'.report.json')).read_text());_validate_report(report)
 assert spec==report['spec'] and spec['data']['sheet']=='Measured results'
 assert spec['title']=='Native worksheet figure' and spec['y']['unit']=='points'
-done=subprocess.run([sys.executable,stem+'.py','--strict','--json'],cwd=target,capture_output=True,text=True)
+done=subprocess.run([sys.executable,'reproduce.py','--strict','--json'],cwd=target,capture_output=True,text=True)
 assert done.returncode==0,done.stderr
 assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
 probe="""import importlib.util,matplotlib.pyplot as plt
@@ -868,8 +869,8 @@ assert report['spec']['y']['label']=='Accuracy score' and report['spec']['y']['u
 assert report['spec']['legend']['labels']==[{'series':'base','text':'Control cohort'},{'series':'ours','text':'Treatment'}]
 assert report['spec']['annotate']==[{'at':'first','series':'ours','text':'Beginning'}]
 assert all(c['subject']=='ours' for c in report['claims']) and report['claims']
-script=next(target.glob('*.py')).resolve()
-done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+manifest=json.loads((target/'_graphunslopify/manifest.json').read_text());script=(target/manifest['script']).resolve()
+done=subprocess.run([sys.executable,str(target/manifest['launcher']),'--strict','--json'],cwd=target,capture_output=True,text=True)
 assert done.returncode==0,done.stderr
 assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
 import os
@@ -925,8 +926,8 @@ report=json.loads(next(target.glob('*.report.json')).read_text())
 assert report['spec']['reference_lines']==[{'axis':'y','value':51,'meaning':'target','label':'Planned level'}]
 assert report['spec']['layers'][0]['label']=='Guide cohort' and report['spec']['layers'][0]['value']==50
 assert report['claims'] and all(c['subject']=='ours' for c in report['claims'])
-script=next(target.glob('*.py')).resolve()
-done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+manifest=json.loads((target/'_graphunslopify/manifest.json').read_text());script=(target/manifest['script']).resolve()
+done=subprocess.run([sys.executable,str(target/manifest['launcher']),'--strict','--json'],cwd=target,capture_output=True,text=True)
 assert done.returncode==0,done.stderr
 assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
 os.chdir(target);m=runpy.run_path(str(script))
@@ -1031,8 +1032,8 @@ for name in ('metric','facet'):
  target=(root/(name+'-text-reproduced')).resolve()
  with zipfile.ZipFile(root/(name+'-text-with-data.zip')) as z:z.extractall(target)
  report=json.loads(next(target.glob('*.report.json')).read_text())
- script=next(target.glob('*.py')).resolve()
- done=subprocess.run([sys.executable,str(script),'--strict','--json'],cwd=target,capture_output=True,text=True)
+ manifest=json.loads((target/'_graphunslopify/manifest.json').read_text());script=(target/manifest['script']).resolve()
+ done=subprocess.run([sys.executable,str(target/manifest['launcher']),'--strict','--json'],cwd=target,capture_output=True,text=True)
  assert done.returncode==0,done.stderr
  assert json.loads(done.stdout)['spec_hash']==report['spec_hash']
  os.chdir(target);m=runpy.run_path(str(script))

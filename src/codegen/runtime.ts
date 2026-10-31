@@ -143,6 +143,8 @@ def finish_report():
     capture_environment()
     RUN_REPORT.pop("_execution_policy", None)
     RUN_REPORT["script"] = {"sha256": script_fingerprint()}
+    if "RUNTIME_BINDING" in globals():
+        RUN_REPORT["script"]["runtime"] = RUNTIME_BINDING
     RUN_REPORT["data"] = {"path": DATA_PATH, "sha256_prefix": DATA_HASH, "counts": dict(ROW_COUNTS)}
     RUN_REPORT["alt_text"] = ALT_TEXT
     for field, counts in ROW_COUNTS.get("measurements", {}).items():

@@ -246,10 +246,15 @@ def test_native_workbook_render_bundle_consent_and_extracted_reproduction(
         io.BytesIO(request(editor, f"/bundle/{result['run_id']}?data=true")[1])
     ) as archive:
         assert archive.read("data.xlsx") == native_workbook
-        assert all(Path(name).name == name for name in archive.namelist())
+        assert all(
+            not Path(name).is_absolute() and ".." not in Path(name).parts
+            for name in archive.namelist()
+        )
+        assert "_graphunslopify/runtime/graphunslopify/figure_runtime.py" in archive.namelist()
+        assert "_graphunslopify/runtime/graphunslopify/LICENSE.txt" in archive.namelist()
         archive.extractall(tmp_path)
     again = subprocess.run(
-        [sys.executable, "experiment.py", "--strict", "--json"],
+        [sys.executable, "reproduce.py", "--strict", "--json"],
         cwd=tmp_path,
         capture_output=True,
         text=True,

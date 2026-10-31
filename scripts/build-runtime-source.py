@@ -19,7 +19,7 @@ constants = {
     if isinstance(node, ast.Assign)
     and len(node.targets) == 1
     and isinstance(node.targets[0], ast.Name)
-    and node.targets[0].id in {"RUNTIME_ABI", "FUNCTION_NAMES"}
+    and node.targets[0].id in {"RUNTIME_ABI", "FUNCTION_NAMES", "SOURCE_COMPONENTS"}
 }
 names = constants["FUNCTION_NAMES"]
 definitions = {
@@ -28,6 +28,10 @@ definitions = {
 if len(names) != len(set(names)) or any(name not in definitions for name in names):
     raise ValueError("Runtime capabilities must name unique actual Python functions")
 sources = {name: ast.get_source_segment(text, definitions[name]) for name in names}
+components = {
+    name: hashlib.sha256(args.source.parent.joinpath(name).read_bytes()).hexdigest()
+    for name in constants["SOURCE_COMPONENTS"]
+}
 if any(not source for source in sources.values()):
     raise ValueError("Cannot recover canonical runtime function source")
 args.out.write_text(
@@ -35,6 +39,7 @@ args.out.write_text(
     "// One scientific implementation supplies inline and shared execution.\n"
     f"export const RUNTIME_ABI = {constants['RUNTIME_ABI']};\n"
     f"export const RUNTIME_SOURCE_SHA256 = {json.dumps(hashlib.sha256(raw).hexdigest())};\n"
+    f"export const RUNTIME_COMPONENTS = {json.dumps(components, indent=2)} as const;\n"
     f"export const RUNTIME_HELPERS = {json.dumps(sources, ensure_ascii=False, indent=2)} as const;\n",
     encoding="utf8",
 )

@@ -67,6 +67,18 @@ def _render_spec(args: argparse.Namespace) -> int:
     return 0
 
 
+def _bundle_spec(args: argparse.Namespace) -> int:
+    try:
+        path = _load_spec(args.spec).bundle(
+            args.output, include_data=not args.no_data, api=args.api
+        )
+    except (SpecError, OSError, ValueError) as problem:
+        print(str(problem), file=sys.stderr)
+        return 2
+    print(f"Wrote source archive {path}; run its strict reproduction launcher to verify the figure")
+    return 0
+
+
 def _translate_spec(args: argparse.Namespace) -> int:
     try:
         figure = _load_spec(args.spec)
@@ -477,6 +489,15 @@ def _verification_options(parser: argparse.ArgumentParser) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    bundle = commands.add_parser("bundle", help="archive a figure with its actual source runtime")
+    bundle.add_argument("spec", help="FigureSpec JSON file")
+    bundle.add_argument("--output", required=True, help="standalone ZIP destination")
+    bundle.add_argument(
+        "--no-data", action="store_true", help="require the original input separately"
+    )
+    bundle.add_argument("--api", default=None)
+    bundle.set_defaults(handler=_bundle_spec)
 
     preview = commands.add_parser("preview", help="open a local live figure editor")
     preview.add_argument("--port", type=int, default=8787)

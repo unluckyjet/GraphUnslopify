@@ -1,0 +1,13 @@
+{
+  "actual_public_wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+  "actual_public_wheel_sha256": "06371cb20500bd7388b91169a92a3237a87defbdb4f5692e31c2df2b1e195b22",
+  "actual_public_package": {
+    "version": "0.8.0",
+    "package": "/tmp/graphunslopify-compact-old-public-runtime/actual public wheel/graphunslopify/__init__.py"
+  },
+  "source_nominal_version": "0.8.0",
+  "actual_generated_program_sha256": "4d20facd49806f08c11668b59e44b1493583f5dced999e3e185d2466bd1dc1b9",
+  "exit_code": 1,
+  "actionable_matching_runtime_and_bundle_guidance": true,
+  "report_or_png_created": false
+}

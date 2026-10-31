@@ -133,6 +133,14 @@ explains its scientific consequence and recommended correction in reports, the C
 and both local browser views. Use `graphunslopify explain CODE` to look one up.
 This addition requires a source installation after0.8.0.
 
+Current source emits compact Python entries tied to their actual scientific runtime source.
+Use `graphunslopify bundle figure.json --output figure.zip` to archive the program, matching
+runtime, licenses and original input hashes together. Extract it and follow `REPRODUCE.md`;
+reproduction needs the listed scientific dependencies, with no GraphUnslopify installation or
+Node executable. A source archive still needs to pass its strict checks.
+See [versioned runtimes and standalone bundles](docs/figure-runtime.md). This is a source feature,
+separate from the published0.8.0 package.
+
 See [installation and optional extras](docs/installation.md), [versioned documentation](docs/versioning.md)
 and the [0.8.0 release notes](docs/releases/0.8.0.md).
 

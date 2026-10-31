@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "scope": "Developer-controlled scientific/export/runtime conformance only. Full86 timing/whole-footprint acceptance and87\u201389 remain open. No release or general performance/human claim.",
+  "baseline_protocol_sha256": "befa743969611f0dabd46a29ca5d603acf7df8dcff5aa1e7b227179f2c495e91",
+  "actual_source_minimum_installed_executions": 270,
+  "actual_no_package_standalone_executions": 30,
+  "kinds": 21,
+  "original_strict_outcomes_per_path": {
+    "passed": 29,
+    "failed_strict2": 1
+  },
+  "entry_refusals": 4,
+  "actual_old_public_same_version_refused": true,
+  "package_files": 64,
+  "browser_workflows_each": 107,
+  "preserved_png_pixels": 123,
+  "raw_archive_sha256": "680ffd823ef99315dc34f864f2d6e799adde22e00eee4279db85524de42d2ba6",
+  "raw_archive_bytes": 97803431,
+  "source_parent_revision": "d2109b1a5db7f98c9053cb807960b2ca21f3389d"
+}

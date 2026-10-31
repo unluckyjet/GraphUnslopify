@@ -48,7 +48,38 @@ regenerated from unchanged inputs and the entire gate set repeated.
 
 See docs/workspace/shared-runtime.md and
 benchmarks/runtime/results/foundation-v1/README.md for actual raw artifacts.
-Commit/push/exact CI acceptance follows. Full86 remains open: default compact
+d2109b1 was pushed and passed exact main41195634719 all nine/Figure41195634727
+at2026-10-31 11:49:01UTC before86b code. Full86 remains open: default compact
 emission, full runtime provenance/source/capabilities, genuinely standalone bundle,
 missing/wrong-runtime entry controls and all planned whole-footprint/startup costs.
 No new release or general performance/adoption claim.
+
+
+##86b — compact default and genuine standalone archive
+
+Working-tree implementation after86a exact acceptance. Ordinary entries declare
+integer ABI,37 actual function capabilities, helper source and11 scientific source/
+resource hashes; actual report/static-export identity is validated. One canonical
+implementation binds each original program's own globals and diagnostic advice.
+CLI/SDK/editor source archives include actual64 package files, licenses, explicit
+external requirements, original input hashes, effective spec and a strict launcher.
+The launcher uses a dedicated runtime directory and preserves colliding filenames.
+Omitted input must be supplied unchanged; archived reference outputs can be
+replaced by actual strict reproduction. SDK destinations cannot overwrite inputs.
+
+Source3.12/minimum3.10/fresh installed wheel each pass30 frozen variants/all21 kinds/
+90 genuine strict executions (270 total), preserving29 strict0/one original strict2
+per path, all numerical reports, PNG pixels and SVG/PDF drawings. Thirty actual
+bundles also reproduce outside checkout with no installed/importable GraphUnslopify
+and invalid Node. Four default-entry missing/wrong-runtime controls stop before
+reports/PNG; the actual older public0.8.0 wheel is also refused despite matching
+nominal version. Source/fresh offline browser107 workflows each pass, with all21
+kinds/zero JS errors/zero external page requests. All123 tracked PNG pixels survive
+regenerated15 baselines/seven references. All seven+gallery/Ruff160/232 Node/1929 Python/zero skips/one upstream warning
+pass on835 unchanged protected paths. Actual raw evidence is retained under
+benchmarks/runtime/results/compact-v1. Push/exact CI acceptance follows this
+local checkpoint; complete86 still requires the frozen measurements.
+
+See docs/figure-runtime.md. Full86 still requires the unchanged frozen complete
+entry/runtime/package/bundle footprint and native/direct startup/execution comparison;
+smaller entry code is not evidence of a speed advantage. Entire87–89 remains open.

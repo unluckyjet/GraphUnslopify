@@ -398,6 +398,64 @@ class Figure:
     def check(self, api: str | None = None) -> list[dict[str, Any]]:
         return list(self.translate(api).get("findings", []))
 
+    def bundle(
+        self, path: str | Path, *, include_data: bool = True, api: str | None = None
+    ) -> Path:
+        """Archive a portable spec/program, actual source runtime and requirements.
+
+        This exports source; scientific acceptance still requires running the
+        included strict launcher. It does not mutate the author's specification.
+        """
+        from .runtime_bundle import create_bundle
+
+        prepared = self.to_dict()
+        data = prepared.setdefault("data", {})
+        source = data.get("path", "results.csv")
+        if not isinstance(source, str) or "://" in source:
+            raise SpecError("Standalone bundles require an existing local data file")
+        actual = Path(source).expanduser().resolve()
+        destination = Path(path).expanduser().absolute()
+        if destination.resolve() == actual:
+            raise SpecError("The archive destination must differ from the original input file")
+        portable_data = "data/" + actual.name
+        data["path"] = portable_data
+        output = prepared.setdefault("output", {})
+        stem = Path(output.get("stem", "figure")).name
+        if not stem or stem in {".", ".."} or "\\" in stem or ":" in stem:
+            raise SpecError("Choose a plain output filename for the standalone bundle")
+        output["stem"] = stem
+        files = {}
+        if prepared.get("palette_lock"):
+            palette = Path(prepared["palette_lock"]).expanduser().resolve()
+            if destination.resolve() == palette:
+                raise SpecError(
+                    "The archive destination must differ from the original palette lock"
+                )
+            portable_palette = "palette/" + palette.name
+            files[portable_palette] = palette.read_bytes()
+            prepared["palette_lock"] = portable_palette
+        translated = Figure(prepared).translate(api)
+        if not translated.get("ok"):
+            from .diagnostics import format_findings
+
+            raise SpecError(format_findings(translated.get("findings", [])))
+        program = stem + ".py"
+        files[program] = translated["code"].encode("utf8")
+        files[stem + ".figure.json"] = (json.dumps(prepared, indent=2) + "\n").encode()
+        try:
+            content = create_bundle(
+                files,
+                script=program,
+                inputs={portable_data: actual.read_bytes()},
+                include_data=include_data,
+                reference_outputs={stem + ".figure.json"},
+            )
+        except RuntimeError as problem:
+            raise SpecError(str(problem)) from problem
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(content)
+        return destination
+
     def render(
         self,
         cwd: str | Path | None = None,

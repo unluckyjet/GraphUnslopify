@@ -21,7 +21,6 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlsplit
-from zipfile import ZIP_DEFLATED, ZipFile
 
 from .audit import _outputs, _run, _validate_report
 from .demo import write_demo
@@ -421,21 +420,23 @@ class PreviewState:
             return answer
 
     def bundle(self, identity: str, include_data: bool) -> bytes:
+        from .runtime_bundle import create_bundle
+
         with self.lock:
             run = self.runs.get(identity)
         if run is None:
             raise ValueError("This preview is no longer available")
-        import io
-
-        buffer = io.BytesIO()
-        with ZipFile(buffer, "w", ZIP_DEFLATED) as archive:
-            for name, path in run["files"].items():
-                archive.write(path, name)
-            if run["palette"]:
-                archive.write(run["folder"] / run["palette"], run["palette"])
-            if include_data:
-                archive.write(run["folder"] / run["data"], run["data"])
-        return buffer.getvalue()
+        files = {name: path.read_bytes() for name, path in run["files"].items()}
+        if run["palette"]:
+            files[run["palette"]] = (run["folder"] / run["palette"]).read_bytes()
+        script = next(name for name in files if name.endswith(".py"))
+        return create_bundle(
+            files,
+            script=script,
+            inputs={run["data"]: (run["folder"] / run["data"]).read_bytes()},
+            include_data=include_data,
+            reference_outputs=set(run["files"]) - {script},
+        )
 
 
 class PreviewServer(ThreadingHTTPServer):

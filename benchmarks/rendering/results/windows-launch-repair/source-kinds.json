@@ -1,0 +1,641 @@
+{
+  "scope": "Compare actual process/worker exports for every supported kind and mixed inputs.",
+  "package_mode": "source",
+  "package_root": "/Users/shooter/Desktop/Projects/JSONTranslator/python/graphunslopify",
+  "package_assets": {
+    "preview.py": "0793947e1a6f5d0d9e6ab7162d90f953a00d005d2042cd639928f9780acd057c",
+    "preview_worker.py": "39346f175e9c9800d1a779de7dc1cc4c5d6a7f00e626a6e9230ed6003de0ebc2",
+    "worker_process.py": "f90c05754f86543bf022b17cbc40a493c081ba5095a08b3cb43bb296ef7ceabe",
+    "preview_render.py": "53a44942133b4896fbecf4a36c6f3712ebe4ec1745caf020418d2d9ac931a8b8",
+    "preview_geometry.py": "9f903957198b95ed71bd85d5f13b0b022a1acbb21c70af527a03626721d35dbd",
+    "preview_diagnostics.py": "d0eacc6830fb3516401b416492673a8174b5e6763d07513aac9538f00fec357c",
+    "_translator.mjs": "ed721db756116b071cc445f2c7312e04b949715be234b52eb199fa1da22cadc0"
+  },
+  "complete": true,
+  "passed": true,
+  "records": [
+    {
+      "id": "confusion_row_normalised",
+      "kind": "confusion_matrix",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "e84c79baf538455bb8cf3512ac61857f",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ablation_waterfall",
+      "kind": "waterfall",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "307151aa7c1a46be99626b9b80d99340",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "head_sparklines",
+      "kind": "sparkline_grid",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "6fca2c4269374c418c03af50a28e7131",
+        "request_number": 3,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "reliability_diagram",
+      "kind": "calibration",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "447fe42a74ab4d718215157d3eaef866",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "normal_qq",
+      "kind": "qq",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "ad0169606b1146de9b46fd0ebaeb64cb",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "survival_curve",
+      "kind": "kaplan_meier",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "6485085cb8f3485bb80f9ebfc5e3d9f8",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "power_law_fit",
+      "kind": "scaling_fit",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "81edb08ebbb94c1a93a76abb36b2f7cc",
+        "request_number": 7,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ablation_forest",
+      "kind": "forest",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "3d60798f53f546caaf0fec591ecf5dd3",
+        "request_number": 8,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "paired_gain",
+      "kind": "paired_difference",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "09ddbb7749ad4b229205354a62abb2cb",
+        "request_number": 9,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "before_after_slope",
+      "kind": "slope",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "e6e78d3f07ce44d4adedb0d6263ee753",
+        "request_number": 10,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "before_after_dumbbell",
+      "kind": "dumbbell",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "4a7150d7254e4fccae12d699242082ca",
+        "request_number": 11,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "latency_ecdf",
+      "kind": "ecdf",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "3ec7318c4c67441c85190c91e8eb9e55",
+        "request_number": 12,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "raincloud_by_model",
+      "kind": "raincloud",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "e8794398f35e4b7d8d4c2b7e04329012",
+        "request_number": 13,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ridgeline_by_model",
+      "kind": "ridgeline",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "13a5f0766f0944408ce676e674f95727",
+        "request_number": 14,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "training_curve",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "5c573d86eb6b4f45b2abae10d17bb4ea",
+        "request_number": 15,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "ablation_bar",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86641,
+        "request_id": "ff6dcd1baa7d4284b4f3005834267638",
+        "request_number": 16,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "benchmark_comparison",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "f08d57ef06aa4e6fb30ea66c7c061e0f",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "pareto",
+      "kind": "scatter",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "970c13269fcb41c0b992683c49651c3f",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "seed_distribution",
+      "kind": "box",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "fc9c63becd6e44cd86863f6373141418",
+        "request_number": 3,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "confusion_matrix",
+      "kind": "heatmap",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "a24517c37b7441cf8dd37208932fa9cc",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "hyperparameter_grid",
+      "kind": "heatmap",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "5b3fce0348154a4d8df96f791ab5c1e6",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "faceted_curves",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "85127543316043d49d47b4d750060ecc",
+        "request_number": 6,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "delta_vs_baseline",
+      "kind": "bar",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "06028cd9ba554651b588636decdb3a24",
+        "request_number": 7,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "scaling_law",
+      "kind": "scatter",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "2ac9828656464a23ac092cfc141c5f01",
+        "request_number": 8,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "animated_curve",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "e8d5704e753a44408b0247c22a3b3cb6",
+        "request_number": 9,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "native-violin",
+      "kind": "violin",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "0ae0d61a601f4785879fcfdf61a97529",
+        "request_number": 10,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "native-table",
+      "kind": "table",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "0ad6a646cc2c42b4bc7db2ab1b34f78d",
+        "request_number": 11,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "original-false-comparison",
+      "kind": "line",
+      "format": "csv",
+      "passed": true,
+      "exit_code": 2,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "383d23672d5d4e3993fb944d9e6cbef7",
+        "request_number": 12,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "json-after-csv",
+      "kind": "line",
+      "format": "json",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "ebe126b9fa4f4765ba8f40aafbf29e76",
+        "request_number": 13,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    },
+    {
+      "id": "parquet-after-json",
+      "kind": "line",
+      "format": "parquet",
+      "passed": true,
+      "exit_code": 0,
+      "worker": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 86908,
+        "request_id": "465b37a5d270474ca920192e73e7e6d6",
+        "request_number": 14,
+        "process_started": false,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "a06ed39ce9888dd07ac39c195af9cb7080b207597bd9d869a12e7b3869d1edec",
+        "instrumented": false
+      },
+      "matching_original_semantic_report_png_and_table_text": true
+    }
+  ],
+  "kinds": [
+    "bar",
+    "box",
+    "calibration",
+    "confusion_matrix",
+    "dumbbell",
+    "ecdf",
+    "forest",
+    "heatmap",
+    "kaplan_meier",
+    "line",
+    "paired_difference",
+    "qq",
+    "raincloud",
+    "ridgeline",
+    "scaling_fit",
+    "scatter",
+    "slope",
+    "sparkline_grid",
+    "table",
+    "violin",
+    "waterfall"
+  ]
+}

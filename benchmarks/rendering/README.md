@@ -36,7 +36,7 @@ be summed. Instrumented requests never enter ordinary medians. There are no CI
 latency thresholds. Developer-selected cases were informed by exploration and
 are not held out.
 
-## Measured source comparison,2026-10-30
+## Initial source comparison57d9b9e,2026-10-30
 
 [All90 actual outcomes](results/worker-comparison-v3.json) match their original
 expectations:72 clean exit0 and18 false-claim exit2. Both backends retain identical
@@ -142,3 +142,29 @@ retains all original Student-t cases/gates. This is an environment workaround,
 not a product or scientific-policy change. New exact main/Figure CI remains
 required after pushing this milestone. Translator evaluation/full84 and85–89
 remain open.
+
+
+## Windows launcher repair acceptance
+
+Initial57d9b9e passed eight main jobs and Figure but failed its first Windows
+installed editor render; [final original CI](results/windows-launch-repair/original-final-ci.json)
+is retained. CPython's Windows venv executable redirects to another process.
+The repair follows [CPython3.12 multiprocessing](https://github.com/python/cpython/blob/3.12/Lib/multiprocessing/popen_spawn_win32.py):
+launch the base interpreter while retaining the original environment via
+__PYVENV_LAUNCHER__. Strict owned-PID readiness remains required. The smoke now
+reports HTTP error bodies to make another failure diagnosable.
+
+[New local verification](results/windows-launch-repair/verification.json) records
+232 Node/1840 Python tests, zero skips/one upstream warning, full Ruff142 and
+all seven gates on306 unchanged files.24 worker controls pass in each source,
+minimum and genuine fresh context. New [formal90](results/windows-launch-repair/paired-comparison-v3.json),
+minimum/fresh30-record smoke and source60 native renders/21 kinds pass under the
+unchanged literal v3 protocol. Original vectors remain; no case/gate is removed.
+The installed reuse/shutdown gate passes locally. Actual Windows/new exact
+all-nine-main/Figure acceptance remains required after this repair push.
+
+Failed ENOSPC attempts and the relocatable-runtime fixture correction are
+recorded in [failure context](results/windows-launch-repair/failure-context.json).
+Only completed/failed owned temporary dependency environments were pruned;
+source, raw results and wheels were preserved. No translator product changes,
+new figure kinds or public release are part of this repair.

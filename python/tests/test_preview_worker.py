@@ -421,3 +421,64 @@ time.sleep(60)
     else:
         pytest.fail("Timed-out descendant remains running")
     assert call(worker, "print('after-tree-timeout')").stdout.strip() == "after-tree-timeout"
+
+
+def test_owned_python_launch_retains_virtual_environment_and_exact_pid(tmp_path, monkeypatch):
+    import venv
+    from types import SimpleNamespace
+
+    from graphunslopify import worker_process
+
+    virtual = tmp_path / "virtual with spaces"
+    venv.EnvBuilder(with_pip=False, symlinks=os.name != "nt").create(virtual)
+    executable = virtual / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    monkeypatch.setattr(
+        worker_process,
+        "sys",
+        SimpleNamespace(executable=str(executable), _base_executable=sys._base_executable),
+    )
+    program = 'import os,sys,json;print(json.dumps({"pid":os.getpid(),"prefix":sys.prefix,"executable":sys.executable}))'
+    original_command = [str(executable), "-c", program]
+    original_env = dict(os.environ)
+    command, env = worker_process._owned_launch(original_command, original_env)
+    assert original_command[0] == str(executable) and "__PYVENV_LAUNCHER__" not in original_env
+    process = subprocess.Popen(
+        command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+    stdout, stderr = process.communicate(timeout=30)
+    assert process.returncode == 0, stderr
+    actual = json.loads(stdout)
+    assert actual["pid"] == process.pid
+    assert Path(actual["prefix"]).resolve() == virtual.resolve()
+    assert Path(actual["executable"]).resolve() == executable.resolve()
+
+
+def test_owned_launch_preserves_other_executables_and_nonwindows_commands(monkeypatch):
+    from types import SimpleNamespace
+
+    from graphunslopify import worker_process
+
+    monkeypatch.setattr(
+        worker_process,
+        "sys",
+        SimpleNamespace(executable="V:/env/python.exe", _base_executable="V:/base/python.exe"),
+    )
+    env = {"ONLY_TEST_SETTING": "value"}
+    other = ["V:/node/node.exe", "owned.mjs"]
+    assert worker_process._owned_launch(other, env, windows=True) == (other, env)
+    python = ["V:/env/python.exe", "-c", "pass"]
+    assert worker_process._owned_launch(python, env, windows=False) == (python, env)
+    actual, environment = worker_process._owned_launch(python, env, windows=True)
+    assert actual[0] == "V:/base/python.exe"
+    assert environment == {**env, "__PYVENV_LAUNCHER__": "V:/env/python.exe"}
+
+
+def test_wrong_readiness_pid_is_rejected_and_owned_process_is_stopped(tmp_path):
+    program = "import os,json,time;print(json.dumps({'protocol':1,'ready':True,'kind':'renderer','pid':os.getpid()+1}),flush=True);time.sleep(60)"
+    service = JsonWorker([sys.executable, "-c", program], tmp_path, kind="renderer")
+    try:
+        with pytest.raises(WorkerError, match="readiness"):
+            service.request({}, timeout=30)
+        assert service.connection is None
+    finally:
+        service.close()

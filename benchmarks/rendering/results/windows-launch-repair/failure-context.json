@@ -1,0 +1,14 @@
+{
+  "original_commit": "57d9b9ec746a069564f68b4f1979da199fa0c0cb",
+  "failed_job": 124391318050,
+  "observed_error": "Windows installed editor first render HTTP500; original smoke omitted its error body",
+  "diagnosis": "Windows CPython venv redirector launches a child, conflicting with strict Popen/worker PID identity. Source-supported; actual repaired Windows acceptance requires new CI.",
+  "primary_source": "https://github.com/python/cpython/blob/3.12/Lib/multiprocessing/popen_spawn_win32.py",
+  "repair": "Launch the base Python directly while retaining the venv via __PYVENV_LAUNCHER__; retain strict readiness PID check. Surface smoke HTTP error body.",
+  "retained_local_failures": [
+    "Initial local seven-gate repair attempt stopped at Node ENOSPC; incomplete fresh install also ENOSPC. Removed only11 owned temporary dependency environments, keeping sibling evidence/source/wheels.",
+    "Initial new minimum fixture copied a relocatable Python executable; fixed its POSIX venv creation to use symlinks, Windows keeps redirector copies. No scientific case/gate changed."
+  ],
+  "current_local": "New current-source formal90 passes; source60-kind renders/minimum24/installed24/minimum30/installed30/current installed reuse-shutdown all pass. Full seven gates pending.",
+  "scope": "No translator product implementation, new chart kind, scientific-policy change or public release."
+}

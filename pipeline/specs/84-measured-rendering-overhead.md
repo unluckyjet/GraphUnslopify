@@ -88,3 +88,16 @@ reuse/shutdown gate. Seven stable gates pass232 Node/1837 Python, zero skips,
 one upstream warning, Ruff142 on306 unchanged source/test/fixture files.
 New push/exact CI are next. Translator investigation and full84
 remain open;85–89 remain pending.
+
+
+###84b Windows acceptance repair
+
+Initial57d9b9e passed eight main jobs/Figure but Windows installed editor returned
+HTTP500. The repair launches the actual base interpreter while preserving its
+venv, matching CPython multiprocessing; strict Popen/worker PID identity stays.
+HTTP smoke surfaces error bodies. Local seven gates232/1840/Ruff142 on306 stable
+files,24 source/minimum/fresh controls each, new formal90, current source60 native
+renders/21 kinds, minimum/fresh30-record smoke and installed reuse/shutdown pass.
+Original failed CI/attempts and vectors remain in benchmarks/rendering/results/windows-launch-repair/.
+Repair push/new exact all9/Figure, actual Windows acceptance and full84 translator
+evaluation remain open;85–89 remain pending. No translator implementation yet.

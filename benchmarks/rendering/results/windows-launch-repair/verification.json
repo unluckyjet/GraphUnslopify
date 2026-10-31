@@ -1,0 +1,104 @@
+{
+  "observed_at": "2026-10-31T01:21:02.914859+00:00",
+  "base_commit": "57d9b9ec746a069564f68b4f1979da199fa0c0cb",
+  "scope": "84b Windows launcher repair; full84 and85\u201389 remain open, public0.8.0 unchanged",
+  "seven_local_gates_passed": true,
+  "source_test_fixture_files_unchanged": 306,
+  "node_tests_passed": 232,
+  "python_tests_passed": 1840,
+  "skipped": 0,
+  "warnings": 1,
+  "warning": "existing MLflow SQLAlchemy deprecation",
+  "ruff": "Full CI lint/format142 passed",
+  "worker_controls_per_environment": 24,
+  "worker_control_environments": [
+    "source3.12.14",
+    "minimum3.10.22",
+    "genuine fresh installed3.12.14"
+  ],
+  "current_formal90": "paired-comparison-v3.json",
+  "current_source_all_kinds": "source-kinds.json",
+  "minimum_and_installed_30_record_smoke": [
+    "minimum-smoke.json",
+    "installed-smoke.json"
+  ],
+  "current_invoked_package_assets_match": true,
+  "installed_reuse_shutdown": {
+    "status": "passed",
+    "wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+    "python": "3.12.14",
+    "translator": {
+      "version": "0.8.0",
+      "kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "node": "v24.19.0"
+    },
+    "network": "external connections blocked after install",
+    "agent": false,
+    "pdf": false,
+    "registry_version": null,
+    "getting_started": {
+      "status": "passed",
+      "python_package": "0.8.0",
+      "steps": {
+        "demo": "passed",
+        "rerun": "passed",
+        "false_claim": "failed",
+        "recovered": "passed"
+      },
+      "exit_codes": [
+        0,
+        2,
+        0
+      ],
+      "data_sha256_prefix": "3a6c3eb05c4dc08c",
+      "elapsed_seconds": 5.098,
+      "timing_scope": "automated walkthrough after installation, not novice completion time",
+      "work_dir": "/private/tmp/graphunslopify-worker-launch-repair-installed-v2/guided tour"
+    },
+    "visual_comparison": null,
+    "research_workflow": null,
+    "experiment_tracking": null,
+    "project_management": null,
+    "project_interface": null,
+    "diagnostics": null,
+    "pdf_visual": null,
+    "excel_input": {
+      "status": "passed",
+      "source_sha256": "1f3508348c872e8a5ddc4b12f44fdc9a077b167e959e0aaaf16d24b2783a9a7f",
+      "rows": 3,
+      "worksheet": "Measurements",
+      "exports": {
+        "excel.png": "a5a08c218c871b0cc16e1928de1ed0d8c181c80c535727798c438edbe8048b8c",
+        "excel.svg": "ed7f9906d38874cbbfd545a5975135580e448e20c61c88ff719a30d4ce7a4a6e",
+        "excel.pdf": "12db33b55a1ddd0547d9655e9fdf42810def38720f11ea91d2d15d562d105771"
+      },
+      "package": "/private/tmp/graphunslopify-worker-launch-repair-installed-v2/fresh environment/lib/python3.12/site-packages/graphunslopify/__init__.py",
+      "reader_version": "0.9.0"
+    },
+    "work_dir": "/private/tmp/graphunslopify-worker-launch-repair-installed-v2"
+  },
+  "source_and_gui_scope": "Only private interpreter launch selection changes Windows behavior; source/fresh101-workflow browser evidence and three-environment21-kind proof remain bound to initial57d9b9e. Current source21-kind native replay passes; new CI must rerun its full editor and all platforms.",
+  "ci": "Original57d9b9e all eight other main jobs/Figure passed, Windows failed; repaired Windows and exact new all9/Figure acceptance pending."
+}

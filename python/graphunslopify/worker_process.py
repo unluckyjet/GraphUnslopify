@@ -5,10 +5,12 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import ntpath
 import os
 import queue
 import signal
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -25,6 +27,21 @@ MAX_REQUEST = 4 * 1024 * 1024
 
 class WorkerError(RuntimeError):
     """A private worker failed; this is never scientific acceptance."""
+
+
+def _owned_launch(command, env, *, windows=None):
+    """Bypass Windows venv redirectors while retaining their interpreter context."""
+    windows = os.name == "nt" if windows is None else windows
+    base = getattr(sys, "_base_executable", None) or sys.executable
+    if (
+        windows
+        and ntpath.normcase(command[0]) == ntpath.normcase(sys.executable)
+        and ntpath.normcase(base) != ntpath.normcase(sys.executable)
+    ):
+        # Match CPython's Lib/multiprocessing/popen_spawn_win32.py: the venv
+        # redirector otherwise owns Popen.pid while another process executes.
+        return [base, *command[1:]], {**env, "__PYVENV_LAUNCHER__": sys.executable}
+    return command, env
 
 
 @dataclass
@@ -142,10 +159,11 @@ class JsonWorker:
             if os.name != "nt"
             else {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
         )
+        command, launch_env = _owned_launch(self.command, env)
         process = subprocess.Popen(
-            self.command,
+            command,
             cwd=self.cwd,
-            env=env,
+            env=launch_env,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

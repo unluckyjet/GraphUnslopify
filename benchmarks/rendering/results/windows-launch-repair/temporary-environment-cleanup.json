@@ -1,0 +1,16 @@
+{
+  "scope": "Only owned completed/failed temporary dependency environments removed; sibling source/inputs/logs/measurements/wheels preserved. Active cache Python and minimum runtime preserved.",
+  "removed": [
+    "/tmp/graphunslopify-aliases-installed/fresh environment",
+    "/tmp/graphunslopify-central-workspace-installed/fresh environment",
+    "/tmp/graphunslopify-date-layout-installed/fresh environment",
+    "/tmp/graphunslopify-edit-geometry-installed/fresh environment",
+    "/tmp/graphunslopify-heading-context-installed/fresh environment",
+    "/tmp/graphunslopify-heading-layout-installed/fresh environment",
+    "/tmp/graphunslopify-workbook-editor-installed/fresh environment",
+    "/tmp/graphunslopify-text-editor-installed/fresh environment",
+    "/tmp/graphunslopify-worker-installed/fresh environment",
+    "/tmp/graphunslopify-worker-required-installed/fresh environment",
+    "/tmp/graphunslopify-worker-launch-repair-installed/fresh environment"
+  ]
+}

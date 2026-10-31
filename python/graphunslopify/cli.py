@@ -425,6 +425,22 @@ def _project(args: argparse.Namespace) -> int:
             from .project_review import project_review
 
             result = project_review(args.path, event_id=args.event)
+        elif args.command == "project-inspections":
+            from .project_inspections import project_inspections
+
+            result = project_inspections(args.path)
+        elif args.command == "project-inspect-pdf":
+            from .project_inspections import inspect_project_pdf
+
+            result = inspect_project_pdf(
+                args.path,
+                args.pdf,
+                identity=args.id,
+                expected_revision=args.expected_revision,
+                pages=args.pages,
+                dpi=args.dpi,
+                timeout=args.timeout,
+            )
         elif args.command == "project-shared":
             result = set_project_shared(
                 args.path,
@@ -601,6 +617,11 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
         ("project-review", "read grouped scientific evidence without executing figures"),
+        ("project-inspections", "read saved source-free PDF visual evidence and freshness"),
+        (
+            "project-inspect-pdf",
+            "retain bounded PDF visual inspection without numerical acceptance",
+        ),
         ("project-shared", "save shared semantic settings with an expected revision"),
         ("project-run", "audit the paper and preserve an independent versioned run"),
     ]:
@@ -618,6 +639,13 @@ def build_parser() -> argparse.ArgumentParser:
             project.add_argument("--expected-revision", required=True)
         if name == "project-review":
             project.add_argument("--event", help="intact completed historical audit run ID")
+        if name == "project-inspect-pdf":
+            project.add_argument("--pdf", required=True)
+            project.add_argument("--id", required=True)
+            project.add_argument("--expected-revision", required=True)
+            project.add_argument("--pages", nargs="+", type=int)
+            project.add_argument("--dpi", type=int, default=144)
+            project.add_argument("--timeout", type=float, default=120)
         if name == "project-run":
             project.add_argument("--expected-revision")
             project.add_argument(

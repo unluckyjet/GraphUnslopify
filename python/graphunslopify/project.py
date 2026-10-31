@@ -394,7 +394,8 @@ def project_history(path: str | Path = ".") -> dict:
                     receipt.get("project_id") != owner["project_id"]
                     or receipt.get("id") != folder.name
                     or receipt.get("sequence") != item["sequence"]
-                    or receipt.get("action") not in ("run", "settings", "figure", "entry")
+                    or receipt.get("action")
+                    not in ("run", "settings", "figure", "entry", "inspection")
                 ):
                     raise ProjectError("Receipt ownership does not match this project/event.")
                 names = set()

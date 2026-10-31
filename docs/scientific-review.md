@@ -92,3 +92,8 @@ The connected browser panel and backend are foundations of Scientific Figure
 Review Mode. Foreign/source-free figure review, reviewed batch changes and undo,
 selective regeneration and auditable review export remain
 tracked in `pipeline/specs/87-scientific-figure-review-mode.md`.
+
+The [persistent PDF-inspection backend](project-pdf-inspections.md) records
+source-free visual evidence in an existing project without borrowing native
+scientific acceptance. Browser import/viewing and review-only initialization
+remain separate work.

@@ -12,7 +12,7 @@ let refreshFailure = "";
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");
-const actionNames = { run: "Audit", settings: "Shared settings", figure: "Figure definition", entry: "Manifest binding" };
+const actionNames = { run: "Audit", settings: "Shared settings", figure: "Figure definition", entry: "Manifest binding", inspection: "PDF visual inspection" };
 const el = (tag, text, parent) => {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
@@ -251,9 +251,9 @@ async function loadEvent() {
     if (version !== evidence) return;
     event = next;
     const result = event.result;
-    const figures = result.audit?.figures || result.before?.figures || result.snapshot?.figures || [];
+    const figures = event.action === "inspection" ? [{ id: result.inspection_source.id }] : result.audit?.figures || result.before?.figures || result.snapshot?.figures || [];
     options($("history-figure"), figures.map((figure) => [figure.id, figure.id]), figures.some((figure) => figure.id === selected) ? selected : $("history-figure").value);
-    $("event-summary").textContent = `${actionNames[event.action] || "Saved event"} · ${words(result.status)}` + (event.action === "run" ? ` · scientific checks: ${words(result.audit_status)}` : " · figures were not executed by this change");
+    $("event-summary").textContent = `${actionNames[event.action] || "Saved event"} · ${words(result.status)}` + (event.action === "run" ? ` · scientific checks: ${words(result.audit_status)}` : event.action === "inspection" ? " · numerical claims remain untested" : " · figures were not executed by this change");
     $("event-json").textContent = pretty(result);
     await showFigure();
     if (!figures.length) (result.errors || []).forEach((message) => el("p", message, $("checks")));
@@ -265,6 +265,12 @@ async function showFigure() {
   if (!event) return;
   const id = $("history-figure").value;
   if (!id) return;
+  if (event.action === "inspection") {
+    el("p", "This event stores source-free PDF visual evidence. Original data and numerical claims remain untested.", $("checks"));
+    (event.result.errors || []).forEach((message) => el("p", message, $("checks")));
+    $("preview-note").textContent = "Visual packet paths and hashes are in Selected event evidence below. The integrated imported-figure viewer is not available yet.";
+    return;
+  }
   $("show-source").disabled = false;
   const result = event.result;
   const figure = result.audit?.figures.find((item) => item.id === id);

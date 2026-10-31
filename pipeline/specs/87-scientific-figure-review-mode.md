@@ -104,3 +104,42 @@ README graphics, mathematical helpers and frozen reference protocols unchanged.
 Push/exact new-commit CI still required before the next implementation milestone.
 Full87 foreign/source-free, reviewed batch/undo, selective regeneration/auditable
 export and entire88–89 remain open. No new release or human-study claim.
+
+
+87b accepted: f7350178a84f5f1ff2853eab75a8227a8048e4b2 passed exact
+main41233567277 all nine/Figure41233567280 at2026-10-31 19:59:37UTC,
+before87c source changes.
+
+## 87c1 — persistent source-free PDF inspection backend
+
+Existing native paper projects can explicitly inspect a local PDF using
+`project-inspect-pdf`, then read latest per-source evidence using
+`project-inspections`. Immutable inspection events retain actual PDF hashes,
+page previews, extracted text, metrics and independently hashed assets. Original
+PDFs are not copied. This query has its own revision guard; inspection remains
+strict incomplete2 with source data/numerical claims/interpretation untested.
+It does not execute native plotting programs or replace native audit acceptance.
+Failures/timeouts/source drift, missing/changed PDFs, asset tampering, partial
+history and operation ownership remain explicit. Relative inside-paper source
+paths survive a whole-project move. Legacy history labels visual-only evidence.
+
+This partial backend does not provide browser import/viewing, review-only
+initialization, reviewed batch/undo, selective regeneration or review export.
+Those and full87 mixed evidence/browser acceptance remain required; entire88–89
+remains open. See [CLI usage and limits](../../docs/project-pdf-inspections.md).
+Local gates, tested Git blobs, push and exact CI acceptance must be recorded
+before another implementation milestone. No new release or human-study claim.
+
+
+87c1 local acceptance2026-10-31: all seven checks, gallery15/15 and complete
+Ruff168 pass;232 Node/1955 Python/zero skips/one upstream SQLAlchemy warning
+on845 unchanged protected paths.11 new real-PDF tests pass in both source and
+minimum3.10; earlier combined69 project/review controls pass per context.
+Source/fresh installed24 existing browser scenarios pass with unchanged original
+data/first history and zero external requests/page errors. Real installed PDF
+CLI recipe preserves native acceptance/source/first history with strict2 and
+science untested. All68 source/wheel/installed resources match; wheel SHA
+76d3e130e17d7399bd7228b9196b3ee287a390e7b5567285caea2f5d3a4847f8.
+Independent Poppler raster compared visually with actual saved preview.
+Initial wrong-fixture harness failure is retained, not counted as acceptance.
+Commit/push/exact CI still required; full87 and88–89 remain open.

@@ -16,6 +16,7 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work-dir", type=Path)
+    parser.add_argument("--require-pdf-inspection", action="store_true")
     args = parser.parse_args()
     where = (
         args.work_dir or Path(tempfile.mkdtemp(prefix="gu-project-check-"))
@@ -172,10 +173,52 @@ def main():
     row = next(item for item in damaged["figures"] if item["id"] == figure["id"])
     assert row["freshness"] == "unavailable" and not row["artifacts_verified"]
     assert command("project-status", folder)["status"] == "inputs_match_last_run"
+    pdf_inspection = None
+    if args.require_pdf_inspection:
+        reviewed = command("project-inspections", folder)
+        pdf = next(item for item in figure["outputs"] if item["format"] == "pdf")
+        original_pdf = folder / "history" / newest["id"] / "audit" / pdf["path"]
+        original_sha = hashlib.sha256(original_pdf.read_bytes()).hexdigest()
+        inspected = command(
+            "project-inspect-pdf",
+            folder,
+            "--pdf",
+            original_pdf,
+            "--id",
+            "external-example",
+            "--expected-revision",
+            reviewed["revision"],
+            "--pages",
+            "1",
+            "--dpi",
+            "72",
+            expected=2,
+        )
+        assert inspected["status"] == "incomplete" and inspected["exit_code"] == 2
+        visual = command("project-inspections", folder)["sources"][0]
+        assert visual["science_status"] == "untested" and visual["assets_verified"]
+        assert (
+            visual["evidence_state"] == "saved_visual_evidence"
+            and not visual["raw_source_copied"]
+        )
+        assert all(
+            check["status"] == "untested" for check in visual["inspection"]["checks"]
+        )
+        assert command("project-status", folder)["status"] == "inputs_match_last_run"
+        assert hashlib.sha256(original_pdf.read_bytes()).hexdigest() == original_sha
+        assert previous == inventory(old)
+        pdf_inspection = {
+            "status": "passed",
+            "source_free_science": "untested",
+            "strict_exit": 2,
+            "native_acceptance_unchanged": True,
+            "source_pdf_unchanged": True,
+        }
     evidence = {
         "status": "passed",
         "figures": 2,
-        "completed_events": 5,
+        "completed_events": len(command("project-history", folder)["events"]),
+        "pdf_inspection": pdf_inspection,
         "first_record_unchanged": previous == inventory(old),
         "sources_unchanged": True,
         "moved_project_and_damaged_export_checked": True,

@@ -37,6 +37,18 @@ def _hash(value) -> str:
     return hashlib.sha256(_canonical(value).encode()).hexdigest()
 
 
+def _execution_source() -> dict:
+    """Bind local audit/compiler/scientific code without reading arbitrary inputs."""
+    from . import _source_identity
+
+    observed = _source_identity.current()
+    if observed != _source_identity.IMPORTED_SOURCES:
+        raise ProjectError(
+            "Package sources changed since import; restart before reviewing or auditing."
+        )
+    return observed
+
+
 def _inside(root: Path, name: str) -> Path:
     path = Path(name)
     if path.is_absolute() or PureWindowsPath(name).drive or "\\" in name or ".." in path.parts:
@@ -892,6 +904,7 @@ def run_project(
                 raise ProjectError(
                     "Latest history is incomplete/damaged; repair it or explicitly run with no baseline."
                 )
+        execution_source = _execution_source()
         folder, event = _event(source.parent, "run")
         result = {
             "status": "failed",
@@ -902,6 +915,7 @@ def run_project(
             "errors": [],
             "policy_errors": {},
             "baseline": previous["id"] if previous else None,
+            "execution_source": execution_source,
         }
         try:
             manifest_path = _inside(folder, "effective.manifest.json")
@@ -941,6 +955,10 @@ def run_project(
             if snapshot["revision"] != after["revision"]:
                 result["errors"].append(
                     "Project inputs changed during auditing; refresh and rerun before acceptance."
+                )
+            if execution_source != _execution_source():
+                result["errors"].append(
+                    "Audit/compiler sources changed during execution; rerun before acceptance."
                 )
             if any(row["errors"] for row in snapshot["figures"]):
                 result["errors"].append(

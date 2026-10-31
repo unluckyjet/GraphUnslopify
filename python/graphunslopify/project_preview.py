@@ -356,6 +356,10 @@ class ProjectHandler(PreviewHandler):
                 self.json(project_figure(state.source, value("id")))
             elif route == "/api/event":
                 self.json(state.event(value("id")))
+            elif route == "/api/review":
+                from .project_review import project_review
+
+                self.json(project_review(state.source, event_id=value("event") or None))
             elif route == "/api/saved-source":
                 self.json(state.saved_source(value("event"), value("figure")))
             elif route == "/api/job":

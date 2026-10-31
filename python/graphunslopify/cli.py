@@ -421,6 +421,10 @@ def _project(args: argparse.Namespace) -> int:
             result = project_status(args.path)
         elif args.command == "project-history":
             result = project_history(args.path)
+        elif args.command == "project-review":
+            from .project_review import project_review
+
+            result = project_review(args.path, event_id=args.event)
         elif args.command == "project-shared":
             result = set_project_shared(
                 args.path,
@@ -596,6 +600,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-init", "initialize durable paper figure management beside its manifest"),
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
+        ("project-review", "read grouped scientific evidence without executing figures"),
         ("project-shared", "save shared semantic settings with an expected revision"),
         ("project-run", "audit the paper and preserve an independent versioned run"),
     ]:
@@ -611,6 +616,8 @@ def build_parser() -> argparse.ArgumentParser:
                 help="JSON object containing style/output/palette settings",
             )
             project.add_argument("--expected-revision", required=True)
+        if name == "project-review":
+            project.add_argument("--event", help="intact completed historical audit run ID")
         if name == "project-run":
             project.add_argument("--expected-revision")
             project.add_argument(

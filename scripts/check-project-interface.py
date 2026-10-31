@@ -118,10 +118,25 @@ def main():
             raise AssertionError("actual paper audit did not complete")
 
         request("/api/state", expected=403)
+        request("/api/review", expected=403)
         for asset in ("project.js", "project.css", "controls.js", "app.css"):
             assert request("/" + asset)[0]
         assert len(api("/api/info")["schema"]["oneOf"]) == 21
         first = audit()
+        review = api("/api/review")
+        assert review == cli("project-review", paper)
+        assert (
+            review["query_status"] == "ok"
+            and review["selection"]["event"] == first["id"]
+        )
+        assert all(
+            row["matches_latest_accepted_inputs"] and not row["rerun_recommended"]
+            for row in review["figures"]
+        )
+        assert all(
+            row["groups"]["reproduction"]["audit_compiler_source"]["state"] == "matches"
+            for row in review["figures"]
+        )
         saved = api("/api/saved-source?event=" + first["id"] + "&figure=figure")
         assert json.loads(saved["text"]) == json.loads(original)
         source = api("/api/figure?id=figure")
@@ -183,6 +198,20 @@ def main():
         )
         failed = audit("failed")
         assert failed["result"]["exit_code"] == 2
+        review = api("/api/review")
+        assert not any(
+            row["matches_latest_accepted_inputs"] for row in review["figures"]
+        )
+        assert any(
+            claim["verdict"] == "fails"
+            for row in review["figures"]
+            for claim in row["groups"]["claims"]["items"]
+        )
+        historical = api("/api/review?event=" + first["id"])
+        assert historical["selection"]["explicit_history_selection"]
+        assert not any(
+            row["matches_latest_accepted_inputs"] for row in historical["figures"]
+        )
         api(
             "/api/definition",
             {
@@ -230,6 +259,7 @@ def main():
             "source_binding_history_and_stale_guard": "verified",
             "preview_export_and_comparison": "verified bytes",
             "data_unchanged": True,
+            "grouped_scientific_review": "actual CLI/HTTP groups, source identity, failed claims and explicit historical selection",
             "work_dir": str(where),
         }
         (where / "checks.json").write_text(

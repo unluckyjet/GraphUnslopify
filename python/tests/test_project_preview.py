@@ -105,6 +105,19 @@ def test_loopback_session_origin_and_no_raw_dataset_routes(editor):
     assert "size" in info["shared_schema"]["properties"]["output"]["properties"]
 
 
+def test_read_only_grouped_review_requires_session_and_retains_actual_science(editor):
+    assert request(editor, "/api/review", token=False)[0] == 403
+    before = get(editor, "/api/state")
+    result = get(editor, "/api/review")
+    assert result["current_revision"] == before["revision"]
+    training = next(r for r in result["figures"] if r["id"] == "training")
+    assert training["groups"]["claims"]["items"][0]["verdict"] == "holds"
+    assert training["groups"]["legibility"]["inspection"]["available"]
+    assert training["groups"]["reproduction"]["saved_exports_verified"]
+    assert get(editor, "/api/state") == before
+    assert request(editor, "/api/review?event=../../outside")[0] == 400
+
+
 def test_actual_shared_policy_async_run_history_and_export_retrieval(editor):
     state = get(editor, "/api/state")
     assert state["status"] == "inputs_match_last_run" and len(state["figures"]) == 2

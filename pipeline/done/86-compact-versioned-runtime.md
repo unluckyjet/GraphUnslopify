@@ -1,7 +1,7 @@
 ---
 id: 86
 slug: compact-versioned-runtime
-status: in_progress
+status: done
 priority: P1
 title: Share a versioned figure runtime and preserve genuine standalone export
 source_idea: User visual-workspace advice reduce generated complexity with versioned reusable runtime and bundled export
@@ -158,3 +158,8 @@ change. Raw gates/manifest and all earlier failures are in measured-v1. The actu
 CSV150 rows are independently recomputed from raw medians/P90 and all52 existing
 README graphics retain their exact placements. Exact pushed-commit all-nine/Figure
 CI is still required before87; all87–89 scope remains intact.
+
+
+Full86 accepted:68c3d0cbf391d504f0127aff54a92eb850403b85 exact main41219988157
+all nine/Figure41219988131 passed at2026-10-31T17:11:49.134345+00:00, before any87 source changes.
+Entire87–89 continues separately; no release is implied.

@@ -11,6 +11,10 @@ audits and saved history into one local interface. It uses the same manifest and
 backend as these commands. The [single-figure editor](local-editor.md) is useful
 for starting a standalone figure or working with uploaded data.
 
+For grouped saved claims, uncertainty, legibility and reproduction evidence, use
+the read-only [`project-review` query](scientific-review.md). It keeps failed and
+historical results explicit and does not run or repair the paper.
+
 ## Open the paper workspace
 
 After initializing a project, run:

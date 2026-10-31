@@ -9,6 +9,7 @@ script and it reports what a reviewer would complain about, before you submit.
     print(report)
 """
 
+from . import _source_identity as _source_identity
 from .build import Figure, Kind, SpecError
 from .colour import ciede2000, distance, simulate, worst_case_distance
 from .describe import profile

@@ -1,0 +1,5025 @@
+{
+  "commit": "1d662248caa69efe86684fd495abe65c87ae1743",
+  "main_run": 41178079380,
+  "artifact_id": 13033544156,
+  "zip_sha256": "dad81fdc4ef9f0380e6d2d4bf2944404bd8864f95d3d85ffcb850d712f6d2dec",
+  "actual_native_source_signature_from_pushed_python_and_bundle_blobs": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+  "actual_signed_files": 40,
+  "compiler_bundle_matches_pushed": true,
+  "actual_browser_workflows": 107,
+  "base_native_and_compiler": 90,
+  "separate_controlled_native": 7,
+  "checks": {
+    "passed": true,
+    "external_requests": 0,
+    "javascript_errors": 0,
+    "controlled_kinds": [
+      "line",
+      "scatter",
+      "bar",
+      "box",
+      "violin",
+      "ecdf",
+      "raincloud",
+      "ridgeline",
+      "forest",
+      "paired_difference",
+      "slope",
+      "dumbbell",
+      "calibration",
+      "qq",
+      "kaplan_meier",
+      "scaling_fit",
+      "confusion_matrix",
+      "waterfall",
+      "sparkline_grid",
+      "heatmap",
+      "table"
+    ],
+    "renderer_worker": {
+      "native_responses": 90,
+      "process_ids": [
+        6953,
+        8494,
+        9393,
+        9819,
+        11098,
+        12007
+      ],
+      "executions": [
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "6b7b96fefaac455faf741bfd8e01a43c",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 3,
+            "serialized_bytes": 3784,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "2c28711b18104268a5454a88ecd71b0b",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "5b0b47b2d722459cbd26798b3b1b7054",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "3a4f914cf3a74fe8a864a529be4236a3",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "1a4c07dddafc48ddbdf82c176616284f",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "f307a62a44484f389fe475261135e64d",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "51955b7d21ae4bc5bbe3d8e3db19f1c5",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "206284bac2a6474496173260cd5e28b3",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "ce7db0ee75bb4cb78f8e091eaa5c3ba0",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 15,
+            "serialized_bytes": 18920,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "18019fd81d3441e8851e122a0e3bad35",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 15,
+            "serialized_bytes": 18920,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "a4192dc0145d42fb8ca7981408416dcf",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 15,
+            "serialized_bytes": 18920,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "7fef3554cbc647fc9254fbca06a0ff19",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 7,
+            "stores": 7,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 3,
+                "stores": 3,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 2,
+                "stores": 2,
+                "hits": 2
+              },
+              "bootstrap_interval": {
+                "misses": 2,
+                "stores": 2
+              }
+            },
+            "entries": 25,
+            "serialized_bytes": 32471,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "a40f757d7d6a45b78b904564f3c65b50",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 28,
+            "serialized_bytes": 36255,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "e391a6ef089145c68d5a8fbb06782b66",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 28,
+            "serialized_bytes": 36255,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 6953,
+          "request_id": "05c343246de04e338132ad5a92f75e19",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 6953,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 28,
+            "serialized_bytes": 36255,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "ae9cd48f3a984beba0e2968dc2a5d777",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "8f02ae5ba830404b9bd280bc20fc8b6d",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "618d87aa16634a7a9d6017522aeb988e",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "2cc789bb87b345b6adfc402fab218b0a",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 3,
+            "serialized_bytes": 3784,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "f8a22fe047434b768475d870f99c6a60",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              }
+            },
+            "entries": 3,
+            "serialized_bytes": 3784,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "c65b5b842ae149ce9aefeb61d64ec1b3",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 3,
+            "serialized_bytes": 3784,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "e3f5019737ee41f3a965636f5088edef",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "99ebb261953243cebd085ff2abae1519",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "fa741bc9746845469be72e058eca40cd",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "ac561be5ca16484fad2b080819bb696a",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "8b63fb7d5ee643488dde5f421e046792",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "fbf3d33d6f964c058db6cdc4ad800ca2",
+          "request_number": 12,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "b130c73eea11461b922e6cac8956c5cb",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "c4e228f1eb674c43895299dc302b0161",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "fb142b7ecef0415e99a941bc98d89967",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 8494,
+          "request_id": "a076502e070b4b1ab6aa1e1341bb9d15",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 8494,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 12,
+            "serialized_bytes": 15136,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "c0bbf85fd2814acdab4a22787aec5e91",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 3,
+            "serialized_bytes": 3784,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "3878952311934a70a809e3bf170fb88a",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 6,
+            "serialized_bytes": 7568,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "83b3e15a15d048fb8c123d08f2e69124",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 3,
+            "stores": 3,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 2
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1
+              },
+              "bootstrap_interval": {
+                "misses": 1,
+                "stores": 1
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "fb6c856ee53c40109456addcd3cf60b4",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "3aad1f52a3ac41b3aa9321aa9df99370",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "6d9c54c29ef3419da10bde919d7f5fe4",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 4,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 2
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "dff348d88e1842feb5a4023dd89977a3",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "751c131c25974c139cd06a0962e12a91",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "3fe82838c3d54c67a85a526c1e133e9e",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "e145834fb733436baa9a3cbc51ade49b",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "14ca37fb8da0484c95004838754f6bcd",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "8813940ff0fc41fdb82ea80a45f604f8",
+          "request_number": 12,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "4cadc91a3aa142a58792e84974661892",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "fac6e1cb859747ff8cb550c7c2652826",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "16ee47c3b24f4a05a5ebe8d3f4809c92",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9393,
+          "request_id": "3adaf6bab81d4d23a2ad6ceb49ed48cf",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9393,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 9,
+            "serialized_bytes": 11352,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "a4aa83ca9c8b4c2eacac6fa4f4138a5c",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "9ecc9f82a7934922bd2c433ae6897441",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "7e6e13c1c37c4e6696553522f62e13e9",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 2,
+            "stores": 2,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              }
+            },
+            "entries": 2,
+            "serialized_bytes": 2176,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "53136755cf0f4bc8b241b8e573bd0fe2",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 2,
+            "serialized_bytes": 2176,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "45a860152633450cb20fbdfe1fa02074",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 2,
+            "serialized_bytes": 2176,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "b293d86f079d4f6f9085406debd0e4bb",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 2,
+            "serialized_bytes": 2176,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "39c02eef388f43798ee3c2c439a4df3b",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 2,
+            "stores": 2,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "7c956dadda6a4a3a9b3445eb9b367a4d",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "af36b8ce83cf4fdeb95e23b579b31e0f",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "79761faf9c7444ce8b15a64f6a5c8f6c",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "c13374bad0b64a7bbefd9bf28127761d",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "a115a3b516fe44e7966823c45ed5a658",
+          "request_number": 12,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "807e3589aecb483a93f82aa0595af8ba",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "1119ddd1960c47bb8699575460c805fe",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "a33538e304af4654818ac9d38bff95fe",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 9819,
+          "request_id": "322c41b7571c4f209326b6f1ab5bde13",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 9819,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 4,
+            "serialized_bytes": 4285,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "c3e72a235a204dc0a546c8728cd61761",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "4e9c2c19bee34aeab7c23e24d82bea61",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "4a9021219c634f7690c3630c0011372f",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "ad1f719165e54c139f06d9255fb41c45",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "ebe75efdbee6451598482cc046ae8cdd",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "b2cf7aed78c540cfbc93c6ec2d4f2fc1",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "8e25544a6a144b4d84ed8cbe2157019c",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "b03d3612f7624f5a90c3702ccd2b4c93",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "3588e65ef3784362bfacf370d421790f",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "4b5b71438a734d8998828f3b5f01ef2a",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "8be916dcd2be4658822a0ef7609ead48",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "1f57299626984574b5563c94662a144f",
+          "request_number": 12,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "ee9abdb4beff4fbd9f169b0320adfd4e",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "4bcb5e48bb0145be9a4ee902b380ae2d",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "8eaea69507354ce0abca658784d0ae4e",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 11098,
+          "request_id": "5a21133df72f417ca1ce103fd01f18f2",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 11098,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "08e938f39f4342419067b5d957d7bafe",
+          "request_number": 1,
+          "process_started": true,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "5110aa30dbeb4ce1b95ec1756caf8329",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "21d54d4549b247c0b80361608566e37b",
+          "request_number": 3,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "5f6ad6ad6cff4f229649cbde9e51f0dc",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "e5bc25d38ce2442b85c99f08f8433ca7",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "9796172f57e24d44a8970398b183cf04",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "d74235b89f804bbc921574fcc193ffcf",
+          "request_number": 7,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 0,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {},
+            "entries": 0,
+            "serialized_bytes": 0,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "7694039aeb2b46d7ae7b15e8cbe29338",
+          "request_number": 8,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 2,
+            "stores": 2,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              }
+            },
+            "entries": 2,
+            "serialized_bytes": 2283,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "9767cf280d24484c8f1c554a24e0115b",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 2,
+            "serialized_bytes": 2283,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "90b397ec8c6045f983adbbebf94bc1dd",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 2,
+            "misses": 2,
+            "stores": 2,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              },
+              "summarise": {
+                "misses": 1,
+                "stores": 1,
+                "hits": 1
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4263,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        },
+        {
+          "mode": "worker",
+          "kind": "renderer",
+          "pid": 12007,
+          "request_id": "e6df4bfa36d64906b51471aa6f28f469",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 6,
+          "protocol": 1,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "instrumented": false,
+          "provisional": true,
+          "statistics_cache": {
+            "enabled": true,
+            "version": 1,
+            "pid": 12007,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "hits": 3,
+            "misses": 0,
+            "stores": 0,
+            "evictions": 0,
+            "bypassed": 0,
+            "invalid": 0,
+            "functions": {
+              "summary_input": {
+                "hits": 1
+              },
+              "summarise": {
+                "hits": 2
+              }
+            },
+            "entries": 4,
+            "serialized_bytes": 4263,
+            "max_entries": 64,
+            "max_bytes": 33554432,
+            "max_entry_bytes": 8388608
+          }
+        }
+      ]
+    },
+    "translator_worker": {
+      "render_responses": 90,
+      "process_ids": [
+        6926,
+        8580,
+        9691,
+        10738,
+        11905
+      ],
+      "executions": [
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "47f95353bacc4c6e82fffc26068cef5f",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "31c407caf4764d89a70db04b52e2c612",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "7cb385ce4e7e4f43acc71fc90a979b24",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "377b2d5f457e4567a6cd81f1f86fb52e",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "3ac5ed93b3c3402aa936ab36085997ad",
+          "request_number": 18,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "18acbe69a18741afb2b7a5b8c147829e",
+          "request_number": 20,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "389c5e7cf24740399505d89c39679a02",
+          "request_number": 22,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "462d1f575fc6400a869400d918519877",
+          "request_number": 26,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "6c1f68f3cd97451c9963955646906ac7",
+          "request_number": 28,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "9fa45f0f06a247f3af4a0abbc2511e9e",
+          "request_number": 33,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "fbdbab2423ec473da207530cf7cb47c3",
+          "request_number": 31,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "b99ca27ad6df44c1a84df7a9c00c1842",
+          "request_number": 38,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "d361d118268347698787575fb4a1550c",
+          "request_number": 41,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "be45a984dc384edcbbf1d2e5bde32fdb",
+          "request_number": 43,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "9003da2c0f574247a70a4e0c9e0ae3c4",
+          "request_number": 48,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "5dddeef5d9a74db1938c8b1eab10a4d3",
+          "request_number": 52,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 6926,
+          "request_id": "eff22c83a890401db181e16d0a2ac742",
+          "request_number": 58,
+          "process_started": false,
+          "process_starts": 1,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "f53f3e5803f54cd684812d787b90406e",
+          "request_number": 5,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "310efde61fa046f9a7435729e6581805",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "70bee893f3d245f091abb6ffcb68af11",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "e6463af3a1b449ffb059d2f7c94c2c61",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "a079f531ca26421a9e8b98fab7e43404",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "d6d0d79022a1484289d55ea9b551bbb0",
+          "request_number": 17,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "f4e1cef5104241b4a5d995a9a92497d7",
+          "request_number": 19,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "8907343fb2664bac8f0f520de7fa655c",
+          "request_number": 21,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "68ded4c0e2834c03b9ac9570843b38aa",
+          "request_number": 23,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "adc3b081e7a04047b78a73d537b62ee4",
+          "request_number": 25,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "7f113d0c089e4fef92b1127ff0bee36d",
+          "request_number": 27,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "252f3f9f15f64fa0a0c3c3cd3ef43845",
+          "request_number": 30,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "7b1e223d8f234c28875a57c3db5d33d0",
+          "request_number": 34,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "ac5f2ea6891d49b691bdc7a00f2b27e2",
+          "request_number": 36,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "e8fc5a56417b4503b987b3059d08408d",
+          "request_number": 38,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "6626244911784aaeb7646ca1aee0d1ff",
+          "request_number": 40,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "e2d77a8531e946008f7cad978f20fdda",
+          "request_number": 42,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "a3a996f9493141019cf60d5ae06cb00d",
+          "request_number": 45,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "baae86a91d72437c93cbd020c4acea1c",
+          "request_number": 47,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "93cd25a6a7154532b2b3e9f404f8b0d5",
+          "request_number": 49,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "3f64da9d2c7f408690bf1443b739d028",
+          "request_number": 53,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "1a9b81a4c7354ec9b169b532ed33eba7",
+          "request_number": 55,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "d50d9e80955840e9910707d94f4e2f44",
+          "request_number": 57,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "b19ae11fa1e4487daaa5ff3beae31f0e",
+          "request_number": 60,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 8580,
+          "request_id": "539c7024fe7d45539ff014014e2d6885",
+          "request_number": 62,
+          "process_started": false,
+          "process_starts": 2,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "6be6a1c3e98843c9a9922fd1daed93a9",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "54b7f33fdb314ace9706b8b15fd36fd9",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "5dd9c0d98aec4a93afc84adf037bda03",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "563611f26ab340c388a96113513b073e",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "067c4ff840654883a28d4e9888bc0395",
+          "request_number": 11,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "c44151476292440799d40dcfdc308b22",
+          "request_number": 13,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "353a4535b10a489d90addf810035be52",
+          "request_number": 15,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "0860c88864ba4513a6c50e0bd9e0c5a7",
+          "request_number": 19,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "e6fd53ca493e4bc1a950e0e1a1c8a376",
+          "request_number": 21,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "63e24b20c54a4082a7b335fa0faa088b",
+          "request_number": 24,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "531f4316af6a4bf7b19198eaa00588a4",
+          "request_number": 28,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "1bf0e3682d79468abc2496c029d5b016",
+          "request_number": 47,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "263a793b3b0c458198c619e8a1143651",
+          "request_number": 50,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "e9f21c5640e2499a8e8bd9c973e66d81",
+          "request_number": 53,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "cbb9e1e542c24dd6b0da419f2a59d9c1",
+          "request_number": 56,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "175c2dd24f98415cbea21878b3578d2b",
+          "request_number": 59,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 9691,
+          "request_id": "3198804b32bd4d4d9f30123e3d2bcd82",
+          "request_number": 62,
+          "process_started": false,
+          "process_starts": 3,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "36c6c4d620b449adae7edc853fe1b201",
+          "request_number": 2,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "bdb9e213d49049c3a7644f3a6662d771",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "c8ee875a54c94be2917a990fed6d0129",
+          "request_number": 9,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "c98415e6415143968b08378adbb743a7",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "2f698b1dbd5a4ac99d33d9b0a505c2d1",
+          "request_number": 21,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "fe7517245a11426da2fdfe2b8933c3f4",
+          "request_number": 26,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "5b1d6b38f65e4e1dabd2dfbb9898aaf1",
+          "request_number": 30,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "82c0b77eb9ea4fc6ae6baadef39fd5e2",
+          "request_number": 32,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "91a616aebd9041759ae470644ac8fbdf",
+          "request_number": 34,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "55de803ef92b495db219d37f6a71b913",
+          "request_number": 36,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "b068c5e6e7a54a3e8cbce2a03df9f41a",
+          "request_number": 40,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "0823b7ae7a52406f95116c9841f260bb",
+          "request_number": 42,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "55bc85b18b1442deb472aa84688cbdd7",
+          "request_number": 46,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "1f1cfeab221144e5a62c0b20d1c97f10",
+          "request_number": 48,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "4ae18bc0239f4214bd2b03387bfd6129",
+          "request_number": 52,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "28a35fd9ac264879985afa35e0e76b3c",
+          "request_number": 54,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "3ecc59de00d646648f99a1152b3b867e",
+          "request_number": 56,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "76f0abe4726c458db93c789a63ba7b70",
+          "request_number": 58,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "94572745e9fc4c7b9cb4fc0c287186b1",
+          "request_number": 62,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 10738,
+          "request_id": "4575b8236a664a01b26e239272927a76",
+          "request_number": 64,
+          "process_started": false,
+          "process_starts": 4,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "64cf7e9c76d64a8dbdacd0040aa95c84",
+          "request_number": 4,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "1015b79dfe704d6badaeb417345bebff",
+          "request_number": 6,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "77b132d94e48408b87f30c738f5915d2",
+          "request_number": 10,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "0e4aac5c90f74543a3ad069d4ece4687",
+          "request_number": 12,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "9f75f7e9ecd342bcaa2ee205c9d8b102",
+          "request_number": 14,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "c116d87ee3774ac58d44b93089df50ba",
+          "request_number": 16,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "4dbb722b77a440ceb9d706082296e0f8",
+          "request_number": 18,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "1a3ff0be3c3f4554ada388bb5a6560fb",
+          "request_number": 22,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "ceccb67342584b37ad08de740c73a3c2",
+          "request_number": 25,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "bd4b2490d236461289b7614ed7989aac",
+          "request_number": 29,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        },
+        {
+          "mode": "worker",
+          "kind": "translator",
+          "pid": 11905,
+          "request_id": "dbe1fd6d1f004b49af3fb75689d8ef25",
+          "request_number": 32,
+          "process_started": false,
+          "process_starts": 5,
+          "protocol": 1,
+          "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+        }
+      ]
+    },
+    "model_drafts": {
+      "passed": true,
+      "positive_provider": "controlled HTTP double; not inference",
+      "model": "controlled-provider-double",
+      "request_sha256": "6e62495c9b5abca8e810f5b1812809114f0d3905792de2eb334db0a05e4be106",
+      "request_bytes": 65175,
+      "strict_status": "passed",
+      "exports": [
+        "png",
+        "svg",
+        "pdf"
+      ],
+      "source_binding": {
+        "source_sha256": "c5f5d597d568b82bd921c2994cbf0ce88229158d91360f9b50321fa2207f0837",
+        "original_bytes_unchanged": true,
+        "runtime_prefix_matches_source": true,
+        "replayed_strict_status": "passed",
+        "plotted_x": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "plotted_y": [
+          51,
+          54,
+          56,
+          59
+        ],
+        "title": "Training progress"
+      },
+      "controlled_negative_cases": true,
+      "workflows": [
+        "model-applied CSV bytes runtime digest and replayed numeric artists match original source",
+        "model disclosure before opt-in transmission",
+        "unapplied unverified proposal preserves current figure",
+        "explicit review apply forces strict render in manual mode",
+        "model apply shares native undo and invalidates exports",
+        "model review desktop mobile and literal untrusted wording",
+        "declared source units are disclosed and remain unapplied until review",
+        "invalid model response quarantined without application",
+        "provider failure preserves offline manual authoring",
+        "late model response cannot revive stale dataset intent or exports",
+        "late model response cannot overwrite a newer canonical figure edit",
+        "provider changes clear old proposals and session key fields",
+        "reserved source column names remain literal in declared-unit disclosure"
+      ]
+    },
+    "diagnostic_overlays": {
+      "passed": true,
+      "provider": "No model inference used by diagnostic cases",
+      "strict_negative_status": "failed",
+      "original_spec_unchanged_by_selection": true,
+      "geometry": [
+        {
+          "viewport": "desktop",
+          "image": {
+            "x": 364,
+            "y": 202.59375,
+            "width": 692,
+            "height": 524.734375,
+            "top": 202.59375,
+            "right": 1056,
+            "bottom": 727.328125,
+            "left": 364
+          },
+          "targets": [
+            {
+              "x": 744.28125,
+              "y": 260.65625,
+              "width": 4.34375,
+              "height": 293.890625,
+              "top": 260.65625,
+              "right": 748.625,
+              "bottom": 554.546875,
+              "left": 744.28125
+            }
+          ],
+          "overflow": false
+        },
+        {
+          "viewport": "narrow",
+          "image": {
+            "x": 44,
+            "y": 307.1875,
+            "width": 302,
+            "height": 229,
+            "top": 307.1875,
+            "right": 346,
+            "bottom": 536.1875,
+            "left": 44
+          },
+          "targets": [
+            {
+              "x": 209.953125,
+              "y": 332.515625,
+              "width": 1.890625,
+              "height": 128.25,
+              "top": 332.515625,
+              "right": 211.84375,
+              "bottom": 460.765625,
+              "left": 209.953125
+            }
+          ],
+          "overflow": false
+        },
+        {
+          "viewport": "wide",
+          "image": {
+            "x": 543.5,
+            "y": -0.40625,
+            "width": 633,
+            "height": 479.984375,
+            "top": -0.40625,
+            "right": 1176.5,
+            "bottom": 479.578125,
+            "left": 543.5
+          },
+          "targets": [
+            {
+              "x": 891.359375,
+              "y": 52.703125,
+              "width": 3.96875,
+              "height": 268.828125,
+              "top": 52.703125,
+              "right": 895.328125,
+              "bottom": 321.53125,
+              "left": 891.359375
+            }
+          ],
+          "overflow": false
+        },
+        {
+          "viewport": "short",
+          "image": {
+            "x": 520.875,
+            "y": 128.59375,
+            "width": 158.25,
+            "height": 119.984375,
+            "top": 128.59375,
+            "right": 679.125,
+            "bottom": 248.578125,
+            "left": 520.875
+          },
+          "targets": [
+            {
+              "x": 607.828125,
+              "y": 141.859375,
+              "width": 0.984375,
+              "height": 67.1875,
+              "top": 141.859375,
+              "right": 608.8125,
+              "bottom": 209.046875,
+              "left": 607.828125
+            }
+          ],
+          "overflow": false
+        }
+      ],
+      "workflows": [
+        "actual clipped interval selection preserves intent render count strict failure and review-artifact availability",
+        "keyboard and finding-card locate actions select the actual runtime finding",
+        "narrow viewport diagnostic click and keyboard selection preserve canonical intent",
+        "measured diagnostic rectangles align with actual PNG at desktop narrow wide and short-height viewports",
+        "unlocated actual findings remain explicit without invented highlighted regions",
+        "switching text and diagnostic modes preserves unapplied wording and canonical intent",
+        "browser refuses version diagnostic metadata without fake targets or false scientific acceptance",
+        "browser refuses image_hash diagnostic metadata without fake targets or false scientific acceptance",
+        "browser refuses finding_index diagnostic metadata without fake targets or false scientific acceptance",
+        "browser refuses bounds diagnostic metadata without fake targets or false scientific acceptance",
+        "canonical edits clear diagnostic review and old image targets immediately",
+        "held completed old render cannot revive diagnostic targets after a newer canonical edit",
+        "literal diagnostic wording remains text without active markup",
+        "partial location capture stays explicit alongside measured regions",
+        "dataset replacement clears selected diagnostic locations before another render",
+        "three-day temporal repair fits actual date labels retains original observations and joins native undo",
+        "valid explicit temporal repair renders verified in manual mode and native undo restores authored intent",
+        "explicit temporal repair still blocks actual negative observations hidden by an authored log value axis"
+      ]
+    },
+    "owned_headings": {
+      "passed": true,
+      "workflows": [
+        "long nested headings and declared units render strictly with all eight original observations",
+        "actual wrapped heading click loads complete canonical wording without panel letters or inserted line breaks",
+        "reviewed wrapped panel edit forces strict manual rendering and preserves nested keys and automatic letters",
+        "native undo restores original long panel wording and invalidates newer outputs",
+        "narrow-screen wrapped axis edit changes canonical wording while preserving units fields and original data",
+        "axis edit native undo restores full original intent including declared units",
+        "single-facet actual title click, reviewed strict edit and native undo preserve all source observations and context identity",
+        "broken-axis actual title click, reviewed strict edit and native undo preserve all source observations and context identity"
+      ]
+    },
+    "owned_legends": {
+      "passed": true,
+      "workflows": [
+        "unbreakable legend alias remains failed with review downloads; native undo and strict rerender recover original verified data",
+        "line wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics",
+        "calibration wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics",
+        "actual direct ECDF name click, reviewed manual alias edit and undo preserve raw 01/1 source IDs and original observed data"
+      ]
+    },
+    "owned_text": {
+      "passed": true,
+      "workflows": [
+        "actual wrapped child title click, reviewed manual edit and strict render retain complete original names, source IDs and all six observations",
+        "native child-name undo restores original canonical words and invalidates newer outputs before strict recovery",
+        "unbreakable child name remains a strict failure with review downloads and native undo/manual recovery",
+        "grouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification",
+        "ungrouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification"
+      ]
+    },
+    "staged_preview": {
+      "passed": true,
+      "scope": "Controlled genuine original checker holds, not latency evidence",
+      "workflows": [
+        "actual unverified GUI image before genuine checker with exports/maps unavailable",
+        "original false claim remains visible strict failure after unverified preview",
+        "late provisional metadata cannot replace a current final result",
+        "late provisional image cannot replace a current final result",
+        "authoring while unverified cancels image and rejects late final acceptance with live preview off",
+        "malformed progress cannot certify an image or suppress original final verification"
+      ],
+      "external_requests": 0,
+      "javascript_errors": 0,
+      "executions": [
+        {
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "74c82a6d8a2141edae086301271fe915",
+            "request_number": 1,
+            "process_started": true,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 3,
+              "misses": 3,
+              "stores": 3,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "misses": 1,
+                  "stores": 1,
+                  "hits": 2
+                },
+                "summarise": {
+                  "misses": 1,
+                  "stores": 1,
+                  "hits": 1
+                },
+                "bootstrap_interval": {
+                  "misses": 1,
+                  "stores": 1
+                }
+              },
+              "entries": 3,
+              "serialized_bytes": 3784,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "af21415900c54f909b917674e753f280",
+            "request_number": 6,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage genuine clean",
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "5e43d5cb230b4b91937354cbc330c2d9",
+            "request_number": 2,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 4,
+              "misses": 0,
+              "stores": 0,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "hits": 2
+                },
+                "summarise": {
+                  "hits": 2
+                }
+              },
+              "entries": 3,
+              "serialized_bytes": 3784,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "c1c17371f5e94a5985c24f130a116991",
+            "request_number": 10,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage genuine strict failure",
+          "status": "failed",
+          "exit_code": 2,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "6208a45c0d9a4d14b2313060cef6db32",
+            "request_number": 3,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 3,
+              "misses": 3,
+              "stores": 3,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "misses": 1,
+                  "stores": 1,
+                  "hits": 2
+                },
+                "summarise": {
+                  "misses": 1,
+                  "stores": 1,
+                  "hits": 1
+                },
+                "bootstrap_interval": {
+                  "misses": 1,
+                  "stores": 1
+                }
+              },
+              "entries": 6,
+              "serialized_bytes": 7568,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "3788260b61724296b7e7a71e5f39d11a",
+            "request_number": 14,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage delayed metadata",
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "cbae0f468a614c7a9af05f733f04116c",
+            "request_number": 4,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 4,
+              "misses": 0,
+              "stores": 0,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "hits": 2
+                },
+                "summarise": {
+                  "hits": 2
+                }
+              },
+              "entries": 6,
+              "serialized_bytes": 7568,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "ef53ef1d0de3460c8bff26262642bfb3",
+            "request_number": 16,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage delayed image",
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "77c4b83ae66549f6855f41ee610632eb",
+            "request_number": 5,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 4,
+              "misses": 0,
+              "stores": 0,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "hits": 2
+                },
+                "summarise": {
+                  "hits": 2
+                }
+              },
+              "entries": 6,
+              "serialized_bytes": 7568,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "3fb27a1f719441ed9eb78b9b96a0b8d2",
+            "request_number": 18,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage invalidated while checking",
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "410617efb3854a35bee5d1fa6a45049c",
+            "request_number": 6,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 4,
+              "misses": 0,
+              "stores": 0,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "hits": 2
+                },
+                "summarise": {
+                  "hits": 2
+                }
+              },
+              "entries": 6,
+              "serialized_bytes": 7568,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "aa2bb4bb680b4702a33ba2f75b115a22",
+            "request_number": 20,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        },
+        {
+          "title": "Stage rejected progress certificate",
+          "status": "passed",
+          "exit_code": 0,
+          "execution": {
+            "mode": "worker",
+            "kind": "renderer",
+            "pid": 12414,
+            "request_id": "39c2952cb7b34205ac1980ed72bb5b89",
+            "request_number": 7,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+            "instrumented": true,
+            "provisional": true,
+            "statistics_cache": {
+              "enabled": true,
+              "version": 1,
+              "pid": 12414,
+              "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+              "hits": 4,
+              "misses": 0,
+              "stores": 0,
+              "evictions": 0,
+              "bypassed": 0,
+              "invalid": 0,
+              "functions": {
+                "summary_input": {
+                  "hits": 2
+                },
+                "summarise": {
+                  "hits": 2
+                }
+              },
+              "entries": 6,
+              "serialized_bytes": 7568,
+              "max_entries": 64,
+              "max_bytes": 33554432,
+              "max_entry_bytes": 8388608
+            }
+          },
+          "translation_execution": {
+            "mode": "worker",
+            "kind": "translator",
+            "pid": 12391,
+            "request_id": "28396dfecbbf4a848e9d6fc9cc356718",
+            "request_number": 23,
+            "process_started": false,
+            "process_starts": 1,
+            "protocol": 1,
+            "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+          }
+        }
+      ]
+    },
+    "workflows": [
+      "actual unverified GUI image before genuine checker with exports/maps unavailable",
+      "original false claim remains visible strict failure after unverified preview",
+      "late provisional metadata cannot replace a current final result",
+      "late provisional image cannot replace a current final result",
+      "authoring while unverified cancels image and rejects late final acceptance with live preview off",
+      "malformed progress cannot certify an image or suppress original final verification",
+      "actual clipped interval selection preserves intent render count strict failure and review-artifact availability",
+      "keyboard and finding-card locate actions select the actual runtime finding",
+      "narrow viewport diagnostic click and keyboard selection preserve canonical intent",
+      "measured diagnostic rectangles align with actual PNG at desktop narrow wide and short-height viewports",
+      "unlocated actual findings remain explicit without invented highlighted regions",
+      "switching text and diagnostic modes preserves unapplied wording and canonical intent",
+      "browser refuses version diagnostic metadata without fake targets or false scientific acceptance",
+      "browser refuses image_hash diagnostic metadata without fake targets or false scientific acceptance",
+      "browser refuses finding_index diagnostic metadata without fake targets or false scientific acceptance",
+      "browser refuses bounds diagnostic metadata without fake targets or false scientific acceptance",
+      "canonical edits clear diagnostic review and old image targets immediately",
+      "held completed old render cannot revive diagnostic targets after a newer canonical edit",
+      "literal diagnostic wording remains text without active markup",
+      "partial location capture stays explicit alongside measured regions",
+      "dataset replacement clears selected diagnostic locations before another render",
+      "three-day temporal repair fits actual date labels retains original observations and joins native undo",
+      "valid explicit temporal repair renders verified in manual mode and native undo restores authored intent",
+      "explicit temporal repair still blocks actual negative observations hidden by an authored log value axis",
+      "long nested headings and declared units render strictly with all eight original observations",
+      "actual wrapped heading click loads complete canonical wording without panel letters or inserted line breaks",
+      "reviewed wrapped panel edit forces strict manual rendering and preserves nested keys and automatic letters",
+      "native undo restores original long panel wording and invalidates newer outputs",
+      "narrow-screen wrapped axis edit changes canonical wording while preserving units fields and original data",
+      "axis edit native undo restores full original intent including declared units",
+      "single-facet actual title click, reviewed strict edit and native undo preserve all source observations and context identity",
+      "broken-axis actual title click, reviewed strict edit and native undo preserve all source observations and context identity",
+      "unbreakable legend alias remains failed with review downloads; native undo and strict rerender recover original verified data",
+      "line wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics",
+      "calibration wrapped legend click, reviewed manual alias edit and undo retain complete source IDs, data hashes and panel statistics",
+      "actual direct ECDF name click, reviewed manual alias edit and undo preserve raw 01/1 source IDs and original observed data",
+      "actual wrapped child title click, reviewed manual edit and strict render retain complete original names, source IDs and all six observations",
+      "native child-name undo restores original canonical words and invalidates newer outputs before strict recovery",
+      "unbreakable child name remains a strict failure with review downloads and native undo/manual recovery",
+      "grouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification",
+      "ungrouped-table full context native rendering and narrow-screen title form edit retain original data, units and current strict verification",
+      "model-applied CSV bytes runtime digest and replayed numeric artists match original source",
+      "model disclosure before opt-in transmission",
+      "unapplied unverified proposal preserves current figure",
+      "explicit review apply forces strict render in manual mode",
+      "model apply shares native undo and invalidates exports",
+      "model review desktop mobile and literal untrusted wording",
+      "declared source units are disclosed and remain unapplied until review",
+      "invalid model response quarantined without application",
+      "provider failure preserves offline manual authoring",
+      "late model response cannot revive stale dataset intent or exports",
+      "late model response cannot overwrite a newer canonical figure edit",
+      "provider changes clear old proposals and session key fields",
+      "reserved source column names remain literal in declared-unit disclosure",
+      "data picker",
+      "spec editing",
+      "offered fix",
+      "static rejection",
+      "false runtime claim",
+      "per-panel mixed verdicts",
+      "manual rendering",
+      "runtime error invalidates outputs",
+      "stale response",
+      "PNG preview",
+      "ZIP consent",
+      "reproduced exports",
+      "mobile layout",
+      "schema-driven required controls for all21 kinds",
+      "controls-only figure and reproduced bundle",
+      "typed numeric draft refusal and batch recovery",
+      "unsupported median SEM rejection",
+      "native claim add edit remove and strict failure",
+      "advanced settings custom labels and undo preserved",
+      "invalid JSON disables form controls",
+      "live native text input preserves focus",
+      "native workbook staging and explicit worksheet selection",
+      "worksheet switching preserves settings and invalidates evidence",
+      "stale worksheet selection cannot replace current data",
+      "native workbook ZIP consent and actual-artist reproduction",
+      "native workbook desktop mobile and CSV sample recovery",
+      "central canvas with data left and checks/settings right",
+      "actual CSV Excel and Parquet File API drops",
+      "actual profile types present and missing counts",
+      "reviewed recommendation apply and undo preserves authored intent",
+      "mobile figure before settings with no horizontal overflow",
+      "actual legend display names preserve source and claim IDs",
+      "ambiguous display names fail strictly and recover to current exports",
+      "actual PNG click title axis series annotation and legend-title editing",
+      "wording review requires explicit meaning confirmation before canonical mutation",
+      "canonical text edits preserve units data attachment and claim identities",
+      "keyboard and mobile geometry match actual image scaling",
+      "rapid narrow wide and short-height resizes keep title and rotated-axis targets aligned",
+      "ambiguous clicked names fail strict checks and undo restores verified exports",
+      "edited bundle rerenders with actual artist wording and original source IDs",
+      "new data selection cancels reviewed text and discards stale targets",
+      "reference-line wording retains its actual numerical anchor",
+      "edited reference-layer bundle reruns strictly with actual unchanged51/50 anchors",
+      "layer wording retains data intent and rejects duplicate displayed source names with undo",
+      "transport-mutated unknown geometry version disables editing without altering scientific acceptance",
+      "repeated metric axes and letter headings share reviewed canonical aliases",
+      "metric alias append slots and undo preserve original metric columns",
+      "new data cancels reviewed metric wording",
+      "one-dimensional facet alias retains raw panel identity and rejects ambiguity with undo",
+      "two-dimensional facet aliases retain separate row and column keys",
+      "mobile facet keyboard edits use base wording and actual scaled target bounds",
+      "metric and facet bundles rerender with actual original numeric marks and aliased artist wording",
+      "horizontal forest label edits retain semantic y path and original units"
+    ]
+  }
+}

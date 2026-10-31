@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "scripts/benchmark-staged-preview.cjs",
+    "--out-dir",
+    "/private/tmp/graphunslopify-staged-browser-formal-2"
+  ],
+  "exit_code": 0,
+  "seconds": 662.9965438842773,
+  "source_files": 433,
+  "source_unchanged": true,
+  "source_manifest": "/private/tmp/graphunslopify-staged-browser-formal-2-source-manifest.json",
+  "log": "/private/tmp/graphunslopify-staged-browser-formal-2.log"
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "node",
+    "scripts/benchmark-staged-preview.cjs",
+    "--smoke",
+    "--out-dir",
+    "/private/tmp/graphunslopify-staged-browser-minimum-smoke-1"
+  ],
+  "exit_code": 0,
+  "seconds": 205.0134539604187,
+  "source_files": 433,
+  "source_unchanged": true,
+  "source_manifest": "/private/tmp/graphunslopify-staged-browser-minimum-smoke-1-source-manifest.json",
+  "log": "/private/tmp/graphunslopify-staged-browser-minimum-smoke-1.log"
+}

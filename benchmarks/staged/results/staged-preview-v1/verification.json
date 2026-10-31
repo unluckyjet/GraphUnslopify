@@ -1,0 +1,85 @@
+{
+  "scope": "Full85 local implementation/measurement accepted; exact new commit CI required before86.86\u201389 remain entire/open. No new release.",
+  "source_base": "1d662248caa69efe86684fd495abe65c87ae1743",
+  "working_tree_ahead": true,
+  "frozen_protocols": {
+    "staged": "cea35240ac9567bb2df5a93c1f074c645991fe0b78ada431b3cb98e6ca74d53d",
+    "numerical": "4ceea4fd44e4e412cc4cc38caa0380f04b4a0ead4e29695124030ecb91131bf0",
+    "v4": "7315366b39dd7844fb311842172811334b42a583a0e7e27566a00d6647f3643d",
+    "NIST": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3"
+  },
+  "formal": {
+    "complete": true,
+    "records": 612,
+    "clean": 510,
+    "original_strict_negatives": 102,
+    "exact_variants": 42,
+    "ordinary_repeats_per_edit_per_arm": 7,
+    "source_guard_files": 433,
+    "all_source_unchanged": true,
+    "verified_raw_proof_records": 612,
+    "native_epochs_per_arm": 4,
+    "compiler_epochs_per_arm": 3,
+    "first_image_median_earlier_variants": 42,
+    "final_result_median_slower_variants": 31,
+    "no_independent_response_validation_in_clock": true
+  },
+  "smoke": {
+    "source": 108,
+    "minimum_python310": 108,
+    "fresh_installed": 108,
+    "each_clean": 90,
+    "each_original_strict_negatives": 18,
+    "minimum_fresh_guard_files": 433,
+    "source_and_installed_roots_verified": true,
+    "actual_png_table_script_science_maps_match": true,
+    "native_compiler_root_closed": true,
+    "secondary_smokes_overlap_only_with_each_other_after_primary": true,
+    "timings_not_pooled": true
+  },
+  "local_checks": {
+    "seven_passed": true,
+    "node_tests": 232,
+    "python_tests": 1904,
+    "python_skips": 0,
+    "python_upstream_warnings": 1,
+    "ruff_files": 153,
+    "unchanged_source_test_fixture_evidence_files": 446
+  },
+  "prior_exact_prerequisites": [
+    "85a bbcef49",
+    "85b1 45b4431",
+    "85b2a 1d66224 all-nine/Figure accepted07:19:52UTC"
+  ],
+  "unchanged_product_package": {
+    "members": 60,
+    "actual_UI_local_and_all_four_CI_wheels_matched": true,
+    "fresh_108_uses_same_actual_package": true,
+    "no_new_PyPI_release": true
+  },
+  "raw_archive": {
+    "archive": "raw-evidence.zip",
+    "sha256": "e21717f9eec7e06ed4e2229180ef3236c6b91ffcfd97d93e3cd1d2b8711f05fb",
+    "bytes": 54961212,
+    "scope": "Corrected v3 exclusive source formal612 and source/minimum/fresh108. Minimum/fresh correctness smokes overlap only with each other after primary measurement; their timings are not pooled. All raw proof files, first references, exact drivers, frozen protocol and applicable source guards retained. Source absolute paths in raw metadata document original environment; archive members provide portable relative proof paths.",
+    "formal_result_sha256": "568431fad94a84cfd0570c86001cab06456d5468fe6d43cd541eb39879f14ab0"
+  },
+  "history": {
+    "initial108_and612_conformance_preserved": true,
+    "historical_zip_sha256": "c7ebaf0b94137b44472ae7f7d927a767766f529167b3d16687dd5b75339a1b74",
+    "initial_timing_not_accepted": "Test-only observer digest overlapped live browser interval; exact sources/raw data retained separately in Obsidian. Corrected v3 repeats full frozen612."
+  },
+  "interpretation": "Single-host developer-selected engineering evidence; preserve final-time costs and all per-edit p90s. No pooled median, independent researcher/human productivity/visual-quality/universal speed claim. Volunteers user-deferred.",
+  "ci": "Push and exact new all-nine/Figure acceptance pending",
+  "documentation": {
+    "targeted_docs_tests_passed_after_structural_move": true,
+    "local_links_checked": 180,
+    "missing_local_links": 0,
+    "vault_notes_current": 146,
+    "vault_unresolved": 0,
+    "queue_open": 4,
+    "queue_shipped": 85,
+    "implementation_spec": "pipeline/done/85-incremental-staged-preview.md",
+    "next_86_requires_exact_new_CI": true
+  }
+}

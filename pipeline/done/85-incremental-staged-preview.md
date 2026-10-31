@@ -1,7 +1,7 @@
 ---
 id: 85
 slug: incremental-staged-preview
-status: in_progress
+status: done
 priority: P1
 title: Reuse numerical work safely and separate provisional preview from final verification
 source_idea: User visual-workspace advice incremental statistics and clearly unverified quick preview
@@ -104,3 +104,34 @@ source/fresh107 browser workflows, minimum6 genuine-check workflows, actual
 base worker replies and seven separate controlled replies each are retained.
 Push/exact UI CI pending; do not describe full85 as complete or infer latency
 from artificial correctness holds.85b2b frozen612/108 and86–89 stay open.
+
+
+###85b2b complete local measurement, final checks under acceptance
+
+Corrected v3 exclusive source612 passes510 clean/102 original strict2 with433
+unique source/test/fixture files unchanged. Source/minimum3.10/fresh-installed
+108 each pass90 clean/18 strict2 and actual roots/PNG bytes/maps/cache/closure.
+All612 raw proof records and42 exact-variant signatures separately rechecked
+by the publishing utility. Seven ordinary repeats per exact edit yield earlier
+first-image medians42/42, but slower final-result medians31/42. The same dense
+title-b edit is406.2→289.1ms first image and406.2→415.1ms final result.
+
+Every formal arm retains four native/three compiler epochs at16/64 limits,
+including separate intent-setup recycling. No held checks/artificial delays,
+extra draws, dropped formats or weaker verification. Tests of old-v4/numerical/
+NIST literal protocols remain in accepted1d66224 CI; product package60 files
+are unchanged by benchmark-only implementation.
+
+Initial108/612 attempts preserve conformance but are explicitly pre-acceptance
+for observer digest overlap. Corrected v3 defers independent response body/JSON/
+digest work until browser clocks stop and repeats the entire612. Historical
+ZIP/SHA and exact initial drivers are durable in Obsidian. Final raw records,
+references and exact drivers are archived in repository raw-evidence.zip,
+SHA e21717f9eec7e06ed4e2229180ef3236c6b91ffcfd97d93e3cd1d2b8711f05fb.
+
+Full acceptance audit: docs/workspace/staged-preview-acceptance.md.
+Actual results: benchmarks/staged/results/staged-preview-v1/comparison.md.
+The current seven stable checks/push/exact all-nine/Figure are under acceptance.
+Do not advance86 or call the whole initiative complete until accepted.
+
+Final local seven232/1904/zero skips/one upstream warning/Ruff153 pass on446 unchanged source/test/fixture/evidence files. Documentation/link refresh follows this structural move. Commit/push/exact new CI is required before86; implementation is locally complete and the full initiative remains open.

@@ -1,0 +1,7 @@
+{
+  "archive": "raw-evidence.zip",
+  "sha256": "e21717f9eec7e06ed4e2229180ef3236c6b91ffcfd97d93e3cd1d2b8711f05fb",
+  "bytes": 54961212,
+  "scope": "Corrected v3 exclusive source formal612 and source/minimum/fresh108. Minimum/fresh correctness smokes overlap only with each other after primary measurement; their timings are not pooled. All raw proof files, first references, exact drivers, frozen protocol and applicable source guards retained. Source absolute paths in raw metadata document original environment; archive members provide portable relative proof paths.",
+  "formal_result_sha256": "568431fad94a84cfd0570c86001cab06456d5468fe6d43cd541eb39879f14ab0"
+}

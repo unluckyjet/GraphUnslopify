@@ -1,0 +1,357 @@
+{
+  "commit": "1d662248caa69efe86684fd495abe65c87ae1743",
+  "main_run": 41178079380,
+  "job_id": 124469676247,
+  "source": "Connected GitHub completed job logs; selected actual install-smoke record",
+  "result": {
+    "status": "passed",
+    "wheel": "graphunslopify-0.8.0-py3-none-any.whl",
+    "python": "3.12.10",
+    "translator": {
+      "version": "0.8.0",
+      "kinds": [
+        "line",
+        "scatter",
+        "bar",
+        "box",
+        "violin",
+        "ecdf",
+        "raincloud",
+        "ridgeline",
+        "forest",
+        "paired_difference",
+        "slope",
+        "dumbbell",
+        "calibration",
+        "qq",
+        "kaplan_meier",
+        "scaling_fit",
+        "confusion_matrix",
+        "waterfall",
+        "sparkline_grid",
+        "heatmap",
+        "table"
+      ],
+      "node": "v24.19.0"
+    },
+    "network": "external connections blocked after install",
+    "agent": true,
+    "pdf": true,
+    "registry_version": null,
+    "getting_started": {
+      "status": "passed",
+      "python_package": "0.8.0",
+      "steps": {
+        "demo": "passed",
+        "rerun": "passed",
+        "false_claim": "failed",
+        "recovered": "passed"
+      },
+      "exit_codes": [
+        0,
+        2,
+        0
+      ],
+      "data_sha256_prefix": "2e4ad19d2d1bcbee",
+      "elapsed_seconds": 18.177,
+      "timing_scope": "automated walkthrough after installation, not novice completion time",
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\guided tour"
+    },
+    "visual_comparison": {
+      "status": "passed",
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\visual comparison",
+      "html": "D:\\a\\_temp\\gu-installed-check\\visual comparison\\audit\\runs\\d3a42e7d3d884a6db3b07413f9585924\\comparison\\index.html",
+      "svg_html": "D:\\a\\_temp\\gu-installed-check\\visual comparison\\svg-review\\index.html",
+      "exit_codes": [
+        0,
+        2,
+        2
+      ],
+      "changed_visible_pixels": 3154
+    },
+    "research_workflow": {
+      "status": "passed",
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\research workflow",
+      "config": "D:\\a\\_temp\\gu-installed-check\\research workflow\\paper with spaces\\graphunslopify-workflow\\workflow.json",
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        2,
+        0
+      ],
+      "editor_process_exit": 0,
+      "latex": "prepared; compilation separate",
+      "inputs_unchanged": true,
+      "notebook": "cleared; kernel execution covered separately"
+    },
+    "experiment_tracking": {
+      "status": "passed",
+      "mlflow": "3.17.2",
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\experiment tracking",
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      "retrieved_files": 6,
+      "owned_run": "FINISHED",
+      "attached_rejected_run": "RUNNING; caller-owned",
+      "tampered_export": "refused before creating run",
+      "raw_inputs_uploaded": false,
+      "global_context_unchanged": true
+    },
+    "project_management": {
+      "status": "passed",
+      "figures": 2,
+      "completed_events": 5,
+      "first_record_unchanged": true,
+      "sources_unchanged": true,
+      "moved_project_and_damaged_export_checked": true,
+      "command_exits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\project management"
+    },
+    "project_interface": {
+      "status": "passed",
+      "interface": "real loopback CLI/server",
+      "figures": 2,
+      "shared_settings": "applied to actual reports",
+      "strict_run_exits": [
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "source_binding_history_and_stale_guard": "verified",
+      "preview_export_and_comparison": "verified bytes",
+      "data_unchanged": true,
+      "work_dir": "D:\\a\\_temp\\gu-installed-check\\project interface"
+    },
+    "diagnostics": {
+      "status": "passed",
+      "codes": 139,
+      "strict_failure_recovery": true,
+      "source_data_unchanged": true,
+      "package_free_advice": true,
+      "where": "D:\\a\\_temp\\gu-installed-check\\diagnostics"
+    },
+    "pdf_visual": {
+      "status": "passed",
+      "native_pt": 8,
+      "reduced_pt": 4,
+      "strict_default_exit": 2,
+      "prepare_only_exit": 0,
+      "scientific_status": "incomplete",
+      "source_bytes_unchanged": true,
+      "where": "D:\\a\\_temp\\gu-installed-check\\pdf visual"
+    },
+    "excel_input": {
+      "status": "passed",
+      "source_sha256": "1f3508348c872e8a5ddc4b12f44fdc9a077b167e959e0aaaf16d24b2783a9a7f",
+      "rows": 3,
+      "worksheet": "Measurements",
+      "exports": {
+        "excel.png": "8ae809d3d23c4f17258a0d57bc518d602768988e0b45dd48c656c8474063b28d",
+        "excel.svg": "382ec4ffd02da59280f6e166f921315d7bc9f677d3ccb44e0a6b65e70d79f50d",
+        "excel.pdf": "14ad502cc286c1343e0497c43710018edce7c7c54e6213c649f5ed7c1e3c9d5f"
+      },
+      "package": "D:\\a\\_temp\\gu-installed-check\\fresh environment\\Lib\\site-packages\\graphunslopify\\__init__.py",
+      "reader_version": "0.9.0"
+    },
+    "translator_worker": {
+      "passed": true,
+      "first": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 8372,
+        "request_id": "0f266710fba143c3802bca60be2e3090",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "second": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 8372,
+        "request_id": "7f715307f3b6421596d76f7669ae7e89",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "third": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 5556,
+        "request_id": "6bf6fed884db44aeadfd485e7858fb75",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "closed": true
+    },
+    "editor_workers": {
+      "passed": true,
+      "renderer_first": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 9820,
+        "request_id": "a7f7e64ab542465fba2ae54cd823d6ab",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": false,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 9820,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 3,
+          "misses": 3,
+          "stores": 3,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 2
+            },
+            "summarise": {
+              "misses": 1,
+              "stores": 1,
+              "hits": 1
+            },
+            "bootstrap_interval": {
+              "misses": 1,
+              "stores": 1
+            }
+          },
+          "entries": 3,
+          "serialized_bytes": 3126,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "renderer_second": {
+        "mode": "worker",
+        "kind": "renderer",
+        "pid": 9820,
+        "request_id": "9490a86d1bee4aa0baca9d1cda1d5fe8",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+        "instrumented": false,
+        "provisional": true,
+        "statistics_cache": {
+          "enabled": true,
+          "version": 1,
+          "pid": 9820,
+          "runtime_source_sha256": "854974132e6fcaca4ba508da2a699e56f6f2095a389ef2e4034d260d151dda3d",
+          "hits": 4,
+          "misses": 0,
+          "stores": 0,
+          "evictions": 0,
+          "bypassed": 0,
+          "invalid": 0,
+          "functions": {
+            "summary_input": {
+              "hits": 2
+            },
+            "summarise": {
+              "hits": 2
+            }
+          },
+          "entries": 3,
+          "serialized_bytes": 3126,
+          "max_entries": 64,
+          "max_bytes": 33554432,
+          "max_entry_bytes": 8388608
+        }
+      },
+      "compiler_first": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 8732,
+        "request_id": "25e54cc7e3984cbeb18a73f35356da2f",
+        "request_number": 4,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "compiler_second": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 8732,
+        "request_id": "b5b4d706702b47f5b37d7455235e1b18",
+        "request_number": 5,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "provisional": {
+        "ticket": "11111111111111111111111111111111",
+        "generation": 1,
+        "verified": false,
+        "phase": "unverified",
+        "attempt": "19692c47d4964545b05e36d2977b559a",
+        "data_id": "01b8bed0fee249b684a88857ea231780",
+        "data_sha256": "2e4ad19d2d1bcbee9770146dd1faccfad6d34ff42786e060135a0a503a99e1f5",
+        "version": 1,
+        "producer_pid": 9820,
+        "script_sha256": "c6176c65bb7903fc2d5c89156adc6b09076c1ef126280514315edb295e050191",
+        "spec_hash": "147d34abe833c594",
+        "data_sha256_prefix": "2e4ad19d2d1bcbee",
+        "image": {
+          "sha256": "2bfcb64755a1463ee1a1b870fd0ff855d2b5eb79bf9f091654136632d99ba3cf",
+          "bytes": 111398,
+          "width": 2000,
+          "height": 1795
+        }
+      },
+      "closed": true
+    },
+    "work_dir": "D:\\a\\_temp\\gu-installed-check"
+  }
+}

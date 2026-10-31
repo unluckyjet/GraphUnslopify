@@ -1,0 +1,312 @@
+{
+  "commit": "1d662248caa69efe86684fd495abe65c87ae1743",
+  "main_run": 41178079380,
+  "artifact_id": 13033659588,
+  "zip_sha256": "8fe40c1c449b3d395ba1ec779a2b222df79bbaa6e3c30ea3e054cbb049688c0d",
+  "full_report_digest_verified": true,
+  "summary": {
+    "schema_version": 1,
+    "protocol_id": "nist-univariate-mean-sd-v2",
+    "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+    "full_report_sha256": "8dae7a2a1e93822aaf203fe2b347989c4bc5cd93a122c86f7a9bf0ef1b4e250e",
+    "source_git_head": "1d662248caa69efe86684fd495abe65c87ae1743",
+    "source_git_dirty": false,
+    "completed_at": "2026-10-31T06:50:51.955572+00:00",
+    "passed": true,
+    "runs": 72,
+    "expected_runs": 72,
+    "datasets": 9,
+    "repetition_pairs": 36,
+    "identical_pixel_pairs": 36,
+    "outcome_agreement_pairs": 36,
+    "independently_rechecked_final_files": 216,
+    "independently_rechecked_png_rgba": 72,
+    "missing_outputs": [],
+    "arms": {
+      "matplotlib": {
+        "runs": 36,
+        "clean_runs": 18,
+        "clean_accepted": 18,
+        "clean_quality_passed": 18,
+        "sentinel_runs": 18,
+        "sentinels_correctly_rejected": 18,
+        "execution_failures": 0,
+        "max_clean_absolute_error": {
+          "mean": "7.450580596923828125E-10",
+          "low": "2.2351741790771484375E-9",
+          "high": "7.450580596923828125E-10",
+          "half_span": "1.490116119384765625E-9"
+        },
+        "measured_clean_values": {
+          "mean": 54,
+          "low": 54,
+          "high": 54,
+          "half_span": 54
+        },
+        "machine_timing": {
+          "build_seconds_median": 0.02952001350000444,
+          "execution_seconds_median": 0.7877778859999864,
+          "instrumented_execution_seconds_median": 0.30265155749998485,
+          "save_seconds_median": 0.20827197750001858
+        },
+        "clean_timing_medians": {
+          "producer_build_seconds": 0.029588387999993415,
+          "process_wall_seconds": 0.7901342539999945,
+          "instrumented_script_seconds": 0.30860930949999954,
+          "save_seconds": 0.2111365015000075
+        },
+        "clean_timing_measurements": 18,
+        "minimum_clean_text_pt_at_target": 9.235412474849094,
+        "overlap_observed_snapshots": 54,
+        "maximum_clean_overlap_candidates": 0,
+        "authored_producer": {
+          "sha256": "21c4fd422375f032ed103477254c9fcd4f02f92c6d0981fb29a13e9ae26a28f8",
+          "bytes": 2691,
+          "nonblank_lines": 60
+        },
+        "median_clean_generated_nonblank_lines": 25.0,
+        "median_clean_payload_bytes": 390.0
+      },
+      "graphunslopify": {
+        "runs": 36,
+        "clean_runs": 18,
+        "clean_accepted": 18,
+        "clean_quality_passed": 18,
+        "sentinel_runs": 18,
+        "sentinels_correctly_rejected": 18,
+        "execution_failures": 0,
+        "max_clean_absolute_error": {
+          "mean": "1.11758708953857421875E-9",
+          "low": "3.7252902984619140625E-10",
+          "high": "2.60770320892333984375E-9",
+          "half_span": "1.490116119384765625E-9"
+        },
+        "measured_clean_values": {
+          "mean": 54,
+          "low": 54,
+          "high": 54,
+          "half_span": 54
+        },
+        "machine_timing": {
+          "build_seconds_median": 0.39242483249999793,
+          "execution_seconds_median": 1.0991999544999942,
+          "instrumented_execution_seconds_median": 0.562801781999994,
+          "save_seconds_median": 0.244438799500017
+        },
+        "clean_timing_medians": {
+          "producer_build_seconds": 0.39040646300000503,
+          "process_wall_seconds": 1.1015646165000135,
+          "instrumented_script_seconds": 0.566894986500003,
+          "save_seconds": 0.24637453849999247
+        },
+        "clean_timing_measurements": 18,
+        "minimum_clean_text_pt_at_target": 8.015717092337917,
+        "overlap_observed_snapshots": 54,
+        "maximum_clean_overlap_candidates": 0,
+        "authored_producer": {
+          "sha256": "12f3b234822ec9116d2c80713c25fbde4eeeaa81e069c560c8a0bf0bf9e989cd",
+          "bytes": 3236,
+          "nonblank_lines": 77
+        },
+        "median_clean_generated_nonblank_lines": 1126.0,
+        "median_clean_payload_bytes": 571.0
+      }
+    },
+    "per_dataset": {
+      "PiDigits": {
+        "matplotlib": {
+          "mean": "2.7995383788947947323322296142578125E-16",
+          "low": "1.612042032284080050885677337646484375E-15",
+          "high": "2.616038917913101613521575927734375E-15",
+          "half_span": "2.33608508002362214028835296630859375E-15"
+        },
+        "graphunslopify": {
+          "mean": "2.7995383788947947323322296142578125E-16",
+          "low": "2.94430966183426789939403533935546875E-15",
+          "high": "3.50421733761322684586048126220703125E-15",
+          "half_span": "3.22426349972374737262725830078125E-15"
+        }
+      },
+      "Lottery": {
+        "matplotlib": {
+          "mean": "3.075623116455972194671630859375E-13",
+          "low": "2.1340599493123590946197509765625E-13",
+          "high": "4.58562047220766544342041015625E-13",
+          "half_span": "1.509997355751693248748779296875E-13"
+        },
+        "graphunslopify": {
+          "mean": "3.075623116455972194671630859375E-13",
+          "low": "2.702494137920439243316650390625E-13",
+          "high": "3.448752094991505146026611328125E-13",
+          "half_span": "3.7312897853553295135498046875E-14"
+        }
+      },
+      "Lew": {
+        "matplotlib": {
+          "mean": "2.27373675443232059478759765625E-15",
+          "low": "1.22177406214177608489990234375E-13",
+          "high": "1.176299327053129673004150390625E-13",
+          "half_span": "1.1990366945974528789520263671875E-13"
+        },
+        "graphunslopify": {
+          "mean": "2.27373675443232059478759765625E-15",
+          "low": "1.22177406214177608489990234375E-13",
+          "high": "1.176299327053129673004150390625E-13",
+          "half_span": "1.1990366945974528789520263671875E-13"
+        }
+      },
+      "Mavro": {
+        "matplotlib": {
+          "mean": "7.9808160080574452877044677734375E-17",
+          "low": "9.97190942144952714443206787109375E-17",
+          "high": "5.98972259466536343097686767578125E-17",
+          "half_span": "1.99109341339208185672760009765625E-17"
+        },
+        "graphunslopify": {
+          "mean": "3.64281049769488163292407989501953125E-16",
+          "low": "7.8845932548562996089458465576171875E-16",
+          "high": "5.98972259466536343097686767578125E-17",
+          "half_span": "4.24178275716141797602176666259765625E-16"
+        }
+      },
+      "Michelso": {
+        "matplotlib": {
+          "mean": "1.1277734301984310150146484375E-14",
+          "low": "1.2067791555821895599365234375E-14",
+          "high": "1.0487677048146724700927734375E-14",
+          "half_span": "7.9005725383758544921875E-16"
+        },
+        "graphunslopify": {
+          "mean": "1.1277734301984310150146484375E-14",
+          "low": "6.891121041662991046905517578125E-14",
+          "high": "4.635574181266129016876220703125E-14",
+          "half_span": "5.763347611464560031890869140625E-14"
+        }
+      },
+      "NumAcc1": {
+        "matplotlib": {
+          "mean": "0",
+          "low": "0",
+          "high": "0",
+          "half_span": "0"
+        },
+        "graphunslopify": {
+          "mean": "0",
+          "low": "0",
+          "high": "0",
+          "half_span": "0"
+        }
+      },
+      "NumAcc2": {
+        "matplotlib": {
+          "mean": "4.44089209850062616169452667236328125E-17",
+          "low": "8.8817841970012523233890533447265625E-17",
+          "high": "1.7763568394002504646778106689453125E-16",
+          "half_span": "1.332267629550187848508358001708984375E-16"
+        },
+        "graphunslopify": {
+          "mean": "4.44089209850062616169452667236328125E-17",
+          "low": "1.332267629550187848508358001708984375E-16",
+          "high": "4.44089209850062616169452667236328125E-17",
+          "half_span": "8.8817841970012523233890533447265625E-17"
+        }
+      },
+      "NumAcc3": {
+        "matplotlib": {
+          "mean": "4.656612873077392578125E-11",
+          "low": "1.3969838619232177734375E-10",
+          "high": "4.656612873077392578125E-11",
+          "half_span": "9.31322574615478515625E-11"
+        },
+        "graphunslopify": {
+          "mean": "6.9849193096160888671875E-11",
+          "low": "2.3283064365386962890625E-11",
+          "high": "1.62981450557708740234375E-10",
+          "half_span": "9.31322574615478515625E-11"
+        }
+      },
+      "NumAcc4": {
+        "matplotlib": {
+          "mean": "7.450580596923828125E-10",
+          "low": "2.2351741790771484375E-9",
+          "high": "7.450580596923828125E-10",
+          "half_span": "1.490116119384765625E-9"
+        },
+        "graphunslopify": {
+          "mean": "1.11758708953857421875E-9",
+          "low": "3.7252902984619140625E-10",
+          "high": "2.60770320892333984375E-9",
+          "half_span": "1.490116119384765625E-9"
+        }
+      }
+    },
+    "shared_runtime_helpers": {
+      "benchmarks/certified/corpus.py": {
+        "sha256": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+        "bytes": 8738,
+        "nonblank_lines": 205
+      },
+      "benchmarks/certified/measurement.py": {
+        "sha256": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+        "bytes": 17755,
+        "nonblank_lines": 419
+      },
+      "benchmarks/certified/runner.py": {
+        "sha256": "ded1190f9081524199e0648f624708a7f13880ff2ab16df4345f0d6da0812ec6",
+        "bytes": 30632,
+        "nonblank_lines": 800
+      },
+      "scripts/measure-certified-figure.py": {
+        "sha256": "8f38cfe94f1b44a02bbf2ee5e65118ea88965de6836d84e4b3cf074329030e29",
+        "bytes": 4063,
+        "nonblank_lines": 107
+      },
+      "scripts/certified-benchmark.py": {
+        "sha256": "aedc24056c5d3e58fdf974b3aa51f70275b34dbeb9a1349fdd83935aa8a51aba",
+        "bytes": 2707,
+        "nonblank_lines": 69
+      }
+    },
+    "development_sessions": [
+      {
+        "arm": "matplotlib",
+        "event": "end",
+        "monotonic_ns": 279396241577375,
+        "output": "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/matplotlib-attempt-1",
+        "producer_sha256": "21c4fd422375f032ed103477254c9fcd4f02f92c6d0981fb29a13e9ae26a28f8",
+        "report": "benchmarks/certified/development/e3b00bf9-5628-4fdf-bafc-c288c6d85356/attempt-1.json",
+        "report_sha256": "31d8095fc6462032dcaa57b6e3acfc0c69dea1e8367ea484fee5a99693b5a928",
+        "seconds": 42.188505542,
+        "session": "e3b00bf9-5628-4fdf-bafc-c288c6d85356",
+        "successful": true,
+        "utc": "2026-10-29T10:01:08.492681+00:00"
+      },
+      {
+        "arm": "graphunslopify",
+        "event": "end",
+        "initial_protocol_sha256": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+        "monotonic_ns": 282588717423541,
+        "output": "/Users/shooter/Desktop/Projects/JSONTranslator/benchmarks/certified/.cache/graphunslopify-attempt-3",
+        "producer_sha256": "12f3b234822ec9116d2c80713c25fbde4eeeaa81e069c560c8a0bf0bf9e989cd",
+        "protocol_amended_during_session": true,
+        "protocol_sha256": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+        "report": "benchmarks/certified/development/adecfbf8-04ca-45d5-9de4-309af68311a2/attempt-3.json",
+        "report_sha256": "64c1633ae9d18ad667979103438bc17efda4d4795e24ab37a3dcbb7df43b237e",
+        "seconds": 3171.141533916,
+        "session": "adecfbf8-04ca-45d5-9de4-309af68311a2",
+        "successful": true,
+        "timing_comparison_valid": false,
+        "timing_note": "Includes shared evaluator repair; do not compare workflow authoring speed",
+        "utc": "2026-10-29T10:54:20.989182+00:00"
+      }
+    ],
+    "paired_development_timing_valid": false,
+    "timing_scope": "Clean-condition fresh-process medians with warm caches and measurement overhead; no human productivity inference",
+    "shared_preparation_scope": "Prior shared design/preparation time is unmeasured and excluded; listed helper sizes are selected runtime code, not total project cost",
+    "study_scope": "Project-run mean/sample-SD plots against external NIST facts; not an independent researcher-run study or whole StRD certification",
+    "development_source_matches": {
+      "matplotlib": true,
+      "graphunslopify": true
+    }
+  }
+}

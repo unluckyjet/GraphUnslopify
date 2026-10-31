@@ -1,6 +1,7 @@
 /** JSON transport for the packaged local translator. No datasets are read here. */
 import { readFileSync } from "node:fs";
 import { z } from "zod";
+import { serveLocalWorker } from "./local-worker.ts";
 import { FIGURE_KINDS, FigureSpec } from "./schema.ts";
 import { translate } from "./translate.ts";
 import { verify } from "./verify.ts";
@@ -47,7 +48,13 @@ export function dispatch(operation: string, payload: unknown): unknown {
   throw new Error(`Unknown local operation: ${operation}`);
 }
 
-try {
+if (process.argv[2] === "--worker") {
+  try { await serveLocalWorker(dispatch, import.meta.url); }
+  catch (error) {
+    process.stderr.write((error instanceof Error ? error.message : String(error)) + "\n");
+    process.exitCode = 1;
+  }
+} else try {
   const request = z.object({ operation: z.string(), payload: z.unknown().optional() }).parse(JSON.parse(readFileSync(0, "utf8")));
   process.stdout.write(JSON.stringify({ ok: true, result: dispatch(request.operation, request.payload ?? {}) }));
 } catch (error) {

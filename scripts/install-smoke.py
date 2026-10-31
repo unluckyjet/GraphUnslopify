@@ -91,6 +91,11 @@ def main() -> None:
         help="require actual current-source worker reuse and server-owned cleanup",
     )
     parser.add_argument(
+        "--require-translator-worker",
+        action="store_true",
+        help="require current-source bounded Node ownership, canonical responses and teardown",
+    )
+    parser.add_argument(
         "--require-project",
         action="store_true",
         help="require current-source project history and shared settings; older releases may omit them",
@@ -1294,6 +1299,35 @@ def main() -> None:
             encoding="utf8",
         )
         run([str(python), str(agent_script)], cwd=where, env=env)
+    translator_worker_result = None
+    if args.require_translator_worker:
+        compiler_script = where / "translator-worker-check.py"
+        compiler_script.write_text(
+            "import json\nfrom pathlib import Path\n"
+            "from graphunslopify.translator_worker import TranslatorWorker\n"
+            "from graphunslopify.transport import local_request\n"
+            "client=TranslatorWorker(Path('compiler session'),max_requests=2)\n"
+            "try:\n"
+            "    info,first=client.request('info'); assert info==local_request('info')\n"
+            "    initial=client.process.connection.process; assert first['pid']==initial.pid\n"
+            "    spec={'kind':'line','x':{'field':'epoch','label':'Epoch'},'y':{'field':'score','label':'Score'}}\n"
+            "    figure,second=client.request('convert',spec);assert figure==local_request('convert',spec)\n"
+            "    assert second['pid']==first['pid'] and second['request_number']==2\n"
+            "    assert second['request_id']!=first['request_id'] and initial.poll() is not None\n"
+            "    info,third=client.request('info');assert info==local_request('info')\n"
+            "    assert third['pid']!=first['pid'] and third['request_number']==1 and third['process_started']\n"
+            "    assert first['runtime_source_sha256']==second['runtime_source_sha256']==third['runtime_source_sha256']\n"
+            "    owned=client.process.connection.process\n"
+            "finally: client.close()\n"
+            "assert owned.poll() is not None\n"
+            "Path('translator-worker.json').write_text(json.dumps({'passed':True,'first':first,'second':second,'third':third,'closed':True})+'\\n')\n",
+            encoding="utf8",
+        )
+        run([str(python), str(compiler_script)], cwd=where, env=env)
+        translator_worker_result = json.loads(
+            (where / "translator-worker.json").read_text()
+        )
+        assert translator_worker_result["passed"]
     # Exercise the installed HTTP UI and static assets outside the checkout.
     editor_script = where / "editor-check.py"
     editor_script.write_text(
@@ -1567,6 +1601,7 @@ def main() -> None:
                 "diagnostics": diagnostics,
                 "pdf_visual": pdf_visual,
                 "excel_input": excel_input,
+                "translator_worker": translator_worker_result,
                 "work_dir": str(where),
             }
         )

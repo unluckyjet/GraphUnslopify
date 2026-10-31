@@ -101,3 +101,21 @@ renders/21 kinds, minimum/fresh30-record smoke and installed reuse/shutdown pass
 Original failed CI/attempts and vectors remain in benchmarks/rendering/results/windows-launch-repair/.
 Repair push/new exact all9/Figure, actual Windows acceptance and full84 translator
 evaluation remain open;85–89 remain pending. No translator implementation yet.
+
+
+###84b repair accepted;84c1 compiler transport foundation in progress
+
+721e6d0 exact main41154926924 all nine/Figure41154926926 completed success;
+final metadata/all ten expected named checks verified01:43UTC. Actual downloaded
+source-bound editor/native-kind/certified/both Python smoke JSON and ZIP digests
+are retained under results/windows-launch-repair/ci-*.json. Windows reuse/shutdown
+passed. No further implementation began before that exact acceptance.
+
+84c1 adds a real private bounded translator entry/client with canonical one-shot
+responses, source/limit/PID/request binding, lifecycle/recovery and actual binary
+ownership. Current source/minimum/fresh combined40 controls and installed
+same-PID/recycling/close gate pass. All seven stable gates232/1856/Ruff144 pass
+on309 unchanged source/test/fixture files; new push/exact CI is next. The default
+editor translation path remains one-shot. See docs/workspace/translator-worker.md.
+This is a transport milestone: editor/draft integration and a prospective frozen
+three-arm full-engine comparison remain84c2. Full84 and85–89 remain open.

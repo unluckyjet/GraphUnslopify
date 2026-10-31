@@ -6,7 +6,7 @@ var __export = (target, all) => {
 };
 
 // src/local.ts
-import { readFileSync } from "node:fs";
+import { readFileSync as readFileSync2 } from "node:fs";
 
 // node_modules/zod/v4/classic/external.js
 var external_exports = {};
@@ -1175,8 +1175,8 @@ function prefixIssues(path, issues) {
     return iss;
   });
 }
-function unwrapMessage(message) {
-  return typeof message === "string" ? message : message?.message;
+function unwrapMessage(message2) {
+  return typeof message2 === "string" ? message2 : message2?.message;
 }
 function attachSchema(issues, start, inst) {
   var _a3;
@@ -1194,10 +1194,10 @@ function finalizeIssue(iss, ctx, config2) {
       iss.schema = iss.inst;
   }
   const schemaError = iss.schema !== iss.inst ? iss.schema?._zod.def?.error : void 0;
-  const message = iss.message ? iss.message : unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ?? unwrapMessage(schemaError?.(iss)) ?? unwrapMessage(ctx?.error?.(iss)) ?? unwrapMessage(config2.customError?.(iss)) ?? unwrapMessage(config2.localeError?.(iss)) ?? "Invalid input";
+  const message2 = iss.message ? iss.message : unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ?? unwrapMessage(schemaError?.(iss)) ?? unwrapMessage(ctx?.error?.(iss)) ?? unwrapMessage(config2.customError?.(iss)) ?? unwrapMessage(config2.localeError?.(iss)) ?? "Invalid input";
   const { inst: _inst, schema: _schema, continue: _continue, input: _input, ...rest } = iss;
   rest.path ?? (rest.path = []);
-  rest.message = message;
+  rest.message = message2;
   if (ctx?.reportInput) {
     rest.input = _input;
   }
@@ -12513,8 +12513,8 @@ var globalRegistry = globalThis.__zod_globalRegistry;
 var INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var FALLBACK_FLAG = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
 var ZodCompileAsyncError = class extends Error {
-  constructor(message = "z.compile does not support async refinements, transforms, or checks") {
-    super(message);
+  constructor(message2 = "z.compile does not support async refinements, transforms, or checks") {
+    super(message2);
     this.name = "ZodCompileAsyncError";
   }
 };
@@ -15144,12 +15144,12 @@ function initializeContext(params) {
     external: params?.external ?? void 0
   };
 }
-function handleUnrepresentable(schema, ctx, json2, params, message) {
-  const result = typeof ctx.unrepresentable === "function" ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message }) : ctx.unrepresentable;
+function handleUnrepresentable(schema, ctx, json2, params, message2) {
+  const result = typeof ctx.unrepresentable === "function" ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message: message2 }) : ctx.unrepresentable;
   if (result === "any")
     return false;
   if (result === void 0 || result === "throw")
-    throw new Error(message);
+    throw new Error(message2);
   Object.assign(json2, result);
   return true;
 }
@@ -18874,6 +18874,80 @@ function date4(params) {
   return _coercedDate(ZodDate, params);
 }
 
+// src/local-worker.ts
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { TextDecoder } from "node:util";
+var PROTOCOL = 1;
+var MAX_REQUEST = 4 * 1024 * 1024;
+var MAX_FRAME = 16 * 1024 * 1024;
+var envelope = external_exports.object({
+  protocol: external_exports.literal(PROTOCOL),
+  id: external_exports.string().regex(/^[0-9a-f]{32}$/),
+  payload: external_exports.object({ operation: external_exports.string(), payload: external_exports.unknown().optional() }).strict()
+}).strict();
+var message = (error61) => error61 instanceof Error ? error61.message : String(error61);
+async function serveLocalWorker(dispatch2, entry) {
+  const max = Number(process.argv[3] ?? 64);
+  if (process.argv.length > 4 || !Number.isSafeInteger(max) || max < 1 || max > 128)
+    throw new Error("Translator worker request bound must be between1 and128");
+  const source = createHash("sha256").update(readFileSync(new URL(entry))).digest("hex");
+  async function send(body) {
+    const frame = JSON.stringify({ protocol: PROTOCOL, ...body }) + "\n";
+    if (Buffer.byteLength(frame, "utf8") > MAX_FRAME)
+      throw new Error("Translator response exceeds the private frame budget");
+    await new Promise((resolve, reject) => {
+      process.stdout.write(frame, (error61) => error61 ? reject(error61) : resolve());
+    });
+  }
+  await send({
+    ready: true,
+    kind: "translator",
+    pid: process.pid,
+    node: process.version,
+    bundle_sha256: source,
+    max_requests: max,
+    max_request_bytes: MAX_REQUEST,
+    max_frame_bytes: MAX_FRAME
+  });
+  const decode3 = new TextDecoder("utf-8", { fatal: true });
+  let pending = Buffer.alloc(0), count = 0, identity = null;
+  try {
+    for await (const chunk of process.stdin) {
+      pending = Buffer.concat([pending, chunk]);
+      let end;
+      while ((end = pending.indexOf(10)) >= 0) {
+        identity = null;
+        if (end + 1 > MAX_REQUEST) throw new Error("Translator request exceeds the private frame budget");
+        const raw = pending.subarray(0, end);
+        pending = pending.subarray(end + 1);
+        const parsed = JSON.parse(decode3.decode(raw));
+        if (parsed && typeof parsed === "object" && "id" in parsed && typeof parsed.id === "string")
+          identity = parsed.id;
+        const request = envelope.parse(parsed);
+        let result;
+        try {
+          result = { ok: true, result: dispatch2(request.payload.operation, request.payload.payload ?? {}) };
+        } catch (error61) {
+          result = { ok: false, error: message(error61) };
+        }
+        const retire = ++count === max;
+        await send({ id: request.id, ok: true, result, retire });
+        if (retire) {
+          process.stdin.destroy();
+          return;
+        }
+      }
+      if (pending.length > MAX_REQUEST) throw new Error("Translator request exceeds the private frame budget");
+    }
+    if (pending.length) throw new Error("Translator request ended without its frame delimiter");
+  } catch (error61) {
+    await send({ id: identity, ok: false, error: message(error61), retire: true });
+    process.exitCode = 1;
+    process.stdin.destroy();
+  }
+}
+
 // src/claims.ts
 var CLAIM_KINDS = [
   "beats_everywhere",
@@ -19473,7 +19547,7 @@ function hasCategoricalX(spec) {
 }
 
 // src/codegen/index.ts
-import { createHash } from "node:crypto";
+import { createHash as createHash2 } from "node:crypto";
 
 // src/alttext.ts
 var KIND_PHRASING = {
@@ -24914,10 +24988,10 @@ function diagnosticAdvice(code) {
 function explainFinding(finding) {
   return { ...finding, ...diagnosticAdvice(finding.code) };
 }
-function explainSpecIssue(path, message) {
+function explainSpecIssue(path, message2) {
   return {
     path,
-    message,
+    message: message2,
     ...diagnosticAdvice("invalid_spec"),
     correction: `Correct ${path} using the expected value in the problem message. ${diagnosticAdvice("invalid_spec").correction}`
   };
@@ -25633,7 +25707,7 @@ var RULES = [
 ];
 function verify(spec) {
   const findings = [];
-  const add = (severity, code, message, fix) => findings.push(explainFinding(fix ? { severity, code, message, fix } : { severity, code, message }));
+  const add = (severity, code, message2, fix) => findings.push(explainFinding(fix ? { severity, code, message: message2, fix } : { severity, code, message: message2 }));
   const effective = spec.series_from_columns && !spec.group ? { ...spec, group: spec.series_from_columns.series_name } : spec;
   for (const rule of RULES) rule(rule === fieldReferences || rule === transforms ? spec : effective, add);
   return findings;
@@ -26124,7 +26198,7 @@ function emitPreamble(spec, out, sourceSpec = spec) {
   const venue = VENUE_RULES[spec.style.venue];
   const [width, height] = figureSize(spec);
   const specJson = JSON.stringify(sourceSpec);
-  const specHash = createHash("sha256").update(specJson).digest("hex").slice(0, 16);
+  const specHash = createHash2("sha256").update(specJson).digest("hex").slice(0, 16);
   out.push(
     "# Generated by GraphUnslopify from a FigureSpec.",
     `# tool version ${TOOL_VERSION}, spec sha256:${specHash}`,
@@ -27234,8 +27308,15 @@ function dispatch(operation, payload) {
   }
   throw new Error(`Unknown local operation: ${operation}`);
 }
-try {
-  const request = external_exports.object({ operation: external_exports.string(), payload: external_exports.unknown().optional() }).parse(JSON.parse(readFileSync(0, "utf8")));
+if (process.argv[2] === "--worker") {
+  try {
+    await serveLocalWorker(dispatch, import.meta.url);
+  } catch (error61) {
+    process.stderr.write((error61 instanceof Error ? error61.message : String(error61)) + "\n");
+    process.exitCode = 1;
+  }
+} else try {
+  const request = external_exports.object({ operation: external_exports.string(), payload: external_exports.unknown().optional() }).parse(JSON.parse(readFileSync2(0, "utf8")));
   process.stdout.write(JSON.stringify({ ok: true, result: dispatch(request.operation, request.payload ?? {}) }));
 } catch (error61) {
   process.stdout.write(JSON.stringify({ ok: false, error: error61 instanceof Error ? error61.message : String(error61) }));

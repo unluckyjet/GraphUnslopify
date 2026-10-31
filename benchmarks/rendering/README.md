@@ -168,3 +168,24 @@ recorded in [failure context](results/windows-launch-repair/failure-context.json
 Only completed/failed owned temporary dependency environments were pruned;
 source, raw results and wheels were preserved. No translator product changes,
 new figure kinds or public release are part of this repair.
+
+
+The Windows repair721e6d0 is now accepted: exact main41154926924 all nine jobs
+and Figure41154926926 completed success; final metadata/ten named checks verified
+01:43UTC. [Acceptance](results/windows-launch-repair/ci-acceptance.json) binds the
+downloaded native-kind/editor/certified and both actual30-record Python smoke
+archives under that folder. Original failed-source evidence remains unchanged.
+
+The next [compiler transport foundation](../../docs/workspace/translator-worker.md)
+is separate from editor integration. It preserves one-shot dispatch and the
+existing literal v3 workload; its converter tests do not render or verify data.
+The editor still uses one-shot translation. A prospective new full-engine protocol
+and integration are required before claiming combined-worker performance.
+
+
+Compiler transport foundation local acceptance:16 compiler+24 native controls
+pass in each source/minimum/fresh context; seven gates232/1856/Ruff144 pass on309
+unchanged files. [Actual verification](results/translator-worker-foundation/verification.json)
+and [installed trace](results/translator-worker-foundation/installed-smoke.json)
+retain identity/reuse/recycle/close evidence. This does not activate GUI compiler
+reuse or replace the retained v3 timing results; new exact CI is still required.

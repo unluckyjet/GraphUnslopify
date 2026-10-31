@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-10-31T02:12:12.851045+00:00",
+  "base_commit": "721e6d00f7d13d9a54627084b9a731c168e55a49",
+  "base_acceptance": "Exact main41154926924 all9/Figure41154926926 passed; final metadata/ten expected checks verified01:43UTC before this implementation. Actual current editor/kinds/NIST/both Python smoke proof retained in sibling windows-launch-repair/ci-*.json.",
+  "scope": "84c1 compiler transport foundation only; editor still uses one-shot translator, no combined engine benefit or scientific calculation is claimed. Full84 integration/evaluation and85\u201389 remain open; public0.8.0 unchanged.",
+  "seven_local_gates_passed": true,
+  "stable_source_test_fixture_files": 309,
+  "node_tests": 232,
+  "python_tests": 1856,
+  "skipped": 0,
+  "warnings": 1,
+  "warning": "existing MLflow SQLAlchemy deprecation",
+  "ruff": "Full CI lint/format144 passed",
+  "focused_per_environment": {
+    "compiler": 16,
+    "native_renderer": 24,
+    "combined": 40
+  },
+  "actual_environments": [
+    "source3.12.14",
+    "minimum3.10.22",
+    "genuine fresh local-wheel3.12.14"
+  ],
+  "compiler_cases": "21 conversion kinds/mixed schemas/recipes/validation/scoring/repair/fix/suggest, invalid-to-clean, reserved names, actual UTF8/JSON/oversized/unterminated frames, source/limits/PID binding, concurrent IDs, source/runtime change, timeout/crash/env restart, recycle/close/collection",
+  "wheel": {
+    "sha256": "576e417dbbe82e29c5da1dd59f42206152681c00313f885523550f6693b22650",
+    "source_origin": "Fresh imported package verified outside checkout; every top-level Python module and actual bundle byte matched current source before40 installed controls.",
+    "actual_compiler_reuse_recycle_close": {
+      "passed": true,
+      "first": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 94870,
+        "request_id": "4405ce034442408193d925f03d9936c9",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "second": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 94870,
+        "request_id": "54c7f2bf7ac742149151f8f923a7dd20",
+        "request_number": 2,
+        "process_started": false,
+        "process_starts": 1,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "third": {
+        "mode": "worker",
+        "kind": "translator",
+        "pid": 94875,
+        "request_id": "f8b16004c3bc453b9b0d470e52446db5",
+        "request_number": 1,
+        "process_started": true,
+        "process_starts": 2,
+        "protocol": 1,
+        "runtime_source_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+      },
+      "closed": true
+    },
+    "source_bundle_sha256": "775390f192fb6f3d1d1371c5a5f5b9524bfc976b785b5c22eff53371cc555647"
+  },
+  "original_fixture_failure": "Implicit4MiB pytest ID entered inherited PYTEST_CURRENT_TEST and exceeded OS ARG_MAX before child startup. Explicit short IDs retain the full oversized protocol case, which now passes actual child rejection.",
+  "ci": "new commit/push/exact all9/Figure including actual four-platform standalone translator gate pending"
+}

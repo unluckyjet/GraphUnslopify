@@ -111,11 +111,20 @@ def _stop(connection):
 class JsonWorker:
     """One serialized request at a time, with deadline/restart and no global daemon."""
 
-    def __init__(self, command: list[str], cwd: Path, *, kind: str, max_requests: int = 16):
+    def __init__(
+        self,
+        command: list[str],
+        cwd: Path,
+        *,
+        kind: str,
+        max_requests: int = 16,
+        expected_ready: dict | None = None,
+    ):
         if type(max_requests) is not int or not 1 <= max_requests <= 128:
             raise ValueError("Worker request bound must be between1 and128")
         self.command, self.cwd, self.kind = command, cwd.resolve(), kind
         self.max_requests = max_requests
+        self.expected_ready = dict(expected_ready or {})
         self.lock = threading.RLock()
         self.connection: Connection | None = None
         self.finalizer = None
@@ -186,6 +195,7 @@ class JsonWorker:
             or ready.get("ready") is not True
             or type(ready.get("pid")) is not int
             or ready["pid"] != process.pid
+            or any(ready.get(key) != value for key, value in self.expected_ready.items())
         ):
             raise WorkerError("Worker readiness does not match the owned process")
         self.environment = signature

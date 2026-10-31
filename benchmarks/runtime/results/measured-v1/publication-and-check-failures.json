@@ -1,0 +1,6 @@
+{
+  "archive": "publication-and-check-failures.zip",
+  "bytes": 198703,
+  "sha256": "5492c6c2915369854b13bb4ca88992280743a23ce8ec17d2119e07640cd0e43a",
+  "scope": "First publishing guard rejected113078807-byte combined native ZIP; all9446 actual member bytes are preserved in published shards. First gate intentionally stopped before necessary source changes; second838-path gate failed due observed ENOSPC,1077passed/10failed/842fixture errors. Neither partial run is accepted."
+}

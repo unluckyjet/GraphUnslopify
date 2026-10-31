@@ -1,0 +1,242 @@
+[
+  {
+    "case": "bar-446bd70876112ba3",
+    "kind": "bar",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.0340905688491062,
+    "direct_shared_over_inline": 1.0256306634001355,
+    "direct_bundle_over_inline": 1.0172158357348993
+  },
+  {
+    "case": "bar-4dc977d7faf8337c",
+    "kind": "bar",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9627913801964575,
+    "direct_shared_over_inline": 0.972137477047092,
+    "direct_bundle_over_inline": 0.9983661852439673
+  },
+  {
+    "case": "bar-53692a606e3c8897",
+    "kind": "bar",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.0122647396261175,
+    "direct_shared_over_inline": 0.987112847398195,
+    "direct_bundle_over_inline": 0.9196652993972565
+  },
+  {
+    "case": "box-2b2f74a7241a99c8",
+    "kind": "box",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9838392124277975,
+    "direct_shared_over_inline": 1.0003299451772187,
+    "direct_bundle_over_inline": 1.0117919444992571
+  },
+  {
+    "case": "calibration-92ab878f229f076f",
+    "kind": "calibration",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.103479977730269,
+    "direct_shared_over_inline": 0.9883723020012396,
+    "direct_bundle_over_inline": 1.0245067606981226
+  },
+  {
+    "case": "confusion_matrix-9eee1569d3af2161",
+    "kind": "confusion_matrix",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.8869242386346868,
+    "direct_shared_over_inline": 1.0399003379385712,
+    "direct_bundle_over_inline": 1.2348140499179698
+  },
+  {
+    "case": "dumbbell-d497931fa4bfcc9f",
+    "kind": "dumbbell",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.272754246927154,
+    "direct_shared_over_inline": 0.8743271395228268,
+    "direct_bundle_over_inline": 0.7506740440765866
+  },
+  {
+    "case": "ecdf-c28fb06360c75289",
+    "kind": "ecdf",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.732429132320945,
+    "direct_shared_over_inline": 1.6246046963163756,
+    "direct_bundle_over_inline": 1.0131918262194402
+  },
+  {
+    "case": "forest-090c43a7e9a08d51",
+    "kind": "forest",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.02532554972842,
+    "direct_shared_over_inline": 0.9914668013502589,
+    "direct_bundle_over_inline": 1.0809210067628254
+  },
+  {
+    "case": "heatmap-167a2bdc6630e146",
+    "kind": "heatmap",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9739687113340643,
+    "direct_shared_over_inline": 1.0024336096430484,
+    "direct_bundle_over_inline": 0.9999870392112326
+  },
+  {
+    "case": "heatmap-f830c62f6c5b14ea",
+    "kind": "heatmap",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.008630869247512,
+    "direct_shared_over_inline": 0.964999075564476,
+    "direct_bundle_over_inline": 0.9644544418277716
+  },
+  {
+    "case": "kaplan_meier-7dde92806ecf5ef7",
+    "kind": "kaplan_meier",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.0424481568631372,
+    "direct_shared_over_inline": 0.8902007704547725,
+    "direct_bundle_over_inline": 0.9015204226507246
+  },
+  {
+    "case": "line-5af2338b87f0d9d1",
+    "kind": "line",
+    "expected_exit_code": 2,
+    "native_shared_over_inline": 0.9713754849571917,
+    "direct_shared_over_inline": 0.9962608060146286,
+    "direct_bundle_over_inline": 1.0017528071911816
+  },
+  {
+    "case": "line-838fb96743324d01",
+    "kind": "line",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.0068203076450604,
+    "direct_shared_over_inline": 1.157716515855469,
+    "direct_bundle_over_inline": 0.9906117386570221
+  },
+  {
+    "case": "line-8af969b4888b9ef7",
+    "kind": "line",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9860218825264665,
+    "direct_shared_over_inline": 1.1376432693957024,
+    "direct_bundle_over_inline": 1.0563005856096008
+  },
+  {
+    "case": "line-cf2954451e96904c",
+    "kind": "line",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.0205168808419463,
+    "direct_shared_over_inline": 1.0106844330368636,
+    "direct_bundle_over_inline": 0.9496689758781507
+  },
+  {
+    "case": "line-f16d0ed5060f5220",
+    "kind": "line",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9918766684548831,
+    "direct_shared_over_inline": 1.001812189942844,
+    "direct_bundle_over_inline": 1.0109814031044122
+  },
+  {
+    "case": "line-fc15eaad00d96376",
+    "kind": "line",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9974086602798093,
+    "direct_shared_over_inline": 1.0156872985082264,
+    "direct_bundle_over_inline": 1.0130412361919787
+  },
+  {
+    "case": "paired_difference-19dd38e873a72ae0",
+    "kind": "paired_difference",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9705647827056325,
+    "direct_shared_over_inline": 0.9958614430852986,
+    "direct_bundle_over_inline": 0.9982714831649437
+  },
+  {
+    "case": "qq-1931c8e02399027c",
+    "kind": "qq",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9719171690486715,
+    "direct_shared_over_inline": 0.9867609437040797,
+    "direct_bundle_over_inline": 1.0244138067097517
+  },
+  {
+    "case": "raincloud-b2c37c9fc161f051",
+    "kind": "raincloud",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9802800734577157,
+    "direct_shared_over_inline": 0.9921125166363828,
+    "direct_bundle_over_inline": 1.0105647566163272
+  },
+  {
+    "case": "ridgeline-2d34cfc702b33237",
+    "kind": "ridgeline",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9111958322723822,
+    "direct_shared_over_inline": 1.0010746857483093,
+    "direct_bundle_over_inline": 1.032230847121041
+  },
+  {
+    "case": "scaling_fit-16aadc978c90b63a",
+    "kind": "scaling_fit",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9822409232241919,
+    "direct_shared_over_inline": 1.0013716669109198,
+    "direct_bundle_over_inline": 0.9974645903806776
+  },
+  {
+    "case": "scatter-ac042622f601b941",
+    "kind": "scatter",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9767196392970436,
+    "direct_shared_over_inline": 0.9889797160459403,
+    "direct_bundle_over_inline": 0.998129652949172
+  },
+  {
+    "case": "scatter-b5a25f4717e41194",
+    "kind": "scatter",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 1.003623662396129,
+    "direct_shared_over_inline": 0.9938787947957086,
+    "direct_bundle_over_inline": 1.0014104085825153
+  },
+  {
+    "case": "slope-a3b2cd4821260be1",
+    "kind": "slope",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9878847456987405,
+    "direct_shared_over_inline": 0.9824126193092224,
+    "direct_bundle_over_inline": 0.9890088631075152
+  },
+  {
+    "case": "sparkline_grid-19a33488881b6e75",
+    "kind": "sparkline_grid",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9967776636981236,
+    "direct_shared_over_inline": 1.0427068722378434,
+    "direct_bundle_over_inline": 1.0004896545725517
+  },
+  {
+    "case": "table-7d893df8fae9f3e3",
+    "kind": "table",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9728025915451046,
+    "direct_shared_over_inline": 0.9685723104758478,
+    "direct_bundle_over_inline": 0.9734575255837671
+  },
+  {
+    "case": "violin-e987758e17f6d8c1",
+    "kind": "violin",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9718604134710588,
+    "direct_shared_over_inline": 0.9918141131494688,
+    "direct_bundle_over_inline": 1.001325830939432
+  },
+  {
+    "case": "waterfall-679c8ffe74972501",
+    "kind": "waterfall",
+    "expected_exit_code": 0,
+    "native_shared_over_inline": 0.9861424521776718,
+    "direct_shared_over_inline": 0.9929561110817811,
+    "direct_bundle_over_inline": 1.000837953498367
+  }
+]

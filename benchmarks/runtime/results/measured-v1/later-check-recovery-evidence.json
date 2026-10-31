@@ -1,0 +1,6 @@
+{
+  "archive": "later-check-recovery-evidence.zip",
+  "bytes": 1209147,
+  "sha256": "e7109c53b3c3f2cc7bca673cfb44b2703c00dd708431cc3f2a6224d361cf5190",
+  "scope": "Third full838-stable-path gate1919pass/2fail/8 transient fixture/empty-output errors, cause unestablished. Affected modules72/72 subsequently pass in a fresh base. Own source snapshots/dependency versions of three superseded task venvs preserved before retirement; third-party binaries excluded, rebuild not claimed tested. Fresh complete retry uses dedicated never-before-existing pytest base, no assertions/tests excluded."
+}

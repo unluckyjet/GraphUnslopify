@@ -58,6 +58,10 @@ archive; altered input is refused. Palette locks used by the figure remain inclu
 The frozen30-case/all21-kind protocol predates runtime edits. Conformance compares
 actual accepted inline programs, canonical functions in their original contexts and
 current default entries, including original strict negatives, report mathematics,
-visible PNG pixels and SVG/PDF drawings. Whole entry/runtime/package/bundle footprint
-and startup/execution comparisons are separate acceptance work. Smaller entries alone
-do not establish faster rendering, human productivity or researcher adoption.
+visible PNG pixels and SVG/PDF drawings. The [frozen runtime comparison](../benchmarks/runtime/README.md)
+now records complete entry/runtime/package/bundle footprint and native/direct startup
+and execution costs. Its900 formal executions retain870 original passes/30 strict
+failures with unchanged drawings and mathematical reports. Latency outcomes are mixed;
+complete source size grows while entry size shrinks. Human productivity and researcher
+adoption are not measured. Required delivery checks and exact-commit CI remain separate
+from benchmark conformance.

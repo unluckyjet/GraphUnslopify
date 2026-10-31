@@ -141,6 +141,10 @@ Node executable. A source archive still needs to pass its strict checks.
 See [versioned runtimes and standalone bundles](docs/figure-runtime.md). This is a source feature,
 separate from the published0.8.0 package.
 
+The [30-case runtime comparison](benchmarks/runtime/README.md) preserves all original
+results and reduces median entry size from 118 KB to 33 KB. Measured latency is mixed,
+and the complete source package grows slightly; the report includes every slower case.
+
 See [installation and optional extras](docs/installation.md), [versioned documentation](docs/versioning.md)
 and the [0.8.0 release notes](docs/releases/0.8.0.md).
 

@@ -1,0 +1,106 @@
+{
+  "scope": "Developer-controlled source379 runtime-v1 measurement on one Mac; no human, independent-executor or universal speed claim.",
+  "source_revision": "379bf814ba29f65595b87bd5acbac997553be0e4",
+  "protocol_sha256": "befa743969611f0dabd46a29ca5d603acf7df8dcff5aa1e7b227179f2c495e91",
+  "formal_counts": {
+    "attempted": 900,
+    "strict0": 870,
+    "original_strict2": 30,
+    "instrumented_untimed": 60,
+    "unexpected_failures": 0,
+    "unrun": 0,
+    "ordinary_and_cold_timed": 840
+  },
+  "smoke_counts": {
+    "attempted": 360,
+    "strict0": 348,
+    "original_strict2": 12,
+    "instrumented_untimed": 60,
+    "unexpected_failures": 0,
+    "unrun": 0,
+    "ordinary_and_cold_timed": 300
+  },
+  "actual_scientific_distributions_matched": 11,
+  "actual_scientific_files_matched": 6980,
+  "actual_interpreter_binary_matched": true,
+  "entry_median_bytes": {
+    "inline": 118491.5,
+    "shared": 33256.5
+  },
+  "entry_median_utf8_lines": {
+    "inline": 1331.5,
+    "shared": 733.5
+  },
+  "case_median_directions": {
+    "native_shared_over_inline": {
+      "faster": 20,
+      "slower_or_equal": 10
+    },
+    "direct_shared_over_inline": {
+      "faster": 17,
+      "slower_or_equal": 13
+    },
+    "direct_bundle_over_inline": {
+      "faster": 13,
+      "slower_or_equal": 17
+    }
+  },
+  "archives": [
+    {
+      "path": "formal-native-accepted-inline-raw.zip",
+      "bytes": 62359660,
+      "sha256": "ebbaa4f1b1b630028b7e291c01796d4a258528c8462df44764ab9dc166306cd9"
+    },
+    {
+      "path": "formal-native-default-shared-raw.zip",
+      "bytes": 54392082,
+      "sha256": "6923d20bf83703adcd41e898fc95b6778f6aa3ebf1c083a14f4156b22bc30495"
+    },
+    {
+      "path": "formal-direct-accepted-inline-raw.zip",
+      "bytes": 20399593,
+      "sha256": "f35ed6579166674e32cc2e65924fd303bf3d8ff74024b883f441f252003ac62f"
+    },
+    {
+      "path": "formal-direct-default-shared-raw.zip",
+      "bytes": 18292408,
+      "sha256": "4f9bf05ab252b4d2b91532823e6e5e81147ef6c5e60b8e22f8ae4274d750b849"
+    },
+    {
+      "path": "formal-direct-standalone-bundle-raw.zip",
+      "bytes": 45689387,
+      "sha256": "42a6584c1776c82e0b62ae8e38363a9f09c735bc0d0d8f3c1ce895938cd5d26b"
+    },
+    {
+      "path": "smoke-native-accepted-inline-raw.zip",
+      "bytes": 23316556,
+      "sha256": "8d24f3c06d935db1bed98cc792b67785f63d368576499486612836246e345921"
+    },
+    {
+      "path": "smoke-native-default-shared-raw.zip",
+      "bytes": 20665795,
+      "sha256": "cea3579e423da693a527ca1816d31c700b50983e82170139b635daec7914dd5d"
+    },
+    {
+      "path": "smoke-direct-accepted-inline-raw.zip",
+      "bytes": 13446645,
+      "sha256": "3ef7d78ad72175a53c31af23e76f010a0aa57a40e71127a4ffa0a92b35a6fafb"
+    },
+    {
+      "path": "smoke-direct-default-shared-raw.zip",
+      "bytes": 12171082,
+      "sha256": "9ca981895d158059a9d7aaa70549daf795abc70753a33b513eedf2d4f0c9dd5a"
+    },
+    {
+      "path": "smoke-direct-standalone-bundle-raw.zip",
+      "bytes": 39565551,
+      "sha256": "449075513effe71fb1af64671e9761e6cc5b1207e4a3ba9497f08bb76716ec97"
+    },
+    {
+      "path": "diagnostic-and-environment-raw.zip",
+      "bytes": 5027124,
+      "sha256": "44b9318ac7702b6746ec882f19f95f8ae7468b8bf73856bf85afef583e6abba5"
+    }
+  ],
+  "local_seven_checks": "Separate gate receipts; benchmark success alone does not complete release/CI acceptance."
+}

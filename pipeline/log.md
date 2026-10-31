@@ -213,3 +213,5 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-10-31 — full85 local closure: all seven232/1904/0skip/1upstream warning/Ruff153 pass on446 unchanged source/test/fixture/evidence files. Corrected612 and source-minimum-fresh108, raw ZIP/proof verification/audit complete. Move85 to done and refresh links/queue; immediate commit/push then exact new all-nine/Figure required before86. No release or full-initiative completion claim.
 
 2026-10-31 |86a partial | Canonical37-helper source/ABI/context foundation; source/minimum/fresh30x3 strict controls each preserve29/1; seven+gallery green232/1912/Ruff157/828 stable paths; published22 PNG pixels and14 inputs unchanged. Default compact/standalone/full86 and87–89 still open; push/exact CI next.
+
+2026-10-31 —86c runtime-v1:900 formal/360 smoke preserve original all30/all21 strict outcomes; complete footprint and mixed native/direct timing published with all regressions. Seven+gallery/Ruff163/232 Node/1929 Python pass on838 unchanged paths; raw-byte/CSV52-graphic evidence retained. Prior ENOSPC/transient-fixture attempts remain explicit. Commit/push/exact-CI gate follows before87; no new release.

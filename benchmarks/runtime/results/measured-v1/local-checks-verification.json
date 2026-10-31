@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-10-31T16:24:55.605057+00:00",
+  "seven_required_checks": true,
+  "gallery": true,
+  "both_full_ci_ruff_commands": true,
+  "node_tests": 232,
+  "python_tests": 1929,
+  "skips": 0,
+  "upstream_warnings": 1,
+  "protected_paths_unchanged": 838,
+  "raw_archive": "local-checks-raw.zip",
+  "raw_bytes": 52949,
+  "raw_sha256": "4126ba2a04017eb0dd876ad0caaa78bfc2350949f170dafc068ea3077b412a7a",
+  "scope": "Local checks on unchanged actual source after retained failed attempts; exact new commit CI remains required. Product package64 files remains identical to accepted379."
+}

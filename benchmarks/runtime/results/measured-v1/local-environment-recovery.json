@@ -1,0 +1,12 @@
+{
+  "verified_at": "2026-10-31T15:52:37.982012+00:00",
+  "root": "/private/var/folders/cm/8l8qlt0s57sg6h83r9_1b_r80000gn/T/pytest-of-shooter/pytest-519",
+  "scope": "Only this exact failed owned pytest519 tree; all regular files archived/hash-verified, symlinks recorded without dereference. No matching active process. Other pytest roots, environments and project files untouched.",
+  "archive": "/Users/shooter/.cache/graphunslopify/evidence/runtime-cost-enospc-pytest519.zip",
+  "archive_bytes": 69112739,
+  "archive_sha256": "9bbd9ddc591662f6e223ac140e008a24e1c43b5923b23618045fdfb729417c94",
+  "verified_regular_files": 3524,
+  "recorded_symlinks": 351,
+  "retired": true,
+  "redundant_oversize_container_retired_after_all_member_recovery": true
+}

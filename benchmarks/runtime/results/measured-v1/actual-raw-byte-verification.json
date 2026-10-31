@@ -1,0 +1,16 @@
+{
+  "scope": "Verify published raw files/counts without executing archived figure programs.",
+  "actual_archive_count": 11,
+  "actual_retained_file_hashes": 7686,
+  "actual_native_maps": 1440,
+  "actual_reports": {
+    "formal-strict0": 870,
+    "formal-strict2": 30,
+    "smoke-strict0": 348,
+    "smoke-strict2": 12
+  },
+  "actual_total_reports": 1260,
+  "oversize_intermediate_members_all_recovered": 9446,
+  "oversize_intermediate_bytes": 113078807,
+  "oversize_intermediate_sha256": "b9f31c2f292598a3f5faaa8a4b754189d2c6a397fa25bbd43627170d750ee00d"
+}

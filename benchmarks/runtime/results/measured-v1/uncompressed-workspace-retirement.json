@@ -1,0 +1,18 @@
+{
+  "verified_at": "2026-10-31T15:48:33.811228+00:00",
+  "scope": "Only completed owned uncompressed measurement workspaces. Every non-cache file SHA matches durable published shards; all workers closed and no matching process remains. Source checkout, raw archive shards, environments and failure evidence retained.",
+  "roots": [
+    {
+      "root": "/tmp/graphunslopify-runtime-cost-formal-1",
+      "all_nonderived_files_covered": 15608,
+      "actual_nonderived_bytes": 445384503
+    },
+    {
+      "root": "/tmp/graphunslopify-runtime-cost-smoke-1",
+      "all_nonderived_files_covered": 8140,
+      "actual_nonderived_bytes": 257318346
+    }
+  ],
+  "no_active_matching_process": true,
+  "retired": true
+}

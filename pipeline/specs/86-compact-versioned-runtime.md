@@ -1,7 +1,7 @@
 ---
 id: 86
 slug: compact-versioned-runtime
-status: ready
+status: in_progress
 priority: P1
 title: Share a versioned figure runtime and preserve genuine standalone export
 source_idea: User visual-workspace advice reduce generated complexity with versioned reusable runtime and bundled export
@@ -115,3 +115,46 @@ venv failure is explicit; a fresh cached3.10.22 replacement passes90/16.
 Actual raw evidence is in benchmarks/runtime/results/html-identity-v1.
 Push/exact CI acceptance follows this local milestone; full86 cost comparisons
 and all87–89 scope remain open.
+
+##86c — frozen whole-cost comparison
+
+After379bf814 passed exact all-nine main41209953576/Figure41209953562,
+the unchanged runtime-v1 protocol now completes900 formal and360 smoke strict
+executions across30 original cases/all21 kinds. Formal870 pass/30 original strict2
+and smoke348/12 preserve report mathematics, actual PNG/SVG/PDF drawings, original
+native maps, source/data/provenance and identical per-case logs. No cases, failed
+science or slower measurements are removed. Seven native warm/three direct warm
+samples, cold starts, setup and the separate60 instrumented samples per run retain
+their original denominators. Actual owned16/64 worker budgets and64-entry/32MiB
+cache are checked. Python binary and6,980 files across11 declared scientific
+distributions match native/direct environments; bundled runs have no installed
+package and deliberately invalid Node.
+
+Median entry118,491.5→33,256.5bytes/1,331.5→733.5UTF-8 lines, while full package
+source/resources grow1,828,626→1,897,739bytes (60→64 files). Whole runtime/member/ZIP
+costs are retained separately from11 pinned scientific components. Native shared
+case medians are faster20/30, slower10/30; direct shared17/13 and bundle13/17.
+These are descriptive developer-controlled one-Mac observations, not a general
+speed, human-authoring, independent-execution or Matplotlib advantage.
+
+New measurement/publication tools preserve actual original scripts and source
+identities. Public [results](../../benchmarks/runtime/results/measured-v1/README.md)
+include150 per-case median/P90 rows, the actual graphic, full JSON and11 raw ZIPs.
+An independent no-execution archive audit verifies1,260 reports/7,686 retained file
+hashes/1,440 maps. The combined113,078,807-byte intermediate exceeded the configured
+99MiB publishing guard; all9,446 members are retained in smaller arm shards.
+
+Required local checks, source-byte binding, push and exact-commit CI remain the
+delivery gate before advancing to87. Initial interrupted/ENOSPC/transient-fixture
+test attempts remain explicit; passing the measured workload alone does not mark
+this initiative complete. Entire87–89 is preserved. No release is implied.
+
+
+Final local86c delivery checks2026-10-31: all seven+gallery and both complete CI
+Ruff commands pass (Ruff163/232 Node/1929 Python/zero skips/one upstream warning),
+all838 protected paths unchanged through every check. Source library64 files remains
+identical to accepted379; only measurement/publication tooling and documentation
+change. Raw gates/manifest and all earlier failures are in measured-v1. The actual
+CSV150 rows are independently recomputed from raw medians/P90 and all52 existing
+README graphics retain their exact placements. Exact pushed-commit all-nine/Figure
+CI is still required before87; all87–89 scope remains intact.

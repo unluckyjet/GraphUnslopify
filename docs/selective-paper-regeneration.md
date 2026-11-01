@@ -81,3 +81,10 @@ checks, mixed PDF/program inputs, keyboard/mobile interaction and held genuine
 responses. Its authored fixture deliberately pauses to expose concurrency races;
 its duration is not performance evidence. Fresh installed checks and exact CI are
 required for delivery alongside the seven repository gates.
+
+
+Generated native programs are saved as exact canonical UTF-8 bytes on every
+platform. Host text newline conversion must not change the program whose hash
+is compared for reuse. Earlier Windows history with different source bytes
+requires a real rerun; the tool does not normalize saved programs or rewrite
+old reports to make them appear equivalent.

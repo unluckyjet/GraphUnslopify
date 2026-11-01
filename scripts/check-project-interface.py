@@ -286,6 +286,12 @@ def main():
             "executed": 0,
             "reused": 2,
             "not_run": 0,
+        }, {
+            "counts": reused["result"]["audit"]["execution_counts"],
+            "figures": [
+                {"id": row["id"], "execution": row["execution"]}
+                for row in reused["result"]["audit"]["figures"]
+            ],
         }
         for old, current in zip(
             first["result"]["audit"]["figures"],

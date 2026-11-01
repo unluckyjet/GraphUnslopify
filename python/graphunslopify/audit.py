@@ -254,7 +254,7 @@ def _audit_one(
             if not translated.get("ok"):
                 raise AuditError("static errors: " + json.dumps(record["static_findings"]))
             script = folder / "figure.py"
-            script.write_text(translated["code"], encoding="utf8")
+            script.write_bytes(translated["code"].encode("utf8"))
             command = [
                 sys.executable,
                 str(script),

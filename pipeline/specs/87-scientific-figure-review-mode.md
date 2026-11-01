@@ -306,3 +306,24 @@ pass again on859 unchanged paths. Actual post-test translator rebuild and
 generated-path diff both exit0; tested/index/commit binding, corrective push
 and new exact all-nine/Figure CI remain required.
 Full87 review export and entire88–89 remain required; no new release claim.
+
+
+### 87e native program bytes — Windows follow-up
+
+ce62927 fixes all four generated-schema guards; its Linux3.10/3.12 installed
+jobs and Figure pass. Windows job124739411970 fails the real HTTP selective
+0-executed/2-reused assertion, so full CI is not accepted. Source audit.py
+used host text newline conversion while reuse compares canonical UTF-8 code
+bytes. Actual controlled CRLF native executions reproduce2 executions/0 reuse;
+reported hashes truthfully match CRLF programs and differ from canonical LF.
+
+The new working tree writes exact canonical UTF-8 native program bytes. A real
+regression fails before and passes after the fix; source/minimum30 controls
+each pass. Fresh71-resource wheel ownership, frozen all30/all21 conformance
+and actual HTTP0/2 with original reports/ancestry pass. Only audit.py changes
+among71 package resources; scientific runtime/emitter/frontend remain identical.
+All seven/gallery/Ruff177/232 Node/2033 Python/zero skips/one upstream warning
+pass on859 unchanged protected paths. Git byte binding, separate push and exact
+native Windows/all-nine/Figure acceptance are still required. Old source bytes/reports are never normalized
+into false equality; differing history needs real execution. Full87 export and
+entire88–89 remain required; no release/human-study claim.

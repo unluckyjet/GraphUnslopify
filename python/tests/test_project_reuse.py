@@ -346,3 +346,31 @@ def test_actual_render_configuration_change_during_work_refuses_reuse(paper, tmp
     counts(result, 1, 1)
     assert result["exit_code"] == 2
     assert any("environment changed during" in message for message in result["errors"])
+
+
+def test_native_program_identity_survives_windows_style_host_text_writes(tmp_path, monkeypatch):
+    root = tmp_path / "paper"
+    shutil.copytree(ROOT / "examples/paper", root)
+    actual = Path.write_text
+
+    def windows_text(path, content, *args, **options):
+        if path.name == "figure.py":
+            options["newline"] = "\r\n"
+        return actual(path, content, *args, **options)
+
+    # Exercise actual strict programs with the host text conversion that Windows
+    # applies, without treating normalized source as the original executed bytes.
+    monkeypatch.setattr(Path, "write_text", windows_text)
+    model.initialize_project(root)
+    first = model.run_project(root, baseline=None)
+    assert first["exit_code"] == 0
+    second = model.run_project(root, selective=True, baseline=None)
+    counts(second, 0, 2)
+    assert second["exit_code"] == 0
+    for before, after in zip(first["audit"]["figures"], second["audit"]["figures"], strict=True):
+        directory = Path(first["directory"]) / "audit" / first["audit"]["run_directory"]
+        raw = (directory / "figures" / before["id"] / "figure.py").read_bytes()
+        assert b"\r\n" not in raw
+        assert hashlib.sha256(raw).hexdigest() == before["report"]["script"]["sha256"]
+        assert after["report"] == before["report"]
+        assert after["execution"]["origin_event"] == first["id"]

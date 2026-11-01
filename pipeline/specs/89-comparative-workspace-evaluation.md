@@ -122,3 +122,32 @@ warning (874.43s), full CI Ruff200 and15 strict gallery figures;905 tested paths
 Next: push/exact CI for89b2, then complete formal
 controllers/GUI/reproduction and implementation seal, measured tracks and full
 78–89 audit. Outside judgments/new release remain separately scoped/deferred.
+
+
+89b2 accepted3c340dcea8fc25acebb237dd0bb895acbd737c78 at2026-11-01T17:22:06.968129+00:00:
+exact all-nine main41326926195/Figure41326926169 pass. Actual3.10/3.12 raw archives
+independently verify74 case rows/two extra native fixtures/75 native figures,
+one compiler refusal/eight integrity controls each, preserving width failures.
+No formal comparison cells are complete.
+
+##89c1 —candidate workspace and documentation polish (working)
+
+Allow figure headers/status badges to wrap within their panel; give the shared
+template-name field its intended text-input styling. Replace stale future.md
+proposals/HTTP-only SDK claims with implemented capabilities and explicitly
+unscheduled ideas. Add complete source clone/venv/install/launch instructions,
+distinguishing public0.8.0 and keeping all52 README graphic placements unchanged.
+Existing real template and staged-preview browser checks run before the final
+frozen local gate set. Complete controllers, implementation seal, all fixed
+measurements and78–89 delivery audit still remain.
+
+
+89c1 final local checks pass: all seven stable checks, both full CI Ruff commands
+(200 files),235 Node/2100 Python/zero skips/one upstream warning, Python840.69s,
+and15 gallery figures on905 unchanged protected paths. Existing14 source template
+workflows and the real exported staged-check function at1024px pass. Actual input
+style is39.5px high with intended padding; the current read-only paper DOM has one
+header/h1 and a clean fresh viewport/full-page replay. Retain the earlier repeated
+Mac full-page capture as an unknown-cause artifact, not a demonstrated product bug
+or a claimed fix.52 README graphics remain exact. Push and exact new CI are next;
+controllers, complete implementation seal, formal tracks and full audit remain.

@@ -185,6 +185,7 @@ summary:focus-visible {
 }
 .section-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -301,7 +302,9 @@ summary:focus-visible {
 }
 .badge {
   font-size: 11px;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
   padding: 5px 9px;
   border-radius: 20px;
   background: #edf2f5;

@@ -2,7 +2,7 @@
 export function createIntentReuse({mount,context,api,flush=()=>{},apply,onState=()=>{}}) {
   mount.innerHTML = `<details id="reuse-panel"><summary>Templates &amp; export presets</summary>
     <p class="muted">Save a design as a local file, or reuse one with this dataset. Review field mappings, calculations and authored text before applying. Checks run again.</p>
-    <label>Template name<input id="reuse-name" maxlength="100" value="My figure design"></label>
+    <label>Template name<input id="reuse-name" type="text" maxlength="100" value="My figure design"></label>
     <button id="reuse-save" class="secondary">Save template file</button>
     <label>Open template file<input id="reuse-file" type="file" accept=".json,application/json"></label>
     <p id="reuse-loaded" class="muted"></p><div id="reuse-mapping"></div>

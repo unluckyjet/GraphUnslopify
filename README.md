@@ -69,10 +69,32 @@ graphunslopify demo
 The demo creates public synthetic data, a figure spec, generated Python, PNG/SVG/PDF exports and
 a strict verification report in `graphunslopify-demo/`. `doctor` checks package/compiler agreement.
 The package supplies its translator and Node runtime; translation and local-file rendering work
-**offline after dependencies are installed**. A source checkout can use `python -m pip install ./python`.
+**offline after dependencies are installed**. For the newer workspace features, use the source instructions below.
 
 Follow the [five-minute first-figure tour](docs/getting-started.md) for environment setup,
 a complete editable example, reading evidence, and correcting a failed check.
+
+### Install the current source workspace
+
+The workspace features labelled **current source** below are newer than the fixed
+PyPI 0.8.0 release. To try them in a new checkout:
+
+```sh
+git clone https://github.com/unluckyjet/GraphUnslopify.git
+cd GraphUnslopify
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install "./python[excel,parquet]"
+graphunslopify doctor
+graphunslopify preview --open
+```
+
+On Windows PowerShell, activate with `.\.venv\Scripts\Activate.ps1` instead of
+`. .venv/bin/activate`. The `excel` and `parquet` extras enable those file imports;
+`python -m pip install ./python` is enough for CSV and JSON. The installed package
+includes the translator and Node runtime, so using the editor does not require
+an npm build. Source builds still report version 0.8.0; record the checkout's
+`git rev-parse HEAD` when sharing results from newer source features.
 
 ### Use the local editor
 

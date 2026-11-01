@@ -217,3 +217,7 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-10-31 —86c runtime-v1:900 formal/360 smoke preserve original all30/all21 strict outcomes; complete footprint and mixed native/direct timing published with all regressions. Seven+gallery/Ruff163/232 Node/1929 Python pass on838 unchanged paths; raw-byte/CSV52-graphic evidence retained. Prior ENOSPC/transient-fixture attempts remain explicit. Commit/push/exact-CI gate follows before87; no new release.
 
 2026-11-01: full87 accepted6e05bd5 after exact all-nine main41277406737/Figure41277406806 and actual local/four-platform/browser/offline evidence;begin88a,complete88–89 scope remains.
+
+2026-11-01 88a accepted349a830: all nine main41285015048/Figure41285014937; actual four package and21-workflow browser artifacts verified. Full88–89 remains.
+
+2026-11-01 88b local implementation complete: selected presentation review/undo preserves sources; seven/gallery/Ruff182/232 Node/2070 Python/zero skips,source/fresh127 workflows each,minimum30,75 resources and installed HTTP/selected packets pass on869 frozen paths. New exact CI is required after push;88 templates/presets and89 remain.

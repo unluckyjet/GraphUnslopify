@@ -664,3 +664,5 @@ contains proposals rather than promises. Version 0.8.0 is published on [PyPI](ht
 [publication evidence](docs/releases/0.8.0-publication.json) records verified hashes and fresh installs. npm registry publication is not claimed.
 
 Current source also provides [command search and keyboard shortcuts](docs/workspace/commands.md) in both local workspaces, with existing review, draft and export checks.
+
+Current source supports [reviewed presentation edits across selected figures](docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.

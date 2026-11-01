@@ -119,6 +119,9 @@ class ProjectState:
                 "shared_change": event.get("action") == "settings"
                 and event.get("integrity") is True
                 and event.get("result", {}).get("status") == "settings_saved",
+                "selection_change": event.get("action") == "selection"
+                and event.get("integrity") is True
+                and event.get("result", {}).get("status") == "selection_saved",
                 "undo_of": event.get("result", {}).get("undo_of"),
             }
             for event in history["events"]
@@ -411,6 +414,7 @@ class ProjectHandler(PreviewHandler):
             "/project.js": "project.js",
             "/project-review.js": "project-review.js",
             "/project-shared.js": "project-shared.js",
+            "/project-selection.js": "project-selection.js",
             "/workspace-commands.js": "workspace-commands.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
@@ -548,6 +552,8 @@ class ProjectHandler(PreviewHandler):
                 "/api/shared",
                 "/api/shared-review",
                 "/api/shared-apply",
+                "/api/selection-review",
+                "/api/selection-apply",
                 "/api/definition",
                 "/api/entry",
             ):
@@ -557,7 +563,31 @@ class ProjectHandler(PreviewHandler):
                             "Wait for the active paper audit before editing saved definitions."
                         )
                 kwargs = {"expected_revision": payload.get("expected_revision")}
-                if route in ("/api/shared-review", "/api/shared-apply"):
+                if route in ("/api/selection-review", "/api/selection-apply"):
+                    from .project_selection import apply_project_selection, review_project_selection
+
+                    operation = (
+                        review_project_selection
+                        if route.endswith("-review")
+                        else apply_project_selection
+                    )
+                    result = operation(
+                        state.source,
+                        payload.get("ids"),
+                        payload.get("settings"),
+                        reset=payload.get("reset", False),
+                        undo_event=payload.get("undo_event"),
+                        **kwargs,
+                        **(
+                            {"proposal_token": payload.get("proposal_token")}
+                            if route.endswith("-apply")
+                            else {}
+                        ),
+                    )
+                    if route.endswith("-review"):
+                        self.json(result)
+                        return
+                elif route in ("/api/shared-review", "/api/shared-apply"):
                     from .project_changes import apply_project_shared, review_project_shared
 
                     operation = (

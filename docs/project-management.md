@@ -90,6 +90,14 @@ not rewritten by the manager. Raw datasets are hashed rather than copied into
 the history. History is ignored by the generated `.gitignore`; keep a deliberate
 backup if you need it on another machine.
 
+## Edit a selection
+
+Use **Edit selected figures** to review presentation changes for several JSON
+figures. Selected settings override paper defaults while preserving original
+source files and data bindings. PDFs and authored Python stay read-only and
+are explicitly excluded. Reset to paper defaults or review a saved selection
+undo; audit afterward to verify outputs. See [selected presentation](workspace/selected-presentation.md).
+
 ## Apply shared settings
 
 Shared settings are partial semantic `style` fields, output `size`/`dpi`, and an
@@ -121,7 +129,7 @@ The CLI equivalent is `project-shared paper --settings shared.json
 Use the actual `revision` string returned by `project-status` for `REVISION`.
 `project-run` also accepts `--expected-revision`; stale requests are refused.
 
-For JSON figures, overrides are applied to an effective execution manifest, while
+For JSON figures, shared defaults and then selected presentation overrides are applied to an effective execution manifest, while
 the original definitions remain intact. Authored Python executes unchanged as
 trusted local code. Its reported settings must satisfy the shared policy; a
 scientific pass can therefore have project exit2 for a style mismatch. Regenerate

@@ -19,6 +19,10 @@
 .paper-workspace fieldset { border: 0; padding: 0; min-width: 0; }
 #shared-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 20px; }
 #shared-controls label { margin: 8px 0; }
+#selection-settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px 20px; }
+#selection-figures { display:grid; gap:8px; margin:16px 0; }
+#selection-figures label { overflow-wrap:anywhere; }
+.selection-card pre { white-space:pre-wrap; overflow-wrap:anywhere; }
 .history-selectors { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
 .history-selectors select { max-width: 100%; }
 .evidence-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 22px; margin: 18px 0; }

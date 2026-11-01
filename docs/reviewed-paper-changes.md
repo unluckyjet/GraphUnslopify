@@ -10,6 +10,10 @@ values for each source-backed figure, including defaults that return when an
 override is removed. **Apply reviewed settings** saves the configuration. Run the
 paper audit afterward to check actual computations and exports.
 
+[Selected presentation settings](workspace/selected-presentation.md) take precedence
+over shared defaults. The review shows the resulting effective differences;
+changing a paper default may leave a selected override unchanged.
+
 | Figure source | What the review establishes |
 | --- | --- |
 | JSON definition | Canonical intent validation and actual resolved style/output differences. Definitions and observations are preserved. |

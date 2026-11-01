@@ -85,9 +85,46 @@ def finished(server):
     raise AssertionError("actual bounded audit did not complete")
 
 
+def test_selected_review_and_apply_use_actual_revision_history_and_busy_guards(editor):
+    state = get(editor, "/api/state")
+    paper = editor.state.source.parent.parent
+    original = {p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()}
+    body = {
+        "ids": ["training"],
+        "settings": {"output": {"dpi": 144}},
+        "expected_revision": state["revision"],
+    }
+    plan = post(editor, "/api/selection-review", body)
+    assert plan["can_apply"] and plan["execution"] == "not_run"
+    assert len(get(editor, "/api/state")["history"]) == len(state["history"])
+    post(editor, "/api/selection-apply", {**body, "proposal_token": "0" * 64}, 400)
+    assert len(get(editor, "/api/state")["history"]) == len(state["history"])
+    saved = post(editor, "/api/selection-apply", {**body, "proposal_token": plan["proposal_token"]})
+    after = get(editor, "/api/state")
+    assert saved["status"] == "selection_saved"
+    assert after["figure_settings"] == {"training": {"output": {"dpi": 144}}}
+    assert after["history"][0]["selection_change"] is True
+    assert after["status"] == "needs_audit"
+    assert {p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()} == original
+    post(editor, "/api/run", {"expected_revision": after["revision"], "baseline": None}, 202)
+    error = post(
+        editor, "/api/selection-review", {**body, "expected_revision": after["revision"]}, 400
+    )
+    assert "Wait for the active paper audit" in error["error"]
+    job = finished(editor)
+    assert job["result"]["exit_code"] == 0
+
+
 def test_loopback_session_origin_and_no_raw_dataset_routes(editor):
     assert request(editor, "/", token=False)[0] == 200
-    for name in ("project.js", "project.css", "controls.js", "app.css", "workspace-commands.js"):
+    for name in (
+        "project.js",
+        "project.css",
+        "controls.js",
+        "app.css",
+        "workspace-commands.js",
+        "project-selection.js",
+    ):
         assert request(editor, "/" + name, token=False)[0] == 200
     assert (
         request(
@@ -100,6 +137,9 @@ def test_loopback_session_origin_and_no_raw_dataset_routes(editor):
     )
     assert request(editor, "/api/state", token=False)[0] == 403
     assert request(editor, "/api/run", {}, token=False)[0] == 403
+    for route in ("/api/selection-review", "/api/selection-apply"):
+        assert request(editor, route, {}, token=False)[0] == 403
+        assert request(editor, route, {}, headers={"Origin": "https://attacker.example"})[0] == 403
     assert request(editor, "/", headers={"Host": "attacker.example"})[0] == 403
     assert request(editor, "/api/state", headers={"Origin": "https://attacker.example"})[0] == 403
     assert request(editor, "/results.csv")[0] == 404

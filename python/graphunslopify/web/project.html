@@ -53,7 +53,7 @@
       <div class="project-content">
         <section class="card shared-card">
           <details id="shared-panel"><summary>Shared settings for this paper</summary>
-            <p class="muted">JSON figures inherit these settings at execution. Authored Python must already match them. Saved definitions remain separate from shared overrides.</p>
+            <p class="muted">JSON figures inherit these paper defaults unless selected presentation settings override them. Authored Python must already match the shared policy. Saved definitions remain separate.</p>
             <fieldset id="shared-controls" aria-label="Shared paper settings"></fieldset>
             <details><summary>Advanced shared JSON</summary><label class="sr-only" for="shared-json">Shared settings JSON</label><textarea id="shared-json" spellcheck="false"></textarea></details>
             <p id="shared-error" role="alert" hidden></p>
@@ -62,9 +62,30 @@
             <section id="shared-review" class="shared-review" aria-labelledby="shared-review-title" hidden>
               <h3 id="shared-review-title">Review shared changes</h3>
               <p id="shared-review-status" role="status" aria-live="polite"></p>
-              <p class="muted">All source-backed figures inherit the saved policy. These are resolved intent changes, not rendered or scientifically verified outputs. Original data and definitions stay separate.</p>
+              <p class="muted">This review includes effective differences after selected overrides. Saved intent needs another audit to check outputs. Original data and definitions stay separate.</p>
               <div id="shared-review-rows"></div>
               <div class="actions"><button id="apply-shared-review" disabled>Apply reviewed settings</button><button id="cancel-shared-review" class="quiet">Close review</button></div>
+            </section>
+          </details>
+        </section>
+        <section class="card selection-card">
+          <details id="selection-panel"><summary>Edit selected figures</summary>
+            <p class="muted">Choose figures, propose presentation changes, then review before saving. Selected settings override paper defaults. Original definitions, data and claims stay separate.</p>
+            <div class="actions"><button id="selection-all" class="quiet">Select JSON figures</button><button id="selection-none" class="quiet">Clear selection</button></div>
+            <fieldset id="selection-figures" aria-label="Figures for presentation changes"></fieldset>
+            <p id="selection-count" class="muted" role="status">0 selected.</p>
+            <fieldset id="selection-settings" aria-label="Selected presentation settings">
+              <label>Layout preset<select id="selection-preset"><option value="">Keep existing</option><option value="paper">Paper</option><option value="paper_compact">Compact paper</option></select></label>
+              <label>Grid<select id="selection-grid"><option value="">Keep existing</option><option value="true">Show</option><option value="false">Hide</option></select></label>
+              <label>Frame spines<select id="selection-despine"><option value="">Keep existing</option><option value="true">Remove upper and right</option><option value="false">Keep all</option></select></label>
+              <label>Manuscript width<select id="selection-size"><option value="">Keep existing</option><option value="single_column">Single column</option><option value="double_column">Double column</option></select></label>
+              <label>Raster DPI<input id="selection-dpi" type="number" min="72" max="1200" step="1" placeholder="Keep existing" /></label>
+            </fieldset>
+            <div class="actions"><button id="selection-review" disabled>Review selected changes</button><button id="selection-reset" class="secondary" disabled>Review return to paper defaults</button></div>
+            <label>Saved selection change<select id="selection-undo-event"></select></label><button id="selection-undo" class="secondary" disabled>Review selection undo</button>
+            <section id="selection-proposal" class="shared-review" aria-labelledby="selection-heading" hidden>
+              <h3 id="selection-heading">Review selected changes</h3><p id="selection-status" role="status" aria-live="polite"></p><div id="selection-rows"></div>
+              <div class="actions"><button id="selection-apply" disabled>Apply reviewed changes</button><button id="selection-cancel" class="quiet">Close review</button></div>
             </section>
           </details>
         </section>

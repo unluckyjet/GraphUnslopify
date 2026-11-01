@@ -143,13 +143,30 @@ def _validate_shared(value) -> None:
         raise ProjectError("Project palette locks must be local files.")
 
 
+def _validate_figure_settings(value) -> None:
+    """Selected policy contains canonical presentation only; never data or claims."""
+    if not isinstance(value, dict) or len(value) > 1000:
+        raise ProjectError("Selected figure settings must be an object with at most 1000 IDs.")
+    for identity, settings in value.items():
+        if not isinstance(identity, str) or not re.fullmatch(
+            r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", identity
+        ):
+            raise ProjectError("Selected settings require stable figure IDs.")
+        if not isinstance(settings, dict) or set(settings) - {"style", "output"}:
+            raise ProjectError(
+                "Selected settings support canonical style and output size/DPI only."
+            )
+        _validate_shared(settings)
+
+
 def _config(path: str | Path) -> tuple[Path, dict]:
     source = _source(path)
     owner = _owner(source.parent)
     value = _read(_inside(source.parent, source.name))
+    fields = {"schema_version", "kind", "project_id", "manifest", "shared"}
     native = isinstance(value, dict) and (
-        set(value) == {"schema_version", "kind", "project_id", "manifest", "shared"}
-        and value.get("schema_version") == 1
+        (set(value) == fields and value.get("schema_version") == 1)
+        or (set(value) == fields | {"figure_settings"} and value.get("schema_version") == 3)
     )
     review_only = isinstance(value, dict) and (
         set(value) == {"schema_version", "kind", "project_id", "manifest", "shared", "mode"}
@@ -167,6 +184,7 @@ def _config(path: str | Path) -> tuple[Path, dict]:
         raise ProjectError("Invalid project.json; preserve its owner and project mode.")
     if review_only:
         return source, value
+    _validate_figure_settings(value.get("figure_settings", {}))
     if (
         not isinstance(value.get("manifest"), str)
         or Path(value["manifest"]).parts[:1] != ("..",)
@@ -269,7 +287,11 @@ def _locator(path: Path, paper: Path) -> str:
 
 
 def _capture(
-    source: Path, config: dict, *, shared_override: dict | None = None
+    source: Path,
+    config: dict,
+    *,
+    shared_override: dict | None = None,
+    figure_settings_override: dict | None = None,
 ) -> tuple[dict, dict | None, dict[str, bytes]]:
     config_raw = source.read_bytes()
     if json.loads(config_raw) != config:
@@ -289,6 +311,12 @@ def _capture(
         snapshot["revision"] = _hash({**snapshot, "config_sha256": raw_sha})
         return snapshot, None, {"source/project.json": config_raw}
     shared = config["shared"] if shared_override is None else shared_override
+    selections = (
+        config.get("figure_settings", {})
+        if figure_settings_override is None
+        else figure_settings_override
+    )
+    _validate_figure_settings(selections)
     manifest_path, manifest = load_manifest(source.parent / config["manifest"])
     paper = manifest_path.parent
     raw = manifest_path.read_bytes()
@@ -344,6 +372,8 @@ def _capture(
                 for key in ("style", "output"):
                     if key in shared:
                         spec[key] = {**spec.get(key, {}), **shared[key]}
+                    if key in selections.get(entry["id"], {}):
+                        spec[key] = {**spec.get(key, {}), **selections[entry["id"]][key]}
                 if "palette_lock" in shared:
                     spec["palette_lock"] = str((paper / shared["palette_lock"]).resolve())
                 file("data", Path(spec["data"]["path"]))
@@ -357,6 +387,10 @@ def _capture(
             except (OSError, ValueError, TypeError) as problem:
                 row["errors"].append(f"spec: {type(problem).__name__}: {problem}")
         else:
+            if selections.get(entry["id"]):
+                raise ProjectError(
+                    "Selected presentation settings require JSON figures; authored Python stays unchanged."
+                )
             normalized["script"] = str((paper / entry["script"]).resolve())
             normalized["cwd"] = str(
                 (paper / entry.get("cwd", str(Path(normalized["script"]).parent))).resolve()
@@ -368,7 +402,10 @@ def _capture(
                 row["input_coverage"] = "unknown_script_inputs"
             if "palette_lock" in shared:
                 file("palette", paper / shared["palette_lock"])
-        row["fingerprint"] = _hash({"entry": entry, "files": row["files"], "shared": shared})
+        identity = {"entry": entry, "files": row["files"], "shared": shared}
+        if selections.get(entry["id"]):
+            identity["figure_settings"] = selections[entry["id"]]
+        row["fingerprint"] = _hash(identity)
         rows.append(row)
         effective.append(normalized)
     snapshot = {
@@ -378,6 +415,8 @@ def _capture(
         "shared": shared,
         "figures": rows,
     }
+    if "figure_settings" in config or figure_settings_override is not None:
+        snapshot["figure_settings"] = selections
     if (
         _digest(source) != hashlib.sha256(config_raw).hexdigest()
         or _digest(manifest_path) != hashlib.sha256(raw).hexdigest()
@@ -462,7 +501,7 @@ def project_history(path: str | Path = ".") -> dict:
                     or receipt.get("id") != folder.name
                     or receipt.get("sequence") != item["sequence"]
                     or receipt.get("action")
-                    not in ("run", "settings", "figure", "entry", "inspection")
+                    not in ("run", "settings", "selection", "figure", "entry", "inspection")
                 ):
                     raise ProjectError("Receipt ownership does not match this project/event.")
                 names = set()
@@ -602,6 +641,7 @@ def project_status(path: str | Path = ".") -> dict:
         "config": str(source),
         "revision": snapshot["revision"],
         "shared": config["shared"],
+        "figure_settings": config.get("figure_settings", {}),
         "figures": rows,
         "mode": config.get("mode", "source_backed"),
         "status": "review_only"
@@ -911,10 +951,20 @@ def _policy(report: dict, config: dict, paper: Path, manifest: dict) -> dict:
         spec = (figure.get("report") or {}).get("spec", {})
         issues = []
         for key in ("style", "output"):
-            for name, value in config["shared"].get(key, {}).items():
+            settings = {
+                **config["shared"].get(key, {}),
+                **config.get("figure_settings", {}).get(figure["id"], {}).get(key, {}),
+            }
+            for name, value in settings.items():
                 if spec.get(key, {}).get(name) != value:
+                    label = (
+                        "Selected"
+                        if name
+                        in config.get("figure_settings", {}).get(figure["id"], {}).get(key, {})
+                        else "Shared"
+                    )
                     issues.append(
-                        f"Shared {key}.{name} requires {value!r}; regenerate the authored program or update its settings."
+                        f"{label} {key}.{name} requires {value!r}; review the effective settings and rerun the figure."
                     )
         if "palette_lock" in config["shared"]:
             try:

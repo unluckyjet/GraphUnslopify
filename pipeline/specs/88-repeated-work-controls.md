@@ -36,21 +36,41 @@ desktop/mobile/keyboard and failure/late/busy behavior.88a alone does not finish
 multi-select,canonical templates or publication/export presets;keep full scope.
 
 
-88a local functional checkpoint2026-11-01: source/fresh21 new command,107 old
-editor and94 paper workflows each pass,minimum22 backend controls and actual
-installed HTTP pass. All73 package source/wheel/installed bytes match. Native
-search Escape and platform Tab behavior are handled explicitly. A regression
-helper startup-line subscription race is repaired by creating its browser page
-before spawning the one-shot producer;scientific checks/timeouts are unchanged.
-Final seven/gallery/Ruff restarted on865 frozen files after that harness edit;
-commit/push/new exact CI remain pending. Full remaining88/89 scope stays open.
+88a accepted2026-11-01:349a8306264a3ae05e971d4c2a2cea2179d3d723 passes
+all nine main41285015048 and Figure41285014937, reverified08:18:46UTC. Local
+seven/gallery/Ruff180,232 Node/2051 Python/zero skips on865 exact tested Git
+blobs;source/fresh222 browser workflows each,minimum22,73 matching resources.
+Actual four-platform package/export and21-workflow CI browser archives verified.
 
+## 88b — reviewed selected presentation
 
-88a final local checks pass: all seven/gallery/complete Ruff180,232 Node and
-2051 Python tests,zero skips,one upstream SQLAlchemy warning,807.38s Python.
-All865 protected paths remain unchanged through every gate. Source/fresh each
-pass222 browser workflows (21 new,107 editor,94 paper),minimum22 controls and
-actual installed HTTP pass. All73 source/wheel/installed resources match;65
-existing resources are unchanged. All52 README graphics and179 local link
-targets remain valid. Exact new all-nine/Figure CI is required for this
-implementation before advancing. Multi-select/templates/presets and89 remain.
+Working implementation adds per-figure canonical presentation above paper
+defaults without rewriting original data, claims, source files or manifest
+bindings. Native config3 preserves old native1/review-only2 readability and old
+snapshot shapes. One owned config write retains a selection event and reviewed,
+revision/history/producer/PDF-bound undo. Original-source editing explicitly
+notes selected presentation precedence. Source-free PDFs and authored Python
+remain excluded; selective auditing still reruns unknown authored dependencies.
+
+Real source/fresh12 new browser workflows each pass:keyboard/mixed exclusions,
+held Apply/review replies,one-target reuse,two-target strict outputs,reset,
+exact raw config undo,changed-input refusal and an actual false claim retaining
+strict2. Minimum30 focused controls,source53 existing/new controls,75 package
+resource matches and actual installed HTTP1-executed1-reused/exact undo pass.
+A failed first browser driver unregistered a held route too early;later actual
+response completion is awaited. A later UI assertion incorrectly conflated
+freshness wording with the scientific verdict;the actual failed-claim context
+and strict aggregate are now checked separately. Failures remain retained.
+
+Final seven/gallery/Ruff182,232 Node/2070 Python/zero skips/one upstream warning
+pass on869 frozen paths (823.71s pytest;825.39s gate). Source/fresh each pass127 browser
+workflows (12 new and115 existing). All75 source/wheel/installed resources match;
+actual installed HTTP and four saved selected-pass/strict2 review packets retain
+all manifests and unchanged inputs/history. All52 README graphic placements and
+185 local documentation targets remain valid. An installed first legacy startup
+timeout remains retained;the complete second replay and an isolated same-fixture
+probe pass without a code change,with root cause unknown. The first final-check attempt was interrupted to make the install
+helper record all actual native audits while keeping the original five-case
+summary explicitly scoped. No product/wheel byte changed for that helper fix.
+Commit/push/new exact CI remain required. Full88 templates/publication-export
+presets and the entire89 comparison/delivery audit remain open.

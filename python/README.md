@@ -131,3 +131,5 @@ training runs keep their lifecycle. See [the complete guide](../docs/experiment-
 The immutable public0.8.0 package does not include this extra/command.
 
 Current source also provides [command search and keyboard shortcuts](../docs/workspace/commands.md) in both local workspaces, with existing review, draft and export checks.
+
+Current source supports [reviewed presentation edits across selected figures](../docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.

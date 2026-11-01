@@ -2,6 +2,7 @@ import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
+import { createSelectionReview } from "/project-selection.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
@@ -16,7 +17,7 @@ let activeJobKind = "audit";
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");
-const actionNames = { run: "Audit", settings: "Shared settings", figure: "Figure definition", entry: "Manifest binding", inspection: "PDF visual inspection" };
+const actionNames = { run: "Audit", settings: "Shared settings", selection: "Selected presentation", figure: "Figure definition", entry: "Manifest binding", inspection: "PDF visual inspection" };
 const el = (tag, text, parent) => {
   const node = document.createElement(tag);
   if (text !== undefined) node.textContent = text;
@@ -25,8 +26,8 @@ const el = (tag, text, parent) => {
 };
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
-const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending();
-let review, sharedReview;
+const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!selectionReview?.pending();
+let review, sharedReview, selectionReview;
 async function api(path, body) {
   const response = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
@@ -45,8 +46,9 @@ function object(text, label) {
 }
 function lockControls() {
   sharedReview?.update();
-  const busy = running || saving || !!sharedReview?.applying();
-  $("refresh").disabled = saving || !!sharedReview?.applying();
+  selectionReview?.update();
+  const busy = running || saving || !!sharedReview?.applying() || !!selectionReview?.applying() || !!selectionReview?.pending();
+  $("refresh").disabled = saving || !!sharedReview?.applying() || !!selectionReview?.applying();
   $("audit").disabled = busy || dirty() || !state?.revision || !state?.figures.length;
   $("regenerate").disabled = $("audit").disabled;
   $("audit").textContent = state?.inspections?.length || state?.mode === "review_only" ? "Audit source-backed figures" : "Audit paper";
@@ -281,6 +283,7 @@ async function choose(identity, automatic = false) {
   $("source").textContent = "Original source: " + record.source;
   const overrides = ["data", "claims"].filter((key) => key in record.entry);
   $("source-note").textContent = [record.reason, overrides.length ? "The manifest overrides " + overrides.join(" and ") + "; edit the binding below to change those applied values." : "", record.shared_by.length > 1 ? "This source is also used by: " + record.shared_by.filter((id) => id !== identity).join(", ") : "", ...record.errors].filter(Boolean).join(" ");
+  if (state.figure_settings?.[identity]) $("source-note").textContent += " Selected presentation settings override paper defaults at audit; this editor shows the unchanged original definition.";
   $("definition").value = record.text;
   $("entry").value = pretty(record.entry);
   if (record.source_type === "script") $("definition-panel").open = true;
@@ -438,13 +441,18 @@ $("save-definition").onclick = action(async () => { if (!controls.flush()) retur
 $("save-entry").onclick = action(() => save("/api/entry", { id: selected, entry: object($("entry").value, "Manifest binding"), expected_revision: record.revision }));
 sharedReview = createSharedChangeReview({
   api,
-  context: () => ({ state, busy: running || saving, sourceDirty, entryDirty, sharedDirty,
+  context: () => ({ state, busy: running || saving || !!selectionReview?.applying(), sourceDirty: sourceDirty || !!selectionReview?.pending(), entryDirty, sharedDirty,
     text: $("shared-json").value, read: () => object($("shared-json").value, "Shared settings") }),
   onState: lockControls,
   onApplied: async () => {
     sourceDirty = entryDirty = sharedDirty = false;
     await refresh({ reload: true });await loadEvent();notice("Saved. Audit the paper to check this version; older runs remain historical.");
   },
+});
+selectionReview = createSelectionReview({
+  api, context: () => ({state, busy:running || saving || !!sharedReview?.applying(), dirty:sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending()}),
+  onState:lockControls, onError:error,
+  onApplied:async () => { await refresh({reload:true});await loadEvent();notice("Saved selected presentation. Audit the paper to check this version; older runs remain historical."); },
 });
 $("save-shared").onclick = action(() => sharedReview.request());
 $("review-shared-undo").onclick = action(() => sharedReview.request(true));
@@ -521,6 +529,8 @@ function runAudit(selective = false) { return action(async () => {
 $("audit").onclick = runAudit();
 $("regenerate").onclick = runAudit(true);
 createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+  { id: "selection", label: "Review selected figure changes", target: "selection-review", keywords: "batch presentation style width DPI", unavailable: "Choose figures and presentation settings, and finish other drafts first." },
+  { id: "selection-undo", label: "Review undo of selected settings", target: "selection-undo", unavailable: "Choose an eligible saved selection change and finish other operations." },
   { id: "audit", label: "Audit source-backed paper figures", target: "audit", shortcut: "Enter", keywords: "run scientific checks", unavailable: "Save or reload drafts and wait for the current operation." },
   { id: "regenerate", label: "Regenerate changed figures", target: "regenerate", shortcut: "Shift+Enter", keywords: "selective reuse", unavailable: "Save or reload drafts and wait for the current operation." },
   { id: "save-definition", label: "Save figure definition", target: "save-definition", shortcut: "s", typingWithin: "#definition, #figure-controls", keywords: "canonical JSON", unavailable: "Edit a valid source-backed figure definition and finish other drafts first." },
@@ -535,7 +545,7 @@ createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
   { id: "refresh", label: "Refresh paper project", target: "refresh", unavailable: "Wait for the current save operation." },
 ] });
 async function poll() {
-  if (saving || sharedReview?.applying()) { setTimeout(poll, 2500);return; }
+  if (saving || sharedReview?.applying() || selectionReview?.applying()) { setTimeout(poll, 2500);return; }
   try {
     const wasRunning = running;
     await refresh();

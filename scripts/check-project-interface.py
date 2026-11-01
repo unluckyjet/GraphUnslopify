@@ -233,6 +233,8 @@ def main():
         def api(path, body=None, *, expected=200):
             return json.loads(request(path, body, token=token, expected=expected)[0])
 
+        native_audits = []
+
         def audit(expected="passed", *, selective=False):
             api(
                 "/api/run",
@@ -250,7 +252,15 @@ def main():
                         job["phase"] == "complete"
                         and job["result"]["status"] == expected
                     ), job
-                    return api("/api/event?id=" + job["result"]["id"])
+                    event = api("/api/event?id=" + job["result"]["id"])
+                    native_audits.append(
+                        {
+                            "event": event["id"],
+                            "selective": selective,
+                            "exit_code": event["result"]["exit_code"],
+                        }
+                    )
+                    return event
                 time.sleep(0.05)
             raise AssertionError("actual paper audit did not complete")
 
@@ -260,6 +270,7 @@ def main():
             "project.js",
             "project-review.js",
             "project-shared.js",
+            "project-selection.js",
             "project.css",
             "controls.js",
             "app.css",
@@ -481,7 +492,58 @@ def main():
             p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()
         }
         assert api("/api/state")["history"][0]["undo_of"] == shared_event["id"]
+        selection_base = audit()
+        selection_original = config.read_bytes()
+        selection_sources = {
+            p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()
+        }
+        selection_body = {
+            "ids": ["figure"],
+            "settings": {"output": {"dpi": 180}},
+            "expected_revision": api("/api/state")["revision"],
+        }
+        selection_history = api("/api/state")["history"]
+        selection_plan = api("/api/selection-review", selection_body)
+        assert selection_plan["can_apply"] and selection_plan["execution"] == "not_run"
+        assert api("/api/state")["history"] == selection_history
+        selection_saved = api(
+            "/api/selection-apply",
+            {**selection_body, "proposal_token": selection_plan["proposal_token"]},
+        )
+        selection_audit = audit(selective=True)
+        assert selection_audit["result"]["audit"]["execution_counts"] == {
+            "executed": 1,
+            "reused": 1,
+            "not_run": 0,
+        }
+        selected_rows = {
+            r["id"]: r for r in selection_audit["result"]["audit"]["figures"]
+        }
+        assert selected_rows["figure"]["report"]["spec"]["output"]["dpi"] == 180
+        prior_rows = {r["id"]: r for r in selection_base["result"]["audit"]["figures"]}
+        assert selected_rows["second"]["report"] == prior_rows["second"]["report"]
+        selection_undo = {
+            "undo_event": selection_saved["id"],
+            "expected_revision": api("/api/state")["revision"],
+        }
+        selection_plan = api("/api/selection-review", selection_undo)
+        api(
+            "/api/selection-apply",
+            {**selection_undo, "proposal_token": selection_plan["proposal_token"]},
+        )
+        assert config.read_bytes() == selection_original
+        assert {
+            p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()
+        } == selection_sources
         result = {
+            "selected_presentation": {
+                "status": "passed",
+                "executed": 1,
+                "reused": 1,
+                "untouched_original_report_preserved": True,
+                "original_sources_and_bindings_preserved": True,
+                "undo_restores_exact_original_config": True,
+            },
             "status": "passed",
             "interface": "real loopback CLI/server",
             "figures": 2,
@@ -500,7 +562,11 @@ def main():
                 "actual_reports_unchanged": True,
                 "origin_event": first["id"],
             },
-            "strict_run_exits": [0, 0, 2, 0, 0],
+            "strict_run_exits": [
+                r["exit_code"] for r in native_audits if not r["selective"]
+            ][:5],
+            "strict_run_exits_scope": "The five original full-audit cases; excludes selective and selection-extension runs.",
+            "all_native_audits": native_audits,
             "review_export": {
                 "status": "passed",
                 "actual_zip_manifest_verified": True,

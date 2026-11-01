@@ -1,3 +1,12 @@
+/* Portable intent stays inside its owner's settings card. */
+#reuse-tools { min-width:0; margin:14px 0; overflow-wrap:anywhere; }
+#reuse-tools label { display:block; margin:12px 0; }
+#reuse-tools select, #reuse-tools input { max-width:100%; min-width:0; }
+#reuse-tools .reuse-check { display:flex; align-items:start; gap:8px; }
+#reuse-tools .reuse-check input { width:auto; flex:none; margin-top:3px; }
+.reuse-changes { max-height:320px; overflow:auto; }
+.reuse-changes code { white-space:pre-wrap; overflow-wrap:anywhere; }
+#reuse-tools button { margin:5px 0; }
 :root {
   color-scheme: light;
   --ink: #192b38;

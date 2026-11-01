@@ -666,3 +666,5 @@ contains proposals rather than promises. Version 0.8.0 is published on [PyPI](ht
 Current source also provides [command search and keyboard shortcuts](docs/workspace/commands.md) in both local workspaces, with existing review, draft and export checks.
 
 Current source supports [reviewed presentation edits across selected figures](docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.
+
+Both local workspaces also offer [portable figure templates and export presets](docs/workspace/intent-reuse.md). Save a design as a file, map its fields onto another dataset, review the changes, and apply it with undo. Presets prepare single-column or double-column PNG/SVG/PDF figures, or a smaller PNG for review. Current data, palette and output names stay bound to the editor; checks run again.

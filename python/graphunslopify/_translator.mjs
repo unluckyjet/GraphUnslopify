@@ -27002,11 +27002,73 @@ function findRecipe(name) {
   return RECIPES.find((r) => r.name === name);
 }
 
+// src/template-fields.ts
+function templateFields(input2) {
+  const spec = FigureSpec.parse(input2);
+  const virtual = new Set(spec.series_from_columns ? [spec.series_from_columns.series_name, spec.series_from_columns.value_name] : []);
+  const refs = [];
+  const add = (path, value, raw = false) => {
+    if (typeof value === "string" && (raw || !virtual.has(value))) refs.push({ path, field: value });
+  };
+  function walk(value, path = []) {
+    if (Array.isArray(value)) {
+      value.forEach((v, i) => walk(v, [...path, i]));
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    for (const [key, child] of Object.entries(value)) {
+      const next = [...path, key];
+      if (key === "field" && !(path.length === 1 && (path[0] === "x" || path[0] === "y") && derivedAxis(spec, path[0]))) add(next, child, path[0] === "filter");
+      walk(child, next);
+    }
+  }
+  walk(spec);
+  const at = (path) => path.reduce((v, k) => v && typeof v === "object" ? v[k] : void 0, spec);
+  for (const path of [["group"], ["facet", "by"], ["facet", "rows"], ["pair"], ["outcome"], ["event"], ["value"], ["uncertainty", "over"], ["significance", "pair_by"]]) add(path, at(path));
+  spec.repeat?.fields.forEach((v, i) => add(["repeat", "fields", i], v));
+  spec.series_from_columns?.fields.forEach((v, i) => add(["series_from_columns", "fields", i], v, true));
+  spec.layers?.forEach((v, i) => {
+    add(["layers", i, "y"], v.y);
+    add(["layers", i, "y2"], v.y2);
+  });
+  return refs;
+}
+function remapTemplateFields(input2, mapping) {
+  const spec = FigureSpec.parse(input2), refs = templateFields(spec);
+  if (!mapping || typeof mapping !== "object" || Array.isArray(mapping)) throw Error("Field mapping must be an object.");
+  const map2 = new Map(Object.entries(mapping).map(([key, value]) => [key, external_exports.string().min(1).parse(value)])), known = new Set(refs.map((r) => r.field));
+  for (const key of map2.keys()) if (!known.has(key)) throw Error(`Template has no source field named ${JSON.stringify(key)}.`);
+  const result = structuredClone(spec);
+  for (const ref of refs) {
+    if (!map2.has(ref.field)) continue;
+    let target = result;
+    for (const key of ref.path.slice(0, -1)) target = target[key];
+    target[ref.path.at(-1)] = map2.get(ref.field);
+  }
+  const wide = new Set(spec.series_from_columns?.fields || []);
+  const identity = (s) => wide.has(s) ? map2.get(s) || s : s;
+  const remapped = result;
+  if (wide.size) {
+    if (spec.series_order) remapped.series_order = spec.series_order.map(identity);
+    if (spec.emphasis) remapped.emphasis.series = identity(spec.emphasis.series);
+    if (spec.transform?.baseline) remapped.transform.baseline = identity(spec.transform.baseline);
+    for (const row of remapped.legend.labels || []) row.series = identity(row.series);
+    for (const row of remapped.annotate || []) if (row.series) row.series = identity(row.series);
+    for (const row of remapped.claims || []) for (const key of ["subject", "reference"]) if (row[key]) row[key] = identity(row[key]);
+  }
+  return FigureSpec.parse(result);
+}
+
 // src/local.ts
 function dispatch(operation, payload) {
   if (operation === "convert") return translate(payload);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7" });
+  if (operation === "template-fields") return templateFields(payload);
+  if (operation === "template-remap") {
+    const value = external_exports.object({ spec: external_exports.unknown(), mapping: external_exports.unknown() }).parse(payload);
+    return remapTemplateFields(value.spec, value.mapping);
+  }
   if (operation === "input-schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7", io: "input" });
   if (operation === "suggest") {
     const input2 = external_exports.object({ profile: ProfileSchema, limit: external_exports.number().int().min(1).max(5).default(3) }).parse(payload);

@@ -72,5 +72,37 @@ timeout remains retained;the complete second replay and an isolated same-fixture
 probe pass without a code change,with root cause unknown. The first final-check attempt was interrupted to make the install
 helper record all actual native audits while keeping the original five-case
 summary explicitly scoped. No product/wheel byte changed for that helper fix.
-Commit/push/new exact CI remain required. Full88 templates/publication-export
-presets and the entire89 comparison/delivery audit remain open.
+88b accepted as5e82725594468e727cf51f8e8a4bb05b732c645a: exact all-nine main
+41291812951/Figure41291812935 reverified2026-11-01 09:56:47UTC. Actual CI browser
+and all four platform distribution/interface archives were checked against Git.
+The entire89 comparison/delivery audit remains open.
+
+
+##88c — portable canonical templates and publication/export presets
+
+Working implementation: local named version1 intent files, source-column mapping
+with derived/wide identity handling, current-claim preservation by default and
+three reviewed presets in both figure and paper owners. Apply uses existing
+undo/strict-render or explicit paper draft/save/audit paths. Original source
+aliases and manifest/presentation precedence are disclosed. Authored Python and
+PDF evidence retain their own controls. Template/proposal endpoints are read-only
+and keep existing Host/Origin/token/owned-binding boundaries.
+
+Three Node field controls,14 Python and two real HTTP controls pass. Actual source
+native replay covers30 frozen cases across21 kinds, including28 physically renamed
+CSV cases covering all21 kinds and two original Excel bindings.29 strict0 and the
+original false claim strict2 remain. Same-binding template round trips retain
+canonical and generated-program identity before remapped native execution. This
+is developer-controlled conformance, not a productivity comparison. Source/fresh
+browser workflows14 each pass, plus107 editor/115 paper/12 selection each
+(source paper export required a retained replay).77 source/wheel/installed
+resources and actual installed HTTP/native/PDF checks pass. Independent raw
+archives verify all30 actual source/fresh replays, physical CSV data, program/report
+hashes, measured PNG DPI/width and retained scientific strict2. Final seven plus
+gallery and both full Ruff scopes pass:235 Node,2086 Python/zero skips/one upstream
+warning,185 Ruff files,876 unchanged protected paths. The first gates were
+interrupted for actual-written-program digest accounting; the full second suite
+passes. A retained source export Loading startup stall and prior installed stall
+remain unexplained; replay and preserved-fixture cold boot pass. All52 README
+graphics stay unchanged. Push and exact all-nine/Figure acceptance remain.
+See [workflow](../../docs/workspace/intent-reuse.md).

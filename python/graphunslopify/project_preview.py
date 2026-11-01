@@ -415,6 +415,7 @@ class ProjectHandler(PreviewHandler):
             "/project-review.js": "project-review.js",
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
+            "/reuse-intent.js": "reuse-intent.js",
             "/workspace-commands.js": "workspace-commands.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
@@ -447,12 +448,14 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.snapshot())
             elif route == "/api/info":
                 from .diagnostics import catalog
+                from .figure_templates import presets
 
                 self.json(
                     {
                         "schema": local_request("schema"),
                         "shared_schema": _shared_schema().schema,
                         "diagnostics": catalog(),
+                        "reuse_presets": presets(),
                     }
                 )
             elif route == "/api/figure":
@@ -548,6 +551,66 @@ class ProjectHandler(PreviewHandler):
                 self.send(data, "application/zip", download="paper-review.zip")
             elif route == "/api/pdf-inspection":
                 self.json(state.start_inspection(payload), 202)
+            elif route in ("/api/reuse/template", "/api/reuse/proposal"):
+                import copy
+
+                from .figure_templates import create_template, review_reuse
+
+                with state.job_lock:
+                    if state.closing or (state.job and state.job["phase"] == "running"):
+                        raise ProjectError(
+                            "Wait for the active paper job before reviewing figure intent."
+                        )
+                record = project_figure(state.source, payload.get("id"))
+                if record["revision"] != payload.get("expected_revision"):
+                    raise ProjectError(
+                        "Project inputs changed; refresh before reviewing figure intent."
+                    )
+                if record["source_type"] != "spec" or (
+                    route.endswith("/proposal") and not record["editable"]
+                ):
+                    raise ProjectError(
+                        "Choose an editable JSON definition for this intent proposal."
+                    )
+
+                def validate(candidate):
+                    prepared = copy.deepcopy(candidate)
+                    if record["columns"]:
+                        prepared.setdefault("data", {})["columns"] = record["columns"]
+                    return local_request("validate", prepared)
+
+                if route.endswith("/template"):
+                    result = create_template(
+                        payload.get("spec"), payload.get("name"), validator=validate
+                    )
+                else:
+                    result = review_reuse(
+                        payload.get("spec"),
+                        template=payload.get("template"),
+                        preset=payload.get("preset"),
+                        mapping=payload.get("mapping"),
+                        replace_claims=payload.get("replace_claims", False),
+                        validator=validate,
+                    )
+                    result["notes"] = []
+                    if len(record["shared_by"]) > 1:
+                        result["notes"].append(
+                            "Saving this original source also affects: "
+                            + ", ".join(record["shared_by"])
+                        )
+                    if any(k in record["entry"] for k in ("data", "claims")):
+                        result["notes"].append(
+                            "Manifest data/claim overrides still take precedence over this original definition."
+                        )
+                    result["notes"].append(
+                        "Shared and selected presentation settings still apply at audit. Apply changes a draft; save it,then audit."
+                    )
+                if (
+                    project_figure(state.source, payload.get("id"))["revision"]
+                    != record["revision"]
+                ):
+                    raise ProjectError("Project inputs changed during intent review; refresh.")
+                self.json(result)
             elif route in (
                 "/api/shared",
                 "/api/shared-review",

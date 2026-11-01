@@ -355,6 +355,43 @@ def main():
         assert cli("project-history", paper) == before_export
         source = api("/api/figure?id=figure")
         definition = json.loads(source["text"])
+        intent_payload = {
+            "id": "figure",
+            "expected_revision": source["revision"],
+            "spec": definition,
+        }
+        before_intent = {
+            str(p.relative_to(paper)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in paper.rglob("*")
+            if p.is_file()
+        }
+        portable = api(
+            "/api/reuse/template",
+            {**intent_payload, "name": "Installed portable design"},
+        )
+        assert (
+            portable["kind"] == "graphunslopify.figure-template"
+            and portable["schema_version"] == 1
+        )
+        assert (
+            "data" not in portable["intent"]
+            and "palette_lock" not in portable["intent"]
+            and "stem" not in portable["intent"]["output"]
+        )
+        intent_plan = api(
+            "/api/reuse/proposal", {**intent_payload, "preset": "review-png"}
+        )
+        assert intent_plan["can_apply"] and intent_plan["execution"] == "not_run"
+        assert intent_plan["spec"]["data"] == definition["data"]
+        assert intent_plan["spec"].get("claims") == definition.get("claims")
+        assert intent_plan["spec"]["output"]["dpi"] == 144 and intent_plan["spec"][
+            "output"
+        ]["formats"] == ["png"]
+        assert before_intent == {
+            str(p.relative_to(paper)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in paper.rglob("*")
+            if p.is_file()
+        }
         definition["title"] = "Changed in the packaged paper workspace"
         api(
             "/api/definition",
@@ -567,6 +604,15 @@ def main():
             ][:5],
             "strict_run_exits_scope": "The five original full-audit cases; excludes selective and selection-extension runs.",
             "all_native_audits": native_audits,
+            "intent_reuse_http": {
+                "status": "passed",
+                "template_schema_version": portable["schema_version"],
+                "claims_and_data_preserved": True,
+                "preset_dpi": intent_plan["spec"]["output"]["dpi"],
+                "preset_formats": intent_plan["spec"]["output"]["formats"],
+                "execution": intent_plan["execution"],
+                "all_paper_bytes_unchanged": True,
+            },
             "review_export": {
                 "status": "passed",
                 "actual_zip_manifest_verified": True,

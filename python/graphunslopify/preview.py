@@ -534,6 +534,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/diagnostic-overlays.js",
                 "/staged-preview.js",
                 "/workspace-commands.js",
+                "/reuse-intent.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -549,6 +550,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/diagnostic-overlays.js",
             "/staged-preview.js",
             "/workspace-commands.js",
+            "/reuse-intent.js",
         }:
             name = {
                 "/": "index.html",
@@ -561,6 +563,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/diagnostic-overlays.js": "diagnostic-overlays.js",
                 "/staged-preview.js": "staged-preview.js",
                 "/workspace-commands.js": "workspace-commands.js",
+                "/reuse-intent.js": "reuse-intent.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -576,6 +579,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "diagnostic-overlays.js": "text/javascript; charset=utf-8",
                     "staged-preview.js": "text/javascript; charset=utf-8",
                     "workspace-commands.js": "text/javascript; charset=utf-8",
+                    "reuse-intent.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -585,6 +589,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/info":
             from .diagnostics import catalog
+            from .figure_templates import presets
 
             info = self.server.state.local_request("info")
             self.json(
@@ -595,6 +600,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "diagnostics": catalog(),
                     "max_upload_mb": self.server.state.max_upload // 1024 // 1024,
                     "staged_preview": self.server.state.stages is not None,
+                    "reuse_presets": presets(),
                 }
             )
             return
@@ -668,7 +674,31 @@ class PreviewHandler(BaseHTTPRequestHandler):
             payload = json.loads(body)
             if not isinstance(payload, dict):
                 raise TypeError("Request must be a JSON object")
-            if route == "/api/model-provider":
+            if route in {"/api/reuse/template", "/api/reuse/proposal"}:
+                from .figure_templates import create_template, review_reuse
+
+                def validate(candidate):
+                    prepared, _, _ = self.server.state.prepare({**payload, "spec": candidate})
+                    return self.server.state.local_request("validate", prepared)
+
+                if route.endswith("/template"):
+                    self.json(
+                        create_template(
+                            payload.get("spec"), payload.get("name"), validator=validate
+                        )
+                    )
+                else:
+                    self.json(
+                        review_reuse(
+                            payload.get("spec"),
+                            template=payload.get("template"),
+                            preset=payload.get("preset"),
+                            mapping=payload.get("mapping"),
+                            replace_claims=payload.get("replace_claims", False),
+                            validator=validate,
+                        )
+                    )
+            elif route == "/api/model-provider":
                 self.json(self.server.state.drafts.configure(payload))
             elif route in {
                 "/api/draft/disclose",

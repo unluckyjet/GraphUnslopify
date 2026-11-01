@@ -27,7 +27,8 @@
     "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts",
     "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts",
     "commands-check": "node --experimental-strip-types scripts/workspace-commands-check.ts",
-    "selection-check": "node --experimental-strip-types scripts/project-selection-check.ts"
+    "selection-check": "node --experimental-strip-types scripts/project-selection-check.ts",
+    "intent-check": "node --experimental-strip-types scripts/reuse-intent-check.ts"
   },
   "type": "module",
   "dependencies": {

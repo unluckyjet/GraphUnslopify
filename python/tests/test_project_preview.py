@@ -75,6 +75,57 @@ def post(server, path, payload, expected=200):
     return json.loads(raw)
 
 
+def test_portable_intent_http_is_readonly_revision_bound_and_rejects_unowned_sources(editor):
+    state = get(editor, "/api/state")
+    record = get(editor, "/api/figure?id=training")
+    payload = {
+        "id": "training",
+        "expected_revision": record["revision"],
+        "spec": json.loads(record["text"]),
+    }
+    original = {p: p.read_bytes() for p in editor.state.source.rglob("*") if p.is_file()}
+    template = post(editor, "/api/reuse/template", {**payload, "name": "Paper design"})
+    assert "data" not in template["intent"] and "palette_lock" not in template["intent"]
+    plan = post(editor, "/api/reuse/proposal", {**payload, "preset": "review-png"})
+    assert plan["can_apply"] and plan["execution"] == "not_run" and plan["notes"]
+    assert plan["spec"]["data"] == payload["spec"]["data"]
+    post(
+        editor,
+        "/api/reuse/proposal",
+        {**payload, "expected_revision": "stale", "preset": "review-png"},
+        400,
+    )
+    post(
+        editor,
+        "/api/reuse/template",
+        {
+            "id": "not-in-the-manifest",
+            "expected_revision": record["revision"],
+            "spec": {},
+            "name": "Cannot convert authored code",
+        },
+        400,
+    )
+    assert request(editor, "/api/reuse/template", payload, token=False)[0] == 403
+    assert (
+        request(editor, "/api/reuse/proposal", payload, headers={"Origin": "https://example.org"})[
+            0
+        ]
+        == 403
+    )
+    with editor.state.job_lock:
+        old = editor.state.job
+        editor.state.job = {"phase": "running"}
+    try:
+        post(editor, "/api/reuse/proposal", {**payload, "preset": "review-png"}, 400)
+    finally:
+        with editor.state.job_lock:
+            editor.state.job = old
+    assert original == {p: p.read_bytes() for p in editor.state.source.rglob("*") if p.is_file()}
+    assert get(editor, "/api/state")["history"] == state["history"]
+    assert request(editor, "/reuse-intent.js", token=False)[0] == 200
+
+
 def finished(server):
     deadline = time.monotonic() + 40
     while time.monotonic() < deadline:

@@ -4,6 +4,7 @@ import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
 import { createSelectionReview } from "/project-selection.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
+import { createIntentReuse } from "/reuse-intent.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "";
@@ -26,8 +27,8 @@ const el = (tag, text, parent) => {
 };
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
-const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!selectionReview?.pending();
-let review, sharedReview, selectionReview;
+const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!selectionReview?.pending() || !!reuseEditor?.pending();
+let review, sharedReview, selectionReview, reuseEditor;
 async function api(path, body) {
   const response = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
@@ -47,7 +48,8 @@ function object(text, label) {
 function lockControls() {
   sharedReview?.update();
   selectionReview?.update();
-  const busy = running || saving || !!sharedReview?.applying() || !!selectionReview?.applying() || !!selectionReview?.pending();
+  reuseEditor?.update();
+  const busy = running || saving || !!sharedReview?.applying() || !!selectionReview?.applying() || !!selectionReview?.pending() || !!reuseEditor?.pending();
   $("refresh").disabled = saving || !!sharedReview?.applying() || !!selectionReview?.applying();
   $("audit").disabled = busy || dirty() || !state?.revision || !state?.figures.length;
   $("regenerate").disabled = $("audit").disabled;
@@ -92,6 +94,7 @@ function pdfOptions() {
 }
 function draft(kind) {
   sharedReview?.clear("", false);
+  reuseEditor?.clear("The draft changed. Review intent again.",false);
   if (kind === "source") sourceDirty = true;
   if (kind === "entry") entryDirty = true;
   if (kind === "shared") sharedDirty = true;
@@ -441,7 +444,7 @@ $("save-definition").onclick = action(async () => { if (!controls.flush()) retur
 $("save-entry").onclick = action(() => save("/api/entry", { id: selected, entry: object($("entry").value, "Manifest binding"), expected_revision: record.revision }));
 sharedReview = createSharedChangeReview({
   api,
-  context: () => ({ state, busy: running || saving || !!selectionReview?.applying(), sourceDirty: sourceDirty || !!selectionReview?.pending(), entryDirty, sharedDirty,
+  context: () => ({ state, busy: running || saving || !!selectionReview?.applying(), sourceDirty: sourceDirty || !!selectionReview?.pending() || !!reuseEditor?.pending(), entryDirty, sharedDirty,
     text: $("shared-json").value, read: () => object($("shared-json").value, "Shared settings") }),
   onState: lockControls,
   onApplied: async () => {
@@ -450,9 +453,19 @@ sharedReview = createSharedChangeReview({
   },
 });
 selectionReview = createSelectionReview({
-  api, context: () => ({state, busy:running || saving || !!sharedReview?.applying(), dirty:sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending()}),
+  api, context: () => ({state, busy:running || saving || !!sharedReview?.applying(), dirty:sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!reuseEditor?.pending()}),
   onState:lockControls, onError:error,
   onApplied:async () => { await refresh({reload:true});await loadEvent();notice("Saved selected presentation. Audit the paper to check this version; older runs remain historical."); },
+});
+reuseEditor = createIntentReuse({
+  mount: $("reuse-tools"),api,onState:lockControls,flush:()=>controls.flush(),
+  context:()=>({
+    key:JSON.stringify([state?.revision,state?.inspection_revision,selected,record?.revision,$("definition").value,running,saving,loadingFigure,entryDirty,sharedDirty,!!sharedReview?.pending(),!!selectionReview?.pending()]),
+    spec:record?.source_type==="spec"?object($("definition").value,"Definition"): {},payload:{id:selected,expected_revision:record?.revision},columns:record?.columns||[],presets:info?.reuse_presets||[],
+    canRead:record?.source_type==="spec",editable:!!record?.editable&&record?.source_type==="spec",busy:running||saving||loadingFigure||entryDirty||sharedDirty||!!sharedReview?.pending()||!!selectionReview?.pending(),
+    reason:record?.source_type==="spec"?(record.editable?"":"This JSON source is read only. You can save a template; import and Apply require an editable definition."):"Choose an editable JSON definition to reuse canonical intent. Authored Python and PDF evidence keep their own source controls.",
+  }),
+  apply:spec=>{undo.push($("definition").value);if(undo.length>20)undo.shift();controls.discard();$("definition").value=pretty(spec);draft("source");syncDefinition();notice("Applied intent to the original definition draft. Save it, then audit the paper. Manifest overrides and paper presentation settings still apply.");},
 });
 $("save-shared").onclick = action(() => sharedReview.request());
 $("review-shared-undo").onclick = action(() => sharedReview.request(true));
@@ -529,6 +542,8 @@ function runAudit(selective = false) { return action(async () => {
 $("audit").onclick = runAudit();
 $("regenerate").onclick = runAudit(true);
 createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+  { id: "template", label: "Open a figure template", target: "reuse-file", keywords: "reuse import canonical design", unavailable: "Choose an editable JSON definition and finish other operations." },
+  { id: "preset", label: "Choose an export preset", target: "reuse-preset", focusOnly: true, keywords: "publication print PNG SVG PDF", unavailable: "Choose an editable JSON definition and finish other operations." },
   { id: "selection", label: "Review selected figure changes", target: "selection-review", keywords: "batch presentation style width DPI", unavailable: "Choose figures and presentation settings, and finish other drafts first." },
   { id: "selection-undo", label: "Review undo of selected settings", target: "selection-undo", unavailable: "Choose an eligible saved selection change and finish other operations." },
   { id: "audit", label: "Audit source-backed paper figures", target: "audit", shortcut: "Enter", keywords: "run scientific checks", unavailable: "Save or reload drafts and wait for the current operation." },

@@ -65,6 +65,47 @@ def request(server, path, payload=None, *, token=True, headers=None):
         return response.code, response.read()
 
 
+def test_portable_intent_http_uses_owned_bindings_without_rendering(editor, monkeypatch):
+    demo = json.loads(request(editor, "/api/demo", {})[1])
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Template review reached the renderer")
+
+    monkeypatch.setattr(preview, "_run", forbidden)
+    spec = demo["spec"]
+    spec["data"]["path"] = "/unowned/private.csv"
+    payload = {
+        "spec": spec,
+        "data_id": demo["data"]["id"],
+        "client": "reuse-contract",
+        "generation": 1,
+    }
+    for route in ("/api/reuse/template", "/api/reuse/proposal"):
+        assert request(editor, route, payload, token=False)[0] == 403
+        assert request(editor, route, payload, headers={"Origin": "https://example.org"})[0] == 403
+    code, raw = request(editor, "/api/reuse/template", {**payload, "name": "Local design"})
+    assert code == 200, raw
+    template = json.loads(raw)
+    assert "data" not in template["intent"] and "private" not in raw.decode()
+    code, raw = request(editor, "/api/reuse/proposal", {**payload, "preset": "review-png"})
+    assert code == 200, raw
+    plan = json.loads(raw)
+    assert plan["can_apply"] and plan["execution"] == "not_run"
+    assert plan["spec"]["data"] == spec["data"] and plan["spec"]["claims"] == spec["claims"]
+    assert (
+        request(editor, "/api/reuse/proposal", {**payload, "spec": None, "preset": "review-png"})[0]
+        == 400
+    )
+    assert request(editor, "/reuse-intent.js", token=False)[0] == 200
+    assert (
+        request(editor, "/reuse-intent.js", token=False, headers={"Origin": "https://example.org"})[
+            0
+        ]
+        == 403
+    )
+    assert len(json.loads(request(editor, "/api/info")[1])["reuse_presets"]) == 3
+
+
 def test_loopback_origin_token_and_asset_boundaries(editor):
     status, html = request(editor, "/", token=False)
     assert status == 200

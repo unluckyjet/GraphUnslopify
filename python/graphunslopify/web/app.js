@@ -5,7 +5,9 @@ import { createDraftEditor } from "/drafts.js";
 import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.js";
 import { createStagedPreview } from "/staged-preview.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
+import { createIntentReuse } from "/reuse-intent.js";
 let draftEditor = null;
+let reuseEditor = null, reusePresets = [];
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -155,6 +157,7 @@ function invalidate() {
   $("claims").replaceChildren();
   status(data ? "Editing…" : "Choose data");
   clearTimeout(timer);
+  reuseEditor?.update();
 }
 function schedule() {
   invalidate();
@@ -168,6 +171,7 @@ function options(select, values, current, none = false) {
   select.value = current || "";
 }
 function syncFields(spec) {
+  reuseEditor?.update();
   draftEditor?.refresh();
   $("kind").value = spec.kind || "line";
   const columns = data ? data.columns.map((c) => c.name) : [];
@@ -676,6 +680,11 @@ $("bundle").onclick = () => {
     link.click();
   }
 };
+reuseEditor = createIntentReuse({
+  mount: $("reuse-tools"), api, flush: () => controls.flush(),
+  context: () => ({key:JSON.stringify([revision,data?.id,palette?.id,$("spec").value]),spec:readSpec(),payload:{client,generation:revision,data_id:data?.id,palette_id:palette?.id},columns:data?.columns.map(c=>c.name)||[],presets:reusePresets,canRead:!!data,editable:!!data,busy:false,reason:data?"":"Choose a dataset before saving or reusing a design."}),
+  apply: spec => { changeControls(spec);clearTimeout(timer);update(true); },
+});
 createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
   { id: "render", label: "Render and check figure", target: "render", shortcut: "Enter", typingWithin: "#spec", enabled: () => !!data, keywords: "verify preview scientific checks", unavailable: "Choose a dataset first." },
   { id: "undo", label: "Undo figure control change", target: "undo-controls", shortcut: "z", unavailable: "No figure control change to undo. Text fields keep their own undo." },
@@ -687,6 +696,8 @@ createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
   { id: "format", label: "Format figure JSON", target: "format", keywords: "advanced specification" },
   { id: "upload", label: "Choose a dataset file", target: "data-file", keywords: "upload CSV Excel Parquet" },
   { id: "demo", label: "Load sample data", target: "demo", keywords: "try demo example" },
+  { id: "template", label: "Open a figure template", target: "reuse-file", keywords: "reuse import canonical design" },
+  { id: "preset", label: "Choose an export preset", target: "reuse-preset", focusOnly: true, keywords: "publication print PNG SVG PDF" },
 ] });
 setSpec(initial);
 api("/api/info")
@@ -695,6 +706,7 @@ api("/api/info")
     diagnosticCatalog = info.diagnostics;
     maxUploadBytes = info.max_upload_mb * 1024 * 1024;
     recipes = info.recipes;
+    reusePresets = info.reuse_presets;
     formSchema = info.schema;
     options($("kind"), info.kinds, "line");
     for (const recipe of recipes)

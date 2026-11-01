@@ -254,6 +254,7 @@ def main():
         for asset in (
             "project.js",
             "project-review.js",
+            "project-shared.js",
             "project.css",
             "controls.js",
             "app.css",
@@ -293,12 +294,21 @@ def main():
             {"shared": {}, "expected_revision": source["revision"]},
             expected=400,
         )
-        api(
-            "/api/shared",
-            {
-                "shared": {"output": {"size": "double_column", "dpi": 144}},
-                "expected_revision": api("/api/state")["revision"],
-            },
+        config = paper / "graphunslopify-project/project.json"
+        shared_original = config.read_bytes()
+        shared_body = {
+            "shared": {"output": {"size": "double_column", "dpi": 144}},
+            "expected_revision": api("/api/state")["revision"],
+        }
+        history_before_review = api("/api/state")["history"]
+        shared_plan = api("/api/shared-review", shared_body)
+        assert shared_plan["can_apply"] and len(shared_plan["affected_ids"]) == 2
+        assert shared_plan["execution"] == "not_run"
+        assert api("/api/state")["history"] == history_before_review
+        assert config.read_bytes() == shared_original
+        shared_event = api(
+            "/api/shared-apply",
+            {**shared_body, "proposal_token": shared_plan["proposal_token"]},
         )
         second = audit()
         for figure in second["result"]["audit"]["figures"]:
@@ -388,11 +398,37 @@ def main():
             == saved["text"]
         )
         assert cli("project-history", paper)["integrity"] == "verified"
+        before_undo = {p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()}
+        undo_body = {
+            "undo_event": shared_event["id"],
+            "expected_revision": api("/api/state")["revision"],
+        }
+        undo_plan = api("/api/shared-review", undo_body)
+        assert undo_plan["can_apply"] and undo_plan["operation"] == "undo"
+        undone = api(
+            "/api/shared-apply",
+            {**undo_body, "proposal_token": undo_plan["proposal_token"]},
+        )
+        assert (
+            undone["status"] == "settings_saved"
+            and config.read_bytes() == shared_original
+        )
+        assert before_undo == {
+            p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()
+        }
+        assert api("/api/state")["history"][0]["undo_of"] == shared_event["id"]
         result = {
             "status": "passed",
             "interface": "real loopback CLI/server",
             "figures": 2,
             "shared_settings": "applied to actual reports",
+            "shared_review": {
+                "status": "passed",
+                "affected_native": 2,
+                "review_writes_no_settings_or_history": True,
+                "actual_strict_reports_use_reviewed_settings": True,
+                "undo_restored_original_config_preserving_later_definitions": True,
+            },
             "strict_run_exits": [0, 0, 2, 0, 0],
             "source_binding_history_and_stale_guard": "verified",
             "preview_export_and_comparison": "verified bytes",

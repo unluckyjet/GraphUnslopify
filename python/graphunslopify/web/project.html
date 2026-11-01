@@ -57,7 +57,15 @@
             <fieldset id="shared-controls" aria-label="Shared paper settings"></fieldset>
             <details><summary>Advanced shared JSON</summary><label class="sr-only" for="shared-json">Shared settings JSON</label><textarea id="shared-json" spellcheck="false"></textarea></details>
             <p id="shared-error" role="alert" hidden></p>
-            <div class="actions"><button id="save-shared" disabled>Save shared settings</button><button id="discard-shared" class="quiet">Reload saved settings</button></div>
+            <div class="actions"><button id="save-shared" disabled>Review shared changes</button><button id="discard-shared" class="quiet">Reload saved settings</button></div>
+            <div class="shared-undo"><label>Saved settings change<select id="shared-undo-event"></select></label><button id="review-shared-undo" class="secondary" disabled>Review undo</button></div>
+            <section id="shared-review" class="shared-review" aria-labelledby="shared-review-title" hidden>
+              <h3 id="shared-review-title">Review shared changes</h3>
+              <p id="shared-review-status" role="status" aria-live="polite"></p>
+              <p class="muted">All source-backed figures inherit the saved policy. These are resolved intent changes, not rendered or scientifically verified outputs. Original data and definitions stay separate.</p>
+              <div id="shared-review-rows"></div>
+              <div class="actions"><button id="apply-shared-review" disabled>Apply reviewed settings</button><button id="cancel-shared-review" class="quiet">Close review</button></div>
+            </section>
           </details>
         </section>
         <section class="card review-card" aria-labelledby="review-heading">

@@ -268,7 +268,9 @@ def _locator(path: Path, paper: Path) -> str:
     return path.relative_to(paper).as_posix() if path.is_relative_to(paper) else str(path)
 
 
-def _capture(source: Path, config: dict) -> tuple[dict, dict | None, dict[str, bytes]]:
+def _capture(
+    source: Path, config: dict, *, shared_override: dict | None = None
+) -> tuple[dict, dict | None, dict[str, bytes]]:
     config_raw = source.read_bytes()
     if json.loads(config_raw) != config:
         raise ProjectError("Project settings changed during capture; refresh and retry.")
@@ -286,6 +288,7 @@ def _capture(source: Path, config: dict) -> tuple[dict, dict | None, dict[str, b
             raise ProjectError("Project settings changed during capture; refresh and retry.")
         snapshot["revision"] = _hash({**snapshot, "config_sha256": raw_sha})
         return snapshot, None, {"source/project.json": config_raw}
+    shared = config["shared"] if shared_override is None else shared_override
     manifest_path, manifest = load_manifest(source.parent / config["manifest"])
     paper = manifest_path.parent
     raw = manifest_path.read_bytes()
@@ -339,10 +342,10 @@ def _capture(source: Path, config: dict) -> tuple[dict, dict | None, dict[str, b
                     raise ProjectError("Figure definition changed during capture; retry.")
                 row["kind"] = spec.get("kind")
                 for key in ("style", "output"):
-                    if key in config["shared"]:
-                        spec[key] = {**spec.get(key, {}), **config["shared"][key]}
-                if "palette_lock" in config["shared"]:
-                    spec["palette_lock"] = str((paper / config["shared"]["palette_lock"]).resolve())
+                    if key in shared:
+                        spec[key] = {**spec.get(key, {}), **shared[key]}
+                if "palette_lock" in shared:
+                    spec["palette_lock"] = str((paper / shared["palette_lock"]).resolve())
                 file("data", Path(spec["data"]["path"]))
                 if spec.get("palette_lock"):
                     file("palette", Path(spec["palette_lock"]))
@@ -363,18 +366,16 @@ def _capture(source: Path, config: dict) -> tuple[dict, dict | None, dict[str, b
                 file("data", paper / entry["data"])
             else:
                 row["input_coverage"] = "unknown_script_inputs"
-            if "palette_lock" in config["shared"]:
-                file("palette", paper / config["shared"]["palette_lock"])
-        row["fingerprint"] = _hash(
-            {"entry": entry, "files": row["files"], "shared": config["shared"]}
-        )
+            if "palette_lock" in shared:
+                file("palette", paper / shared["palette_lock"])
+        row["fingerprint"] = _hash({"entry": entry, "files": row["files"], "shared": shared})
         rows.append(row)
         effective.append(normalized)
     snapshot = {
         "manifest": manifest_path.name,
         "manifest_sha256": hashlib.sha256(raw).hexdigest(),
         "project_id": config["project_id"],
-        "shared": config["shared"],
+        "shared": shared,
         "figures": rows,
     }
     if (
@@ -859,33 +860,46 @@ def set_project_entry(
     )
 
 
+def _commit_shared(source, config, before, originals, shared, *, review=None, raw=None):
+    """Write only the owned config; caller holds the operation and reviewed-input guards."""
+    updated = {**config, "shared": copy.deepcopy(shared)}
+    content = _bytes(updated) if raw is None else raw
+    if json.loads(content) != updated:
+        raise ProjectError("Undo configuration does not match the reviewed settings.")
+    if _digest(source) != hashlib.sha256(originals["source/project.json"]).hexdigest():
+        raise ProjectError("Project settings changed before saving; refresh and retry.")
+    folder, event = _event(source.parent, "settings")
+    _write_authoring(
+        source.parent,
+        source,
+        content,
+        hashlib.sha256(originals["source/project.json"]).hexdigest(),
+    )
+    after, _, _ = _capture(source, updated)
+    return _finish(
+        folder,
+        event,
+        {
+            "status": "settings_saved",
+            "exit_code": 0,
+            "before": before,
+            "snapshot": after,
+            "audit": None,
+            **({"review": review, "undo_of": review.get("undo_event")} if review else {}),
+        },
+        originals,
+    )
+
+
 def set_project_shared(path: str | Path, shared: dict, *, expected_revision: str) -> dict:
-    if not isinstance(expected_revision, str) or not re.fullmatch(
-        r"[a-f0-9]{64}", expected_revision
-    ):
-        raise ProjectError("Shared changes need the current project-status revision token.")
+    _review_token(expected_revision)
     source, config = _config(path)
     _native(config)
     _validate_shared(shared)
     with _operation(source.parent):
         before, _, originals = _capture(source, config)
         _expected(expected_revision, before)
-        folder, event = _event(source.parent, "settings")
-        updated = {**config, "shared": copy.deepcopy(shared)}
-        _atomic(source.parent, source.name, updated)
-        after, _, _ = _capture(source, updated)
-        return _finish(
-            folder,
-            event,
-            {
-                "status": "settings_saved",
-                "exit_code": 0,
-                "before": before,
-                "snapshot": after,
-                "audit": None,
-            },
-            originals,
-        )
+        return _commit_shared(source, config, before, originals, shared)
 
 
 def _policy(report: dict, config: dict, paper: Path, manifest: dict) -> dict:

@@ -143,6 +143,8 @@ try {
   await page.locator("#shared-json").fill(validShared);
   workflows.push("native invalid numeric and malformed shared drafts remain editable and reject saving");
   await page.locator("#save-shared").click();
+  await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("Ready to apply reviewed intent"));
+  await page.locator("#apply-shared-review").click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
   const styled = await audit("passed");
   const styledEvent = await api("/api/event?id=" + styled);

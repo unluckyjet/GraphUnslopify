@@ -116,6 +116,10 @@ class ProjectState:
                 "status": event.get("result", {}).get("status"),
                 "exit_code": event.get("result", {}).get("exit_code"),
                 "inspection_id": (event.get("result", {}).get("inspection_source") or {}).get("id"),
+                "shared_change": event.get("action") == "settings"
+                and event.get("integrity") is True
+                and event.get("result", {}).get("status") == "settings_saved",
+                "undo_of": event.get("result", {}).get("undo_of"),
             }
             for event in history["events"]
         ]
@@ -405,6 +409,7 @@ class ProjectHandler(PreviewHandler):
             "/": "project.html",
             "/project.js": "project.js",
             "/project-review.js": "project-review.js",
+            "/project-shared.js": "project-shared.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
             "/controls.js": "controls.js",
@@ -523,14 +528,42 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.start(payload), 202)
             elif route == "/api/pdf-inspection":
                 self.json(state.start_inspection(payload), 202)
-            elif route in ("/api/shared", "/api/definition", "/api/entry"):
+            elif route in (
+                "/api/shared",
+                "/api/shared-review",
+                "/api/shared-apply",
+                "/api/definition",
+                "/api/entry",
+            ):
                 with state.job_lock:
                     if state.closing or (state.job and state.job["phase"] == "running"):
                         raise ProjectError(
                             "Wait for the active paper audit before editing saved definitions."
                         )
                 kwargs = {"expected_revision": payload.get("expected_revision")}
-                if route == "/api/shared":
+                if route in ("/api/shared-review", "/api/shared-apply"):
+                    from .project_changes import apply_project_shared, review_project_shared
+
+                    operation = (
+                        review_project_shared
+                        if route == "/api/shared-review"
+                        else apply_project_shared
+                    )
+                    result = operation(
+                        state.source,
+                        payload.get("shared"),
+                        undo_event=payload.get("undo_event"),
+                        **kwargs,
+                        **(
+                            {"proposal_token": payload.get("proposal_token")}
+                            if route == "/api/shared-apply"
+                            else {}
+                        ),
+                    )
+                    if route == "/api/shared-review":
+                        self.json(result)
+                        return
+                elif route == "/api/shared":
                     result = set_project_shared(state.source, payload.get("shared"), **kwargs)
                 elif route == "/api/definition":
                     result = set_project_figure(

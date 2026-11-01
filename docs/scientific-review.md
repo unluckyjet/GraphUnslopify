@@ -109,3 +109,6 @@ separate. [PDF workflow and limits](project-pdf-inspections.md) explains local
 source copies, pages, hashes, historical selection and strict incomplete results.
 The current `project-review` schema2 collection marks PDF rows explicitly;
 source-backed IDs and original strict native semantics remain intact.
+
+
+Paper-wide style/output changes now have explicit affected-figure review, Apply and revision-guarded undo. See [reviewed paper changes](reviewed-paper-changes.md) for browser/CLI/API usage, authored-script and source-free limits, and current-versus-saved evidence. Selective execution reuse and consolidated review export remain separate work.

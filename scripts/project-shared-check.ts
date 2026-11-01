@@ -1,0 +1,134 @@
+/** Actual mixed-paper shared review, strict outputs, undo and stale/late/failed UI evidence. */
+import assert from "node:assert/strict";
+import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve, relative } from "node:path";
+import { createInterface } from "node:readline";
+import { chromium, type Page } from "playwright";
+
+declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean } | null; documentElement: { scrollWidth: number } };
+declare const window: { innerWidth: number };
+const python = process.env.PYTHON || "python";
+const env = process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED ? { ...process.env } : { ...process.env, PYTHONPATH: resolve("python") };
+const evidence = mkdtempSync(join(tmpdir(), "gu-shared-paper-check-")), paper = join(evidence, "paper ü with spaces");
+const hash = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
+const cli = (...args: string[]) => { const r = spawnSync(python, ["-m", "graphunslopify.cli", ...args], { env, encoding: "utf8", timeout: 180_000, maxBuffer: 20 * 1024 * 1024 }); assert.ok(r.status === 0 || r.status === 2, r.stderr); return JSON.parse(r.stdout); };
+function inventory(root: string): Record<string, string> {
+  const values: Record<string, string> = {};
+  function walk(folder: string) { for (const e of readdirSync(folder, { withFileTypes: true })) { const p = join(folder, e.name); if (e.isDirectory()) walk(p); else if (e.isFile()) values[relative(root, p)] = hash(readFileSync(p)); } }
+  walk(root);return values;
+}
+cli("demo", paper, "--json");
+const second = JSON.parse(readFileSync(join(paper, "figure.json"), "utf8"));
+second.kind = "table"; second.title = "Second figure";second.output.stem = "second";second.uncertainty.display = "bar";second.output.formats = ["png", "pdf"];second.highlight = "best_per_row";
+writeFileSync(join(paper, "second.json"), JSON.stringify(second));cli("audit-init", paper);cli("project-init", paper);
+const initial = cli("project-run", paper, "--no-baseline");assert.equal(initial.exit_code, 0);
+const inspections = cli("project-inspections", paper);
+assert.equal(cli("project-inspect-pdf", paper, "--id", "external", "--pdf", resolve("python/tests/fixtures/project-review-pages.pdf"), "--pages", "1", "--dpi", "72", "--expected-revision", inspections.revision).exit_code, 2);
+const config = join(paper, "graphunslopify-project/project.json"), originalConfig = readFileSync(config), data = readFileSync(join(paper, "results.csv"));
+const originals = Object.fromEntries(["figure.json", "second.json"].map(n => [n, hash(readFileSync(join(paper, n)))]));
+const firstHistory = inventory(initial.directory);
+const server = spawn(python, ["-m", "graphunslopify.cli", "project-preview", paper, "--port", "0"], { env, stdio: ["ignore", "pipe", "pipe"] });
+let stderr = "";server.stderr.on("data", chunk => { stderr += chunk; });
+const lines = createInterface({ input: server.stdout });
+const timer = setTimeout(() => server.kill(), 30_000);
+const url = await new Promise<string>((accept, reject) => { lines.once("line", line => { try { accept(JSON.parse(line).url); } catch (e) { reject(e); } });server.once("exit", code => reject(Error(`Server exited ${code}: ${stderr}`))); });clearTimeout(timer);
+const workflows: string[] = [], errors: string[] = [], external: string[] = [];
+let browser, currentPage: Page | undefined;
+try {
+  const mac = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  browser = await chromium.launch({ ...(existsSync(mac) ? { executablePath: mac } : {}), headless: true });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });currentPage = page;page.setDefaultTimeout(60_000);
+  page.on("pageerror", e => errors.push(e.message));page.on("request", r => { if (!r.url().startsWith(url) && !r.url().startsWith("data:") && !r.url().startsWith("blob:")) external.push(r.url()); });
+  await page.goto(url);await page.waitForFunction(() => document.querySelector("#notice")?.textContent.startsWith("Ready."));
+  const token = await page.locator('meta[name="preview-token"]').getAttribute("content");assert.ok(token);
+  const api = async (path: string, body?: unknown, expected = 200) => { const r = await page.request[body === undefined ? "get" : "post"](url + path, { headers: { "X-Preview-Token": token }, ...(body === undefined ? {} : { data: body }) });assert.equal(r.status(), expected, await r.text());return r.json(); };
+  const open = async () => { await page.locator("#shared-panel").evaluate(node => node.setAttribute("open", ""));await page.locator("#shared-json").locator("..").evaluate(node => node.setAttribute("open", "")); };
+  const shared = { style: { grid: true }, output: { size: "double_column", dpi: 144 } };
+  const draft = async (value: unknown) => { await open();await page.locator("#shared-json").fill(JSON.stringify(value)); };
+  const review = async (value: unknown) => { await draft(value);const response = page.waitForResponse(r => r.url().endsWith("/api/shared-review") && r.request().method() === "POST");await page.locator("#save-shared").click();const result = await response;assert.equal(result.status(), 200);const plan = await result.json();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);return plan; };
+  // Hold a genuine user reload across a scheduled background poll. Its ownership
+  // must survive the overlap, rather than leaving a discarded draft on screen.
+  let reloadArrived!: () => void, releaseReload!: () => void, reloadDone!: () => void;
+  const reloadReady = new Promise<void>(r => { reloadArrived = r; }), reloadHeld = new Promise<void>(r => { releaseReload = r; }), reloadDelivered = new Promise<void>(r => { reloadDone = r; });
+  let heldReload = false;
+  await draft(shared);
+  await page.route("**/api/state", async route => {
+    if (heldReload) { await route.continue();return; }
+    heldReload = true;const response = await route.fetch();reloadArrived();await reloadHeld;await route.fulfill({ response });reloadDone();
+  });
+  await page.locator("#discard-shared").click();await reloadReady;
+  assert.equal(await page.locator("#shared-json").isDisabled(), true);
+  await page.waitForTimeout(3300);releaseReload();await reloadDelivered;await page.unroute("**/api/state");
+  await page.waitForFunction(() => document.querySelector("#shared-json")?.disabled === false);
+  assert.deepEqual(JSON.parse(await page.locator("#shared-json").inputValue()), {});
+  workflows.push("actual manual reload remains authoritative across background polling and restores saved settings");
+  let state = await api("/api/state");const count = state.history.length;
+  const plan = await review(shared);
+  assert.equal(plan.figures.length, 2);assert.equal(plan.pdf_excluded.length, 1);assert.equal(plan.execution, "not_run");
+  assert.equal((await api("/api/state")).history.length, count);assert.equal(hash(readFileSync(config)), hash(originalConfig));
+  assert.ok((await page.locator("#shared-review-rows").innerText()).includes("/output/dpi"));assert.ok((await page.locator("#shared-review-rows").innerText()).includes("numerical claims remain untested"));
+  workflows.push("actual resolved native diffs and source-free PDF exclusion without settings/history writes");
+  await page.locator("#shared-review").screenshot({ path: join(evidence, "desktop.png") });
+  await page.setViewportSize({ width: 390, height: 1000 });await page.locator("#shared-review").screenshot({ path: join(evidence, "mobile.png") });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);await page.setViewportSize({ width: 1440, height: 1100 });
+  workflows.push("real desktop and narrow mobile review of canonical changes");
+  await page.locator("#apply-shared-review").click();await page.waitForFunction(() => document.querySelector("#notice")?.textContent.startsWith("Saved. Audit"));
+  state = await api("/api/state");assert.deepEqual(state.shared, shared);assert.equal(state.status, "needs_audit");const saved = state.history.find((e: { action: string }) => e.action === "settings");
+  workflows.push("explicit Apply saves only shared config and marks native science for reaudit");
+  await page.locator("#audit").click();await page.waitForFunction(() => document.querySelector("#running")?.hidden === false);await page.waitForFunction(() => document.querySelector("#running")?.hidden === true);
+  state = await api("/api/state");assert.equal(state.job.result.exit_code, 0);const actual = await api("/api/event?id=" + state.job.result.id);
+  assert.ok(actual.result.audit.figures.every((r: { report: { spec: { output: { dpi: number; size: string } } } }) => r.report.spec.output.dpi === 144 && r.report.spec.output.size === "double_column"));
+  workflows.push("actual strict native audit executes both changed figures and records requested output settings");
+  await page.locator("#shared-undo-event").selectOption(saved.id);await page.locator("#review-shared-undo").click();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);
+  assert.equal(await page.locator("#apply-shared-review").innerText(), "Apply reviewed undo");await page.locator("#apply-shared-review").click();
+  await page.waitForFunction(() => document.querySelector("#notice")?.textContent.startsWith("Saved. Audit"));
+  state = await api("/api/state");assert.deepEqual(state.shared, {});assert.equal(hash(readFileSync(config)), hash(originalConfig));assert.equal(state.history[0].undo_of, saved.id);const undoID = state.history[0].id;
+  workflows.push("reviewed undo restores exact original configuration and retains auditable ancestry");
+  await page.locator("#shared-undo-event").selectOption(saved.id);await page.locator("#review-shared-undo").click();
+  await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("conflict"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);
+  workflows.push("conflicting older undo is refused without another history event");
+  const stale = await review(shared), beforeStale = (await api("/api/state")).history.length;
+  writeFileSync(join(paper, "results.csv"), Buffer.concat([data, Buffer.from("\n")]));
+  await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("changed"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);
+  await api("/api/shared-apply", { shared, expected_revision: stale.revision, proposal_token: stale.proposal_token }, 400);assert.equal((await api("/api/state")).history.length, beforeStale);
+  const fresh = await review(shared);assert.notEqual(fresh.revision, stale.revision);
+  workflows.push("explicit new review keeps the draft and binds it to current changed inputs");
+  writeFileSync(join(paper, "results.csv"), data);await page.locator("#discard-shared").click();
+  workflows.push("polling invalidates changed native inputs and actual stale-token apply refuses before history");
+  const palette = join(paper, "next palette.json");writeFileSync(palette, '{"first":1}');await review({ palette_lock: "next palette.json" });
+  const nativeRevision = (await api("/api/state")).revision;writeFileSync(palette, '{"second":2}');assert.equal((await api("/api/state")).revision, nativeRevision);
+  await page.locator("#apply-shared-review").click();await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("not confirmed"));
+  assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);assert.equal((await api("/api/state")).history.length, beforeStale);await page.locator("#discard-shared").click();
+  workflows.push("a changed proposed palette is refused even when current saved inputs have not changed");
+  let release!: () => void, arrived!: () => void, complete!: () => void, deliveryError!: (e: unknown) => void;const held = new Promise<void>(r => { release = r; }), ready = new Promise<void>(r => { arrived = r; }), delivered = new Promise<void>((yes, no) => { complete = yes;deliveryError = no; });
+  await page.route("**/api/shared-review", async route => { try { const result = await route.fetch();arrived();await held;await route.fulfill({ response: result });complete(); } catch (e) { deliveryError(e); } });
+  const late = page.waitForResponse(r => r.url().endsWith("/api/shared-review") && r.request().method() === "POST");
+  await draft(shared);await page.locator("#save-shared").click();await ready;
+  await page.locator("#shared-json").fill(JSON.stringify({ output: { dpi: 145 } }));release();await delivered;await page.unroute("**/api/shared-review");
+  await (await late).finished();await page.evaluate("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))");assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);assert.equal(await page.locator("#shared-review-rows article").count(), 0);
+  const newest = await review({ output: { dpi: 145 } });assert.equal(newest.shared.output.dpi, 145);await page.locator("#cancel-shared-review").click();await page.locator("#discard-shared").click();
+  workflows.push("held actual old review response cannot replace a newer shared draft");
+  await review(shared);await page.route("**/api/state", route => route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"held state failure"}' }));
+  await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("unavailable until"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);
+  assert.ok((await page.locator("#review-status").innerText()).includes("Could not refresh the project"));
+  assert.equal(await page.locator("#review-preview").isHidden(), true);
+  await page.unroute("**/api/state");await page.waitForFunction(() => document.querySelector("#error")?.hidden === true);await page.locator("#discard-shared").click();
+  workflows.push("failed state transport clears shared action and recovery requires a new review");
+  await page.route("**/api/shared-review", route => route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"held review failure"}' }));
+  await draft(shared);await page.locator("#save-shared").click();await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("held review failure"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);await page.unroute("**/api/shared-review");await page.locator("#discard-shared").click();
+  workflows.push("failed proposal transport exposes no reusable Apply action");
+  const unsafe = "<img src=x onerror=alert(1)>.json";writeFileSync(join(paper, unsafe), '{}');await review({ palette_lock: unsafe });
+  assert.ok((await page.locator("#shared-review-rows").innerText()).includes(unsafe));assert.equal(await page.locator("#shared-review-rows img").count(), 0);await page.locator("#cancel-shared-review").click();await page.locator("#discard-shared").click();
+  workflows.push("untrusted shared values render as text without executable markup");
+  await page.locator("#shared-undo-event").selectOption(undoID);await page.locator("#review-shared-undo").click();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);
+  assert.equal(await page.locator("#audit").isDisabled(), true);await page.locator("#cancel-shared-review").click();assert.equal(await page.locator("#audit").isDisabled(), false);
+  workflows.push("closing an undo preview restores actions without modifying settings or history");
+  assert.equal(hash(readFileSync(join(paper, "results.csv"))), hash(data));assert.deepEqual(Object.fromEntries(Object.keys(originals).map(n => [n, hash(readFileSync(join(paper, n)))])), originals);assert.deepEqual(inventory(initial.directory), firstHistory);
+  assert.equal(hash(readFileSync(config)), hash(originalConfig));assert.deepEqual(errors, []);assert.deepEqual(external, []);
+  const report = { status: "passed", workflows, original_data_definitions_and_first_history_unchanged: true, raw_config_restored: true, page_errors: errors, external_requests: external, final_state: await api("/api/state"), evidence };
+  writeFileSync(join(evidence, "verification.json"), JSON.stringify(report, null, 2));console.log(JSON.stringify(report));
+} catch (problem) { await currentPage?.screenshot({ path: join(evidence, "failure.png"), fullPage: true }).catch(() => {});console.error(JSON.stringify({ evidence, error: String(problem) }));throw problem; }
+finally { await browser?.close();server.kill();lines.close(); }

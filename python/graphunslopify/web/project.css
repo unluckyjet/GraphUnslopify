@@ -28,6 +28,11 @@
 #source, #source-note, #checks p, #event-summary { overflow-wrap: anywhere; }
 .paper-workspace textarea { min-height: 180px; height: 260px; width: 100%; }
 #shared-json { height: 150px; min-height: 100px; }
+.shared-undo { margin-top: 18px; display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+.shared-undo label { flex: 1; min-width: 0; }.shared-undo select { max-width: 100%; }
+.shared-review { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.shared-review-row { border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.shared-review-row h4 { margin: 0 0 10px; }.shared-review-row pre { max-height: 240px; overflow: auto; white-space: pre-wrap; }
 #entry { height: 200px; }
 #saved-source { height: 300px; }
 #event-json { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 400px; overflow: auto; font-size: 12px; }

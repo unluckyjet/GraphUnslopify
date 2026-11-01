@@ -1,9 +1,10 @@
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
+import { createSharedChangeReview } from "/project-shared.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
-let state, info, record, event, selected = "", sharedRevision = "";
+let state, info, record, event, selected = "";
 let sourceDirty = false, entryDirty = false, sharedDirty = false, running = false;
 let sourceError = "", sharedError = "", sourceValid = false, sharedValid = true;
 let navigation = 0, evidence = 0, refreshVersion = 0, saving = false, loadingFigure = false;
@@ -23,8 +24,8 @@ const el = (tag, text, parent) => {
 };
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
-const dirty = () => sourceDirty || entryDirty || sharedDirty;
-let review;
+const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending();
+let review, sharedReview;
 async function api(path, body) {
   const response = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
@@ -42,14 +43,15 @@ function object(text, label) {
   return value;
 }
 function lockControls() {
-  const busy = running || saving;
+  sharedReview?.update();
+  const busy = running || saving || !!sharedReview?.applying();
   $("audit").disabled = busy || dirty() || !state?.revision || !state?.figures.length;
   $("audit").textContent = state?.inspections?.length || state?.mode === "review_only" ? "Audit source-backed figures" : "Audit paper";
   $("running").hidden = !running;
   $("running").textContent = activeJobKind === "inspection" ? "Preparing PDF visual evidence. Numerical claims remain untested." : "Auditing the paper. Definitions stay locked until this audit finishes.";
   $("shared-controls").disabled = busy || sourceDirty || entryDirty || !sharedValid;
   $("shared-json").disabled = busy || sourceDirty || entryDirty;
-  $("save-shared").disabled = busy || !sharedDirty || !!sharedError;
+  $("save-shared").disabled = busy || !sharedDirty || !!sharedError || !!sharedReview?.loading();
   $("discard-shared").disabled = busy || sourceDirty || entryDirty;
   $("figure-controls").disabled = busy || sharedDirty || entryDirty || !record?.editable || !sourceValid;
   $("definition").disabled = busy || sharedDirty || entryDirty || !record;
@@ -72,7 +74,8 @@ function lockControls() {
   $("pdf-error").textContent = problem; $("pdf-error").hidden = !problem;
   $("pdf-upload").disabled = busy || dirty() || !state?.inspection_revision || !file || !!problem;
   for (const id of ["pdf-file", "pdf-id", "pdf-pages", "pdf-dpi"]) $(id).disabled = busy || dirty();
-  review?.update({ state, selected, dirty: dirty(), busy, info });
+  if (refreshFailure) review?.unavailable(refreshFailure);
+  else review?.update({ state, selected, dirty: dirty(), busy, info });
 }
 function pdfOptions() {
   const text = $("pdf-pages").value.trim();
@@ -83,6 +86,7 @@ function pdfOptions() {
   return { pages, dpi };
 }
 function draft(kind) {
+  sharedReview?.clear("", false);
   if (kind === "source") sourceDirty = true;
   if (kind === "entry") entryDirty = true;
   if (kind === "shared") sharedDirty = true;
@@ -177,8 +181,8 @@ function sharedForm() {
   sharedProblem();
 }
 function loadShared() {
+  sharedReview?.clear("", false);
   sharedDirty = false;
-  sharedRevision = state.revision;
   $("shared-json").value = pretty(state.shared || {});
   sharedForm();
 }
@@ -252,6 +256,7 @@ async function refresh({ reload = false } = {}) {
     if (id) await choose(id, true);
   }
   if (changed && dirty()) notice("Saved project inputs changed. Your draft is kept; reload and review before saving it.");
+  lockControls();
 }
 async function choose(identity, automatic = false) {
   if (!automatic && dirty()) {
@@ -400,8 +405,24 @@ $("entry").oninput = () => { navigation++; draft("entry"); };
 $("shared-json").oninput = () => { draft("shared"); sharedForm(); };
 $("save-definition").onclick = action(async () => { if (!controls.flush()) return; await save("/api/definition", { id: selected, spec: object($("definition").value, "Definition"), expected_revision: record.revision }); });
 $("save-entry").onclick = action(() => save("/api/entry", { id: selected, entry: object($("entry").value, "Manifest binding"), expected_revision: record.revision }));
-$("save-shared").onclick = action(() => save("/api/shared", { shared: object($("shared-json").value, "Shared settings"), expected_revision: sharedRevision }));
-$("discard-shared").onclick = action(async () => { sharedDirty = false; await refresh({ reload: true }); notice("Loaded saved settings."); });
+sharedReview = createSharedChangeReview({
+  api,
+  context: () => ({ state, busy: running || saving, sourceDirty, entryDirty, sharedDirty,
+    text: $("shared-json").value, read: () => object($("shared-json").value, "Shared settings") }),
+  onState: lockControls,
+  onApplied: async () => {
+    sourceDirty = entryDirty = sharedDirty = false;
+    await refresh({ reload: true });await loadEvent();notice("Saved. Audit the paper to check this version; older runs remain historical.");
+  },
+});
+$("save-shared").onclick = action(() => sharedReview.request());
+$("review-shared-undo").onclick = action(() => sharedReview.request(true));
+$("apply-shared-review").onclick = action(() => sharedReview.apply());
+$("discard-shared").onclick = action(async () => {
+  saving = true;sharedDirty = false;sharedReview.clear("", false);lockControls();
+  try { await refresh({ reload: true });notice("Loaded saved settings."); }
+  finally { saving = false;lockControls(); }
+});
 $("reload-definition").onclick = action(async () => { sourceDirty = entryDirty = false; await refresh({ reload: true }); notice("Loaded saved definition."); });
 $("undo-controls").onclick = action(() => { const previous = undo.pop(); if (previous !== undefined) { controls.discard(); $("definition").value = previous; draft("source"); syncDefinition(); } });
 $("duplicate").onclick = action(async () => {
@@ -455,6 +476,7 @@ $("audit").onclick = action(async () => {
   activeJobKind = "audit"; running = true; lockControls(); notice("Paper audit started. Saved history remains available while it runs.");
 });
 async function poll() {
+  if (saving || sharedReview?.applying()) { setTimeout(poll, 2500);return; }
   try {
     const wasRunning = running;
     await refresh();
@@ -465,7 +487,7 @@ async function poll() {
       pendingPDF = "";
       if (state.job?.result?.id && historyChoice === auditNavigation) { $("history").value = state.job.result.id; await loadEvent(); }
     }
-  } catch (problem) { refreshFailure = "Could not refresh the project: " + problem.message; error(refreshFailure); review.unavailable(refreshFailure); }
+  } catch (problem) { refreshFailure = "Could not refresh the project: " + problem.message; error(refreshFailure); review.unavailable(refreshFailure); sharedReview.clear("Shared review unavailable until current inputs can be read again."); }
   setTimeout(poll, 2500);
 }
 action(async () => { info = await api("/api/info"); await refresh({ reload: true }); await loadEvent(); notice(state.mode === "review_only" ? "Ready for PDF visual review. Add a PDF; original data and numerical claims remain untested." : "Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();

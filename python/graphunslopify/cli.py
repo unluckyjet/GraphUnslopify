@@ -441,6 +441,27 @@ def _project(args: argparse.Namespace) -> int:
                 dpi=args.dpi,
                 timeout=args.timeout,
             )
+        elif args.command in ("project-review-shared", "project-apply-shared"):
+            from .project_changes import apply_project_shared, review_project_shared
+
+            operation = (
+                review_project_shared
+                if args.command == "project-review-shared"
+                else apply_project_shared
+            )
+            result = operation(
+                args.path,
+                json.loads(Path(args.settings).read_text(encoding="utf8"))
+                if args.settings
+                else None,
+                expected_revision=args.expected_revision,
+                undo_event=args.undo,
+                **(
+                    {"proposal_token": args.proposal_token}
+                    if args.command == "project-apply-shared"
+                    else {}
+                ),
+            )
         elif args.command == "project-shared":
             result = set_project_shared(
                 args.path,
@@ -623,6 +644,8 @@ def build_parser() -> argparse.ArgumentParser:
             "retain bounded PDF visual inspection without numerical acceptance",
         ),
         ("project-shared", "save shared semantic settings with an expected revision"),
+        ("project-review-shared", "review affected figures or a guarded shared-settings undo"),
+        ("project-apply-shared", "apply a content-bound shared review or undo"),
         ("project-run", "audit the paper and preserve an independent versioned run"),
     ]:
         project = commands.add_parser(name, help=help_text)
@@ -635,6 +658,13 @@ def build_parser() -> argparse.ArgumentParser:
                 action="store_true",
                 help="create a PDF review project without a native plotting manifest",
             )
+        if name in ("project-review-shared", "project-apply-shared"):
+            choice = project.add_mutually_exclusive_group(required=True)
+            choice.add_argument("--settings", help="proposed shared settings JSON file")
+            choice.add_argument("--undo", help="intact saved settings event to undo")
+            project.add_argument("--expected-revision", required=True)
+            if name == "project-apply-shared":
+                project.add_argument("--proposal-token", required=True)
         if name == "project-shared":
             project.add_argument(
                 "--settings",

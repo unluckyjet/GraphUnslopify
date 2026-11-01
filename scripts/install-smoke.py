@@ -1603,6 +1603,7 @@ def main() -> None:
             )
         )
         assert project_interface["status"] == "passed"
+        assert project_interface["shared_review"]["status"] == "passed"
         if args.pdf:
             assert project_interface["pdf_review"]["status"] == "passed"
     diagnostics = None

@@ -195,3 +195,30 @@ latest/saved views and independently guarded assets. Existing callbacks now
 forward their selected IDs to real edit/reinspection actions.
 
 Current local evidence: source/minimum99 backend controls each pass, plus17 minimum review-only/HTTP controls after clearer actual worker errors. Source/fresh32 mixed/review-only PDF workflows and24 native workflows each pass with0 page errors/external requests. Real installed CLI/HTTP recipe and all68 source/wheel/installed resources match. Initial harness wording error and actual dropped-callback failure are retained. Desktop/mobile views were inspected. All seven/gallery/Ruff170/232 Node/1974 Python/zero skips/one upstream warning pass on849 unchanged protected paths. Git/push/exact CI remain required. Full87 batch/undo/selective regeneration/auditable export and entire88–89 stay open.
+
+
+87c2 exact acceptance: e1ad0fd3516a9396490a55d9ba5812deffe96279 passed
+all-nine main41251188435/Figure41251188434 at2026-10-31 23:50:52UTC.
+Actual CI32 browser scenarios and four complete package proofs are
+retained in Obsidian; all68 resources matched source/wheel/sdist on each platform.
+
+## 87d — reviewed paper-wide changes and guarded undo
+
+Current working tree builds on the existing revision-guarded shared setter.
+The browser/CLI/API review actual resolved before/after settings per native
+figure, disclose authored-script manual review and exclude source-free PDFs.
+Apply rederives the proposal and binds owner, current/candidate inputs, full
+history/PDF collection, producer and target config before creating a settings
+event. Candidate palette hashes are bound before becoming current inputs.
+Undo restores intact original config bytes while retaining later data/definition/
+manifest edits, refuses conflicting settings/ownership/history, and records
+undo_of ancestry. Intent validation is not scientific acceptance; audit remains
+required. Real invalid-intent and complete metadata-size guards remain explicit.
+
+Source29 new backend/HTTP/CLI controls, combined minimum101 controls, final source/fresh15 shared and24 native browser workflows each pass. Initial fixture/route harness
+failures, actual invalid-spec handling and an asynchronous reload race were
+corrected and retained. Real current-draft review, stale/candidate changes,
+strict native exports, exact undo, conflicts, held responses,503 recovery and
+HTML-as-text are exercised. Fresh70-resource package equality and actual installed HTTP/undo/PDF recipe pass. Final attempt2 seven/gallery checks on854 paths,
+An initial full-gate attempt was stopped after legacy browser checks exposed transport-state redraw; the central unavailable-state guard is repaired, and the further real held-reload regression now passes on source and fresh installations. Final all seven/gallery/Ruff173/232 Node/2003 Python/zero skips/one upstream warning pass on854 unchanged paths; Git/push/exact CI remain pending. Full87 selective regeneration and consolidated
+auditable export, and entire88–89 remain required. No new release or human claim.

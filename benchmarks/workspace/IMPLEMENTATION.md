@@ -148,3 +148,48 @@ profiles' raw session artifacts. This checkpoint supports later controllers; it
 does not run the formal24 sessions/192 requests, establish a latency advantage,
 fill paper/reliability/reproduction/GUI denominators or replace the eventual full
 public implementation seal.
+
+
+## Real paper workflows (89d2 working implementation)
+
+`paper_common.py` creates an owned copy of the four frozen definitions/data and
+actual scripted edits. Both Penguin bindings use the same original344-row CSV;
+Mass retains its333-row sex filter. Iris files are separately owned byte copies.
+The original protocol and all37 asset hashes remain unchanged.
+
+`paper_graphunslopify.py` calls real project initialization, status, selected-
+output review/apply with revision/proposal tokens, run_project and native history.
+Unchanged/edited updates use selective regeneration; first/add/remove use the real
+full Audit paper operation required by those tasks. Recovery relies on the SDK's
+failed-latest-run guard. Generated programs run as direct subprocesses, with a
+runpy bootstrap that observes actual saves without changing program bytes/native
+arguments/terminal status. Context probes retain the real runner. Observation
+sidecars are written before native audit inventory; independent evaluation copies
+stay outside immutable SDK history. Reused observations retain their original event.
+
+`paper_matplotlib.py` uses the independent csv/statistics producer, actual warm
+figures and two distinct guarded reuse modes. Full input/spec/code/environment
+matches may reuse accepted evidence only after an accepted latest paper with the
+same membership. Reencoded data or claim-only changes may reuse identical drawing
+bytes while recomputing current science and rechecking real retained figures/
+exports. Recovery/membership changes require fresh acceptance for every member.
+Original-save data/report ancestry remains explicit; old hashes are not rewritten.
+Changed saved paper history rejects reuse. The producer's optional figure callback
+is disabled for ordinary single-figure sessions.
+
+`python scripts/check-workspace-paper.py --out NEW_DIRECTORY` runs18 pre-seal
+requests (nine per arm), independently evaluates74 current figure outcomes, keeps
+the known width failures and checks actual native executed/reused counts. Native
+counts are4/0,0/4,1/3,2/2,2/2,1/3,4/0,5/0,4/0. Baseline counts are observed outcomes;
+its additional acceptance-reused/fresh-validation counts distinguish copied
+acceptance from validated drawing reuse. Two bar/scatter controls compare real
+plain/direct-observed program and data bytes plus decoded PNG/SVG/PDF identities.
+Caller dispatch/return counters include guard/history/I/O work, then independent
+checks establish task acceptance. Internal stage times are retained separately.
+
+Five actual regressions cover native policy/history, baseline acceptance/ancestry,
+observer non-interference, no savefig call for byte-only data changes, and changed
+current images/reports. Existing current/minimum focused tests pass; final source/
+minimum/fresh conformance and required full checks precede push/exact CI. These
+are integrity checks; they do not fill formal54 requests, change any threshold,
+constitute the full implementation seal, or establish a performance advantage.

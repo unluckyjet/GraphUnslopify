@@ -185,3 +185,38 @@ independent width failures retained. Three profiles ran concurrently for integri
 only, never as performance samples. Both READMEs/all52 graphics and original
 protocol37 assets remain unchanged. Push and exact new CI remain before advancing.
 Complete controllers, implementation seal, all formal tracks and delivery remain.
+
+
+89d1 accepted cec812bad4385f710808a015b8ad84d171bacf13 at
+2026-11-01T20:06:10.264757+00:00: exact all-nine main41340728444/Figure41340728440
+pass. All four actual distributions bind77 Git resources; both actual CI session
+archives independently verify32 pre-seal requests/clocks/exports. Goal remains open.
+
+## 89d2 — real paper workflows (working)
+
+Implement real SDK project status/review/apply/run/history/reuse, direct native
+original-save capture and an independent Matplotlib paper adapter. Use full Audit
+paper for initial/membership tasks and selective work for ordinary updates; this
+matches actual documented commands rather than altering the SDK to force counts.
+Baseline safe drawing reuse is separate from current acceptance and preserves
+original-save/current-data ancestry. Fresh acceptance after failed paper/membership,
+actual retained-figure inspection and changed-history guards remain mandatory.
+
+Preliminary18 requests plus two actual plain/observed controls pass. Five focused
+real regressions pass current73.29s/minimum57.61s; final package-bound current/
+minimum/fresh conformance and frozen full gates remain. Keep original failed
+preparer/path/canvas/probe attempts; no formal timing occurred. Complete isolated
+paper/single/reliability/profile/GUI controllers, full public seal, all fixed study
+tracks and complete78–89 delivery audit remain; no new release or human claim.
+
+
+89d2 final local checks pass: all seven required checks, both full CI Ruff
+commands (210 formatted files),235 Node/2109 Python/zero skips/one upstream
+warning (894.99s),15 strict gallery figures on915 unchanged protected paths.
+Final current/minimum/fresh each pass18 paper updates/74 figure evaluations/four
+real observer-control executions with77 actual SDK files matching source. Default
+producer37 cases/four controls also pass each. All source profiles are untimed
+integrity preparation; no formal54 or other study cell is completed. Both READMEs/
+52 graphics and original protocol37 assets remain exact. Raw final/profile/control
+and earlier failed attempts are separately retained. Push/exact new CI are next;
+complete isolated controllers/full seal/formal tracks/78–89 audit remain.

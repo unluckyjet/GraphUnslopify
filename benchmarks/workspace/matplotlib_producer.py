@@ -115,7 +115,7 @@ def science(spec, summary):
     return status, findings
 
 
-def render(spec, base, output, cache=None):
+def render(spec, base, output, cache=None, retain=None):
     """Write a new owned result; reuse calculations, never an acceptance decision."""
     from graphunslopify import inspect_figure
 
@@ -281,6 +281,8 @@ def render(spec, base, output, cache=None):
                     },
                 },
             }
+            if retain is not None:
+                retain(figure)
         finally:
             plt.close(figure)
     (output / "report.json").write_bytes(encoded(report))
@@ -290,7 +292,7 @@ def render(spec, base, output, cache=None):
 class Session:
     """A warm calculation session whose executed producer sources are owned copies."""
 
-    def __init__(self, root):
+    def __init__(self, root, *, retain_figures=False):
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=False)
         code = self.root / "code"
@@ -314,6 +316,7 @@ class Session:
         self.namespace = runpy.run_path(str(self.program))
         self.cache = {}
         self.records = {}
+        self.figures = {} if retain_figures else None
 
     def render(self, spec, base, name):
         for path, expected in self.sources.items():
@@ -324,7 +327,13 @@ class Session:
         if not name or Path(name).name != name or name in {".", ".."}:
             raise ValueError("Choose a single owned request name")
         report = self.namespace["render"](
-            spec, base, self.root / "runs" / name, self.cache
+            spec,
+            base,
+            self.root / "runs" / name,
+            self.cache,
+            (lambda figure: self.figures.update({name: figure}))
+            if self.figures is not None
+            else None,
         )
         folder = self.root / "runs" / name
         self.records[name] = {

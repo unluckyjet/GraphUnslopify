@@ -59,9 +59,51 @@ must be included in the eventual complete implementation seal.
 
 ## Still required
 
-The Graph capture adapter and common independent final task evaluator; complete
-paired/paper/reliability/local/native reproduction controllers; 14 real GUI runs;
+Complete paired/paper/reliability/local/native reproduction controllers; 14 real GUI runs;
 actual formal measurements and analysis; candidate UI/docs polish; and the full
 78–89 delivery audit. Outside researchers, blind visual ratings, real model quality
 and general human productivity remain unmeasured/user-deferred. No new release or
 tag is authorized; public PyPI 0.8.0 remains separate from current source.
+
+
+## Paired original-save evaluator (89b2 working implementation)
+
+`measurement.py` observes the actual figure immediately after each save in both
+arms. It records plotted quantities, labels/units, visible font sizes, PNG pixel
+identity and vector drawing identity. `capture_driver.py` uses the existing owned
+native namespace observer; `graphunslopify_producer.py` keeps actual compiler/
+renderer/statistics reuse, native strict reports and current owned evidence.
+PNG availability is timestamped after the actual save, before observation work.
+These observations have not been used as formal latency measurements.
+
+`evaluation.py` independently checks frozen quantities, counts, intent, actual
+units/order, DPI, file widths, font floor and original-save/final-export binding.
+Legitimate SVG accessibility finalization changes bytes while preserving drawing
+identity. Two unavailable identities cannot establish equality. A real observer
+control preserves the native program and decoded PNG compared with an unobserved
+execution. Unit tests also reject wrong cm labels on mm observations and changed
+DPI on unchanged pixels.
+
+`python scripts/check-workspace-producers.py --out NEW_DIRECTORY` retains74 case/
+arm rows. Current-source preparation records73 actual figures and one compiler
+refusal, plus two extra clean fixtures for eight integrity controls (75 native
+runs in total). All actual numerical/save bindings pass. The absent-reference
+case can be refused before rendering: raw compiler evidence stays attached,
+`native_exit_code` is null and no native report/image is invented. The adapter's
+logical strict outcome2 is labelled separately; this is an unverified abstention.
+
+The exact task gates also expose a current limitation: tight-cropped Graph outputs
+are smaller than nominal column widths (double-column examples roughly6.92in
+versus the frozen7.0±0.02in task). Current37-case Matplotlib conformance is37,
+including33 verified positive figures; Graph has one conformant preflight refusal
+and zero fully task-correct verified outputs because its36 native cases fail the
+exact-width gate. Quantities and labels match. The same width tolerance remains;
+no benchmark-only padding/resizing or claim of a speed win is used. These are
+untimed implementation observations, not the formal study.
+
+The harness exits successfully when the measurements/numerical bindings and
+integrity controls work. That does not make failed task gates successful: all rows
+and task-conformance counts remain in the artifact. Unexpected execution or
+measurement-integrity failures make the harness fail after retaining every row.
+Current/minimum/fresh parity and new exact CI are prerequisites for this checkpoint;
+complete formal controllers/seal, fixed workloads and full delivery still remain.

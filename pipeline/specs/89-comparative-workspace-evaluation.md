@@ -88,3 +88,37 @@ controllers, formal study,14 GUI runs, full delivery audit or a release.
 A targeted owned-fixture control then exposed shared output-checksum dictionaries between the returned report and stored receipt. Detach the receipt with a deep copy; the fourth real regression rejects a tampered image even when the caller changes its returned checksum. Gate attempt1 was safely interrupted in owned process group54407 before source edits and retained. Nine focused tests pass after correction; restart all required gates on the fixed source. No formal timing occurred.
 
 Final corrected local milestone: all seven checks, complete CI Ruff194,235 Node/2095 Python/zero skips/one upstream warning and15 strict gallery cases pass on899 unchanged protected files. Current/minimum/fresh fixed-code conformance each passes37 cases/four integrity controls (38 native executions);707-member raw archive hashes verify. Push and exact new CI remain before advancing; paired implementation/formal measurements/full audit remain.
+
+
+89b1 accepted37e8a64d19de8c18efa9cac037ca1560a1660521 at 2026-11-01T15:38:13.153140+00:00:exact all-nine main41318162662/Figure41318162760 pass. Both raw CI producer archives verify37 cases/four controls/38 executions. Start Graph capture/common evaluator; complete paired controllers/seal/formal tracks/delivery remain.
+
+
+##89b2 —actual original saves and independent paired task gates (working)
+
+Add owned Graph native capture via authorized driver/namespace hooks, common
+save-time quantities/labels/fonts/graphic identity, current-evidence receipts and
+an independent evaluator. Preserve ordinary compiler/renderer/statistics reuse;
+verify observation leaves the native program and decoded PNG unchanged. SVG
+accessibility finalization is accepted through the frozen drawing-identity rule,
+not raw-byte equality or equality of unavailable identities.
+
+All74 case/arm rows are retained across current/minimum/fresh. Each profile has73
+actual case figures, one relevant compiler refusal and two additional native clean
+fixtures (75 native executions), with eight integrity controls. Actual numerical
+and save binding checks pass. The missing-reference refusal records raw compiler
+evidence, no native process/report/image, and an explicitly labelled logical
+adapter outcome. Five new real controls check wrong units, changed DPI, unknown
+SVG identity, preflight refusal and observer invariance;14 focused tests pass.
+
+Task conformance is deliberately separate: baseline37 conformant/33 verified;
+Graph one conformant preflight refusal/zero fully verified because its36 rendered
+cases fail the frozen exact-width task after tight cropping. The original program
+and decoded PNG match an unobserved run; this was not introduced by capture.
+Do not relax tolerance, resize only benchmark files or call these figures task
+verified. Preserve these untimed negative outcomes; formal study remains future.
+
+All ten frozen local checks pass:235 Node/2100 Python/zero skips/one upstream
+warning (874.43s), full CI Ruff200 and15 strict gallery figures;905 tested paths.
+Next: push/exact CI for89b2, then complete formal
+controllers/GUI/reproduction and implementation seal, measured tracks and full
+78–89 audit. Outside judgments/new release remain separately scoped/deferred.

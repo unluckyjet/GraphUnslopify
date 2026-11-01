@@ -25,10 +25,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-_REFERENCE_SOURCE = Path(__file__).with_name("reference.py")
-if not _REFERENCE_SOURCE.is_file():
-    _REFERENCE_SOURCE = Path(__file__).resolve().parents[1] / "papers/reference.py"
-REFERENCE = runpy.run_path(str(_REFERENCE_SOURCE))
+_MEASUREMENT_SOURCE = Path(__file__).with_name("measurement.py")
+MEASUREMENT = runpy.run_path(str(_MEASUREMENT_SOURCE))
+_REFERENCE_SOURCE = MEASUREMENT["REFERENCE_SOURCE"]
+REFERENCE = MEASUREMENT["REFERENCE"]
 
 
 def encoded(value):
@@ -240,18 +240,7 @@ def render(spec, base, output, cache=None):
                 figure.savefig(path, dpi=spec["output"]["dpi"])
                 files.append(path)
                 # Observe this completed save's actual artists; do not rerender.
-                measured = (
-                    REFERENCE["artists"](axes, categories)
-                    if categories
-                    else REFERENCE["scatter_artists"](axes)
-                )
-                saves.append(
-                    {
-                        "file": path.name,
-                        "sha256": digest(path.read_bytes()),
-                        "artists": measured,
-                    }
-                )
+                saves.append(MEASUREMENT["saved_figure"](figure, path, spec["kind"]))
             inspection = inspect_figure(
                 figure, target_width_in=width, min_text_pt=6, export_paths=files
             )
@@ -310,6 +299,10 @@ class Session:
         self.reference = code / "reference.py"
         self.program.write_bytes(Path(__file__).read_bytes())
         self.reference.write_bytes(_REFERENCE_SOURCE.read_bytes())
+        (code / "measurement.py").write_bytes(_MEASUREMENT_SOURCE.read_bytes())
+        (code / "certified_measurement.py").write_bytes(
+            MEASUREMENT["CERTIFIED_SOURCE"].read_bytes()
+        )
         license_source = Path(__file__).with_name("LICENSE")
         if not license_source.is_file():
             license_source = Path(__file__).resolve().parents[2] / "LICENSE"
@@ -317,9 +310,7 @@ class Session:
         (code / "NOTICE.md").write_bytes(
             _REFERENCE_SOURCE.with_name("NOTICE.md").read_bytes()
         )
-        self.sources = {
-            path: digest(path.read_bytes()) for path in (self.program, self.reference)
-        }
+        self.sources = {path: digest(path.read_bytes()) for path in code.glob("*.py")}
         self.namespace = runpy.run_path(str(self.program))
         self.cache = {}
         self.records = {}

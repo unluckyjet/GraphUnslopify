@@ -669,4 +669,4 @@ Current source supports [reviewed presentation edits across selected figures](do
 
 Both local workspaces also offer [portable figure templates and export presets](docs/workspace/intent-reuse.md). Save a design as a file, map its fields onto another dataset, review the changes, and apply it with undo. Presets prepare single-column or double-column PNG/SVG/PDF figures, or a smaller PNG for review. Current data, palette and output names stay bound to the editor; checks run again.
 
-The [public-workflow comparison](benchmarks/workspace/IMPLEMENTATION.md) has a frozen protocol and an independent Matplotlib producer under validation. The complete paired implementation, formal measurements and delivery audit are still pending; this is not a speed or researcher-adoption result.
+The [public-workflow comparison](benchmarks/workspace/IMPLEMENTATION.md) now checks both pipelines’ original saved figures against frozen tasks. Its untimed checks retain exact-width failures; formal performance measurements and the full delivery audit remain pending.

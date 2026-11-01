@@ -60,13 +60,13 @@ must be included in the eventual complete implementation seal.
 ## Still required
 
 Complete paired/paper/reliability/local/native reproduction controllers; 14 real GUI runs;
-actual formal measurements and analysis; candidate UI/docs polish; and the full
+actual formal measurements and analysis; and the full
 78–89 delivery audit. Outside researchers, blind visual ratings, real model quality
 and general human productivity remain unmeasured/user-deferred. No new release or
 tag is authorized; public PyPI 0.8.0 remains separate from current source.
 
 
-## Paired original-save evaluator (89b2 working implementation)
+## Paired original-save evaluator (89b2 accepted implementation)
 
 `measurement.py` observes the actual figure immediately after each save in both
 arms. It records plotted quantities, labels/units, visible font sizes, PNG pixel
@@ -107,3 +107,44 @@ and task-conformance counts remain in the artifact. Unexpected execution or
 measurement-integrity failures make the harness fail after retaining every row.
 Current/minimum/fresh parity and new exact CI are prerequisites for this checkpoint;
 complete formal controllers/seal, fixed workloads and full delivery still remain.
+
+
+## Isolated live sessions (89d1 implementation)
+
+`session_runner.py` owns one interpreter per complete eight-request sequence;
+`session_worker.py` initializes one real producer and retains its native cache/
+translator/renderer across the seven warm requests. The parent records actual
+process launch and dispatch/response counters, while the worker records actual
+original PNG save availability, tool completion and independent evaluation.
+The cold origin includes interpreter/import/readiness startup; warm origins are
+parent dispatches. Independent task acceptance is observable at parent receipt;
+the earlier worker gate timestamp is retained separately. Tool acceptance never
+substitutes for task verification: the existing exact-width failures remain null
+for task-verified time. Every completed request must fit the actual parent/child
+counter envelope; counters are not assumed comparable without that check.
+
+Each owned session has a fresh font-cache directory, ready/closure messages,
+request records, actual source/data/program/report/image evidence and stdout/
+stderr. Actual installed SDK files must match checkout bytes, both before and
+after the session. The parent also binds the protocol, benchmark/control sources
+and CI config. Existing output directories are refused; startup errors retain all
+eight planned cells with an explicit unavailable reason. No timeout starts a
+replacement worker. Cleanup first closes actual SDK children, with a bounded
+owned-process-tree fallback; it never kills by process name.
+
+```sh
+python scripts/check-workspace-sessions.py --out /tmp/new-session-conformance
+# Against an already installed exact candidate, without checkout PYTHONPATH:
+python scripts/check-workspace-sessions.py --python /path/to/venv/bin/python --installed --out /tmp/new-installed-session-conformance
+```
+
+This **pre-seal integrity check** runs the complete Penguin mass sequence once in
+each arm (16 requests, two cold and14 warm). It retains all independent gate
+outcomes, allowing only the already documented width failures. Four actual
+regressions cover process isolation/warm calculation reuse/observable acceptance,
+native worker reuse with rejected task acceptance, a real missing-interpreter
+startup, and refusal to overwrite existing evidence. CI retains both Python
+profiles' raw session artifacts. This checkpoint supports later controllers; it
+does not run the formal24 sessions/192 requests, establish a latency advantage,
+fill paper/reliability/reproduction/GUI denominators or replace the eventual full
+public implementation seal.

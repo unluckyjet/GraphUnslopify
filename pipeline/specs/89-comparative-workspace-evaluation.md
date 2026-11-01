@@ -151,3 +151,37 @@ header/h1 and a clean fresh viewport/full-page replay. Retain the earlier repeat
 Mac full-page capture as an unknown-cause artifact, not a demonstrated product bug
 or a claimed fix.52 README graphics remain exact. Push and exact new CI are next;
 controllers, complete implementation seal, formal tracks and full audit remain.
+
+
+89c1 accepted e8a9e7ad3a600866ac6ada7cfe30d5120039ce52 at
+2026-11-01T18:40:42.627112+00:00: exact all-nine main41333366252/
+Figure41333366199 pass. All four actual CI wheel/sdist resources and installed
+interfaces verify; a fresh environment from the exact Ubuntu3.12 CI wheel passes
+14 existing template workflows. These are delivery evidence, not formal study cells.
+
+## 89d1 — isolated single-figure live sessions (working)
+
+Own one actual interpreter/producer per full eight-request session, preserving
+real warm math/translator/renderer reuse. Record cold process launch, warm parent
+dispatch, actual original PNG availability, native tool completion, independent
+worker checks and outer observable task acceptance. Require actual counter
+bounds, current source/package evidence and clean shutdown. Retain every planned
+cell and real failure without replacement workers or overwritten evidence.
+
+The pre-seal checker runs16 Penguin requests/two cold/14 warm and keeps physical-
+width failures unverified. Four real process/acceptance/failure/custody regressions
+and retained CI artifacts support later controllers. No formal comparison cell,
+complete implementation seal or latency advantage is claimed. Complete paper,
+reliability/profile/GUI controllers, all fixed tracks and78–89 audit remain.
+
+
+89d1 final local checks pass: all seven required checks, both full CI Ruff
+commands (204 formatted files),235 Node/2104 Python/zero skips/one upstream
+warning (871.09s), and15 strict gallery figures on909 unchanged protected paths.
+Four focused regressions pass current21.92s/minimum20.28s. Current/minimum/fresh
+pre-seal conformance each completes16 requests with package/report/source/counter
+binding;24 total baseline task acceptances and24 Graph native acceptances with
+independent width failures retained. Three profiles ran concurrently for integrity
+only, never as performance samples. Both READMEs/all52 graphics and original
+protocol37 assets remain unchanged. Push and exact new CI remain before advancing.
+Complete controllers, implementation seal, all formal tracks and delivery remain.

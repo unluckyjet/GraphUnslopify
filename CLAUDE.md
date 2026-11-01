@@ -41,7 +41,11 @@ Store stub, and a failed run empties `examples/baseline/README.md`. Use
 When changing figure layout or gallery examples, also run `npm run gallery-check`.
 It regenerates all published examples and rejects failed or incomplete inspection.
 
-The Python distribution includes the local translator. After changing TypeScript source or
-`python/graphunslopify/cell_colour.py` (also embedded in standalone plots), run
-`npm run build:translator` and commit the refreshed bundle/license files. CI verifies that the
-bundle matches source and tests clean wheel installs on supported platforms.
+The Python distribution includes the local translator. After changing TypeScript source,
+embedded Python helpers (including `python/graphunslopify/cell_colour.py`) or
+canonical schema/resources consumed by
+`scripts/build-translator.ts`, run `npm run build:translator` and commit the refreshed
+resources with their source. Report schemas such as `docs/audit-report.schema.json`
+are copied into the package; edit the canonical docs schema rather than only the
+packaged copy. CI checks generated-file consistency and clean wheel installs on
+supported platforms.

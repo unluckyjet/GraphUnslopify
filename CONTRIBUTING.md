@@ -46,8 +46,11 @@ packages.
 
 - Keep semantic intent in the canonical TypeScript schema/checker/emitter.
   Python adapters should use the same translator rather than inventing a second one.
-- For TypeScript or embedded cell-colour changes, run `npm run build:translator`
-  and commit the refreshed packaged translator, schemas and diagnostic catalog.
+- For TypeScript, embedded helper or canonical schema/resource changes, run
+  `npm run build:translator` and commit source and refreshed resources together.
+  Report schemas such as `docs/audit-report.schema.json` are copied into
+  `python/graphunslopify/schemas/`; edit their canonical docs source, then rebuild.
+  Changing only the packaged copy fails distribution CI even when tests pass.
 - For a new owned finding code, add reviewed problem/consequence/correction
   guidance as described in [diagnostics](docs/diagnostics.md). A proposed repair
   must preserve meaning; unavailable evidence must remain untested.

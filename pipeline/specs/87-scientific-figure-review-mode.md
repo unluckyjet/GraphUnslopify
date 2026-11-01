@@ -286,3 +286,23 @@ Full seven/gallery/Ruff177/232 Node/2032 Python/zero skips/one upstream warning
 pass on859 unchanged protected paths. Original failures and successful raw
 outputs remain retained. Git/index/commit binding, push and exact new all-nine/
 Figure CI remain required. Full87 export and entire88–89 remain required.
+
+
+### 87e generated-schema correction —2026-10-31 local/Nov1 UTC
+
+Implementation7c1183e is committed/pushed with859 tested/index/commit byte
+matches. Exact main41268390221 fails four distribution generated-file guards:
+build-translator copies the canonical docs/audit-report.schema.json over the
+packaged copy, removing the56 new execution metadata/count lines. Figure
+41268390298 passes; the full main run is not accepted.
+
+Corrective working tree adds those same56 lines to the canonical docs schema
+and clarifies the existing generation instructions in CLAUDE/CONTRIBUTING.
+Actual build:translator and exact CI generated-path git diff both exit0. All71
+source/wheel/installed resources remain identical to the fully tested wheel
+60758cddb4de3204ef2d629aecf76a55c81c3fa2e71fc4408aa69fe0ff0b4ec7;
+scientific runtime/emitter/data/figures are unchanged. All seven/gallery/Ruff177/232 Node/2032 Python/zero skips/one upstream warning
+pass again on859 unchanged paths. Actual post-test translator rebuild and
+generated-path diff both exit0; tested/index/commit binding, corrective push
+and new exact all-nine/Figure CI remain required.
+Full87 review export and entire88–89 remain required; no new release claim.

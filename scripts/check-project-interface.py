@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
@@ -13,6 +14,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+import zipfile
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -303,6 +305,43 @@ def main():
                 current["execution"]["mode"] == "reused"
                 and current["execution"]["origin_event"] == first["id"]
             )
+        review_for_export = api("/api/review")
+        before_export = cli("project-history", paper)
+        raw, headers = request(
+            "/api/review-export",
+            {"expected_revision": review_for_export["evidence_revision"]},
+            token=token,
+        )
+        assert headers["Content-Type"] == "application/zip"
+        (where / "review-packet.zip").write_bytes(raw)
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            exported = json.loads(archive.read("review.json"))
+            members = json.loads(archive.read("manifest.json"))["files"]
+            assert exported["review"]["native_run"]["execution_counts"] == {
+                "executed": 0,
+                "reused": 2,
+                "not_run": 0,
+            }
+            assert (
+                not exported["science_reexecuted"]
+                and not exported["source_data_included"]
+            )
+            assert len(exported["figures"]) == 2
+            assert all(item["state"] == "included" for item in exported["assets"])
+            assert all(
+                not name.endswith((".py", ".csv")) for name in archive.namelist()
+            )
+            for item in members:
+                data_in_packet = archive.read(item["path"])
+                assert (
+                    len(data_in_packet) == item["bytes"]
+                    and hashlib.sha256(data_in_packet).hexdigest() == item["sha256"]
+                )
+            assert (
+                json.loads(archive.read("reports/native-audit.json"))
+                == reused["result"]["audit"]
+            )
+        assert cli("project-history", paper) == before_export
         source = api("/api/figure?id=figure")
         definition = json.loads(source["text"])
         definition["title"] = "Changed in the packaged paper workspace"
@@ -462,6 +501,14 @@ def main():
                 "origin_event": first["id"],
             },
             "strict_run_exits": [0, 0, 2, 0, 0],
+            "review_export": {
+                "status": "passed",
+                "actual_zip_manifest_verified": True,
+                "science_reexecuted": False,
+                "source_data_included": False,
+                "original_reused_audit_and_ancestry_retained": True,
+                "history_unchanged": True,
+            },
             "source_binding_history_and_stale_guard": "verified",
             "preview_export_and_comparison": "verified bytes",
             "data_unchanged": True,

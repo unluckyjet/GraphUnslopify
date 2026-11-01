@@ -104,6 +104,9 @@ They reuse intact accepted native results when inputs and rendering context matc
 record original execution ancestry and disclose executed/reused counts. Authored
 programs still execute; missing or failed evidence prevents reuse. See
 [selective regeneration](../docs/selective-paper-regeneration.md).
+Use **Download review packet** or `project-export` for saved figures, whole-paper
+checks and an offline report, without copying original datasets or re-executing
+science. See [review packet export](../docs/paper-review-export.md).
 
 ## Notebook example
 

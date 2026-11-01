@@ -14,16 +14,22 @@ function detail(parent, label, value) {
   node("summary", label, box); node("pre", pretty(value), box);
 }
 
-export function createScientificReview({ api, protect, edit, audit, inspect, selection = () => {} }) {
+export function createScientificReview({ api, protect, edit, audit, inspect, exportPacket, selection = () => {} }) {
   let context, generation = 0, signature = "", selectedInEditor = "";
   let loadedSignature = "", lastQuery = 0, pending = 0;
   let desiredSelection = "", loadedRow = null, pageSource = "";
+  let loadedCollection = null, exporting = false;
   const eventSelect = $("review-event"), figureSelect = $("review-figure");
   const status = $("review-status"), preview = $("review-preview");
   const groups = $("review-groups"), downloads = $("review-downloads");
   const note = $("review-preview-note");
   const pageSelect = $("review-page");
   const current = () => !eventSelect.value;
+  function exportControls() {
+    $("review-export").disabled = exporting || pending > 0 || context?.busy || context?.dirty || !loadedCollection?.evidence_revision;
+    eventSelect.disabled = exporting; figureSelect.disabled = exporting; pageSelect.disabled = exporting;
+    $("review-latest").disabled = exporting;
+  }
   function clear(message) {
     preview.hidden = true; preview.removeAttribute("src");
     note.hidden = false; note.textContent = message;
@@ -33,6 +39,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
   }
   function unavailable(message) {
     generation++; signature = ""; loadedSignature = "";
+    loadedCollection = null; exportControls();
     clear(message); status.textContent = message;
     $("review-context").textContent = "Current project evidence cannot be verified. Saved history remains below.";
     $("review-audit").disabled = true; $("review-edit").disabled = true;
@@ -60,12 +67,13 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
     status.dataset.state = saved ? "saved" : matching && !context.busy ? "matches" : "needs-audit";
     status.textContent = saved
       ? `Saved audit ${result.selection.event}. These are historical results${context.dirty ? "; the current draft is unverified" : ""}.`
-      : context.busy ? "An audit is running. These saved checks do not verify its result."
+      : context.busy ? "A project operation is running. These checks describe their saved execution."
       : matching ? "Declared current inputs match this accepted saved audit."
       : row.evidence_state === "not_run" ? "No audit yet. Run paper checks to create evidence."
       : row.evidence_state === "unavailable" ? "Evidence is unavailable. Inspect history and run a new audit."
       : "Audit recommended. Saved results do not establish the current version.";
     $("review-context").textContent = `${row.id} · ${saved ? "selected saved run" : "current declared inputs"} · ${words(row.execution_status)} in the recorded execution. Reading this view performs no new scientific checks.`;
+    if (result.native_run) $("review-context").textContent += ` Whole-paper audit: ${words(result.native_run.status)} · exit ${result.native_run.exit_code}.`;
     const g = row.groups;
     let root = card("claims", "Claims", g.claims);
     if (root) {
@@ -203,7 +211,8 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
     const version = ++generation;
     const selectedEvent = eventSelect.value, identity = figureSelect.value;
     lastQuery = Date.now();
-    if (!background) { loadedRow = null; $("review-inspect").disabled = true; clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
+    if (!background) { loadedRow = null; loadedCollection = null; $("review-inspect").disabled = true; clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
+    $("review-export").disabled = true;
     if (current() && context.dirty) {
       status.textContent = "Unsaved draft. Save and audit before reviewing this version.";
       $("review-context").textContent = "Saved history remains available in the evidence selector and below.";
@@ -220,12 +229,13 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
       const row = result.figures.find((item) => (item.key || item.id) === identity);
       if (!row) throw Error("This binding is absent from the current project. Its saved source and results remain in the history below.");
       loadedRow = row;
+      loadedCollection = result;
       $("review-inspect").disabled = row.source_type !== "pdf" || context.busy || context.dirty || !(context.state.inspections || []).find((item) => item.id === row.id)?.current_sha256;
       if (row.source_type === "pdf") {
         options(pageSelect, row.groups.legibility.pages.map((page) => [String(page.page), "Page " + page.page]), pageSource === row.id ? pageSelect.value : "");
         pageSource = row.id;
       }
-      const incoming = pretty([row, result.selection, context.busy, context.dirty, eventSelect.value, row.source_type === "pdf" ? pageSelect.value : ""]);
+      const incoming = pretty([row, result.selection, result.native_run, result.evidence_revision, context.busy, context.dirty, eventSelect.value, row.source_type === "pdf" ? pageSelect.value : ""]);
       if (background && incoming === loadedSignature) return;
       if (row.source_type === "pdf") {
         const page = renderPdf(row, result); loadedSignature = incoming;
@@ -249,8 +259,9 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
       preview.hidden = true; preview.removeAttribute("src"); downloads.replaceChildren();
       status.dataset.state = "unknown"; status.textContent = problem.message;
       loadedSignature = "";
+      loadedCollection = null;
       note.hidden = false; note.textContent = "No current preview is available for this selection.";
-    } finally { pending--; }
+    } finally { pending--; exportControls(); }
   }
   eventSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
   figureSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
@@ -262,8 +273,16 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
     if (loadedRow?.source_type !== "pdf" || loadedRow.key !== figureSelect.value) return;
     inspect?.(loadedRow.id, pageSelect.value ? [Number(pageSelect.value)] : [1], loadedRow.groups.legibility.renderer?.dpi || 144);
   };
+  $("review-export").onclick = async () => {
+    if (exporting || pending || context?.busy || context?.dirty || !loadedCollection) return;
+    const snapshot = loadedCollection;
+    exporting = true; exportControls();
+    try { await exportPacket?.(snapshot); }
+    finally { exporting = false; exportControls(); }
+  };
   function update(next) {
       context = next;
+      exportControls();
       if (!next.state) return;
       if (!next.state.revision || !(next.state.figures.length + (next.state.inspections?.length || 0))) {
         figureSelect.replaceChildren();
@@ -296,10 +315,11 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
     refresh: () => load(), unavailable, update,
     selected: () => figureSelect.value,
     select(key) {
+      if (exporting) return;
       const saved = context?.state.history.find((item) => item.id === eventSelect.value);
       if (saved && ((key.startsWith("pdf:") ? saved.action !== "inspection" || "pdf:" + saved.inspection_id !== key : saved.action !== "run"))) eventSelect.value = "";
       desiredSelection = key; signature = ""; update(context);
     },
-    openEvent(identity) { eventSelect.value = identity; desiredSelection = ""; signature = ""; update(context); },
+    openEvent(identity) { if (exporting) return; eventSelect.value = identity; desiredSelection = ""; signature = ""; update(context); },
   };
 }

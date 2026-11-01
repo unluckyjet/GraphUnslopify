@@ -395,6 +395,25 @@ async function compare() {
 }
 function action(work) { return async (...args) => { error(); try { await work(...args); } catch (problem) { error(problem.message); } }; }
 review = createScientificReview({ api, protect, audit: () => $("audit").click(),
+  exportPacket: action(async (collection) => {
+    if (running || saving || dirty() || !state?.revision || state.revision !== collection.current_revision) throw Error("Refresh clean project evidence before exporting.");
+    saving = true; ++refreshVersion; lockControls();
+    try {
+      const response = await fetch("/api/review-export", {
+        method: "POST", headers: { "X-Preview-Token": token, "Content-Type": "application/json" },
+        body: JSON.stringify({ expected_revision: collection.evidence_revision, event: collection.selection.explicit_history_selection ? collection.selection.event : null }),
+      });
+      if (!response.ok) throw Error((await response.json()).error || "Review export failed.");
+      const blob = await response.blob();
+      const query = collection.selection.explicit_history_selection ? "?" + new URLSearchParams({ event: collection.selection.event }) : "";
+      const confirmed = await api("/api/review" + query);
+      if (confirmed.evidence_revision !== collection.evidence_revision) throw Error("Review evidence changed while the packet was downloading. Refresh before exporting again.");
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a"); link.href = url; link.download = "paper-review.zip"; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notice("Saved review packet downloaded. Its recorded failures, historical results and untested PDF claims remain unchanged.");
+    } finally { saving = false; lockControls(); }
+  }),
   edit: action(async (id) => { if (id !== selected) await choose(id); document.querySelector(".definition-card").scrollIntoView({ behavior: "smooth" }); }),
   selection: (kind, key) => {
     document.querySelector(".definition-card").hidden = kind === "pdf" || state?.mode === "review_only";

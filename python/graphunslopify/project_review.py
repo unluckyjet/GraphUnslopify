@@ -12,8 +12,10 @@ from pathlib import Path
 from .diagnostics import explain
 from .project import (
     ProjectError,
+    _config,
     _digest,
     _execution_source,
+    _hash,
     _inside,
     project_history,
     project_status,
@@ -334,11 +336,28 @@ def _pdf_review_row(row):
     }
 
 
+def _receipt_fingerprints(path, history):
+    source, _ = _config(path)
+    return [
+        {
+            "id": event["id"],
+            "integrity": event["integrity"],
+            "receipt_sha256": _digest(
+                _inside(source.parent, "history/" + event["id"] + "/receipt.json")
+            )
+            if event["integrity"]
+            else None,
+        }
+        for event in history["events"]
+    ]
+
+
 def project_review(path=".", *, event_id: str | None = None):
     """One read-only review collection, with native science and visual-only PDFs distinct."""
     from .project_inspections import project_inspections
 
     before = project_history(path)
+    receipts = _receipt_fingerprints(path, before)
     chosen = next((event for event in before["events"] if event["id"] == event_id), None)
     pdf_selection = bool(chosen and chosen.get("action") == "inspection")
     native = _native_review(path, event_id=None if pdf_selection else event_id)
@@ -367,10 +386,32 @@ def project_review(path=".", *, event_id: str | None = None):
         (event["id"], event["integrity"]) for event in after["events"]
     ]:
         raise ProjectError("Project history changed while reading the review collection; refresh.")
+    if receipts != _receipt_fingerprints(path, after):
+        raise ProjectError("Project receipts changed while reading the review collection; refresh.")
     native["selection"]["kind"] = "pdf" if pdf_selection else "native" if event_id else "current"
     native["schema_version"] = 2
     native["scope"] = (
         "Read-only native scientific evidence and PDF visual-only evidence. PDF data/numerical "
         "claims remain untested; reading performs no new execution or scientific acceptance."
     )
+    run = next(
+        (event for event in after["events"] if event["id"] == native["selection"]["event"]),
+        None,
+    )
+    native["native_run"] = None
+    if not pdf_selection and run and run["integrity"] and run.get("action") == "run":
+        result = run["result"]
+        native["native_run"] = {
+            "id": run["id"],
+            "created_at": run["created_at"],
+            **{
+                key: copy.deepcopy(result.get(key))
+                for key in ("status", "audit_status", "exit_code", "errors", "policy_errors")
+            },
+            **{
+                key: copy.deepcopy((result.get("audit") or {}).get(key))
+                for key in ("execution_counts", "comparison", "visual_comparison")
+            },
+        }
+    native["evidence_revision"] = _hash({"review": native, "receipts": receipts})
     return native

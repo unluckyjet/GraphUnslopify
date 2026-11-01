@@ -327,3 +327,40 @@ pass on859 unchanged protected paths. Git byte binding, separate push and exact
 native Windows/all-nine/Figure acceptance are still required. Old source bytes/reports are never normalized
 into false equality; differing history needs real execution. Full87 export and
 entire88–89 remain required; no release/human-study claim.
+
+
+87e accepted2026-11-01T04:48:08.614495+00:00:7460ae3448cb3eb095cca4449dead743d23d0950
+passes exact all-nine main41271481404/Figure41271481573, with full source/check
+name binding. Actual four-platform71-resource wheel/sdist/installed outcomes,
+13 mixed browser workflows and both3.10/3.12 frozen all30/all21 conformance
+are independently verified. All859 local tested/index/commit paths match.
+Earlier7c schema andce Windows failures are historical repaired checkpoints.
+Full87 consolidated export and entire88–89 remain required.87f begins after
+this acceptance; no new release or human-study claim.
+
+
+## 87f — consolidated saved review export (working tree)
+
+Implement one owned, bounded collector for static HTML/JSON/manifest ZIPs, actual
+saved native/PDF assets and original execution receipts. Preserve the complete
+selected native aggregate and strict whole-paper exit even when figures pass;
+retain removed historical figures and unavailable assets. Raw datasets, source
+programs and original PDFs are excluded. Revision, receipt and included-file
+byte guards apply before/after collection and again in the browser after download.
+CLI/API/browser share this path. No scientific execution or new acceptance is
+implied by a successful export. See [export guide](../../docs/paper-review-export.md).
+
+Local source/minimum 75 focused controls each, source/fresh installed ten browser
+workflows each, all 72 package resource byte identities and actual installed
+HTTP export/reuse/undo/PDF controls pass. Full required gates, separate commit/
+push and exact new all-nine/Figure CI remain pending. Entire88–89 stays open.
+
+87f final local gates pass: all seven plus gallery and both complete Ruff checks,
+232 Node / 2051 Python / zero skips / one upstream SQLAlchemy warning, with all
+863 protected paths unchanged. Source/fresh each pass all94 paper workspace
+workflows (24 native,32 PDF,15 shared,13 selective,10 new export). Actual offline
+report layout is confirmed at1440/390px with twelve separately scrolled viewport
+captures; Chrome's repeated tall mobile capture is not used as visual acceptance.
+All52 README graphic placements remain, and all863 tested/index bytes match.
+Exact all-nine/Figure acceptance is required for this implementation commit
+before advancing;88–89 remain required.

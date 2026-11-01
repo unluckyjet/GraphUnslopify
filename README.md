@@ -495,6 +495,8 @@ definitions/bindings, review shared changes and affected figures, audit the pape
 Use [selective regeneration](docs/selective-paper-regeneration.md) to rerun affected figures
 and reuse intact accepted native results, with executed/reused counts and original-run provenance.
 Source-free PDFs remain outside restyling and numerical verification.
+[Download a review packet](docs/paper-review-export.md) to keep saved figure files, whole-paper outcomes,
+scientific/PDF evidence and original-run ancestry together in a readable offline report.
 
 ```sh
 graphunslopify workflow-init paper/

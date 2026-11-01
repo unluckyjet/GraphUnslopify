@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import base64
 import contextlib
+import hashlib
 import json
 import os
 import subprocess
@@ -425,6 +426,38 @@ def _project(args: argparse.Namespace) -> int:
             from .project_review import project_review
 
             result = project_review(args.path, event_id=args.event)
+        elif args.command == "project-export":
+            from .project import _config
+            from .project_export import create_review_packet
+            from .project_review import project_review
+
+            review = project_review(args.path, event_id=args.event)
+            source, _ = _config(args.path)
+            destination = Path(args.output).expanduser().absolute()
+            if destination.is_symlink() or destination.resolve().is_relative_to(
+                source.parent.resolve()
+            ):
+                raise ValueError("Choose a new output outside the owned project evidence folder.")
+            if destination.exists():
+                raise FileExistsError("Choose a new output; the existing file is preserved.")
+            raw = create_review_packet(
+                args.path,
+                event_id=args.event,
+                expected_revision=args.expected_revision or review["evidence_revision"],
+            )
+            with destination.open("xb") as stream:
+                stream.write(raw)
+            result = {
+                "status": "exported",
+                "exit_code": 0,
+                "path": str(destination),
+                "bytes": len(raw),
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "evidence_revision": review["evidence_revision"],
+                "native_audit_exit": (review.get("native_run") or {}).get("exit_code"),
+                "science_reexecuted": False,
+                "scope": "Saved review packet creation, not new scientific acceptance. Original datasets, PDFs and programs are excluded.",
+            }
         elif args.command == "project-inspections":
             from .project_inspections import project_inspections
 
@@ -639,6 +672,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
         ("project-review", "read grouped scientific evidence without executing figures"),
+        ("project-export", "save figure files and an auditable review packet without re-execution"),
         ("project-inspections", "read saved source-free PDF visual evidence and freshness"),
         (
             "project-inspect-pdf",
@@ -673,12 +707,18 @@ def build_parser() -> argparse.ArgumentParser:
                 help="JSON object containing style/output/palette settings",
             )
             project.add_argument("--expected-revision", required=True)
-        if name in ("project-review", "project-inspections"):
+        if name in ("project-review", "project-inspections", "project-export"):
             project.add_argument(
                 "--event",
                 help="completed native audit or PDF inspection ID"
-                if name == "project-review"
+                if name in ("project-review", "project-export")
                 else "completed PDF inspection ID",
+            )
+        if name == "project-export":
+            project.add_argument("--output", required=True, help="new review ZIP destination")
+            project.add_argument(
+                "--expected-revision",
+                help="evidence_revision from project-review; omitted selects current saved evidence",
             )
         if name == "project-inspect-pdf":
             project.add_argument("--pdf", required=True)

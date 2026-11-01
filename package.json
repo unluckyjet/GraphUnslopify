@@ -23,6 +23,7 @@
     "project-pdf-check": "node --experimental-strip-types scripts/project-pdf-check.ts",
     "project-shared-check": "node --experimental-strip-types scripts/project-shared-check.ts",
     "project-reuse-check": "node --experimental-strip-types scripts/project-reuse-check.ts",
+    "project-export-check": "node --experimental-strip-types scripts/project-review-export-check.ts",
     "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts",
     "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts"
   },

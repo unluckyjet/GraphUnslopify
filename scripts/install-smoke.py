@@ -1607,6 +1607,12 @@ def main() -> None:
         assert project_interface["selective_regeneration"]["status"] == "passed"
         assert project_interface["selective_regeneration"]["executed"] == 0
         assert project_interface["selective_regeneration"]["reused"] == 2
+        assert project_interface["review_export"]["status"] == "passed"
+        assert (
+            project_interface["review_export"]["actual_zip_manifest_verified"] is True
+        )
+        assert project_interface["review_export"]["science_reexecuted"] is False
+        assert project_interface["review_export"]["source_data_included"] is False
         if args.pdf:
             assert project_interface["pdf_review"]["status"] == "passed"
     diagnostics = None

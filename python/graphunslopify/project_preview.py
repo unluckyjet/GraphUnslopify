@@ -527,6 +527,20 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Request must be a JSON object.")
             if route == "/api/run":
                 self.json(state.start(payload), 202)
+            elif route == "/api/review-export":
+                from .project_export import create_review_packet
+
+                with state.job_lock:
+                    if state.closing or (state.job and state.job["phase"] == "running"):
+                        raise ProjectError(
+                            "Wait for the active project job before exporting review evidence."
+                        )
+                data = create_review_packet(
+                    state.source,
+                    event_id=payload.get("event") or None,
+                    expected_revision=payload.get("expected_revision"),
+                )
+                self.send(data, "application/zip", download="paper-review.zip")
             elif route == "/api/pdf-inspection":
                 self.json(state.start_inspection(payload), 202)
             elif route in (

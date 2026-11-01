@@ -225,3 +225,7 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-11-01 —88/full88 landed f15f157: exact main41301926400 all nine/Figure41301926384 accepted12:13:11UTC; actual four-platform package and browser/native archives verified.89 protocol/implementation/measurement/delivery remains.
 
 2026-11-01 —89a protocol local milestone:37 frozen assets/37 independently checked numerical cases; five integrity controls current/minimum/fresh,32 actual canonical positive validations. All seven checks, complete CI Ruff190,235 Node/2091 Python/zero skips/one upstream warning and15 gallery cases pass on895 unchanged protected files.52 README graphics retained. Exact new CI pending; full implementations/seal, formal measurements and delivery audit remain.
+
+2026-11-01 —89a c75ca16 exact all-nine main41309967032/Figure41309966995 accepted 2026-11-01T13:54:36.359906+00:00. Actual four-platform package/resource/installed-audit proofs pass. Start complete strong-comparator implementation; formal measurements/delivery audit remain.
+
+2026-11-01 —89b1 corrected baseline producer local gates pass:235 Node/2095 Python/zero skips/one upstream warning,full Ruff194/all seven/gallery15 on899 frozen paths. Current/minimum/fresh each37 cases/four controls/38 native executions. Four initial layout failures and pre-fix returned-report alias are retained; fixed with unchanged gates. Prospective v2 clarifies baseline reuse without changing v1. Exact new CI/pairing/formal study/audit remain.

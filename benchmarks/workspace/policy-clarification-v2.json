@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "public-workspace-comparison-v2-policy-clarification",
+  "original_protocol_sha256": "32633e964a5274a848e2d207bc65c013e27586afde67bb5c09379d660ff6c636",
+  "original_public_commit": "c75ca16d65f8aba45aeef17c688397b0400e9563",
+  "reason": "Prospective implementation review found that common paper rerender expectations could handicap the strong baseline despite v1 explicitly allowing safe selective work. No formal comparison timing or outcomes have been observed.",
+  "paper_execution_expectations_apply_to": "graphunslopify-policy-conformance",
+  "baseline_execution_counts_are_observed_outcomes": true,
+  "baseline_may_safely_reuse_unchanged_renders_and_calculations": true,
+  "both_arms_must_establish_current_acceptance_for_all_paper_members": true,
+  "old_acceptance_may_be_copied_as_a_calculation": false,
+  "unchanged": "All v1 source bytes, tasks, actor/order, planned denominators, scientific/physical/legibility gates and failure retention. Original v1 remains immutable and checked.",
+  "formal_measurements_permitted_by_this_checkpoint_alone": false,
+  "prerequisite": "Complete both producers/controllers/evaluator, demonstrate untimed parity/current-evidence and tamper controls, and publicly Git/CI seal the complete effective protocol and implementation before formal clocks."
+}

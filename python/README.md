@@ -129,3 +129,5 @@ Source after0.8.0 adds `python -m pip install "./python[tracking]"` and
 MLflow store and experiment/run; rejected science stays rejected and existing
 training runs keep their lifecycle. See [the complete guide](../docs/experiment-tracking.md).
 The immutable public0.8.0 package does not include this extra/command.
+
+Current source also provides [command search and keyboard shortcuts](../docs/workspace/commands.md) in both local workspaces, with existing review, draft and export checks.

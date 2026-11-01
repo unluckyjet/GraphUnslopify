@@ -14,14 +14,16 @@ declare const document: {
 
 export async function checkStaging(browser: Browser, evidence: string,
   env: NodeJS.ProcessEnv, python: string) {
+  // Finish the asynchronous page creation before starting a server that can
+  // emit its one readiness line before a later listener is attached.
+  const page = await browser.newPage({viewport:{width:1500,height:1000}});
+  page.setDefaultTimeout(40000);
   const control = join(evidence, "controlled-check");
   const server = spawn(python, [resolve("scripts/serve-preview-staging-check.py"),
     "--control-dir", control], {env, stdio:["ignore", "pipe", "pipe"]});
   let stderr = "";
   server.stderr.on("data", chunk => {stderr = (stderr + chunk).slice(-12000);});
   const lines = createInterface({input:server.stdout});
-  const page = await browser.newPage({viewport:{width:1500,height:1000}});
-  page.setDefaultTimeout(40000);
   const errors: string[] = [], external: string[] = [], workflows: string[] = [];
   const releases: Array<() => void> = [], nonces: string[] = [];
   const renders: any[] = [], observations: Promise<void>[] = [];

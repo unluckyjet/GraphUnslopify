@@ -1,7 +1,7 @@
 ---
 id: 87
 slug: scientific-figure-review-mode
-status: in_progress
+status: done
 priority: P1
 title: Connect scientific evidence and paper iteration in one review workspace
 source_idea: User visual-workspace advice Scientific Figure Review Mode with batch updates and selective regeneration
@@ -364,3 +364,16 @@ captures; Chrome's repeated tall mobile capture is not used as visual acceptance
 All52 README graphic placements remain, and all863 tested/index bytes match.
 Exact all-nine/Figure acceptance is required for this implementation commit
 before advancing;88–89 remain required.
+
+
+## Full87 accepted before88
+
+6e05bd5d175738144c3614079747c6321afc7a92 passes exact all-nine
+main41277406737/Figure41277406806,source/check names reverified at
+2026-11-01T06:23:38.222457+00:00. All863 tested/index/commit paths match.
+Actual four-host72-resource wheel/sdist/export proofs and ten-workflow/six-packet
+CI browser/raw history/strict2/recovery/offline replay are checked. CI3.10:
+2046 passed,5 skipped,28 warnings;3.12:2046 passed,5 skipped,one warning;
+required real TeX separately passes render CI. Local2051/zero skips is distinct.
+All six full acceptance scopes above are delivered.88–89 remains required;
+public0.8.0 unchanged,no human/independent superiority claim.

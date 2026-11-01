@@ -87,8 +87,17 @@ def finished(server):
 
 def test_loopback_session_origin_and_no_raw_dataset_routes(editor):
     assert request(editor, "/", token=False)[0] == 200
-    for name in ("project.js", "project.css", "controls.js", "app.css"):
+    for name in ("project.js", "project.css", "controls.js", "app.css", "workspace-commands.js"):
         assert request(editor, "/" + name, token=False)[0] == 200
+    assert (
+        request(
+            editor,
+            "/workspace-commands.js",
+            token=False,
+            headers={"Origin": "https://attacker.example"},
+        )[0]
+        == 403
+    )
     assert request(editor, "/api/state", token=False)[0] == 403
     assert request(editor, "/api/run", {}, token=False)[0] == 403
     assert request(editor, "/", headers={"Host": "attacker.example"})[0] == 403

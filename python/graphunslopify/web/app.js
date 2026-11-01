@@ -4,6 +4,7 @@ import { describeFinding } from "/diagnostics.js";
 import { createDraftEditor } from "/drafts.js";
 import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.js";
 import { createStagedPreview } from "/staged-preview.js";
+import { createWorkspaceCommands } from "/workspace-commands.js";
 let draftEditor = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
@@ -675,12 +676,18 @@ $("bundle").onclick = () => {
     link.click();
   }
 };
-$("spec").addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-    event.preventDefault();
-    $("render").click();
-  }
-});
+createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+  { id: "render", label: "Render and check figure", target: "render", shortcut: "Enter", typingWithin: "#spec", enabled: () => !!data, keywords: "verify preview scientific checks", unavailable: "Choose a dataset first." },
+  { id: "undo", label: "Undo figure control change", target: "undo-controls", shortcut: "z", unavailable: "No figure control change to undo. Text fields keep their own undo." },
+  { id: "text", label: "Edit visible figure text", target: "edit-figure-text", unavailable: "Finish the current figure check before editing its visible text." },
+  { id: "findings", label: "Show figure findings", target: "show-diagnostics", keywords: "diagnostics collision legibility", unavailable: "Finish a figure check to review its findings." },
+  { id: "bundle", label: "Download figure bundle", target: "bundle", keywords: "export ZIP Python report", unavailable: "Finish the current figure check before downloading." },
+  { id: "fields", label: "Choose chart fields", target: "kind", focusOnly: true, keywords: "type data encoding" },
+  { id: "json", label: "Edit advanced figure JSON", target: "spec", focusOnly: true, keywords: "canonical specification" },
+  { id: "format", label: "Format figure JSON", target: "format", keywords: "advanced specification" },
+  { id: "upload", label: "Choose a dataset file", target: "data-file", keywords: "upload CSV Excel Parquet" },
+  { id: "demo", label: "Load sample data", target: "demo", keywords: "try demo example" },
+] });
 setSpec(initial);
 api("/api/info")
   .then((info) => {

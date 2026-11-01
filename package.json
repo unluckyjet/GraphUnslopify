@@ -25,7 +25,8 @@
     "project-reuse-check": "node --experimental-strip-types scripts/project-reuse-check.ts",
     "project-export-check": "node --experimental-strip-types scripts/project-review-export-check.ts",
     "cell-contrast-check": "node --experimental-strip-types scripts/cell-contrast-check.ts",
-    "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts"
+    "comparison-check": "node --experimental-strip-types scripts/comparison-check.ts",
+    "commands-check": "node --experimental-strip-types scripts/workspace-commands-check.ts"
   },
   "type": "module",
   "dependencies": {

@@ -662,3 +662,5 @@ The [pipeline](pipeline/README.md) records audited improvements; [future work](d
 contains proposals rather than promises. Version 0.8.0 is published on [PyPI](https://pypi.org/project/graphunslopify/0.8.0/) and
 [GitHub](https://github.com/unluckyjet/GraphUnslopify/releases/tag/v0.8.0);
 [publication evidence](docs/releases/0.8.0-publication.json) records verified hashes and fresh installs. npm registry publication is not claimed.
+
+Current source also provides [command search and keyboard shortcuts](docs/workspace/commands.md) in both local workspaces, with existing review, draft and export checks.

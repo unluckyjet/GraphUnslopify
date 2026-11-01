@@ -71,6 +71,16 @@ def test_loopback_origin_token_and_asset_boundaries(editor):
     assert b"Make the figure" in html and editor.state.token.encode() in html
     assert request(editor, "/app.js", token=False)[0] == 200
     assert (
+        request(editor, "/workspace-commands.js", token=False)[1]
+        == preview.files("graphunslopify").joinpath("web/workspace-commands.js").read_bytes()
+    )
+    assert (
+        request(
+            editor, "/workspace-commands.js", token=False, headers={"Origin": "https://example.org"}
+        )[0]
+        == 403
+    )
+    assert (
         request(editor, "/controls.js", token=False)[1]
         == preview.files("graphunslopify").joinpath("web/controls.js").read_bytes()
     )

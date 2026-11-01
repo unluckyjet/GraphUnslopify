@@ -411,6 +411,7 @@ class ProjectHandler(PreviewHandler):
             "/project.js": "project.js",
             "/project-review.js": "project-review.js",
             "/project-shared.js": "project-shared.js",
+            "/workspace-commands.js": "workspace-commands.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
             "/controls.js": "controls.js",

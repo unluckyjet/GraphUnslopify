@@ -1,0 +1,137 @@
+/** Actual command discovery, typing ownership, strict rendering and saved paper operations. */
+import assert from "node:assert/strict";
+import {spawn,spawnSync} from "node:child_process";
+import {createHash} from "node:crypto";
+import {existsSync,mkdtempSync,readFileSync,writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join,resolve} from "node:path";
+import {createInterface} from "node:readline";
+import {chromium,type Page} from "playwright";
+declare const document: {querySelector(selector:string): {disabled:boolean;hidden:boolean;textContent:string;complete:boolean;naturalWidth:number;getAttribute(name:string):string|null}|null;documentElement:{scrollWidth:number}};
+declare const window: {innerWidth:number};
+const python=process.env.PYTHON||"python";
+const env=process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED?{...process.env}:{...process.env,PYTHONPATH:resolve("python")};
+const evidence=mkdtempSync(join(tmpdir(),"gu-workspace-commands-check-"));
+const hash=(raw:Uint8Array)=>createHash("sha256").update(raw).digest("hex");
+const cli=(...args:string[])=>{const r=spawnSync(python,["-m","graphunslopify.cli",...args],{env,encoding:"utf8",timeout:180_000,maxBuffer:30*1024*1024});assert.ok(r.status===0||r.status===2,r.stderr);return JSON.parse(r.stdout);};
+async function start(args:string[]) {
+  const child=spawn(python,["-m","graphunslopify.cli",...args,"--port","0"],{env,stdio:["ignore","pipe","pipe"]});
+  let stderr="";child.stderr.on("data",part=>{stderr+=part;});const reader=createInterface({input:child.stdout});
+  const deadline=setTimeout(()=>child.kill(),30_000);
+  try {const url=await new Promise<string>((accept,reject)=>{reader.once("line",line=>{try{accept(JSON.parse(line).url);}catch(error){reject(error);}});child.once("exit",code=>reject(Error("Local workspace exited "+code+": "+stderr)));});return {url,close:()=>{child.kill();reader.close();}};}
+  catch(error){child.kill();reader.close();throw error;}finally{clearTimeout(deadline);}
+}
+const workflows:string[]=[],errors:string[]=[],external:string[]=[];
+const editor=await start(["preview"]);let paperServer:Awaited<ReturnType<typeof start>>|undefined,browser,page:Page|undefined;
+async function search(active:Page,query:string) {
+  await active.locator("#workspace-command-open").click();
+  await active.locator("#workspace-command-query").fill(query);
+}
+const option=(active:Page,id:string)=>active.locator('[data-command="'+id+'"]');
+try {
+  const mac="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  browser=await chromium.launch({headless:true,...(existsSync(mac)?{executablePath:mac}:{})});
+  page=await browser.newPage({viewport:{width:1440,height:1050}});const active=page;active.setDefaultTimeout(90_000);
+  const posts:string[]=[];
+  active.on("pageerror",error=>errors.push(error.message));active.on("request",request=>{if(request.method()==="POST")posts.push(new URL(request.url()).pathname);if(!request.url().startsWith(editor.url)&&!request.url().startsWith("blob:")&&!request.url().startsWith("data:"))external.push(request.url());});
+  await active.goto(editor.url);await active.locator("#live").uncheck();
+  await search(active,"render");assert.equal(await option(active,"render").getAttribute("aria-disabled"),"true");
+  await active.locator("#workspace-command-query").press("Enter");assert.ok((await active.locator(".command-status").innerText()).includes("dataset"));assert.equal(posts.length,0);
+  await active.locator("#workspace-command-query").fill('<img src="https://example.invalid/no" onerror="throw 1">');assert.equal(await active.locator(".command-option").count(),0);await active.keyboard.press("Escape");
+  assert.equal(await active.locator("dialog.workspace-commands").getAttribute("open"), null, "Escape must close search even with a nonempty query");
+  workflows.push("figure command search discloses unavailable rendering and safely handles literal hostile search without requests");
+  await active.locator("#advanced").evaluate(node=>node.setAttribute("open",""));await active.locator("#spec").focus();const initial=await active.locator("#spec").inputValue();
+  await active.keyboard.press("Control+k");assert.equal(await active.locator("#workspace-command-query").evaluate(node=>node===node.ownerDocument.activeElement),true);await active.keyboard.press("Escape");assert.equal(await active.locator("#spec").evaluate(node=>node===node.ownerDocument.activeElement),true);assert.equal(await active.locator("#spec").inputValue(),initial);
+  workflows.push("global command shortcut opens from an editor and Escape restores focus and original text");
+  await search(active,"sample data");await active.locator("#workspace-command-query").press("Enter");await active.waitForFunction(()=>document.querySelector("#data-summary")?.textContent.includes("24"));
+  assert.ok(posts.includes("/api/demo"));assert.equal(posts.includes("/api/render"),false);
+  workflows.push("search activates the actual local sample-data action without rendering when live preview is off");
+  const beforeFormat=JSON.parse(await active.locator("#spec").inputValue());await active.locator("#spec").fill(JSON.stringify(beforeFormat));await search(active,"JSON");await active.locator("#workspace-command-query").press("ArrowDown");assert.equal(await option(active,"format").getAttribute("aria-selected"),"true");
+  await active.keyboard.press("Tab");assert.equal(await active.locator("dialog.workspace-commands").evaluate(node=>node.contains(node.ownerDocument.activeElement)),true);await active.keyboard.press("Shift+Tab");assert.equal(await active.locator("#workspace-command-query").evaluate(node=>node===node.ownerDocument.activeElement),true);await active.keyboard.press("Enter");assert.deepEqual(JSON.parse(await active.locator("#spec").inputValue()),beforeFormat);assert.ok((await active.locator("#spec").inputValue()).includes("\n"));
+  workflows.push("real arrow selection,modal tab containment and Enter invoke canonical formatting without changing intent");
+  const beforeRender=posts.filter(path=>path==="/api/render").length;
+  await active.locator("#y-field").focus();await active.keyboard.press("Control+Enter");await active.waitForTimeout(200);assert.equal(posts.filter(path=>path==="/api/render").length,beforeRender);
+  await active.locator("#spec").focus();const before=await active.locator("#spec").inputValue();await active.keyboard.press("End");await active.keyboard.insertText(" ");
+  const nativeModifier=await active.evaluate("/Mac|iPhone|iPad/.test(navigator.platform) ? 'Meta' : 'Control'") as string;
+  await active.keyboard.press(nativeModifier+"+z");assert.equal(await active.locator("#spec").inputValue(),before);
+  await active.keyboard.press("Control+Enter");await active.waitForFunction(()=>document.querySelector("#bundle")?.disabled===false);
+  assert.equal(await active.locator("#spec").evaluate(node=>node===node.ownerDocument.activeElement),true);assert.equal(posts.filter(path=>path==="/api/render").length,beforeRender+1);
+  workflows.push("native text undo and unrelated form focus stay intact; original JSON render shortcut performs one actual strict render without stealing focus");
+  await search(active,"download figure");const pending=active.waitForEvent("download");await active.locator("#workspace-command-query").press("Enter");const download=await pending;const bundle=join(evidence,"editor-bundle.zip");await download.saveAs(bundle);
+  const inspected=spawnSync(python,["-c","import sys,zipfile,json;z=zipfile.ZipFile(sys.argv[1]);assert not any(n.endswith(('.csv','.xlsx','.parquet')) for n in z.namelist());reports=[json.loads(z.read(n)) for n in z.namelist() if n.endswith('.report.json')];assert reports and all(r['exit_code']==0 and r['policy']['strict'] is True for r in reports);print('strict bundle verified')",bundle],{env,encoding:"utf8"});assert.equal(inspected.status,0,inspected.stderr);
+  workflows.push("command downloads the actual strict checked bundle while preserving the unchecked source-data choice");
+  await active.locator("#include-data").check();await search(active,"download figure");const consentPending=active.waitForEvent("download");await active.locator("#workspace-command-query").press("Enter");const consentDownload=await consentPending,consented=join(evidence,"editor-bundle-with-consented-data.zip");await consentDownload.saveAs(consented);const included=spawnSync(python,["-c","import sys,zipfile;z=zipfile.ZipFile(sys.argv[1]);assert any(n.endswith('.csv') for n in z.namelist())",consented],{env,encoding:"utf8"});assert.equal(included.status,0,included.stderr);assert.equal(await active.locator("#include-data").isChecked(),true);await active.locator("#include-data").uncheck();
+  workflows.push("an explicitly checked source-data choice survives command download and includes the real dataset only with consent");
+  await active.locator("#spec").focus();await active.keyboard.press("End");await active.keyboard.insertText(" ");await search(active,"download figure");assert.equal(await option(active,"bundle").getAttribute("aria-disabled"),"true");await active.keyboard.press("Escape");
+  workflows.push("a new unsaved generation keeps the older bundle unavailable through command search");
+  await active.setViewportSize({width:390,height:1000});await search(active,"");assert.equal(await active.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);await active.screenshot({path:join(evidence,"editor-mobile.png")});await active.keyboard.press("Escape");
+  await active.setViewportSize({width:1440,height:1050});await search(active,"");await active.screenshot({path:join(evidence,"editor-desktop.png")});await active.keyboard.press("Escape");
+  workflows.push("figure commands remain discoverable on actual desktop and narrow mobile layouts without horizontal overflow");
+  const paper=join(evidence,"paper with spaces");cli("demo",paper,"--json");
+  const original=JSON.parse(readFileSync(join(paper,"figure.json"),"utf8"));const second=structuredClone(original);second.kind="table";second.title="Second figure";second.output.stem="second";second.output.formats=["png","pdf"];second.uncertainty.display="bar";second.highlight="best_per_row";writeFileSync(join(paper,"second.json"),JSON.stringify(second));
+  const lines=readFileSync(join(paper,"figure.py"),"utf8").split(/(?<=\n)/);let insert=0;lines.forEach((line,i)=>{if(line.startsWith("from __future__"))insert=i+1;});lines.splice(insert,0,"__import__('time').sleep(1.2)\n_counter = __import__('pathlib').Path(__file__).with_name('executions.txt')\n_counter.write_text((_counter.read_text() if _counter.exists() else '') + 'x')\n");writeFileSync(join(paper,"authored.py"),lines.join(""));
+  cli("audit-init",paper);const manifestPath=join(paper,"graphunslopify.json"),manifest=JSON.parse(readFileSync(manifestPath,"utf8"));manifest.figures.push({id:"authored",script:"authored.py",data:"results.csv"});writeFileSync(manifestPath,JSON.stringify(manifest));cli("project-init",paper);
+  const first=cli("project-run",paper,"--no-baseline");assert.equal(first.exit_code,0);const originalData=readFileSync(join(paper,"results.csv"));
+  const pdf=cli("project-inspect-pdf",paper,"--id","foreign","--pdf",resolve("python/tests/fixtures/project-review-pages.pdf"),"--pages","1","--dpi","72","--expected-revision",cli("project-inspections",paper).revision);assert.equal(pdf.exit_code,2);
+  const executions=()=>readFileSync(join(paper,"executions.txt"),"utf8").length;assert.equal(executions(),1);
+  paperServer=await start(["project-preview",paper]);const project=await browser.newPage({viewport:{width:1440,height:1050}});page=project;project.setDefaultTimeout(90_000);
+  const projectPosts:string[]=[];
+  project.on("pageerror",error=>errors.push(error.message));project.on("request",request=>{if(request.method()==="POST")projectPosts.push(new URL(request.url()).pathname);if(!request.url().startsWith(paperServer!.url)&&!request.url().startsWith("blob:")&&!request.url().startsWith("data:"))external.push(request.url());});
+  await project.goto(paperServer.url);await project.waitForFunction(()=>document.querySelector("#audit")?.disabled===false);await project.waitForFunction(()=>{const image=document.querySelector("#review-preview");return image&&!image.hidden&&image.complete&&image.naturalWidth>0;});
+  const token=await project.locator('meta[name="preview-token"]').getAttribute("content");assert.ok(token);
+  const api=async(path:string)=>{const r=await project.request.get(paperServer!.url+path,{headers:{"X-Preview-Token":token}});assert.equal(r.status(),200,await r.text());return r.json();};
+  await search(project,"audit");assert.equal(await option(project,"audit").getAttribute("aria-disabled"),"false");await project.screenshot({path:join(evidence,"paper-desktop.png")});await project.keyboard.press("Escape");
+  assert.deepEqual(readFileSync(join(paper,"results.csv")),originalData);assert.equal(executions(),1);
+  workflows.push("paper command search opens against real settled native/authored/PDF evidence without executing programs or changing data");
+  await project.locator("#definition-panel").evaluate(node=>node.setAttribute("open",""));
+  const changed={...original,title:"Keyboard <literal> title"};await project.locator("#definition").fill(JSON.stringify(changed));
+  await search(project,"audit");assert.equal(await option(project,"audit").getAttribute("aria-disabled"),"true");const beforeDirty=projectPosts.length;await project.locator("#workspace-command-query").press("Enter");assert.equal(projectPosts.length,beforeDirty);await project.keyboard.press("Escape");
+  await project.locator("#definition").focus();await project.keyboard.press("Control+s");await project.waitForFunction(()=>document.querySelector("#save-definition")?.disabled===true&&document.querySelector("#notice")?.textContent.startsWith("Saved."));
+  assert.deepEqual(JSON.parse(readFileSync(join(paper,"figure.json"),"utf8")),changed);assert.equal(executions(),1);assert.ok(projectPosts.includes("/api/definition"));
+  workflows.push("dirty paper audits stay unavailable; context-aware save shortcut saves the actual canonical definition without running science");
+  await project.locator("#entry").locator("..").evaluate(node=>node.setAttribute("open",""));const entry=await project.locator("#entry").inputValue();await project.locator("#entry").fill(entry+" ");const beforeEntry=projectPosts.length;await project.keyboard.press("Control+s");await project.waitForFunction(()=>document.querySelector("#save-entry")?.disabled===true);assert.deepEqual(projectPosts.slice(beforeEntry),["/api/entry"]);assert.equal(executions(),1);
+  workflows.push("the same save chord in a manifest draft routes only to the owned binding action");
+  await project.locator("#shared-panel").evaluate(node=>node.setAttribute("open",""));await project.locator("#shared-json").locator("..").evaluate(node=>node.setAttribute("open",""));
+  const config=join(paper,"graphunslopify-project/project.json"),configBefore=readFileSync(config);await project.locator("#shared-json").fill(JSON.stringify({output:{dpi:144}}));const beforeShared=projectPosts.length;await project.keyboard.press("Control+s");await project.waitForFunction(()=>document.querySelector("#shared-review")?.hidden===false);
+  assert.ok(projectPosts.slice(beforeShared).includes("/api/shared-review"));assert.equal(projectPosts.slice(beforeShared).includes("/api/settings"),false);assert.deepEqual(readFileSync(config),configBefore);assert.equal(executions(),1);
+  workflows.push("shared-settings save shortcut stops at the actual resolved review and preserves the original settings until explicit apply");
+  await project.locator("#cancel-shared-review").click();await project.locator("#discard-shared").click();await project.waitForFunction(()=>document.querySelector("#audit")?.disabled===false);
+  await project.getByText("Audit policy",{exact:true}).click();await project.locator("#baseline").selectOption("");await project.locator("#project-name").click();await project.keyboard.press("Control+Enter");await project.waitForFunction(()=>document.querySelector("#running")?.hidden===false);
+  await search(project,"audit");assert.equal(await option(project,"audit").getAttribute("aria-disabled"),"true");const during=projectPosts.filter(path=>path==="/api/run").length;await project.locator("#workspace-command-query").press("Enter");assert.equal(projectPosts.filter(path=>path==="/api/run").length,during);
+  await project.waitForFunction(()=>document.querySelector("#running")?.hidden===true);await project.waitForFunction(()=>document.querySelector('[data-command="audit"]')?.getAttribute("aria-disabled")==="false");await project.keyboard.press("Escape");assert.equal(executions(),2);
+  let state=await api("/api/state");let actual=JSON.parse(readFileSync(join(paper,"graphunslopify-project/history",state.job.result.id,"result.json"),"utf8"));assert.equal(actual.exit_code,0);assert.deepEqual(actual.audit.execution_counts,{executed:3,reused:0,not_run:0});
+  workflows.push("paper audit chord runs real programs once; live command eligibility locks during the owned job and updates without retyping after completion");
+  await project.locator("#project-name").click();await project.keyboard.press("Control+Shift+Enter");await project.waitForFunction(()=>document.querySelector("#running")?.hidden===false);await project.waitForFunction(()=>document.querySelector("#running")?.hidden===true);
+  state=await api("/api/state");actual=JSON.parse(readFileSync(join(paper,"graphunslopify-project/history",state.job.result.id,"result.json"),"utf8"));assert.equal(actual.exit_code,0);assert.deepEqual(actual.audit.execution_counts,{executed:1,reused:2,not_run:0});assert.equal(executions(),3);
+  workflows.push("selective keyboard regeneration retains actual1-executed2-reused counts and reruns the unknown authored script");
+  const beforeSynthetic=projectPosts.length;await project.evaluate("document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,repeat:true,bubbles:true}));document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,isComposing:true,bubbles:true}));document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,altKey:true,bubbles:true}));");await project.waitForTimeout(150);assert.equal(projectPosts.length,beforeSynthetic);assert.equal(executions(),3);
+  workflows.push("held-key repeats,composition and unrelated modifier chords cannot start paper operations");
+  await project.locator("#review-figure").selectOption("pdf:foreign");await project.waitForFunction(()=>document.querySelector("#review-inspect")?.hidden===false&&document.querySelector("#review-inspect")?.disabled===false);await search(project,"inspect current PDF");await project.locator("#workspace-command-query").press("Enter");await project.waitForFunction(()=>document.querySelector("#running")?.hidden===false);await project.waitForFunction(()=>document.querySelector("#running")?.hidden===true);assert.equal(executions(),3);await project.waitForFunction(()=>document.querySelector("#review-status")?.textContent.includes("untested"));assert.equal(await project.locator("#review-figure").inputValue(),"pdf:foreign");
+  workflows.push("PDF command invokes real visual inspection while keeping numerical claims untested and native programs unexecuted");
+  await project.locator("#review-figure").selectOption("figure");await project.waitForFunction(()=>document.querySelector("#review-edit")?.disabled===false);
+  let saveArrive!:()=>void,saveRelease!:()=>void;const saveArrived=new Promise<void>(r=>{saveArrive=r;}),saveHeld=new Promise<void>(r=>{saveRelease=r;});
+  await project.route("**/api/definition",async route=>{const response=await route.fetch();saveArrive();await saveHeld;await route.fulfill({response});});
+  await project.locator("#definition").fill(JSON.stringify({...changed,claims:[{...original.claims[0],subject:"base",reference:"ours"}]}));await project.keyboard.press("Control+s");await saveArrived;
+  const beforeBusySave=projectPosts.filter(path=>path==="/api/run").length;await project.locator("#project-name").click();await project.keyboard.press("Control+Enter");assert.equal(await option(project,"audit").getAttribute("aria-disabled"),"true");assert.equal(projectPosts.filter(path=>path==="/api/run").length,beforeBusySave);assert.equal(executions(),3);
+  saveRelease();await project.waitForFunction(()=>document.querySelector('[data-command="audit"]')?.getAttribute("aria-disabled")==="false");await project.unroute("**/api/definition");
+  workflows.push("an actual held save reply keeps audit shortcuts unavailable; no operation queues itself when the reply finishes");
+  await project.locator("#workspace-command-query").press("Enter");await project.waitForFunction(()=>document.querySelector("#running")?.hidden===false);await project.waitForFunction(()=>document.querySelector("#running")?.hidden===true);state=await api("/api/state");actual=JSON.parse(readFileSync(join(paper,"graphunslopify-project/history",state.job.result.id,"result.json"),"utf8"));assert.equal(actual.exit_code,2);assert.equal(executions(),4);
+  await project.waitForFunction(()=>document.querySelector("#review-export")?.disabled===false);await search(project,"download saved review");const reviewPending=project.waitForEvent("download");await project.locator("#workspace-command-query").press("Enter");const reviewDownload=await reviewPending;const reviewZip=join(evidence,"failed-paper-review.zip");await reviewDownload.saveAs(reviewZip);
+  const rejected=spawnSync(python,["-c","import sys,zipfile,json;z=zipfile.ZipFile(sys.argv[1]);r=json.loads(z.read('review.json'));a=json.loads(z.read('reports/native-audit.json'));assert r['review']['native_run']['exit_code']==a['exit_code']==2;assert not r['science_reexecuted'] and not r['source_data_included'];assert any(f['status']=='failed' for f in a['figures']);print('actual scientific rejection retained')",reviewZip],{env,encoding:"utf8"});assert.equal(rejected.status,0,rejected.stderr);assert.equal(executions(),4);
+  workflows.push("keyboard-triggered failed claims retain strict2 and the downloaded evidence packet keeps the rejection without rerunning programs");
+  let pollArrive!:()=>void,pollRelease!:()=>void,pollDone!:()=>void;const pollArrived=new Promise<void>(r=>{pollArrive=r;}),pollHeld=new Promise<void>(r=>{pollRelease=r;}),pollDelivered=new Promise<void>(r=>{pollDone=r;});let firstPoll=true;
+  await project.route("**/api/state",async route=>{if(!firstPoll){await route.continue();return;}firstPoll=false;const response=await route.fetch();pollArrive();await pollHeld;await route.fulfill({response});pollDone();});await pollArrived;
+  try {
+    await search(project,"audit");assert.equal(await option(project,"audit").getAttribute("aria-disabled"),"false");writeFileSync(join(paper,"results.csv"),Buffer.concat([originalData,Buffer.from("\n")]));const staleRun=project.waitForResponse(response=>new URL(response.url()).pathname==="/api/run"&&response.request().method()==="POST");await project.locator("#workspace-command-query").press("Enter");assert.equal((await staleRun).status(),202);
+    const deadline=Date.now()+90_000;let ownedJob=await api("/api/job");while(ownedJob.phase==="running"&&Date.now()<deadline){await project.waitForTimeout(60);ownedJob=await api("/api/job");}assert.equal(ownedJob.phase,"failed");assert.equal(ownedJob.result,null);assert.match(ownedJob.error,/changed|refresh/i);assert.equal(executions(),4);
+    pollRelease();await pollDelivered;await project.unroute("**/api/state");await project.waitForFunction(()=>document.querySelector("#running")?.hidden===true&&document.querySelector("#error")?.hidden===false);assert.equal(executions(),4);
+  } finally {pollRelease();writeFileSync(join(paper,"results.csv"),originalData);await project.unroute("**/api/state");}
+  await search(project,"refresh paper");await project.locator("#workspace-command-query").press("Enter");await project.waitForFunction(()=>document.querySelector("#notice")?.textContent==="Project refreshed.");assert.equal(executions(),4);
+  workflows.push("actual external input changes defeat a genuine older state at the owned API; command error recovery refreshes without running programs");
+  await project.setViewportSize({width:390,height:1000});await search(project,"");assert.equal(await project.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);await project.screenshot({path:join(evidence,"paper-mobile.png")});await project.keyboard.press("Escape");
+  assert.deepEqual(readFileSync(join(paper,"results.csv")),originalData);
+  workflows.push("paper command discovery fits mobile and preserves original observations through actual save,review,audit,reuse,PDF and failure workflows");
+  const report={status:"passed",workflows,editor_bundle_sha256:hash(readFileSync(bundle)),paper_authored_executions:executions(),page_errors:errors,external_requests:external,evidence};
+  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);writeFileSync(join(evidence,"verification.json"),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+} catch(error) {await page?.screenshot({path:join(evidence,"failure.png"),fullPage:true}).catch(()=>{});console.error(JSON.stringify({evidence,error:String(error)}));throw error;}
+finally{await browser?.close();editor.close();paperServer?.close();}

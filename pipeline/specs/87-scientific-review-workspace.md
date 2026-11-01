@@ -1,9 +1,9 @@
 # Scientific review workspace — specification link
 
 The active milestone87 contract and delivery evidence are in
-[Scientific Figure Review Mode](87-scientific-figure-review-mode.md).
+[Scientific Figure Review Mode](../done/87-scientific-figure-review-mode.md).
 This older path remains available for existing links and carries no separate
-queue item. Milestone87 is still in progress.
+queue item. Milestone87 is accepted at6e05bd5 after exact all-nine/Figure CI.
 
 The original six acceptance scopes are preserved there:
 

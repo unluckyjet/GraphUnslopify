@@ -542,3 +542,22 @@ footer {
 #diagnostic-description:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 .finding.selected-finding { outline: 2px solid var(--blue); outline-offset: 2px; }
 .finding-location { margin-top: 10px; }
+
+
+/* Shared command discovery in both local workspaces. */
+.header-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+#workspace-command-open { display:inline-flex; align-items:center; justify-content:center; gap:10px; }
+kbd { font:inherit; font-size:11px; white-space:nowrap; border:1px solid var(--line); border-radius:4px; padding:2px 5px; color:var(--muted); }
+.workspace-commands { width:min(680px,calc(100vw - 28px)); max-height:85vh; padding:22px; border:1px solid var(--line); border-radius:14px; color:var(--ink); box-shadow:0 24px 90px #192b3833; }
+.workspace-commands::backdrop { background:#192b3859; }
+.workspace-commands .command-head { display:flex; gap:16px; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.workspace-commands h2 { margin:0; }
+.workspace-commands input { width:100%; min-height:42px; margin-bottom:12px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:white; color:var(--ink); font:inherit; }
+#workspace-command-results { max-height:52vh; overflow:auto; overscroll-behavior:contain; }
+.command-option { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid transparent; border-radius:8px; cursor:pointer; }
+.command-option strong { display:block; }
+.command-option small { display:block; margin-top:4px; color:var(--muted); }
+.command-option[aria-disabled="true"] strong { color:var(--muted); }
+.command-option[aria-selected="true"] { border-color:#91bfd0; background:#edf6fa; }
+.command-status,.command-help { font-size:12px; margin:12px 0 0; }
+@media(max-width:600px) { .workspace-commands { padding:16px; } .command-option { gap:10px; padding:10px 8px; } .command-head h2 { font-size:19px; } }

@@ -2,6 +2,7 @@ import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
+import { createWorkspaceCommands } from "/workspace-commands.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "";
@@ -519,6 +520,20 @@ function runAudit(selective = false) { return action(async () => {
 }); }
 $("audit").onclick = runAudit();
 $("regenerate").onclick = runAudit(true);
+createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+  { id: "audit", label: "Audit source-backed paper figures", target: "audit", shortcut: "Enter", keywords: "run scientific checks", unavailable: "Save or reload drafts and wait for the current operation." },
+  { id: "regenerate", label: "Regenerate changed figures", target: "regenerate", shortcut: "Shift+Enter", keywords: "selective reuse", unavailable: "Save or reload drafts and wait for the current operation." },
+  { id: "save-definition", label: "Save figure definition", target: "save-definition", shortcut: "s", typingWithin: "#definition, #figure-controls", keywords: "canonical JSON", unavailable: "Edit a valid source-backed figure definition and finish other drafts first." },
+  { id: "save-entry", label: "Save manifest binding", target: "save-entry", shortcut: "s", typingWithin: "#entry", unavailable: "Edit a valid manifest binding and finish other drafts first." },
+  { id: "shared", label: "Review shared settings changes", target: "save-shared", shortcut: "s", typingWithin: "#shared-json, #shared-controls", keywords: "paper style policy", unavailable: "Edit shared settings and finish other drafts before reviewing." },
+  { id: "undo", label: "Undo figure control change", target: "undo-controls", shortcut: "z", unavailable: "No figure control change to undo. Text fields keep their own undo." },
+  { id: "shared-undo", label: "Review undo of saved shared settings", target: "review-shared-undo", unavailable: "Choose an eligible saved shared settings change first." },
+  { id: "export", label: "Download saved review packet", target: "review-export", keywords: "export ZIP reports evidence", unavailable: "Load review evidence, finish drafts and wait for the current operation." },
+  { id: "latest", label: "Review latest paper inputs", target: "review-latest", keywords: "current evidence" },
+  { id: "edit", label: "Edit current figure definition", target: "review-edit", unavailable: "Choose a current source-backed figure first." },
+  { id: "pdf", label: "Inspect current PDF again", target: "review-inspect", keywords: "visual only", unavailable: "Choose current PDF evidence and finish other operations first." },
+  { id: "refresh", label: "Refresh paper project", target: "refresh", unavailable: "Wait for the current save operation." },
+] });
 async function poll() {
   if (saving || sharedReview?.applying()) { setTimeout(poll, 2500);return; }
   try {

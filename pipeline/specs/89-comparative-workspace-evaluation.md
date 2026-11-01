@@ -220,3 +220,53 @@ integrity preparation; no formal54 or other study cell is completed. Both README
 52 graphics and original protocol37 assets remain exact. Raw final/profile/control
 and earlier failed attempts are separately retained. Push/exact new CI are next;
 complete isolated controllers/full seal/formal tracks/78–89 audit remain.
+
+
+89d2 accepted764c1ac0df3771db30d0d207f49c2fd788fd1b80 at
+2026-11-01T21:56:34.920930+00:00: exact all-nine main41349550074/
+Figure41349550027 pass. Both actual CI paper archives independently bind36 saved
+requests/148 figure evaluations; both actual standalone archives rehash60 native
+executions/all21 kinds/full77 Git package files. These are pre-seal delivery
+checks, not formal54/64 cells. Known width failures remain visible.
+
+## 89d3 — isolated actual paper sessions (working)
+
+One actual owned process/producer per complete nine-update sequence, with real
+startup/producer preparation, warm dispatch, current saves/native completion,
+independent worker checks, parent-observable task acceptance and bounded cleanup.
+Preserve original-save ancestry; reuse-only updates have no invented fresh PNG
+save timestamp. Keep every planned cell, including actual dispatches with missing
+responses, startup failures and unsuccessful closure; no substitute workers.
+
+The pre-seal checker runs18 requests/74 independent figure outcomes, preserving
+native policy/current baseline acceptance and all physical-width failures. The
+six-session alternating schedule is only a plan. Verify actual source/minimum/
+fresh processes and all frozen checks before push/exact CI. Complete reliability/
+reproduction/GUI and formal controllers, full public seal, all fixed tracks and
+complete78–89 audit remain. No new release/human/model-quality result is implied.
+
+
+89d3 ordinary passes were followed by a real paused native-renderer interruption
+control that exposes a surviving separately grouped child. Preserve initial
+profiles and the intentionally interrupted local gate. Add actual Popen ownership
+in the worker and inherited-group drainage in the parent, then repair SDK _run
+itself to clean up/reap after callback failure and cancellation before reraising.
+Two real-child SDK tests fail before/pass after. Source/fresh actual paused native
+controls confirm SDK cleanup before the fallback. Public0.8.0 is not republished.
+
+Final current11 focused tests pass127.81s/minimum11 pass110.28s. Final actual
+current/minimum/fresh isolated conformance each passes18 requests/74 independent
+figures with77 matching source/wheel/installed package files, current output and
+counter/history bindings, no forced normal cleanup, and unchanged width failures.
+Baseline36 figure-level/eight paper-task acceptances and Graph0 remain separate.
+Different concurrent profiles are pre-seal integrity preparation, not formal54
+sessions. Fresh local candidate wheel matches all77 SDK files/27 requested pins;
+only audit.py changes product behavior. Final frozen gates/push/exact CI remain.
+
+
+89d3 final local gates: all seven required checks, both full CI Ruff commands/215
+files and15 gallery figures pass. Node235/Python2116/zero skips/one upstream
+warning, Python1056.13s (wrapper1058.40s),920 protected working bytes unchanged.
+Both READMEs/graphics and original37 frozen assets stay exact. Index/full commit
+binding, push/exact all-nine/Figure remain before advancing. Full formal scope
+and delivery audit remain open; no new release/tag is authorized.

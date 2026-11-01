@@ -21,7 +21,7 @@ draws, inspects and writes new current evidence. Executed producer/measurement
 sources are owned copies. Current acceptance is checked against separate run
 receipts and current data, reports, specs, exports and producer bytes. These are
 local trusted benchmark fixtures, not a signed artifact format or malicious-owner
-authentication. Safe paper-level render reuse is still to be implemented.
+authentication. The paper adapter below now adds guarded drawing reuse with current acceptance.
 
 ```sh
 python scripts/check-workspace-matplotlib.py --out /tmp/my-new-baseline-check
@@ -193,3 +193,62 @@ current images/reports. Existing current/minimum focused tests pass; final sourc
 minimum/fresh conformance and required full checks precede push/exact CI. These
 are integrity checks; they do not fill formal54 requests, change any threshold,
 constitute the full implementation seal, or establish a performance advantage.
+
+
+## Isolated paper sessions (89d3 working implementation)
+
+`paper_worker.py` owns one real paper producer for all nine updates; the parent
+`paper_sessions.py` includes actual interpreter/import/producer readiness in the
+cold origin, records producer preparation separately, and uses actual dispatches
+for warm updates. Every current independent task check completes before the outer
+response receipt at which the actor observes acceptance. Native tool completion,
+worker validation, startup, cleanup and actual save events stay separate.
+
+A new original PNG save is timed only when it belongs to the current executed
+request. Reused drawings retain original-save ancestry and have no fabricated new
+save time; actual current copy availability is explicitly unexposed. Both arms
+retain the same real project policy/baseline current-acceptance rules and known
+width failures. Dispatched requests whose responses time out remain attempted,
+with the real dispatch counter; subsequent planned cells remain unavailable.
+No replacement worker or overwritten evidence hides a failure.
+
+`python scripts/check-workspace-paper-sessions.py --out NEW_DIRECTORY` runs one
+pre-seal full nine-update session per arm, independently checking74 figure
+outcomes and actual process/clock/policy bindings. For an already installed exact
+candidate, add `--python /path/to/python --installed`. A six-session alternating
+schedule is recorded as a plan, never executed or counted as the formal54 cells
+by this checker. CI retains both Python profiles' raw process evidence. Current/minimum/fresh conformance each completes18 requests/74 figure checks;
+all required frozen checks remain before checkpoint push.
+Complete formal controllers, reliability/reproduction/GUI, public implementation
+seal, every fixed study track and the78–89 delivery audit remain.
+
+
+The first ordinary conformance passes were followed by a real interrupted native
+renderer control: a separately grouped paused child survived worker cancellation.
+Keep the original data/controls and intentionally interrupted first gate attempt.
+The worker passively records actual Popen ownership without altering commands or
+options; cleanup closes live children and the parent drains its owned inherited
+process group. Normal conformance rejects forced cleanup.
+
+The SDK audit runner itself now protects both the start callback and communication
+with exceptional-exit cleanup, kills/reaps its owned native group and reraises.
+Two actual-child callback/communication tests fail before and pass after this fix.
+Source/fresh-installed paused-renderer controls confirm SDK cleanup happens before
+the benchmark fallback. The new local wheel matches77 source/wheel/installed SDK
+files and27 requested distribution pins. It is not a new registry release.
+
+Final focused current11 pass127.81s/minimum11 pass110.28s. Final current/minimum/
+fresh isolated conformance each passes18 requests/74 independent evaluations,
+including clean actual child lifecycles, source/package/counter/current-file
+bindings and retained width failures. Profiles ran concurrently for integrity
+only; all formal192/54/48/64/64/14 cells remain zero. Final full frozen gates,
+push/exact CI, remaining controllers/public seal/formal tracks/delivery remain.
+
+
+89d3 final local acceptance: all seven required checks, both full actual CI Ruff
+commands (215 files) and15 strict gallery figures pass on920 unchanged protected
+paths. Node235/Python2116, zero skips/one upstream SQLAlchemy warning; Python
+1056.13s (wrapper1058.40s). Both READMEs remain byte-identical to accepted764c1ac,
+keeping all existing graphics; original37 protocol assets remain exact. Bind
+these tested bytes to the index/full commit, push and accept exact new CI before
+advancing. This checkpoint does not complete the formal study or full audit.

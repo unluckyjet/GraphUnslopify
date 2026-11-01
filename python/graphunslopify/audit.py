@@ -207,11 +207,13 @@ def _run(
         env={**os.environ, "MPLBACKEND": "Agg", "PYTHONIOENCODING": "utf-8"},
         **options,
     ) as process:
-        if on_start is not None:
-            on_start()
         try:
+            if on_start is not None:
+                on_start()
             stdout, stderr = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except BaseException:
+            # Cancellation and failed start callbacks own the same cleanup as a
+            # timeout. Never leave the separately grouped renderer behind.
             if os.name == "nt":
                 subprocess.run(
                     ["taskkill", "/PID", str(process.pid), "/T", "/F"],

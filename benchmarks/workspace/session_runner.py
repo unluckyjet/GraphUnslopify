@@ -7,6 +7,7 @@ for a formal comparison. No observations here establish performance superiority.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -81,8 +82,17 @@ class LiveSession:
     """One owned worker and its actual children; no timeout-driven replacement."""
 
     def __init__(
-        self, arm, folder, *, python=sys.executable, installed=False, timeout=240
+        self,
+        arm,
+        folder,
+        *,
+        python=sys.executable,
+        installed=False,
+        timeout=240,
+        track="single",
     ):
+        if track not in {"single", "paper"}:
+            raise ValueError("Unknown isolated session track")
         self.folder = Path(folder).resolve()
         self.folder.mkdir(parents=True, exist_ok=False)
         self.timeout = timeout
@@ -110,7 +120,14 @@ class LiveSession:
             self.process = subprocess.Popen(
                 [
                     python,
-                    str(HERE / "session_worker.py"),
+                    str(
+                        HERE
+                        / (
+                            "paper_worker.py"
+                            if track == "paper"
+                            else "session_worker.py"
+                        )
+                    ),
                     "--arm",
                     arm,
                     "--root",
@@ -166,8 +183,14 @@ class LiveSession:
 
     def request(self, payload):
         dispatched = time.perf_counter_ns()
+        self.last_dispatch = {
+            "case": payload["case"],
+            "parent_dispatched_ns": dispatched,
+            "dispatch_state": "attempted",
+        }
         self.process.stdin.write(json.dumps(payload, allow_nan=False) + "\n")
         self.process.stdin.flush()
+        self.last_dispatch["dispatch_state"] = "flushed"
         row = self.receive()
         received = time.perf_counter_ns()
         if row.get("event") != "result" or row.get("case") != payload["case"]:
@@ -226,6 +249,21 @@ class LiveSession:
                     except ProcessLookupError:
                         pass
             self.process.wait(timeout=30)
+        if self.process is not None and os.name != "nt":
+            # The worker owns this process group from Popen(start_new_session).
+            # Drain inherited-group descendants even when its leader exited;
+            # separately grouped SDK children are closed inside the worker.
+            try:
+                os.killpg(self.process.pid, 0)
+            except ProcessLookupError:
+                pass
+            else:
+                write(
+                    self.folder / "session-group-cleanup.json",
+                    {"pgid": self.process.pid},
+                )
+                with contextlib.suppress(ProcessLookupError):
+                    os.killpg(self.process.pid, signal.SIGKILL)
         if self.reader is not None:
             self.reader.join(timeout=10)
             if self.reader.is_alive():

@@ -239,3 +239,50 @@ on854 unchanged paths. The actual29-entry local evidence archive retains both
 browser reports/screenshots, fixture-byte mappings, the prior CI failure and
 frozen gate receipts. A separate push and exact all-nine/Figure acceptance
 remain required.
+
+
+87d correction82bd040c254452640e06bb4bd6c13361738affbc passed exact
+all-nine main41260086888/Figure41260086839 at2026-11-01 01:55:49UTC.
+The actual107-entry CI archive retains15 workflows, literal-value assertions,
+fixture-byte mapping and screenshot. This acceptance precedes87e source edits.
+
+## 87e — selective native regeneration and explicit execution ancestry
+
+In progress: an explicit browser action, CLI --selective and authenticated API
+flag can copy accepted unchanged native evidence into a new owned run. Recompute
+canonical destination program bytes and bind actual current input/producer/
+strict-policy/observed environment context. Verify program/report/log/export
+inventories and original execution ancestry; recheck source/history/context
+before acceptance. Never search behind a failed/incomplete latest native run.
+Authored programs always execute, even with declared data; external video/TeX
+or unsupported relative configuration rerun. GIF uses guarded Pillow. Source-free
+PDFs stay outside native numerical acceptance. Baseline/change policies are
+evaluated anew and can reject an otherwise passed native audit.
+
+Actual source/minimum29 backend/HTTP/CLI controls each pass; all30 original
+runtime cases/all21 kinds pass conformance in each (29 exact report/export
+copies and the original strict negative rerun/rejection). Source13 real desktop/
+mobile/keyboard workflows pass, including mixed native/authored/PDF inputs,
+independent changes, damaged evidence and explicit recovery from strict2. A held
+genuine old poll first reproduces premature unlocking during a real worker;
+manual-refresh/job-start ownership is now fenced and the same regression passes.
+Initial harness visibility/status/guard assumptions and the valid damaged-
+baseline rejection remain retained. Clean installation/full seven/gallery
+gates, source/index/commit binding, push and exact new CI remain required.
+Full87 consolidated auditable export and entire88–89 are unchanged. No release
+or human/productivity claim. [Usage and limits](../../docs/selective-paper-regeneration.md).
+
+
+87e local acceptance2026-10-31 (final UTC2026-11-01): source/minimum/fresh
+all30/all21 conformance passes,29 accepted exact copies including GIF and the
+original strict negative rerun/rejection. Final source/minimum29 backend/CLI/
+HTTP controls each pass. Source/fresh13 new and legacy24 native/32 PDF/15 shared
+browser workflows each pass; settled desktop/mobile static/review previews were
+visually inspected. Actual fresh HTTP recipe verifies0 executions/2 reused,
+original reports and ancestry, shared undo and native strict0/0/2/0/0 plusPDF-only
+strict2/untested. All71 source/wheel/installed resources match (wheel SHA
+60758cddb4de3204ef2d629aecf76a55c81c3fa2e71fc4408aa69fe0ff0b4ec7).
+Full seven/gallery/Ruff177/232 Node/2032 Python/zero skips/one upstream warning
+pass on859 unchanged protected paths. Original failures and successful raw
+outputs remain retained. Git/index/commit binding, push and exact new all-nine/
+Figure CI remain required. Full87 export and entire88–89 remain required.

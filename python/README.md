@@ -99,6 +99,12 @@ source and must meet the requested shared policy. See [project management](../do
 `graphunslopify project-preview paper/ --open` provides the packaged local paper
 workspace for definition/binding edits, shared settings, real audits and history.
 
+Current source also offers `project-run --selective` and **Regenerate changed figures**.
+They reuse intact accepted native results when inputs and rendering context match,
+record original execution ancestry and disclose executed/reused counts. Authored
+programs still execute; missing or failed evidence prevents reuse. See
+[selective regeneration](../docs/selective-paper-regeneration.md).
+
 ## Notebook example
 
 Install the notebook extra for JupyterLab and kernel execution. Run

@@ -231,10 +231,13 @@ def main():
         def api(path, body=None, *, expected=200):
             return json.loads(request(path, body, token=token, expected=expected)[0])
 
-        def audit(expected="passed"):
+        def audit(expected="passed", *, selective=False):
             api(
                 "/api/run",
-                {"expected_revision": api("/api/state")["revision"]},
+                {
+                    "expected_revision": api("/api/state")["revision"],
+                    "selective": selective,
+                },
                 expected=202,
             )
             deadline = time.monotonic() + 90
@@ -278,6 +281,22 @@ def main():
         )
         saved = api("/api/saved-source?event=" + first["id"] + "&figure=figure")
         assert json.loads(saved["text"]) == json.loads(original)
+        reused = audit(selective=True)
+        assert reused["result"]["audit"]["execution_counts"] == {
+            "executed": 0,
+            "reused": 2,
+            "not_run": 0,
+        }
+        for old, current in zip(
+            first["result"]["audit"]["figures"],
+            reused["result"]["audit"]["figures"],
+            strict=True,
+        ):
+            assert old["report"] == current["report"]
+            assert (
+                current["execution"]["mode"] == "reused"
+                and current["execution"]["origin_event"] == first["id"]
+            )
         source = api("/api/figure?id=figure")
         definition = json.loads(source["text"])
         definition["title"] = "Changed in the packaged paper workspace"
@@ -428,6 +447,13 @@ def main():
                 "review_writes_no_settings_or_history": True,
                 "actual_strict_reports_use_reviewed_settings": True,
                 "undo_restored_original_config_preserving_later_definitions": True,
+            },
+            "selective_regeneration": {
+                "status": "passed",
+                "executed": 0,
+                "reused": 2,
+                "actual_reports_unchanged": True,
+                "origin_event": first["id"],
             },
             "strict_run_exits": [0, 0, 2, 0, 0],
             "source_binding_history_and_stale_guard": "verified",

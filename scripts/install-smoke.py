@@ -1604,6 +1604,9 @@ def main() -> None:
         )
         assert project_interface["status"] == "passed"
         assert project_interface["shared_review"]["status"] == "passed"
+        assert project_interface["selective_regeneration"]["status"] == "passed"
+        assert project_interface["selective_regeneration"]["executed"] == 0
+        assert project_interface["selective_regeneration"]["reused"] == 2
         if args.pdf:
             assert project_interface["pdf_review"]["status"] == "passed"
     diagnostics = None

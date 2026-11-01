@@ -213,6 +213,11 @@ def _native_review(path=".", *, event_id: str | None = None):
             if usable
             else _groups(None, item, event)
         )
+        groups["reproduction"]["execution"] = copy.deepcopy(
+            figure.get("execution", {"mode": "legacy_recorded_execution"})
+            if report
+            else {"mode": "not_run"}
+        )
         current_versions = bool(
             report
             and groups["reproduction"].get("runtime", {}).get("matches_current_source") is True

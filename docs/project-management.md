@@ -220,4 +220,4 @@ claims remain untested. See [PDF review in paper projects](project-pdf-inspectio
 Current source after public0.8.0; no release is implied.
 
 
-Paper-wide style/output changes now have explicit affected-figure review, Apply and revision-guarded undo. See [reviewed paper changes](reviewed-paper-changes.md) for browser/CLI/API usage, authored-script and source-free limits, and current-versus-saved evidence. Selective execution reuse and consolidated review export remain separate work.
+Paper-wide style/output changes now have explicit affected-figure review, Apply and revision-guarded undo. See [reviewed paper changes](reviewed-paper-changes.md) for browser/CLI/API usage, authored-script and source-free limits, and current-versus-saved evidence. [Selective regeneration](selective-paper-regeneration.md) reuses intact accepted native evidence, records original execution ancestry and keeps actual executed/reused counts. Consolidated review export remains separate work.

@@ -295,7 +295,7 @@ class ProjectState:
             or not 0 < timeout <= 600
         ):
             raise ProjectError("Choose a positive finite per-figure timeout up to 600 seconds.")
-        for name in ("fail_on_warning", "fail_on_change"):
+        for name in ("fail_on_warning", "fail_on_change", "selective"):
             if name in payload and type(payload[name]) is not bool:
                 raise ProjectError(name + " must be true or false.")
         baseline = payload.get("baseline", "latest")
@@ -309,6 +309,7 @@ class ProjectState:
                 fail_on_warning=payload.get("fail_on_warning", False),
                 fail_on_change=payload.get("fail_on_change", False),
                 timeout=timeout,
+                selective=payload.get("selective", False),
             ),
             "audit",
         )

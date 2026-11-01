@@ -491,8 +491,10 @@ Source also adds [persistent paper projects](docs/project-management.md): shared
 figure settings, per-figure input freshness and retained audit/settings history.
 After `graphunslopify project-init paper/`, run `graphunslopify project-preview paper/ --open` to edit
 definitions/bindings, review shared changes and affected figures, audit the paper and review saved runs.
-[Reviewed paper-wide changes and undo](docs/reviewed-paper-changes.md) preserve original data and definitions;
-source-free PDFs remain outside restyling and numerical verification.
+[Reviewed paper-wide changes and undo](docs/reviewed-paper-changes.md) preserve original data and definitions.
+Use [selective regeneration](docs/selective-paper-regeneration.md) to rerun affected figures
+and reuse intact accepted native results, with executed/reused counts and original-run provenance.
+Source-free PDFs remain outside restyling and numerical verification.
 
 ```sh
 graphunslopify workflow-init paper/

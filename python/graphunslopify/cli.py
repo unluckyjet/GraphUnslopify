@@ -476,6 +476,7 @@ def _project(args: argparse.Namespace) -> int:
                 fail_on_warning=args.fail_on_warning,
                 fail_on_change=args.fail_on_change,
                 timeout=args.timeout,
+                selective=args.selective,
             )
     except (OSError, ValueError) as problem:
         print(json.dumps({"status": "failed", "exit_code": 2, "error": str(problem)}))
@@ -687,6 +688,11 @@ def build_parser() -> argparse.ArgumentParser:
             project.add_argument("--dpi", type=int, default=144)
             project.add_argument("--timeout", type=float, default=120)
         if name == "project-run":
+            project.add_argument(
+                "--selective",
+                action="store_true",
+                help="reuse intact accepted native figures when inputs/runtime/environment match",
+            )
             project.add_argument("--expected-revision")
             project.add_argument(
                 "--baseline", default="latest", help="completed run ID; default latest intact run"

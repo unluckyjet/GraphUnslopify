@@ -110,6 +110,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, sel
     root = card("reproduction", "Reproduction", g.reproduction);
     if (root) {
       const r = g.reproduction;
+      if (r.execution) node("p", r.execution.mode === "reused" ? `Reused accepted evidence; original execution ${r.execution.origin_event}. This figure was not executed again.` : `Figure execution: ${words(r.execution.mode)}.`, root);
       for (const line of [
         r.saved_exports_verified ? "Selected export bytes match their saved hashes." : "Selected exports are missing, changed or unverified.",
         `Scientific runtime: ${words(r.runtime?.state)}.`,

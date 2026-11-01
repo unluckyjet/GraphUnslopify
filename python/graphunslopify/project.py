@@ -942,9 +942,12 @@ def run_project(
     fail_on_warning: bool = False,
     fail_on_change: bool = False,
     timeout: float = 120,
+    selective: bool = False,
 ) -> dict:
     if not math.isfinite(timeout) or timeout <= 0:
         raise ProjectError("Project audit timeout must be finite and positive.")
+    if type(selective) is not bool:
+        raise ProjectError("Selective regeneration must be true or false.")
     source, config = _config(path)
     _native(config)
     with _operation(source.parent):
@@ -1008,6 +1011,17 @@ def run_project(
             "execution_source": execution_source,
         }
         try:
+            from .project_reuse import FigureReuse
+
+            reuse = FigureReuse(
+                source,
+                snapshot,
+                execution_source,
+                history,
+                folder,
+                selective=selective,
+                fail_on_warning=fail_on_warning,
+            )
             manifest_path = _inside(folder, "effective.manifest.json")
             manifest_path.write_bytes(_bytes(effective))
             old_root = (
@@ -1021,13 +1035,19 @@ def run_project(
                 fail_on_warning=fail_on_warning,
                 fail_on_change=fail_on_change,
                 timeout=timeout,
+                _reuse=reuse,
             )
+            result["selective"] = selective
+            reuse.describe(report)
+            # Reasons are part of the same retained aggregate returned to callers.
+            _inside(folder, "audit/audit.report.json").write_bytes(_bytes(report))
             result.update(
                 audit=report,
                 audit_status=report["status"],
                 status=report["status"],
                 exit_code=report["exit_code"],
             )
+            result["reuse_guard"] = reuse.finish(report)
             if report["exit_code"]:
                 result["status"] = "incomplete" if report["status"] == "incomplete" else "failed"
             result["policy_errors"] = _policy(report, config, source.parent.parent, effective)

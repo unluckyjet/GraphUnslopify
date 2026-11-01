@@ -45,7 +45,9 @@ function object(text, label) {
 function lockControls() {
   sharedReview?.update();
   const busy = running || saving || !!sharedReview?.applying();
+  $("refresh").disabled = saving || !!sharedReview?.applying();
   $("audit").disabled = busy || dirty() || !state?.revision || !state?.figures.length;
+  $("regenerate").disabled = $("audit").disabled;
   $("audit").textContent = state?.inspections?.length || state?.mode === "review_only" ? "Audit source-backed figures" : "Audit paper";
   $("running").hidden = !running;
   $("running").textContent = activeJobKind === "inspection" ? "Preparing PDF visual evidence. Numerical claims remain untested." : "Auditing the paper. Definitions stay locked until this audit finishes.";
@@ -307,6 +309,10 @@ async function loadEvent() {
     const figures = event.action === "inspection" ? [{ id: result.inspection_source.id }] : result.audit?.figures || result.before?.figures || result.snapshot?.figures || [];
     options($("history-figure"), figures.map((figure) => [figure.id, figure.id]), figures.some((figure) => figure.id === selected) ? selected : $("history-figure").value);
     $("event-summary").textContent = `${actionNames[event.action] || "Saved event"} · ${words(result.status)}` + (event.action === "run" ? ` · scientific checks: ${words(result.audit_status)}` : event.action === "inspection" ? " · numerical claims remain untested" : " · figures were not executed by this change");
+    if (result.audit?.execution_counts) {
+      const count = result.audit.execution_counts;
+      $("event-summary").textContent += ` · ${count.executed} executed · ${count.reused} reused · ${count.not_run} not run`;
+    }
     $("event-json").textContent = pretty(result);
     await showFigure();
     if (!figures.length) (result.errors || []).forEach((message) => el("p", message, $("checks")));
@@ -332,7 +338,12 @@ async function showFigure() {
   const figure = result.audit?.figures.find((item) => item.id === id);
   if (!figure) { el("p", event.action === "run" ? "This audit did not reach figure execution." : "This event records a definition/settings change, not an executed figure.", $("checks")); (result.errors || []).forEach((message) => el("p", message, $("checks"))); return; }
   el("p", "Scientific result: " + words(figure.status), $("checks"));
+  if (figure.execution) {
+    el("p", figure.execution.mode === "reused" ? `Reused accepted evidence from ${figure.execution.origin_event}. This figure was not executed again.` : `Figure execution: ${words(figure.execution.mode)}.`, $("checks"));
+    if (figure.execution.reason) el("p", figure.execution.reason, $("checks"));
+  }
   el("p", result.exit_code === 0 ? "Paper accepted in this saved run." : "Paper not accepted in this saved run. Inspect its policy and findings.", $("checks"));
+  if (result.audit?.visual_comparison?.preview_status === "partial") el("p", "Some saved baseline exports could not be verified for comparison. Review the previous run and comparison evidence. Choose No baseline for a fresh audit when old evidence is unavailable.", $("checks"));
   const report = figure.report;
   [...(figure.errors || []), ...(figure.warnings || []), ...(result.errors || []), ...(result.policy_errors?.[id] || [])].forEach((message) => el("p", message, $("checks")));
   (report?.claims || []).forEach((claim) => {
@@ -436,7 +447,15 @@ $("remove").onclick = action(async () => {
   if (!confirm("Remove " + selected + " from the paper manifest? Its source files, data and history are kept.")) return;
   await save("/api/entry", { id: selected, mode: "remove", expected_revision: record.revision });
 });
-$("refresh").onclick = action(async () => { if (dirty() && !confirm("Discard unsaved changes and refresh the project?")) return; sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await review.refresh(); await loadEvent(); notice("Project refreshed."); });
+$("refresh").onclick = action(async () => {
+  if (saving || sharedReview?.applying()) return;
+  if (dirty() && !confirm("Discard unsaved changes and refresh the project?")) return;
+  saving = true;lockControls();
+  try {
+    sourceDirty = entryDirty = sharedDirty = false;
+    await refresh({ reload: true });await review.refresh();await loadEvent();notice("Project refreshed.");
+  } finally { saving = false;lockControls(); }
+});
 $("history").onchange = action(async () => { historyChoice++; await loadEvent(); });
 $("history-figure").onchange = action(async () => { historyChoice++; await showFigure(); });
 $("show-comparison").onclick = action(compare);
@@ -470,11 +489,17 @@ $("pdf-upload").onclick = action(async () => {
     notice("PDF source copied to this local project. Preparing visual evidence; numerical claims remain untested.");
   } finally { saving = false; lockControls(); }
 });
-$("audit").onclick = action(async () => {
+function runAudit(selective = false) { return action(async () => {
+  if (saving || running || sharedReview?.applying() || dirty()) return;
   auditNavigation = historyChoice;
-  await api("/api/run", { expected_revision: state.revision, baseline: $("baseline").value || null, fail_on_warning: $("fail-warning").checked, fail_on_change: $("fail-change").checked });
-  activeJobKind = "audit"; running = true; lockControls(); notice("Paper audit started. Saved history remains available while it runs.");
-});
+  saving = true;++refreshVersion;lockControls();
+  try {
+    await api("/api/run", { expected_revision: state.revision, baseline: $("baseline").value || null, fail_on_warning: $("fail-warning").checked, fail_on_change: $("fail-change").checked, selective });
+    activeJobKind = "audit";running = true;notice("Paper audit started. Saved history remains available while it runs.");
+  } finally { saving = false;lockControls(); }
+}); }
+$("audit").onclick = runAudit();
+$("regenerate").onclick = runAudit(true);
 async function poll() {
   if (saving || sharedReview?.applying()) { setTimeout(poll, 2500);return; }
   try {

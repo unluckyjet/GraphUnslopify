@@ -189,7 +189,9 @@ def _validate_report(report: Any) -> None:
         raise AuditError("invalid runtime report: " + problems[0].message)
 
 
-def _run(command: list[str], folder: Path, timeout: float) -> subprocess.CompletedProcess[str]:
+def _run(
+    command: list[str], folder: Path, timeout: float, *, on_start=None
+) -> subprocess.CompletedProcess[str]:
     options: dict[str, Any] = (
         {"start_new_session": True}
         if os.name != "nt"
@@ -205,6 +207,8 @@ def _run(command: list[str], folder: Path, timeout: float) -> subprocess.Complet
         env={**os.environ, "MPLBACKEND": "Agg", "PYTHONIOENCODING": "utf-8"},
         **options,
     ) as process:
+        if on_start is not None:
+            on_start()
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -237,6 +241,7 @@ def _audit_one(
         "report": None,
         "outputs": [],
         "artifacts": [],
+        "execution": {"mode": "not_run"},
     }
     try:
         if "spec" in entry:
@@ -272,7 +277,9 @@ def _audit_one(
             ]
         if fail_on_warning:
             command.append("--fail-on-warning")
-        completed = _run(command, folder, timeout)
+        completed = _run(
+            command, folder, timeout, on_start=lambda: record["execution"].update(mode="executed")
+        )
         (folder / "stdout.log").write_text(completed.stdout, encoding="utf8")
         (folder / "stderr.log").write_text(completed.stderr, encoding="utf8")
         try:
@@ -435,6 +442,7 @@ def audit(
     fail_on_change: bool = False,
     timeout: float = 120,
     baseline_root: str | Path | None = None,
+    _reuse=None,
 ) -> dict[str, Any]:
     if fail_on_change and baseline is None:
         raise AuditError("--fail-on-change requires --baseline")
@@ -452,10 +460,14 @@ def audit(
         raise AuditError("timeout must be positive")
     destination.mkdir(parents=True, exist_ok=True)
     run_root = destination / "runs" / uuid.uuid4().hex
-    figures = [
-        _audit_one(entry, root, run_root, fail_on_warning=fail_on_warning, timeout=timeout)
-        for entry in manifest["figures"]
-    ]
+    figures = []
+    for entry in manifest["figures"]:
+        reused = _reuse(entry, root, run_root) if _reuse is not None else None
+        figures.append(
+            reused
+            if reused is not None
+            else _audit_one(entry, root, run_root, fail_on_warning=fail_on_warning, timeout=timeout)
+        )
     for figure in figures:
         for item in figure["outputs"]:
             item["path"] = (run_root.relative_to(destination) / item["path"]).as_posix()
@@ -478,6 +490,10 @@ def audit(
             for key in ("passed", "failed", "incomplete")
         },
         "comparison": None,
+        "execution_counts": {
+            mode: sum(f["execution"]["mode"] == mode for f in figures)
+            for mode in ("executed", "reused", "not_run")
+        },
         "policy": {
             "strict": True,
             "fail_on_warning": fail_on_warning,
@@ -521,6 +537,9 @@ def audit(
         "# Figure audit",
         "",
         f"Status: **{status}**. Process exit: {result['exit_code']}.",
+        "Figure executions: "
+        + ", ".join(f"{count} {mode}" for mode, count in result["execution_counts"].items())
+        + ". Reused reports retain their original execution provenance.",
         "",
         "| Figure | Status | Errors and warnings |",
         "| --- | --- | --- |",

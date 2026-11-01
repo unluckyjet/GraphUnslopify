@@ -141,6 +141,39 @@
                 }
               }
             }
+          },
+          "execution": {
+            "type": "object",
+            "required": [
+              "mode"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "executed",
+                  "reused",
+                  "not_run"
+                ]
+              },
+              "origin_event": {
+                "type": "string",
+                "pattern": "^[0-9]{8}-[a-f0-9]{32}$"
+              },
+              "source_event": {
+                "type": "string",
+                "pattern": "^[0-9]{8}-[a-f0-9]{32}$"
+              },
+              "original_report_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "scope": {
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -251,6 +284,29 @@
           ]
         }
       }
+    },
+    "execution_counts": {
+      "type": "object",
+      "required": [
+        "executed",
+        "reused",
+        "not_run"
+      ],
+      "properties": {
+        "executed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reused": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "not_run": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

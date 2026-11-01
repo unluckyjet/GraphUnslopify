@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "public-workspace-comparison-v1",
+  "frozen_at_utc": "2026-11-01T12:46:15.605648+00:00",
+  "previous_accepted_source": "f15f1578ec5d330fdc611f19bb4050e8bbd8571b",
+  "scope": "Prospective developer-controlled operational comparison and real scripted GUI conformance on two previously used public datasets. Not held-out, human authoring productivity, independent researcher judgment, blinded visual ratings, or a claim that either arm must win.",
+  "prerequisite": "This protocol must be publicly committed/CI accepted. Both producers, controllers and the evaluator must then be implemented, untimed parity-checked and separately Git/CI sealed before formal timing. No formal timing is permitted by protocol preparation alone. Finish candidate UI fixes before the implementation seal. Record all exact code/resource/env hashes.",
+  "datasets": [
+    {
+      "id": "penguins",
+      "notice": "benchmarks/papers/NOTICE.md",
+      "source_manifest": "benchmarks/papers/sources.json",
+      "source_rows": 344,
+      "descriptive_mass_rows": 333,
+      "finite_scatter_pairs": 342
+    },
+    {
+      "id": "iris",
+      "notice": "benchmarks/papers/NOTICE.md",
+      "source_manifest": "benchmarks/papers/sources.json",
+      "source_rows": 150,
+      "long_rows": 600,
+      "plants_per_species_measurement": 50
+    }
+  ],
+  "views": "Sex-complete penguins is an explicit333-row subset; singleton control takes one real row per species/sex. Iris mm explicitly multiplies each four cm measurements by10 with Decimal; no new observations. Original UCI files, including their documented differences, remain unchanged. SD describes observed spread, not population confidence or causal inference.",
+  "arms": [
+    "matplotlib-plus-validation",
+    "graphunslopify"
+  ],
+  "baseline_contract": {
+    "numerics": "Separately authored csv/statistics or equivalent direct numerical calculations; no GraphUnslopify-generated drawing/statistics/claims code. Match frozen independent Decimal ground truth and actual artists, counts, group/order/units/SD ddof1. The earlier papers reference is a starting reference, not the complete benchmark baseline.",
+    "strength": "Use normal Matplotlib artist/layout APIs, typed reusable functions, warmed processes, safe content-keyed calculation caches and safe incremental paper updates. Never handicap the baseline by requiring unnecessary rerender/recomputation. Shared inspect_figure is allowed as the same legibility gate, explicitly disclosed; scientific calculations/claims remain independently implemented.",
+    "artifacts": "Match requested PNG/SVG/PDF or declared PNG-only outputs, physical width/DPI, required literal labels/units/legend, usable readable layout, numerical/claim report and data/program/environment manifests. Keep immutable source-bound history, failed evidence, current-output integrity and honest reuse ancestry in both arms.",
+    "paper_reuse": "Both may reuse intact accepted unchanged figures with complete data/intent/policy/producer/environment keys. Never reuse acceptance after a failed latest whole-paper run or membership change. Inspect current evidence; retain original sources for reused reports. Recheck claims/geometry/exports for every executed figure; never cache acceptance as a calculation."
+  },
+  "gates": {
+    "strict": true,
+    "fail_on_warning": false,
+    "numeric_rel_tolerance": 1e-10,
+    "numeric_abs_tolerance": 1e-10,
+    "sd_ddof": 1,
+    "width_in": {
+      "single_column": 3.4,
+      "double_column": 7.0
+    },
+    "width_tolerance_in": 0.02,
+    "minimum_effective_font_pt": 6,
+    "data_and_code_hashes": "Actual bytes, not normalized expected strings.",
+    "quality": "Same scientific, physical/export, required-text and legibility checks. Warnings remain reported. Review PNG144 is not called a publication600 output. Do not infer task correctness from the product's status alone; independent task/artist/unit/label gates also apply."
+  },
+  "actor_setup": "One familiarized scripted operational actor; same frozen requests/artifacts. All producer/operator code prepared before formal clocks; its authoring cost is unmeasured and excluded for both arms. No human productivity claim. Record dependency/install and fixture preparation separately; no hidden arm-specific setup. No model/provider is configured for quality evaluation; no mock output counts as a real model result.",
+  "clocks": {
+    "clock": "Same-host perf_counter_ns wall intervals plus UTC/source/env binding.",
+    "startup": "Each fresh arm process from launch through imports/readiness; report separately and include in cold end-to-end. Include owned child startup, handshake and cleanup separately; do not pool with warm requests.",
+    "first_image": "Only an actual owned current-request PNG availability event; mark unverified until all task/scientific/export gates finish. Never infer from a timer, earlier image or final report. Record unavailable with reason if genuinely unexposed.",
+    "terminal": "Outer request dispatch through final outputs/report and independent task gates. Record first tool acceptance separately from first task-correct strict acceptance; failed/incomplete requests have terminal times and no verified time.",
+    "warm": "Same live process/session; all seven ordinary changes retained. Do not exclude a slow first operation as a warmup.",
+    "isolation": "No other benchmarks, test suites, artifact downloads, CI/vault work or producer edits during formal timing. Every interruption is retained and invalidates a clean timing interpretation rather than being silently replaced."
+  },
+  "single_pipeline": {
+    "figures": [
+      "penguins-mass",
+      "iris-measurements",
+      "penguins-scatter",
+      "iris-scatter"
+    ],
+    "sessions_per_arm_figure": 3,
+    "steps": [
+      "first",
+      "title",
+      "y-label",
+      "single-column",
+      "review-png",
+      "paper-double",
+      "filter",
+      "restore"
+    ],
+    "requests": 192,
+    "order": "In each figure/session run the complete8-request sequence for one arm then the other. Arm order alternates by (figure_index+session_index) parity, fixed figure order as listed. No concurrent arms. Retain24 cold first requests and168 warm operations separately."
+  },
+  "paper": {
+    "figures": [
+      "penguins-mass",
+      "iris-measurements",
+      "penguins-scatter",
+      "iris-scatter"
+    ],
+    "binding_overrides": {
+      "penguins-mass": {
+        "data": "shared-inputs/penguins.csv"
+      },
+      "penguins-scatter": {
+        "data": "shared-inputs/penguins.csv"
+      }
+    },
+    "shared_data_scope": "Both Penguin figures bind the same owned clone of the original344-row CSV. Mass keeps its female/male filter, retaining333 observations. Do not bind its separate GUI sex-complete view for this paper track; CRLF reencoding must affect both Penguin figures.",
+    "sessions_per_arm": 3,
+    "requests": 54,
+    "steps": [
+      {
+        "id": "first",
+        "operation": "Full four-figure audit",
+        "expected_executed": 4,
+        "expected_reused": 0,
+        "exit_code": 0
+      },
+      {
+        "id": "unchanged",
+        "operation": "Regenerate unchanged paper",
+        "expected_executed": 0,
+        "expected_reused": 4,
+        "exit_code": 0
+      },
+      {
+        "id": "title",
+        "operation": "Change penguins-mass title only",
+        "expected_executed": 1,
+        "expected_reused": 3,
+        "exit_code": 0
+      },
+      {
+        "id": "selected-output",
+        "operation": "Select first two figures; review/apply300 DPI, retaining formats and science",
+        "expected_executed": 2,
+        "expected_reused": 2,
+        "exit_code": 0
+      },
+      {
+        "id": "reencoded-data",
+        "operation": "Rewrite owned penguin CSV with CRLF, same parsed observations; changed input bytes affect both penguin figures",
+        "expected_executed": 2,
+        "expected_reused": 2,
+        "exit_code": 0
+      },
+      {
+        "id": "false-claim",
+        "operation": "Change penguin-mass comparison to female above male",
+        "expected_executed": 1,
+        "expected_reused": 3,
+        "exit_code": 2
+      },
+      {
+        "id": "recover",
+        "operation": "Restore supported claim; latest failed run prevents old acceptance reuse",
+        "expected_executed": 4,
+        "expected_reused": 0,
+        "exit_code": 0
+      },
+      {
+        "id": "add-alias",
+        "operation": "Add fifth figure alias of penguins-mass; membership requires full audit",
+        "expected_executed": 5,
+        "expected_reused": 0,
+        "exit_code": 0
+      },
+      {
+        "id": "remove-alias",
+        "operation": "Remove alias; full four-figure membership audit",
+        "expected_executed": 4,
+        "expected_reused": 0,
+        "exit_code": 0
+      }
+    ],
+    "order": "Alternate arm order by session parity. Review/proposal/save/validation/history costs belong to each arm; do not compare a raw savefig call with a whole-paper audit."
+  },
+  "reliability": {
+    "repeats_per_arm_case": 2,
+    "controls": 48,
+    "clean": [
+      "penguins-mass",
+      "iris-measurements",
+      "penguins-scatter",
+      "iris-scatter"
+    ],
+    "science_faults": [
+      {
+        "id": "penguins-mass-false-claim",
+        "expected_status": "failed",
+        "exit_code": 2
+      },
+      {
+        "id": "iris-measurements-false-claim",
+        "expected_status": "failed",
+        "exit_code": 2
+      },
+      {
+        "id": "penguins-absent-reference",
+        "expected_status": "incomplete",
+        "exit_code": 2
+      },
+      {
+        "id": "penguins-singleton-sd",
+        "expected_status": "incomplete",
+        "exit_code": 2
+      }
+    ],
+    "integrity_faults": [
+      "change-saved-png-bytes",
+      "change-saved-report-bytes",
+      "reencode-data-after-acceptance",
+      "append-comment-to-owned-recorded-producer-after-acceptance"
+    ],
+    "fault_scope": "Eight deliberate faults and four clean controls, all source-preserving clones. Not errors alleged in the papers. Integrity faults test borrowing old acceptance; distinguish unavailable/current-audit-needed from scientific failure. Match the relevant signal, not just any warning. Count all12 cases/two repeats in denominators; missed detections and false alarms remain results."
+  },
+  "reproduction": {
+    "figures": [
+      "penguins-mass",
+      "iris-measurements",
+      "penguins-scatter",
+      "iris-scatter"
+    ],
+    "arms": 2,
+    "repeats": 2,
+    "local_profiles": [
+      "checkout-current3.12",
+      "checkout-minimum3.10",
+      "fresh-wheel3.12",
+      "standalone-bundle-no-installed-graphunslopify3.12"
+    ],
+    "local_replays": 64,
+    "native_ci_profiles": [
+      "ubuntu3.10",
+      "ubuntu3.12",
+      "windows3.12",
+      "macos3.12"
+    ],
+    "native_ci_replays": 64,
+    "checks": "Actual scientific/artist/unit/physical/export/source binding in every relevant environment. Compare decoded PNGs only within the same arm/pinned environment; no cross-renderer or cross-version pixel equality claim. Cross-machine denominator is these four observed CI configurations, not general installations."
+  },
+  "gui": {
+    "tasks": [
+      "penguins-mass-first",
+      "iris-measurements-first",
+      "penguins-scatter-first",
+      "iris-scatter-first",
+      "direct-owned-title-and-y-label",
+      "review-three-export-presets",
+      "save-template-retarget-iris-cm-to-mm-map-fields-review-and-correct-units"
+    ],
+    "profiles": [
+      "source-current",
+      "fresh-wheel"
+    ],
+    "runs": 14,
+    "actor": "Actual browser/manual controls and file drops only, no direct JSON/hidden state or success-response mocking. No first-time-human timing claim. Source/fresh desktop/mobile/keyboard, real strict failures and current exports must remain distinct. Prepared data/typed actions are disclosed. Preserve all failed attempts and report required JSON edits rather than hiding them."
+  },
+  "analysis": "Retain every raw row. Report attempt/completion/accepted/failed counts, paired per-task medians and IQR, cold startup/first-image/final task-correct time, warm operation and whole-paper update time, actual executions/reuse, all reliability confusion-matrix cells and reproduction denominators. Show slower/failed/partial cases. Do not average incompatible phases or treat missing verified time as zero. No timing threshold, favorable-result stopping or post-outcome task/order/gate tuning.",
+  "unavailable_judgments": [
+    "independent researcher/first-use human authoring benefit",
+    "blinded visual-quality/adoption scores",
+    "general natural-language model quality/provider latency"
+  ],
+  "historical_evidence": "Original NIST e310 lineage/v1/v2 protocols, source data and four-episode familiarized-agent study are immutable. Their known earlier results informed this workload; do not replace them, relabel them independent, merge their clocks, or fabricate adoption.",
+  "release": "No new release/tag authorized. Published0.8.0 remains distinct from the later tested source candidate.",
+  "frozen_assets": {
+    "benchmarks/papers/sources.json": "274315bdc5ff7df8f5f79b72e99eb8b08e27d0317ee2aa287a7827883f11fcd5",
+    "benchmarks/papers/NOTICE.md": "3e6779218ca491e5255014f349482632b4b9a596c1d2fe8ca6be0588c3bf5055",
+    "benchmarks/papers/sources/penguins.csv": "f204db2c753b0937caac3cb35258562c14f073e4bbc76be24b4c51ce22767a93",
+    "benchmarks/papers/sources/bezdekIris.data": "0fed2a99db77ec533a62dc66894d3ec6df3b58b6a8f3cf4a6b47e4086b7f97dc",
+    "benchmarks/papers/sources/iris.data": "6f608b71a7317216319b4d27b4d9bc84e6abd734eda7872b71a458569e2656c0",
+    "examples/published-papers/data/iris.csv": "09d1766be79ec606b4c045059bc4b0d3e6a693b61d1cdfc6bdd45af42531df65",
+    "examples/published-papers/data/iris-long.csv": "5c2d683a46ce8c10590557263a01cdb8d16a148250e16a0c182431bf7eb09296",
+    "benchmarks/papers/reference.py": "767a1c52db09679c03fa0d26eb56ba0af3ddd53ee3983f0461d5304648a53321",
+    "benchmarks/certified/protocol.json": "e310662aece5ac6d92f5fb4419ed8d222a16949a5175b09e69c78f8836a3e5b3",
+    "benchmarks/certified/protocol-v1.json": "acbce4beaa37f538cde404f137a5e8c7400bf4d4af136d38bf5db1edb0c5ed27",
+    "benchmarks/certified/corpus.py": "65c38a0ed69d9f6d7315c0d85a4dd3a135039f0a1fb43e8a2cd2293debff7589",
+    "benchmarks/certified/measurement.py": "34bf8568c9acad68e423057df6ab8f11b747465997e0bfd57e04a3503523b209",
+    "benchmarks/authoring/protocol.json": "303b8e4395357ec976ec790532ceb052794a856405ef6bbfc2b8c8c713dc979f",
+    "benchmarks/authoring/session.py": "d42773a5df7e907d4dc5611eb1ebcb530baa25954fd1895e16031ea3e8900afe",
+    "benchmarks/certified/development-sessions.jsonl": "490eeaa004fd34f552c1c19037456215b5cbd6ababf19942ae077a9cca6737bd",
+    "benchmarks/certified/results/report.json": "60d1e1dfb1bb000243f88c5ff7ae068aea29cb7b9b07e932b2e2cf3383a42b56",
+    "scripts/prepare-workspace-protocol.py": "d0762a8b32b5ad6c1026a4027b95f548aac1c4aabff9e962a88685e45ae991b1",
+    "scripts/check-workspace-protocol.py": "d3cce07c1a70236804435f544f0afad41dce214c8772223311b11d4e10eda579",
+    "benchmarks/workspace/corpus.py": "ef990596bc9513470746aeda155fbe8eeef97f6dde5fb05c9f3f391e438324a2",
+    "benchmarks/workspace/README.md": "b577dd04efd2993eb016fe13a9357810006456134c8f40224f91445d62f0a5a0",
+    "benchmarks/workspace/inputs/iris-mm.csv": "7c9d8ad760a3c9622f09d131ce0cfc2cb88f03aaa331c2de2546df2fc2180815",
+    "benchmarks/workspace/inputs/penguins-sex-complete.csv": "b6e7326492ab7e844cabed4e243be2bb4c5af927a9c2e48521324ed050f80fe1",
+    "benchmarks/workspace/inputs/penguins-singleton-sd.csv": "c4ae5120fff9fbbdf275e1d0b97aebe8fe96ded8dba67a206d548e1ecdcf7d8c",
+    "benchmarks/workspace/figures/iris-measurements-false-claim.json": "a952df3aba7a9bf304328f2688a9aa7e6550949c977d8b5d6eb826596e668c24",
+    "benchmarks/workspace/figures/iris-measurements.json": "6e31a738b92bb236e447cea6b1a7390718788836b35b0a4ada4f992486c3b299",
+    "benchmarks/workspace/figures/iris-scatter-mm.json": "52fc7205fd3fb6cab84d4ff5005624cd572ac24152f14902217db0ac209db2ce",
+    "benchmarks/workspace/figures/iris-scatter.json": "d3b4da792cb7b17d05481780bc1bad957e10cc11733f5139623efbd1ae244612",
+    "benchmarks/workspace/figures/penguins-absent-reference.json": "512c7a905aac142a4be70bf374bb10f9595a4da52335bf0986aa683fe00d1815",
+    "benchmarks/workspace/figures/penguins-mass-false-claim.json": "b480429d3d5f841240a210019e656d7c5cf2c0ee942e1020d5b82bab588b3bf3",
+    "benchmarks/workspace/figures/penguins-mass.json": "4ddca20d8bd5d87b60484043e15d5b5f39f0fc661dae49eb244646460a2d0e34",
+    "benchmarks/workspace/figures/penguins-scatter.json": "962c5fbbae3c2dcc87e60dcfe1af6cef7053362578b59982eac2152c22a7e119",
+    "benchmarks/workspace/figures/penguins-singleton-sd.json": "3c769f3c236dbed1861e311c800658bf030b7b44ff08b29de814608e09fe52a8",
+    "benchmarks/workspace/ground-truth.json": "dd1d73a3af459ca3be575bf6ff3df116760b1494fa31d63fcc5b4e1b1c92bca9",
+    "benchmarks/authoring/producers/round1-graphunslopify.py": "aa88299ca5df5bc8a91af3d1acdcab2d099dfd0d0e4c737fa2710e7fbdc5bc23",
+    "benchmarks/authoring/producers/round1-matplotlib.py": "118579803d37b702ea41fb49ebef91fd1f1123deee29f9c5b9940c46aa525cfe",
+    "benchmarks/authoring/producers/round2-graphunslopify.py": "529aaaf2a6b2d288fe012629a05f69466efe952040cfc848abed5032a1274581",
+    "benchmarks/authoring/producers/round2-matplotlib.py": "89a5f8244fc34d247a07f17c90952771fcd2c2637bbfeda5c589808eb3b604f6"
+  }
+}

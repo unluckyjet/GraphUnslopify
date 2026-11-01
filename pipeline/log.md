@@ -221,3 +221,7 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-11-01 88a accepted349a830: all nine main41285015048/Figure41285014937; actual four package and21-workflow browser artifacts verified. Full88–89 remains.
 
 2026-11-01 88b local implementation complete: selected presentation review/undo preserves sources; seven/gallery/Ruff182/232 Node/2070 Python/zero skips,source/fresh127 workflows each,minimum30,75 resources and installed HTTP/selected packets pass on869 frozen paths. New exact CI is required after push;88 templates/presets and89 remain.
+
+2026-11-01 —88/full88 landed f15f157: exact main41301926400 all nine/Figure41301926384 accepted12:13:11UTC; actual four-platform package and browser/native archives verified.89 protocol/implementation/measurement/delivery remains.
+
+2026-11-01 —89a protocol local milestone:37 frozen assets/37 independently checked numerical cases; five integrity controls current/minimum/fresh,32 actual canonical positive validations. All seven checks, complete CI Ruff190,235 Node/2091 Python/zero skips/one upstream warning and15 gallery cases pass on895 unchanged protected files.52 README graphics retained. Exact new CI pending; full implementations/seal, formal measurements and delivery audit remain.

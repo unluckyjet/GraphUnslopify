@@ -668,3 +668,5 @@ Current source also provides [command search and keyboard shortcuts](docs/worksp
 Current source supports [reviewed presentation edits across selected figures](docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.
 
 Both local workspaces also offer [portable figure templates and export presets](docs/workspace/intent-reuse.md). Save a design as a file, map its fields onto another dataset, review the changes, and apply it with undo. Presets prepare single-column or double-column PNG/SVG/PDF figures, or a smaller PNG for review. Current data, palette and output names stay bound to the editor; checks run again.
+
+The [public-workflow comparison protocol](benchmarks/workspace/README.md) freezes the next evaluation’s tasks and validation rules. Its implementation and measurements are still pending; it is not a new speed or researcher-adoption result.

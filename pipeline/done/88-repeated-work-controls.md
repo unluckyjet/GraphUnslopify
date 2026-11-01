@@ -1,7 +1,7 @@
 ---
 id: 88
 slug: repeated-work-controls
-status: in_progress
+status: done
 priority: P1
 title: Add shortcuts search templates selection and publication presets
 source_idea: User visual-workspace advice keyboard shortcuts command search multi-select reusable templates and export presets
@@ -106,3 +106,17 @@ passes. A retained source export Loading startup stall and prior installed stall
 remain unexplained; replay and preserved-fixture cold boot pass. All52 README
 graphics stay unchanged. Push and exact all-nine/Figure acceptance remain.
 See [workflow](../../docs/workspace/intent-reuse.md).
+
+
+Full88 accepted2026-11-01 asf15f1578ec5d330fdc611f19bb4050e8bbd8571b.
+Exact all-nine main41301926400/Figure41301926384 re-observed12:13:11UTC;
+all ten expected check names and source bindings match. All four actual CI
+package archives match77 Git/wheel/sdist resources; new installed HTTP results
+match raw logs and all eight actual native audits. Actual portable CI artifact
+13082167897 passes14 browser workflows/30 native cases/28 physically remapped CSV
+cases/all21 kinds, with real scientific strict2 and measured PNG geometry/DPI.
+Current selected and command artifacts independently retain their native exports,
+original reused reports and failures. Local index/commit match876 protected files;
+local seven/gallery/full Ruff185/235 Node/2086 Python/zero skips pass.52 README
+graphics remain unchanged. Source export startup replay and prior installed Loading
+stall remain explicit unknown-cause limitations for89. No release or human claim.

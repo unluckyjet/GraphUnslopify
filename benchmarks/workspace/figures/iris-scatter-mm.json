@@ -1,0 +1,31 @@
+{
+  "kind": "scatter",
+  "title": "Iris petal measurements",
+  "data": {
+    "path": "../inputs/iris-mm.csv"
+  },
+  "x": {
+    "field": "petal_length_mm",
+    "label": "Petal length",
+    "unit": "mm"
+  },
+  "y": {
+    "field": "petal_width_mm",
+    "label": "Petal width",
+    "unit": "mm"
+  },
+  "group": "species",
+  "legend": {
+    "position": "outside_bottom"
+  },
+  "output": {
+    "stem": "figure",
+    "formats": [
+      "png",
+      "svg",
+      "pdf"
+    ],
+    "size": "double_column",
+    "dpi": 600
+  }
+}

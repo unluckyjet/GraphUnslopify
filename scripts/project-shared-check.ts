@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, readdirSync, renameSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, relative } from "node:path";
 import { createInterface } from "node:readline";
@@ -121,14 +121,22 @@ try {
   await draft(shared);await page.locator("#save-shared").click();await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("held review failure"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);await page.unroute("**/api/shared-review");await page.locator("#discard-shared").click();
   workflows.push("failed proposal transport exposes no reusable Apply action");
   const unsafe = "<img src=x onerror=alert(1)>.json";writeFileSync(join(paper, unsafe), '{}');await review({ palette_lock: unsafe });
-  assert.ok((await page.locator("#shared-review-rows").innerText()).includes(unsafe));assert.equal(await page.locator("#shared-review-rows img").count(), 0);await page.locator("#cancel-shared-review").click();await page.locator("#discard-shared").click();
+  assert.ok((await page.locator("#shared-review-rows").innerText()).includes(unsafe));assert.equal(await page.locator("#shared-review-rows img").count(), 0);
+  await page.locator("#shared-review").screenshot({ path: join(evidence, "literal-shared-value.png") });
+  const literalFixture = { original_display_name: unsafe, archived_file: "literal-palette-fixture.json", sha256: hash(readFileSync(join(paper, unsafe))), rendered_as_text_without_markup: true };
+  await page.locator("#cancel-shared-review").click();await page.locator("#discard-shared").click();
+  // Retain the real fixture after its negative test, using an NTFS-safe archive
+  // name. The original value and bytes remain explicit in the verification.
+  renameSync(join(paper, unsafe), join(paper, literalFixture.archived_file));
   workflows.push("untrusted shared values render as text without executable markup");
   await page.locator("#shared-undo-event").selectOption(undoID);await page.locator("#review-shared-undo").click();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);
   assert.equal(await page.locator("#audit").isDisabled(), true);await page.locator("#cancel-shared-review").click();assert.equal(await page.locator("#audit").isDisabled(), false);
   workflows.push("closing an undo preview restores actions without modifying settings or history");
   assert.equal(hash(readFileSync(join(paper, "results.csv"))), hash(data));assert.deepEqual(Object.fromEntries(Object.keys(originals).map(n => [n, hash(readFileSync(join(paper, n)))])), originals);assert.deepEqual(inventory(initial.directory), firstHistory);
   assert.equal(hash(readFileSync(config)), hash(originalConfig));assert.deepEqual(errors, []);assert.deepEqual(external, []);
-  const report = { status: "passed", workflows, original_data_definitions_and_first_history_unchanged: true, raw_config_restored: true, page_errors: errors, external_requests: external, final_state: await api("/api/state"), evidence };
+  const artifactPaths = Object.keys(inventory(evidence));
+  assert.deepEqual(artifactPaths.filter(name => /[":<>|*?\r\n]/.test(name)), [], "GitHub artifact names must be portable across file systems");
+  const report = { status: "passed", workflows, original_data_definitions_and_first_history_unchanged: true, raw_config_restored: true, literal_value_fixture: literalFixture, artifact_paths_portable: true, page_errors: errors, external_requests: external, final_state: await api("/api/state"), evidence };
   writeFileSync(join(evidence, "verification.json"), JSON.stringify(report, null, 2));console.log(JSON.stringify(report));
 } catch (problem) { await currentPage?.screenshot({ path: join(evidence, "failure.png"), fullPage: true }).catch(() => {});console.error(JSON.stringify({ evidence, error: String(problem) }));throw problem; }
 finally { await browser?.close();server.kill();lines.close(); }

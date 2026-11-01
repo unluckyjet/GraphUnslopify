@@ -204,7 +204,7 @@ retained in Obsidian; all68 resources matched source/wheel/sdist on each platfor
 
 ## 87d — reviewed paper-wide changes and guarded undo
 
-Current working tree builds on the existing revision-guarded shared setter.
+Pushed cd0a5ef builds on the existing revision-guarded shared setter.
 The browser/CLI/API review actual resolved before/after settings per native
 figure, disclose authored-script manual review and exclude source-free PDFs.
 Apply rederives the proposal and binds owner, current/candidate inputs, full
@@ -222,3 +222,20 @@ strict native exports, exact undo, conflicts, held responses,503 recovery and
 HTML-as-text are exercised. Fresh70-resource package equality and actual installed HTTP/undo/PDF recipe pass. Final attempt2 seven/gallery checks on854 paths,
 An initial full-gate attempt was stopped after legacy browser checks exposed transport-state redraw; the central unavailable-state guard is repaired, and the further real held-reload regression now passes on source and fresh installations. Final all seven/gallery/Ruff173/232 Node/2003 Python/zero skips/one upstream warning pass on854 unchanged paths; Git/push/exact CI remain pending. Full87 selective regeneration and consolidated
 auditable export, and entire88–89 remain required. No new release or human claim.
+
+
+### 87d CI evidence portability correction
+
+Main41257824564 completed the actual browser checks but its render job failed
+only at actions/upload-artifact: the owned synthetic `<img …>.json` palette
+fixture contained forbidden portable-path characters. Preserve the actual literal
+value/assertion and screenshot; after that negative test, retain the fixture bytes
+as `literal-palette-fixture.json` with an original-name/SHA mapping. The driver
+now checks the entire evidence tree for forbidden characters before success.
+This changes verification evidence naming only; all70 production package resources
+remain identical. Source/fresh15 shared workflows each pass. Corrective all
+seven/gallery/Ruff173/232 Node/2003 Python/zero skips/one upstream warning pass
+on854 unchanged paths. The actual29-entry local evidence archive retains both
+browser reports/screenshots, fixture-byte mappings, the prior CI failure and
+frozen gate receipts. A separate push and exact all-nine/Figure acceptance
+remain required.

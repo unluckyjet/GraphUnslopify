@@ -51,6 +51,9 @@ def source_snapshot():
     )
     names.add(".github/workflows/checks.yml")
     names.add(".github/workflows/workspace-native-reproduction.yml")
+    names.update(
+        ("scripts/workspace-gui-check.ts", "package.json", "package-lock.json")
+    )
     return {
         n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in sorted(names)
     }

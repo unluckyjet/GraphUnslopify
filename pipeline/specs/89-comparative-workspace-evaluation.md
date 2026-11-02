@@ -365,3 +365,33 @@ Current/minimum focused10 pass, final four identity/preflight tests pass; initia
 and final-source local64/32 PNG repeat pairs pass,0 execution/contract errors. Full gates/
 Git push/exact all-nine/Figure plus four new native jobs remain. Formal64 is0,
 complete formal mode/GUI/seal/all fixed tracks/full audit remain unfinished.
+
+##89d7 —real browser task controller, original saves and independent acceptance
+
+Implement the registered seven public-data tasks against source/fresh HTTP
+editors with actual file inputs, recipe/settings controls, owned text targets,
+reviewed exports and a downloaded/remapped cm→mm template. Keep all typed actions,
+real replies, failed/unsupported intent and original screenshots/downloads.
+No Advanced JSON fill, hidden authoring mutation, success mocks or check holds.
+Bind the existing original-save observer before HTTP startup; do not rerender
+for the independent evaluator. Guard actual source/installed package locations,
+source/SDK bytes, process closure, all seven tasks and their original phases/current bundle exports.
+
+Current-source/fresh preparation each completes7 controls/14 native responses;
+desktop/mobile and Tab/Space review paths pass. Current/minimum real HTTP parity
+and wrong-profile guards pass. Four real forgery controls and Python -O are
+refused. Preserve the original inherited-frontier/interval prototype; selecting
+an existing recipe and explicit settings through public controls removes that
+unrequested intent. The width failures/redundant filter limitation and wrong-unit
+intermediate rejection remain. No formal14 or other denominator is filled.
+Required full frozen gates and exact main/Figure/four-native CI precede the next
+milestone. Formal mode/full seal/all registered tracks/full audit remain open.
+
+Real final-pass startup failures also required a public server correction. Actual
+module connection resets leave controls empty; two concurrent64-load diagnostics
+with backlog5 complete56 each, whereas both backlog128 cohorts complete64/64.
+Set PreviewServer's queued connection capacity to128; a real queued-socket test
+rejects the old capacity without mirrored constant assertions. Retain original
+failures and separate diagnostic cohorts, without claiming a universal rate or
+retroactively assigning older unknown boot failures the same cause. Rebuild a
+private exact candidate and rerun all required checks; public0.8.0 is unchanged.

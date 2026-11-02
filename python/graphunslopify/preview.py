@@ -442,6 +442,8 @@ class PreviewState:
 class PreviewServer(ThreadingHTTPServer):
     # Complete bounded workers before removing the session directory.
     daemon_threads = False
+    # Browser module graphs open several connections together, including across tabs.
+    request_queue_size = 128
 
     def __init__(
         self,

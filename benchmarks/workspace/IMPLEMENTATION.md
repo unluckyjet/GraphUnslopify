@@ -414,3 +414,66 @@ No actual native positive CI rows yet: full local gates/push, exact all-nine/
 Figure and all four new native jobs are prerequisites. These are pre-seal
 controls, not formal64. Formal context/GUI/public seal/all fixed tracks and full
 78–89 audit remain; public0.8.0/37 frozen assets/77 SDK files remain unchanged.
+
+## Real public-data browser controls (89d7 preparation)
+
+`scripts/workspace-gui-check.ts` performs the seven frozen tasks using actual
+file inputs, recipes, settings, original figure-text targets, reviewed presets,
+local template downloads and field remapping. It never fills Advanced JSON,
+changes hidden authoring state, intercepts responses or holds scientific checks.
+The actor uses desktop/mobile layouts, real Tab/Space input and original bundles.
+Prepared datasets, typed actions and scripted setup are explicit; this is not
+first-use human authoring evidence.
+
+```sh
+PYTHON=/path/to/source-python npm run workspace-gui-check -- --out /tmp/new-source-gui
+PYTHON=/path/to/exact-installed-python npm run workspace-gui-check -- --installed --out /tmp/new-installed-gui
+```
+
+Install Playwright Chromium for Linux; the existing Chrome executable is used
+when available on macOS. The installed profile must load actual package bytes
+outside the checkout matching all current SDK files. An unavailable/wrong startup
+retains seven explicitly unstarted rows and the real error, with no invented UI.
+
+`gui_server.py` binds the existing observed native state to the real HTTP server
+before any browser connects. Original responses remain unchanged. The existing
+owned capture driver measures actual original saves and generated-program bytes;
+it never substitutes a second render. `check-workspace-gui.py` binds browser
+responses, actual uploads/program/exports, downloaded bundle contents, portable
+ownership, lifecycle and all planned phases, then uses the frozen independent
+oracle. Real HTTP parity controls prove unchanged native program and PNG pixels.
+
+Both current-source/fresh-install preparation complete seven control workflows
+and fourteen actual native responses each, with desktop/mobile captures and
+keyboard review. Independent acceptance remains separate: the existing tight-
+crop width failures persist, and the redundant Penguin sex filter still needs
+Advanced JSON. The template's mapped-but-cm intermediate is independently rejected
+before explicit mm correction. Task failures are retained, not counted verified.
+The first prototype's inherited recommendation frontier/wrong interval display
+are preserved; the corrected actor explicitly selects a public recipe and authors
+those settings through visible controls. No task gates were relaxed.
+
+Four actual artifact forgeries (missing reply, changed PNG, changed browser reply,
+changed bundle PNG with updated outer SHA) and optimized-Python refusal are
+rejected. All original bytes are restored after the controls. All these records
+remain pre-seal, `formal_comparison_performed=False`; they cannot fill the
+formal14 denominator. Complete formal execution mode, the public implementation
+seal, every fixed measured track and the full78–89 audit still remain.
+
+### Real browser startup correction
+
+Final preparation exposed empty controls before authoring. Read-only network
+capture recorded real module `ERR_CONNECTION_RESET` errors. Sequential32-page
+loads did not reproduce it; concurrent tests retained their actual results.
+Two64-load/eight-page-burst runs with the original backlog5 each completed56/64,
+with23 and18 module connection failures. Both backlog128 runs completed64/64
+without failures. The public loopback server now accepts128 queued connections;
+a real16-connection-before-accept regression fails with backlog5 and succeeds
+with the corrected server. No authentication or response policy changes.
+
+Failed source/fresh attempts, network traces and all earlier diagnostic cohorts
+are preserved. The partially completed full gate was intentionally interrupted
+for this source correction and is not counted successful. A newly built private
+wheel is installed into a separate dependency-pinned environment; the older
+candidate and public PyPI0.8.0 are preserved. Final required checks and real
+source/fresh browser tasks must rerun against these corrected bytes.

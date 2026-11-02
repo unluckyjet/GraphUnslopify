@@ -181,6 +181,8 @@ def validate_seal(seal, repo):
             or digest(git(repo, "show", revision + ":" + name)) != expected
         ):
             raise ValueError("Sealed implementation bytes differ: " + name)
+    qualification = runpy.run_path(str(repo / "benchmarks/workspace/qualification.py"))
+    qualification["validate_summary"](seal)
     return digest(canonical(seal))
 
 

@@ -55,6 +55,10 @@ def source_snapshot():
     names.update(
         ("scripts/workspace-gui-check.ts", "package.json", "package-lock.json")
     )
+    names.add("scripts/run-workspace-study.py")
+    names.update(
+        ("scripts/create-workspace-seal.py", "scripts/run-workspace-native-study.py")
+    )
     return {
         n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in sorted(names)
     }
@@ -380,7 +384,9 @@ def run_sequence(
         "rows": rows,
         "formal_comparison_performed": context["formal_comparison_performed"],
         "execution_context": EXECUTION["receipt"](context),
-        "scope": "Pre-seal live-session conformance only; no formal latency comparison",
+        "scope": "Qualified formal live session"
+        if context["formal_comparison_performed"]
+        else "Pre-seal live-session conformance only; no formal latency comparison",
         "session_error": None,
         "closure_error": None,
     }

@@ -3,6 +3,16 @@ name: Workspace native reproduction
 on:
   push:
   workflow_dispatch:
+    inputs:
+      study_mode:
+        description: Explicit preparation or qualified formal reproduction
+        type: choice
+        options: [preseal, formal]
+        default: preseal
+      seal_json:
+        description: Compact qualified seal JSON, required only for formal mode
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -38,8 +48,11 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -e "./python[dev,statistics]"
-      - name: Replay all registered native profile cases before the formal seal
-        run: python scripts/check-workspace-native-reproduction.py --profile ${{ matrix.profile }} --expected-sha ${{ github.sha }} --out "${{ runner.temp }}/gu-workspace-native-${{ matrix.profile }}"
+      - name: Replay registered native cases with explicit execution identity
+        env:
+          WORKSPACE_STUDY_MODE: ${{ inputs.study_mode || 'preseal' }}
+          WORKSPACE_STUDY_SEAL: ${{ inputs.seal_json || '' }}
+        run: python scripts/run-workspace-native-study.py --profile ${{ matrix.profile }} --expected-sha ${{ github.sha }} --out "${{ runner.temp }}/gu-workspace-native-${{ matrix.profile }}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

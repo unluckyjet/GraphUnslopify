@@ -217,7 +217,7 @@ def check(browser_file, output, *, execution_context=None):
         results.append(task)
     proof = {
         "profile": browser["profile"],
-        "scope": "Seven real GUI preparation tasks; actual original saves, controls, failures and downloads. No formal14 or human authoring claim.",
+        "scope": "Seven actual GUI tasks with original saves, controls, failures and downloads; explicit execution mode, no human authoring claim.",
         "formal_comparison_performed": context["formal_comparison_performed"],
         "execution_context": execution,
         "source_sha256": startup["source_sha256"],

@@ -65,7 +65,9 @@ def run_sequence(
         "rows": rows,
         "formal_comparison_performed": context["formal_comparison_performed"],
         "execution_context": EXECUTION["receipt"](context),
-        "scope": "Pre-seal isolated paper integrity only; not formal54 requests",
+        "scope": "Qualified formal isolated paper session"
+        if context["formal_comparison_performed"]
+        else "Pre-seal isolated paper integrity only; not formal54 requests",
         "session_error": None,
         "closure_error": None,
     }

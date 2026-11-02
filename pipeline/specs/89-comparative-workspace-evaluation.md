@@ -415,3 +415,30 @@ seal. Complete fixed controllers/native dispatch, seal qualification/creation,
 untimed full parity, all192/54/48/64/64/14 formal results and the full78–89 audit
 remain open. Run full frozen local gates, commit/push this coherent milestone,
 then require exact14 CI acceptance before the next implementation milestone.
+
+
+##89d9 — complete plans and prospective seal qualification (draft)
+
+Afterdf85f0b exact14 acceptance, add study_runner.py and actual CLI paths for
+all six complete fixed tracks. Preallocate every case/cell, preserve explicit
+execution identities, actual source/SDK/file closure and unavailable/interrupted
+attempts. Native workflow exposes preparation/formal dispatch using an environment
+value for seal JSON. Seal creation requires all actual complete untimed plans,
+four accepted native profiles, repeated PNG identity, exact14 CI and full Git
+closure. Byte/CI metadata alone cannot qualify incomplete implementation.
+
+Actual missing-seal refusal retains192 unstarted cells with no formal execution.
+Minimum3.10 focused tests25 pass/26.93s. Preserve preparation-wrapper path failure
+and source-change/interrupted attempt2 (48 retained,24 attempted). Original
+protocol,37 frozen assets and37 independent cases verify; current instructions
+are in [the separate implementation guide](../../docs/workspace/comparison-controller.md).
+All five local preparation tracks192/54/48/64/14 now complete with no evidence
+errors. Original-file rereads1516/2724/3369/3576/542 pass;64 actual PNG decodes
+verify32 same-environment pairs.12912-member original archive is fully verified
+(SHA1bbf1c52295ebe489665b9322af110d8229ec5da8ada225431e59b9e20ddb7f1).
+All ten frozen local gates pass on943 protected paths: actual CI Ruff233,
+235 Node/2155 Python/zero skips/one warning,15 strict gallery cases,all15
+baselines/16 renders/25 recipes/seven compositions. Python1272.60s; gate
+wrapper1274.87s. Publish this coherent checkpoint,then require exact14 before
+advancing. Actual native64,new exact14,qualified seal,formal measurements,
+analysis and78–89 delivery audit remain pending. No release/tag.

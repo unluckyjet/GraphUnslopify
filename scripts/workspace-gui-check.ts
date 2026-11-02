@@ -153,7 +153,7 @@ try{
 }finally{
   await browser?.close();child.stdin.end(JSON.stringify({operation:"close"})+"\n");
   const status=await exited;writeFileSync(join(output,"server-stderr.log"),stderr);
-  const result={profile:installed?"fresh-wheel":"source-current",startup,rows,page_errors:pageErrors,external_requests:external,server_exit_code:status,scope:"Seven real typed-control preparation tasks; no JSON mutation, mocks or formal study credit",formal_comparison_performed:execution.formal_comparison_performed,execution_context:execution};writeFileSync(join(output,"browser-results.json"),JSON.stringify(result,null,2)+"\n");
+  const result={profile:installed?"fresh-wheel":"source-current",startup,rows,page_errors:pageErrors,external_requests:external,server_exit_code:status,scope:"Seven actual typed-control tasks; explicit execution mode, no JSON mutation, mocks or human authoring claim",formal_comparison_performed:execution.formal_comparison_performed,execution_context:execution};writeFileSync(join(output,"browser-results.json"),JSON.stringify(result,null,2)+"\n");
   const verified=spawnSync(python,["scripts/check-workspace-gui.py","--browser-results",join(output,"browser-results.json"),"--out",join(output,"conformance.json"),...executionArgs],{env,encoding:"utf8"});
   process.stdout.write(verified.stdout||"");process.stderr.write(verified.stderr||"");process.exitCode=verified.status??1;
 }

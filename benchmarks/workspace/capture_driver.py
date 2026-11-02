@@ -91,7 +91,9 @@ def main():
             json.dumps(
                 {
                     "schema_version": 1,
-                    "scope": "Actual original native saves. Event timestamps are observation only; no formal latency inference before the complete implementation seal.",
+                    "scope": "Actual original native saves with qualified formal context"
+                    if context["formal_comparison_performed"]
+                    else "Actual original native saves. Event timestamps are observation only; no formal latency inference before the complete implementation seal.",
                     "program_sha256": hashlib.sha256(original_program).hexdigest(),
                     "measurement_source_sha256": hashlib.sha256(
                         measurement_path.read_bytes()

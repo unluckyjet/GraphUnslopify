@@ -281,7 +281,9 @@ def test_actual_git_byte_closure_cannot_be_resealed_around_changed_sdk(tmp_path)
         "source_sha256": sources,
         "package_sha256": package,
     }
-    assert CONTEXT["validate_seal"](seal, repo) == CONTEXT["digest"](CONTEXT["canonical"](seal))
+    # Correct Git/CI shape still lacks the complete prospective preparation qualification.
+    with pytest.raises(ValueError, match="prospective preparation qualification"):
+        CONTEXT["validate_seal"](seal, repo)
     omitted = copy.deepcopy(seal)
     omitted["source_sha256"].pop("benchmarks/workspace/execution_context.py")
     with pytest.raises(ValueError, match="closure"):

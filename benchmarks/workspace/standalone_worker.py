@@ -30,9 +30,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--manifest-sha256", required=True)
+    parser.add_argument("--execution-context", type=Path)
+    parser.add_argument("--execution-context-sha256")
     args = parser.parse_args()
+    execution_api = runpy.run_path(
+        str(Path(__file__).with_name("execution_context.py"))
+    )
+    context = execution_api["observer"](
+        args.execution_context, args.execution_context_sha256
+    )
+    execution = execution_api["receipt"](context)
     root = args.root.resolve()
-    proof = {"outcome": "execution_error", "formal_comparison_performed": False}
+    proof = {
+        "outcome": "execution_error",
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": execution,
+    }
     started = time.perf_counter_ns()
     native_exit = None
     try:
@@ -51,6 +64,8 @@ def main():
 
         check_owned()
         request = json.loads((root / "request.json").read_text(encoding="utf8"))
+        if request.get("execution_context") != execution:
+            raise ValueError("Standalone worker execution identity differs from parent")
         try:
             installed = importlib.metadata.version("graphunslopify")
         except importlib.metadata.PackageNotFoundError:
@@ -163,7 +178,8 @@ def main():
                 "producer_sha256": sha(original_program),
                 "environment": native["environment"],
                 "native_report_file": "native-stdout-report.json",
-                "formal_comparison_performed": False,
+                "formal_comparison_performed": context["formal_comparison_performed"],
+                "execution_context": execution,
             }
             runtime = target / "_graphunslopify/runtime/graphunslopify"
             folder = target
@@ -171,7 +187,11 @@ def main():
             runtime = root / "inspection-runtime/graphunslopify"
             sys.path.insert(0, str(runtime.parent))
             session = runpy.run_path(str(code / "matplotlib_producer.py"))["Session"](
-                root / "producer"
+                root / "producer",
+                execution_binding=(
+                    args.execution_context,
+                    args.execution_context_sha256,
+                ),
             )
             with (
                 (root / "native-stdout.json").open("x", encoding="utf8") as stdout,

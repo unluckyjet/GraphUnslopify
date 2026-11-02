@@ -14,10 +14,12 @@ const outputIndex=process.argv.indexOf("--out");
 assert.ok(outputIndex>=0&&process.argv[outputIndex+1],"--out NEW_DIRECTORY is required");
 const output=resolve(process.argv[outputIndex+1]!);
 mkdirSync(output,{recursive:false});
+const executionIndex=process.argv.indexOf("--execution-context");
+const executionArgs=executionIndex<0?[]:["--execution-context",resolve(process.argv[executionIndex+1]!)];
 const installed=process.argv.includes("--installed"),python=process.env.PYTHON||"python";
 const protocol=JSON.parse(readFileSync("benchmarks/workspace/protocol.json","utf8"));
 const env={...process.env};if(installed)delete env.PYTHONPATH;else env.PYTHONPATH=resolve("python");
-const child=spawn(python,["benchmarks/workspace/gui_server.py","--out",join(output,"server"),...(installed?["--installed"]:[])],{env,stdio:["pipe","pipe","pipe"]});
+const child=spawn(python,["benchmarks/workspace/gui_server.py","--out",join(output,"server"),...(installed?["--installed"]:[]),...executionArgs],{env,stdio:["pipe","pipe","pipe"]});
 let stderr="";child.stderr.on("data",chunk=>{stderr+=chunk;});
 const exited=new Promise<number|null>(accept=>child.once("exit",accept));
 const lines=createInterface({input:child.stdout});
@@ -33,6 +35,7 @@ const startup=await new Promise<any>((accept,reject)=>{
   lines.once("line",line=>{try{const value=JSON.parse(line);ready=true;clearTimeout(timer);accept(value);}catch(error){failed(error instanceof Error?error:Error(String(error)));}});
   child.once("error",failed);child.once("exit",code=>failed(Error(`GUI server exited ${code}: ${stderr}`)));
 });
+const execution=startup.execution_context;assert.ok(execution&&typeof execution.formal_comparison_performed==="boolean");
 const hash=(raw:Uint8Array)=>createHash("sha256").update(raw).digest("hex");
 const rows:any[]=[],pageErrors:string[]=[],external:string[]=[];
 let browser:Awaited<ReturnType<typeof chromium.launch>>|undefined;
@@ -98,7 +101,7 @@ try{
   const mac="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   browser=await chromium.launch({headless:true,...(existsSync(mac)?{executablePath:mac}:{})});
   for(const [index,task] of protocol.gui.tasks.entries()){
-    row={task,profile:installed?"fresh-wheel":"source-current",attempted:true,outcome:"not_run",actions:[],responses:[],proposals:[],downloads:[],required_json_edits:[],module_network_failures:[],error:null,formal_comparison_performed:false};rows.push(row);
+    row={task,profile:installed?"fresh-wheel":"source-current",attempted:true,outcome:"not_run",actions:[],responses:[],proposals:[],downloads:[],required_json_edits:[],module_network_failures:[],error:null,formal_comparison_performed:execution.formal_comparison_performed,execution_context:execution};rows.push(row);
     const page=await browser.newPage({viewport:index%2?{width:390,height:844}:{width:1440,height:1000},acceptDownloads:true});page.setDefaultTimeout(60_000);
     const taskRow=row;
     page.on("pageerror",error=>pageErrors.push(error.message));page.on("request",request=>{if(!/^(http:\/\/127\.0\.0\.1:|blob:|data:)/.test(request.url()))external.push(request.url());});
@@ -150,7 +153,7 @@ try{
 }finally{
   await browser?.close();child.stdin.end(JSON.stringify({operation:"close"})+"\n");
   const status=await exited;writeFileSync(join(output,"server-stderr.log"),stderr);
-  const result={profile:installed?"fresh-wheel":"source-current",startup,rows,page_errors:pageErrors,external_requests:external,server_exit_code:status,scope:"Seven real typed-control preparation tasks; no JSON mutation, mocks or formal study credit",formal_comparison_performed:false};writeFileSync(join(output,"browser-results.json"),JSON.stringify(result,null,2)+"\n");
-  const verified=spawnSync(python,["scripts/check-workspace-gui.py","--browser-results",join(output,"browser-results.json"),"--out",join(output,"conformance.json")],{env,encoding:"utf8"});
+  const result={profile:installed?"fresh-wheel":"source-current",startup,rows,page_errors:pageErrors,external_requests:external,server_exit_code:status,scope:"Seven real typed-control preparation tasks; no JSON mutation, mocks or formal study credit",formal_comparison_performed:execution.formal_comparison_performed,execution_context:execution};writeFileSync(join(output,"browser-results.json"),JSON.stringify(result,null,2)+"\n");
+  const verified=spawnSync(python,["scripts/check-workspace-gui.py","--browser-results",join(output,"browser-results.json"),"--out",join(output,"conformance.json"),...executionArgs],{env,encoding:"utf8"});
   process.stdout.write(verified.stdout||"");process.stderr.write(verified.stderr||"");process.exitCode=verified.status??1;
 }

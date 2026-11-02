@@ -12,12 +12,17 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 COMMON = runpy.run_path(str(HERE / "paper_common.py"))
 digest, encoded = COMMON["digest"], COMMON["encoded"]
 
 
 class Session:
-    def __init__(self, root):
+    def __init__(self, root, *, execution_context=None):
+        self.context = EXECUTION["load"](
+            execution_context, repo=HERE.parents[1], track="paper", arm="graphunslopify"
+        )
+        self.execution = EXECUTION["receipt"](self.context)
         from graphunslopify.project import initialize_project
 
         # Load the real reuse module before temporarily instrumenting audit._run;
@@ -31,6 +36,7 @@ class Session:
         code.mkdir()
         for name, source in {
             "paper_capture.py": HERE / "paper_capture.py",
+            "execution_context.py": HERE / "execution_context.py",
             "measurement.py": HERE / "measurement.py",
             "reference.py": HERE.parent / "papers/reference.py",
             "certified_measurement.py": HERE.parent / "certified/measurement.py",
@@ -63,6 +69,7 @@ class Session:
                 str(folder / "workspace-paper-saves.json"),
                 "--script",
                 str(script),
+                *EXECUTION["arguments"](self.context),
                 *command[2:],
             ]
             completed = original(observed, folder, timeout, on_start=on_start)
@@ -144,6 +151,10 @@ class Session:
                     encoding="utf8"
                 )
             )
+            if phase.get("execution_context") != self.execution:
+                raise ValueError(
+                    "Actual paper observer execution context differs from producer"
+                )
             for filename in ("workspace-paper-saves.json", "data.csv", "figure.py"):
                 path = observation_folder / filename
                 self.observation_receipts[path] = digest(path.read_bytes())
@@ -194,7 +205,10 @@ class Session:
                 "environment": report["environment"],
                 "paper_execution": row["execution"],
                 "observed_native_pid": phase["pid"],
-                "formal_comparison_performed": False,
+                "formal_comparison_performed": self.context[
+                    "formal_comparison_performed"
+                ],
+                "execution_context": self.execution,
             }
             results[identity] = {
                 "result": result,
@@ -210,7 +224,8 @@ class Session:
             "review": review,
             "results": results,
             "specs": specs,
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": self.context["formal_comparison_performed"],
+            "execution_context": self.execution,
         }
         self.records.append(answer)
         return answer

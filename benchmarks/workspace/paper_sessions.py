@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 RUNNER = runpy.run_path(str(HERE / "session_runner.py"))
 write, LiveSession = RUNNER["write"], RUNNER["LiveSession"]
 ROOT = HERE.parents[1]
+EXECUTION = RUNNER["EXECUTION"]
 
 
 def schedule():
@@ -28,8 +29,17 @@ def schedule():
     ]
 
 
-def run_sequence(arm, folder, *, python=sys.executable, installed=False, timeout=240):
+def run_sequence(
+    arm,
+    folder,
+    *,
+    python=sys.executable,
+    installed=False,
+    timeout=240,
+    execution_context=None,
+):
     """Preserve all nine planned cells after real startup/request/closure failures."""
+    context = EXECUTION["load"](execution_context, repo=ROOT, track="paper", arm=arm)
     folder = Path(folder).resolve()
     if folder.is_relative_to(ROOT) and not folder.is_relative_to(HERE / "results"):
         raise ValueError(
@@ -45,14 +55,16 @@ def run_sequence(arm, folder, *, python=sys.executable, installed=False, timeout
             "step": p["id"],
             "phase": "cold" if i == 0 else "warm",
             "outcome": "not_run",
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": context["formal_comparison_performed"],
+            "execution_context": EXECUTION["receipt"](context),
         }
         for i, p in enumerate(plan)
     ]
     result = {
         "arm": arm,
         "rows": rows,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": EXECUTION["receipt"](context),
         "scope": "Pre-seal isolated paper integrity only; not formal54 requests",
         "session_error": None,
         "closure_error": None,
@@ -66,6 +78,7 @@ def run_sequence(arm, folder, *, python=sys.executable, installed=False, timeout
             installed=installed,
             timeout=timeout,
             track="paper",
+            execution_context=execution_context,
         )
         result["startup"] = {
             "launched_ns": live.launched_ns,

@@ -26,11 +26,30 @@ def test_actual_paper_worker_full_sequence(tmp_path, arm):
         "matplotlib",
         "graphunslopify",
     ]
-    result = paper["run_sequence"](arm, tmp_path / arm)
+    context = tmp_path / "execution.json"
+    context.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "mode": "preseal",
+                "track": "paper",
+                "arm": arm,
+                "case": {"session": 0},
+            }
+        )
+    )
+    result = paper["run_sequence"](arm, tmp_path / arm, execution_context=context)
     assert not result["session_error"] and not result["closure_error"]
     assert result["startup"]["child_events_enabled"] is False
     assert not (tmp_path / arm / "live/native-started.jsonl").exists()
     rows = result["rows"]
+    execution = result["execution_context"]
+    assert result["closure"]["execution_context"] == execution
+    for row in rows:
+        assert row["execution_context"] == row["paper"]["execution_context"] == execution
+        for figure in row["paper"]["results"].values():
+            assert figure["result"]["execution_context"] == execution
+        assert all(v["execution_context"] == execution for v in row["evaluations"].values())
     assert len(rows) == 9 and all(r["outcome"] == "completed" for r in rows)
     pid = result["startup"]["pid"]
     assert pid != os.getpid() and {r["pid"] for r in rows} == {pid}

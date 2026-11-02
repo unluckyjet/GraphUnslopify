@@ -25,6 +25,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+EXECUTION = runpy.run_path(str(Path(__file__).with_name("execution_context.py")))
+
 _MEASUREMENT_SOURCE = Path(__file__).with_name("measurement.py")
 MEASUREMENT = runpy.run_path(str(_MEASUREMENT_SOURCE))
 _REFERENCE_SOURCE = MEASUREMENT["REFERENCE_SOURCE"]
@@ -115,8 +117,9 @@ def science(spec, summary):
     return status, findings
 
 
-def render(spec, base, output, cache=None, retain=None):
+def render(spec, base, output, cache=None, retain=None, execution=None):
     """Write a new owned result; reuse calculations, never an acceptance decision."""
+    execution = EXECUTION["preparation"]() if execution is None else execution
     from graphunslopify import inspect_figure
 
     if spec["kind"] not in {"bar", "scatter"}:
@@ -247,6 +250,8 @@ def render(spec, base, output, cache=None, retain=None):
             if not inspection.ok:
                 status = "failed"
             report = {
+                "execution_context": execution,
+                "formal_comparison_performed": execution["formal_comparison_performed"],
                 "status": status,
                 "exit_code": 0 if status == "passed" else 2,
                 "scientific_findings": findings,
@@ -292,7 +297,24 @@ def render(spec, base, output, cache=None, retain=None):
 class Session:
     """A warm calculation session whose executed producer sources are owned copies."""
 
-    def __init__(self, root, *, retain_figures=False):
+    def __init__(
+        self,
+        root,
+        *,
+        retain_figures=False,
+        execution_context=None,
+        execution_binding=None,
+    ):
+        self.context = EXECUTION["load"](
+            execution_context,
+            repo=Path(__file__).resolve().parents[2],
+            arm="matplotlib",
+        )
+        self.execution = (
+            EXECUTION["receipt"](self.context)
+            if execution_binding is None
+            else EXECUTION["receipt"](EXECUTION["observer"](*execution_binding))
+        )
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=False)
         code = self.root / "code"
@@ -300,6 +322,9 @@ class Session:
         self.program = code / "producer.py"
         self.reference = code / "reference.py"
         self.program.write_bytes(Path(__file__).read_bytes())
+        (code / "execution_context.py").write_bytes(
+            Path(__file__).with_name("execution_context.py").read_bytes()
+        )
         self.reference.write_bytes(_REFERENCE_SOURCE.read_bytes())
         (code / "measurement.py").write_bytes(_MEASUREMENT_SOURCE.read_bytes())
         (code / "certified_measurement.py").write_bytes(
@@ -334,6 +359,7 @@ class Session:
             (lambda figure: self.figures.update({name: figure}))
             if self.figures is not None
             else None,
+            self.execution,
         )
         folder = self.root / "runs" / name
         self.records[name] = {

@@ -477,3 +477,30 @@ for this source correction and is not counted successful. A newly built private
 wheel is installed into a separate dependency-pinned environment; the older
 candidate and public PyPI0.8.0 are preserved. Final required checks and real
 source/fresh browser tasks must rerun against these corrected bytes.
+
+## Explicit execution identity (89d8 implementation)
+
+`execution_context.py` supplies an explicit preparation/formal context contract.
+Ordinary checks remain preparation; an environment variable cannot enable formal
+mode. Explicit contexts bind registered track/arm/case identities. Formal loading
+also requires the original protocol, full implementation revision, complete
+runtime/SDK byte closure and all fourteen named checks/three successful workflows
+for that revision. These are trusted local evidence records, not signatures
+against a malicious owner able to replace the harness.
+
+The actual parent and child verify the same context and request identity. Both
+single/paper producers, native save observers, independent evaluation, reliability,
+reproduction, standalone and real GUI paths retain its digest. Closure checks keep
+that identity distinct from native renderer/reuse metadata. The persistent native
+renderer retains its existing argument contract: a separately owned sidecar binds
+the context to the original program before dispatch. Generated program bytes and
+native HTTP response bodies remain unchanged. Copied guards use only the standard
+library before the standalone SDK-absence probe.
+
+Explicit preparation documents exercise the same propagation without granting
+formal study credit. Initial tests caught renderer-argument rejection, an incorrectly
+named minimum-version fixture and paper receipt-variable shadowing; the fixes and
+original failures are retained. Full study controllers, native formal dispatch,
+prospective seal creation/qualification, complete untimed parity, actual fixed
+experiments and final78–89 audit remain required. This checkpoint alone does not
+authorize timing or fill a formal denominator. Public PyPI0.8.0 is unchanged.

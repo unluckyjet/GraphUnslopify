@@ -395,3 +395,23 @@ rejects the old capacity without mirrored constant assertions. Retain original
 failures and separate diagnostic cohorts, without claiming a universal rate or
 retroactively assigning older unknown boot failures the same cause. Rebuild a
 private exact candidate and rerun all required checks; public0.8.0 is unchanged.
+
+##89d8 —explicit identity through actual execution paths
+
+Add an explicit context loader with original-protocol/full-source/SDK/exact14 CI
+checks and registered case identities. Ordinary checks remain preparation. Carry
+the context through actual parent/child RPCs, single/paper producers, native save
+observers, independent evaluator, reliability, source/standalone and GUI paths;
+verify closure identity. Do not merely change outer result labels. Preserve the
+native renderer's argument contract, original generated program and HTTP replies.
+An owned program-bound sidecar supplies the persistent observer's context. Copied
+helpers must not import the SDK before the genuine standalone absence probe.
+
+Actual child tests reject wrong cases and context-byte changes. Explicit pre-seal
+contexts verify both producers/evaluation and the complete paper update sequence.
+Retain initial native argument/profile/receipt-shadowing failures and corrected
+checks. This is a context-propagation milestone, not a complete formal runner or
+seal. Complete fixed controllers/native dispatch, seal qualification/creation,
+untimed full parity, all192/54/48/64/64/14 formal results and the full78–89 audit
+remain open. Run full frozen local gates, commit/push this coherent milestone,
+then require exact14 CI acceptance before the next implementation milestone.

@@ -9,12 +9,14 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import runpy
 import uuid
 from pathlib import Path
 
 from graphunslopify.preview import PreviewState
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 
 
 def digest(raw):
@@ -32,6 +34,20 @@ class ObservedPreview(PreviewState):
         native = command[3:]
         if self.worker is None or len(native) not in {11, 12}:
             raise ValueError("Use the owned canonical renderer worker")
+        context = self.workspace_execution_context
+        if context.get("path"):
+            program = Path(native[-5])
+            if not program.is_absolute():
+                program = folder / program
+            (folder / "workspace-execution-context.json").write_bytes(
+                encoded(
+                    {
+                        "path": context["path"],
+                        "context_sha256": context["context_sha256"],
+                        "program_sha256": digest(program.read_bytes()),
+                    }
+                )
+            )
         return self.worker.run(
             [
                 *command[:3],
@@ -47,13 +63,18 @@ class ObservedPreview(PreviewState):
 
 
 class Session:
-    def __init__(self, root):
+    def __init__(self, root, *, execution_context=None):
+        self.context = EXECUTION["load"](
+            execution_context, repo=HERE.parents[1], arm="graphunslopify"
+        )
+        self.execution = EXECUTION["receipt"](self.context)
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=False)
         code = self.root / "code"
         code.mkdir()
         sources = {
             "capture_driver.py": HERE / "capture_driver.py",
+            "execution_context.py": HERE / "execution_context.py",
             "measurement.py": HERE / "measurement.py",
             "reference.py": HERE.parent / "papers/reference.py",
             "certified_measurement.py": HERE.parent / "certified/measurement.py",
@@ -72,6 +93,7 @@ class Session:
             staged_preview=True,
             profile_driver=code / "capture_driver.py",
         )
+        self.state.workspace_execution_context = self.context
         self.uploads, self.records = {}, {}
         self.generation = 0
 
@@ -136,7 +158,10 @@ class Session:
                 "outputs": {},
                 "data_sha256": key,
                 "owned_folder": str(folder),
-                "formal_comparison_performed": False,
+                "formal_comparison_performed": self.context[
+                    "formal_comparison_performed"
+                ],
+                "execution_context": self.execution,
             }
             (folder / "workspace-result.json").write_bytes(encoded(result))
             self.records[name] = {
@@ -163,6 +188,10 @@ class Session:
         stem = native["spec"]["output"]["stem"]
         program = folder / (stem + ".py")
         phase = json.loads((folder / "phase-timings.json").read_text(encoding="utf8"))
+        if phase.get("execution_context") != self.execution:
+            raise ValueError(
+                "Actual native observer execution context differs from producer"
+            )
         if phase["program_sha256"] != digest(program.read_bytes()):
             raise ValueError("Observation belongs to a different native program")
         events = phase["events"]
@@ -198,7 +227,8 @@ class Session:
             "native_report_file": stem + ".report.json",
             "native_run_id": answer["run_id"],
             "owned_folder": str(folder),
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": self.context["formal_comparison_performed"],
+            "execution_context": self.execution,
         }
         result_file = folder / "workspace-result.json"
         result_file.write_bytes(encoded(result))

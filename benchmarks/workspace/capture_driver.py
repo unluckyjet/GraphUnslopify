@@ -18,9 +18,27 @@ def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--timings", type=Path, required=True)
     parser.add_argument("--profile-script", type=Path, required=True)
+    parser.add_argument("--execution-context", type=Path)
+    parser.add_argument("--execution-context-sha256")
     args, native = parser.parse_known_args()
+    execution_api = runpy.run_path(
+        str(Path(__file__).with_name("execution_context.py"))
+    )
     script = args.profile_script.resolve()
     original_program = script.read_bytes()
+    sidecar = script.parent / "workspace-execution-context.json"
+    context_path, context_sha = args.execution_context, args.execution_context_sha256
+    if sidecar.is_file():
+        binding = json.loads(sidecar.read_text(encoding="utf8"))
+        if binding["program_sha256"] != hashlib.sha256(original_program).hexdigest():
+            raise ValueError(
+                "Observer execution context belongs to a different program"
+            )
+        if context_path is not None:
+            raise ValueError("Use one unambiguous observer execution binding")
+        context_path, context_sha = binding["path"], binding["context_sha256"]
+    context = execution_api["observer"](context_path, context_sha)
+    execution = execution_api["receipt"](context)
     measurement_path = Path(__file__).with_name("measurement.py")
     measured = runpy.run_path(str(measurement_path))
     original_save, previous_argv = Figure.savefig, sys.argv
@@ -79,7 +97,10 @@ def main():
                         measurement_path.read_bytes()
                     ).hexdigest(),
                     "events": events,
-                    "formal_comparison_performed": False,
+                    "formal_comparison_performed": context[
+                        "formal_comparison_performed"
+                    ],
+                    "execution_context": execution,
                 },
                 ensure_ascii=False,
                 allow_nan=False,

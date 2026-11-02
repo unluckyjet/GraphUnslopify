@@ -17,7 +17,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--observations", type=Path, required=True)
     parser.add_argument("--script", type=Path, required=True)
+    parser.add_argument("--execution-context", type=Path)
+    parser.add_argument("--execution-context-sha256")
     args, native = parser.parse_known_args()
+    execution_api = runpy.run_path(
+        str(Path(__file__).with_name("execution_context.py"))
+    )
+    context = execution_api["observer"](
+        args.execution_context, args.execution_context_sha256
+    )
+    execution = execution_api["receipt"](context)
     script = args.script.resolve()
     original = script.read_bytes()
     constants = {
@@ -72,7 +81,10 @@ def main():
                     "program_sha256": hashlib.sha256(original).hexdigest(),
                     "pid": os.getpid(),
                     "events": events,
-                    "formal_comparison_performed": False,
+                    "formal_comparison_performed": context[
+                        "formal_comparison_performed"
+                    ],
+                    "execution_context": execution,
                     "scope": "Direct native subprocess, runpy bootstrap observer; original program/arguments and terminal status preserved. Requires a plain/observed control before formal clocks.",
                 },
                 allow_nan=False,

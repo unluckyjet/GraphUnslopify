@@ -30,6 +30,7 @@ def check(output):
             "matplotlib_producer.py",
             "graphunslopify_producer.py",
             "capture_driver.py",
+            "execution_context.py",
             "measurement.py",
             "evaluation.py",
             "corpus.py",

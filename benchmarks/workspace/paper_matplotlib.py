@@ -18,16 +18,25 @@ from matplotlib import font_manager
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 COMMON = runpy.run_path(str(HERE / "paper_common.py"))
 PRODUCER = runpy.run_path(str(HERE / "matplotlib_producer.py"))
 digest, encoded = COMMON["digest"], COMMON["encoded"]
 
 
 class Session:
-    def __init__(self, root):
+    def __init__(self, root, *, execution_context=None):
+        self.context = EXECUTION["load"](
+            execution_context, repo=HERE.parents[1], track="paper", arm="matplotlib"
+        )
+        self.execution = EXECUTION["receipt"](self.context)
         self.paper = COMMON["Paper"](root)
         self.root = self.paper.root
-        self.core = PRODUCER["Session"](self.root / "producer", retain_figures=True)
+        self.core = PRODUCER["Session"](
+            self.root / "producer",
+            retain_figures=True,
+            execution_context=execution_context,
+        )
         self.drawings, self.previous, self.records = {}, {}, []
         self.last_passed, self.members = False, ()
         self.receipts = {}
@@ -228,7 +237,8 @@ class Session:
                         HERE / "paper_matplotlib.py"
                     ],
                 },
-                formal_comparison_performed=False,
+                formal_comparison_performed=self.context["formal_comparison_performed"],
+                execution_context=self.execution,
             )
             (folder / "report.json").write_bytes(encoded(result))
             receipt = {
@@ -263,7 +273,8 @@ class Session:
             "review": review,
             "results": results,
             "specs": specs,
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": self.context["formal_comparison_performed"],
+            "execution_context": self.execution,
         }
         (event / "paper.json").write_bytes(encoded(answer))
         self.receipts.update(

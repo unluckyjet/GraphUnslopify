@@ -133,7 +133,16 @@ def mutation(arm, control, folder, result, live, data):
     return path, original, changed, reason
 
 
-def run_case(case, output, *, python=sys.executable, installed=False):
+def run_case(
+    case, output, *, python=sys.executable, installed=False, execution_context=None
+):
+    context = RUNNER["EXECUTION"]["load"](
+        execution_context, repo=ROOT, track="reliability", arm=case["arm"]
+    )
+    if context.get("case", {k: v for k, v in case.items() if k != "arm"}) != {
+        k: v for k, v in case.items() if k != "arm"
+    }:
+        raise ValueError("Reliability case differs from execution context")
     output = Path(output).resolve()
     if output.is_relative_to(ROOT) and not output.is_relative_to(HERE / "results"):
         raise ValueError(
@@ -142,7 +151,8 @@ def run_case(case, output, *, python=sys.executable, installed=False):
     output.mkdir(parents=True, exist_ok=False)
     row = {
         **case,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": RUNNER["EXECUTION"]["receipt"](context),
         "outcome": "not_run",
         "session_error": None,
         "closure_error": None,
@@ -159,7 +169,11 @@ def run_case(case, output, *, python=sys.executable, installed=False):
         spec["data"]["path"] = str(data)
         actual_case = figure + "/first" if case["kind"] != "science" else figure
         live = RUNNER["LiveSession"](
-            case["arm"], output / "live", python=python, installed=installed
+            case["arm"],
+            output / "live",
+            python=python,
+            installed=installed,
+            execution_context=execution_context,
         )
         request = {"name": "accepted-origin", "case": actual_case}
         initial = live.request(

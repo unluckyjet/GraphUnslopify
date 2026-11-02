@@ -13,6 +13,7 @@ from PIL import Image
 from pypdf import PdfReader
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 MEASUREMENT = runpy.run_path(str(HERE / "measurement.py"))
 CORPUS = runpy.run_path(str(HERE / "corpus.py"))
 
@@ -57,8 +58,27 @@ def intent_errors(actual, requested, path="spec"):
     return errors
 
 
-def evaluate(result, folder, spec, base, oracle):
+def evaluate(
+    result,
+    folder,
+    spec,
+    base,
+    oracle,
+    *,
+    execution_context=None,
+    execution_context_sha256=None,
+):
     """Return real failures without dropping a denominator or counting decline as verified."""
+    context = (
+        EXECUTION["load"](execution_context, repo=HERE.parents[1])
+        if execution_context_sha256 is None
+        else EXECUTION["observer"](execution_context, execution_context_sha256)
+    )
+    execution = EXECUTION["receipt"](context)
+    if context.get("context_sha256") and result.get("execution_context") != execution:
+        raise ValueError(
+            "Independent evaluator execution context differs from producer"
+        )
     folder, base = Path(folder), Path(base)
     errors = []
     checks = []
@@ -98,7 +118,8 @@ def evaluate(result, folder, spec, base, oracle):
             "exports": [],
             "correct_refusal_without_native_report": valid,
             "scope": "Actual relevant preflight abstention; no numerical/export measurement or native process exit is claimed.",
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": context["formal_comparison_performed"],
+            "execution_context": execution,
         }
     if (
         result["status"] != oracle["status"]
@@ -198,5 +219,6 @@ def evaluate(result, folder, spec, base, oracle):
         "actual_status": result["status"],
         "errors": sorted(set(errors)),
         "exports": checks,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": execution,
     }

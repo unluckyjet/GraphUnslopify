@@ -16,6 +16,7 @@ import traceback
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 HELPERS = runpy.run_path(str(HERE / "session_worker.py"))
 encoded, package_bytes = HELPERS["encoded"], HELPERS["package_bytes"]
 
@@ -99,8 +100,15 @@ def main():
         "--arm", choices=("matplotlib", "graphunslopify"), required=True
     )
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--preseal-only", action="store_true", required=True)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--preseal-only", action="store_true")
+    modes.add_argument("--execution-context", type=Path)
     args = parser.parse_args()
+    context = EXECUTION["load"](
+        args.execution_context, repo=HERE.parents[1], track="paper", arm=args.arm
+    )
+    execution_receipt = EXECUTION["receipt"](context)
+    protocol = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))
     root, wire = args.root.resolve(), sys.stdout
     producer, before = None, None
     plan = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))["paper"][
@@ -116,7 +124,7 @@ def main():
                 preparing = time.perf_counter_ns()
                 producer = runpy.run_path(str(HERE / ("paper_" + args.arm + ".py")))[
                     "Session"
-                ](root / "producer")
+                ](root / "producer", execution_context=args.execution_context)
                 prepared = time.perf_counter_ns()
                 evaluate = runpy.run_path(str(HERE / "evaluation.py"))["evaluate"]
                 truth = json.loads(
@@ -135,7 +143,8 @@ def main():
                 "producer_prepared_ns": prepared,
                 "ready_ns": time.perf_counter_ns(),
                 "child_events_enabled": child_events,
-                "formal_comparison_performed": False,
+                "formal_comparison_performed": context["formal_comparison_performed"],
+                "execution_context": execution_receipt,
             }
             (root / "ready.json").write_text(encoded(ready), encoding="utf8")
             wire.write(encoded(ready))
@@ -144,6 +153,7 @@ def main():
                 request = json.loads(line)
                 if request["operation"] == "close":
                     break
+                EXECUTION["request"](context, request, sequence, protocol)
                 started = time.perf_counter_ns()
                 row = {
                     "event": "result",
@@ -151,7 +161,10 @@ def main():
                     "case": request["case"],
                     "pid": os.getpid(),
                     "worker_started_ns": started,
-                    "formal_comparison_performed": False,
+                    "formal_comparison_performed": context[
+                        "formal_comparison_performed"
+                    ],
+                    "execution_context": execution_receipt,
                 }
                 try:
                     name = request["step"]
@@ -186,6 +199,8 @@ def main():
                                 answer["specs"][identity],
                                 producer.root,
                                 oracle,
+                                execution_context=args.execution_context,
+                                execution_context_sha256=context.get("context_sha256"),
                             )
                             result = value["result"]
                             execution = result.get(
@@ -263,6 +278,7 @@ def main():
                         )
             closed = {
                 "event": "closed",
+                "execution_context": execution_receipt,
                 "pid": os.getpid(),
                 "closing_started_ns": closing,
                 "closed_ns": time.perf_counter_ns(),

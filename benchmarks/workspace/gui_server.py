@@ -23,13 +23,15 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def saved_result(state, answer, payload):
+def saved_result(state, answer, payload, execution):
     """Read this actual response's original native run; never rerender it."""
     folder = state.runs[answer["run_id"]]["folder"]
     native = answer["report"]
     stem = native["spec"]["output"]["stem"]
     program = folder / (stem + ".py")
     phase = json.loads((folder / "phase-timings.json").read_text(encoding="utf8"))
+    if phase.get("execution_context") != execution:
+        raise ValueError("Actual GUI observer execution context differs from server")
     if phase["program_sha256"] != digest(program):
         raise ValueError("GUI observation belongs to a different program")
     events = phase["events"]
@@ -65,13 +67,24 @@ def saved_result(state, answer, payload):
         "translation_execution": answer["translation_execution"],
         "native_run_id": answer["run_id"],
         "owned_folder": str(folder),
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": execution["formal_comparison_performed"],
+        "execution_context": execution,
     }
 
 
-def serve(output, *, installed=False):
+def serve(output, *, installed=False, execution_context=None):
     if not __debug__:
         raise RuntimeError("Do not optimize GUI evidence guards")
+    context = RUNNER["EXECUTION"]["load"](
+        execution_context, repo=ROOT, track="gui", arm="graphunslopify"
+    )
+    execution = RUNNER["EXECUTION"]["receipt"](context)
+    if context.get("case", {}).get(
+        "profile", "fresh-wheel" if installed else "source-current"
+    ) != ("fresh-wheel" if installed else "source-current"):
+        raise ValueError(
+            "GUI actual installed/source profile differs from execution context"
+        )
     output = Path(output).resolve()
     if output.is_relative_to(ROOT) and not output.is_relative_to(HERE / "results"):
         raise ValueError("Keep GUI evidence outside source or under workspace/results")
@@ -94,7 +107,7 @@ def serve(output, *, installed=False):
         raise ValueError("Actual GUI package does not match checkout bytes")
     sources = RUNNER["source_snapshot"]()
     session = runpy.run_path(str(HERE / "graphunslopify_producer.py"))["Session"](
-        output / "editor"
+        output / "editor", execution_context=execution_context
     )
     server = PreviewServer(0)
     server.state.close()  # Unused default state has never accepted a browser request.
@@ -114,7 +127,8 @@ def serve(output, *, installed=False):
             "response": copy.deepcopy(answer),
             "result": None,
             "observation_error": None,
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": execution["formal_comparison_performed"],
+            "execution_context": execution,
         }
         try:
             if (
@@ -122,7 +136,9 @@ def serve(output, *, installed=False):
                 and answer.get("report")
                 and not answer.get("stale")
             ):
-                receipt["result"] = saved_result(server.state, answer, requested)
+                receipt["result"] = saved_result(
+                    server.state, answer, requested, execution
+                )
         except Exception:  # noqa: BLE001 - observation must never replace the real reply
             receipt["observation_error"] = traceback.format_exc()
         with lock:
@@ -140,7 +156,8 @@ def serve(output, *, installed=False):
         "package_root": str(package),
         "package_sha256": expected,
         "source_sha256": sources,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": execution["formal_comparison_performed"],
+        "execution_context": execution,
     }
     write(output / "startup.json", startup)
 
@@ -175,7 +192,12 @@ def serve(output, *, installed=False):
                 errors.append("owned_observer_changed:" + path.name)
         write(
             output / "closure.json",
-            {"pid": os.getpid(), "responses": counter, "errors": errors},
+            {
+                "pid": os.getpid(),
+                "responses": counter,
+                "errors": errors,
+                "execution_context": execution,
+            },
         )
 
 
@@ -183,5 +205,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--installed", action="store_true")
+    parser.add_argument("--execution-context", type=Path)
     args = parser.parse_args()
-    serve(args.out, installed=args.installed)
+    serve(args.out, installed=args.installed, execution_context=args.execution_context)

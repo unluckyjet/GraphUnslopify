@@ -48,7 +48,7 @@ def schedule(profile, *, native=False):
     ]
 
 
-def prepare_standalone(case, root, spec, data):
+def prepare_standalone(case, root, spec, data, context=None):
     """Actual emitted Graph archive or independent baseline plus shared inspector."""
     sys.path.insert(0, str(ROOT / "python"))
     from graphunslopify.runtime_bundle import create_bundle
@@ -58,6 +58,7 @@ def prepare_standalone(case, root, spec, data):
     code.mkdir()
     for source, name in [
         (HERE / "standalone_worker.py", "standalone_worker.py"),
+        (HERE / "execution_context.py", "execution_context.py"),
         (HERE / "matplotlib_producer.py", "matplotlib_producer.py"),
         (HERE / "measurement.py", "measurement.py"),
         (ROOT / "benchmarks/papers/reference.py", "reference.py"),
@@ -107,6 +108,9 @@ def prepare_standalone(case, root, spec, data):
         root / "request.json",
         {
             "arm": case["arm"],
+            "execution_context": RUNNER["EXECUTION"]["receipt"](
+                context or RUNNER["EXECUTION"]["preparation"]()
+            ),
             "spec": canonical,
             "package_sha256": package,
             "scope": "Actual standalone sources; no installed SDK, no formal timing",
@@ -121,9 +125,9 @@ def prepare_standalone(case, root, spec, data):
     return sha((root / "owned-manifest.json").read_bytes())
 
 
-def standalone(case, root, spec, data, python):
+def standalone(case, root, spec, data, python, context=None):
     root.mkdir()
-    manifest_sha = prepare_standalone(case, root, spec, data)
+    manifest_sha = prepare_standalone(case, root, spec, data, context=context)
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env.update(
         MPLBACKEND="Agg",
@@ -138,6 +142,9 @@ def standalone(case, root, spec, data, python):
         str(root),
         "--manifest-sha256",
         manifest_sha,
+        *RUNNER["EXECUTION"]["arguments"](
+            context or RUNNER["EXECUTION"]["preparation"]()
+        ),
     ]
     RUNNER["write"](
         root / "actual-command.json",
@@ -172,14 +179,30 @@ def standalone(case, root, spec, data, python):
     return execution
 
 
-def run_case(case, output, *, python=sys.executable, installed=False, expected_ci=None):
+def run_case(
+    case,
+    output,
+    *,
+    python=sys.executable,
+    installed=False,
+    expected_ci=None,
+    execution_context=None,
+):
+    track = "native_ci" if case.get("track") == "native_ci" else "local"
+    context = RUNNER["EXECUTION"]["load"](
+        execution_context, repo=ROOT, track=track, arm=case["arm"]
+    )
+    expected_case = {k: case[k] for k in ("profile", "figure", "repeat")}
+    if context.get("case", expected_case) != expected_case:
+        raise ValueError("Reproduction case differs from execution context")
     output = Path(output).resolve()
     if output.is_relative_to(ROOT) and not output.is_relative_to(HERE / "results"):
         raise ValueError("Keep owned replays outside source or under workspace/results")
     output.mkdir(parents=True, exist_ok=False)
     row = {
         **case,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": RUNNER["EXECUTION"]["receipt"](context),
         "outcome": "not_run",
         "session_error": None,
         "closure_error": None,
@@ -195,7 +218,9 @@ def run_case(case, output, *, python=sys.executable, installed=False, expected_c
         if case["profile"] == "standalone-bundle-no-installed-graphunslopify3.12":
             if installed:
                 raise ValueError("Standalone profile cannot claim an installed SDK")
-            execution = standalone(case, output / "standalone", spec, data, python)
+            execution = standalone(
+                case, output / "standalone", spec, data, python, context=context
+            )
             folder = Path(execution["folder"])
             result = json.loads(
                 Path(execution["report_file"]).read_text(encoding="utf8")
@@ -208,6 +233,7 @@ def run_case(case, output, *, python=sys.executable, installed=False, expected_c
                 json.loads((HERE / "ground-truth.json").read_text())[
                     case["figure"] + "/first"
                 ],
+                execution_context=execution_context,
             )
             row.update(execution=execution, evaluation=evaluation)
         else:
@@ -217,7 +243,11 @@ def run_case(case, output, *, python=sys.executable, installed=False, expected_c
                     "Registered profile and installed/source mode disagree"
                 )
             live = RUNNER["LiveSession"](
-                case["arm"], output / "live", python=str(python), installed=installed
+                case["arm"],
+                output / "live",
+                python=str(python),
+                installed=installed,
+                execution_context=execution_context,
             )
             row["startup"] = live.ready
             if case.get("track") == "native_ci":

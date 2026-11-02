@@ -23,6 +23,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 
 
 def write(path, value):
@@ -94,9 +95,19 @@ class LiveSession:
         installed=False,
         timeout=240,
         track="single",
+        execution_context=None,
     ):
         if track not in {"single", "paper"}:
             raise ValueError("Unknown isolated session track")
+        self.context = EXECUTION["load"](
+            execution_context,
+            repo=ROOT,
+            track="paper"
+            if track == "paper"
+            else {"single", "reliability", "local", "native_ci"},
+            arm=arm,
+        )
+        self.execution = EXECUTION["receipt"](self.context)
         self.track = track
         self.request_sequence = 0
         self.folder = Path(folder).resolve()
@@ -138,7 +149,11 @@ class LiveSession:
                     arm,
                     "--root",
                     str(self.folder),
-                    "--preseal-only",
+                    *(
+                        ["--execution-context", self.context["path"]]
+                        if execution_context is not None
+                        else ["--preseal-only"]
+                    ),
                 ],
                 cwd=self.folder,
                 env=env,
@@ -156,6 +171,10 @@ class LiveSession:
             self.ready_received_ns = time.perf_counter_ns()
             if self.ready.get("event") != "ready":
                 raise RuntimeError("Worker did not establish readiness")
+            if self.ready.get("execution_context") != self.execution:
+                raise RuntimeError(
+                    "Actual worker execution context differs from parent"
+                )
             if self.ready["package_sha256"] != self.package_before:
                 raise RuntimeError("Actual worker SDK files do not match this checkout")
             write(
@@ -165,7 +184,10 @@ class LiveSession:
                     "ready_received_ns": self.ready_received_ns,
                     "ready": self.ready,
                     "font_cache": env["MPLCONFIGDIR"],
-                    "formal_comparison_performed": False,
+                    "formal_comparison_performed": self.context[
+                        "formal_comparison_performed"
+                    ],
+                    "execution_context": self.execution,
                 },
             )
         except BaseException:
@@ -188,6 +210,12 @@ class LiveSession:
         return json.loads(line)
 
     def request(self, payload):
+        EXECUTION["request"](
+            self.context,
+            payload,
+            self.request_sequence,
+            json.loads((HERE / "protocol.json").read_text(encoding="utf8")),
+        )
         dispatched = time.perf_counter_ns()
         sequence = self.request_sequence
         self.request_sequence += 1
@@ -211,6 +239,8 @@ class LiveSession:
             and row.get("operation") != payload["operation"]
         ):
             raise RuntimeError("Response belongs to a different operation/request")
+        if row.get("execution_context") != self.execution:
+            raise RuntimeError("Actual response execution context differs from parent")
         # The outer actor observes task acceptance after receiving the response.
         row["worker_task_verified_ns"] = row.get("task_verified_ns")
         if row.get("task_verified_ns") is not None:
@@ -298,6 +328,8 @@ class LiveSession:
             self.closed = self.receive()
             if self.closed.get("event") != "closed":
                 raise RuntimeError("Owned worker did not acknowledge closure")
+            if self.closed.get("execution_context") != self.execution:
+                raise RuntimeError("Actual worker closure execution context differs")
             if self.process.wait(timeout=30) != 0:
                 raise RuntimeError("Owned worker did not exit successfully")
             if source_snapshot() != self.source_before:
@@ -308,9 +340,19 @@ class LiveSession:
 
 
 def run_sequence(
-    arm, figure, folder, *, python=sys.executable, installed=False, timeout=240
+    arm,
+    figure,
+    folder,
+    *,
+    python=sys.executable,
+    installed=False,
+    timeout=240,
+    execution_context=None,
 ):
     """Retain all eight planned cells even if process startup/request/shutdown fails."""
+    context = EXECUTION["load"](execution_context, repo=ROOT, track="single", arm=arm)
+    if context.get("case", {}).get("figure", figure) != figure:
+        raise ValueError("Sequence figure differs from execution context")
     spec = json.loads(
         (HERE / "figures" / (figure + ".json")).read_text(encoding="utf8")
     )
@@ -327,7 +369,8 @@ def run_sequence(
             "step": step,
             "phase": "cold" if i == 0 else "warm",
             "outcome": "not_run",
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": context["formal_comparison_performed"],
+            "execution_context": EXECUTION["receipt"](context),
         }
         for i, (step, _) in enumerate(requests)
     ]
@@ -335,7 +378,8 @@ def run_sequence(
         "arm": arm,
         "figure": figure,
         "rows": rows,
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": EXECUTION["receipt"](context),
         "scope": "Pre-seal live-session conformance only; no formal latency comparison",
         "session_error": None,
         "closure_error": None,
@@ -343,7 +387,12 @@ def run_sequence(
     live = None
     try:
         live = LiveSession(
-            arm, folder / "live", python=python, installed=installed, timeout=timeout
+            arm,
+            folder / "live",
+            python=python,
+            installed=installed,
+            timeout=timeout,
+            execution_context=execution_context,
         )
         result["startup"] = {
             "launched_ns": live.launched_ns,

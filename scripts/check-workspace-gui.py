@@ -13,12 +13,17 @@ ROOT = Path(__file__).resolve().parents[1]
 HERE = ROOT / "benchmarks/workspace"
 
 
-def check(browser_file, output):
+def check(browser_file, output, *, execution_context=None):
     if not __debug__:
         raise RuntimeError("Do not optimize independent GUI guards")
     output = Path(output)
     if output.exists():
         raise ValueError("Refuse to replace previous GUI evidence")
+    execution_api = runpy.run_path(str(HERE / "execution_context.py"))
+    context = execution_api["load"](
+        execution_context, repo=ROOT, track="gui", arm="graphunslopify"
+    )
+    execution = execution_api["receipt"](context)
     root = Path(browser_file).resolve().parent
     browser = json.loads(Path(browser_file).read_text(encoding="utf8"))
     protocol = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))
@@ -29,6 +34,12 @@ def check(browser_file, output):
     startup = json.loads((root / "server/startup.json").read_text(encoding="utf8"))
     closure = json.loads((root / "server/closure.json").read_text(encoding="utf8"))
     errors = []
+    if any(
+        v.get("execution_context") != execution for v in (browser, startup, closure)
+    ):
+        errors.append("actual_gui_execution_context_differs")
+    if context.get("case", {}).get("profile", browser["profile"]) != browser["profile"]:
+        errors.append("actual_gui_execution_profile_differs")
     if (
         startup["source_sha256"] != runner["source_snapshot"]()
         or startup["package_sha256"] != runner["expected_package"]()
@@ -77,7 +88,8 @@ def check(browser_file, output):
             "required_json_edits": row["required_json_edits"],
             "evaluations": [],
             "task_correct_verified": False,
-            "formal_comparison_performed": False,
+            "formal_comparison_performed": context["formal_comparison_performed"],
+            "execution_context": execution,
         }
         if not row["attempted"]:
             errors.append("unattempted_gui_task")
@@ -145,7 +157,14 @@ def check(browser_file, output):
                 ):
                     raise ValueError("GUI original export changed")
             oracle = truth[name if name == "iris-scatter-mm" else name + "/first"]
-            evaluated = evaluate(result, folder, expected, data_source.parent, oracle)
+            evaluated = evaluate(
+                result,
+                folder,
+                expected,
+                data_source.parent,
+                oracle,
+                execution_context=execution_context,
+            )
             task["evaluations"].append(
                 {"phase": request["phase"], "run_id": identity, "evaluation": evaluated}
             )
@@ -199,7 +218,8 @@ def check(browser_file, output):
     proof = {
         "profile": browser["profile"],
         "scope": "Seven real GUI preparation tasks; actual original saves, controls, failures and downloads. No formal14 or human authoring claim.",
-        "formal_comparison_performed": False,
+        "formal_comparison_performed": context["formal_comparison_performed"],
+        "execution_context": execution,
         "source_sha256": startup["source_sha256"],
         "package_sha256": startup["package_sha256"],
         "tasks": results,
@@ -215,8 +235,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--browser-results", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--execution-context", type=Path)
     args = parser.parse_args()
-    proof = check(args.browser_results, args.out)
+    proof = check(
+        args.browser_results, args.out, execution_context=args.execution_context
+    )
     print(
         json.dumps(
             {

@@ -14,6 +14,7 @@ import traceback
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+EXECUTION = runpy.run_path(str(HERE / "execution_context.py"))
 
 
 def encoded(value):
@@ -37,8 +38,18 @@ def main():
         "--arm", choices=("matplotlib", "graphunslopify"), required=True
     )
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--preseal-only", action="store_true", required=True)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--preseal-only", action="store_true")
+    modes.add_argument("--execution-context", type=Path)
     args = parser.parse_args()
+    context = EXECUTION["load"](
+        args.execution_context,
+        repo=HERE.parents[1],
+        track={"single", "reliability", "local", "native_ci"},
+        arm=args.arm,
+    )
+    execution = EXECUTION["receipt"](context)
+    protocol = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))
     root = args.root.resolve()
     session = None
     package_sha256 = None
@@ -47,7 +58,9 @@ def main():
         try:
             with contextlib.redirect_stdout(log):
                 source = HERE / (args.arm + "_producer.py")
-                session = runpy.run_path(str(source))["Session"](root / "producer")
+                session = runpy.run_path(str(source))["Session"](
+                    root / "producer", execution_context=args.execution_context
+                )
                 evaluate = runpy.run_path(str(HERE / "evaluation.py"))["evaluate"]
                 truth = json.loads(
                     (HERE / "ground-truth.json").read_text(encoding="utf8")
@@ -64,7 +77,8 @@ def main():
                 "package_root": package_root,
                 "package_sha256": package_sha256,
                 "ready_ns": time.perf_counter_ns(),
-                "formal_comparison_performed": False,
+                "formal_comparison_performed": context["formal_comparison_performed"],
+                "execution_context": execution,
             }
             (root / "ready.json").write_text(encoded(ready), encoding="utf8")
             wire.write(encoded(ready))
@@ -74,6 +88,7 @@ def main():
                 request = json.loads(line)
                 if request["operation"] == "close":
                     break
+                EXECUTION["request"](context, request, sequence, protocol)
                 started = time.perf_counter_ns()
                 row = {
                     "event": "result",
@@ -82,7 +97,10 @@ def main():
                     "operation": request["operation"],
                     "worker_started_ns": started,
                     "pid": os.getpid(),
-                    "formal_comparison_performed": False,
+                    "formal_comparison_performed": context[
+                        "formal_comparison_performed"
+                    ],
+                    "execution_context": execution,
                 }
                 try:
                     if request["operation"] == "validate":
@@ -120,6 +138,8 @@ def main():
                                 request["spec"],
                                 Path(request["base"]),
                                 truth[request["case"]],
+                                execution_context=args.execution_context,
+                                execution_context_sha256=context.get("context_sha256"),
                             )
                             checked = time.perf_counter_ns()
                         png = [
@@ -195,6 +215,7 @@ def main():
                     raise RuntimeError("SDK package changed during the live session")
             closed = {
                 "event": "closed",
+                "execution_context": execution,
                 "pid": os.getpid(),
                 "closing_started_ns": closing,
                 "closed_ns": time.perf_counter_ns(),

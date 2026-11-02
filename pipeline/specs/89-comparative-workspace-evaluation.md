@@ -297,3 +297,16 @@ reaping checks. Normal sessions prohibit test event I/O. Revised current11 pass
 and original gates. Preserve interrupted gate PGID62995; full checks must restart
 on combined keyboard/native-control correction before corrective push/exact CI.
 All formal192/54/48/64/64/14, full seal and final78–89 audit remain unfinished.
+
+
+##89d3b — preserve selected intent during an unavailable project
+
+2fe366d corrected keyboard regeneration/export steps pass on actual Linux CI;
+later selection-reset response wait fails. Exact CI cause unproven. Actual owned
+manifest unavailability reproduces2→0selection loss. Minimal client fix retains
+choices while actions stay disabled and reconciles only a real recovered inventory.
+The identical control fails before/passes after; source/fresh updated13-workflow
+sequences preserve config/history/data and real strict failure. Fix unhandled
+click/response waiting with Promise.all and retain DOM diagnostics; keep60s and
+all strict checks. Full frozen checks/push/new exact CI remain before advancing.
+All original formal192/54/48/64/64/14, full seal and full delivery audit remain.

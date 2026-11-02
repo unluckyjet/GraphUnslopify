@@ -8,7 +8,7 @@ import { join, resolve, relative } from "node:path";
 import { createInterface } from "node:readline";
 import { chromium, type Page } from "playwright";
 
-declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean; getAttribute(name:string):string|null } | null; documentElement: { scrollWidth: number } };
+declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean; checked: boolean; getAttribute(name:string):string|null } | null; documentElement: { scrollWidth: number } };
 declare const window: { innerWidth: number };
 const python = process.env.PYTHON || "python";
 const env = process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED ? { ...process.env } : { ...process.env, PYTHONPATH: resolve("python") };
@@ -53,7 +53,7 @@ try {
   const executions = () => readFileSync(join(paper,"executions.txt"),"utf8").length;
   const open = async () => page.locator("#selection-panel").evaluate(n => n.setAttribute("open",""));
   const pick = async (id:string) => page.locator('#selection-figures input[value="'+id+'"]').check();
-  const propose = async (button="selection-review") => { const response = page.waitForResponse(r => r.url().endsWith("/api/selection-review") && r.request().method()==="POST");await page.locator("#"+button).click();const r = await response;assert.equal(r.status(),200,await r.text());const plan = await r.json();await page.waitForFunction(() => document.querySelector("#selection-apply")?.disabled===false);return plan; };
+  const propose = async (button="selection-review") => { const [r] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/selection-review") && r.request().method()==="POST"),page.locator("#"+button).click()]);assert.equal(r.status(),200,await r.text());const plan = await r.json();await page.waitForFunction(() => document.querySelector("#selection-apply")?.disabled===false);return plan; };
   const save = async () => { await page.locator("#selection-apply").click();await page.waitForFunction(() => document.querySelector("#notice")?.textContent.startsWith("Saved selected presentation."));await page.waitForFunction(() => document.querySelector("#selection-settings")?.disabled===false);return api("/api/state"); };
   const audit = async (selective=false) => { await page.locator(selective ? "#regenerate" : "#audit").click();await page.waitForFunction(() => document.querySelector("#running")?.hidden===false);await page.waitForFunction(() => document.querySelector("#running")?.hidden===true);const s = await api("/api/state");return api("/api/event?id="+s.job.result.id); };
   await open();assert.equal(executions(),1);assert.equal(await page.locator("#selection-review").isDisabled(),true);
@@ -80,6 +80,19 @@ try {
   const full=await audit();assert.equal(full.result.exit_code,0);rows=Object.fromEntries(full.result.audit.figures.map((r:{id:string})=>[r.id,r]));assert.equal(rows.figure.report.spec.output.dpi,150);assert.equal(rows.second.report.spec.output.dpi,150);assert.equal(executions(),3);
   for(const id of ["figure","second"])assert.deepEqual(rows[id].report.claims,initial.audit.figures.find((r:{id:string})=>r.id===id).report.claims);
   workflows.push("real multi-select Apply updates both canonical presentations and strict outputs while all scientific claims remain identical");
+  const beforeUnavailableSelection = await page.locator('#selection-figures input:checked').count();assert.equal(beforeUnavailableSelection,2);
+  const intactManifest = readFileSync(manifestPath), beforeUnavailableConfig = hash(readFileSync(config)), beforeUnavailableHistory = (await api("/api/state")).history.length;
+  try {
+    writeFileSync(manifestPath,"{");await page.locator("#refresh").click();
+    await page.waitForFunction(() => document.querySelector("#project-status")?.textContent === "Project unavailable");
+    assert.equal(await page.locator("#selection-reset").isDisabled(),true);assert.equal(await page.locator("#selection-apply").isDisabled(),true);assert.equal(await page.locator("#audit").isDisabled(),true);
+  } finally { writeFileSync(manifestPath,intactManifest); }
+  await page.locator("#refresh").click();await page.waitForFunction(() => document.querySelector("#selection-settings")?.disabled === false);
+  const afterUnavailableSelection = await page.locator('#selection-figures input:checked').count();
+  const selectionRecovery = { before:beforeUnavailableSelection, after:afterUnavailableSelection, manifest_restored:hash(readFileSync(manifestPath))===hash(intactManifest), config_unchanged:hash(readFileSync(config))===beforeUnavailableConfig, history_unchanged:(await api("/api/state")).history.length===beforeUnavailableHistory, authored_executions:executions() };
+  writeFileSync(join(evidence,"unavailable-selection-control.json"),JSON.stringify(selectionRecovery,null,2));
+  assert.equal(afterUnavailableSelection,beforeUnavailableSelection,"A temporary unavailable project must not erase user selection");assert.equal(selectionRecovery.config_unchanged,true);assert.equal(selectionRecovery.history_unchanged,true);assert.equal(executions(),3);
+  workflows.push("actual unavailable manifest disables writes and retains selected figures after byte-exact restoration without configuration/history/program changes");
   await open();const reset=await propose("selection-reset");assert.deepEqual(reset.affected_ids,["figure","second"]);state=await save();assert.deepEqual(state.figure_settings,{});const resetID=state.history.find((e:{action:string})=>e.action==="selection").id;
   workflows.push("reviewed reset removes selected overrides and returns to the original definitions and paper defaults");
   for(const id of [resetID,secondID,firstID]){await page.locator("#selection-undo-event").selectOption(id);await propose("selection-undo");await save();}
@@ -103,5 +116,16 @@ try {
   writeFileSync(join(paper,"figure.json"),originalFigure);
   assert.equal(hash(readFileSync(join(paper,"results.csv"))),hash(data));assert.deepEqual(Object.fromEntries(Object.keys(originals).map(n=>[n,hash(readFileSync(join(paper,n)))])),originals);assert.deepEqual(inventory(initial.directory),firstHistory);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
   const report={status:"passed",workflows,authored_executions:executions(),original_inputs_and_first_history_unchanged:true,page_errors:errors,external_requests:external,evidence};writeFileSync(join(evidence,"verification.json"),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
-} catch(problem){await currentPage?.screenshot({path:join(evidence,"failure.png"),fullPage:true}).catch(()=>{});console.error(JSON.stringify({evidence,error:String(problem)}));throw problem;}
+} catch(problem){
+  const view = await currentPage?.evaluate(() => ({
+    notice:document.querySelector("#notice")?.textContent,error:document.querySelector("#error")?.textContent,
+    project:document.querySelector("#project-status")?.textContent,selection:document.querySelector("#selection-count")?.textContent,
+    selected:["figure","second","authored","pdf:external"].map(id => ({id,checked:document.querySelector('#selection-figures input[value="'+id+'"]')?.checked})),
+    resetDisabled:document.querySelector("#selection-reset")?.disabled,settingsDisabled:document.querySelector("#selection-settings")?.disabled,
+    reviewDisabled:document.querySelector("#selection-review")?.disabled,applyDisabled:document.querySelector("#selection-apply")?.disabled,
+    runningHidden:document.querySelector("#running")?.hidden,
+  })).catch(error => ({captureError:String(error)}));
+  writeFileSync(join(evidence,"failure-state.json"),JSON.stringify({error:String(problem),view,workflows,page_errors:errors,external_requests:external},null,2));
+  await currentPage?.screenshot({path:join(evidence,"failure.png"),fullPage:true}).catch(()=>{});console.error(JSON.stringify({evidence,error:String(problem)}));throw problem;
+}
 finally{await browser?.close();server.kill();lines.close();}

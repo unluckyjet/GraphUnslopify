@@ -23,7 +23,9 @@ export function createSelectionReview({api, context, onState, onApplied, onError
   function update() {
     const c = context(), sources = [...(c.state?.figures || []).map(r => ({id:r.id,label:r.id+(r.source_type === "script" ? " · Authored Python, read-only" : " · JSON figure")})), ...(c.state?.inspections || []).map(r => ({id:"pdf:"+r.id,label:r.name+" · PDF visual evidence, read-only"}))];
     const key = JSON.stringify(sources);
-    if (key !== listKey) {
+    // An unavailable snapshot cannot establish that a selected source vanished.
+    // Keep the user's choices disabled until a real inventory can reconcile them.
+    if (c.state?.status !== "unavailable" && key !== listKey) {
       const valid = new Set(sources.map(r => r.id));for (const id of picked) if (!valid.has(id)) picked.delete(id);
       $("selection-figures").replaceChildren();
       for (const row of sources) {

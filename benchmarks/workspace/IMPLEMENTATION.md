@@ -289,3 +289,28 @@ checks, not formal study cells. First corrective local gate was intentionally
 interrupted on confirmed owned PGID62995 before these source changes; retain it.
 Restart all required full gates on the combined correction, then commit/push and
 require all new exact CI checks. Product SDK/README/protocol bytes stay unchanged.
+
+
+##89d3b — actual unavailable-inventory selection recovery
+
+On2fe366d CI, corrected regeneration and packet exports pass; later selection
+reset waits60s without a review response. Its response waiter can reject before
+an in-progress click is awaited, losing diagnostics. Exact original Linux UI
+cause remains unproven. Preserve that failed job/artifact and unchanged local
+12-workflow pass.
+
+A real owned-manifest corruption/restoration control reproduces a product bug:
+2selected figures become0 after an unavailable inventory. Skip reconciliation
+only for explicit unavailable snapshots; missing revision keeps actions disabled,
+and the next real inventory still reconciles membership. Same unchanged actor
+fails before/passes after2→2. Updated actual source/fresh browsers each pass13
+workflows, unchanged config/history/original inputs and four authored executions.
+No synthetic successful response or relaxed timeout/assertion. Promise.all now
+handles review-response and click failures together; actual DOM diagnostics persist.
+
+New unpublished local0.8.0 wheel511117bytes/SHA
+e32cfc8b6bfaabbeeda0f9f764f8ae5b52e5e5b0bd72f5491183654df493bfa3
+matches77 source/wheel/installed resources and27 requested dependency pins;
+only SDK web/project-selection.js changes. Build/typecheck pass. Full frozen
+local gates, index/full-commit binding, push and new exact all-nine/Figure remain.
+Full comparison/implementation seal/formal tracks/78–89 audit remain incomplete.

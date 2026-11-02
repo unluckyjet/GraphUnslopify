@@ -66,6 +66,7 @@ def main():
             (root / "ready.json").write_text(encoded(ready), encoding="utf8")
             wire.write(encoded(ready))
             wire.flush()
+            owned_cases = {}
             for sequence, line in enumerate(sys.stdin):
                 request = json.loads(line)
                 if request["operation"] == "close":
@@ -75,78 +76,98 @@ def main():
                     "event": "result",
                     "sequence": sequence,
                     "case": request["case"],
+                    "operation": request["operation"],
                     "worker_started_ns": started,
                     "pid": os.getpid(),
                     "formal_comparison_performed": False,
                 }
                 try:
-                    if request["operation"] != "render":
-                        raise ValueError("Unsupported worker operation")
-                    with contextlib.redirect_stdout(log):
-                        result = session.render(
-                            request["spec"], Path(request["base"]), request["name"]
+                    if request["operation"] == "validate":
+                        if owned_cases.get(request["name"]) != request["case"]:
+                            raise ValueError(
+                                "Validation must name this worker's original rendered case"
+                            )
+                        with contextlib.redirect_stdout(log):
+                            current = session.validate(request["name"])
+                        row.update(
+                            outcome="completed",
+                            current_evidence=current,
+                            checked_ns=time.perf_counter_ns(),
+                            task_verified_ns=None,
+                            tool_accepted_ns=None,
+                            scope="Current custody only; no new render or scientific acceptance",
                         )
-                        tool_end = time.perf_counter_ns()
-                        folder = (
-                            session.folder(request["name"])
+                    else:
+                        if request["operation"] != "render":
+                            raise ValueError("Unsupported worker operation")
+                        with contextlib.redirect_stdout(log):
+                            result = session.render(
+                                request["spec"], Path(request["base"]), request["name"]
+                            )
+                            tool_end = time.perf_counter_ns()
+                            folder = (
+                                session.folder(request["name"])
+                                if args.arm == "graphunslopify"
+                                else session.root / "runs" / request["name"]
+                            )
+                            current = session.validate(request["name"])
+                            evaluation = evaluate(
+                                result,
+                                folder,
+                                request["spec"],
+                                Path(request["base"]),
+                                truth[request["case"]],
+                            )
+                            checked = time.perf_counter_ns()
+                        png = [
+                            e["available_monotonic_ns"]
+                            for e in result["save_observations"]
+                            if e["format"] == "png"
+                        ]
+                        first = min(png) if png else None
+                        if first is not None and not started <= first <= tool_end:
+                            raise ValueError(
+                                "Original-save counter is outside this request"
+                            )
+                        if not current["current"]:
+                            raise ValueError("Current producer evidence changed")
+                        report_name = (
+                            "workspace-result.json"
                             if args.arm == "graphunslopify"
-                            else session.root / "runs" / request["name"]
+                            else "report.json"
                         )
-                        current = session.validate(request["name"])
-                        evaluation = evaluate(
-                            result,
-                            folder,
-                            request["spec"],
-                            Path(request["base"]),
-                            truth[request["case"]],
+                        row.update(
+                            outcome="completed",
+                            folder=str(folder),
+                            report_file=str(folder / report_name),
+                            report_sha256=hashlib.sha256(
+                                (folder / report_name).read_bytes()
+                            ).hexdigest(),
+                            tool_status=result["status"],
+                            tool_exit_code=result["exit_code"],
+                            native_report_present=result.get(
+                                "native_report_present", True
+                            ),
+                            tool_end_ns=tool_end,
+                            checked_ns=checked,
+                            first_png_available_ns=first,
+                            first_png_unavailable_reason=(
+                                "No actual PNG save; inspect the retained refusal/report"
+                                if first is None
+                                else None
+                            ),
+                            tool_accepted_ns=(
+                                tool_end if result["status"] == "passed" else None
+                            ),
+                            task_verified_ns=(
+                                checked if evaluation["task_correct_verified"] else None
+                            ),
+                            evaluation=evaluation,
+                            current_evidence=current,
+                            native_execution=result.get("execution"),
+                            translation_execution=result.get("translation_execution"),
                         )
-                        checked = time.perf_counter_ns()
-                    png = [
-                        e["available_monotonic_ns"]
-                        for e in result["save_observations"]
-                        if e["format"] == "png"
-                    ]
-                    first = min(png) if png else None
-                    if first is not None and not started <= first <= tool_end:
-                        raise ValueError(
-                            "Original-save counter is outside this request"
-                        )
-                    if not current["current"]:
-                        raise ValueError("Current producer evidence changed")
-                    report_name = (
-                        "workspace-result.json"
-                        if args.arm == "graphunslopify"
-                        else "report.json"
-                    )
-                    row.update(
-                        outcome="completed",
-                        folder=str(folder),
-                        report_file=str(folder / report_name),
-                        report_sha256=hashlib.sha256(
-                            (folder / report_name).read_bytes()
-                        ).hexdigest(),
-                        tool_status=result["status"],
-                        tool_exit_code=result["exit_code"],
-                        native_report_present=result.get("native_report_present", True),
-                        tool_end_ns=tool_end,
-                        checked_ns=checked,
-                        first_png_available_ns=first,
-                        first_png_unavailable_reason=(
-                            "No actual PNG save; inspect the retained refusal/report"
-                            if first is None
-                            else None
-                        ),
-                        tool_accepted_ns=(
-                            tool_end if result["status"] == "passed" else None
-                        ),
-                        task_verified_ns=(
-                            checked if evaluation["task_correct_verified"] else None
-                        ),
-                        evaluation=evaluation,
-                        current_evidence=current,
-                        native_execution=result.get("execution"),
-                        translation_execution=result.get("translation_execution"),
-                    )
+                        owned_cases[request["name"]] = request["case"]
                 except Exception as error:  # noqa: BLE001 - preserve each real failed attempt
                     row.update(
                         outcome="execution_error",

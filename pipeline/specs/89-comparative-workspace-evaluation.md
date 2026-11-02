@@ -310,3 +310,23 @@ sequences preserve config/history/data and real strict failure. Fix unhandled
 click/response waiting with Promise.all and retain DOM diagnostics; keep60s and
 all strict checks. Full frozen checks/push/new exact CI remain before advancing.
 All original formal192/54/48/64/64/14, full seal and full delivery audit remain.
+
+
+89d3b accepted7fd21c2b3f8abf29c7c79a88961f2ba5782a4eef at
+2026-11-02T02:00:10.326541UTC: exact all-nine main41371067540/Figure41371067522
+pass. Actual four native packages/77resources and13-workflow Linux selection
+artifact independently verify; previous failures remain evidence.
+
+##89d4 — actual reliability controls and custody RPC (working)
+
+Complete48 planned clean/science/integrity controls, both producers/two repeats,
+now have owned actual renders, relevant fault signals and post-change guard
+requests. Validation is custody only, never a new scientific/first-image/task
+acceptance. Real timeout control found an older render reply could answer a later
+same-case guard; match operation/sequence as well as case and retain the failure.
+Current/minimum12 focused tests pass; final current/minimum/fresh each pass48
+controls after classification review, no independent contract errors. Preserve physics/task failures separately from scientific
+faults, abstention/current-audit-needed, missed faults and clean false alarms.
+All output/source/SDK/protocol identities and missing cells remain explicit.
+Full gates/push/exact CI are required. Formal48 is still0; complete formal mode,
+full seal/all original192/54/48/64/64/14 and full78–89 audit remain unfinished.

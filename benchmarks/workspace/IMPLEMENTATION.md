@@ -314,3 +314,35 @@ matches77 source/wheel/installed resources and27 requested dependency pins;
 only SDK web/project-selection.js changes. Build/typecheck pass. Full frozen
 local gates, index/full-commit binding, push and new exact all-nine/Figure remain.
 Full comparison/implementation seal/formal tracks/78–89 audit remain incomplete.
+
+
+##89d4 — live custody validation and complete reliability controls
+
+Prerequisite7fd21c2 is exact-CI accepted2026-11-02T02:00:10.326541UTC (all nine
+main41371067540/Figure41371067522). Both actual package/UI recovery and native
+interruption fixes remain; current SDK/README/protocol bytes stay unchanged.
+
+The single isolated worker now validates original owned rendered cases without
+a new render or scientific acceptance timestamp. A direct real1ms timeout/input
+mutation control exposed a late old render/current=true being consumed as a
+later validation. Parent case/operation/sequence checks now reject that reply,
+retaining failed dispatch context; current/minimum12 focused controls pass.
+
+reliability.py schedules every frozen48 controls:4clean +4science +4integrity,
+both independent producers/two repeats. Actual owned clones and real outputs
+are changed for PNG/report/current-input/recorded-program custody controls.
+Science matches the relevant native claim/reference/uncertainty signal, including
+honest preflight abstention with no native exit/report. Independent numerical/
+source contracts are distinct from physical-width/font rejection; false alarms,
+missed science, incomplete evidence and changed custody are explicit. Every
+failed/missing control and closure remains in its denominator. The checker and
+both CI Ruff commands include the new sources and retain per-profile artifacts.
+
+Initial48 and three subsequent48 profiles pass before final classification review;
+final current/minimum/fresh each now pass all48 after that review. Source/SDK
+identities and lifecycles stay intact, no independent contract errors occur, and
+the actual recorded width failures remain. Known Graph PNG/SVG/PDF width
+failures stay visible, never counted as task acceptance. These are pre-seal
+integrity checks, not formal48 measurements. Full frozen gates/byte binding/push/
+new exact CI remain. Complete formal execution context, standalone/GUI/native
+controllers, full public seal/all192/54/48/64/64/14 tracks and78–89 audit remain.

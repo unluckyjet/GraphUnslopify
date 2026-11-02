@@ -93,6 +93,8 @@ class LiveSession:
     ):
         if track not in {"single", "paper"}:
             raise ValueError("Unknown isolated session track")
+        self.track = track
+        self.request_sequence = 0
         self.folder = Path(folder).resolve()
         self.folder.mkdir(parents=True, exist_ok=False)
         self.timeout = timeout
@@ -183,8 +185,12 @@ class LiveSession:
 
     def request(self, payload):
         dispatched = time.perf_counter_ns()
+        sequence = self.request_sequence
+        self.request_sequence += 1
         self.last_dispatch = {
             "case": payload["case"],
+            "operation": payload["operation"],
+            "sequence": sequence,
             "parent_dispatched_ns": dispatched,
             "dispatch_state": "attempted",
         }
@@ -193,7 +199,13 @@ class LiveSession:
         self.last_dispatch["dispatch_state"] = "flushed"
         row = self.receive()
         received = time.perf_counter_ns()
-        if row.get("event") != "result" or row.get("case") != payload["case"]:
+        if (
+            row.get("event") != "result"
+            or row.get("case") != payload["case"]
+            or row.get("sequence") != sequence
+            or self.track == "single"
+            and row.get("operation") != payload["operation"]
+        ):
             raise RuntimeError("Response belongs to a different operation/request")
         # The outer actor observes task acceptance after receiving the response.
         row["worker_task_verified_ns"] = row.get("task_verified_ns")

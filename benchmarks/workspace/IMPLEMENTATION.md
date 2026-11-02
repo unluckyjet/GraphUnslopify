@@ -346,3 +346,39 @@ failures stay visible, never counted as task acceptance. These are pre-seal
 integrity checks, not formal48 measurements. Full frozen gates/byte binding/push/
 new exact CI remain. Complete formal execution context, standalone/GUI/native
 controllers, full public seal/all192/54/48/64/64/14 tracks and78–89 audit remain.
+
+
+##89d5 — environment reproduction controllers (working)
+
+Prerequisite89d4 dd6a41bfccf26e9a43508d290eb8d1ebde7f1580 passes exact all-nine
+main41380088737/Figure41380088713 at2026-11-02T03:56:56.003170UTC.
+
+reproduction.py implements the registered16 replays per local profile, all64
+with a complete four-profile configuration. Source/current, minimum3.10 and
+fresh-wheel modes use actual isolated live sessions with interpreter/package-
+location checks. Every failed/missing replay remains, with physical task failures
+separate from independent numerical/data/export contract errors. Same-arm,
+same-environment repeat PNG identities are observed and reported; no equality is
+assumed across renderers or environment versions.
+
+standalone_worker.py first proves absence of both the SDK distribution and import.
+Graph uses an actual local_request conversion/create_bundle archive and its real
+immutable-checking launcher, with original program bytes and actual PNG/SVG/PDF
+save observations. Its observer imports no SDK before the genuine launch. The
+independent baseline executes owned original CSV/statistics/drawing sources;
+its shared inspection dependency is an explicitly owned copy of the matching SDK
+runtime, introduced only after the absence probe. Both retain actual interpreter,
+distribution versions, loaded runtime source and source/input/output hashes.
+Neither path treats a package beside the program as an installed distribution.
+
+First actual no-SDK3.12 mass fixture succeeds in both arms: baseline passes all
+frozen task gates; Graph matches quantities/save bindings with its three known
+width failures retained. Four actual negative guard tests pass: installed SDK
+refused in each arm, changed owned input refused before rendering in each arm.
+Complete four-profile64 preparation now passes without execution/contract errors.
+All32 same-arm/same-profile PNG repeat pairs reproduce. Baseline verifies32
+figures; Graph verifies0 because all32 retain the known physical-width failure.
+All16 standalone runs prove actual SDK import/distribution absence.
+Full local gates, Git byte binding/push and new exact CI remain. This does not
+fill formal64 or any other formal denominator. Complete formal execution
+context/native/GUI controllers, public seal, all fixed tracks and78–89 audit remain.

@@ -330,3 +330,22 @@ faults, abstention/current-audit-needed, missed faults and clean false alarms.
 All output/source/SDK/protocol identities and missing cells remain explicit.
 Full gates/push/exact CI are required. Formal48 is still0; complete formal mode,
 full seal/all original192/54/48/64/64/14 and full78–89 audit remain unfinished.
+
+
+##89d5 — local environment reproduction (working)
+
+Actual sixteen-cell profile schedules and full four-profile64 controller are
+implemented. Ordinary profiles keep real owned workers and verify actual Python/
+source-vs-installed location. Standalone proves import/distribution absence first,
+then executes genuine emitted Graph bundles or the independent owned baseline
+with an explicit matching bundled inspection dependency. Original sources/data,
+actual saves/strict outcomes/loaded runtime and all failed cases remain. Same-arm/
+same-profile PNG repeat comparisons are reported, with no cross-arm/version
+pixel equality assumption. Physical width failures remain rejected task outcomes.
+
+Two actual initial standalone fixture executions and four real refusal guard
+tests pass; full64 preparation now passes with0 execution/contract errors and32/32
+same-arm/same-profile PNG repeats. Baseline32 task gates pass; Graph32 remain
+rejected for known physical width. All16 standalone runs prove actual SDK absence. No formal64 credit: context/seal,
+native/GUI/formal tracks and full audit remain. Required full gates, per-milestone
+Git push and exact all-nine/Figure CI still precede advancing.

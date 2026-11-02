@@ -1,0 +1,503 @@
+{
+  "checked_utc": "2026-11-02T16:24:15.434533+00:00",
+  "measured_revision": "d9d4b694f54c6f4fd5bb2027090e50c54c0b2cba",
+  "scope": "Source/evidence/document structure audit,not new capability execution or human visual-quality study",
+  "production_sdk_unchanged_files": {
+    "python/graphunslopify/LICENSE.txt": "bac069b3f31bcae3e6f708f5389fb110db4b2a393168db7bce046b7515167c9e",
+    "python/graphunslopify/ZOD-LICENSE.txt": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8",
+    "python/graphunslopify/__init__.py": "b3db0b4ad49e9e98e2b2d08b3875d857723007262f2dc57920c53c19685a2396",
+    "python/graphunslopify/_source_identity.py": "4a5a0b783c3a61a3f1c4bbb1ec1dce408275a258039eeacabc7bafa6040500b8",
+    "python/graphunslopify/_translator.mjs": "c494afb2fe336892c7da8188e91344eaecd48d71e5bec298bea514e76c86d2f0",
+    "python/graphunslopify/audit.py": "63619ff892cfe85465b3052e751baa0df1461003546fb7459703bb723f7da52a",
+    "python/graphunslopify/audit_worker.py": "d158ca60ff2d24093ff3d41f906713dcbfd018ab00ad9c82b3b2668564bba5a0",
+    "python/graphunslopify/build.py": "58e88f78e8b5ea50a0545b4bc5d340d9493fb320f27ce1dedd08c6ada94bad65",
+    "python/graphunslopify/cell_colour.py": "4320fb54f383c7db0e31aea9252c0558320dc774bb778a0cb284fb84203e39a1",
+    "python/graphunslopify/cli.py": "3f190fc202fd7042ac263a274e26c4a23052b6f1f4f35f5eba45c1c018af6fa0",
+    "python/graphunslopify/colour.py": "f125cf0e6e471128e0a31c1347f25cb69c8bef6dc5e031cf662019fc78ceb498",
+    "python/graphunslopify/comparison.py": "246ad793f3f3270ac10deb2d45cbe0dc619fba3e0905760c2e22269f276a5b29",
+    "python/graphunslopify/comparison_html.py": "e8794aaa1012d7442034e23619012f836f32f2797bf071ef5fd43043331d5336",
+    "python/graphunslopify/data_view.py": "918fa8f392fef5deb4a567d1d27517701f6c0694329c28708b93f41b96294b67",
+    "python/graphunslopify/demo.py": "4ec1f6f8a9543c3b4ac27ff517139ea01e314c8c625e0ef82d76370f89969685",
+    "python/graphunslopify/describe.py": "d3838008706f53118c345e29a1f294f0592e08868f27730f5de58521bea96adb",
+    "python/graphunslopify/diagnostics.json": "6a3a5063d01920a1cfc2f42453e81f3ca490a7cefcff7440fd3e192864fef0ea",
+    "python/graphunslopify/diagnostics.py": "24158f5663163a65361e83e7998c6b6ac3fef6e0e7161d6c7c3987161ce7a055",
+    "python/graphunslopify/drafts.py": "27c7c8eed4cdf208187f4e8c7854d2acd402006f2e1323c94e22642af79bd7c4",
+    "python/graphunslopify/errors.py": "f9e372cbd9d2ecbd0369f08b8d8f2f742f71214874643a59d2ca3a874e8c7b88",
+    "python/graphunslopify/examples/quickstart.ipynb": "fa315de5f0cb78b73990686a694cf49b58ec91f6db38e907d5f74e4cbe9c610e",
+    "python/graphunslopify/export_size.py": "968172aa2c748a882d8be6514777125c193154779d2c1ea7c171982c0125b2f0",
+    "python/graphunslopify/figure_runtime.py": "f01a3c02d0a06d59678f28821f826c685dc2950799f1693e6bb0c38a94091353",
+    "python/graphunslopify/figure_templates.py": "241e35a1dd84e46f1edec20f5866548571b1bf75e2c4968cfb20247053d1ea9e",
+    "python/graphunslopify/inspect.py": "bad2e31f3e44aeb3786d3be90a3fd0bd17fa9583802b64ed84202173a83a297a",
+    "python/graphunslopify/lockfile.py": "668bc1637e7c16ed1497d30ba89ceb4d05cca9ca859e5d5ad0fe910c4d65e998",
+    "python/graphunslopify/mcpserver.py": "fe567f2839c97ba6e4c983375f26878d46b1796c4e390f543823eb528fd6a879",
+    "python/graphunslopify/notebook.py": "706659e48104888aed55d27210a4d54f0c8ca7772dc9da594e7def5ba16e465c",
+    "python/graphunslopify/numerical_cache.py": "1e6fcfb2e539cc710da53fb107745b7c62b5c17ed9cf72b516b75d0be493db96",
+    "python/graphunslopify/pdf_review.py": "f6358363f1bc6eb1e73b6c3c01ea53d904fa2ff1c64859a23c12b78b345ada57",
+    "python/graphunslopify/pdf_visual.py": "fc8d01fb035faae5ea88e227b54ff4a8cd60e0936ca10c2b35e6ccc5fe06b151",
+    "python/graphunslopify/preview.py": "ff4becb47c6c840457cfcceaf395a4b00b863e4a18008c30c9a159f4f84c7743",
+    "python/graphunslopify/preview_diagnostics.py": "d0eacc6830fb3516401b416492673a8174b5e6763d07513aac9538f00fec357c",
+    "python/graphunslopify/preview_drafts.py": "e07c00ba12eb17759c5f2d16d130ad832cec11a000b45eb12593e7ec9c5f94f7",
+    "python/graphunslopify/preview_geometry.py": "9f903957198b95ed71bd85d5f13b0b022a1acbb21c70af527a03626721d35dbd",
+    "python/graphunslopify/preview_render.py": "7a87dffa1755cbdcac6ed2759aa429271fb362909870564ae225a65504087476",
+    "python/graphunslopify/preview_staging.py": "6758f2da5827a798ddecf78f0168d61c379fc81dedeff4b1c62d9488e1d03481",
+    "python/graphunslopify/preview_worker.py": "7e1d91b3043a193f5afd79ca6b1a7ce4f5b238045f8076aae8ecc66205362929",
+    "python/graphunslopify/project.py": "26beb2ae276780fb6b763791e5701044fff42ee1fbc27b94278f18d88c2efc27",
+    "python/graphunslopify/project_changes.py": "42cbb0264306543e5dad823c36b10afcd06cf17d5b243caeb2ed9852bae2d1ea",
+    "python/graphunslopify/project_export.py": "716d82b6e55702c80508a77a9c31d61060e159b6b0384e43bc4eab9b7b72c931",
+    "python/graphunslopify/project_inspections.py": "b65790a2957e5e303d93789b0337bddedcba0334790d7915138857e0e6bf281d",
+    "python/graphunslopify/project_preview.py": "5baecc68aa678eb15caab78ba6e11661b01db3e067265894a49242366356c21c",
+    "python/graphunslopify/project_reuse.py": "3ef78f9d4a63f8ae1241af7815b19115047e24ec787ab089cfc77a4578e1fc90",
+    "python/graphunslopify/project_review.py": "a79c2d0d743075a16657556d9b2e359bfab23c1dcb69cb756efe96ab099dc732",
+    "python/graphunslopify/project_selection.py": "2c218d3233110164ab456c864c84a655e4c9ef2cc9b012ae929b5384417dfd36",
+    "python/graphunslopify/provenance.py": "1d1c23e727840876c7ad4dce3f8bec03b0519ba745df7b6cfd9856d75dcf0386",
+    "python/graphunslopify/runtime_bundle.py": "2150e88ffd8e18aa81f51beaf389c9dbec5435ead8780e512e4696707c3a7f54",
+    "python/graphunslopify/schemas/audit-report.schema.json": "b4c21c7d93267dfed236f94a4033abdfe914757d097f44333528b8b1c6603ae6",
+    "python/graphunslopify/schemas/comparison.schema.json": "f8c9653040064adf15786714968c0d5ea05344ebae808b946706dd429f275032",
+    "python/graphunslopify/schemas/environment.schema.json": "c0e772dd0da1e37dfeaa1ab63d93e16dec04288425610f0b30a342618c55caae",
+    "python/graphunslopify/schemas/manifest.schema.json": "477f867ad82a571bf7cc3eb9dcda3c4ab06db95b8272aa0e13d632d1044671d3",
+    "python/graphunslopify/schemas/runtime-identity.schema.json": "df5fadceb31fa5be3e5fd2e5e4f06bbe0091140046e3d68ebed7e9da4b86079b",
+    "python/graphunslopify/schemas/runtime-report.schema.json": "c3f0d9625262cde2d85617db157a3084137f08335f6744de300456aaa1751d9d",
+    "python/graphunslopify/tracking.py": "152fabff04afabaf33e2b7cefb6d3802e940f9b1344ecc998a96fe3fb89dcb2b",
+    "python/graphunslopify/translator_worker.py": "951cbd7cd6d15b61c238fc0724d8c78c52ba096e2b0453c3a1463c748a5d7956",
+    "python/graphunslopify/transport.py": "e48979edf30e4c7b651a254327c62c3f974673ab3f44b81b6f04853c57b7a505",
+    "python/graphunslopify/web/app.css": "2e6489f9ea0e31e221cf4d40a55d04d84777eb5dfff512d0068fd8ac7ece1e67",
+    "python/graphunslopify/web/app.js": "f4a3442b237987cd9a096ca900bd7db7bdf4a67d8f3bbb1d33225b2b1f9e4868",
+    "python/graphunslopify/web/controls.js": "156fd5b5f808a5b5c19aedd87ceed0be2e1477bf4a751c806b47b6f30e69e1dd",
+    "python/graphunslopify/web/diagnostic-overlays.js": "501d216cc274ce031e51cede894b22b2cd6c4dfd3214f69820cda02ca61a3d04",
+    "python/graphunslopify/web/diagnostics.js": "b65794325ebcebacadf18c561ccc032c3ffacc95fa960f6fd58234b1bb7bf664",
+    "python/graphunslopify/web/drafts.js": "a175ea56fbdf8d2ef590d587e5645957cf265b29a2e662160e59a81b61a43c9b",
+    "python/graphunslopify/web/index.html": "c26d19c3a1564ff378ff8d4e665dcc321aa658eafe0d2645805665cbd020657c",
+    "python/graphunslopify/web/project-review.js": "5d95967edba92dfd15913df8d5ad92c92f691546f1fc317a0b8ee80eeda31d8f",
+    "python/graphunslopify/web/project-selection.js": "ac5ddd2f9ca7e57588b5481f5efe65ac6a5c340dd408d8cd534dd6950552041a",
+    "python/graphunslopify/web/project-shared.js": "fde256759ce05c19255ed87f202cb89d3e90421a9131ba49dc253f59737abcf5",
+    "python/graphunslopify/web/project.css": "9272b7d5ed01e1bf40b78554d50b735d2b8f6464ee26dd28f6a3203df4e3aee5",
+    "python/graphunslopify/web/project.html": "8cefd737862c19b4361cb5951259a91bf0d653ab046acb8759d06bd9e730aafa",
+    "python/graphunslopify/web/project.js": "407b565a39b9905ba1dedc9d51a3563596d960cfb12bc4fdd19bfd80a505df1f",
+    "python/graphunslopify/web/reuse-intent.js": "2c1e920cc56cd14802a18824c5dc14a49d767c0b8de03c9a9218fbc2b6a3ee02",
+    "python/graphunslopify/web/staged-preview.js": "f5711b3d2088f86b730a54d4ed0808450ad481594468ea2067e030849afd4751",
+    "python/graphunslopify/web/text-editing.js": "e7448dc6252fa57f8cef3249e460efaec28a48659fbf6e45da0cb53c933a508e",
+    "python/graphunslopify/web/workspace-commands.js": "5d69826fe372ae36966c35a1bf88206e993d12d151c9d0cacaceed6d7e4709d6",
+    "python/graphunslopify/workbook.py": "24fd841a106ec39cd21eed7d09d21f2bdab9df63520a64138e7e45227bc7614e",
+    "python/graphunslopify/worker_process.py": "2c19907b29f7b7f35048f0ba66b98642bf16bd55f2ed485c7f712d682076e3ee",
+    "python/graphunslopify/workflow.py": "b14f1609774f1142d041560b9a2787caee3dd1e88a1013c407fd7a72d662e311"
+  },
+  "original_78_to_88_contracts": {
+    "pipeline/done/78-dataset-profile-foundation.md": {
+      "original_D9_sha256": "bf6245c7c6c65c3b0b16d14ee6eb1645bc2e32508011dab4cbb749e4fb92c268",
+      "delivery_working_sha256": "bf6245c7c6c65c3b0b16d14ee6eb1645bc2e32508011dab4cbb749e4fb92c268"
+    },
+    "pipeline/done/79-native-excel-input.md": {
+      "original_D9_sha256": "f09b8a506196dfe08008f711616743cf2b6470d401d2f1b31b619232d5397f57",
+      "delivery_working_sha256": "f09b8a506196dfe08008f711616743cf2b6470d401d2f1b31b619232d5397f57"
+    },
+    "pipeline/done/80-central-figure-workspace.md": {
+      "original_D9_sha256": "0df8fd10cc4d8b341e536e89d09099f8fa463453a1237d164d311e50867cdaab",
+      "delivery_working_sha256": "0df8fd10cc4d8b341e536e89d09099f8fa463453a1237d164d311e50867cdaab"
+    },
+    "pipeline/done/81-direct-visual-editing.md": {
+      "original_D9_sha256": "1526cb53e1de0426535cddb5b011059b43d5a30c0eee64c76f0667c98e8a0db5",
+      "delivery_working_sha256": "1526cb53e1de0426535cddb5b011059b43d5a30c0eee64c76f0667c98e8a0db5"
+    },
+    "pipeline/done/82-model-backed-drafts.md": {
+      "original_D9_sha256": "da1c3591cb6df1ca66198c5e108df049b0cd99a1965998237ec81a67e0cf01ed",
+      "delivery_working_sha256": "da1c3591cb6df1ca66198c5e108df049b0cd99a1965998237ec81a67e0cf01ed"
+    },
+    "pipeline/done/83-spatial-diagnostics-layout.md": {
+      "original_D9_sha256": "22c01757a38a2238bdb1dd14de0b9ef5bd2f11824a40a28e310f76b5b701a87c",
+      "delivery_working_sha256": "22c01757a38a2238bdb1dd14de0b9ef5bd2f11824a40a28e310f76b5b701a87c"
+    },
+    "pipeline/done/84-measured-rendering-overhead.md": {
+      "original_D9_sha256": "b2c3a2e78367d1410cf50fa39fdbd04f0255098df357d5ac1322c3bb11ed209e",
+      "delivery_working_sha256": "b2c3a2e78367d1410cf50fa39fdbd04f0255098df357d5ac1322c3bb11ed209e"
+    },
+    "pipeline/done/85-incremental-staged-preview.md": {
+      "original_D9_sha256": "426a9aaedba334011f4eb3a19880128db54ac35f0bc29837180139caaf5c36a4",
+      "delivery_working_sha256": "b4f33a918abcb6a96282976230536d9d85df545dc5beb9d2a2fd27418aa8b3b8"
+    },
+    "pipeline/done/86-compact-versioned-runtime.md": {
+      "original_D9_sha256": "01cfaa88e993e206e7a5cfca6fb1d3c3d56f11e6083bfe6116fb52a319cf1941",
+      "delivery_working_sha256": "01cfaa88e993e206e7a5cfca6fb1d3c3d56f11e6083bfe6116fb52a319cf1941"
+    },
+    "pipeline/done/87-scientific-figure-review-mode.md": {
+      "original_D9_sha256": "265518fa980fde6b3e26df3728c73d0546478a0f4d481f0328a055c5e7fc058f",
+      "delivery_working_sha256": "265518fa980fde6b3e26df3728c73d0546478a0f4d481f0328a055c5e7fc058f"
+    },
+    "pipeline/done/88-repeated-work-controls.md": {
+      "original_D9_sha256": "980cbf738cffd97a1d3d9cf0b2f70cb9b1372d99c596405b71ac641f47b5db5b",
+      "delivery_working_sha256": "980cbf738cffd97a1d3d9cf0b2f70cb9b1372d99c596405b71ac641f47b5db5b"
+    }
+  },
+  "original_graphic_placements": 52,
+  "unique_original_graphics": 51,
+  "graphics": [
+    {
+      "readme": "README.md",
+      "target": "docs/fourth-pass-showcase.png",
+      "path": "docs/fourth-pass-showcase.png",
+      "sha256": "ed70b5310eaadd81591d23adb944f2018551170dce277af6eca9495754663d00",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fourth-pass-direct-labels.png",
+      "path": "docs/fourth-pass-direct-labels.png",
+      "sha256": "f5958fbd5437b9011bb6a47763f358aecd421a6f5edf2f8249820c7508320653",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fourth-pass-facets.png",
+      "path": "docs/fourth-pass-facets.png",
+      "sha256": "8278089e79947f9395a9d44a292de633da91f727bbea4efc093d6551cb2620d0",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/lock-figure-1.png",
+      "path": "docs/lock-figure-1.png",
+      "sha256": "66c70d26eed4f53c3ea7a0910f2d0cb4c74d428370d99e90c26b849f10c8ba0f",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/lock-figure-2.png",
+      "path": "docs/lock-figure-2.png",
+      "sha256": "2c5a6a616907f3948ef62037e7b8aa90c4dc76da318478cf30dd592ea1037877",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fifth-pass-layers.png",
+      "path": "docs/fifth-pass-layers.png",
+      "sha256": "526571301abb7e5534d82b626ed71d2bf8ecd371cdcfd879f1468add7b209277",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fifth-pass-repeat.png",
+      "path": "docs/fifth-pass-repeat.png",
+      "sha256": "28ec0692945183a1bd8d3538675263491c78457b25cf1f6b15e780df09fa6b67",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fifth-pass-inset.png",
+      "path": "docs/fifth-pass-inset.png",
+      "sha256": "2e7fc521b9106ed7e8a391bc53c9b0d0fa2d4d5b68304ec89f7825ce44b58944",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fifth-pass-axis-break.png",
+      "path": "docs/fifth-pass-axis-break.png",
+      "sha256": "a77e03d8accfd4e4c4f125d9c28ff38be29b09afc6970a6bc1bd863b8e99299c",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/first-pass.png",
+      "path": "docs/first-pass.png",
+      "sha256": "cf4800811567504b0956242ec924ca71f3ea72a1f0e8396b47642fd89f622638",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/second-pass.png",
+      "path": "docs/second-pass.png",
+      "sha256": "2563ca2b6225fed34242f5e05e36735edbe29b7b68610e2b77ab7424dce9193d",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/first-pass-greyscale.png",
+      "path": "docs/first-pass-greyscale.png",
+      "sha256": "30c266cc7d5ed49c714c76b002bed405e3ff2550cb8383a120b808b86228dadd",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/second-pass-greyscale.png",
+      "path": "docs/second-pass-greyscale.png",
+      "sha256": "4b3d5996dbc1f20afd730c296010aea9f0b2cbd0a60912c98511f6cb5975a511",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fifth-pass-table.png",
+      "path": "docs/fifth-pass-table.png",
+      "sha256": "5cf5383d9b2b8be58646b55d88ea9327fdc06dd543839cf50bd58e06f9a5590a",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/third-pass-heatmap.png",
+      "path": "docs/third-pass-heatmap.png",
+      "sha256": "35fd9b174005ee02cda021c670d388355637c3c47b87c2001893656b7ec0b79a",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/third-pass-box.png",
+      "path": "docs/third-pass-box.png",
+      "sha256": "b80f075d4c3ef0d33321a7427e28b861bf27f73d6e8972b11bb56a433c3ce0d2",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/third-pass-pareto.png",
+      "path": "docs/third-pass-pareto.png",
+      "sha256": "c9690aeb5b8c66812513b686dbaf77f0f75c21efb68a9741a77f55f72353c430",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/third-pass-stacked.png",
+      "path": "docs/third-pass-stacked.png",
+      "sha256": "6b2c702873650d835d0eb396bc735aa51af58d99be0098265ffd8052160e99a6",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/third-pass-violin.png",
+      "path": "docs/third-pass-violin.png",
+      "sha256": "6ec690a10ac362c8e65715f8e99f7a63863adb92c0b914959d735fa13b83a3f9",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/animated-curve.gif",
+      "path": "docs/animated-curve.gif",
+      "sha256": "91c10f1cc974fe4c8b07dcbca0e7d52b084081ea3ebdf69f41e6fec9002856fd",
+      "decoded_frames": 32
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-ecdf.png",
+      "path": "docs/seventh-pass-ecdf.png",
+      "sha256": "d95b1a3f1ea0055a15dd3995e1c8384e150c5ba4a7283c524e4a514db697aee5",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-raincloud.png",
+      "path": "docs/seventh-pass-raincloud.png",
+      "sha256": "59e0c1a1551b7836739484275a30824ccc048e44a572c59cdea77d4348c6d37e",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-ridgeline.png",
+      "path": "docs/seventh-pass-ridgeline.png",
+      "sha256": "7cfbf9afa7a57660b16f502faabe1970eff80d7df0223fa78d02b6e3e46608bc",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-forest.png",
+      "path": "docs/seventh-pass-forest.png",
+      "sha256": "1ba470f1b9c543fafefd8a7eaa730daec29381e3fe292fcc68b83b822d2932e0",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-paired-difference.png",
+      "path": "docs/seventh-pass-paired-difference.png",
+      "sha256": "ccca84aa09a37394d6726b242dd2a75e6d977f22ba9807b8b1cfc4737c817b03",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-slope.png",
+      "path": "docs/seventh-pass-slope.png",
+      "sha256": "4e8821799f330f3c540437b537d622865bb594da68b6cea31e2dab551ed7c70c",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-dumbbell.png",
+      "path": "docs/seventh-pass-dumbbell.png",
+      "sha256": "01019b2e0656dc653177b0c50630fb7e45d9bce627d8cdf2945e74f2986fcb7e",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-calibration.png",
+      "path": "docs/seventh-pass-calibration.png",
+      "sha256": "f5aa194e246cfa20bd61ca39820e8e2d17e5f21234bdfca866edffb81a16a320",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-qq.png",
+      "path": "docs/seventh-pass-qq.png",
+      "sha256": "8702cd499cbcccae1054e7ce32768b4811941876fd1b58853d9f95518555e8d8",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-kaplan-meier.png",
+      "path": "docs/seventh-pass-kaplan-meier.png",
+      "sha256": "4dd84ffb84051fbf79fe0d2c0c073499478c176ca933a098d2c9142a8f87bd54",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-scaling-fit.png",
+      "path": "docs/seventh-pass-scaling-fit.png",
+      "sha256": "ea19b10fb5665dc858c07f8b3262499b61aa87a6bfe00cbcde58ac4b893c8819",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-confusion.png",
+      "path": "docs/seventh-pass-confusion.png",
+      "sha256": "e8791aa7b88265d1e18debaa417049aed63498ca62a2fd8f044845d9df2644ab",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-waterfall.png",
+      "path": "docs/seventh-pass-waterfall.png",
+      "sha256": "3663a902bcfd027fe3dbbe7b1ade15efc3c49635aae619352a12bac874fef365",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/seventh-pass-sparklines.png",
+      "path": "docs/seventh-pass-sparklines.png",
+      "sha256": "4a46f7b970a97a3e16dc5eb374e8652a5e64c142562d5bae30e3d30a77f4cf82",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/01-training-curve.png",
+      "path": "examples/baseline/01-training-curve.png",
+      "sha256": "4a1d9485328205bad4ad245a1791baae502bd22549ab0644d0cf1cf6b2fd1f9b",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/02-loss-log.png",
+      "path": "examples/baseline/02-loss-log.png",
+      "sha256": "fdae580a14b50985ca7a52c35f185264dadf8e0f5f605edac3b6998f65f23d20",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/03-single-run.png",
+      "path": "examples/baseline/03-single-run.png",
+      "sha256": "4f42c90e7b154e25a345fb958a3e6b63f2a471b42112942977c429dcbfd3367c",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/04-accuracy-by-dataset.png",
+      "path": "examples/baseline/04-accuracy-by-dataset.png",
+      "sha256": "c0f307aa43fa6895f6ad10e1662b747c7cf7289ede0cf7456e726eebf30ef5fd",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/05-latency-ranking.png",
+      "path": "examples/baseline/05-latency-ranking.png",
+      "sha256": "9c21f4a1e52f5831ee3bcf76bf888625d573dbe43676684377892f54b3f74416",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/06-accuracy-vs-latency.png",
+      "path": "examples/baseline/06-accuracy-vs-latency.png",
+      "sha256": "0d116ab246b0fd894c853ab31b118cc423f10817cc28f2f334303abb5003658b",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/07-params-trendline.png",
+      "path": "examples/baseline/07-params-trendline.png",
+      "sha256": "6b2f2304fd0798216c5317b49c1b8e957121ab4180b11a484ef409c736155d6c",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/08-compact-double-column.png",
+      "path": "examples/baseline/08-compact-double-column.png",
+      "sha256": "fcbdfcdb8b0fd5e3d5743a772979927954d8db80c8f54b6c4f9339678be2c710",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/09-uncertainty-band.png",
+      "path": "examples/baseline/09-uncertainty-band.png",
+      "sha256": "ecb67f4ae88042a06923fce3e4e8de0f57eab630e524cb0019d25222a879b995",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/10-faceted-benchmarks.png",
+      "path": "examples/baseline/10-faceted-benchmarks.png",
+      "sha256": "3ad6a09f2c16a2743315165f23f2ca386e16dc95f75b4299e61b17b394aa889d",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/11-seed-spread.png",
+      "path": "examples/baseline/11-seed-spread.png",
+      "sha256": "6906fc456fef4e5f3b139bcd7633991e01e0f8000df677fecd9a02aadf012f2d",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/12-sweep-heatmap.png",
+      "path": "examples/baseline/12-sweep-heatmap.png",
+      "sha256": "a2f51c01e5fd13b3737cc943069aa2c0ae4586d9e00eb51d8d7d82868a3e5dc2",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/13-direct-labels.png",
+      "path": "examples/baseline/13-direct-labels.png",
+      "sha256": "14f5191b45f7d27e199e6a5f52a3c87200f7c58aad4309726d0aa700c2aa9843",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/14-animated-curve.gif",
+      "path": "examples/baseline/14-animated-curve.gif",
+      "sha256": "71a6db5f44d8e68d82142f4cddee1ceeb03b05e573fe72350fed73944b7da2f1",
+      "decoded_frames": 66
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/15-price-and-average.png",
+      "path": "examples/baseline/15-price-and-average.png",
+      "sha256": "c8d11bf20fc86327c09fda09226e7dc8909e2f49723f613c31d6acf1bf27503c",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fix-apply-fixes-bar.png",
+      "path": "docs/fix-apply-fixes-bar.png",
+      "sha256": "5c6c63cde82b74cb9da53b341728ab1dc29d59da6c1c5eb17f18baeda17755b5",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "docs/fix-temporal-before.png",
+      "path": "docs/fix-temporal-before.png",
+      "sha256": "39103896326989e1b564e7d970fdbc4782eed573efae84822025784569f48221",
+      "decoded_frames": 1
+    },
+    {
+      "readme": "README.md",
+      "target": "examples/baseline/15-price-and-average.png",
+      "path": "examples/baseline/15-price-and-average.png",
+      "sha256": "c8d11bf20fc86327c09fda09226e7dc8909e2f49723f613c31d6acf1bf27503c",
+      "decoded_frames": 1
+    }
+  ],
+  "original_protocol_sha256": "32633e964a5274a848e2d207bc65c013e27586afde67bb5c09379d660ff6c636",
+  "unchanged_frozen_assets": 37,
+  "local_markdown_file_targets_checked": 221,
+  "link_scope": "Local file targets only; remote URLs and heading anchors excluded",
+  "passed": true
+}

@@ -1,7 +1,7 @@
 ---
 id: 89
 slug: comparative-workspace-evaluation
-status: in_progress
+status: done
 priority: P1
 title: Freeze a fair workflow comparison and audit complete delivery evidence
 source_idea: User visual-workspace advice independent comparative evaluation with unchanged correctness and honest limits
@@ -442,3 +442,42 @@ baselines/16 renders/25 recipes/seven compositions. Python1272.60s; gate
 wrapper1274.87s. Publish this coherent checkpoint,then require exact14 before
 advancing. Actual native64,new exact14,qualified seal,formal measurements,
 analysis and78–89 delivery audit remain pending. No release/tag.
+
+
+##89e — formal comparison and complete delivery audit
+
+Accepted implementation D9/d9d4b694f54c6f4fd5bb2027090e50c54c0b2cba passes all14
+named checks across main41454996425/Figure41454996404/native41454996450.
+All436 actual preparation cells qualify before the prospective seal at
+2026-11-02T15:01:51UTC. Canonical seal SHA
+b2b3d5c708e56602925c78f69c43f2714af8396eeb2b952c14b41de65fc8804f.
+
+Actual serial local formal192/54/48/64/14 completes372 cells at15:38:52UTC
+without interruption, replacement attempts or concurrent measurement-host work.
+Actual subsequent formal native41473938665 completes64 replays on all four
+platforms; original192 exports are re-evaluated without new rendering.
+All436 cells are retained. Both arms match24/24 scientific/integrity classes,
+including allzero off-diagonal cells. Baseline task acceptance96/96 single,
+24/27 paper (three deliberate false claims),32/32 local and32/32 native; Graph
+retains width failures and no fully task-correct outcomes. Browser14/14 actual
+controls complete,0/14 full task gates; unavailable filter and wrong-unit
+intermediate outputs remain. No verified-time pair is eligible among41 tasks.
+All328 timing groups/164 paired endpoint rows, startup/handshake/cleanup and
+actual7/30 baseline versus23/14 Graph drawing/reuse counts per paper session
+are published without hiding slower/unavailable results.
+
+Byte-preserving originals:13,800 files,153371999-byte deduplicated archive,
+SHA05e779be536a266bbfa1519f0958130a61c91e51cc745dcc3c40833cfa15b0a3,
+in four repository parts. Actual complete restoration verifies every byte;
+portable minimum3.10 analysis matches the original except file locations.
+The complete78–89 audit maps each original scope to production source, actual
+controls/accepted evidence and limitations, distinguishes historical timings,
+corrects stale85 publication status and preserves all52 README graphics.
+No production SDK byte, original protocol asset, historical experiment or
+publicPyPI0.8.0 release is changed. Human/blind/adoption/model-quality judgments
+remain user-deferred.
+
+[Full report](../../benchmarks/workspace/results/formal-v1/README.md),
+[delivery audit](../../docs/workspace/workspace-delivery-audit.md). This is the
+local completion candidate; its commit must pass required local checks, normal
+push and exact main/Figure/native CI before final completion is reported.

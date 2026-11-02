@@ -1,8 +1,11 @@
 # Full85 incremental and staged-preview acceptance
 
-Local implementation, measurement and seven232/1904/Ruff153 checks pass on446
-unchanged source/test/fixture/evidence files. Push and exact main/Figure CI remain
-under acceptance.86–89 retain their entire scope.
+Full85 was accepted at closing commit1b942e3: exact all-nine
+[main41187061187](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41187061187)
+and [Figure41187061173](https://github.com/unluckyjet/GraphUnslopify/actions/runs/41187061173)
+passed2026-10-31 09:38:40UTC before86. The historical local snapshot below has
+seven232 Node/1904 Python/Ruff153 checks on446 unchanged source/test/fixture/
+evidence files; its original measurement counts and limits are preserved.
 Public PyPI0.8.0/c3e0619 remains distinct from this source; no release is implied.
 
 | Requirement | Observed evidence |
@@ -14,7 +17,7 @@ Public PyPI0.8.0/c3e0619 remains distinct from this source; no release is implie
 | Real source/minimum/fresh/whole-kind coverage | Source/fresh107 and minimum6 editor workflows; backend103 controls and21-kind30-pair/60-render equivalents per source/minimum/fresh; all60 actual installed/four-CI-wheel package members match. Source/minimum/fresh browser108 each preserve90 clean/18 strict negatives with actual roots/bytes/maps/lifecycles. |
 | Separate first image from strict completion | Corrected exclusive source612/510 clean102 original strict2,433 unchanged files, all42 complete exact-variant signatures and seven ordinary repeats. First-image medians earlier42/42; final-result medians slower31/42. Four native/three compiler epochs per formal arm preserve16/64 budgets. Failed/partial/no-early/cold/instrumented/setup costs remain explicit. |
 | Preserve measurement history | Initial108/612 retain exact bytes/results but are labelled pre-acceptance for observer hashing overlap; corrected v3 retrieves/validates independent bodies only after clocks and repeats the whole612. Durable historical ZIP/SHA in Obsidian; final complete raw ZIP/binding is in the repository. |
-| Checks and publishing | Earlier bbcef49/45b4431/1d66224 each passed required seven/exact all-nine/Figure. Current complete85 checkpoint requires seven stable checks, immediate push and exact full-commit all-nine/Figure before86. |
+| Checks and publishing | Earlier bbcef49/45b4431/1d66224 each passed required seven/exact all-nine/Figure. Closing1b942e3 passed all-nine main41187061187/Figure41187061173 before86; the former pending-publication snapshot is resolved. |
 
 [Full methods](../../benchmarks/staged/README.md),
 [all exact medians/p90s and limitations](../../benchmarks/staged/results/staged-preview-v1/comparison.md),

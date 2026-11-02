@@ -1,0 +1,9 @@
+{
+  "original_reader_sha256": "ea7b2b48b437eb23b17efb2f91f7a45f7bc8a5845cf3d55d176633f98c742fc1",
+  "public_original_path_output_exact": true,
+  "public_restored_minimum_python_output_equal_except_evidence_location": true,
+  "restored_original_members": 13800,
+  "archive_sha256": "05e779be536a266bbfa1519f0958130a61c91e51cc745dcc3c40833cfa15b0a3",
+  "scope": "Actual original and restored436-cell analyses; Python3.10 restored input paths. No producer rerun or changed measured bytes.",
+  "passed": true
+}

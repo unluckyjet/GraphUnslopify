@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "scope": "Complete original436-cell formal study,byte-preserving deduplicated archive split for repository file limits",
+  "revision": "d9d4b694f54c6f4fd5bb2027090e50c54c0b2cba",
+  "archive_bytes": 153371999,
+  "archive_sha256": "05e779be536a266bbfa1519f0958130a61c91e51cc745dcc3c40833cfa15b0a3",
+  "original_manifest_sha256": "ba240534b93f3872d5f64fbe9f63ae7ce70a97527fd0e52d87093ba7d52eec9e",
+  "original_members": 13800,
+  "parts": [
+    {
+      "name": "originals-01.part",
+      "bytes": 41943040,
+      "sha256": "4c7ad0f63c05ed8e8fe22f582e2cceafc0fcd1074a7ac065da85cd7a631ce62d"
+    },
+    {
+      "name": "originals-02.part",
+      "bytes": 41943040,
+      "sha256": "ca90b59470863f6df4c5d9bea6a12dee10f268f2bb6c3c16e91096dbf7bf0ee1"
+    },
+    {
+      "name": "originals-03.part",
+      "bytes": 41943040,
+      "sha256": "9d76a7e7b4c355a7212d531638f236b1b4b657780d3c3f09737617636f5d139a"
+    },
+    {
+      "name": "originals-04.part",
+      "bytes": 27542879,
+      "sha256": "da23a394b3b46f67fb6fc4191ffe76bd29a4b665821499330bb67118c0900b94"
+    }
+  ]
+}

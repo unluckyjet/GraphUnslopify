@@ -1,9 +1,17 @@
 # Public-workspace comparison implementation
 
-This is an implementation checkpoint, **not a completed comparison**. The original
-[v1 protocol snapshot](README.md), all 37 frozen assets and numerical cases remain
-unchanged. Formal timing still requires both complete producers, controllers and
-evaluator, untimed parity and a separate public Git/CI implementation seal.
+The [completed formal comparison](results/formal-v1/README.md) retains all436
+planned cells, original files and negative outcomes. Both arms match all24
+scientific/integrity classifications per arm; Graph fails the frozen physical
+width task and has no verified-speed winner. The [complete delivery audit](../../docs/workspace/workspace-delivery-audit.md)
+maps78–89 to source, actual evidence and remaining limitations.
+
+The original [v1 protocol snapshot](README.md),37 frozen assets and independent
+numerical cases remain unchanged. Both complete producers/controllers/evaluator,
+all preparation tracks and exact14 CI qualified before the prospective seal and
+formal clocks. The details below preserve implementation methods and historical
+checkpoint status; pending/next wording inside those stage records describes
+that earlier checkpoint, not the current completed study.
 
 ## Implemented baseline producer
 

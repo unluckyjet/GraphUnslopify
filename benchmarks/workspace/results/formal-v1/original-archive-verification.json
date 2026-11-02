@@ -1,0 +1,14 @@
+{
+  "archive": "/Users/shooter/Documents/Project Evidence/GraphUnslopify/workspace-controller-89d9/formal-original-evidence.cas.zip",
+  "bytes": 153371999,
+  "sha256": "05e779be536a266bbfa1519f0958130a61c91e51cc745dcc3c40833cfa15b0a3",
+  "manifest_sha256": "ba240534b93f3872d5f64fbe9f63ae7ce70a97527fd0e52d87093ba7d52eec9e",
+  "original_members": 13800,
+  "original_bytes": 770714435,
+  "unique_objects": 5378,
+  "unique_original_bytes": 450446235,
+  "all_unique_objects_read_and_hashed": true,
+  "all_original_member_bindings_verified": true,
+  "formal_cells": 436,
+  "passed": true
+}

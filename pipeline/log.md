@@ -229,3 +229,5 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-11-01 —89a c75ca16 exact all-nine main41309967032/Figure41309966995 accepted 2026-11-01T13:54:36.359906+00:00. Actual four-platform package/resource/installed-audit proofs pass. Start complete strong-comparator implementation; formal measurements/delivery audit remain.
 
 2026-11-01 —89b1 corrected baseline producer local gates pass:235 Node/2095 Python/zero skips/one upstream warning,full Ruff194/all seven/gallery15 on899 frozen paths. Current/minimum/fresh each37 cases/four controls/38 native executions. Four initial layout failures and pre-fix returned-report alias are retained; fixed with unchanged gates. Prospective v2 clarifies baseline reuse without changing v1. Exact new CI/pairing/formal study/audit remain.
+
+2026-11-02 —89e formal436-cell comparison and complete78–89 delivery audit prepared; original13,800-file evidence restored and minimum analysis matches. Negative width/no-speed-winner results preserved; final required checks/push/exact14 acceptance remain before user completion.

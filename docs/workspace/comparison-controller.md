@@ -1,6 +1,6 @@
 # Operational comparison controller
 
-The original [protocol README](../../benchmarks/workspace/README.md) is frozen historical protocol-stage documentation. Context-aware producers and independent evaluation are now implemented; the complete controller and seal qualifier are undergoing preparation. No formal results or speed advantage are claimed.
+The original [protocol README](../../benchmarks/workspace/README.md) is frozen historical protocol-stage documentation. The complete controllers and seal qualification are accepted on D9. The [formal436-cell results](../../benchmarks/workspace/results/formal-v1/README.md) retain all original outputs and width failures; no verified-speed advantage is established.
 
 ## Complete operational controller
 
@@ -49,8 +49,6 @@ Only a successfully qualified seal can be supplied with `--mode formal --seal
 seal.json`. Its source must be the exact full Git revision with all fourteen
 accepted checks. Final source/SDK closure guards detect changes during execution.
 Invalid seal loading retains planned cells as unstarted. Do not run other work on
-the measurement host during formal clocks. Full preparation and an actual seal
-have **not yet been completed**; these commands document the implementation and
-its prerequisites, not successful formal studies.
+the measurement host during formal clocks. All six preparation tracks and the prospective seal were actually completed before clocks. All436 formal cells then completed; see the linked result report for actual denominators, source/CI identities, unavailable verified times and limitations.
 
 The original protocol and its 37 frozen assets remain byte-identical. Full methods and preregistered analysis remain in that protocol; this implementation guide does not amend task order, scientific gates or planned denominators.

@@ -131,7 +131,6 @@ SHA e21717f9eec7e06ed4e2229180ef3236c6b91ffcfd97d93e3cd1d2b8711f05fb.
 
 Full acceptance audit: docs/workspace/staged-preview-acceptance.md.
 Actual results: benchmarks/staged/results/staged-preview-v1/comparison.md.
-The current seven stable checks/push/exact all-nine/Figure are under acceptance.
-Do not advance86 or call the whole initiative complete until accepted.
+Historical pre-publication snapshot: seven stable checks/push/exact all-nine/Figure were then under acceptance. Closing1b942e3 later passed exact all-nine main41187061187/Figure41187061173 at2026-10-31 09:38:40UTC before86.
 
-Final local seven232/1904/zero skips/one upstream warning/Ruff153 pass on446 unchanged source/test/fixture/evidence files. Documentation/link refresh follows this structural move. Commit/push/exact new CI is required before86; implementation is locally complete and the full initiative remains open.
+Final local seven232/1904/zero skips/one upstream warning/Ruff153 pass on446 unchanged source/test/fixture/evidence files. This historical local snapshot preceded the accepted closing1b942e3 exact CI above. Full85 is complete; later milestones retain their separate scope and evidence.

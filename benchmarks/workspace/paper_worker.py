@@ -23,7 +23,7 @@ encoded, package_bytes = HELPERS["encoded"], HELPERS["package_bytes"]
 class OwnedChildren:
     """Observe actual Popen objects without changing commands or process options."""
 
-    def __init__(self):
+    def __init__(self, event_file=None):
         self.original = subprocess.Popen
         self.children = []
         original, children = self.original, self.children
@@ -36,6 +36,31 @@ class OwnedChildren:
                 finally:
                     if getattr(self, "pid", None) is not None and self._child_created:
                         children.append((self, group))
+
+            def communicate(self, *args, **kwargs):
+                command = self.args
+                if (
+                    event_file is not None
+                    and not getattr(self, "_paper_notified", False)
+                    and isinstance(command, (list, tuple))
+                    and len(command) > 1
+                    and Path(command[1]).name == "paper_capture.py"
+                ):
+                    # Opt-in fault-test rendezvous inside audit._run's guarded
+                    # communicate call. Normal measurement runs do no event I/O.
+                    self._paper_notified = True
+                    with event_file.open("a", encoding="utf8") as events:
+                        events.write(
+                            encoded(
+                                {
+                                    "pid": self.pid,
+                                    "parent_pid": os.getpid(),
+                                    "phase": "communicate",
+                                    "communication_ns": time.perf_counter_ns(),
+                                }
+                            )
+                        )
+                return super().communicate(*args, **kwargs)
 
         subprocess.Popen = ObservedPopen
 
@@ -82,7 +107,10 @@ def main():
         "steps"
     ]
     with (root / "producer.log").open("x", encoding="utf8") as log:
-        ownership = OwnedChildren()
+        child_events = os.environ.get("GRAPHUNSLOPIFY_PAPER_CHILD_EVENTS") == "1"
+        ownership = OwnedChildren(
+            root / "native-started.jsonl" if child_events else None
+        )
         try:
             with contextlib.redirect_stdout(log):
                 preparing = time.perf_counter_ns()
@@ -106,6 +134,7 @@ def main():
                 "producer_preparing_ns": preparing,
                 "producer_prepared_ns": prepared,
                 "ready_ns": time.perf_counter_ns(),
+                "child_events_enabled": child_events,
                 "formal_comparison_performed": False,
             }
             (root / "ready.json").write_text(encoded(ready), encoding="utf8")

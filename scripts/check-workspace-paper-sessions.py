@@ -43,6 +43,8 @@ def check(out, *, python=sys.executable, installed=False):
         proof["sessions"].append(session)
         if session["session_error"] or session["closure_error"]:
             errors.append(arm + ":actual_session_failure")
+        if session.get("startup", {}).get("child_events_enabled"):
+            errors.append(arm + ":fault_test_notification_enabled")
         if any(
             c["forced_cleanup"] or c["returncode"] is None
             for c in session.get("closure", {}).get("owned_children", [])

@@ -75,6 +75,7 @@ def run_sequence(arm, folder, *, python=sys.executable, installed=False, timeout
             "package_root": live.ready["package_root"],
             "producer_preparing_ns": live.ready["producer_preparing_ns"],
             "producer_prepared_ns": live.ready["producer_prepared_ns"],
+            "child_events_enabled": live.ready["child_events_enabled"],
         }
         if (
             not live.launched_ns

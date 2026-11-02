@@ -252,3 +252,40 @@ paths. Node235/Python2116, zero skips/one upstream SQLAlchemy warning; Python
 keeping all existing graphics; original37 protocol assets remain exact. Bind
 these tested bytes to the index/full commit, push and accept exact new CI before
 advancing. This checkpoint does not complete the formal study or full audit.
+
+
+## 89d3a — browser keyboard replay correction
+
+Exact0e58c0e render CI failed at the existing selective browser check while
+waiting for a keyboard-triggered run to start. The retained artifact shows the
+previous real run completed; the next authored execution never happened. An
+unchanged local replay passes, so exact focus-loss cause remains unproven across
+different Node/OS/browser environments.
+
+The driver now waits for the enabled Regenerate control and sends real Enter
+through its locator instead of separate focus and page-wide key calls. All real
+running/history/executed/reused/science assertions stay unchanged. On failure,
+it saves actual focus/readiness/notice and completed workflow/run state, without
+preview tokens or synthetic successful responses. Source and fresh-installed
+replays each pass13 workflows/eight updates/nine authored executions. This is
+browser driver hardening, not a demonstrated application or performance fix.
+Full frozen checks/push/new exact CI remain; all original formal work stays open.
+
+
+The original CI Python3.10/3.12 jobs each fail the actual interruption test's
+process-command discovery (2110 passed/five skips each). Exact Linux discovery
+cause is unproven; no cleanup assertion was reached. The fault test now opts in
+to a real Popen communicate-entry notification, verifies the actual PPID and
+still pauses/interrupts/reaps that real child. Its callbacks/SDK cleanup assertion
+remain strict. Normal sessions report notifications disabled, perform no event
+file I/O and reject accidental enabled instrumentation. Failure diagnostics keep
+actual request errors/responses instead of only a missing-child message.
+
+Final revised focused current11 pass128.67s/minimum11 pass111.31s. Current/
+minimum/fresh18-request/74-figure profiles each pass with test notifications off,
+clean child lifecycles and retained width failures. Source/fresh browser replays
+pass13 workflows/eight updates each. These are concurrent pre-seal integrity
+checks, not formal study cells. First corrective local gate was intentionally
+interrupted on confirmed owned PGID62995 before these source changes; retain it.
+Restart all required full gates on the combined correction, then commit/push and
+require all new exact CI checks. Product SDK/README/protocol bytes stay unchanged.

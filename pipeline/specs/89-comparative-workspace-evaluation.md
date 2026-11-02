@@ -270,3 +270,30 @@ warning, Python1056.13s (wrapper1058.40s),920 protected working bytes unchanged.
 Both READMEs/graphics and original37 frozen assets stay exact. Index/full commit
 binding, push/exact all-nine/Figure remain before advancing. Full formal scope
 and delivery audit remain open; no new release/tag is authorized.
+
+
+## 89d3a — current failed-CI keyboard and native-child controls (working)
+
+0e58c0e exact render job125008313774 fails waiting for running state after a
+keyboard action; seven terminal jobs pass and both Python jobs remain active.
+Retain original failed selective artifact/screenshot/history and unchanged local
+positive replay; exact focus-loss cause is unproven. Correct the driver to wait
+for an enabled control and use real locator-targeted Enter; add actual failure
+focus/readiness/partial-workflow diagnostics. Do not weaken scientific/count/
+history assertions, fabricate success or advance to new features before exact CI.
+
+Source/fresh each pass13 real workflows/eight update runs/nine authored executions.
+Product SDK/README graphics/original37 protocol assets are unchanged. Full frozen
+checks, corrective commit/push/new exact CI remain. This is not a formal48/64/14
+cell or a claimed browser performance improvement. Preserve all remaining scope.
+
+
+Both original Python CI jobs additionally fail native-child command discovery,
+not a cleanup assertion:1failed/2110passed/5skipped each. Keep original evidence
+and unproven Linux cause explicit. Replace command scanning with opt-in actual
+Popen communication-entry notification plus actual PPID/SIGSTOP/interruption/
+reaping checks. Normal sessions prohibit test event I/O. Revised current11 pass
+128.67s/minimum11 pass111.31s; all three18/74 profiles pass with notifications off
+and original gates. Preserve interrupted gate PGID62995; full checks must restart
+on combined keyboard/native-control correction before corrective push/exact CI.
+All formal192/54/48/64/64/14, full seal and final78–89 audit remain unfinished.

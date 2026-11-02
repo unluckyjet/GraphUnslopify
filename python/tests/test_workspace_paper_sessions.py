@@ -28,6 +28,8 @@ def test_actual_paper_worker_full_sequence(tmp_path, arm):
     ]
     result = paper["run_sequence"](arm, tmp_path / arm)
     assert not result["session_error"] and not result["closure_error"]
+    assert result["startup"]["child_events_enabled"] is False
+    assert not (tmp_path / arm / "live/native-started.jsonl").exists()
     rows = result["rows"]
     assert len(rows) == 9 and all(r["outcome"] == "completed" for r in rows)
     pid = result["startup"]["pid"]
@@ -91,15 +93,18 @@ def test_real_dispatched_request_timeout_retains_all_cells(tmp_path, monkeypatch
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX SIGSTOP fault control")
-def test_interrupted_actual_native_renderer_is_reaped(tmp_path):
+def test_interrupted_actual_native_renderer_is_reaped(tmp_path, monkeypatch):
+    monkeypatch.setenv("GRAPHUNSLOPIFY_PAPER_CHILD_EVENTS", "1")
     runner = runpy.run_path(str(HERE / "session_runner.py"))
     folder = (tmp_path / "active-native").resolve()
     live = runner["LiveSession"]("graphunslopify", folder, track="paper")
-    errors, child = [], None
+    errors, child, replies = [], None, []
 
     def invoke():
         try:
-            live.request({"operation": "step", "step": "first", "case": "paper/first"})
+            replies.append(
+                live.request({"operation": "step", "step": "first", "case": "paper/first"})
+            )
         except Exception as error:  # noqa: BLE001 - keep the actual interrupted response
             errors.append(type(error).__name__)
 
@@ -108,21 +113,39 @@ def test_interrupted_actual_native_renderer_is_reaped(tmp_path):
         thread.start()
         deadline = time.monotonic() + 45
         while time.monotonic() < deadline and child is None:
-            listing = subprocess.check_output(["ps", "-axo", "pid=,ppid=,command="], text=True)
-            for line in listing.splitlines():
-                fields = line.strip().split(None, 2)
-                if (
-                    len(fields) == 3
-                    and fields[1] == str(live.process.pid)
-                    and str(folder) in fields[2]
-                    and "paper_capture.py" in fields[2]
-                ):
-                    child = int(fields[0])
+            events = folder / "native-started.jsonl"
+            for line in events.read_text().splitlines() if events.is_file() else []:
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue  # A real append may still be in progress.
+                if event["parent_pid"] != live.process.pid or event["phase"] != "communicate":
+                    continue
+                candidate = event["pid"]
+                parent = subprocess.run(
+                    ["ps", "-p", str(candidate), "-o", "ppid="],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if parent.returncode == 0 and parent.stdout.strip() == str(live.process.pid):
+                    try:
+                        os.kill(candidate, signal.SIGSTOP)
+                    except ProcessLookupError:
+                        continue
+                    child = candidate
                     break
+            if not thread.is_alive() and child is None:
+                break
             if child is None:
                 time.sleep(0.02)
-        assert child is not None, "No actual owned native renderer started"
-        os.kill(child, signal.SIGSTOP)
+        assert child is not None, {
+            "error": "No actual owned native renderer observed",
+            "request_errors": errors,
+            "replies": replies,
+            "worker_returncode": live.process.poll(),
+            "events": str(folder / "native-started.jsonl"),
+        }
         live.terminate()
         thread.join(timeout=5)
         assert not thread.is_alive() and errors
@@ -143,7 +166,7 @@ def test_interrupted_actual_native_renderer_is_reaped(tmp_path):
             live.terminate()
         if child is not None:
             current = subprocess.run(
-                ["ps", "-p", str(child), "-o", "command="],
+                ["ps", "-ww", "-p", str(child), "-o", "command="],
                 capture_output=True,
                 text=True,
                 check=False,

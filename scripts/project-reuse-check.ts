@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { join, resolve, relative } from "node:path";
 import { createInterface } from "node:readline";
 import { chromium, type Page } from "playwright";
-declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean } | null; documentElement: { scrollWidth: number } };
+declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean } | null; documentElement: { scrollWidth: number }; activeElement: { id: string; tagName: string } | null; hasFocus(): boolean };
 declare const window: { innerWidth: number };
 const python = process.env.PYTHON || "python";
 const env = process.env.GRAPHUNSLOPIFY_PREVIEW_INSTALLED ? { ...process.env } : { ...process.env, PYTHONPATH: resolve("python") };
@@ -75,7 +75,12 @@ try {
     await active.waitForFunction(() => document.querySelector("#regenerate")?.disabled === false);
   };
   const run = async (executed: number, reused: number, keyboard = false, expectedExit = 0) => {
-    if (keyboard) { await active.locator("#regenerate").focus();await active.keyboard.press("Enter"); } else await active.locator("#regenerate").click();
+    if (keyboard) {
+      await active.waitForFunction(() => document.querySelector("#regenerate")?.disabled === false);
+      // Keep the native key action attached to its target instead of a separate
+      // page-wide press after a focus call. No job response is simulated.
+      await active.locator("#regenerate").press("Enter");
+    } else await active.locator("#regenerate").click();
     await active.waitForFunction(() => document.querySelector("#running")?.hidden === false);
     if (releasePoll) {
       await releasePoll();releasePoll = undefined;await active.waitForTimeout(100);
@@ -144,6 +149,20 @@ try {
   const paths = Object.keys(inventory(evidence));assert.deepEqual(paths.filter(path => /[":<>|*?\r\n]/.test(path)), []);
   const report = { status: "passed", workflows, runs, authored_executions: runs.length + 1, original_data_and_first_history_preserved: true, original_definition_values_restored: true, page_errors: errors, external_requests: external, artifact_paths_portable: true, evidence };
   writeFileSync(join(evidence, "verification.json"), JSON.stringify(report, null, 2));console.log(JSON.stringify(report));
-} catch (problem) { await page?.screenshot({ path: join(evidence, "failure.png"), fullPage: true }).catch(() => {});console.error(JSON.stringify({ evidence, error: String(problem) }));throw problem; }
+} catch (problem) {
+  const view = await page?.evaluate(() => ({
+    activeElementId: document.activeElement?.id,
+    activeElementTag: document.activeElement?.tagName,
+    documentFocused: document.hasFocus(),
+    regenerateDisabled: document.querySelector("#regenerate")?.disabled,
+    runningHidden: document.querySelector("#running")?.hidden,
+    notice: document.querySelector("#notice")?.textContent,
+    error: document.querySelector("#error")?.textContent,
+    summary: document.querySelector("#event-summary")?.textContent,
+  })).catch(error => ({ captureError: String(error) }));
+  writeFileSync(join(evidence, "failure-state.json"), JSON.stringify({ error: String(problem), view, workflows, runs, page_errors: errors, external_requests: external, server_stderr: stderr }, null, 2));
+  await page?.screenshot({ path: join(evidence, "failure.png"), fullPage: true }).catch(() => {});
+  console.error(JSON.stringify({ evidence, error: String(problem) }));throw problem;
+}
 finally { await browser?.close();server.kill();reader.close(); }
 

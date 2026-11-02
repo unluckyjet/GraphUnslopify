@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HERE = ROOT / "benchmarks/workspace"
 
 
-def check(output, configurations):
+def check(output, configurations, *, native_context=None):
     if not __debug__:
         raise RuntimeError("Do not optimize independent replay guards")
     output = Path(output).resolve()
@@ -24,14 +24,17 @@ def check(output, configurations):
     runpy.run_path(str(ROOT / "scripts/check-workspace-protocol.py"))["check"](ROOT)
     replay = runpy.run_path(str(HERE / "reproduction.py"))
     runner = replay["RUNNER"]
-    profiles = replay["PROTOCOL"]["reproduction"]["local_profiles"]
+    native = native_context is not None
+    profiles = replay["PROTOCOL"]["reproduction"][
+        "native_ci_profiles" if native else "local_profiles"
+    ]
     if not configurations or any(p not in profiles for p in configurations):
         raise ValueError("Unknown or missing registered environment")
     plan = [
         row
         for profile in profiles
         if profile in configurations
-        for row in replay["schedule"](profile)
+        for row in replay["schedule"](profile, native=native)
     ]
     expected = 16 * len(configurations)
     if (
@@ -41,9 +44,12 @@ def check(output, configurations):
         raise ValueError("Registered environment plan changed")
     proof = {
         "formal_comparison_performed": False,
+        "track": "native_ci" if native else "local",
+        "native_context": native_context,
         "scope": "Actual complete selected profile replays, not formal64 study cells",
         "selected_profiles": configurations,
-        "full_registered_local_plan": len(configurations) == len(profiles),
+        "full_registered_local_plan": not native
+        and len(configurations) == len(profiles),
         "source_sha256": runner["source_snapshot"](),
         "package_sha256": runner["expected_package"](),
         "plan": plan,
@@ -59,6 +65,7 @@ def check(output, configurations):
             output / f"replay-{index:03d}",
             python=config["python"],
             installed=config.get("installed", False),
+            expected_ci=native_context["expected_worker_ci"] if native else None,
         )
         proof["records"].append(row)
         if (
@@ -113,6 +120,17 @@ def check(output, configurations):
         proof["errors"].append({"reason": "code_or_corpus_changed"})
     if runner["expected_package"]() != proof["package_sha256"]:
         proof["errors"].append({"reason": "sdk_changed"})
+    if native:
+        try:
+            actual_context = replay["ENVIRONMENT"]["checkout_context"](
+                ROOT, next(iter(configurations)), native_context["checkout"]
+            )
+            if actual_context != native_context:
+                proof["errors"].append({"reason": "native_environment_changed"})
+        except Exception as error:  # noqa: BLE001 - retain an actual end-of-run identity failure
+            proof["errors"].append(
+                {"reason": "native_checkout_or_context_changed", "error": str(error)}
+            )
     proof["complete"] = len(proof["records"]) == len(plan)
     proof["passed"] = proof["complete"] and not proof["errors"]
     runner["write"](output / "conformance.json", proof)

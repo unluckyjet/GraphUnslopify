@@ -25,7 +25,7 @@ def package_bytes():
 
     root = Path(graphunslopify.__file__).parent
     return str(root), {
-        str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+        p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in sorted(root.rglob("*"))
         if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
     }
@@ -58,6 +58,9 @@ def main():
                 "arm": args.arm,
                 "pid": os.getpid(),
                 "python": sys.version,
+                "execution_environment": runpy.run_path(str(HERE / "environment.py"))[
+                    "observed"
+                ](),
                 "package_root": package_root,
                 "package_sha256": package_sha256,
                 "ready_ns": time.perf_counter_ns(),

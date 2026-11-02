@@ -382,3 +382,35 @@ All16 standalone runs prove actual SDK import/distribution absence.
 Full local gates, Git byte binding/push and new exact CI remain. This does not
 fill formal64 or any other formal denominator. Complete formal execution
 context/native/GUI controllers, public seal, all fixed tracks and78–89 audit remain.
+
+
+##89d6 — actual native platform preparation (working)
+
+Prerequisite3ab784f9c02ad5ad36e910cd3690e471370bbb33 passes exact all-nine
+main41390013076/Figure41390012980 at2026-11-02T05:55:54.850377UTC.
+
+Native profiles now have a distinct native_ci track: Ubuntu3.10/3.12,
+Windows3.12 and macOS3.12, each all16 registered figure/arm/repeat cases.
+environment.py records actual interpreter/system/machine and GitHub checkout/
+repository/run/attempt/job/runner/image context. The parent validates real Git
+HEAD/clean tracked source and worker context before rendering and rechecks after
+completion. Local attempts cannot claim native CI. Actual source/SDK fingerprint
+keys are POSIX-normalized consistently across host path conventions.
+
+The separate Workspace native reproduction workflow runs actual four runners,
+retains every actual output/error, and uploads owned artifacts even on failure.
+Its source is in the effective snapshot; main still has the same nine jobs.
+Native checkout/context preflight failure retains all16 planned cells explicitly
+unstarted, with no invented worker/PNG/evaluation. Worker startup evidence also
+survives identity refusal; initial tests exposed and corrected that omission.
+
+Current/minimum10 actual focused controls pass46.94s/45.79s; final four native
+identity/preflight guards pass22.21s/21.63s. Initial complete64 local replays
+pass without execution/contract errors and all32 PNG repeat pairs match. That
+run predates the added early-preflight retention branch. Final-source64 also
+passes all execution/contract checks and all32 repeat PNG pairs; every profile
+retains8Graph physical-width rejections and8verified baseline figures.
+No actual native positive CI rows yet: full local gates/push, exact all-nine/
+Figure and all four new native jobs are prerequisites. These are pre-seal
+controls, not formal64. Formal context/GUI/public seal/all fixed tracks and full
+78–89 audit remain; public0.8.0/37 frozen assets/77 SDK files remain unchanged.

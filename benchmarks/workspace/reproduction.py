@@ -17,17 +17,27 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 RUNNER = runpy.run_path(str(HERE / "session_runner.py"))
 PROTOCOL = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))
+ENVIRONMENT = runpy.run_path(str(HERE / "environment.py"))
 
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def schedule(profile):
-    if profile not in PROTOCOL["reproduction"]["local_profiles"]:
+def schedule(profile, *, native=False):
+    profiles = PROTOCOL["reproduction"][
+        "native_ci_profiles" if native else "local_profiles"
+    ]
+    if profile not in profiles:
         raise ValueError("Unknown registered local environment")
     return [
-        {"profile": profile, "figure": figure, "repeat": repeat, "arm": arm}
+        {
+            "profile": profile,
+            "figure": figure,
+            "repeat": repeat,
+            "arm": arm,
+            **({"track": "native_ci"} if native else {}),
+        }
         for repeat in range(PROTOCOL["reproduction"]["repeats"])
         for index, figure in enumerate(PROTOCOL["reproduction"]["figures"])
         for arm in (
@@ -162,7 +172,7 @@ def standalone(case, root, spec, data, python):
     return execution
 
 
-def run_case(case, output, *, python=sys.executable, installed=False):
+def run_case(case, output, *, python=sys.executable, installed=False, expected_ci=None):
     output = Path(output).resolve()
     if output.is_relative_to(ROOT) and not output.is_relative_to(HERE / "results"):
         raise ValueError("Keep owned replays outside source or under workspace/results")
@@ -209,9 +219,19 @@ def run_case(case, output, *, python=sys.executable, installed=False):
             live = RUNNER["LiveSession"](
                 case["arm"], output / "live", python=str(python), installed=installed
             )
-            expected_version = (
-                "3.10." if case["profile"] == "checkout-minimum3.10" else "3.12."
-            )
+            row["startup"] = live.ready
+            if case.get("track") == "native_ci":
+                ENVIRONMENT["validate_worker"](
+                    live.ready["execution_environment"],
+                    case["profile"],
+                    expected_ci or {},
+                )
+                expected_version = ENVIRONMENT["NATIVE_PROFILES"][case["profile"]][0]
+            else:
+                expected_version = (
+                    "3.10." if case["profile"] == "checkout-minimum3.10" else "3.12."
+                )
+
             if not live.ready["python"].startswith(expected_version):
                 raise ValueError(
                     "Actual worker interpreter differs from the registered profile"

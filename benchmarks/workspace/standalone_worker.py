@@ -188,7 +188,7 @@ def main():
         if Path(graphunslopify.__file__).resolve().parent != runtime:
             raise ValueError("Loaded a different runtime than the owned archive")
         actual = {
-            str(p.relative_to(runtime)): sha(p.read_bytes())
+            p.relative_to(runtime).as_posix(): sha(p.read_bytes())
             for p in runtime.rglob("*")
             if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
         }

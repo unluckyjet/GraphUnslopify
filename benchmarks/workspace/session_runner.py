@@ -35,7 +35,7 @@ def source_snapshot():
     protocol = json.loads((HERE / "protocol.json").read_text(encoding="utf8"))
     names = set(protocol["frozen_assets"])
     names.update(
-        str(p.relative_to(ROOT))
+        p.relative_to(ROOT).as_posix()
         for p in HERE.rglob("*")
         if p.is_file()
         and p.suffix in {".py", ".json", ".csv"}
@@ -46,10 +46,11 @@ def source_snapshot():
         ("benchmarks/papers/reference.py", "benchmarks/certified/measurement.py")
     )
     names.update(
-        str(p.relative_to(ROOT))
+        p.relative_to(ROOT).as_posix()
         for p in (ROOT / "scripts").glob("check-workspace-*.py")
     )
     names.add(".github/workflows/checks.yml")
+    names.add(".github/workflows/workspace-native-reproduction.yml")
     return {
         n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in sorted(names)
     }
@@ -58,7 +59,7 @@ def source_snapshot():
 def expected_package():
     base = ROOT / "python/graphunslopify"
     return {
-        str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+        p.relative_to(base).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in sorted(base.rglob("*"))
         if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
     }

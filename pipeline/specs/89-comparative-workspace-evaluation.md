@@ -349,3 +349,19 @@ same-arm/same-profile PNG repeats. Baseline32 task gates pass; Graph32 remain
 rejected for known physical width. All16 standalone runs prove actual SDK absence. No formal64 credit: context/seal,
 native/GUI/formal tracks and full audit remain. Required full gates, per-milestone
 Git push and exact all-nine/Figure CI still precede advancing.
+
+
+##89d6 — native platform controller (working)
+
+Distinct native_ci schedules and four real-runner workflow retain all64 planned
+cells. Actual system/Python/source checkout/CI identity must match before each
+render and stay unchanged after. Canonical POSIX source keys remove host-path
+separator ambiguity; new workflow enters actual source closure. All16 cells
+survive preflight failure explicitly unstarted; actual startup evidence survives
+worker refusal. Native success requires actual GitHub artifacts, not a simulated
+OS or renamed local row. All physical task failures remain rejected outcomes.
+
+Current/minimum focused10 pass, final four identity/preflight tests pass; initial
+and final-source local64/32 PNG repeat pairs pass,0 execution/contract errors. Full gates/
+Git push/exact all-nine/Figure plus four new native jobs remain. Formal64 is0,
+complete formal mode/GUI/seal/all fixed tracks/full audit remain unfinished.

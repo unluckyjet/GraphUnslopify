@@ -1,0 +1,50 @@
+name: Workspace native reproduction
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    name: native-reproduction (${{ matrix.profile }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: ubuntu3.10
+            os: ubuntu-latest
+            python: "3.10"
+          - profile: ubuntu3.12
+            os: ubuntu-latest
+            python: "3.12"
+          - profile: windows3.12
+            os: windows-latest
+            python: "3.12"
+          - profile: macos3.12
+            os: macos-latest
+            python: "3.12"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e "./python[dev,statistics]"
+      - name: Replay all registered native profile cases before the formal seal
+        run: python scripts/check-workspace-native-reproduction.py --profile ${{ matrix.profile }} --expected-sha ${{ github.sha }} --out "${{ runner.temp }}/gu-workspace-native-${{ matrix.profile }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: workspace-native-${{ matrix.profile }}
+          path: ${{ runner.temp }}/gu-workspace-native-${{ matrix.profile }}/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

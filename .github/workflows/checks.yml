@@ -250,6 +250,14 @@ jobs:
           retention-days: 7
       - run: npm run inspector-check
       - run: npm run paper-inspector-check
+      - run: npm run scorecard-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reproducibility-scorecard-verification
+          path: /tmp/gu-scorecard-*/**
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

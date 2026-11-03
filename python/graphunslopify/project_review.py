@@ -20,6 +20,7 @@ from .project import (
     project_history,
     project_status,
 )
+from .project_scorecard import ScorecardCollector, collection_scorecard, pdf_scorecard
 
 
 def _version(name):
@@ -159,7 +160,7 @@ def _groups(report, current, event, exports_verified=False, execution_source=Non
     }
 
 
-def _native_review(path=".", *, event_id: str | None = None):
+def _native_review(path=".", *, event_id: str | None = None, scorecards):
     """Group actual saved evidence and keep current inputs/history distinct."""
     current = project_status(path)
     history = project_history(path)
@@ -252,6 +253,14 @@ def _native_review(path=".", *, event_id: str | None = None):
                 "errors": [*copy.deepcopy(item["errors"]), *export_errors],
                 "audit_errors": copy.deepcopy(figure.get("errors", [])),
                 "policy_errors": copy.deepcopy(result.get("policy_errors", {}).get(item["id"], [])),
+                "scorecard": scorecards.native(
+                    Path(current["config"]).parent,
+                    item,
+                    event if usable else None,
+                    figure,
+                    groups,
+                    history["integrity"],
+                ),
             }
         )
     after = project_status(path)
@@ -291,7 +300,7 @@ def _native_review(path=".", *, event_id: str | None = None):
 def _pdf_review_row(row):
     report = row["inspection"] or {}
     checks = {item["name"]: item for item in report.get("checks", [])}
-    return {
+    value = {
         "id": row["id"],
         "key": "pdf:" + row["id"],
         "source_type": "pdf",
@@ -334,6 +343,8 @@ def _pdf_review_row(row):
         "audit_errors": [],
         "policy_errors": [],
     }
+    value["scorecard"] = pdf_scorecard(value)
+    return value
 
 
 def _receipt_fingerprints(path, history):
@@ -360,7 +371,10 @@ def project_review(path=".", *, event_id: str | None = None):
     receipts = _receipt_fingerprints(path, before)
     chosen = next((event for event in before["events"] if event["id"] == event_id), None)
     pdf_selection = bool(chosen and chosen.get("action") == "inspection")
-    native = _native_review(path, event_id=None if pdf_selection else event_id)
+    scorecards = ScorecardCollector()
+    native = _native_review(
+        path, event_id=None if pdf_selection else event_id, scorecards=scorecards
+    )
     for row in native["figures"]:
         row["key"] = row["id"]
     if event_id is None or pdf_selection:
@@ -413,5 +427,7 @@ def project_review(path=".", *, event_id: str | None = None):
                 for key in ("execution_counts", "comparison", "visual_comparison")
             },
         }
+    scorecards.recheck()
+    native["scorecard"] = collection_scorecard(native)
     native["evidence_revision"] = _hash({"review": native, "receipts": receipts})
     return native

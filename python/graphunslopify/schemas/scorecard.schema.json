@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:graphunslopify:scorecard:1",
+  "title": "Local reproducibility component availability, version1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "current_revision",
+    "selection",
+    "availability_scope",
+    "new_execution",
+    "scope",
+    "figures"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "current_revision": {
+      "type": "string"
+    },
+    "selection": {
+      "type": "object"
+    },
+    "availability_scope": {
+      "const": "local_project_at_query"
+    },
+    "new_execution": {
+      "const": false
+    },
+    "scope": {
+      "type": "string"
+    },
+    "evidence_revision": {
+      "type": "string"
+    },
+    "packet_inclusion": {
+      "type": "object"
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/figure"
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "state",
+        "summary",
+        "evidence"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "data",
+            "definitions",
+            "programs",
+            "environment",
+            "checks",
+            "exports",
+            "history"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "available",
+            "partial",
+            "missing"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "object"
+        }
+      }
+    },
+    "figure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "key",
+        "source_type",
+        "scientific_status",
+        "paper_status",
+        "components"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "spec",
+            "script",
+            "pdf"
+          ]
+        },
+        "scientific_status": {
+          "type": "string"
+        },
+        "paper_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "components": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        }
+      }
+    }
+  }
+}

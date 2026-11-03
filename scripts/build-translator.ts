@@ -29,7 +29,7 @@ runtime.$defs = { ...runtime.$defs, environment: environmentDefinition, runtime:
 runtime.properties.script.properties.runtime = { $ref: "#/$defs/runtime" };
 runtime.properties.environment = { $ref: "#/$defs/environment" };
 writeFileSync("docs/runtime-report.schema.json", JSON.stringify(runtime, null, 2) + "\n");
-for (const name of ["manifest", "runtime-report", "audit-report", "environment", "comparison", "runtime-identity"]) {
+for (const name of ["manifest", "runtime-report", "audit-report", "environment", "comparison", "runtime-identity", "scorecard"]) {
   copyFileSync(`docs/${name}.schema.json`, `python/graphunslopify/schemas/${name}.schema.json`);
 }
 

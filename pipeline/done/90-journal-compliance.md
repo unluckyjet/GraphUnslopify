@@ -130,7 +130,7 @@ external page requests. Full gates/push/exact14 remain pending; update evidence
 after they run. No release or full30 completion is claimed.
 
 Raw closing evidence: /Users/shooter/Documents/Project Evidence/GraphUnslopify/research-platform-90c/.
-Next: [91 context inspector](../specs/91-context-inspector.md), implementation only after
+Following checkpoint: [91 context inspector](91-context-inspector.md), implemented only after
 this closing milestone's exact14 acceptance. All30 ideas remain in the roadmap.
 
 

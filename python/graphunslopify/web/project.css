@@ -58,6 +58,12 @@
 .review-group pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; font-size: 12px; }
 .review-group dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; }
 .review-group dt { color: var(--muted); }.review-group dd { margin: 0; }
+.component-scorecard { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 8px; }
+.scorecard-component { border-top: 1px solid var(--line); padding: 12px 0; }
+.scorecard-component > .availability { display: inline-block; margin-left: 10px; padding: 2px 7px; border-radius: 4px; background: #e7eff4; color: #284b63; font-size: 12px; }
+.scorecard-component[data-availability="partial"] > .availability { background: #fff2d8; color: #714b12; }
+.scorecard-component[data-availability="missing"] > .availability { background: #edf0f3; color: #485563; }
+.scorecard-component p { margin: 6px 0; }.scorecard-component details { font-size: 13px; }
 .review-group .finding, .review-claim { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
 .review-claim[data-verdict="fails"], .review-errors { color: var(--red); }
 #review-status { border-left: 3px solid var(--line); padding: 10px 14px; background: #f6f8fa; overflow-wrap: anywhere; }

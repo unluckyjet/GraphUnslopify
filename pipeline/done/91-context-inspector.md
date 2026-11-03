@@ -1,7 +1,7 @@
 ---
 id: 91
 slug: context-inspector
-status: in_progress
+status: done
 priority: P1
 title: Scope scientific controls to the selected figure element
 source_idea: 2026-11-02 research-platform idea9 and top-ranked contextual inspector
@@ -136,3 +136,8 @@ controls compare plain/direct-observed/geometry/geometry-observed exports. All
 ten targeted current-Python tests pass160.72s. Frozen37 protocol assets verify
 unchanged; historical study data/gates/results remain untouched. Minimum-runtime
 regression and final all-ten gates remain required before normal push/exact14.
+
+
+Full91 accepted4c0aa9110610589cd42b0d812d466dcc4edcd825 after all ten local checks
+and all14 exact main/Figure/native checks2026-11-03T14:18:33.776731UTC. Actual CI
+paper18/single15 browser controls pass. Full thirty-idea roadmap remains active.

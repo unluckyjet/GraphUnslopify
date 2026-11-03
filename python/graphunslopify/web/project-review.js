@@ -14,6 +14,22 @@ function detail(parent, label, value) {
   node("summary", label, box); node("pre", pretty(value), box);
 }
 
+function scorecard(parent, value) {
+  if (!value) return;
+  const box = node("section", undefined, parent); box.className = "component-scorecard";
+  node("h4", "Reproducibility scorecard", box);
+  node("p", "Available, Partial and Missing describe evidence here. Scientific outcomes remain separate; this view does not rerun the figures.", box).className = "muted";
+  node("p", `Recorded scientific outcome: ${words(value.scientific_status)}.`, box);
+  for (const component of value.components) {
+    const item = node("div", undefined, box); item.className = "scorecard-component";
+    item.dataset.component = component.id; item.dataset.availability = component.state;
+    node("strong", component.label, item);
+    const label = words(component.state); node("span", label[0].toUpperCase() + label.slice(1), item).className = "availability";
+    node("p", component.summary, item);
+    detail(item, "Evidence details", component.evidence);
+  }
+}
+
 export function createScientificReview({ api, protect, edit, audit, inspect, exportPacket, selection = () => {} }) {
   let context, generation = 0, signature = "", selectedInEditor = "";
   let loadedSignature = "", lastQuery = 0, pending = 0;
@@ -129,6 +145,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
       detail(root, "Source, data and environment details", r);
       node("p", "These are consistency checks. They do not perform a new reproduction or reverify all dependency bytes, fonts and external tools.", root).className = "muted";
     }
+    scorecard(groups.querySelector('[data-review-group="reproduction"]'), row.scorecard);
     const messages = [...row.errors, ...row.audit_errors, ...row.policy_errors];
     if (messages.length) {
       const errors = node("div", undefined, groups); errors.className = "review-errors";
@@ -171,6 +188,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
       node("p", "Original data and plotting programs were not reproduced. No native plotting program executes during PDF inspection.", root);
       if (evidence.origin === "uploaded_local_copy") node("p", "The uploaded source copy stays in this local project; original PDFs are excluded from inspection history.", root);
       detail(root, "Recorded and current PDF source hashes", row.groups.reproduction);
+      scorecard(root, row.scorecard);
     }
     for (const message of row.errors) node("p", message, groups).className = "review-errors";
     $("review-page-label").hidden = !pageSelect.options.length;

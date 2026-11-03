@@ -62,7 +62,7 @@ displayed PNG bytes and refuses late responses for another owner or revision.
 
 ## Development evidence
 
-Pipeline [91](../../pipeline/specs/91-context-inspector.md) tracks the full
+Pipeline [91](../../pipeline/done/91-context-inspector.md) records the full
 figure/paper requirement. The91a single-figure implementation is accepted at
 db73e73 after exact14 CI. Paper91b transport/ownership is in final verification;
 final acceptance is recorded separately from working evidence.

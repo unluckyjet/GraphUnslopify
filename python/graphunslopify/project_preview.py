@@ -567,6 +567,15 @@ class ProjectHandler(PreviewHandler):
                 from .project_review import project_review
 
                 self.json(project_review(state.source, event_id=value("event") or None))
+            elif route == "/api/scorecard":
+                from .project_scorecard import project_scorecard
+
+                report = project_scorecard(state.source, event_id=value("event") or None)
+                if value("expected_revision") and report["evidence_revision"] != value(
+                    "expected_revision"
+                ):
+                    raise ProjectError("Scorecard evidence changed since selection; refresh.")
+                self.json(report)
             elif route == "/api/pdf-asset":
                 from .project_inspections import inspection_asset
 

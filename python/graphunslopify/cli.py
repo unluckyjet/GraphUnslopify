@@ -426,6 +426,10 @@ def _project(args: argparse.Namespace) -> int:
             from .project_review import project_review
 
             result = project_review(args.path, event_id=args.event)
+        elif args.command == "project-scorecard":
+            from .project_scorecard import project_scorecard
+
+            result = project_scorecard(args.path, event_id=args.event)
         elif args.command == "project-export":
             from .project import _config
             from .project_export import create_review_packet
@@ -746,6 +750,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
         ("project-review", "read grouped scientific evidence without executing figures"),
+        ("project-scorecard", "report available and missing reproduction evidence by component"),
         ("project-export", "save figure files and an auditable review packet without re-execution"),
         ("project-inspections", "read saved source-free PDF visual evidence and freshness"),
         (
@@ -781,11 +786,11 @@ def build_parser() -> argparse.ArgumentParser:
                 help="JSON object containing style/output/palette settings",
             )
             project.add_argument("--expected-revision", required=True)
-        if name in ("project-review", "project-inspections", "project-export"):
+        if name in ("project-review", "project-scorecard", "project-inspections", "project-export"):
             project.add_argument(
                 "--event",
                 help="completed native audit or PDF inspection ID"
-                if name in ("project-review", "project-export")
+                if name in ("project-review", "project-scorecard", "project-export")
                 else "completed PDF inspection ID",
             )
         if name == "project-export":

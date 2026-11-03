@@ -519,6 +519,10 @@ and reuse intact accepted native results, with executed/reused counts and origin
 Source-free PDFs remain outside restyling and numerical verification.
 [Download a review packet](docs/paper-review-export.md) to keep saved figure files, whole-paper outcomes,
 scientific/PDF evidence and original-run ancestry together in a readable offline report.
+The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
+Available, Partial or Missing data, source, programs, environment details, checks,
+exports and history. Read it in the review panel or with `graphunslopify project-scorecard paper/`;
+available evidence keeps its actual scientific outcome, including failed checks.
 
 ```sh
 graphunslopify workflow-init paper/

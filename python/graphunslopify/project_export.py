@@ -112,6 +112,22 @@ def _group_html(groups):
     return '<div class="groups">' + "".join(cards) + "</div>"
 
 
+def _scorecard_html(value):
+    if not value:
+        return ""
+    escape = lambda item: html.escape(str(item), quote=True)
+    rows = "".join(
+        f"<li><strong>{escape(c['label'])}: {escape(c['state'])}</strong> — {escape(c['summary'])}</li>"
+        for c in value["components"]
+    )
+    return (
+        "<h3>Reproducibility scorecard</h3>"
+        "<p>Component availability in the local project at export time. "
+        "This does not mean raw data or programs are included in this packet, "
+        "and does not change the recorded scientific outcome.</p><ul>" + rows + "</ul>"
+    )
+
+
 def _index(report):
     escape = lambda value: html.escape(str(value), quote=True)
     rows = []
@@ -142,6 +158,7 @@ def _index(report):
             + "".join(links)
             + "</div>"
             + _group_html(figure.get("groups"))
+            + _scorecard_html(figure.get("scorecard"))
             + "<details><summary>Recorded evidence</summary><pre>"
             + escape(json.dumps(figure, indent=2, ensure_ascii=False))
             + "</pre></details></section>"
@@ -172,6 +189,7 @@ def _index(report):
         "The recorded reports contain results, labels and source metadata.</p>"
         '<p><a download href="review.json">Full review JSON</a> · '
         '<a download href="manifest.json">File integrity manifest</a></p>'
+        '<p><a download href="reports/scorecard.json">Reproducibility scorecard JSON</a></p>'
         + (
             '<p><a download href="reports/native-audit.json">Saved native audit report</a></p>'
             if any(
@@ -246,6 +264,7 @@ def create_review_packet(path=".", *, expected_revision, event_id=None):
                         "execution_status": row["status"],
                         "execution": copy.deepcopy(row.get("execution", {"mode": "not_recorded"})),
                         "groups": groups,
+                        "scorecard": copy.deepcopy(current.get("scorecard")) if current else None,
                         "errors": copy.deepcopy(row.get("errors", [])),
                     }
                 )
@@ -282,6 +301,7 @@ def create_review_packet(path=".", *, expected_revision, event_id=None):
                             "scope": "Native evidence unavailable",
                             "state": row["evidence_state"],
                             "groups": copy.deepcopy(row["groups"]),
+                            "scorecard": copy.deepcopy(row["scorecard"]),
                             "errors": copy.deepcopy(row["errors"]),
                         }
                     )
@@ -295,6 +315,7 @@ def create_review_packet(path=".", *, expected_revision, event_id=None):
                     "execution_status": row["execution_status"],
                     "state": row["evidence_state"],
                     "groups": copy.deepcopy(row["groups"]),
+                    "scorecard": copy.deepcopy(row["scorecard"]),
                     "errors": copy.deepcopy(row["errors"]),
                 }
             )
@@ -358,6 +379,21 @@ def create_review_packet(path=".", *, expected_revision, event_id=None):
             "assets": packet.assets,
             "scope": "Read-only saved native and source-free visual evidence. Integrity hashes do not authenticate authorship. Export success is not scientific acceptance or a new reproduction.",
         }
+        packet.add(
+            "reports/scorecard.json",
+            _bytes(
+                {
+                    **copy.deepcopy(review["scorecard"]),
+                    "evidence_revision": expected_revision,
+                    "packet_inclusion": {
+                        "raw_datasets": False,
+                        "source_programs": False,
+                        "original_pdfs": False,
+                        "saved_exports": "See the packet asset inventory.",
+                    },
+                }
+            ),
+        )
         packet.add("review.json", _bytes(report))
         packet.add("index.html", _index(report))
         packet.recheck()

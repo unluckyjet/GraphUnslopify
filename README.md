@@ -593,6 +593,13 @@ project-run observations establish no human or general productivity advantage.
 The [review-list delivery audit](docs/review-completion-2026-10-29.md) maps all 20
 items to implementation/evidence and keeps the user-deferred researcher trial explicit.
 
+Current source also offers [dated journal technical checks](docs/workspace/journal-compliance.md)
+for exported figures. Check actual file dimensions, format, density and supported
+requirements against sourced Nature/PLOS profiles; missing evidence and manual
+review items remain explicit. This does not certify scientific or submission readiness.
+The [research-workspace expansion](pipeline/research-platform-roadmap.md) tracks
+all 30 follow-up ideas and distinguishes existing foundations from unfinished work.
+
 These checks validate their implemented computations and presentation conditions. Data origin,
 experimental design, genuinely independent units and appropriate scientific interpretation remain
 author responsibilities. Not every optional feature can be combined; unsupported combinations

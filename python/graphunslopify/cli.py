@@ -561,9 +561,83 @@ def _verification_options(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _journal_profiles(args: argparse.Namespace) -> int:
+    from .journal import journal_profiles
+
+    print(json.dumps(journal_profiles(), ensure_ascii=False, indent=2))
+    return 0
+
+
+def _journal_check(args: argparse.Namespace) -> int:
+    from .journal import check_journal
+
+    try:
+        source = Path(args.path).expanduser().resolve()
+        output = Path(args.output).expanduser().resolve() if args.output else None
+        if output is not None and (
+            output == source or (output.exists() and output.samefile(source))
+        ):
+            raise ValueError("The journal report cannot overwrite its inspected figure")
+        report = check_journal(
+            source,
+            profile=args.profile,
+            target_width_mm=args.target_width_mm,
+            width_tolerance_mm=args.width_tolerance_mm,
+        )
+        encoded = json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False)
+        if output is not None:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(encoded + "\n", encoding="utf8")
+        if args.json:
+            print(encoded)
+        else:
+            print(f"Technical checks: {report['status']} · {report['profile']['name']}")
+            for check in report["checks"]:
+                if check["status"] != "passed":
+                    print(f"  {check['status']}: {check['code']} — {check['message']}")
+            print(
+                f"{len(report['manual_review'])} manual review items remain; scientific verification was not performed."
+            )
+        return report["exit_code"]
+    except (OSError, ValueError) as problem:
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "kind": "graphunslopify.journal-check",
+                        "status": "failed",
+                        "error": str(problem),
+                        "exit_code": 2,
+                    }
+                )
+            )
+        else:
+            print(str(problem), file=sys.stderr)
+        return 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+
+    journals = commands.add_parser(
+        "journal-profiles", help="list dated, sourced journal requirement snapshots"
+    )
+    journals.set_defaults(handler=_journal_profiles)
+    journal = commands.add_parser(
+        "journal-check", help="inspect actual figure bytes against a journal profile"
+    )
+    journal.add_argument("path", help="local exported figure; no program or PostScript execution")
+    journal.add_argument("--profile", required=True, help="ID from journal-profiles")
+    journal.add_argument(
+        "--target-width-mm",
+        type=float,
+        help="explicit author target, not inferred from venue styling",
+    )
+    journal.add_argument("--width-tolerance-mm", type=float, default=0.5)
+    journal.add_argument("--output", help="also write the technical report as JSON")
+    journal.add_argument("--json", action="store_true")
+    journal.set_defaults(handler=_journal_check)
 
     bundle = commands.add_parser("bundle", help="archive a figure with its actual source runtime")
     bundle.add_argument("spec", help="FigureSpec JSON file")

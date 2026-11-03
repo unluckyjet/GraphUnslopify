@@ -33,3 +33,10 @@ never describe proposed benchmarks or external user feedback as measured results
 The later visual-authoring and performance initiative is tracked separately in
 `pipeline/visual-workspace-roadmap.md`. Preserve its full scope and apply the same
 per-milestone checks, push and exact-commit CI requirements.
+
+The user's subsequent thirty-idea research workspace initiative is tracked in
+`pipeline/research-platform-roadmap.md`. Preserve all thirty requirements,
+distinguish existing foundations from fully delivered behavior, and use small
+meaningful commits with the same checks/push/exact-CI discipline. Do not create
+empty or artificial commits for activity counts. Do not reinterpret version
+suggestions as permission to publish a new release.

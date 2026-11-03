@@ -12,6 +12,19 @@ export function emitRuntime(spec: FigureSpec, out: string[]): void {
   const summary = derivedFrame ? `${derivedFrame}(frame) if CLAIMS and not frame.empty else frame`
     : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
 
+  // Optional interaction metadata must not change unrelated generated programs.
+  const inspectorHelper = ["line", "bar"].includes(spec.kind) && "uncertainty" in spec && spec.uncertainty
+    ? `def inspector_interval(value):
+    artists = value.lines[2] if hasattr(value, "lines") else (
+        value.errorbar.lines[2] if getattr(value, "errorbar", None) is not None else [value]
+    )
+    for artist in artists:
+        artist._graphunslopify_inspector_target = {"role": "uncertainty", "path": ["uncertainty"]}
+    return value
+
+
+` : "";
+
   out.push("", `STATIC_FINDINGS = json.loads(${pyStr(JSON.stringify(verify(spec)))})`);
   out.push(`DIAGNOSTIC_ADVICE = json.loads(${pyStr(JSON.stringify(DIAGNOSTIC_ADVICE))})`,
     `UNKNOWN_DIAGNOSTIC = json.loads(${pyStr(JSON.stringify(UNKNOWN_DIAGNOSTIC))})`);
@@ -44,7 +57,7 @@ ${RUNTIME_HELPERS.validate_legend_aliases}
 ${RUNTIME_HELPERS.disclose_legend_aliases}
 
 
-PANEL_SOURCE_KEYS = []
+${inspectorHelper}PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
 

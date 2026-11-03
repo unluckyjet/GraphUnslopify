@@ -30,7 +30,8 @@
     "commands-check": "node --experimental-strip-types scripts/workspace-commands-check.ts",
     "selection-check": "node --experimental-strip-types scripts/project-selection-check.ts",
     "intent-check": "node --experimental-strip-types scripts/reuse-intent-check.ts",
-    "workspace-gui-check": "node --experimental-strip-types scripts/workspace-gui-check.ts"
+    "workspace-gui-check": "node --experimental-strip-types scripts/workspace-gui-check.ts",
+    "inspector-check": "node --experimental-strip-types scripts/inspector-check.ts"
   },
   "type": "module",
   "dependencies": {

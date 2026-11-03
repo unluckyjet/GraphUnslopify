@@ -85,6 +85,7 @@
             <img id="preview" hidden alt="Figure preview" />
             <div id="text-targets" hidden aria-label="Editable figure text"></div>
             <div id="diagnostic-targets" hidden aria-label="Measured finding locations"></div>
+            <div id="inspector-targets" hidden></div>
           </div>
         </div>
         <div class="editor-actions">
@@ -95,6 +96,7 @@
         <div class="figure-tools">
           <button id="edit-figure-text" class="quiet" disabled aria-pressed="false">Edit figure text</button>
           <button id="show-diagnostics" class="quiet" disabled aria-pressed="false">Show findings</button>
+          <button id="inspect-element" class="quiet" disabled aria-pressed="false">Inspect element</button>
         </div>
         <section id="diagnostic-review" hidden aria-label="Review figure findings">
           <label for="diagnostic-finding">Finding</label>
@@ -203,6 +205,13 @@
         <p id="control-error" role="alert" hidden></p>
         <div id="journal-tools"></div>
         <div id="reuse-tools"></div>
+        <section id="element-inspector" hidden aria-label="Selected element settings">
+          <label for="inspector-element">Selected figure element</label>
+          <select id="inspector-element"></select>
+          <p id="inspector-context" class="muted" aria-live="polite"></p>
+          <p id="inspector-coverage" class="muted"></p>
+          <button id="inspector-all" class="quiet">All settings</button>
+        </section>
         <fieldset
           id="settings"
           disabled

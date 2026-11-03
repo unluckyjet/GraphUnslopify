@@ -528,6 +528,12 @@ footer {
 }
 .preview .figure-surface img { display: block; width: 100%; height: auto; max-height: none; }
 #text-targets { position: absolute; inset: 0; pointer-events: none; }
+#inspector-targets { position: absolute; inset: 0; pointer-events: none; }
+#inspector-targets[hidden], #element-inspector[hidden], #settings label[hidden], #settings > details[hidden] { display: none; }
+#inspector-targets svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+.inspector-mark { fill: transparent; stroke: transparent; cursor: pointer; pointer-events: all; }
+.inspector-mark:hover, .inspector-mark:focus-visible, .inspector-mark.selected { stroke: var(--accent, #126e8d); fill: #126e8d16; outline: none; }
+.inspector-mark:hover path, .inspector-mark:focus-visible path, .inspector-mark.selected path { stroke: #126e8d88; }
 #text-targets[hidden], .figure-surface[hidden] { display: none; }
 #text-targets .text-target {
   position: absolute; pointer-events: auto; cursor: text; padding: 0;

@@ -16,12 +16,93 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageChops
 
 from graphunslopify.preview import PreviewState
-from graphunslopify.preview_geometry import TARGET_ATTRIBUTE, capture_png_geometry
+from graphunslopify.preview_geometry import (
+    ELEMENT_ATTRIBUTE,
+    TARGET_ATTRIBUTE,
+    capture_png_geometry,
+)
 
 
 def mark(artist, path, role="title"):
     setattr(artist, TARGET_ATTRIBUTE, {"path": path, "role": role, "editable": path is not None})
     return artist
+
+
+@pytest.mark.parametrize("dpi", [73, 180])
+@pytest.mark.parametrize("interval", ["band", "bars"])
+def test_element_regions_measure_actual_axes_and_tagged_intervals_without_changing_pixels(
+    tmp_path, dpi, interval
+):
+    fig, axes = plt.subplots()
+    try:
+        axes.set_xlabel("Observed step")
+        axes.set_ylabel("Measured score")
+        setattr(
+            axes.xaxis.label,
+            TARGET_ATTRIBUTE,
+            {"role": "axis_label", "path": ["x", "label"], "source": "step"},
+        )
+        setattr(
+            axes.yaxis.label,
+            TARGET_ATTRIBUTE,
+            {"role": "axis_label", "path": ["y", "label"], "source": "score"},
+        )
+        if interval == "band":
+            artists = [axes.fill_between([1, 2, 3], [1, 2, 1], [3, 4, 3])]
+        else:
+            artists = axes.errorbar([1, 2, 3], [2, 3, 2], yerr=[0.5, 0.5, 0.5], fmt="none").lines[2]
+        for artist in artists:
+            setattr(artist, ELEMENT_ATTRIBUTE, {"role": "uncertainty", "path": ["uncertainty"]})
+        before, after, metadata = [
+            tmp_path / name for name in ["before.png", "after.png", "elements.json"]
+        ]
+        fig.savefig(before, dpi=dpi, bbox_inches="tight")
+        with capture_png_geometry(fig, after, metadata):
+            fig.savefig(after, dpi=dpi, bbox_inches="tight")
+        with Image.open(before) as a, Image.open(after) as b:
+            assert a.convert("RGBA").tobytes() == b.convert("RGBA").tobytes()
+        record = json.loads(metadata.read_text())
+        assert record["image"]["sha256"] == hashlib.sha256(after.read_bytes()).hexdigest()
+        targets = record["elements"]["targets"]
+        assert {t["role"] for t in targets} == {"figure", "axis", "uncertainty"}
+        assert {t["source"] for t in targets if t["role"] == "axis"} == {"step", "score"}
+        for target in targets:
+            x, y, width, height = target["bounds"]
+            assert x >= 0 and y >= 0 and width > 0 and height > 0
+            assert x + width <= record["image"]["width"] + 0.001
+            assert y + height <= record["image"]["height"] + 0.001
+        observed = next(t for t in targets if t["role"] == "uncertainty")
+        assert observed["shapes"] and all(
+            shape["closed"] == (interval == "band") for shape in observed["shapes"]
+        )
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.parametrize("clip_kind", ["path", "box"])
+def test_untagged_area_does_not_become_uncertainty_and_custom_clips_are_explicit(
+    tmp_path, clip_kind
+):
+    from matplotlib.patches import Circle
+    from matplotlib.transforms import Bbox
+
+    fig, axes = plt.subplots()
+    try:
+        axes.fill_between([1, 2], [0, 0], [1, 2])
+        tagged = axes.fill_between([1, 2], [1, 2], [2, 3])
+        setattr(tagged, ELEMENT_ATTRIBUTE, {"role": "uncertainty", "path": ["uncertainty"]})
+        if clip_kind == "path":
+            tagged.set_clip_path(Circle((1.5, 2), radius=0.2, transform=axes.transData))
+        else:
+            tagged.set_clip_box(Bbox.from_bounds(100, 100, 10, 10))
+        png, metadata = tmp_path / "clip.png", tmp_path / "clip.json"
+        with capture_png_geometry(fig, png, metadata):
+            fig.savefig(png, bbox_inches="tight")
+        elements = json.loads(metadata.read_text())["elements"]
+        assert not any(t["role"] == "uncertainty" for t in elements["targets"])
+        assert any("custom clip" in message for message in elements["gaps"])
+    finally:
+        plt.close(fig)
 
 
 @pytest.mark.parametrize("dpi", [73, 144, 300])
@@ -253,3 +334,63 @@ def test_output_filename_cannot_shadow_preview_or_standalone_dependencies(tmp_pa
     )
     assert completed.returncode == 0, completed.stderr
     assert json.loads(completed.stdout)["ok"]
+
+
+@pytest.mark.parametrize(
+    "kind,display,orientation",
+    [
+        ("line", "band", None),
+        ("line", "bar", None),
+        ("bar", "bar", "vertical"),
+        ("bar", "bar", "horizontal"),
+    ],
+)
+def test_generated_interval_targets_have_real_canonical_ownership(
+    tmp_path, kind, display, orientation
+):
+    state = PreviewState(tmp_path, 1024 * 1024)
+    data = state.upload("runs.csv", b"step,score,seed\n1,2,a\n1,4,b\n2,3,a\n2,5,b\n3,2,a\n3,4,b\n")
+    spec = {
+        "kind": kind,
+        "x": {"field": "step", "label": "Step"},
+        "y": {"field": "score", "label": "Score"},
+        "aggregation": "mean",
+        "uncertainty": {"kind": "std", "over": "seed", "display": display},
+        "output": {"stem": "figure", "formats": ["png"]},
+    }
+    if orientation:
+        spec["orientation"] = orientation
+    result = state.render(
+        {"client": "elements", "generation": 1, "data_id": data["id"], "spec": spec}
+    )
+    assert result.get("report"), result
+    assert result["report"]["status"] == "passed", result
+    elements = result["edit_map"]["elements"]["targets"]
+    assert any(t["role"] == "uncertainty" and t["path"] == ["uncertainty"] for t in elements)
+    axes = [t for t in elements if t["role"] == "axis"]
+    assert {tuple(t["path"]) for t in axes} == {("x",), ("y",)}
+    if orientation == "horizontal":
+        assert next(t for t in axes if t["visual_axis"] == "x")["path"] == ["y"]
+
+
+@pytest.mark.parametrize("boundary", ["zero-area", "too-many-paths"])
+def test_invisible_or_excessive_interval_geometry_stays_unmapped(tmp_path, boundary):
+    from matplotlib.collections import PolyCollection
+
+    fig, axes = plt.subplots()
+    try:
+        if boundary == "zero-area":
+            artist = axes.fill_between([1, 2], [1, 1], [1, 1], linewidth=0)
+        else:
+            artist = PolyCollection([[(x, 0), (x + 0.1, 1), (x + 0.2, 0)] for x in range(513)])
+            axes.add_collection(artist)
+            axes.set_xlim(0, 513)
+        setattr(artist, ELEMENT_ATTRIBUTE, {"role": "uncertainty", "path": ["uncertainty"]})
+        png, metadata = tmp_path / "boundary.png", tmp_path / "boundary.json"
+        with capture_png_geometry(fig, png, metadata):
+            fig.savefig(png, bbox_inches="tight")
+        record = json.loads(metadata.read_text())
+        assert not any(t["role"] == "uncertainty" for t in record["elements"]["targets"])
+        assert record["elements"]["gaps"]
+    finally:
+        plt.close(fig)

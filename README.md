@@ -593,6 +593,11 @@ project-run observations establish no human or general productivity advantage.
 The [review-list delivery audit](docs/review-completion-2026-10-29.md) maps all 20
 items to implementation/evidence and keeps the user-deferred researcher trial explicit.
 
+The current-source figure editor offers an [element inspector](docs/workspace/context-inspector.md):
+select a supported axis or uncertainty mark to show its relevant settings,then
+edit,undo and verify through the existing workflow. Whole-figure and full-settings
+views keep broader controls available.
+
 Current source also offers [dated journal technical checks](docs/workspace/journal-compliance.md)
 for exported figures. Check actual file dimensions, format, density and supported
 requirements against sourced Nature/PLOS profiles; missing evidence and manual

@@ -144,7 +144,7 @@ print(report["status"], report["checks"], report["manual_review"])
 The first checkpoints provide the API/CLI foundation and both public workspace
 panels; the next adds supported PDF glyph evidence,conditional format scope and
 reviewed PDF-export corrections. Acceptance and measured evidence are tracked in
-[spec90](../../pipeline/specs/90-journal-compliance.md). The complete new initiative
+[spec90](../../pipeline/done/90-journal-compliance.md). The complete new initiative
 retains [all thirty requested ideas](../../pipeline/research-platform-roadmap.md).
 Real-artifact controls live in `python/tests/test_journal.py`, including tight
 exports, missing/anisotropic DPI, PDF rotation/units/crops, false extensions,

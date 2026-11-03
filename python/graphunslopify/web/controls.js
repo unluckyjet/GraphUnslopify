@@ -67,7 +67,21 @@ export function createControls(root, { read, change, edit, error }) {
     columns = [],
     signature = "",
     bindings = [],
-    current;
+    current,
+    inspectorScope = null;
+  function scopeVisibility() {
+    for (const binding of bindings) {
+      const key = binding.path[0];
+      binding.input.closest("label").hidden = inspectorScope === null ? false
+        : inspectorScope === "figure" ? !["title", "caption", "style", "output"].includes(key)
+          : inspectorScope === "uncertainty" ? !["uncertainty", "aggregation"].includes(key)
+            : key !== inspectorScope;
+    }
+    for (const details of root.querySelectorAll(":scope > details")) {
+      details.hidden = inspectorScope !== null && !bindings.some(b => details.contains(b.input) && !b.input.closest("label").hidden);
+      if (inspectorScope !== null && !details.hidden) details.open = true;
+    }
+  }
   const el = (tag, text, parent) => {
     const node = document.createElement(tag);
     if (text !== undefined) node.textContent = text;
@@ -504,6 +518,10 @@ export function createControls(root, { read, change, edit, error }) {
   }
   return {
     flush,
+    scope(value = null) {
+      inspectorScope = ["figure", "x", "y", "uncertainty"].includes(value) ? value : null;
+      scopeVisibility();
+    },
     discard() {
       clearTimeout(flushTimer);
       bindings.forEach((b) => {
@@ -541,6 +559,7 @@ export function createControls(root, { read, change, edit, error }) {
       }
       root.disabled = false;
       bindings.forEach((b) => b.sync(spec));
+      scopeVisibility();
     },
   };
 }

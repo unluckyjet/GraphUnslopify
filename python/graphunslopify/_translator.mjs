@@ -22772,7 +22772,7 @@ function emitLine(spec, out) {
     if (spec.uncertainty && band) {
       lines.push(
         `${indentLevel}if "_low" in ${source}:`,
-        `${indentLevel}    ax.fill_between(`,
+        `${indentLevel}    _gu_interval = ax.fill_between(`,
         `${indentLevel}        ${source}[X_FIELD],`,
         `${indentLevel}        ${source}["_low"],`,
         `${indentLevel}        ${source}["_high"],`,
@@ -22780,12 +22780,13 @@ function emitLine(spec, out) {
         `${indentLevel}        alpha=BAND_ALPHA,`,
         `${indentLevel}        linewidth=0,`,
         `${indentLevel}        zorder=${styleExpr}["zorder"] - 1,`,
-        `${indentLevel}    )`
+        `${indentLevel}    )`,
+        `${indentLevel}    inspector_interval(_gu_interval)`
       );
     } else if (spec.uncertainty) {
       lines.push(
         `${indentLevel}if "_low" in ${source}:`,
-        `${indentLevel}    ax.errorbar(`,
+        `${indentLevel}    _gu_interval = ax.errorbar(`,
         `${indentLevel}        ${source}[X_FIELD],`,
         `${indentLevel}        ${source}[Y_FIELD],`,
         `${indentLevel}        yerr=[`,
@@ -22797,7 +22798,8 @@ function emitLine(spec, out) {
         `${indentLevel}        elinewidth=0.9,`,
         `${indentLevel}        capsize=2,`,
         `${indentLevel}        zorder=${styleExpr}["zorder"],`,
-        `${indentLevel}    )`
+        `${indentLevel}    )`,
+        `${indentLevel}    inspector_interval(_gu_interval)`
       );
     }
     return lines;
@@ -22943,11 +22945,12 @@ function emitBar(spec, out) {
       "        )"
     );
     out.push("        series_artist(_series_bars, name)");
+    if (spec.uncertainty) out.push("        inspector_interval(_series_bars)");
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
       "    block = frame.set_index(X_FIELD).reindex(categories)",
-      `    ax.${plot}(`,
+      `    _series_bars = ax.${plot}(`,
       "        positions,",
       "        block[Y_FIELD].to_numpy(dtype=float),",
       "        0.7,",
@@ -22958,6 +22961,7 @@ function emitBar(spec, out) {
       spec.uncertainty ? "        capsize=2," : "",
       "    )"
     );
+    if (spec.uncertainty) out.push("    inspector_interval(_series_bars)");
     if (spec.value_labels) out.push("    label_bars(ax, block[Y_FIELD], positions)");
   }
   out.push(
@@ -25740,6 +25744,16 @@ function hasErrors(findings) {
 function emitRuntime(spec, out) {
   const derivedFrame = spec.kind === "kaplan_meier" ? "survival_claim_frame" : spec.kind === "calibration" ? "calibration_claim_frame" : spec.kind === "qq" ? "qq_claim_frame" : void 0;
   const summary = derivedFrame ? `${derivedFrame}(frame) if CLAIMS and not frame.empty else frame` : 'summarise(frame) if not frame.empty and "aggregation" in RUN_REPORT["spec"] and RUN_REPORT["spec"]["kind"] != "heatmap" else frame';
+  const inspectorHelper = ["line", "bar"].includes(spec.kind) && "uncertainty" in spec && spec.uncertainty ? `def inspector_interval(value):
+    artists = value.lines[2] if hasattr(value, "lines") else (
+        value.errorbar.lines[2] if getattr(value, "errorbar", None) is not None else [value]
+    )
+    for artist in artists:
+        artist._graphunslopify_inspector_target = {"role": "uncertainty", "path": ["uncertainty"]}
+    return value
+
+
+` : "";
   out.push("", `STATIC_FINDINGS = json.loads(${pyStr(JSON.stringify(verify(spec)))})`);
   out.push(
     `DIAGNOSTIC_ADVICE = json.loads(${pyStr(JSON.stringify(DIAGNOSTIC_ADVICE))})`,
@@ -25774,7 +25788,7 @@ ${RUNTIME_HELPERS.validate_legend_aliases}
 ${RUNTIME_HELPERS.disclose_legend_aliases}
 
 
-PANEL_SOURCE_KEYS = []
+${inspectorHelper}PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
 

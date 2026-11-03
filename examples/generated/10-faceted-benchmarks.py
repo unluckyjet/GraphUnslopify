@@ -413,7 +413,7 @@ def draw_panel(ax, df):
     categories = category_order(frame)
     positions = np.arange(len(categories))
     block = frame.set_index(X_FIELD).reindex(categories)
-    ax.bar(
+    _series_bars = ax.bar(
         positions,
         block[Y_FIELD].to_numpy(dtype=float),
         0.7,

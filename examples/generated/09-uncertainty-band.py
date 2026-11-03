@@ -180,6 +180,15 @@ RUNTIME_BINDING = _figure_runtime.bind(globals(), **EXPECTED_RUNTIME)
 STATIC_FINDINGS = json.loads("[]")
 
 
+def inspector_interval(value):
+    artists = value.lines[2] if hasattr(value, "lines") else (
+        value.errorbar.lines[2] if getattr(value, "errorbar", None) is not None else [value]
+    )
+    for artist in artists:
+        artist._graphunslopify_inspector_target = {"role": "uncertainty", "path": ["uncertainty"]}
+    return value
+
+
 PANEL_SOURCE_KEYS = []
 PANEL_ORIGINAL_NAMES = []
 
@@ -753,7 +762,7 @@ def draw_panel(ax, df):
         _annotation_curve._graphunslopify_annotation_primary = True
         _annotation_curve._graphunslopify_annotation_series = name
         if "_low" in block:
-            ax.fill_between(
+            _gu_interval = ax.fill_between(
                 block[X_FIELD],
                 block["_low"],
                 block["_high"],
@@ -762,6 +771,7 @@ def draw_panel(ax, df):
                 linewidth=0,
                 zorder=style["zorder"] - 1,
             )
+            inspector_interval(_gu_interval)
 
 
 _primary_draw_panel = draw_panel

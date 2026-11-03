@@ -575,6 +575,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/workspace-commands.js",
                 "/reuse-intent.js",
                 "/journal-checks.js",
+                "/context-inspector.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -592,6 +593,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/workspace-commands.js",
             "/reuse-intent.js",
             "/journal-checks.js",
+            "/context-inspector.js",
         }:
             name = {
                 "/": "index.html",
@@ -606,6 +608,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/workspace-commands.js": "workspace-commands.js",
                 "/reuse-intent.js": "reuse-intent.js",
                 "/journal-checks.js": "journal-checks.js",
+                "/context-inspector.js": "context-inspector.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -623,6 +626,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "workspace-commands.js": "text/javascript; charset=utf-8",
                     "reuse-intent.js": "text/javascript; charset=utf-8",
                     "journal-checks.js": "text/javascript; charset=utf-8",
+                    "context-inspector.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )

@@ -1,7 +1,7 @@
 ---
 id: 90
 slug: journal-compliance
-status: in_progress
+status: done
 priority: P1
 title: Inspect exported figures against sourced journal requirements
 source_idea: 2026-11-02 research-platform idea5 and top-ranked journal compliance profiles
@@ -41,7 +41,7 @@ No milestone is complete merely because profiles can be listed. Keep incomplete
 scope explicit and push each verified behavior before advancing.
 
 
-##90a — accepted technical foundation
+## 90a — accepted technical foundation
 
 Adds journal.py and journal-profiles/journal-check commands with official-source
 Nature/PLOS stage/date/rule snapshots. Reads actual raster/PDF/SVG metadata and
@@ -63,7 +63,7 @@ native41568941666 accepted2026-11-03T04:07:04UTC before90b edits. CI both Python
 matrices have2177 passed/5 skipped;3.10 has28 warnings and3.12 one. Full90 stays open.
 
 
-##90b — accepted editor/paper integration
+## 90b — accepted editor/paper integration
 
 Both real local workspaces choose dated profiles and registered exports,show all
 supported findings/manual gaps and download source/rule-bound JSON. Shared
@@ -96,7 +96,7 @@ Supported extracted-text findings and reviewed corrections are90c below;
 no other29-idea completion is claimed.
 
 
-##90c — supported text and reviewed corrections, closing verification pending
+## 90c — supported text and reviewed corrections, closing verification pending
 
 Nature's dated policy snapshot distinguishes preferred PDF/EPS/PS/AI from
 conditional JPEG/Office/CorelDraw fallbacks; conditional formats remain manual
@@ -130,5 +130,17 @@ external page requests. Full gates/push/exact14 remain pending; update evidence
 after they run. No release or full30 completion is claimed.
 
 Raw closing evidence: /Users/shooter/Documents/Project Evidence/GraphUnslopify/research-platform-90c/.
-Next: [91 context inspector](91-context-inspector.md), implementation only after
+Next: [91 context inspector](../specs/91-context-inspector.md), implementation only after
 this closing milestone's exact14 acceptance. All30 ideas remain in the roadmap.
+
+
+## Full90 accepted
+
+Closing1a53a0eb88f7e6c7f855205cd7612127fa222657 normal push and all14 exact
+checks accepted2026-11-03T08:08:45.528804UTC(main41593249425/Figure41593249429/
+native41593249265). All ten final local gates235 Node/2197 Python/zero skips/
+one existing warning/g15 on950 unchanged source paths;955 full-Git bindings.
+Actual CI both Python versions2192 passed/5 skipped;3.12 one warning2293.95s,
+3.10 28warnings2288.92s. Actual source/minimum/fresh and digest-verified CI
+four-path browser proofs pass. Earlier pending paragraphs are historical
+checkpoint collection states. Full30 stays active;91 starts after this acceptance.

@@ -7,9 +7,11 @@ import { createStagedPreview } from "/staged-preview.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
+import { createContextInspector } from "/context-inspector.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
+let contextInspector = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -39,6 +41,7 @@ const stagedPreview = createStagedPreview({
     latest = null;
     journalChecks?.clear();
     textEditor.clear();
+    contextInspector?.clear();
     diagnosticOverlays.clear();
     $("bundle").disabled = true;
     $("files").replaceChildren();
@@ -91,9 +94,13 @@ const textEditor = createTextEditor({
 const diagnosticOverlays = createDiagnosticOverlays({
   current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
   catalog: () => diagnosticCatalog,
-  deactivateText: () => textEditor.hide(),
+  deactivateText: () => {textEditor.hide();contextInspector?.hide();},
 });
-$("edit-figure-text").addEventListener("click", () => diagnosticOverlays.hide());
+contextInspector = createContextInspector({
+  current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
+  controls, deactivate: () => {textEditor.hide();diagnosticOverlays.hide();},
+});
+$("edit-figure-text").addEventListener("click", () => {diagnosticOverlays.hide();contextInspector.hide();});
 draftEditor = createDraftEditor({
   api, identity: () => ({client, generation: revision}), flush: () => controls.flush(),
   snapshot: () => ({client, generation: revision, spec: readSpec(), data_id: data?.id, palette_id: palette?.id, data_name: data?.name, rows: data?.rows, sheet: data?.profile?.sheet, columns: data?.columns.map(column => column.name) || []}),
@@ -147,6 +154,7 @@ function invalidate() {
   latest = null;
   journalChecks?.clear();
   textEditor.clear();
+    contextInspector?.clear();
   diagnosticOverlays.clear();
   $("figure-surface").hidden = true;
   $("bundle").disabled = true;
@@ -356,6 +364,7 @@ async function update(force) {
   // A new check cancels any review tied to the previous rendered result.
   journalChecks.clear();
   textEditor.clear();
+    contextInspector?.clear();
   diagnosticOverlays.clear();
   const current = revision;
   const attempt = stagedPreview.begin({generation: current, data_id: data.id, palette_id: palette?.id});
@@ -429,6 +438,7 @@ async function update(force) {
       $("figure-surface").hidden = false;
       textEditor.mount(result);
       diagnosticOverlays.mount(result);
+      contextInspector.mount(result);
       $("empty").hidden = true;
     } else {
       $("empty").firstElementChild.textContent = "No preview was produced";

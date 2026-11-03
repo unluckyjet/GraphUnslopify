@@ -249,3 +249,29 @@ controls pass. Fresh private wheel524470bytes has80 files byte-equal source;
 API/CLI positives/low-DPI refusal pass with connections blocked. Full ten frozen
 gates,normal push and exact14 remain before90 completion/91 implementation.
 All30 ideas remain tracked; no release or new benchmark advantage is claimed.
+
+
+2026-11-03UTC —full90 accepted1a53a0e exact14/three workflows08:08:45.528804UTC
+before91 implementation; all ten local gates235 Node/2197 Python/g15. Move90 to
+done and keep full30 active.91a single-figure candidate now has actual axis/
+interval selection,scoped original controls/undo/current-image fences,26 current/
+minimum controls and source/minimum/fresh browser evidence. Six strict native
+and six actual preview parent/candidate comparisons preserve pixels/scientific
+report fields. Fresh81-file private wheel matches source;52 README graphics
+retained. Full91 remains open for paper91b;91a frozen gates/push/exact14 next.
+
+
+2026-11-03UTC —91a first frozen Python run finds7 published current-emitter
+fingerprint failures(2202 pass,one warning); all952 source paths unchanged.
+Unneeded interval helper emission is now conditional on line/bar uncertainty;
+all7 unchanged reference checks pass. Corrected current/minimum26 geometry and
+source/minimum public browser controls pass. Fresh corrected81-file wheel
+matches source; gates2/push/exact14 next. Failed gates1 evidence retained.
+
+
+2026-11-03UTC —91a gates2 passes all2209 Python tests/one warning1101.80s;
+baseline check detects three intentionally changed uncertainty emitters. Genuine
+explicit-Python regeneration builds all15 examples;12 artifact/script paths
+change. All16 image assets and all66 animation frames retain identical complete
+RGBA bytes. Baseline/render/recipe/compose/gallery checks pass after refresh.
+Both earlier failed gate runs remain retained; gates3/push/exact14 still required.

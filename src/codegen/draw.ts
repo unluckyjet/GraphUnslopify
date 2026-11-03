@@ -168,7 +168,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
     if (spec.uncertainty && band) {
       lines.push(
         `${indentLevel}if "_low" in ${source}:`,
-        `${indentLevel}    ax.fill_between(`,
+        `${indentLevel}    _gu_interval = ax.fill_between(`,
         `${indentLevel}        ${source}[X_FIELD],`,
         `${indentLevel}        ${source}["_low"],`,
         `${indentLevel}        ${source}["_high"],`,
@@ -177,11 +177,12 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
         `${indentLevel}        linewidth=0,`,
         `${indentLevel}        zorder=${styleExpr}["zorder"] - 1,`,
         `${indentLevel}    )`,
+        `${indentLevel}    inspector_interval(_gu_interval)`,
       );
     } else if (spec.uncertainty) {
       lines.push(
         `${indentLevel}if "_low" in ${source}:`,
-        `${indentLevel}    ax.errorbar(`,
+        `${indentLevel}    _gu_interval = ax.errorbar(`,
         `${indentLevel}        ${source}[X_FIELD],`,
         `${indentLevel}        ${source}[Y_FIELD],`,
         `${indentLevel}        yerr=[`,
@@ -194,6 +195,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
         `${indentLevel}        capsize=2,`,
         `${indentLevel}        zorder=${styleExpr}["zorder"],`,
         `${indentLevel}    )`,
+        `${indentLevel}    inspector_interval(_gu_interval)`,
       );
     }
     return lines;
@@ -350,11 +352,12 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       "        )",
     );
     out.push("        series_artist(_series_bars, name)");
+    if (spec.uncertainty) out.push("        inspector_interval(_series_bars)");
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
       "    block = frame.set_index(X_FIELD).reindex(categories)",
-      `    ax.${plot}(`,
+      `    _series_bars = ax.${plot}(`,
       "        positions,",
       "        block[Y_FIELD].to_numpy(dtype=float),",
       "        0.7,",
@@ -365,6 +368,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       spec.uncertainty ? "        capsize=2," : "",
       "    )",
     );
+    if (spec.uncertainty) out.push("    inspector_interval(_series_bars)");
     if (spec.value_labels) out.push("    label_bars(ax, block[Y_FIELD], positions)");
   }
 

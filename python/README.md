@@ -124,9 +124,10 @@ CLI operations. See the repository agent guide for setup, error semantics and pr
 
 ## Experiment tracking in current source
 
-Current source also [imports local CSV and TensorBoard histories](../docs/workspace/experiment-histories.md)
-with run selection, reviewed comparisons, strict rendering and undo. TensorBoard
-uses the optional `experiments` extra. Inbound MLflow and W&B remain pending.
+Current source [imports CSV, TensorBoard, MLflow and W&B histories](../docs/workspace/experiment-histories.md)
+with run selection, reviewed comparisons, strict rendering and undo. Tracker SDKs
+use the optional `experiments` extra. Endpoint/key access is explicit and local
+MLflow sources are queried through owned copies; see the tested scope in the guide.
 
 Source after0.8.0 adds `python -m pip install "./python[tracking]"` and
 `graphunslopify track-mlflow` for saved audit/workflow reports. Choose an explicit

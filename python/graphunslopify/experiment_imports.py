@@ -471,7 +471,11 @@ class ExperimentSnapshot:
         }
 
 
-def _snapshot(source, *, provider="csv", step_field="step", metrics=None):
+def _snapshot(source, *, provider="csv", step_field="step", metrics=None, tracker=None):
+    if provider in {"mlflow", "wandb"}:
+        from .tracker_imports import tracker_snapshot
+
+        return tracker_snapshot(source, provider=provider, metrics=metrics, tracker=tracker)
     config = _config(source, provider, step_field, metrics)
     files, contents = _read_files(config)
     points, labels, ignored, reader = (_csv_points if provider == "csv" else _tensorboard_points)(
@@ -482,9 +486,11 @@ def _snapshot(source, *, provider="csv", step_field="step", metrics=None):
     return result
 
 
-def experiment_runs(source, *, provider="csv", step_field="step", metrics=None):
+def experiment_runs(source, *, provider="csv", step_field="step", metrics=None, tracker=None):
     """List complete local run/metric evidence;never execute programs or modify source files."""
-    return _snapshot(source, provider=provider, step_field=step_field, metrics=metrics).catalog()
+    return _snapshot(
+        source, provider=provider, step_field=step_field, metrics=metrics, tracker=tracker
+    ).catalog()
 
 
 @dataclass
@@ -505,9 +511,12 @@ def experiment_comparison(
     step_field="step",
     metrics=None,
     kind="line",
+    tracker=None,
 ):
     """Prepare an unapplied comparison of selected raw metric values,no inferred statistics."""
-    snapshot = _snapshot(source, provider=provider, step_field=step_field, metrics=metrics)
+    snapshot = _snapshot(
+        source, provider=provider, step_field=step_field, metrics=metrics, tracker=tracker
+    )
     if expected_snapshot != snapshot.identity:
         raise ExperimentError("Experiment source/reader/options changed;list the runs again")
     if (

@@ -14,7 +14,7 @@ the advice are planning labels, not authorization to publish a new release.
 
 | Original idea | Required delivered behavior | Existing foundation / remaining work |
 | --- | --- | --- |
-| 1 Experiment trackers | Select real W&B/MLflow histories, TensorBoard logs and CSV-directory runs; map actual metrics/steps into comparative figures with source/run ancestry. | Checkpoint93 local CSV/TensorBoard review/apply/undo passes actual current/minimum/fresh controls and all10 frozen local gates;push/exact14 CI pending. MLflow/W&B inbound94 remains required;outbound MLflow logging is separate. |
+| 1 Experiment trackers | Select real W&B/MLflow histories, TensorBoard logs and CSV-directory runs; map actual metrics/steps into comparative figures with source/run ancestry. | Local CSV/TensorBoard93/dba0cf5 accepted after all10 local/exact14 CI;actual browser10/source hashes verify. MLflow/W&B inbound94 is now in progress and remains required;outbound MLflow logging is separate. |
 | 2 Existing-code importer | Import supported Matplotlib/Seaborn patterns into editable canonical intent; disclose unsupported/dynamic code and preserve originals. | Authored scripts can be audited; safe supported-pattern conversion is new. Never execute an unknown script merely to import it. |
 | 3 Autopilot | Dataset + question yields three justified visualization proposals and verified drafts, with explicit assumptions and reviewed scientific choices. | Profiles/suggestions/drafts exist; question-aware three-choice workflow and real verification remain. |
 | 4 Review agent | Reviewer questions combine deterministic current findings with separately labelled qualitative suggestions. | Scientific review workspace exists; grounded conversational reviewer orchestration is new. |

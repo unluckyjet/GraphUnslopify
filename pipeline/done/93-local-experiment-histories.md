@@ -1,13 +1,21 @@
 ---
 id: 93
 slug: local-experiment-histories
-status: in_progress
+status: done
 priority: P1
 title: Select local experiment runs and create verified comparative figures
 source_idea: 2026-11-02 research-platform idea1 local-provider checkpoint
 ---
 
 # 93 — Local experiment histories
+
+Accepted dba0cf5aedde6ca5cc9f6f9028b7c7a0a23b772c after all14 exact checks/
+three workflows2026-11-03T20:04:25.583000UTC(main41697693863,
+Figure41697693844,native41697693890). All10 local235 Node/2265 Python/g15;
+965 protected/970 Git paths and87 installed files match. ActualCI importer10
+controls/native source hashes/source-free bundle verified. CI matrices each2260
+passed/5 skipped,warning28 minimum/1 current;skip reasons unprinted. No release.
+This closes local providers only;MLflow/W&B94 still completes idea1.
 
 Starts after full92/0f967bc exact14 acceptance2026-11-03T17:33:48UTC.
 The [complete roadmap](../research-platform-roadmap.md) remains active. This is

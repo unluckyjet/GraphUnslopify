@@ -35,11 +35,12 @@ def _context(payload):
 def _options(payload):
     source = payload.get("source")
     if not isinstance(source, str):
-        raise ExperimentError("Choose a local result folder")
+        raise ExperimentError("Choose an experiment source")
     return source, {
         "provider": payload.get("provider", "csv"),
         "step_field": payload.get("step_field", "step"),
         "metrics": payload.get("metrics"),
+        "tracker": payload.get("tracker"),
     }
 
 
@@ -48,6 +49,10 @@ class PreviewExperiments:
         self.state = state
         self.plans = {}
         self.lock = threading.Lock()
+
+    def close(self):
+        with self.lock:
+            self.plans.clear()
 
     def _expire(self):
         now = time.monotonic()

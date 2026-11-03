@@ -631,6 +631,13 @@ def _experiments(args: argparse.Namespace) -> int:
     )
 
     options = {"provider": args.provider, "step_field": args.step_field, "metrics": args.metrics}
+    if args.provider in {"mlflow", "wandb"}:
+        options["tracker"] = {
+            "endpoint": args.tracker_endpoint,
+            "experiment_ids": args.experiments,
+            "allow_remote": args.allow_remote,
+            "api_key": os.environ.get(args.api_key_env) if args.api_key_env else None,
+        }
     try:
         if args.command == "experiment-runs":
             result = experiment_runs(args.source, **options)
@@ -782,12 +789,29 @@ def build_parser() -> argparse.ArgumentParser:
     for name in ("experiment-runs", "experiment-compare"):
         experiment = commands.add_parser(
             name,
-            help="read local CSV/TensorBoard runs"
+            help="read bounded local/MLflow/W&B histories"
             if name == "experiment-runs"
             else "strictly render selected raw experiment histories",
         )
-        experiment.add_argument("source", help="local result folder,or one CSV file")
-        experiment.add_argument("--provider", choices=["csv", "tensorboard"], default="csv")
+        experiment.add_argument(
+            "source", help="local files,MLflow SQLite/server,or W&B entity/project"
+        )
+        experiment.add_argument(
+            "--provider", choices=["csv", "tensorboard", "mlflow", "wandb"], default="csv"
+        )
+        experiment.add_argument("--experiments", nargs="+", help="explicit MLflow experiment IDs")
+        experiment.add_argument(
+            "--tracker-endpoint", help="W&B endpoint;shown/configured explicitly"
+        )
+        experiment.add_argument(
+            "--api-key-env",
+            help="environment variable holding a provider key;never pass the key as an argument",
+        )
+        experiment.add_argument(
+            "--allow-remote",
+            action="store_true",
+            help="authorize this explicit tracker endpoint/network read",
+        )
         experiment.add_argument("--step-field", default="step", help="CSV step column")
         experiment.add_argument(
             "--metrics", nargs="+", help="optional CSV columns/TensorBoard tags to read"

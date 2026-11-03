@@ -252,6 +252,14 @@ jobs:
       - run: npm run paper-inspector-check
       - run: npm run scorecard-check
       - run: npm run experiments-check
+      - run: npm run trackers-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tracker-history-verification
+          path: /tmp/gu-trackers-*/**
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

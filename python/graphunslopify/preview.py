@@ -71,6 +71,7 @@ class PreviewState:
             )
 
     def close(self):
+        self.experiments.close()
         if self.stages is not None:
             self.stages.close()
         try:

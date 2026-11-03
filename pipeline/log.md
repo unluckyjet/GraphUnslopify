@@ -340,3 +340,30 @@ installs offline;84 package files equal source; actual installed scorecard CLI
 queries from outside checkout without source PYTHONPATH and keeps failed science.
 All52 README graphics and37 original study assets remain. Full frozen ten checks,
 normal push and exact14 are required before92 acceptance. All30 remains active.
+
+2026-11-03UTC —92/67b93f3 normal-pushed after frozen all-ten gates235 Node/
+2231 Python0 skips1 existing MLflow SQLAlchemy warning1143.31s/g15.966 complete
+Git paths/84 private installed package files match. Exact main41664493203 render
+job126016076977 failed paper-inspector-check at the interval pointer assertion
+before scorecard-check ran. Other eleven checks passed at observation;two Python
+jobs were still pending. Failed artifact13246578016 has141 bounded members,
+4633123bytes/SHA13ffcbb9f98d959c60578561139ce72d3393f0f243895afd9b366bf2dca848d6;
+metadata/head/whole digest and failed screenshot verified. No full92 acceptance.
+Unmodified source paper18 passes locally. Controlled offscreen replay reproduces
+the same failed selection:the old absolute viewport click lands at y3494.97
+with viewport height1100. This is a reproduced failure class,not a measured CI
+viewport position.92a uses the same native geometry point through a stable
+SVG-relative pointer click,then waits for the matching control. The regression
+explicitly starts the image below the viewport and checks the selected interval;
+all18 original ownership/data/science controls remain. Current-source18 passes.
+Minimum/installed controls,full frozen gates and new exact14 remain before repair
+acceptance. Production package bytes,all52 README placements and37 frozen study
+assets stay unchanged. Raw failed/positive evidence is retained in research-platform-92a/.
+
+92a final targeted source/minimum3.10/existing fresh installed paper browser each
+passes18 original controls with zero page errors/external requests,plus explicit
+below-viewport native-point selection. Unmodified parent locally passed;the
+controlled offscreen parent replay failed and is retained. Only the handwritten
+paper browser script differs across959 protected source paths;all production
+package bytes,README graphics and frozen protocol assets equal67b93f3. Full local
+gates,normal repair push and exact14 on its new commit remain required.

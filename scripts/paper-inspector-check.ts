@@ -80,8 +80,15 @@ try {
  await page.getByRole("button",{name:/^Inspect Horizontal axis/}).click();assert(await page.locator("#control-y-label").isVisible());assert(await page.locator("#control-x-label").isHidden());
  const packet=(await api("/api/element-map",{event:latest,figure:"bars",expected_revision:state.revision})).value;
  const interval=packet.edit_map.elements.targets.find((t:any)=>t.role==="uncertainty"),points=interval.shapes[0].points;
- const point:[number,number]=[(points[0][0]+points[1][0])/2,(points[0][1]+points[1][1])/2],box=(await page.locator("#preview").boundingBox())!;
- await page.mouse.click(box.x+point[0]*box.width/packet.edit_map.image.width,box.y+point[1]*box.height/packet.edit_map.image.height);assert(await page.locator("#control-uncertainty-kind").isVisible());
+ await page.evaluate(()=>window.scrollTo(0,0));
+ const beforePointer=(await page.locator("#preview").boundingBox())!;
+ assert(beforePointer.y>page.viewportSize()!.height,"The pointer regression must start with the figure below the viewport");
+ const point:[number,number]=[(points[0][0]+points[1][0])/2,(points[0][1]+points[1][1])/2];
+ const overlay=page.locator("#inspector-targets svg"),box=(await overlay.boundingBox())!;
+ await overlay.click({position:{x:point[0]*box.width/packet.edit_map.image.width,y:point[1]*box.height/packet.edit_map.image.height}});
+ await page.locator("#control-uncertainty-kind").waitFor({state:"visible"});assert(await page.locator("#control-uncertainty-kind").isVisible());
+ assert((await page.locator("#inspector-element option:checked").textContent())!.startsWith("Uncertainty"));
+ writeFileSync(join(evidence,"pointer-verification.json"),JSON.stringify({figure_starts_below_viewport:true,native_interval_point:point,element_relative_pointer:true,mapped_uncertainty_selected:true},null,2));
  await page.setViewportSize({width:430,height:920});assert(await page.locator("#control-uncertainty-over").isVisible());assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));await page.screenshot({path:join(evidence,"mobile-interval.png"),fullPage:true});
  await page.locator("#inspector-all").click();await page.setViewportSize({width:1450,height:1100});
  await page.locator("#history-figure").selectOption("line");await page.locator('[data-figure="line"]').click();await ready();

@@ -64,7 +64,10 @@ displayed PNG bytes and refuses late responses for another owner or revision.
 
 Pipeline [91](../../pipeline/done/91-context-inspector.md) records the full
 figure/paper requirement. The91a single-figure implementation is accepted at
-db73e73 after exact14 CI. Paper91b transport/ownership is in final verification;
-final acceptance is recorded separately from working evidence.
+db73e73 after exact14 CI. Paper91b transport/ownership is accepted at4c0aa91
+after exact14 CI. The paper browser control also starts its mapped interval
+below the viewport:element-relative pointer input must scroll to the actual
+saved geometry and reveal the matching uncertainty controls. Its18 original
+ownership,edit/reuse,history,mobile and failed-science assertions remain.
 The complete [thirty-idea roadmap](../../pipeline/research-platform-roadmap.md)
 remains active. No new comparative speed or scientific-superiority claim is made.

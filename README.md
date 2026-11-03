@@ -519,6 +519,11 @@ and reuse intact accepted native results, with executed/reused counts and origin
 Source-free PDFs remain outside restyling and numerical verification.
 [Download a review packet](docs/paper-review-export.md) to keep saved figure files, whole-paper outcomes,
 scientific/PDF evidence and original-run ancestry together in a readable offline report.
+[Import local experiment histories](docs/workspace/experiment-histories.md) from
+CSV result folders or TensorBoard logs. Select runs and a metric, review exclusions,
+then create a comparison with the existing strict checks and undo. Current source
+preserves duplicate steps as raw points; inbound MLflow and W&B are still pending.
+
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,
 exports and history. Read it in the review panel or with `graphunslopify project-scorecard paper/`;

@@ -39,7 +39,7 @@ jobs:
       - run: pip install ruff
       - run: ruff check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-template-replay.py scripts/prepare-workspace-protocol.py scripts/check-workspace-protocol.py scripts/check-workspace-matplotlib.py scripts/check-workspace-producers.py scripts/check-workspace-sessions.py scripts/check-workspace-paper.py scripts/check-workspace-paper-sessions.py scripts/check-workspace-reliability.py scripts/check-workspace-reproduction.py scripts/check-workspace-native-reproduction.py scripts/check-workspace-gui.py benchmarks/workspace scripts/check-project-reuse.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/runtime-benchmark.py scripts/profile-runtime-phases.py scripts/publish-runtime-benchmark.py scripts/benchmark-statistics-cache.py scripts/profile-preview-phases.py scripts/serve-preview-staging-check.py scripts/serve-staged-benchmark.py scripts/build-runtime-source.py scripts/check-runtime-foundation.py scripts/check-runtime-bundles.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
       - run: ruff format --check python .github/actions/figure-ci/run.py scripts/check-getting-started.py scripts/check-visual-comparison.py scripts/check-research-workflow.py scripts/check-experiment-tracking.py scripts/check-project-management.py scripts/check-project-interface.py scripts/check-template-replay.py scripts/prepare-workspace-protocol.py scripts/check-workspace-protocol.py scripts/check-workspace-matplotlib.py scripts/check-workspace-producers.py scripts/check-workspace-sessions.py scripts/check-workspace-paper.py scripts/check-workspace-paper-sessions.py scripts/check-workspace-reliability.py scripts/check-workspace-reproduction.py scripts/check-workspace-native-reproduction.py scripts/check-workspace-gui.py benchmarks/workspace scripts/check-project-reuse.py scripts/check-diagnostics.py scripts/check-pdf-visual.py scripts/check-excel-input.py scripts/rendering-benchmark.py scripts/runtime-benchmark.py scripts/profile-runtime-phases.py scripts/publish-runtime-benchmark.py scripts/benchmark-statistics-cache.py scripts/profile-preview-phases.py scripts/serve-preview-staging-check.py scripts/serve-staged-benchmark.py scripts/build-runtime-source.py scripts/check-runtime-foundation.py scripts/check-runtime-bundles.py scripts/check-render-worker.py scripts/install-smoke.py benchmarks/certified/corpus.py scripts/prepare-certified-data.py benchmarks/certified/measurement.py scripts/measure-certified-figure.py benchmarks/certified/runner.py scripts/certified-benchmark.py scripts/publish-certified-results.py scripts/authoring-benchmark.py scripts/replay-authoring.py scripts/publish-authoring-results.py benchmarks/authoring benchmarks/certified/producers
-      - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf,tracking,excel]"
+      - run: pip install -e "./python[dev,interactive,notebook,agent,statistics,parquet,pdf,tracking,excel,experiments]"
       - run: python -m pytest python/tests -q
       - run: python scripts/check-workspace-matplotlib.py --out /tmp/gu-workspace-matplotlib-${{ matrix.python }}
       # Success verifies measurement integrity; task failures remain explicit artifact outcomes.
@@ -177,7 +177,7 @@ jobs:
           python-version: "3.12"
       - run: npm ci
       - run: pip install -r requirements.txt
-      - run: pip install -e "./python[dev,interactive,statistics,excel,parquet,pdf]"
+      - run: pip install -e "./python[dev,interactive,statistics,excel,parquet,pdf,experiments]"
       # The behavioural tests skip themselves without matplotlib, so the
       # typescript job above cannot run them. This is where they actually run.
       - run: npm test
@@ -251,6 +251,14 @@ jobs:
       - run: npm run inspector-check
       - run: npm run paper-inspector-check
       - run: npm run scorecard-check
+      - run: npm run experiments-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiment-history-verification
+          path: /tmp/gu-experiments-*/**
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

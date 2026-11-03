@@ -33,7 +33,8 @@
     "workspace-gui-check": "node --experimental-strip-types scripts/workspace-gui-check.ts",
     "inspector-check": "node --experimental-strip-types scripts/inspector-check.ts",
     "paper-inspector-check": "node --experimental-strip-types scripts/paper-inspector-check.ts",
-    "scorecard-check": "node --experimental-strip-types scripts/scorecard-check.ts"
+    "scorecard-check": "node --experimental-strip-types scripts/scorecard-check.ts",
+    "experiments-check": "node --experimental-strip-types scripts/experiments-check.ts"
   },
   "type": "module",
   "dependencies": {

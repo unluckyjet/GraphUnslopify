@@ -620,6 +620,40 @@ def _journal_check(args: argparse.Namespace) -> int:
         return 2
 
 
+def _experiments(args: argparse.Namespace) -> int:
+    import contextlib
+    import io
+
+    from .experiment_imports import (
+        experiment_comparison,
+        experiment_runs,
+        render_experiment_comparison,
+    )
+
+    options = {"provider": args.provider, "step_field": args.step_field, "metrics": args.metrics}
+    try:
+        if args.command == "experiment-runs":
+            result = experiment_runs(args.source, **options)
+        else:
+            proposal = experiment_comparison(
+                args.source,
+                **options,
+                runs=args.runs,
+                metric=args.metric,
+                kind=args.kind,
+                expected_snapshot=args.snapshot,
+            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = render_experiment_comparison(
+                    proposal, args.out_dir, accept_exclusions=args.accept_exclusions
+                )
+        print(json.dumps(result, indent=2, allow_nan=False))
+        return int(result.get("exit_code", 0))
+    except (OSError, ValueError, TypeError) as problem:
+        print(json.dumps({"error": str(problem), "exit_code": 2}))
+        return 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -744,6 +778,38 @@ def build_parser() -> argparse.ArgumentParser:
         "--artifact-root", help="exclusive root override for a moved audit archive"
     )
     tracked.set_defaults(handler=_track_mlflow)
+
+    for name in ("experiment-runs", "experiment-compare"):
+        experiment = commands.add_parser(
+            name,
+            help="read local CSV/TensorBoard runs"
+            if name == "experiment-runs"
+            else "strictly render selected raw experiment histories",
+        )
+        experiment.add_argument("source", help="local result folder,or one CSV file")
+        experiment.add_argument("--provider", choices=["csv", "tensorboard"], default="csv")
+        experiment.add_argument("--step-field", default="step", help="CSV step column")
+        experiment.add_argument(
+            "--metrics", nargs="+", help="optional CSV columns/TensorBoard tags to read"
+        )
+        if name == "experiment-compare":
+            experiment.add_argument(
+                "--snapshot", required=True, help="snapshot from experiment-runs"
+            )
+            experiment.add_argument(
+                "--runs", nargs="+", required=True, help="run IDs from that snapshot"
+            )
+            experiment.add_argument("--metric", required=True)
+            experiment.add_argument("--kind", choices=["line", "scatter"], default="line")
+            experiment.add_argument(
+                "--out-dir", required=True, help="new comparison folder outside the source"
+            )
+            experiment.add_argument(
+                "--accept-exclusions",
+                action="store_true",
+                help="explicitly use valid observations with recorded exclusions",
+            )
+        experiment.set_defaults(handler=_experiments)
 
     for name, help_text in [
         ("project-init", "initialize durable paper figure management beside its manifest"),

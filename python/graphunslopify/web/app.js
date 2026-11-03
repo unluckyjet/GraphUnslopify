@@ -8,10 +8,12 @@ import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
+import { createExperimentImports } from "/experiment-imports.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
 let contextInspector = null;
+let experimentImports = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -149,6 +151,7 @@ function setSpec(spec) {
 }
 function invalidate() {
   revision++;
+  experimentImports?.refresh();
   stagedPreview.invalidate();
   draftEditor?.invalidate();
   latest = null;
@@ -602,6 +605,21 @@ async function uploadData(file) {
   }
 }
 $("data-file").onchange = () => uploadData($("data-file").files[0]);
+
+function applyExperiment(info, intent) {
+  const before={data,workbook,spec:structuredClone(readSpec()),history:[...controlHistory]};
+  function swap(nextData,nextSpec) {
+    selection++;data=null;showWorkbook({});clearDataViews();invalidate();
+    $("include-data").checked=false;
+    if(nextData){showWorkbook(nextData);showData(nextData);setSpec(bindData(structuredClone(nextSpec),nextData));}
+    else{setSpec(structuredClone(nextSpec));$("data-summary").textContent="No data selected";}
+    controlHistory.length=0;$("undo-controls").disabled=true;clearTimeout(timer);update(true);
+  }
+  swap(info,intent);
+  const applied=JSON.stringify(readSpec());
+  const current=()=>{try{return data?.id===info.id&&JSON.stringify(readSpec())===applied;}catch{return false;}};
+  return {current,undo(){if(!current())throw Error("Undo later figure edits before restoring the previous import.");swap(before.data,before.spec);controlHistory.push(...before.history);$("undo-controls").disabled=!controlHistory.length;}};
+}
 $("design-choice").onchange = showDesignReason;
 $("apply-design").onclick = () => {
   const item = suggested[Number($("design-choice").value)];
@@ -727,6 +745,8 @@ createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
   { id: "preset", label: "Choose an export preset", target: "reuse-preset", focusOnly: true, keywords: "publication print PNG SVG PDF" },
 ] });
 setSpec(initial);
+experimentImports=createExperimentImports({mount:$("experiment-tools"),api,
+  context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),apply:applyExperiment});
 api("/api/info")
   .then((info) => {
     journalChecks.configure(info.journal_profiles);

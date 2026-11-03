@@ -53,6 +53,9 @@ class PreviewState:
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
+        from .preview_experiments import PreviewExperiments
+
+        self.experiments = PreviewExperiments(self)
         self.stages = PreviewStages(self.root) if staged_preview else None
         self.worker = None
         self.translator = None
@@ -353,6 +356,13 @@ class PreviewState:
             paths = {item["path"]: folder / item["path"] for item in exports}
             for name in (script.name, spec_name, f"{stem}.report.json"):
                 paths[name] = folder / name
+            if data.get("experiment_import") is not None:
+                import_name = f"{stem}.experiment-import.json"
+                (folder / import_name).write_text(
+                    json.dumps(data["experiment_import"], indent=2, allow_nan=False),
+                    encoding="utf8",
+                )
+                paths[import_name] = folder / import_name
             record = {
                 "folder": folder,
                 "files": paths,
@@ -576,6 +586,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/reuse-intent.js",
                 "/journal-checks.js",
                 "/context-inspector.js",
+                "/experiment-imports.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -594,6 +605,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/reuse-intent.js",
             "/journal-checks.js",
             "/context-inspector.js",
+            "/experiment-imports.js",
         }:
             name = {
                 "/": "index.html",
@@ -609,6 +621,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/reuse-intent.js": "reuse-intent.js",
                 "/journal-checks.js": "journal-checks.js",
                 "/context-inspector.js": "context-inspector.js",
+                "/experiment-imports.js": "experiment-imports.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -627,6 +640,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "reuse-intent.js": "text/javascript; charset=utf-8",
                     "journal-checks.js": "text/javascript; charset=utf-8",
                     "context-inspector.js": "text/javascript; charset=utf-8",
+                    "experiment-imports.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -747,6 +761,13 @@ class PreviewHandler(BaseHTTPRequestHandler):
                             validator=validate,
                         )
                     )
+            elif route in {
+                "/api/experiments/catalog",
+                "/api/experiments/review",
+                "/api/experiments/accept",
+                "/api/experiments/cancel",
+            }:
+                self.json(getattr(self.server.state.experiments, route.rsplit("/", 1)[-1])(payload))
             elif route == "/api/model-provider":
                 self.json(self.server.state.drafts.configure(payload))
             elif route in {

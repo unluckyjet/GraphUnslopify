@@ -1,13 +1,22 @@
 ---
 id: 92
 slug: reproducibility-scorecard
-status: in_progress
+status: done
 priority: P1
 title: Show available and missing reproduction evidence by component
 source_idea: 2026-11-02 research-platform idea20
 ---
 
 # 92 — Reproducibility scorecard
+
+Accepted0f967bc1469371133191dc9433eeec5af519c839 after all ten local gates and
+exact14/three workflows at2026-11-03T17:33:48.448674UTC. Main41673496300,
+Figure41673496447 and native41673496295 succeed. Local235 Node/2231 Python/g15,
+963 tested working/index/Git paths and same84 private installed package files
+match. Actual CI scorecard16/paper18+offscreen pointer proofs verify. CI Python
+3.10:2226passed5skipped28warnings2315.72s;3.12:2226passed5skipped1warning2385.42s.
+No printed skip reasons/none inferred. Earlier failed parent remains below.
+No new release;the complete thirty-idea goal remains active,next inbound histories1.
 
 Starts after full91/4c0aa91 exact14 acceptance2026-11-03T14:18:33UTC.
 The [complete thirty-idea roadmap](../research-platform-roadmap.md) remains active.

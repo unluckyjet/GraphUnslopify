@@ -230,6 +230,68 @@ class ProjectState:
             },
         }
 
+    def element_map(self, payload):
+        """Read one current owned native map; never execute a selected source."""
+        from .audit_geometry import checked_geometry
+
+        self.check_owner()
+        revision = payload.get("expected_revision")
+        _review_token(revision)
+        before = project_status(self.source)
+        if revision != before["revision"]:
+            raise ProjectError("Project inputs changed; refresh before inspecting elements")
+        event = self.event(payload.get("event"))
+        if (event["result"].get("snapshot") or {}).get("revision") != revision:
+            raise ProjectError("Historical geometry cannot edit a different current revision")
+        identity = payload.get("figure")
+        definition = project_figure(self.source, identity)
+        if (
+            definition["revision"] != revision
+            or not definition["editable"]
+            or definition["source_type"] != "spec"
+        ):
+            raise ProjectError(
+                "Element editing needs the matching editable current JSON definition"
+            )
+        figure = self.audited(event, identity)
+        metadata = figure.get("edit_map") or {}
+        if metadata.get("available") is not True:
+            raise ProjectError(
+                metadata.get("reason")
+                or "This saved run has no element map; regenerate PNG evidence"
+            )
+        report = figure["report"]
+        if metadata.get("spec_hash") != report["spec_hash"]:
+            raise ProjectError("Element map belongs to a different canonical specification")
+        index = next(
+            (i for i, item in enumerate(figure["outputs"]) if item["format"] == "png"), None
+        )
+        if index is None:
+            raise ProjectError("Element inspection needs an original recorded PNG")
+        png = figure["outputs"][index]
+        if metadata.get("image_sha256") != png["sha256"]:
+            raise ProjectError("Element map belongs to a different recorded PNG")
+        image_bytes, _ = self.artifact(event["id"], identity, index)
+        raw = _verified_bytes(metadata, [self.audit_root(event)])
+        geometry = checked_geometry(raw, png, image_bytes)
+        self.event(event["id"])
+        self.check_owner()
+        if project_status(self.source)["revision"] != revision:
+            raise ProjectError("Project changed while reading element geometry; refresh")
+        return {
+            "edit_map": {**geometry, "spec_hash": report["spec_hash"]},
+            "spec_hash": report["spec_hash"],
+            "image": {**png, "index": index},
+            "context": {
+                "kind": "paper_history",
+                "project_revision": revision,
+                "definition_revision": definition["revision"],
+                "event": event["id"],
+                "figure": identity,
+                "scope": "Original JSON definition; manifest and paper presentation overrides keep their own controls",
+            },
+        }
+
     def preview(self, event_id, identity):
         with self.media_lock, tempfile.TemporaryDirectory(prefix="gu-project-image-") as temporary:
             event = self.event(event_id)
@@ -452,6 +514,7 @@ class ProjectHandler(PreviewHandler):
             "/project-selection.js": "project-selection.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/journal-checks.js": "journal-checks.js",
+            "/context-inspector.js": "context-inspector.js",
             "/workspace-commands.js": "workspace-commands.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
@@ -575,6 +638,8 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.start(payload), 202)
             elif route == "/api/journal-check":
                 self.json(state.journal_check(payload))
+            elif route == "/api/element-map":
+                self.json(state.element_map(payload))
             elif route == "/api/review-export":
                 from .project_export import create_review_packet
 

@@ -18,8 +18,9 @@ HERE = ROOT / "benchmarks/workspace"
 
 
 def observer_control(out):
-    """Two actual plain/direct-observed programs with identical code and input bytes."""
+    """Plain/observed and actual geometry commands, identical code and input bytes."""
     from graphunslopify import Figure
+    from graphunslopify.audit_geometry import native_command
 
     measure = runpy.run_path(str(HERE / "measurement.py"))
     controls = []
@@ -34,26 +35,37 @@ def observer_control(out):
             raise ValueError("Native observer control did not compile")
         code = translated["code"].encode("utf8")
         runs = {}
-        for mode in ("plain", "observed"):
+        for mode in ("plain", "observed", "geometry", "geometry_observed"):
             folder = out / identity / mode
             folder.mkdir(parents=True, exist_ok=False)
             program = folder / "figure.py"
             program.write_bytes(code)
             (folder / "data.csv").write_bytes(raw)
             native = ["--strict", "--json", "--report", "runtime.report.json"]
-            command = (
-                [sys.executable, str(program), *native]
-                if mode == "plain"
-                else [
+            if mode == "plain":
+                command = [sys.executable, str(program), *native]
+            elif mode == "geometry":
+                command = [*native_command(program, translated["filename"]), *native]
+            else:
+                command = [
                     sys.executable,
                     str(HERE / "paper_capture.py"),
                     "--observations",
                     str(folder / "observations.json"),
                     "--script",
                     str(program),
+                    *(
+                        [
+                            "--geometry",
+                            "element-map.json",
+                            "--png",
+                            str(folder / "figure.png"),
+                        ]
+                        if mode == "geometry_observed"
+                        else []
+                    ),
                     *native,
                 ]
-            )
             completed = subprocess.run(
                 command,
                 cwd=folder,
@@ -84,7 +96,15 @@ def observer_control(out):
                 )
                 for fmt in spec["output"]["formats"]
             }
-        if runs["plain"] != runs["observed"] or not all(runs["plain"].values()):
+            if mode.startswith("geometry"):
+                geometry = json.loads((folder / "element-map.json").read_text())
+                if geometry.get("available") is not True:
+                    raise ValueError(
+                        "Actual native command did not retain its PNG geometry"
+                    )
+        if any(run != runs["plain"] for run in runs.values()) or not all(
+            runs["plain"].values()
+        ):
             raise ValueError("Direct observer changed native drawing identity")
         controls.append(
             {

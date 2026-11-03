@@ -22,7 +22,7 @@ try{
  browser=await chromium.launch({headless:true,...(executable?{executablePath:executable}:{})});page=await browser.newPage({viewport:{width:1500,height:1100}});page.setDefaultTimeout(60_000);
  page.on("pageerror",e=>errors.push(e.message));page.on("request",r=>{if(/^https?:/.test(r.url())&&!/^http:\/\/127\.0\.0\.1:/.test(r.url()))external.push(r.url());});
  await page.goto(await serve());await page.locator("#demo").click();await page.locator('#preview[data-phase="final"]').waitFor();await page.locator("#live").uncheck();
- await page.locator("#advanced>summary").click();const original=JSON.parse(await page.locator("#spec").inputValue());const before=await render();assert.equal(before.report.status,"passed");
+ await page.locator("#advanced>summary").click();const original=JSON.parse(await page.locator("#spec").inputValue());const before=await render();const originalImage=(await page.locator("#preview").getAttribute("src"))!;assert.equal(before.report.status,"passed");
  const raw=await page.locator("#spec").inputValue(),status=await page.locator("#status").textContent();
  await page.locator("#inspect-element").click();assert(await page.locator("#control-output-dpi").isVisible());assert(!await page.locator("#control-x-label").isVisible());await page.getByRole("button",{name:/^Inspect Horizontal axis/}).first().click();
  assert(await page.locator("#control-x-label").isVisible());assert(!await page.locator("#control-y-label").isVisible());assert(!await page.locator("#control-output-dpi").isVisible());
@@ -61,7 +61,21 @@ try{
  // Renderer-owned paths still need canonical source agreement.
  await page.route("**/api/render",async route=>{const response=await route.fetch();const packet=await response.json();packet.edit_map.elements.targets=packet.edit_map.elements.targets.filter((t:any)=>t.role!=="uncertainty");for(const target of packet.edit_map.elements.targets)if(target.role==="axis")target.source="unrelated source";await route.fulfill({response,json:packet});});
  await render();await page.locator("#inspect-element").click();assert.equal(await page.locator("#inspector-element option").count(),1);await page.unroute("**/api/render");
- receipts.push({actual_axis_pointer:true,interval_keyboard:true,horizontal_bar_binding:true,errorbar_pointer:true,whole_figure_controls:true,text_mode_separation:true,mobile_scope:true,selection_preserves_spec_and_status:true,real_native_edit_and_undo:true,stale_image_hash_refused:true,wrong_image_dimensions_refused:true,unmapped_source_refused:true,science_preserved:true,original_kind:original.kind});
+ // The shared module must bind the incoming result to the current owner even
+ // while the previous image remains decoded during an asynchronous handoff.
+ const handoff=await page.evaluate(async({result,spec,source})=>{
+  const image=document.getElementById("preview");image.hidden=false;image.dataset.phase="final";image.dataset.runId=result.run_id;
+  await new Promise<void>((ok,bad)=>{image.addEventListener("load",()=>ok(),{once:true});image.addEventListener("error",bad,{once:true});image.src=source;});
+  const modulePath="/context-inspector.js",module=await import(modulePath),outcomes=[];
+  for(const currentResult of [{...result,run_id:"later-owned-render"},{...result,report:{...result.report,spec_hash:"0".repeat(16)}},result]) {
+   const controller=module.createContextInspector({current:()=>({revision:1,dataId:"owned",spec,result:currentResult}),controls:{scope(){},flush(){return true;}},deactivate(){}});
+   controller.mount(result);outcomes.push(document.getElementById("inspect-element").disabled);
+  }
+  return outcomes;
+ },{result:before,spec:original,source:originalImage});
+ writeFileSync(join(evidence,"owner-handoff.json"),JSON.stringify({different_run_refused:handoff[0],different_spec_refused:handoff[1],matching_owner_enabled:handoff[2]===false},null,2));
+ assert.deepEqual(handoff,[true,true,false],"Incoming geometry must match the current run/spec, not just a still-decoded previous image");
+ receipts.push({actual_axis_pointer:true,interval_keyboard:true,horizontal_bar_binding:true,errorbar_pointer:true,whole_figure_controls:true,text_mode_separation:true,mobile_scope:true,selection_preserves_spec_and_status:true,real_native_edit_and_undo:true,stale_image_hash_refused:true,wrong_image_dimensions_refused:true,unmapped_source_refused:true,science_preserved:true,current_result_handoff_refused:true,matching_result_handoff_supported:true,original_kind:original.kind});
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);writeFileSync(join(evidence,"verification.json"),JSON.stringify({receipts,page_errors:errors,external_requests:external},null,2));console.log(JSON.stringify({receipts,page_errors:errors,external_requests:external,evidence}));
 }catch(error){if(page){await page.screenshot({path:join(evidence,"failure.png"),fullPage:true}).catch(()=>{});writeFileSync(join(evidence,"failure.json"),JSON.stringify({error:String(error),page_errors:errors},null,2));}throw error;}
 finally{await browser?.close();server?.kill();}

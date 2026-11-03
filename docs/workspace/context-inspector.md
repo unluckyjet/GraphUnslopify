@@ -38,11 +38,33 @@ or Advanced JSON. Geometry gaps do not change scientific acceptance.
 Inspection has bounded target/path capacity. It does not certify experimental
 independence,statistical appropriateness or complete readability.
 
+## Inspect a figure in a paper
+
+Choose the current JSON definition and its matching saved run/figure,then select
+**Inspect element**. The saved PNG moves beside the original definition controls.
+The same axis/interval/whole-figure menu scopes those controls. **All settings**
+returns the image to saved history and restores the full form.
+
+These controls edit the original JSON. Manifest data/claim overrides and shared
+or selected paper presentation settings retain their own controls and visible
+scope. File-backed and inline JSON can be editable; authored Python stays read
+only. An older run with different current inputs cannot edit the new definition.
+
+Edit,undo and save through the normal definition workflow,then audit the paper
+to check the changed figure. **Regenerate changed figures** can copy intact PNG
+geometry with its verified accepted figure; scripts still execute separately.
+Selection never changes a failed scientific result into a pass.
+
+Maps require an original recorded PNG and supported saved geometry. Missing old
+maps,PDF/SVG-only exports,changed bytes and unsupported targets remain unavailable;
+use the normal form or regenerate PNG evidence. The workspace verifies actual
+displayed PNG bytes and refuses late responses for another owner or revision.
+
 ## Development evidence
 
 Pipeline [91](../../pipeline/specs/91-context-inspector.md) tracks the full
-figure/paper requirement. The91a single-figure implementation is undergoing
-source/minimum/fresh browser and contribution checks; paper transport/ownership
-work remains91b. Final acceptance is recorded separately from working evidence.
+figure/paper requirement. The91a single-figure implementation is accepted at
+db73e73 after exact14 CI. Paper91b transport/ownership is in final verification;
+final acceptance is recorded separately from working evidence.
 The complete [thirty-idea roadmap](../../pipeline/research-platform-roadmap.md)
 remains active. No new comparative speed or scientific-superiority claim is made.

@@ -249,6 +249,14 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - run: npm run inspector-check
+      - run: npm run paper-inspector-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: paper-context-inspector-verification
+          path: /tmp/gu-paper-inspector-*/**
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

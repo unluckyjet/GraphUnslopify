@@ -35,6 +35,11 @@ def test_real_sdk_paper_policy_and_history(paper_evidence):
         for r in session["rows"]
     ]
     assert counts == [(4, 0), (0, 4), (1, 3), (2, 2), (2, 2), (1, 3), (4, 0), (5, 0), (4, 0)]
+    assert all(
+        figure["edit_map"]["available"]
+        for row in session["rows"]
+        for figure in row["native"]["audit"]["figures"]
+    )
     assert session["rows"][5]["native"]["exit_code"] == 2
     assert session["rows"][3]["review"]["can_apply"]
     assert project_history(path / "graphunslopify")["integrity"] == "verified"
@@ -63,6 +68,8 @@ def test_direct_observer_preserves_actual_native_drawings(paper_evidence):
         assert control["same_program_and_data"]
         assert set(control["identities"]["plain"]) == {"png", "svg", "pdf"}
         assert control["identities"]["plain"] == control["identities"]["observed"]
+        assert control["identities"]["plain"] == control["identities"]["geometry"]
+        assert control["identities"]["plain"] == control["identities"]["geometry_observed"]
         assert all(control["identities"]["plain"].values())
 
 

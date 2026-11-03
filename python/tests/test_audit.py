@@ -55,6 +55,32 @@ def test_malformed_baseline_fails_with_clear_error(tmp_path):
         audit(manifest, output=tmp_path / "audit", baseline=baseline)
 
 
+def test_missing_optional_element_geometry_preserves_actual_scientific_acceptance(
+    tmp_path, monkeypatch
+):
+    from graphunslopify import audit_geometry
+
+    manifest, _ = make_paper(tmp_path)
+    # Exercise a real legacy-style native process that does not observe savefig.
+    monkeypatch.setattr(
+        audit_geometry, "native_command", lambda script, filename: [sys.executable, str(script)]
+    )
+    result = audit(manifest, output=tmp_path / "audit")
+    assert result["status"] == "passed" and result["exit_code"] == 0
+    assert result["figures"][0]["edit_map"]["available"] is False
+    assert result["figures"][0]["report"]["claims"][0]["verdict"] == "holds"
+
+
+def test_pdf_only_native_audit_keeps_geometry_unavailable_and_science_passed(tmp_path):
+    manifest, spec = make_paper(tmp_path)
+    spec["output"]["formats"] = ["pdf"]
+    (tmp_path / "main.figure.json").write_text(json.dumps(spec))
+    result = audit(manifest, output=tmp_path / "audit")
+    assert result["status"] == "passed" and result["exit_code"] == 0
+    assert result["figures"][0]["edit_map"]["available"] is False
+    assert result["figures"][0]["outputs"][0]["format"] == "pdf"
+
+
 def test_script_audit_reads_actual_source_instead_of_a_stale_bytecode_cache(tmp_path):
     manifest, spec = make_paper(tmp_path)
     spec["alt_text"] = "Additional Context A."

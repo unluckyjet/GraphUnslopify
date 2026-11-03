@@ -67,7 +67,7 @@ def observe_executions(monkeypatch):
     actual = auditing._run
 
     def observed(command, folder, timeout, **options):
-        if len(command) > 1 and Path(command[1]).name == "figure.py":
+        if str(folder / "figure.py") in command[1:]:
             calls.append(folder.name)
         return actual(command, folder, timeout, **options)
 
@@ -87,6 +87,12 @@ def test_real_unchanged_reuse_copies_reports_exports_without_figure_processes(pa
     for name in ("training", "results-table"):
         original = row(first, name)
         copied = row(third, name)
+        original_map, copied_map = original["edit_map"], copied["edit_map"]
+        assert original_map["available"] and copied_map["available"]
+        assert original_map["sha256"] == copied_map["sha256"]
+        assert (Path(first["directory"]) / "audit" / original_map["path"]).read_bytes() == (
+            Path(third["directory"]) / "audit" / copied_map["path"]
+        ).read_bytes()
         assert copied["report"] == original["report"]
         assert copied["execution"]["origin_event"] == first["id"]
         assert copied["execution"]["source_event"] == second["id"]

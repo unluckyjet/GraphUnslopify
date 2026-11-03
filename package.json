@@ -31,7 +31,8 @@
     "selection-check": "node --experimental-strip-types scripts/project-selection-check.ts",
     "intent-check": "node --experimental-strip-types scripts/reuse-intent-check.ts",
     "workspace-gui-check": "node --experimental-strip-types scripts/workspace-gui-check.ts",
-    "inspector-check": "node --experimental-strip-types scripts/inspector-check.ts"
+    "inspector-check": "node --experimental-strip-types scripts/inspector-check.ts",
+    "paper-inspector-check": "node --experimental-strip-types scripts/paper-inspector-check.ts"
   },
   "type": "module",
   "dependencies": {

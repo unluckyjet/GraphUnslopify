@@ -55,7 +55,21 @@ class Session:
         original = module._run
 
         def run(command, folder, timeout, *, on_start=None):
-            script = Path(command[1])
+            # Observe the current owned geometry entry point as well as older
+            # direct scripts. Keep the same wrapper, arguments and one process;
+            # bypassing it would omit the maps that normal project runs save.
+            geometry, native = [], command[2:]
+            if command[1:3] == ["-m", "graphunslopify.preview_render"]:
+                if (
+                    len(command) < 8
+                    or command[3] != "--geometry"
+                    or command[5] != "--png"
+                ):
+                    return original(command, folder, timeout, on_start=on_start)
+                script = Path(command[7])
+                geometry, native = command[3:7], command[8:]
+            else:
+                script = Path(command[1])
             if (
                 command[0] != sys.executable
                 or script.name != "figure.py"
@@ -69,8 +83,9 @@ class Session:
                 str(folder / "workspace-paper-saves.json"),
                 "--script",
                 str(script),
+                *geometry,
                 *EXECUTION["arguments"](self.context),
-                *command[2:],
+                *native,
             ]
             completed = original(observed, folder, timeout, on_start=on_start)
             observations = folder / "workspace-paper-saves.json"

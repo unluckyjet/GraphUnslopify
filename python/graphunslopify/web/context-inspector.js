@@ -1,21 +1,28 @@
 /** Supported renderer-owned targets; edits stay in the existing canonical form. */
-export function createContextInspector({current, controls, deactivate}) {
+export function createContextInspector({current, controls, deactivate, identity, evidence, imageReady, onActive=()=>{}, onSelect=()=>{}}) {
   const $=id=>document.getElementById(id),image=$("preview"),layer=$("inspector-targets");
   const toggle=$("inspect-element"),panel=$("element-inspector"),picker=$("inspector-element");
   let binding=null,targets=[],active=false;
   const svgNS="http://www.w3.org/2000/svg";
+  const owner=identity||(now=>JSON.stringify([now.revision,now.dataId,now.result?.run_id,now.result?.report.spec_hash,now.spec]));
+  const readEvidence=evidence||(result=>{
+    const map=result.edit_map;
+    if(typeof result.run_id!=="string"||map?.run_id!==result.run_id)return null;
+    return {map,hash:result.report?.spec_hash,imageKey:result.run_id,
+      png:result.report?.outputs?.find(o=>o.format==="png"&&o.path.split(/[\\/]/).pop()===map?.image?.name)};
+  });
   function same() {
-    try {const now=current();return !!binding && now.revision===binding.revision && now.dataId===binding.dataId &&
-      now.result?.run_id===binding.runId && now.result?.report.spec_hash===binding.hash && JSON.stringify(now.spec)===binding.spec;
+    try {return !!binding && owner(current())===binding.owner;
     } catch {return false;}
   }
-  const ready=()=>image.complete&&image.naturalWidth===binding?.width&&image.naturalHeight===binding?.height&&image.dataset.phase==="final"&&image.dataset.runId===binding?.runId;
+  const ready=()=>image.complete&&image.naturalWidth===binding?.width&&image.naturalHeight===binding?.height&&
+    (imageReady?imageReady(binding,image):image.dataset.phase==="final"&&image.dataset.runId===binding?.imageKey);
   function position() {
     toggle.disabled=!same()||!ready();
     layer.hidden=toggle.disabled||!active;
   }
   function hide() {
-    active=false;panel.hidden=true;toggle.setAttribute("aria-pressed","false");controls.scope();position();
+    active=false;panel.hidden=true;toggle.setAttribute("aria-pressed","false");controls.scope();onActive(false);position();
   }
   function clear() {
     binding=null;targets=[];layer.replaceChildren();layer.hidden=true;panel.hidden=true;toggle.disabled=true;
@@ -34,6 +41,7 @@ export function createContextInspector({current, controls, deactivate}) {
       : target.role==="axis" ? `${name(target)}. These settings apply wherever this source binding is shared.`
         : "Summary and uncertainty settings apply across this figure. Review the observation unit and estimator before changing them.";
     for(const element of layer.querySelectorAll("[data-target]"))element.classList.toggle("selected",Number(element.dataset.target)===index);
+    onSelect(target);
   }
   function valid(target,spec,width,height) {
     if(!Array.isArray(target.bounds)||target.bounds.length!==4||!target.bounds.every(Number.isFinite))return false;
@@ -45,10 +53,11 @@ export function createContextInspector({current, controls, deactivate}) {
     return target.role==="uncertainty"&&target.path.length===1&&target.path[0]==="uncertainty"&&typeof spec.uncertainty?.kind==="string";
   }
   function mount(result) {
-    clear();const map=result.edit_map,now=current();
-    const png=result.report?.outputs?.find(o=>o.format==="png"&&o.path.split(/[\\/]/).pop()===map?.image?.name);
-    if(!map?.available||map.schema_version!==1||map.coordinates!=="pixels_top_left"||map.run_id!==result.run_id||map.spec_hash!==result.report.spec_hash||!png||png.sha256!==map.image.sha256||map.elements?.schema_version!==1||!Array.isArray(map.elements.targets)||map.elements.targets.length>513||![map.image.width,map.image.height].every(v=>Number.isSafeInteger(v)&&v>0&&v<=32768))return;
-    binding={revision:now.revision,dataId:now.dataId,runId:result.run_id,hash:map.spec_hash,spec:JSON.stringify(now.spec),width:map.image.width,height:map.image.height};
+    clear();const packet=readEvidence(result),now=current();if(!packet||!now)return;
+    const {map,png,hash,imageKey}=packet,key=owner(now);
+    if(!evidence&&(now.result?.run_id!==result.run_id||now.result?.report?.spec_hash!==hash))return;
+    if(typeof key!=="string"||!map?.available||!map.image||map.schema_version!==1||map.coordinates!=="pixels_top_left"||map.spec_hash!==hash||!png||png.sha256!==map.image.sha256||map.elements?.schema_version!==1||!Array.isArray(map.elements.targets)||map.elements.targets.length>513||![map.image.width,map.image.height].every(v=>Number.isSafeInteger(v)&&v>0&&v<=32768))return;
+    binding={owner:key,imageKey,width:map.image.width,height:map.image.height};
     const svg=document.createElementNS(svgNS,"svg");svg.setAttribute("viewBox",`0 0 ${binding.width} ${binding.height}`);svg.setAttribute("aria-label","Selectable figure elements");
     for(const target of map.elements.targets) {
       if(!valid(target,now.spec,binding.width,binding.height))continue;
@@ -77,8 +86,8 @@ export function createContextInspector({current, controls, deactivate}) {
     $("inspector-coverage").textContent="Only supported tagged axes and intervals are selectable. Other marks and secondary axes remain in All settings or Advanced JSON."+(map.elements.gaps?.length?` ${map.elements.gaps.length} geometry gaps were recorded.`:"");
     if(active){panel.hidden=false;toggle.setAttribute("aria-pressed","true");select(0);}position();
   }
-  toggle.onclick=()=>{if(!same())return;if(active){hide();return;}if(!controls.flush()||!same())return;deactivate();active=true;panel.hidden=false;toggle.setAttribute("aria-pressed","true");select(0);position();};
+  toggle.onclick=()=>{if(!same())return;if(active){hide();return;}if(!controls.flush()||!same())return;deactivate();active=true;onActive(true);panel.hidden=false;toggle.setAttribute("aria-pressed","true");select(0);position();};
   picker.onchange=()=>select(Number(picker.value));$("inspector-all").onclick=hide;
   image.addEventListener("load",()=>{position();if(active&&same()&&ready())select(Number(picker.value||0));});image.addEventListener("click",()=>{if(active&&same())select(targets.findIndex(t=>t.role==="figure"));});
-  return {mount,clear,hide};
+  return {mount,clear,hide,update(){if(binding&&!same()){hide();clear();}else position();}};
 }

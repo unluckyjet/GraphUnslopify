@@ -6,6 +6,7 @@ import { createSelectionReview } from "/project-selection.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
+import { createContextInspector } from "/context-inspector.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "";
@@ -14,6 +15,7 @@ let sourceError = "", sharedError = "", sourceValid = false, sharedValid = true;
 let navigation = 0, evidence = 0, refreshVersion = 0, saving = false, loadingFigure = false;
 let historyChoice = 0, auditNavigation = 0;
 let refreshFailure = "";
+let elementInspector;
 let pendingPDF = "", automaticPdfId = "";
 let activeJobKind = "audit";
 const journalIdentity = () => !state?.revision || state.error || sourceDirty || entryDirty || sharedDirty || sharedReview?.pending() || selectionReview?.pending() || running || saving || loadingFigure || refreshFailure
@@ -58,6 +60,7 @@ function object(text, label) {
 }
 function lockControls() {
   journalChecks.update();
+  elementInspector?.update();
   sharedReview?.update();
   selectionReview?.update();
   reuseEditor?.update();
@@ -105,6 +108,7 @@ function pdfOptions() {
   return { pages, dpi };
 }
 function draft(kind) {
+  clearInspector("Definition changed. Save and audit to inspect the new version.");
   sharedReview?.clear("", false);
   reuseEditor?.clear("The draft changed. Review intent again.",false);
   if (kind === "source") sourceDirty = true;
@@ -147,6 +151,44 @@ const controls = createControls($("figure-controls"), {
     $("definition").value = pretty(value);
     draft("source"); syncDefinition();
   },
+});
+function inspectorCurrent() {
+  if (!state?.revision || state.error || dirty() || running || saving || loadingFigure || refreshFailure ||
+      record?.source_type !== "spec" || !record.editable || selected !== $("history-figure").value ||
+      record.revision !== state.revision || event?.result?.snapshot?.revision !== state.revision) return null;
+  try {
+    return {key:JSON.stringify([state.revision,event.id,evidence,selected,record.revision,$("definition").value]),
+      spec:object($("definition").value,"Definition")};
+  } catch {return null;}
+}
+function inspectorImageKey(packet) {
+  return JSON.stringify([packet.context.event,packet.context.figure,packet.image.sha256]);
+}
+function clearInspector(message="Choose the matching current editable definition to inspect a saved PNG.") {
+  elementInspector?.hide();elementInspector?.clear();
+  delete $("preview").dataset.inspectorKey;
+  $("paper-inspector-status").textContent=message;
+}
+elementInspector=createContextInspector({
+  current:inspectorCurrent,controls,deactivate:()=>{},identity:now=>now?.key,
+  evidence:packet=>{
+    const now=inspectorCurrent(),context=packet?.context;
+    const saved=event?.result?.audit?.figures.find(f=>f.id===selected);
+    if(!now||context?.kind!=="paper_history"||context.event!==event.id||context.figure!==selected||
+      context.project_revision!==state.revision||context.definition_revision!==record.revision||
+      packet.spec_hash!==saved?.report?.spec_hash||packet.image?.sha256!==saved?.outputs?.[packet.image.index]?.sha256)return null;
+    return {map:packet.edit_map,png:packet.image,hash:packet.spec_hash,imageKey:inspectorImageKey(packet)};
+  },
+  imageReady:(binding,image)=>image.dataset.inspectorKey===binding.imageKey,
+  onActive:active=>{
+    const host=$("paper-inspector-host"),slot=$("history-inspector-slot"),pane=$("paper-inspector-pane");
+    const focused=document.activeElement,restore=pane.contains(focused);
+    (active?host:slot).append(pane);host.hidden=!active;slot.hidden=active;
+    $("definition-inspector-layout").classList.toggle("active",active);
+    if(restore)focused.focus({preventScroll:true});
+    if(active)host.scrollIntoView({block:"start"});
+  },
+  onSelect:()=>{$("inspector-context").textContent+=" Editing the original JSON definition. Manifest and paper presentation overrides keep their own controls.";},
 });
 function sharedProblem(message = "") {
   const invalid = [...$("shared-controls").querySelectorAll("input")].find((input) => input.validity.badInput || !input.checkValidity());
@@ -287,6 +329,7 @@ async function choose(identity, automatic = false) {
   const version = ++navigation;
   if (!automatic) review?.select(identity);
   selected = identity; record = null; loadingFigure = true;
+  clearInspector();
   controls.discard(); lockControls();
   let next;
   try { next = await api("/api/figure?" + new URLSearchParams({ id: identity })); }
@@ -304,8 +347,10 @@ async function choose(identity, automatic = false) {
   if (record.source_type === "script") $("definition-panel").open = true;
   syncDefinition(); lists();
   if (!sourceValid && record.source_type === "spec") $("definition-panel").open = true;
+  if(event && $("history-figure").value===selected)await showFigure();
 }
 function clearEvidence() {
+  clearInspector();
   journalChecks.clear();
   $("preview").hidden = true; $("preview").removeAttribute("src");
   $("preview-note").hidden = false;
@@ -386,15 +431,33 @@ async function showFigure() {
   });
   $("show-comparison").disabled = !result.baseline;
   const image = $("preview");
-  const url = protect("/api/preview", { event: event.id, figure: id });
+  let url = protect("/api/preview", { event: event.id, figure: id }),elementPacket;
+  if(inspectorCurrent()) {
+    try {
+      elementPacket=await api("/api/element-map",{event:event.id,figure:id,expected_revision:state.revision});
+      if(version!==evidence)return;
+      url=protect("/api/artifact",{event:event.id,figure:id,index:elementPacket.image.index});
+      $("paper-inspector-status").textContent="Inspect this saved PNG to scope the matching original definition. Selection does not accept scientific checks.";
+    } catch(problem) {if(version!==evidence)return;$("paper-inspector-status").textContent=problem.message;}
+  }
   try {
     const response = await fetch(url, { headers: { "X-Preview-Token": token } });
     if (!response.ok) throw Error((await response.json()).error || "Preview is unavailable.");
-    const blob = await response.blob();
+    let blob = await response.blob();
     if (version !== evidence) return;
+    if(elementPacket) {
+      const bytes=await blob.arrayBuffer();
+      const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),n=>n.toString(16).padStart(2,"0")).join("");
+      if(version!==evidence)return;
+      if(digest!==elementPacket.image.sha256)throw Error("Displayed PNG differs from its saved element evidence.");
+      blob=new Blob([bytes],{type:"image/png"});
+    }
     const source = await new Promise((accept, reject) => { const reader = new FileReader(); reader.onload = () => accept(reader.result); reader.onerror = () => reject(Error("Could not read the static preview.")); reader.readAsDataURL(blob); });
     if (version !== evidence) return;
-    image.onload = () => { if (version === evidence) $("preview-note").hidden = true; };
+    image.onload = () => { if (version === evidence) {
+      $("preview-note").hidden = true;
+      if(elementPacket){image.dataset.inspectorKey=inspectorImageKey(elementPacket);elementInspector.mount(elementPacket);}
+    } };
     image.onerror = () => { if (version === evidence) { image.hidden = true; $("preview-note").textContent = "The browser could not display this static export."; } };
     image.alt = report?.alt_text || "Saved figure " + id;
     image.src = source; image.hidden = false;

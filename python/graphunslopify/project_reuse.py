@@ -221,6 +221,26 @@ class FigureReuse:
                 "stdout.log",
                 "stderr.log",
             }
+            geometry = row.get("edit_map") or {}
+            if geometry.get("available") is True:
+                from .audit_geometry import MAP_NAME, checked_geometry
+
+                map_path = _inside(audit, geometry["path"])
+                if map_path != old_folder / MAP_NAME:
+                    raise ProjectError("Saved element map belongs to a different figure.")
+                required.add(MAP_NAME)
+                if (
+                    map_path.stat().st_size != geometry["bytes"]
+                    or _digest(map_path) != geometry["sha256"]
+                    or geometry["spec_hash"] != report["spec_hash"]
+                ):
+                    raise ProjectError("Saved element map identity changed.")
+                png = next(item for item in row["outputs"] if item["format"] == "png")
+                if geometry["image_sha256"] != png["sha256"]:
+                    raise ProjectError("Saved element map describes a different export.")
+                checked_geometry(
+                    map_path.read_bytes(), png, _inside(audit, png["path"]).read_bytes()
+                )
             relative = {path.relative_to(old_folder).as_posix(): path for path in files.values()}
             if (
                 not required.issubset(relative)
@@ -265,6 +285,10 @@ class FigureReuse:
                 handle.write(data)
         reused = copy.deepcopy(row)
         reused["outputs"] = _outputs(report, folder, destination)
+        if (row.get("edit_map") or {}).get("available") is True:
+            from .audit_geometry import record_geometry
+
+            reused["edit_map"] = record_geometry(folder, destination, report)
         reused["execution"] = {
             "mode": "reused",
             "source_event": previous["id"],
@@ -320,6 +344,8 @@ class FigureReuse:
                 )
             }
             names.update("audit/" + output["path"] for output in row["outputs"])
+            if (row.get("edit_map") or {}).get("available") is True:
+                names.add("audit/" + row["edit_map"]["path"])
             inventory = [
                 {
                     "path": name,

@@ -257,9 +257,10 @@ def _audit_one(
                 raise AuditError("static errors: " + json.dumps(record["static_findings"]))
             script = folder / "figure.py"
             script.write_bytes(translated["code"].encode("utf8"))
+            from .audit_geometry import native_command
+
             command = [
-                sys.executable,
-                str(script),
+                *native_command(script, translated["filename"]),
                 "--strict",
                 "--json",
                 "--report",
@@ -299,6 +300,10 @@ def _audit_one(
             record["status"] = "failed"
             record["errors"].append(f"process exited {completed.returncode}")
         record["outputs"] = _outputs(report, folder, output)
+        if "spec" in entry:
+            from .audit_geometry import record_geometry
+
+            record["edit_map"] = record_geometry(folder, output, report)
         data = report["data"]
         data_path = Path(data["path"])
         data_path = data_path if data_path.is_absolute() else folder / data_path
@@ -473,6 +478,10 @@ def audit(
     for figure in figures:
         for item in figure["outputs"]:
             item["path"] = (run_root.relative_to(destination) / item["path"]).as_posix()
+        if (figure.get("edit_map") or {}).get("available") is True:
+            figure["edit_map"]["path"] = (
+                run_root.relative_to(destination) / figure["edit_map"]["path"]
+            ).as_posix()
     status = (
         "failed"
         if any(f["status"] == "failed" for f in figures)

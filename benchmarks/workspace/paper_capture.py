@@ -17,9 +17,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--observations", type=Path, required=True)
     parser.add_argument("--script", type=Path, required=True)
+    parser.add_argument("--geometry", type=Path)
+    parser.add_argument("--png", type=Path)
     parser.add_argument("--execution-context", type=Path)
     parser.add_argument("--execution-context-sha256")
     args, native = parser.parse_known_args()
+    if (args.geometry is None) != (args.png is None):
+        parser.error("Geometry observation requires both --geometry and --png")
     execution_api = runpy.run_path(
         str(Path(__file__).with_name("execution_context.py"))
     )
@@ -63,7 +67,21 @@ def main():
     Figure.savefig = save
     sys.argv = [str(script), *native]
     try:
-        runpy.run_path(str(script), run_name="__main__")
+        if args.geometry is None:
+            runpy.run_path(str(script), run_name="__main__")
+        else:
+            from graphunslopify import preview_render
+
+            sys.argv = [
+                "paper-preview-observer",
+                "--geometry",
+                str(args.geometry),
+                "--png",
+                str(args.png),
+                str(script),
+                *native,
+            ]
+            preview_render.main()
     finally:
         sys.argv = previous
         Figure.savefig = downstream
@@ -85,6 +103,7 @@ def main():
                         "formal_comparison_performed"
                     ],
                     "execution_context": execution,
+                    "geometry_observed": args.geometry is not None,
                     "scope": "Direct native subprocess, runpy bootstrap observer; original program/arguments and terminal status preserved. Requires a plain/observed control before formal clocks.",
                 },
                 allow_nan=False,

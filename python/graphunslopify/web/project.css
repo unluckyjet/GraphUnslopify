@@ -28,6 +28,13 @@
 .evidence-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 22px; margin: 18px 0; }
 .evidence-grid .paper { min-height: 140px; align-self: start; overflow: hidden; }
 #preview { width: 100%; height: auto; }
+.paper-figure-surface { position: relative; line-height: 0; }
+.paper-figure-surface img { display: block; }
+#figure-controls label[hidden], #figure-controls > details[hidden] { display: none; }
+#definition-inspector-layout.active { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+#paper-inspector-host, #paper-inspector-pane { min-width: 0; }
+#paper-inspector-pane .actions { margin-top: 12px; }
+@media (max-width: 900px) { #definition-inspector-layout.active { display: block; } }
 #preview-note { padding: 15px; color: var(--muted); }
 #source, #source-note, #checks p, #event-summary { overflow-wrap: anywhere; }
 .paper-workspace textarea { min-height: 180px; height: 260px; width: 100%; }

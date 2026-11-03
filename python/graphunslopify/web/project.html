@@ -103,7 +103,9 @@
           <p id="source" class="muted"></p><p id="source-note" class="muted"></p>
           <p id="control-error" role="alert" hidden></p>
           <div id="reuse-tools"></div>
+          <div id="definition-inspector-layout"><div id="paper-inspector-host" hidden></div><div>
           <fieldset id="figure-controls" aria-label="Figure definition controls" disabled></fieldset>
+          </div></div>
           <details id="definition-panel"><summary>Original definition JSON / Python</summary><label class="sr-only" for="definition">Original figure definition</label><textarea id="definition" spellcheck="false" disabled></textarea></details>
           <div class="actions"><button id="save-definition" disabled>Save figure definition</button><button id="reload-definition" class="quiet" disabled>Reload saved definition</button></div>
           <details id="binding-panel"><summary>Manifest binding and overrides</summary>
@@ -116,7 +118,12 @@
           <div class="history-selectors"><label>History event<select id="history"></select></label><label>Figure in this event<select id="history-figure"></select></label></div>
           <p id="event-summary" role="status">No audit has been saved yet.</p>
           <p class="muted">These are saved results. Drafts, later input edits and missing dependencies need another audit.</p>
-          <div class="evidence-grid"><div class="paper"><img id="preview" alt="Saved audited figure" hidden /><p id="preview-note">Run an audit to create figure evidence.</p></div>
+          <div class="evidence-grid"><div id="history-inspector-slot"><div id="paper-inspector-pane">
+            <div class="paper"><div class="paper-figure-surface"><img id="preview" alt="Saved audited figure" hidden /><div id="inspector-targets" hidden></div></div><p id="preview-note">Run an audit to create figure evidence.</p></div>
+            <div class="actions"><button id="inspect-element" class="secondary" aria-pressed="false" disabled>Inspect element</button></div>
+            <p id="paper-inspector-status" class="muted">Choose the matching current editable definition to inspect a saved PNG.</p>
+            <section id="element-inspector" hidden aria-label="Selected figure settings"><label>Selected figure element<select id="inspector-element"></select></label><p id="inspector-context"></p><p id="inspector-coverage" class="muted"></p><button id="inspector-all" class="quiet">All settings</button></section>
+          </div></div>
             <div><h3>Check results</h3><div id="checks"></div><div id="exports" class="downloads"></div></div></div>
           <div class="actions"><button id="show-comparison" class="secondary" disabled>Compare with baseline</button><button id="show-source" class="quiet" disabled>Read captured source</button></div>
           <div id="journal-tools"></div>

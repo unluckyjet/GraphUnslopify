@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import shutil
@@ -73,6 +74,105 @@ def post(server, path, payload, expected=200):
     code, raw, _ = request(server, path, payload)
     assert code == expected, raw
     return json.loads(raw)
+
+
+def element_payload(server):
+    state = get(server, "/api/state")
+    event = next(item for item in state["history"] if item["action"] == "run")
+    return {"event": event["id"], "figure": "training", "expected_revision": state["revision"]}
+
+
+def test_real_element_map_binds_recorded_png_and_never_executes_source(editor, monkeypatch):
+    from graphunslopify import audit as auditing
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Reading saved geometry must not execute a figure")
+
+    monkeypatch.setattr(auditing, "_run", forbidden)
+    payload = element_payload(editor)
+    packet = post(editor, "/api/element-map", payload)
+    assert packet["context"]["kind"] == "paper_history"
+    assert packet["context"]["figure"] == payload["figure"]
+    assert packet["context"]["project_revision"] == payload["expected_revision"]
+    assert any(target["role"] == "axis" for target in packet["edit_map"]["elements"]["targets"])
+    query = (
+        f"/api/artifact?event={payload['event']}&figure=training&index={packet['image']['index']}"
+    )
+    code, image, _ = request(editor, query)
+    assert code == 200
+    assert (
+        hashlib.sha256(image).hexdigest()
+        == packet["image"]["sha256"]
+        == packet["edit_map"]["image"]["sha256"]
+    )
+    assert get(editor, "/api/state")["revision"] == payload["expected_revision"]
+
+
+def test_element_map_http_keeps_authentication_and_source_revision_guards(editor):
+    payload = element_payload(editor)
+    assert request(editor, "/api/element-map", payload, token=False)[0] == 403
+    assert (
+        request(
+            editor, "/api/element-map", payload, headers={"Origin": "https://unrelated.invalid"}
+        )[0]
+        == 403
+    )
+    refused = post(
+        editor, "/api/element-map", {**payload, "expected_revision": "0" * 64}, expected=400
+    )
+    assert "changed" in refused["error"]
+
+
+@pytest.mark.parametrize("change", ["definition", "data"])
+def test_historical_element_map_cannot_edit_changed_current_inputs(editor, change):
+    payload = element_payload(editor)
+    paper = editor.state.source.parent.parent
+    if change == "definition":
+        path = paper / "training.figure.json"
+        spec = json.loads(path.read_text())
+        spec["title"] = "A different current definition"
+        path.write_text(json.dumps(spec))
+    else:
+        path = paper / "results.csv"
+        path.write_text(path.read_text() + "\n")
+    current = get(editor, "/api/state")
+    assert current["revision"] != payload["expected_revision"]
+    refused = post(
+        editor,
+        "/api/element-map",
+        {**payload, "expected_revision": current["revision"]},
+        expected=400,
+    )
+    assert "Historical" in refused["error"]
+
+
+def test_missing_saved_element_map_stays_unavailable(editor, monkeypatch):
+    actual = editor.state.audited
+
+    def without_map(event, identity):
+        figure = copy.deepcopy(actual(event, identity))
+        figure.pop("edit_map", None)
+        return figure
+
+    monkeypatch.setattr(editor.state, "audited", without_map)
+    refused = post(editor, "/api/element-map", element_payload(editor), expected=400)
+    assert "no element map" in refused["error"]
+
+
+def test_actual_element_map_refuses_wrong_png_hash_or_dimensions(editor):
+    from graphunslopify.audit_geometry import checked_geometry
+
+    payload = element_payload(editor)
+    packet = post(editor, "/api/element-map", payload)
+    query = (
+        f"/api/artifact?event={payload['event']}&figure=training&index={packet['image']['index']}"
+    )
+    _, content, _ = request(editor, query)
+    for key, wrong in [("sha256", "0" * 64), ("width", 1)]:
+        geometry = copy.deepcopy(packet["edit_map"])
+        geometry["image"][key] = wrong
+        with pytest.raises(ValueError, match=r"recorded PNG|different image dimensions"):
+            checked_geometry(json.dumps(geometry).encode(), packet["image"], content)
 
 
 def test_portable_intent_http_is_readonly_revision_bound_and_rejects_unowned_sources(editor):

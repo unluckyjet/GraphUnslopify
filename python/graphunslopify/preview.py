@@ -356,6 +356,9 @@ class PreviewState:
             record = {
                 "folder": folder,
                 "files": paths,
+                "journal_files": {item["path"]: dict(item) for item in exports},
+                "client": client,
+                "generation": generation,
                 "data": data["filename"],
                 "palette": palette["filename"] if palette else None,
             }
@@ -437,6 +440,40 @@ class PreviewState:
             include_data=include_data,
             reference_outputs=set(run["files"]) - {script},
         )
+
+    def journal_check(self, payload):
+        from .journal_workspace import inspect_export
+
+        identity, name = payload.get("run_id"), payload.get("filename")
+        if not isinstance(identity, str) or not isinstance(name, str):
+            raise TypeError("Choose an owned rendered export")
+        with self.lock:
+            run = self.runs.get(identity)
+            expected = run.get("journal_files", {}).get(name) if run else None
+            if expected is None:
+                raise ValueError("This export is not registered in the selected render")
+            path = run["files"][name]
+            root = run["folder"].resolve()
+            client, generation = run["client"], run["generation"]
+        resolved = path.resolve()
+        if not resolved.is_relative_to(root):
+            raise ValueError("Export path escapes its owned render")
+        report = inspect_export(resolved, expected, payload)
+        with self.lock:
+            if self.runs.get(identity) is not run or path.resolve() != resolved:
+                raise ValueError("Export ownership changed while checking; render again")
+            current = self.generations.get(client) == generation
+        return {
+            "report": report,
+            "context": {
+                "kind": "rendered_export",
+                "run_id": identity,
+                "filename": name,
+                "generation": generation,
+                "current_generation": current,
+                "scope": "This saved export; scientific verification is separate",
+            },
+        }
 
 
 class PreviewServer(ThreadingHTTPServer):
@@ -537,6 +574,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/staged-preview.js",
                 "/workspace-commands.js",
                 "/reuse-intent.js",
+                "/journal-checks.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -553,6 +591,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/staged-preview.js",
             "/workspace-commands.js",
             "/reuse-intent.js",
+            "/journal-checks.js",
         }:
             name = {
                 "/": "index.html",
@@ -566,6 +605,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/staged-preview.js": "staged-preview.js",
                 "/workspace-commands.js": "workspace-commands.js",
                 "/reuse-intent.js": "reuse-intent.js",
+                "/journal-checks.js": "journal-checks.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -582,6 +622,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "staged-preview.js": "text/javascript; charset=utf-8",
                     "workspace-commands.js": "text/javascript; charset=utf-8",
                     "reuse-intent.js": "text/javascript; charset=utf-8",
+                    "journal-checks.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -592,6 +633,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
         if route == "/api/info":
             from .diagnostics import catalog
             from .figure_templates import presets
+            from .journal import journal_profiles
 
             info = self.server.state.local_request("info")
             self.json(
@@ -603,6 +645,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "max_upload_mb": self.server.state.max_upload // 1024 // 1024,
                     "staged_preview": self.server.state.stages is not None,
                     "reuse_presets": presets(),
+                    "journal_profiles": journal_profiles(),
                 }
             )
             return
@@ -740,6 +783,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json({k: v for k, v in result.items() if k != "code"})
             elif route == "/api/render":
                 self.json(self.server.state.render(payload))
+            elif route == "/api/journal-check":
+                self.json(self.server.state.journal_check(payload))
             else:
                 self.json({"error": "Not found"}, 404)
         except InvalidDraft as problem:

@@ -18,6 +18,7 @@
     "gallery-check": "node --experimental-strip-types scripts/gallery-check.ts",
     "build:translator": "node --experimental-strip-types scripts/build-translator.ts",
     "preview-check": "node --experimental-strip-types scripts/preview-check.ts",
+    "journal-check": "node --experimental-strip-types scripts/journal-check.ts",
     "benchmark:staged": "node scripts/benchmark-staged-preview.cjs",
     "project-check": "node --experimental-strip-types scripts/project-check.ts",
     "project-pdf-check": "node --experimental-strip-types scripts/project-pdf-check.ts",

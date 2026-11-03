@@ -5,6 +5,7 @@ import { createSharedChangeReview } from "/project-shared.js";
 import { createSelectionReview } from "/project-selection.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
+import { createJournalChecks } from "/journal-checks.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "";
@@ -15,6 +16,9 @@ let historyChoice = 0, auditNavigation = 0;
 let refreshFailure = "";
 let pendingPDF = "", automaticPdfId = "";
 let activeJobKind = "audit";
+const journalIdentity = () => !state?.revision || state.error || dirty() || running || saving || loadingFigure || refreshFailure
+  ? null : JSON.stringify([state.revision, event?.id, $("history-figure").value, evidence, selected, record?.revision]);
+const journalChecks = createJournalChecks($("journal-tools"), { api, current: journalIdentity });
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");
@@ -46,6 +50,7 @@ function object(text, label) {
   return value;
 }
 function lockControls() {
+  journalChecks.update();
   sharedReview?.update();
   selectionReview?.update();
   reuseEditor?.update();
@@ -294,6 +299,7 @@ async function choose(identity, automatic = false) {
   if (!sourceValid && record.source_type === "spec") $("definition-panel").open = true;
 }
 function clearEvidence() {
+  journalChecks.clear();
   $("preview").hidden = true; $("preview").removeAttribute("src");
   $("preview-note").hidden = false;
   $("preview-note").textContent = "No static preview in this event.";
@@ -366,6 +372,11 @@ async function showFigure() {
   });
   if (report?.alt_text) { const details = el("details", undefined, $("checks")); el("summary", "Figure description", details); el("p", report.alt_text, details); }
   figure.outputs.forEach((output, index) => { const link = el("a", output.format.toUpperCase(), $("exports")); link.className = "download"; link.href = protect("/api/artifact", { event: event.id, figure: id, index }); });
+  journalChecks.mount({
+    key: journalIdentity(),
+    files: figure.outputs.flatMap((output, index) => ["png", "svg", "pdf", "eps", "tiff", "tif", "jpeg", "jpg"].includes(output.format)
+      ? [{ name: output.path.split("/").at(-1), payload: { event: event.id, figure: id, index, expected_revision: state.revision } }] : []),
+  });
   $("show-comparison").disabled = !result.baseline;
   const image = $("preview");
   const url = protect("/api/preview", { event: event.id, figure: id });
@@ -574,4 +585,4 @@ async function poll() {
   } catch (problem) { refreshFailure = "Could not refresh the project: " + problem.message; error(refreshFailure); review.unavailable(refreshFailure); sharedReview.clear("Shared review unavailable until current inputs can be read again."); }
   setTimeout(poll, 2500);
 }
-action(async () => { info = await api("/api/info"); await refresh({ reload: true }); await loadEvent(); notice(state.mode === "review_only" ? "Ready for PDF visual review. Add a PDF; original data and numerical claims remain untested." : "Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();
+action(async () => { info = await api("/api/info"); journalChecks.configure(info.journal_profiles); await refresh({ reload: true }); await loadEvent(); notice(state.mode === "review_only" ? "Ready for PDF visual review. Add a PDF; original data and numerical claims remain untested." : "Ready. Review definitions and saved results, or audit the paper."); setTimeout(poll, 2500); })();

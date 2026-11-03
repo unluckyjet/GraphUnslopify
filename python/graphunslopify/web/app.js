@@ -6,8 +6,10 @@ import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.
 import { createStagedPreview } from "/staged-preview.js";
 import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
+import { createJournalChecks } from "/journal-checks.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
+let journalChecks = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -35,6 +37,7 @@ const stagedPreview = createStagedPreview({
   current: () => ({generation: revision, data_id: data?.id, palette_id: palette?.id}),
   mount: ({url, stage, identity}) => {
     latest = null;
+    journalChecks?.clear();
     textEditor.clear();
     diagnosticOverlays.clear();
     $("bundle").disabled = true;
@@ -52,6 +55,9 @@ const stagedPreview = createStagedPreview({
   },
 });
 const controlHistory = [];
+journalChecks = createJournalChecks($("journal-tools"), {
+  api, current: () => latest ? JSON.stringify([revision, data?.id, palette?.id, latest.run_id]) : null,
+});
 function controlError(text) {
   $("control-error").textContent = text;
   $("control-error").hidden = !text;
@@ -135,6 +141,7 @@ function invalidate() {
   stagedPreview.invalidate();
   draftEditor?.invalidate();
   latest = null;
+  journalChecks?.clear();
   textEditor.clear();
   diagnosticOverlays.clear();
   $("figure-surface").hidden = true;
@@ -343,6 +350,7 @@ async function update(force) {
     return;
   }
   // A new check cancels any review tied to the previous rendered result.
+  journalChecks.clear();
   textEditor.clear();
   diagnosticOverlays.clear();
   const current = revision;
@@ -384,6 +392,11 @@ async function update(force) {
       return;
     }
     latest = result.report.outputs.length ? result : null;
+    if (latest) journalChecks.mount({
+      key: JSON.stringify([revision, data?.id, palette?.id, latest.run_id]),
+      files: result.files.filter(file => ["png", "svg", "pdf", "eps", "tiff", "tif", "jpeg", "jpg"].includes(file.format))
+        .map(file => ({ name: file.name, payload: { run_id: result.run_id, filename: file.name } })),
+    });
     setSpec(result.spec);
     const report = result.report;
     findings(
@@ -702,6 +715,7 @@ createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
 setSpec(initial);
 api("/api/info")
   .then((info) => {
+    journalChecks.configure(info.journal_profiles);
     stagedPreview.configure(info.staged_preview);
     diagnosticCatalog = info.diagnostics;
     maxUploadBytes = info.max_upload_mb * 1024 * 1024;

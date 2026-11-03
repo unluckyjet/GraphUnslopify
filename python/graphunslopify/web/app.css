@@ -19,6 +19,15 @@
   --red: #a72e37;
   --green: #226346;
 }
+.journal-checks { margin:14px 0; min-width:0; overflow-wrap:anywhere; }
+.journal-checks label { display:block; margin:12px 0; }
+.journal-checks input, .journal-checks select { width:100%; min-width:0; }
+.journal-checks ul { padding-left:1.25rem; }
+.journal-checks li p { margin:4px 0 8px; }
+.journal-digest { font-size:.78rem; overflow-wrap:anywhere; }
+#journal-status[data-state="passed"] { color:var(--green); }
+#journal-status[data-state="failed"] { color:var(--red); }
+#journal-status[data-state="incomplete"] { color:var(--orange); }
 * {
   box-sizing: border-box;
 }

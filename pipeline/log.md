@@ -233,3 +233,5 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-11-02 —89e formal436-cell comparison and complete78–89 delivery audit prepared; original13,800-file evidence restored and minimum analysis matches. Negative width/no-speed-winner results preserved; final required checks/push/exact14 acceptance remain before user completion.
 
 2026-11-02 —90a journal technical snapshot/API/CLI foundation:27 current/minimum artifact controls and fresh78-file private-wheel verification pass; full checks/push/exact14 pending. New research-platform-roadmap preserves all30 ideas; full90 workspace integration remains open.
+
+2026-11-02 —90a a6f27b3 exact14 accepted across main41568941660/Figure41568941617/native41568941666 before90b source edits.90b owned-export editor/paper panels are under verification:4 current HTTP controls,31 minimum journal/API controls and both real source/minimum browser workflows pass. Fresh/full gates/push/exact90b CI pending; full90 and all30 scope remain open.

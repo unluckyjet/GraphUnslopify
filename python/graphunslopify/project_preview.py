@@ -195,6 +195,41 @@ class ProjectState:
         name = re.sub(r"[^a-zA-Z0-9_.-]", "_", Path(item["path"]).name)
         return _verified_bytes(item, [root]), name
 
+    def journal_check(self, payload):
+        from .journal_workspace import inspect_export
+
+        self.check_owner()
+        expected_revision = payload.get("expected_revision")
+        _review_token(expected_revision)
+        before = project_status(self.source)
+        if expected_revision != before["revision"]:
+            raise ProjectError("Project inputs changed; refresh before checking a journal profile")
+        event = self.event(payload.get("event"))
+        figure = self.audited(event, payload.get("figure"))
+        index = payload.get("index")
+        if type(index) is not int or not 0 <= index < len(figure["outputs"]):
+            raise ProjectError("Choose a recorded figure export")
+        item = figure["outputs"][index]
+        # Reuse the existing containment, size and recorded-byte integrity boundary.
+        self.artifact(event["id"], figure["id"], index)
+        path = _inside(self.audit_root(event), item["path"])
+        report = inspect_export(path, item, payload)
+        self.event(event["id"])
+        self.check_owner()
+        if project_status(self.source)["revision"] != expected_revision:
+            raise ProjectError("Project changed while journal checks ran; refresh and check again")
+        return {
+            "report": report,
+            "context": {
+                "kind": "saved_history_export",
+                "event": event["id"],
+                "figure": figure["id"],
+                "index": index,
+                "project_revision": expected_revision,
+                "scope": "Saved history export; current figure and scientific acceptance are separate",
+            },
+        }
+
     def preview(self, event_id, identity):
         with self.media_lock, tempfile.TemporaryDirectory(prefix="gu-project-image-") as temporary:
             event = self.event(event_id)
@@ -416,6 +451,7 @@ class ProjectHandler(PreviewHandler):
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
             "/reuse-intent.js": "reuse-intent.js",
+            "/journal-checks.js": "journal-checks.js",
             "/workspace-commands.js": "workspace-commands.js",
             "/project.css": "project.css",
             "/app.css": "app.css",
@@ -449,6 +485,7 @@ class ProjectHandler(PreviewHandler):
             elif route == "/api/info":
                 from .diagnostics import catalog
                 from .figure_templates import presets
+                from .journal import journal_profiles
 
                 self.json(
                     {
@@ -456,6 +493,7 @@ class ProjectHandler(PreviewHandler):
                         "shared_schema": _shared_schema().schema,
                         "diagnostics": catalog(),
                         "reuse_presets": presets(),
+                        "journal_profiles": journal_profiles(),
                     }
                 )
             elif route == "/api/figure":
@@ -535,6 +573,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Request must be a JSON object.")
             if route == "/api/run":
                 self.json(state.start(payload), 202)
+            elif route == "/api/journal-check":
+                self.json(state.journal_check(payload))
             elif route == "/api/review-export":
                 from .project_export import create_review_packet
 

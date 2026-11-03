@@ -370,3 +370,72 @@ def test_static_failure_blocks_execution_and_fixes_are_verifier_owned(editor, mo
     payload["spec"]["y"]["temporal"] = False
     stale = editor.state.render(payload)
     assert stale == {"generation": 1, "stale": True}
+
+
+def test_journal_http_binds_owned_export_and_refuses_unowned_or_changed_files(editor):
+    import hashlib
+
+    demo = json.loads(request(editor, "/api/demo", {})[1])
+    payload = {
+        "spec": demo["spec"],
+        "data_id": demo["data"]["id"],
+        "client": "journal-http",
+        "generation": 1,
+    }
+    code, raw = request(editor, "/api/render", payload)
+    assert code == 200, raw
+    run = json.loads(raw)
+    filename = next(file["name"] for file in run["files"] if file["format"] == "pdf")
+    query = {"run_id": run["run_id"], "filename": filename, "profile": "nature-final-graphs"}
+    code, raw = request(editor, "/api/journal-check", query)
+    assert code == 200, raw
+    checked = json.loads(raw)
+    path = editor.state.runs[run["run_id"]]["files"][filename]
+    assert checked["report"]["source"]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert checked["report"]["scientific_verification"] == "not_performed"
+    assert checked["report"]["submission_ready"] is None
+    assert checked["context"]["current_generation"] is True
+    assert checked["report"]["manual_review"]
+    assert json.loads(request(editor, "/api/info")[1])["journal_profiles"]
+    assert request(editor, "/api/journal-check", query, token=False)[0] == 403
+    assert (
+        request(editor, "/api/journal-check", query, headers={"Origin": "https://example.org"})[0]
+        == 403
+    )
+    for overrides in (
+        {"filename": "../private.pdf"},
+        {"filename": True},
+        {"run_id": "unregistered"},
+        {"as_of": "2026-11-03"},
+        {"target_width_mm": 0},
+    ):
+        assert request(editor, "/api/journal-check", {**query, **overrides})[0] == 400
+    original = path.read_bytes()
+    try:
+        path.write_bytes(b"changed export")
+        assert request(editor, "/api/journal-check", query)[0] == 400
+    finally:
+        path.write_bytes(original)
+
+
+def test_journal_old_render_retains_its_generation_instead_of_current_acceptance(editor):
+    demo = json.loads(request(editor, "/api/demo", {})[1])
+    payload = {
+        "spec": demo["spec"],
+        "data_id": demo["data"]["id"],
+        "client": "journal-generations",
+        "generation": 1,
+    }
+    code, raw = request(editor, "/api/render", payload)
+    assert code == 200, raw
+    before = json.loads(raw)
+    code, raw = request(editor, "/api/render", {**payload, "generation": 2})
+    assert code == 200, raw
+    filename = next(file["name"] for file in before["files"] if file["format"] == "pdf")
+    code, raw = request(
+        editor,
+        "/api/journal-check",
+        {"run_id": before["run_id"], "filename": filename, "profile": "nature-final-graphs"},
+    )
+    assert code == 200, raw
+    assert json.loads(raw)["context"]["current_generation"] is False

@@ -597,6 +597,9 @@ Current source also offers [dated journal technical checks](docs/workspace/journ
 for exported figures. Check actual file dimensions, format, density and supported
 requirements against sourced Nature/PLOS profiles; missing evidence and manual
 review items remain explicit. This does not certify scientific or submission readiness.
+Both local workspaces offer a **Journal technical checks** panel for saved
+exports,with source/rule hashes,manual gaps and a downloadable report. Editing
+inputs invalidates the displayed result; scientific status stays separate.
 The [research-workspace expansion](pipeline/research-platform-roadmap.md) tracks
 all 30 follow-up ideas and distinguishes existing foundations from unfinished work.
 

@@ -437,3 +437,75 @@ def test_changed_owner_and_damaged_receipt_cannot_serve_history_as_verified(edit
     value["project_id"] = "a" * 32
     owner.write_text(json.dumps(value))
     assert request(editor, "/api/state")[0] == 400
+
+
+def test_journal_http_uses_verified_history_export_and_current_project_revision(editor):
+    state = get(editor, "/api/state")
+    event_id = next(event["id"] for event in state["history"] if event["action"] == "run")
+    event = get(editor, "/api/event?id=" + event_id)
+    figure = event["result"]["audit"]["figures"][0]
+    index = next(index for index, item in enumerate(figure["outputs"]) if item["format"] == "pdf")
+    query = {
+        "event": event_id,
+        "figure": figure["id"],
+        "index": index,
+        "expected_revision": state["revision"],
+        "profile": "nature-final-graphs",
+    }
+    code, raw, _ = request(editor, "/api/journal-check", query)
+    assert code == 200, raw
+    checked = json.loads(raw)
+    assert checked["report"]["source"]["sha256"] == figure["outputs"][index]["sha256"]
+    assert checked["context"]["kind"] == "saved_history_export"
+    assert checked["report"]["scientific_verification"] == "not_performed"
+    assert checked["report"]["submission_ready"] is None
+    assert get(editor, "/api/info")["journal_profiles"]
+    assert request(editor, "/api/journal-check", query, token=False)[0] == 403
+    for overrides in (
+        {"event": "../../outside"},
+        {"figure": "unregistered"},
+        {"index": -1},
+        {"index": True},
+        {"index": 0.5},
+        {"expected_revision": "0" * 64},
+        {"as_of": "2026-11-03"},
+    ):
+        assert request(editor, "/api/journal-check", {**query, **overrides})[0] == 400
+
+
+def test_journal_does_not_publish_history_check_after_actual_project_data_change(
+    editor, monkeypatch
+):
+    from graphunslopify import journal_workspace
+
+    state = get(editor, "/api/state")
+    event_id = next(event["id"] for event in state["history"] if event["action"] == "run")
+    event = get(editor, "/api/event?id=" + event_id)
+    figure = event["result"]["audit"]["figures"][0]
+    index = next(index for index, item in enumerate(figure["outputs"]) if item["format"] == "pdf")
+    original = journal_workspace.inspect_export
+    data = editor.state.source.parent.parent / "results.csv"
+    before = data.read_bytes()
+
+    def inspect_then_edit(*args, **kwargs):
+        report = original(*args, **kwargs)
+        data.write_bytes(before + b"\n")
+        return report
+
+    monkeypatch.setattr(journal_workspace, "inspect_export", inspect_then_edit)
+    try:
+        code, raw, _ = request(
+            editor,
+            "/api/journal-check",
+            {
+                "event": event_id,
+                "figure": figure["id"],
+                "index": index,
+                "expected_revision": state["revision"],
+                "profile": "nature-final-graphs",
+            },
+        )
+        assert code == 400, raw
+        assert "changed" in json.loads(raw)["error"].lower()
+    finally:
+        data.write_bytes(before)

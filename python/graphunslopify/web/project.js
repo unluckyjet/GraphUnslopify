@@ -16,9 +16,16 @@ let historyChoice = 0, auditNavigation = 0;
 let refreshFailure = "";
 let pendingPDF = "", automaticPdfId = "";
 let activeJobKind = "audit";
-const journalIdentity = () => !state?.revision || state.error || dirty() || running || saving || loadingFigure || refreshFailure
+const journalIdentity = () => !state?.revision || state.error || sourceDirty || entryDirty || sharedDirty || sharedReview?.pending() || selectionReview?.pending() || running || saving || loadingFigure || refreshFailure
   ? null : JSON.stringify([state.revision, event?.id, $("history-figure").value, evidence, selected, record?.revision]);
-const journalChecks = createJournalChecks($("journal-tools"), { api, current: journalIdentity });
+const journalChecks = createJournalChecks($("journal-tools"), {
+  api, current: journalIdentity,
+  reviewPdf: guard => {
+    if ($("history-figure").value !== selected) throw Error("Choose the matching current figure definition before proposing an export change.");
+    const identity = journalIdentity();
+    return reuseEditor.reviewPdfExport(() => guard() && typeof identity === "string" && identity === journalIdentity());
+  },
+});
 const undo = [];
 const pretty = (value) => JSON.stringify(value, null, 2);
 const words = (value) => String(value ?? "").replaceAll("_", " ");

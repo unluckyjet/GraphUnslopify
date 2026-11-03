@@ -235,3 +235,17 @@ No provider is assumed and83–89/native goal remain unfinished.
 2026-11-02 —90a journal technical snapshot/API/CLI foundation:27 current/minimum artifact controls and fresh78-file private-wheel verification pass; full checks/push/exact14 pending. New research-platform-roadmap preserves all30 ideas; full90 workspace integration remains open.
 
 2026-11-02 —90a a6f27b3 exact14 accepted across main41568941660/Figure41568941617/native41568941666 before90b source edits.90b owned-export editor/paper panels are under verification:4 current HTTP controls,31 minimum journal/API controls and both real source/minimum browser workflows pass. Fresh/full gates/push/exact90b CI pending; full90 and all30 scope remain open.
+
+
+2026-11-03UTC —90c closing journal candidate:90b8d20f52 exact14 accepted
+06:14:00.701478UTC before new edits. Bounded actual PDF glyph minima handle
+UserUnit/rotation and retain absent/partial/oversized evidence as unavailable;
+Nature preferred vs conditional formats and JPEG300–600DPI are explicit. Both
+editors reuse author-reviewed format-only proposals with stale/wrong-figure
+fences,normal single undo and paper save/regenerate/new-audit requirements.
+Source/minimum/fresh-installed browser proofs each pass four workflows with real
+new PDF evidence,exact reports and unchanged scientific intent; final minimum42
+controls pass. Fresh private wheel524470bytes has80 files byte-equal source;
+API/CLI positives/low-DPI refusal pass with connections blocked. Full ten frozen
+gates,normal push and exact14 remain before90 completion/91 implementation.
+All30 ideas remain tracked; no release or new benchmark advantage is claimed.

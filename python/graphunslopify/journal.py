@@ -9,6 +9,7 @@ import json
 import math
 import re
 import xml.etree.ElementTree as ET
+from contextlib import closing
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -46,12 +47,18 @@ PROFILES = {
         "checked_utc_date": CHECKED,
         "source_access": "Official indexed page text reviewed; direct page redirected to identity service",
         "review_after_days": 180,
-        "formats": ["pdf", "eps", "ps", "ai", "ppt", "pptx", "doc", "docx", "xls", "xlsx", "cdr"],
+        "profile_revision": "2026-11-03.2",
+        "formats": ["pdf", "eps", "ps", "ai"],
+        "conditional_formats": ["jpeg", "ppt", "pptx", "doc", "docx", "xls", "xlsx", "cdr"],
+        "conditional_jpeg_dpi": [300, 600],
+        "conditional_format_review": "Fallbacks apply when preferred formats cannot be supplied; JPEG needs 300-600 DPI, CorelDraw at most version 8. Confirm conditions with the publisher.",
+        "pdf_extractable_text_min_pt": 5,
         "recommended_width_mm": [89, 183],
         "manual_review": [
             "Confirm current production instructions with the publisher; this is a dated snapshot.",
             "Standard 89/183 mm widths are guidance, not universal exact-width requirements.",
             "Review editable vector text/lines; do not rasterize or outline graph lettering.",
+            "Minimum measured PDF glyph size does not establish raster/outlined text, font roles or complete legibility.",
             "Review sans-serif lettering, 5-7 point ordinary text and 8 point bold panel labels.",
             "Review 0.25-1 point final strokes, layout, embedded-image resolution and color.",
         ],
@@ -133,6 +140,7 @@ def _measure(raw: bytes, format_: str) -> dict:
             "height_in": height,
             "pages": 1,
             "dpi": None,
+            "pdf_user_unit": unit,
         }
     if format_ == "svg":
         root = ET.fromstring(raw)
@@ -176,6 +184,32 @@ def _measure(raw: bytes, format_: str) -> dict:
     raise ValueError("This file format has no supported local physical inspector")
 
 
+def _pdf_text(raw: bytes, *, unit: float, minimum: float) -> dict:
+    """Measure a bounded subset of visible extractable glyphs, without rendering."""
+    try:
+        import pypdfium2 as pdfium
+    except ImportError as problem:
+        raise ValueError(
+            "Install the optional [pdf] extra for supported PDF text metrics"
+        ) from problem
+    from .pdf_visual import inspect_region, scan_page
+
+    try:
+        with closing(pdfium.PdfDocument(raw)) as document:
+            if len(document) != 1:
+                raise ValueError("PDF text inspection requires one readable page")
+            with closing(document[0]) as page:
+                size = tuple(math.ceil(_positive(value) * 2) for value in page.get_size())
+                if max(size) > 32768 or math.prod(size) > 50_000_000:
+                    raise ValueError("PDF text coordinates exceed the bounded inspection viewport")
+                model = scan_page(page, unit=unit, size=size)
+                result = inspect_region(model, [0, 0, *size], min_text_pt=minimum)
+    except (pdfium.PdfiumError, IndexError) as problem:
+        raise ValueError("PDF text could not be inspected") from problem
+    check = next(check for check in result["checks"] if check["name"] == "text_size")
+    return {**check, "coverage": result["coverage"], "limits": result["limits"]}
+
+
 def check_journal(
     path: str | Path,
     *,
@@ -202,6 +236,9 @@ def check_journal(
     format_ = {"tif": "tiff", "jpg": "jpeg"}.get(
         source.suffix[1:].lower(), source.suffix[1:].lower()
     )
+    raster_range = rules.get("raster_dpi") or (
+        rules.get("conditional_jpeg_dpi") if format_ == "jpeg" else None
+    )
     checks = []
 
     def add(code, status, actual, requirement, message):
@@ -226,10 +263,18 @@ def check_journal(
     )
     add(
         "file_format",
-        "passed" if format_ in rules["formats"] else "failed",
+        "passed"
+        if format_ in rules["formats"]
+        else "unavailable"
+        if format_ in rules.get("conditional_formats", [])
+        else "failed",
         format_,
-        rules["formats"],
-        "Formats apply only to the selected journal/stage/artwork scope.",
+        {"preferred": rules["formats"], "conditional": rules["conditional_formats"]}
+        if "conditional_formats" in rules
+        else rules["formats"],
+        rules["conditional_format_review"]
+        if format_ in rules.get("conditional_formats", [])
+        else "Formats apply only to the selected journal/stage/artwork scope.",
     )
     if "file_bytes_exclusive_max" in rules:
         bound = rules["file_bytes_exclusive_max"]
@@ -287,9 +332,9 @@ def check_journal(
                 {"maximum_in": rules["height_max_in"]},
                 "Uses actual recorded vertical dimensions.",
             )
-        if "raster_dpi" in rules:
+        if raster_range is not None:
             dpi = measurement["dpi"]
-            lo, hi = rules["raster_dpi"]
+            lo, hi = raster_range
             status = (
                 "unavailable"
                 if dpi is None
@@ -317,7 +362,7 @@ def check_journal(
         for code, needed in (
             ("physical_width", "width_in" in rules),
             ("physical_height", "height_max_in" in rules),
-            ("raster_resolution", "raster_dpi" in rules),
+            ("raster_resolution", raster_range is not None),
             ("requested_width", target_width_mm is not None),
         ):
             if needed:
@@ -328,6 +373,34 @@ def check_journal(
                     "readable physical measurements",
                     "Required measurement could not be established from these bytes.",
                 )
+    if format_ == "pdf" and "pdf_extractable_text_min_pt" in rules:
+        minimum = rules["pdf_extractable_text_min_pt"]
+        try:
+            if measurement is None:
+                raise ValueError("Physical PDF measurement is unavailable")
+            text = _pdf_text(raw, unit=measurement["pdf_user_unit"], minimum=minimum)
+            text_status = (
+                "failed"
+                if text["characters_below_threshold"]
+                else "passed"
+                if text["status"] == "checked" and text["characters_measured"]
+                else "unavailable"
+            )
+            add(
+                "pdf_text_minimum",
+                text_status,
+                text,
+                {"minimum_extractable_glyph_pt": minimum},
+                "Supported non-invisible extractable glyphs only; font roles, outlined/raster text and full legibility remain manual.",
+            )
+        except (OSError, ValueError, TypeError, OverflowError) as problem:
+            add(
+                "pdf_text_minimum",
+                "unavailable",
+                None,
+                {"minimum_extractable_glyph_pt": minimum},
+                str(problem),
+            )
     digest = hashlib.sha256(raw).hexdigest()
     try:
         with source.open("rb") as f:

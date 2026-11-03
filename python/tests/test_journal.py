@@ -97,7 +97,8 @@ def test_extension_spoofing_is_unavailable_not_accepted(tmp_path):
 def test_requested_width_uses_pdf_crop_units_and_rotation(tmp_path):
     path = pdf(tmp_path, width=252, height=144, unit=2, rotation=90)
     report = check_journal(path, profile="nature-final-graphs", target_width_mm=101.6, as_of=DAY)
-    assert report["status"] == "passed"
+    assert report["status"] == "incomplete"  # The blank PDF has no measurable glyphs.
+    assert checks(report)["requested_width"]["status"] == "passed"
     assert checks(report)["requested_width"]["actual"] == pytest.approx(101.6)
     writer = PdfWriter(clone_from=path)
     writer.pages[0].cropbox = RectangleObject([0, 0, 252, 72])
@@ -122,7 +123,9 @@ def test_tight_native_export_cannot_pass_nominal_target(tmp_path):
 
 def test_nature_guidance_is_not_an_unstated_exact_width_rule(tmp_path):
     report = check_journal(pdf(tmp_path, width=288), profile="nature-final-graphs", as_of=DAY)
-    assert report["status"] == "passed"
+    assert report["status"] == "incomplete"
+    assert checks(report)["physical_measurement"]["status"] == "passed"
+    assert checks(report)["pdf_text_minimum"]["status"] == "unavailable"
     assert "requested_width" not in checks(report)
     assert any("guidance" in item for item in report["manual_review"])
 
@@ -241,3 +244,138 @@ def test_cli_json_and_saved_report_match_actual_artifact(tmp_path, capsys):
 def test_invalid_author_target_is_refused(tmp_path, value):
     with pytest.raises((ValueError, TypeError)):
         check_journal(tiff(tmp_path), profile="plos-one-main", target_width_mm=value, as_of=DAY)
+
+
+@pytest.mark.parametrize(
+    ("points", "unit", "rotation", "expected"),
+    [(4, 1, 0, "failed"), (6, 1, 0, "passed"), (4, 2, 0, "passed"), (6, 1, 90, "passed")],
+)
+def test_actual_pdf_glyph_minimum_uses_transformed_physical_size(
+    tmp_path, points, unit, rotation, expected
+):
+    import matplotlib.pyplot as plt
+
+    source = tmp_path / "text.pdf"
+    with plt.rc_context({"pdf.fonttype": 42}):
+        fig = plt.figure(figsize=(3, 2))
+        fig.text(0.1, 0.5, "Measured label", fontsize=points)
+        fig.savefig(source)
+        plt.close(fig)
+    if unit != 1 or rotation:
+        writer = PdfWriter(clone_from=source)
+        writer.pages[0][NameObject("/UserUnit")] = FloatObject(unit)
+        if rotation:
+            writer.pages[0].rotate(rotation)
+        writer.write(source)
+    report = check_journal(source, profile="nature-final-graphs", as_of=DAY)
+    metric = checks(report)["pdf_text_minimum"]
+    assert metric["status"] == expected
+    assert metric["actual"]["minimum_pt"] == pytest.approx(points * unit)
+    assert metric["actual"]["characters_measured"] == len("Measuredlabel")
+    assert metric["actual"]["limits"]
+    assert report["submission_ready"] is None
+    assert report["scientific_verification"] == "not_performed"
+
+
+def test_raster_only_pdf_does_not_claim_extractable_text_or_legibility(tmp_path):
+    import matplotlib.pyplot as plt
+
+    source = tmp_path / "raster.pdf"
+    fig = plt.figure(figsize=(3, 2))
+    ax = fig.add_axes((0, 0, 1, 1))
+    ax.imshow([[0, 1], [1, 0]])
+    ax.set_axis_off()
+    fig.savefig(source)
+    plt.close(fig)
+    report = check_journal(source, profile="nature-final-graphs", as_of=DAY)
+    assert report["status"] == "incomplete"
+    assert checks(report)["pdf_text_minimum"]["status"] == "unavailable"
+    assert checks(report)["pdf_text_minimum"]["actual"]["characters_measured"] == 0
+
+
+def test_missing_optional_pdfium_retains_unavailable_text_evidence(tmp_path, monkeypatch):
+    import builtins
+
+    original = builtins.__import__
+
+    def without_pdfium(name, *args, **kwargs):
+        if name == "pypdfium2":
+            raise ImportError("Optional PDFium unavailable")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_pdfium)
+    report = check_journal(pdf(tmp_path), profile="nature-final-graphs", as_of=DAY)
+    assert checks(report)["pdf_text_minimum"]["status"] == "unavailable"
+    assert "[pdf]" in checks(report)["pdf_text_minimum"]["message"]
+    assert report["status"] == "incomplete"
+
+
+def test_conditional_nature_jpeg_is_manual_instead_of_universally_prohibited(tmp_path):
+    source = tmp_path / "fallback.jpg"
+    Image.new("RGB", (1000, 600), "white").save(source, dpi=(300, 300))
+    report = check_journal(source, profile="nature-final-graphs", as_of=DAY)
+    assert checks(report)["file_format"]["status"] == "unavailable"
+    assert "Fallbacks" in checks(report)["file_format"]["message"]
+    assert report["status"] == "incomplete"
+    assert "jpeg" in report["profile"]["conditional_formats"]
+    assert "version 8" in report["profile"]["conditional_format_review"]
+
+
+def test_partial_pdf_glyph_scan_cannot_pass_missing_coverage(tmp_path, monkeypatch):
+    from graphunslopify import pdf_visual
+
+    original = pdf_visual.scan_page
+
+    def partial(*args, **kwargs):
+        model = original(*args, **kwargs)
+        model["text_reasons"].append("Bounded extraction coverage is partial")
+        return model
+
+    monkeypatch.setattr(pdf_visual, "scan_page", partial)
+    report = check_journal(pdf(tmp_path), profile="nature-final-graphs", as_of=DAY)
+    check = checks(report)["pdf_text_minimum"]
+    assert check["status"] == "unavailable"
+    assert check["actual"]["status"] == "partial"
+    assert report["status"] == "incomplete"
+
+
+def test_source_change_after_actual_text_scan_is_rejected(tmp_path, monkeypatch):
+    import matplotlib.pyplot as plt
+
+    from graphunslopify import journal
+
+    path = tmp_path / "text.pdf"
+    fig = plt.figure(figsize=(3, 2))
+    fig.text(0.1, 0.5, "Real text", fontsize=6)
+    fig.savefig(path)
+    plt.close(fig)
+    original = journal._pdf_text
+
+    def inspect_then_change(*args, **kwargs):
+        result = original(*args, **kwargs)
+        path.write_bytes(b"changed after actual glyph inspection")
+        return result
+
+    monkeypatch.setattr(journal, "_pdf_text", inspect_then_change)
+    report = check_journal(path, profile="nature-final-graphs", as_of=DAY)
+    assert checks(report)["source_current"]["status"] == "failed"
+    assert report["status"] == "failed"
+
+
+def test_enormous_pdf_text_viewport_stays_unavailable_without_allocation(tmp_path):
+    report = check_journal(
+        pdf(tmp_path, width=20000, height=20000), profile="nature-final-graphs", as_of=DAY
+    )
+    metric = checks(report)["pdf_text_minimum"]
+    assert metric["status"] == "unavailable"
+    assert "bounded" in metric["message"]
+    assert report["status"] == "incomplete"
+
+
+def test_conditional_jpeg_still_checks_actual_resolution(tmp_path):
+    source = tmp_path / "low-fallback.jpg"
+    Image.new("RGB", (1000, 600), "white").save(source, dpi=(150, 150))
+    report = check_journal(source, profile="nature-final-graphs", as_of=DAY)
+    assert checks(report)["file_format"]["status"] == "unavailable"
+    assert checks(report)["raster_resolution"]["status"] == "failed"
+    assert report["status"] == "failed"

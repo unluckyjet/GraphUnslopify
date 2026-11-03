@@ -1,5 +1,5 @@
 // Dated journal evidence belongs to one owned export and one editor selection.
-export function createJournalChecks(root, { api, current }) {
+export function createJournalChecks(root, { api, current, reviewPdf }) {
   const node = (tag, text, parent = root) => {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -28,6 +28,9 @@ export function createJournalChecks(root, { api, current }) {
   status.id = "journal-status"; status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
   const findings = node("div", undefined, details); findings.id = "journal-findings";
+  const correction = node("button", "Review adding a PDF export", details);
+  correction.id = "journal-review-pdf"; correction.type = "button"; correction.hidden = true;
+  const correctionNote = node("p", "", details); correctionNote.className = "muted";
   let profiles = [], source = null, version = 0, pending = false, download = null;
   let lastIdentity = null;
   const selectedProfile = () => profiles.find(item => item.id === profile.value);
@@ -40,6 +43,8 @@ export function createJournalChecks(root, { api, current }) {
       return `${number(value.width_in * 25.4)} × ${number(value.height_in * 25.4)} mm; ${value.pages} page(s)`;
     if (check.code === "requested_width" && typeof value === "number") return number(value) + " mm";
     if (check.code === "raster_resolution" && Array.isArray(value)) return value.map(number).join(" × ") + " DPI";
+    if (check.code === "pdf_text_minimum" && value)
+      return `${value.characters_measured} measured characters; minimum ${value.minimum_pt === null ? "unknown" : number(value.minimum_pt) + " pt"}; ${value.characters_below_threshold} below threshold`;
     if (value === null) return "Not established";
     if (typeof value === "boolean") return value ? "Yes" : "No";
     if (typeof value === "number") return number(value);
@@ -54,6 +59,7 @@ export function createJournalChecks(root, { api, current }) {
     if (download) URL.revokeObjectURL(download);
     download = null;
     findings.replaceChildren();
+    correction.hidden = true; correctionNote.textContent = "";
     status.textContent = message; delete status.dataset.state;
     enabled();
   }
@@ -103,6 +109,17 @@ export function createJournalChecks(root, { api, current }) {
       const manual = node("ul", undefined, findings);
       for (const gap of report.manual_review) node("li", gap, manual);
       node("p", "Scientific verification was not performed by this check. Full submission readiness is unknown.", findings).className = "muted";
+      const formatFailure = report.checks.find(check => check.code === "file_format" && check.status === "failed");
+      if (formatFailure && report.profile.id === "nature-final-graphs") {
+        const pdf = snapshot.files.findIndex(item => item.name.endsWith(".pdf"));
+        if (pdf >= 0) {
+          const choose = node("button", "Choose the saved PDF for checking", findings); choose.type = "button";
+          choose.onclick = () => { file.value = String(pdf + 1); discard("PDF selected; check its actual bytes before accepting technical results."); };
+        } else if (reviewPdf) {
+          correction.hidden = false;
+          correctionNote.textContent = "Review the format change before applying. A new render or saved paper audit is required before checking the PDF.";
+        }
+      }
       download = URL.createObjectURL(new Blob([JSON.stringify(response, null, 2) + "\n"], { type: "application/json" }));
       const link = node("a", "Download this journal report", findings);
       link.href = download; link.download = "journal-check.json"; link.className = "download";
@@ -112,6 +129,13 @@ export function createJournalChecks(root, { api, current }) {
     } finally {
       if (captured === version) { pending = false; enabled(); }
     }
+  };
+  correction.onclick = async () => {
+    if (!live()) return;
+    const identity = current(), captured = version; correction.disabled = true;
+    try { await reviewPdf(() => captured === version && identity === current() && live()); }
+    catch (problem) { if (identity === current()) correctionNote.textContent = problem.message; }
+    finally { correction.disabled = false; }
   };
   function update() {
     const identity = current();

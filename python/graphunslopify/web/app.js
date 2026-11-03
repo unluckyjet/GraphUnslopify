@@ -57,6 +57,10 @@ const stagedPreview = createStagedPreview({
 const controlHistory = [];
 journalChecks = createJournalChecks($("journal-tools"), {
   api, current: () => latest ? JSON.stringify([revision, data?.id, palette?.id, latest.run_id]) : null,
+  reviewPdf: guard => {
+    const captured = latest?.run_id, generation = revision;
+    return reuseEditor.reviewPdfExport(() => guard() && !!latest && latest.run_id === captured && revision === generation);
+  },
 });
 function controlError(text) {
   $("control-error").textContent = text;

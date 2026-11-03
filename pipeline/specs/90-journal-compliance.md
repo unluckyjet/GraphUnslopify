@@ -63,7 +63,7 @@ native41568941666 accepted2026-11-03T04:07:04UTC before90b edits. CI both Python
 matrices have2177 passed/5 skipped;3.10 has28 warnings and3.12 one. Full90 stays open.
 
 
-##90b — editor/paper integration under verification
+##90b — accepted editor/paper integration
 
 Both real local workspaces choose dated profiles and registered exports,show all
 supported findings/manual gaps and download source/rule-bound JSON. Shared
@@ -86,7 +86,49 @@ installs offline with27 pinned dependencies; all80 package files match source.
 Actual API/CLI positives and low-DPI refusal pass with connections blocked.
 Installed browser paths pass both editors with zero page errors/external browser
 requests. Browser observation is separate from the API socket-block control.
-All52 README graphics placements/references remain unchanged. Full local gates,
-push and exact14 for90b remain pending. Supported
-extracted-text findings and explicit reviewed correction proposals remain after
-this checkpoint; no full idea5 or other29-idea completion is claimed.
+All52 README graphics placements/references remain unchanged. All ten local gates
+passed235 Node/2186 Python/zero skips/one warning/g15 on950 source paths;
+953 working/index/full-Git bindings match normal-pushed
+8d20f527e0e6113d5303b3096bd0ad1ca0db2101. Exact14 main41581799993/Figure41581799997/
+native41581800042 accepted2026-11-03T06:14:00.701478UTC before90c implementation.
+Both CI Python matrices have2181 passed/5 skipped;3.10 has28 warnings and3.12 one.
+Supported extracted-text findings and reviewed corrections are90c below;
+no other29-idea completion is claimed.
+
+
+##90c — supported text and reviewed corrections, closing verification pending
+
+Nature's dated policy snapshot distinguishes preferred PDF/EPS/PS/AI from
+conditional JPEG/Office/CorelDraw fallbacks; conditional formats remain manual
+review,with actual JPEG density checked against300–600DPI. It does not turn a
+conditional fallback into a universal prohibition or unconditional approval.
+Bounded optional PDFium inspection measures actual extractable glyph minima at
+physical PDF units,including UserUnit/rotation. Below5pt fails; absent/partial,
+raster-only,missing dependency or oversized coordinates stay unavailable. The
+ordinary7pt maximum,8pt panel roles,font identity/content and complete legibility
+still need manual review; no complete submission/scientific certification.
+
+Both public workspaces can choose an existing saved PDF or open a formats-only
+proposal through the existing review/author-apply path. Preserve validated current
+formats,claims/data/statistical intent; invalidate on profile/width/revision
+changes and refuse the wrong paper definition. Single-figure undo restores intent;
+paper apply requires save/regenerate/new audit before new evidence. Narrow review
+shows export formats and the diff,without unrelated mapping/preset controls.
+
+42 focused journal/API controls pass current3.12 and minimum3.10 (10.83s on the
+final minimum source). Actual source and minimum browser proofs each pass four
+figure/paper evidence/correction paths: real new PDF glyph evidence,exact report
+download,stale inspection/proposal replies,dirty history/wrong figure,scientific
+field preservation and single undo; zero page errors/external page requests.
+The existing intent suite also passed all14 workflows before the final dedicated
+PDF-template resolution adjustment. Fresh private0.8 wheel524470bytes/SHA
+20e45e2c29fcbf1e246bdcf690f24d7c2f6fa80b9bc4087a3814ec646a2a64e4
+installs offline with27 pinned dependencies; all80 package files match source.
+Actual API/CLI PDF/TIFF positives and low-DPI TIFF refusal pass with socket
+connections blocked. Installed browser proof also passes all four workflows with zero page errors/
+external page requests. Full gates/push/exact14 remain pending; update evidence
+after they run. No release or full30 completion is claimed.
+
+Raw closing evidence: /Users/shooter/Documents/Project Evidence/GraphUnslopify/research-platform-90c/.
+Next: [91 context inspector](91-context-inspector.md), implementation only after
+this closing milestone's exact14 acceptance. All30 ideas remain in the roadmap.

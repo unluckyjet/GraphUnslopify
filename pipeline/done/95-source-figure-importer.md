@@ -1,7 +1,7 @@
 ---
 id: 95
 slug: source-figure-importer
-status: in_progress
+status: done
 priority: P1
 title: Import supported Matplotlib and Seaborn source into reviewed editable figures
 source_idea: 2026-11-02 research-platform idea2
@@ -49,7 +49,18 @@ by those probes. Durable plan/probe:
 `/Users/shooter/Documents/Project Evidence/GraphUnslopify/research-platform-94/next-importer-plan.json`
 and `probe-ast-boundaries.py`. Obsidian owns the linked source/measurement notes.
 
-## Implemented candidate and local verification
+## Final acceptance
+
+Accepted a94446f after all14 exactCI/three workflows2026-11-04T02:24:30UTC.
+All10 local gates235 Node/2327 Python/one warning/g15;986 final Git/95 installed
+package bindings match. ActualCI importer11 controls/original bytes/native
+exports/all95 runtime files and three screenshots verify. CI3.10:2322pass5skip
+28warnings2457.50s;3.12:2322pass5skip1warning2442.97s. Skip reasons unprinted.
+Full idea2 supported scope complete;full30 stays active. No release/PyPI.
+
+The candidate section below records the earlier pre-push state.
+
+## Historical candidate and local verification
 
 2026-11-03: shared bounded reader, static parser/worker, public module/CLI and
 actual editor review/apply/strict-native/undo are implemented. Original source

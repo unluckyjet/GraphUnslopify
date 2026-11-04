@@ -122,6 +122,14 @@ configuration for the current environment. The host launches `graphunslopify mcp
 Seven read-only compiler tools share the canonical emitter; data profiling/rendering remain local
 CLI operations. See the repository agent guide for setup, error semantics and protocol tests.
 
+## Reviewed three-figure proposals in current source
+
+The [autopilot core API](../docs/workspace/figure-autopilot.md) accepts a dataset
+and research question, exposes mappings/exclusions/assumptions for review, then
+generates three actual strict native drafts. Import `propose_figures` and
+`generate_drafts` from `graphunslopify.autopilot`. This core checkpoint has no
+CLI/editor integration yet and is newer than PyPI0.8.0.
+
 ## Import Python figures in current source
 
 [Import supported Matplotlib/Seaborn scripts](../docs/workspace/source-imports.md)

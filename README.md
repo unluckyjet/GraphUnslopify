@@ -531,6 +531,11 @@ Matplotlib or Seaborn scripts. Review the extracted raw values and unsupported
 behavior, apply an editable figure, run strict checks and undo when needed.
 Source is never executed; original bytes and conversion evidence are preserved.
 
+The current-source [figure autopilot Python core](docs/workspace/figure-autopilot.md)
+proposes three views from a dataset and research question, explains trade-offs,
+and runs strict native checks after explicit review. CLI/editor integration is
+still in progress; the existing local editor remains available separately.
+
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,
 exports and history. Read it in the review panel or with `graphunslopify project-scorecard paper/`;

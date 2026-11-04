@@ -113,4 +113,25 @@ normal repair push and exact14 remain required;actual97b/full30 stay active.
 
 2026-11-04 startup-fixture repair local checkpoint:all10 gates pass;235 Node/2447 Python(no skips,one upstream warning)/15 gallery.997 protected paths remained unchanged;61 current/minimum/installed focused tests pass. All103 runtime files are byte-identical to 1f6074e;production90s unchanged. Preparing a separate normal repair push;new exact14 remains required before actual97b UI. The old minimum failure remains recorded;full97/full30 stay active.
 
-2026-11-04 reviewer97b1 paper-session local checkpoint:shared bounded coordinator and actual token/Host/Origin-protected provider/disclosure/explicit-consent/start/status/cancel/download APIs.53 combined focused tests pass in current/minimum/installed;104 installed files match. All10 frozen gates pass:235 Node/2479 Python(no skips,one upstream warning)/15 gallery. Current/history ownership,active jobs,source races,privacy,invalid replies,one active request,disclosure cancellation and close-before-handler-join verified with actual saved evidence/controlled HTTP. Both browser interfaces/native editor adapter and configured inference through those controls remain;full97/full30 active. Preparing a separate normal push;exact14 CI pending.
+2026-11-04 reviewer97b1 paper-session checkpoint47c49e5 accepted19:15:28UTC:shared bounded coordinator and actual token/Host/Origin-protected provider/disclosure/explicit-consent/start/status/cancel/download APIs.53 combined focused tests pass in current/minimum/installed;104 installed files match. All10 frozen gates pass:235 Node/2479 Python(no skips,one upstream warning)/15 gallery. All14 exact checks and three workflows pass onmain41880799605/Figure41880799472/native41880799590. Actual two core artifacts/distribution104 bindings verify. Installed cached-model paper HTTP probes cover refusal and completed downloads;unsupported scientific prose remains unaccepted. Both browser interfaces/native editor adapter and configured inference through those controls remain;full97/full30 active.
+
+## Native editor evidence/session checkpoint97b2
+
+Current implementation binds completed actual editor renders to original/run
+inputs,prepared specification,generated program,report/spec,exports,strict exit
+and source/runtime evidence. The native palette parser observes its actual byte
+snapshot before normal lock allocation extends the run copy. Full local hashes
+remain separate from the report's16-hex-character data prefix. Renderer attempts
+and reviewer context generations are separate; even a same-generation failed
+translation retires old advice. Ephemeral editor downloads cannot be restored as
+paper CLI requests,and the public review identity is not the authorization token.
+
+Shutdown cancels/joins reviewer work before HTTP handlers,then closes native tools
+and removes the directory. Failed owner shutdown retains files through GC/retry.
+Actual current/minimum/installed/native/model checks and all10 local/exact14 are
+required before this checkpoint is accepted. Both browser controls and full97
+remain required;this backend milestone does not complete original idea4.
+
+2026-11-04 native targeted evidence:150 current/26 minimum/26 installed tests pass(138.43s/30.36s/33.10s),105 source/wheel/installed runtime files match and45 loaded Graph modules stay in site-packages. Real installed native public-penguin HTTP/model request12347bytes completes with fresh exact consent,ephemeral request/result downloads and preserved failed claim/exit2. Native bundle703854bytes is retained;temporary PNG inspected and retired after exact archive comparison. Model prose still makes unsupported balancing/failure-handling suggestions;scientific acceptance is not established. Owned model/editor servers stopped,public source/weights unchanged. Full10 local/new push/exact14 and both actual browser interfaces remain.
+
+2026-11-04 reviewer97b2 native editor local checkpoint:actual original/run input,program,report/spec/export/source bindings,strict exits and observed palette parser snapshots. Current153/minimum29/installed29 focused cases pass and105 installed files/45 loaded Graph modules bind. All10 frozen local gates pass:235 Node/2507 Python(no skips,one upstream warning)/15 gallery. New actual public-penguin native render/model API request12347bytes completes consent/download protocol with a failed comparison/exit2 unchanged. Model prose remains scientifically unverified;no edits applied. Owned servers stopped and weights/public source unchanged. Both browser interfaces/full97/full30 remain open. Preparing a normal separate push;new exact14 CI remains required.

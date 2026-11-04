@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import hashlib
 import hmac
 import json
 import mimetypes
@@ -46,12 +47,22 @@ class PreviewState:
         profile_driver: Path | None = None,
     ):
         self.root, self.max_upload = root.resolve(), max_upload
+        self.root.mkdir(parents=True, exist_ok=True)
         self.token = secrets.token_urlsafe(32)
         self.uploads: dict[str, dict[str, Any]] = {}
         self.runs: dict[str, dict[str, Any]] = {}
         self.generations: dict[str, int] = {}
+        self.render_attempts: dict[str, str] = {}
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
+        self.closing = False
+        from .preview_reviews import PreviewReviews
+        from .review_sessions import ReviewSessions
+
+        self.review_sources = PreviewReviews(self)
+        self.reviewer = ReviewSessions(
+            self.review_sources.plan, self.review_sources.document, source_kind="editor-render"
+        )
         self.drafts = PreviewDrafts(self)
         from .preview_autopilot import PreviewAutopilot
         from .preview_experiments import PreviewExperiments
@@ -74,7 +85,15 @@ class PreviewState:
                 self.root, profile_driver=profile_driver, cache_statistics=cache_statistics
             )
 
+    def begin_close(self):
+        # Cancel reviewer I/O before joining HTTP handlers. Render/compiler tools
+        # remain available until the handlers using them have finished.
+        with self.lock:
+            self.closing = True
+        self.reviewer.close()
+
     def close(self):
+        self.begin_close()
         self.experiments.close()
         self.sources.close()
         self.autopilot.close()
@@ -147,6 +166,7 @@ class PreviewState:
             "profile": details,
             "sheets": sheets,
             "workbook_id": identity if sheets else None,
+            "sha256": hashlib.sha256(content).hexdigest(),
         }
         with self.lock:
             self.uploads[identity] = record
@@ -269,7 +289,12 @@ class PreviewState:
 
     def _render(self, payload, attempt):
         client, generation = payload["client"], payload["generation"]
+        render_attempt = uuid.uuid4().hex
         with self.lock:
+            if self.closing:
+                raise ValueError("This editor is closing")
+            if generation >= self.generations.get(client, -1):
+                self.render_attempts[client] = render_attempt
             self.generations[client] = max(generation, self.generations.get(client, -1))
         spec, data, palette = self.prepare(payload)
         translated, translation_execution = self._compiler_request("convert", spec)
@@ -286,8 +311,10 @@ class PreviewState:
             return answer
         with self.render_lock:
             with self.lock:
-                if generation != self.generations[client] or (
-                    attempt is not None and not self.stages.is_current(attempt)
+                if (
+                    generation != self.generations[client]
+                    or render_attempt != self.render_attempts.get(client)
+                    or (attempt is not None and not self.stages.is_current(attempt))
                 ):
                     return {"generation": generation, "stale": True}
             identity = uuid.uuid4().hex
@@ -302,6 +329,7 @@ class PreviewState:
             stem = spec.get("output", {}).get("stem", "figure")
             script = folder / f"{stem}.py"
             script.write_text(translated["code"], encoding="utf8")
+            review_before = self.review_sources.begin(spec, data, palette, folder, script)
             provisional = attempt is not None and attempt.ticket is not None
             if provisional:
                 self.stages.bind(
@@ -380,13 +408,15 @@ class PreviewState:
                 "journal_files": {item["path"]: dict(item) for item in exports},
                 "client": client,
                 "generation": generation,
+                "attempt": render_attempt,
                 "data": data["filename"],
                 "palette": palette["filename"] if palette else None,
             }
             with self.lock:
-                self.runs[identity] = record
-                stale = generation != self.generations[client] or (
-                    attempt is not None and not self.stages.is_current(attempt)
+                stale = (
+                    generation != self.generations[client]
+                    or render_attempt != self.render_attempts.get(client)
+                    or (attempt is not None and not self.stages.is_current(attempt))
                 )
             answer.update(
                 {
@@ -441,6 +471,28 @@ class PreviewState:
                 report,
                 identity,
             )
+            record["review_evidence"] = self.review_sources.finish(
+                review_before,
+                record,
+                report,
+                completed.returncode,
+                answer["execution"],
+                answer["export_errors"],
+            )
+            # Publish reviewable runs only after final native evidence is complete.
+            with self.lock:
+                self.runs[identity] = record
+                answer["stale"] = (
+                    self.closing
+                    or generation != self.generations[client]
+                    or render_attempt != self.render_attempts.get(client)
+                    or (attempt is not None and not self.stages.is_current(attempt))
+                )
+            answer["review"] = {
+                "available": record["review_evidence"]["available"] and not answer["stale"],
+                "error": record["review_evidence"].get("error"),
+                "source_kind": "editor-render",
+            }
             return answer
 
     def bundle(self, identity: str, include_data: bool) -> bytes:
@@ -497,6 +549,17 @@ class PreviewState:
         }
 
 
+class _PreviewDirectory:
+    """Explicit ownership: failed shutdown must retain files, including at GC."""
+
+    def __init__(self):
+        self.name = tempfile.mkdtemp(prefix="gu-preview-")
+
+    def cleanup(self):
+        if Path(self.name).exists():
+            shutil.rmtree(self.name)
+
+
 class PreviewServer(ThreadingHTTPServer):
     # Complete bounded workers before removing the session directory.
     daemon_threads = False
@@ -513,25 +576,32 @@ class PreviewServer(ThreadingHTTPServer):
         cache_statistics: bool = True,
         staged_preview: bool = True,
     ):
-        self.temporary = tempfile.TemporaryDirectory(prefix="gu-preview-")
-        self.state = PreviewState(
-            Path(self.temporary.name),
-            max_upload_mb * 1024 * 1024,
-            reuse_renderer=reuse_renderer,
-            reuse_translator=reuse_translator,
-            cache_statistics=cache_statistics and reuse_renderer,
-            staged_preview=staged_preview,
-        )
-        super().__init__(("127.0.0.1", port), PreviewHandler)
+        self.temporary = _PreviewDirectory()
+        try:
+            self.state = PreviewState(
+                Path(self.temporary.name),
+                max_upload_mb * 1024 * 1024,
+                reuse_renderer=reuse_renderer,
+                reuse_translator=reuse_translator,
+                cache_statistics=cache_statistics and reuse_renderer,
+                staged_preview=staged_preview,
+            )
+            super().__init__(("127.0.0.1", port), PreviewHandler)
+        except BaseException:
+            if hasattr(self, "state"):
+                self.state.close()
+            self.temporary.cleanup()
+            raise
 
     def server_close(self):
         try:
-            super().server_close()
-        finally:
-            try:
-                self.state.close()
-            finally:
-                self.temporary.cleanup()
+            self.state.begin_close()
+        except BaseException:
+            self.socket.close()
+            raise
+        super().server_close()
+        self.state.close()
+        self.temporary.cleanup()
 
 
 class PreviewHandler(BaseHTTPRequestHandler):
@@ -664,6 +734,9 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 }[name],
             )
             return
+        if route == "/api/reviewer/provider":
+            self.json(self.server.state.reviewer.info())
+            return
         if route == "/api/model-provider":
             self.json(self.server.state.drafts.info())
             return
@@ -756,8 +829,10 @@ class PreviewHandler(BaseHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if size <= 0 or size > self.server.state.max_upload:
                 raise ValueError("The request exceeds the configured upload size or is empty")
-            body = self.rfile.read(size)
             route = urlsplit(self.path).path
+            if route.startswith("/api/reviewer/") and size > 65536:
+                raise ValueError("Reviewer control request exceeds 64KiB")
+            body = self.rfile.read(size)
             if route == "/api/upload":
                 self.json(
                     self.server.state.upload(
@@ -770,7 +845,30 @@ class PreviewHandler(BaseHTTPRequestHandler):
             payload = json.loads(body)
             if not isinstance(payload, dict):
                 raise TypeError("Request must be a JSON object")
-            if route in {"/api/reuse/template", "/api/reuse/proposal"}:
+            if route.startswith("/api/reviewer/"):
+                operations = {
+                    "/api/reviewer/collection": self.server.state.review_sources.collect,
+                    "/api/reviewer/provider": self.server.state.reviewer.configure,
+                    "/api/reviewer/disclose": self.server.state.reviewer.disclose,
+                    "/api/reviewer/start": self.server.state.reviewer.start,
+                    "/api/reviewer/status": self.server.state.reviewer.status,
+                    "/api/reviewer/cancel": self.server.state.reviewer.cancel,
+                    "/api/reviewer/download": self.server.state.reviewer.download,
+                }
+                operation = operations.get(route)
+                if operation is None:
+                    self.json({"error": "Not found"}, 404)
+                    return
+                result = operation(payload)
+                if route == "/api/reviewer/download":
+                    self.send(
+                        json.dumps(result, allow_nan=False).encode(),
+                        "application/json; charset=utf-8",
+                        download="figure-review-" + payload["which"] + ".json",
+                    )
+                else:
+                    self.json(result, 202 if route == "/api/reviewer/start" else 200)
+            elif route in {"/api/reuse/template", "/api/reuse/proposal"}:
                 from .figure_templates import create_template, review_reuse
 
                 def validate(candidate):

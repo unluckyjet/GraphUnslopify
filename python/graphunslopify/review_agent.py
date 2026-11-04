@@ -147,7 +147,10 @@ def _packet(review, selected):
         "evidence_ids": references,
         "recorded_failures": attention,
         "images_supplied": False,
-        "scope": "Saved deterministic evidence, not a new execution or scientific certification.",
+        "scope": review.get(
+            "scope",
+            "Saved deterministic evidence, not a new execution or scientific certification.",
+        ),
     }
 
 
@@ -207,6 +210,8 @@ def _provider_schema(schema):
 
 class FigureReviewPlan:
     """One disclosed, evidence-bound inference attempt against an actual project."""
+
+    source_kind = "paper-project"
 
     def __init__(
         self,
@@ -393,6 +398,10 @@ class FigureReviewPlan:
 
 
 def review_document(plan: FigureReviewPlan):
+    if plan.source_kind != "paper-project":
+        raise ValueError(
+            "Only saved paper evidence can produce a replayable paper reviewer request"
+        )
     document = {
         "schema_version": 1,
         "kind": "figure-review-agent-request",

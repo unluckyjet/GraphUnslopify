@@ -13,6 +13,7 @@ and belongs in version control next to the paper.
 from __future__ import annotations
 
 import json
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
@@ -32,14 +33,23 @@ MARKERS = ["o", "s", "^", "D", "v", "P", "X", "*"]
 HATCHES = ["", "///", "...", "xxx", "\\\\\\", "+++", "ooo", "**"]
 
 
+# Private observational hook: allocation uses the same parsed byte snapshot.
+LOAD_OBSERVER: ContextVar = ContextVar("graphunslopify_palette_load_observer", default=None)
+
+
 def load(path: str | Path) -> dict[str, Any]:
     path = Path(path)
     if not path.exists():
         return {"version": 1, "series": {}}
     try:
-        return json.loads(path.read_text(encoding="utf8"))
+        content = path.read_bytes()
+        lock = json.loads(content.decode("utf8"))
     except (OSError, json.JSONDecodeError):
         return {"version": 1, "series": {}}
+    observer = LOAD_OBSERVER.get()
+    if observer is not None:
+        observer(path, content)
+    return lock
 
 
 def save(path: str | Path, lock: dict[str, Any]) -> None:

@@ -4,7 +4,7 @@ The current-source reviewer API and CLI combine an initialized paper project's
 actual saved checks with separately labelled model advice. Ask “What would a
 skeptical reviewer criticize about these figures?” or supply a specific question
 and study context. Select up to 20 actual figure keys, including PDF evidence.
-The paper workspace also exposes session-only reviewer HTTP controls. Visible
+The paper workspace and single-figure editor expose session-only reviewer HTTP controls. Visible
 paper/editor browser controls remain in development; this core does not complete idea4.
 These features are newer than the published PyPI0.8.0 package.
 
@@ -174,6 +174,50 @@ Provider credentials live only in this server session. Controls are limited to
 including preparations and 64 client-generation records are retained. One
 inference runs at a time. These bounds do not replace the request/reply limits
 or scientific caveats above.
+
+## Single-figure editor HTTP sessions
+
+The local `preview` server uses the same provider, disclosure, start, status,
+cancel and download routes and authorization rules above. First obtain a final
+`/api/render` response with `review.available: true`. Provisional images are not
+review evidence. Send its `run_id`, the original renderer's `client` as
+`render_client`, and its `generation` as `render_generation` to
+`POST /api/reviewer/collection`. This returns the actual single `figure` key and
+an `evidence_revision`.
+
+Disclose using those three render fields, `expected_revision` from the collection,
+`figures: ["figure"]`, the question/context options, and a separate reviewer
+`client`/`generation`. Changing a reviewer question does not require rerendering
+an unchanged figure. A newer rendering attempt, including a same-generation
+retry that fails translation, retires the prior render's review context.
+
+The server records full local SHA256 hashes of the original uploads and run
+inputs before/after execution, the prepared specification, generated program,
+actual renderer exit, saved report/specification, exports and source identity.
+The report's data fingerprint is a 16-hex-character producer prefix; it is not
+a full SHA256. For palette locks, the native parser observes the same actual
+byte snapshot it parses. Normal allocation may extend the owned run copy; the
+original upload, observed input hash and final copy remain separately bound.
+If the figure does not read a supplied palette, a recorded empty read list is
+allowed only when that run copy stayed unchanged; no read is invented.
+Later input/palette/program/report/export changes refuse before sending or
+returning advice. Recollection also checks runtime/environment evidence.
+
+Failed claims and incomplete native executions retain their actual report and
+strict exit status; a completed model response never changes them. Missing
+exports stay missing. Evidence that cannot be bound is explicitly unavailable.
+An editor render is ephemeral: `matches_latest_accepted_inputs` stays false,
+and its public workspace identity is separate from the HTTP authorization token.
+
+Editor request downloads have kind `editor-figure-review-request` and
+`replayable: false`. They preserve the disclosure for inspection, but cannot be
+restored using the saved-paper `review-agent-run` command. Result downloads keep
+the same separation of checked evidence and unverified suggestions.
+
+Shutdown first cancels/joins reviewer work, then waits for active HTTP render
+handlers, closes native rendering/compiler tools, and finally removes the owned
+temporary directory. If an owner cannot stop, its directory is retained even
+if the server object is collected; a later successful close can clean it.
 
 ## Verification
 

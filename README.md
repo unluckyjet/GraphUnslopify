@@ -546,8 +546,10 @@ Python/CLI workflow discloses the exact model request before consent and keeps
 failed checks separate from **unverified qualitative suggestions**. It preserves
 historical/missing evidence and changes no figure settings. Provider calls have
 a 90-second execution deadline and optional Python cancellation. The paper
-workspace also exposes consented, cancellable session HTTP APIs and JSON
-downloads. Browser reviewer controls are still in development; these source
+workspace and single-figure editor also expose consented, cancellable session
+HTTP APIs and JSON downloads. Editor requests use actual completed native
+renders and refuse changed inputs, programs, reports or exports. Browser
+reviewer controls are still in development; these source
 features are newer than PyPI0.8.0.
 
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import runpy
 import sys
@@ -46,6 +47,18 @@ def main() -> None:
     from matplotlib.figure import Figure
 
     import graphunslopify
+    from graphunslopify.lockfile import LOAD_OBSERVER
+
+    palette_reads = []
+
+    def palette_read(path, content):
+        palette_reads.append(
+            {
+                "path": str(path),
+                "bytes": len(content),
+                "sha256": hashlib.sha256(content).hexdigest(),
+            }
+        )
 
     original = Figure.savefig
     original_inspect = graphunslopify.inspect_figure
@@ -92,12 +105,21 @@ def main() -> None:
     if snapshot is not None:
         graphunslopify.inspect_figure = inspect
     sys.argv = [str(args.script), *args.arguments]
+    palette_token = LOAD_OBSERVER.set(palette_read)
     try:
         _execute(args.script)
     finally:
+        LOAD_OBSERVER.reset(palette_token)
         Figure.savefig = original
         graphunslopify.inspect_figure = original_inspect
         sys.argv = previous
+        try:
+            args.script.with_suffix(".review-inputs.json").write_text(
+                json.dumps({"schema_version": 1, "palette_reads": palette_reads}, allow_nan=False),
+                encoding="utf8",
+            )
+        except (OSError, ValueError) as problem:
+            print(f"Preview reviewer input evidence unavailable: {problem}", file=sys.stderr)
         if args.diagnostics is not None:
             try:
                 args.diagnostics.write_text(

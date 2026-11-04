@@ -144,9 +144,11 @@ consent with `review-agent-run`. Python callers use `FigureReviewPlan` from
 figure settings are changed. Provider workers have a90s execution deadline;
 Python callers can discard pending results with a `threading.Event` passed as
 `cancelled=`. Stopping the local worker cannot unsend an HTTP request.
-The paper workspace also exposes session HTTP APIs for disclosure, explicit
+The paper workspace and single-figure editor expose session HTTP APIs for disclosure, explicit
 consent, status, cancellation and freshness-checked JSON downloads. Browser
-reviewer controls and the single-editor adapter remain in development.
+reviewer controls remain in development. Editor review binds actual completed
+native renders; its request download is an ephemeral disclosure, not a replayable
+paper CLI request. Input, program, report and export changes invalidate advice.
 
 ## Import Python figures in current source
 

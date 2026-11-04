@@ -15,9 +15,10 @@ from pathlib import Path
 
 from jsonschema import Draft7Validator
 
-from .drafts import MAX_REQUEST, DraftProvider, _digest, _encoded, _model_text, _strict_json
+from .drafts import MAX_REQUEST, DraftProvider, _digest, _encoded, _strict_json
 from .experiment_imports import _contained_bytes
 from .project_review import project_review
+from .review_transport import reviewer_model_text
 
 MAX_DOCUMENT = 4 * 1024 * 1024
 DEFAULT_QUESTION = "What would a skeptical reviewer criticize about these figures?"
@@ -329,7 +330,7 @@ class FigureReviewPlan:
             ),
         }
 
-    def request(self, *, consent=False, consent_sha256=None):
+    def request(self, *, consent=False, consent_sha256=None, cancelled=None):
         if (
             consent is not True
             or not isinstance(consent_sha256, str)
@@ -338,6 +339,8 @@ class FigureReviewPlan:
             raise ValueError(
                 "Explicitly consent to the exact disclosed destination and request digest"
             )
+        if cancelled is not None and not isinstance(cancelled, threading.Event):
+            raise TypeError("Reviewer cancellation must be a threading.Event")
         with self._lock:
             if self._attempted:
                 raise ValueError(
@@ -345,8 +348,10 @@ class FigureReviewPlan:
                 )
             self._attempted = True
         self._check_current()
-        text = _model_text(self._provider, self._body)
+        text = reviewer_model_text(self._provider, self._body, cancelled=cancelled)
         self._check_current()
+        if cancelled is not None and cancelled.is_set():
+            raise ValueError("Reviewer request cancelled; its reply was discarded")
         try:
             proposed = _strict_json(text)
         except ValueError as problem:

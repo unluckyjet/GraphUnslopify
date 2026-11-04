@@ -271,6 +271,34 @@ def test_saved_export_change_fences_request(server, paper):
     assert not server.calls
 
 
+@pytest.mark.parametrize("when", ["before", "during"])
+def test_cancelled_review_never_returns_advice_or_retries(server, paper, when):
+    review = plan(server, paper)
+    cancelled = threading.Event()
+    if when == "before":
+        cancelled.set()
+    else:
+        server.on_request = cancelled.set
+    with pytest.raises(ValueError, match="cancelled"):
+        review.request(
+            consent=True, consent_sha256=review.disclosure()["consent_sha256"], cancelled=cancelled
+        )
+    assert len(server.calls) == (0 if when == "before" else 1)
+    with pytest.raises(ValueError, match="already attempted"):
+        request(review)
+    assert len(server.calls) == (0 if when == "before" else 1)
+
+
+def test_invalid_cancellation_refuses_without_consuming_review(server, paper):
+    review = plan(server, paper)
+    with pytest.raises(TypeError, match=r"threading\.Event"):
+        review.request(
+            consent=True, consent_sha256=review.disclosure()["consent_sha256"], cancelled=object()
+        )
+    assert not server.calls
+    assert request(review)["status"] == "completed"
+
+
 def test_real_failed_claim_and_historical_pass_remain_separate(server, paper):
     old_event = project.project_history(paper)["events"][0]["id"]
     spec_path = paper / "training.figure.json"

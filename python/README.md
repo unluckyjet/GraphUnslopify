@@ -141,7 +141,10 @@ paper figures' saved checks with separately labelled,unverified model advice.
 Use `review-agent-plan` to inspect the exact provider request,then explicitly
 consent with `review-agent-run`. Python callers use `FigureReviewPlan` from
 `graphunslopify.review_agent`. Failed/stale/missing checks remain explicit and no
-figure settings are changed. The editor integration is the next milestone.
+figure settings are changed. Provider workers have a90s execution deadline;
+Python callers can discard pending results with a `threading.Event` passed as
+`cancelled=`. Stopping the local worker cannot unsend an HTTP request.
+The editor integration is the next milestone.
 
 ## Import Python figures in current source
 

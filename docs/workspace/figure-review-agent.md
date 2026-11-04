@@ -108,7 +108,19 @@ exports, runtime sources, environment or history refuse a stale result. Results
 record that evidence was unchanged during the request; they do not promise that
 the evidence remains current after later edits.
 
-Requests are bounded to1MiB, saved documents4MiB, provider replies1MiB with a90s socket timeout.
+Requests are bounded to1MiB, saved documents4MiB and provider replies1MiB.
+Each consented provider call runs in an owned worker with a90s execution deadline,
+covering connection, headers, continued body reads and provider-response parsing.
+The worker is stopped and reaped before returning a timeout or cancellation;
+OS process creation and up to5s of process cleanup add overhead. Credentials and
+request bytes pass through stdin, never process arguments or temporary files.
+Endpoint settings are limited to8192 characters and optional keys to16384.
+
+Python callers may pass a `threading.Event` as `cancelled=` to `plan.request()`;
+set it to discard a pending reply and stop the local provider worker. An already
+transmitted request may still be processed remotely. Cancellation consumes the
+plan's one attempt, so a retry needs a newly disclosed request and consent.
+This API support does not yet provide an editor cancellation interface.
 Oversized evidence refuses instead of silently dropping findings. Suggestions
 are capped at20, with bounded wording and known figure/evidence references.
 Unknown fields, scientific patches, missing citations, malformed/duplicate-key

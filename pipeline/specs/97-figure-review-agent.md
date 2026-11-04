@@ -70,6 +70,26 @@ the integration protocol,but prose includes unsupported scientific advice.
 Earlier malformed/unknown-reference failures remain;no model quality acceptance
 follows. Every owned server stopped/unloaded;no new full environment/download.
 
-Normal97a push,exact14 CI and actual new CI artifacts remain required before
-97b editor work. Full97 and the full30 initiative stay active;no release/tag.
+Core97a4a17283 is normally pushed and accepted2026-11-04T12:21:13UTC after
+all14 exact checks/main41817949630/Figure41817949689/native41817949872.
+Both actual core artifacts and actual distribution wheel bind102 committed
+runtime files;four actual CI PNGs inspected. Both completed Python jobs observed
+2416 passed/5 skipped (3.10:28 warnings,3.12:1 warning);skip reasons unobserved.
+Source/installed model trials bind the committed candidate through102 file hashes,
+despite being run before the commit under parent06edfbd/dirty candidate.
+Full97 and the full30 initiative stay active;no release/tag.
+
+## Lifecycle correction before the editor
+
+An actual controlled local response completed after93.034s under the earlier90s
+socket timeout;the timeout did not bound the whole request. The current candidate
+uses an owned provider process with an execution deadline and cancellation event,
+one complete stdin/stdout transfer,then kill/reap on timeout or cancellation.
+Large-request regressions cover pipe-sized,192KB and1MiB requests plus800KB replies.
+Core SDK cancellation consumes the one attempt and never unsends remote HTTP.
+Current/minimum/installed checks,actual configured inference,full local gates,
+normal separate push and exact14 remain required for this correction.
+Actual97b editor/paper UI and the full original7 requirements remain open.
 Durable proof:external Project Evidence/GraphUnslopify/research-platform-97/.
+
+Deadline correction local acceptance:all10 contribution checks passed (235 Node/2446 Python/one upstream warning/15 gallery),997 protected source paths unchanged.60 current/minimum/cleanly installed tests each and103 runtime bindings passed. Actual default deadline stops the controlled slow response at90.018s. Source6/installed7 local inference completes protocol but prose remains unsupported. Normal separate push/exact14 and actual installed worker CI evidence remain required.

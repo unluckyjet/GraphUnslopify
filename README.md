@@ -544,7 +544,8 @@ The current-source [figure reviewer](docs/workspace/figure-review-agent.md) answ
 questions about selected paper figures using their actual saved checks. The
 Python/CLI workflow discloses the exact model request before consent and keeps
 failed checks separate from **unverified qualitative suggestions**. It preserves
-historical/missing evidence and changes no figure settings. The editor workflow
+historical/missing evidence and changes no figure settings. Provider calls have
+a90-second execution deadline and optional Python cancellation. The editor workflow
 is still in development; these source features are newer than PyPI0.8.0.
 
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows

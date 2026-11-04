@@ -15,6 +15,51 @@ from email.parser import BytesParser
 from pathlib import Path
 from zipfile import ZipFile
 
+REVIEWER_WORKER_PROBE = '''"""Actual installed worker, controlled loopback HTTP only."""
+import json, threading
+from pathlib import Path
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import graphunslopify
+from graphunslopify import review_transport
+from graphunslopify.drafts import DraftProvider
+root=Path(graphunslopify.__file__).resolve().parent
+assert 'site-packages' in str(root)
+calls=[]; workers=[]
+original=review_transport.subprocess.Popen
+def launch(*args,**kwargs):
+    worker=original(*args,**kwargs);workers.append(worker);return worker
+review_transport.subprocess.Popen=launch
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self,*args): pass
+    def do_POST(self):
+        raw=self.rfile.read(int(self.headers['Content-Length']))
+        calls.append(raw)
+        assert self.headers['Authorization']=='Bearer HEADER_ONLY_CONTROL'
+        reply=json.dumps({'choices':[{'finish_reason':'stop','message':{'content':'installed reply'}}]}).encode()
+        self.send_response(200);self.send_header('Content-Length',str(len(reply)))
+        self.end_headers();self.wfile.write(reply)
+body=b'{"value":"'+b'x'*(192000-13)+b'"}\\n'
+assert len(body)==192000
+with ThreadingHTTPServer(('127.0.0.1',0),Handler) as http:
+    thread=threading.Thread(target=http.serve_forever);thread.start()
+    try:
+        provider=DraftProvider(f'http://127.0.0.1:{http.server_port}/model','controlled-no-inference','chat','HEADER_ONLY_CONTROL')
+        assert review_transport.reviewer_model_text(provider,body)=='installed reply'
+        cancelled=threading.Event();cancelled.set()
+        try: review_transport.reviewer_model_text(provider,body,cancelled=cancelled)
+        except ValueError as problem: assert 'cancelled' in str(problem)
+        else: raise AssertionError('Pre-cancelled request was sent')
+        assert calls==[body] and len(workers)==1
+        assert workers[0].poll()==0 and workers[0].stdin.closed and workers[0].stdout.closed
+        assert 'HEADER_ONLY_CONTROL' not in ' '.join(workers[0].args)
+    finally:
+        http.shutdown();thread.join(5)
+    assert not thread.is_alive()
+print(json.dumps({'status':'passed','package_root':str(root),'request_bytes':len(body),
+                  'calls':len(calls),'owned_workers_reaped':len(workers),
+                  'pre_cancel_refused':True,'controlled_HTTP':True,'model_inference':False}))
+'''
+
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str]) -> str:
     completed = subprocess.run(
@@ -121,6 +166,11 @@ def main() -> None:
         help="require current-source physical PDF inspection (also requires --pdf)",
     )
     parser.add_argument("--require-provisional", action="store_true")
+    parser.add_argument(
+        "--require-reviewer-worker",
+        action="store_true",
+        help="require an installed owned reviewer worker with large loopback HTTP and cancellation",
+    )
     args = parser.parse_args()
     if args.require_statistics_cache and not (
         args.require_render_worker and args.require_translator_worker
@@ -1313,6 +1363,14 @@ def main() -> None:
             encoding="utf8",
         )
         run([str(python), str(agent_script)], cwd=where, env=env)
+    reviewer_worker_result = None
+    if args.require_reviewer_worker:
+        reviewer_script = where / "reviewer-worker-check.py"
+        reviewer_script.write_text(REVIEWER_WORKER_PROBE, encoding="utf8")
+        reviewer_worker_result = json.loads(
+            run([str(python), str(reviewer_script)], cwd=where, env=env)
+        )
+        assert reviewer_worker_result["status"] == "passed"
     translator_worker_result = None
     if args.require_translator_worker:
         compiler_script = where / "translator-worker-check.py"
@@ -1682,6 +1740,7 @@ def main() -> None:
                 "excel_input": excel_input,
                 "translator_worker": translator_worker_result,
                 "editor_workers": editor_workers_result,
+                "reviewer_worker": reviewer_worker_result,
                 "work_dir": str(where),
             }
         )

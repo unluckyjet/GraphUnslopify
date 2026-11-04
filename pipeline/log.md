@@ -445,3 +445,23 @@ output. All10 local235 Node/2421 Python/one warning/g15;995 protected paths and
 public native programs/exports and configured source/installed local-model
 protocol pass. Model prose remains unverified and observed bad advice is retained.
 Preparing coherent core push/exact14 CI;97b UI/full97/full30 remain active.
+
+2026-11-04 reviewer97a4a17283 accepted12:21:13UTC:all14 exact main/Figure/native
+checks,both actual reviewer core artifacts,actual distribution wheel and completed
+Python summaries verified. Both CI profiles2416 passed/5 skipped;28/1 warnings,
+skip reasons unobserved. Full97/full30 remain active.
+
+2026-11-04 reviewer deadline correction candidate:actual controlled slow response
+now stops at90.018s instead of completing at93.034s. Owned process transfer keeps
+body/authorization exact and reaps on timeout/cancel;Python Event cancellation
+consumes one consented attempt. Fixed an initial large-stdin transfer stall and
+added64/192000/1048576-byte request plus800000-byte response controls. Current/
+minimum/cleanly installed60 tests each pass;103 package bytes match. Actual
+cached source6/installed7 model queries complete integration,but prose still
+invented unsupported explanations and remains unverified/unapplied. Both servers
+unloaded/stopped0 and ports closed;no downloads/new full environments. Actual
+installed192KB worker/cancel probe passes;all distribution CI profiles now require
+it. Full contribution gates,normal separate push and exact14 remain required.
+Actual97b editor/paper interface and all original30 ideas remain in scope.
+
+2026-11-04 reviewer deadline local checkpoint:all10 checks passed;235 Node/2446 Python(no skips,one upstream warning1405.67s)/15 gallery.997 protected source paths stayed unchanged;103 installed runtime files match. Preparing the separate normal deadline/cancellation push;its exact14 CI remains required before actual97b interface work. Full97/full30 remain active.

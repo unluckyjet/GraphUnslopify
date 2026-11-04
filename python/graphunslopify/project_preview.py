@@ -39,7 +39,31 @@ from .project import (
     set_project_figure,
     set_project_shared,
 )
+from .review_agent import DEFAULT_QUESTION, FigureReviewPlan, review_document
+from .review_sessions import ReviewSessions
 from .transport import local_request
+
+
+class _PaperReviewPlan(FigureReviewPlan):
+    """Recheck this actual workspace's ownership and job lifecycle on collection."""
+
+    def __init__(self, state, provider, payload):
+        self._workspace = state
+        super().__init__(
+            provider,
+            state.source,
+            figures=payload.get("figures"),
+            question=payload.get("question", DEFAULT_QUESTION),
+            event_id=payload.get("event"),
+            author_context=payload.get("author_context", ""),
+            structured_output=payload.get("structured_output", True),
+        )
+
+    def _collect(self):
+        self._workspace.review_ready()
+        collection = super()._collect()
+        self._workspace.review_ready()
+        return collection
 
 
 class ProjectState:
@@ -53,6 +77,35 @@ class ProjectState:
         self.worker = None
         self.job = None
         self.closing = False
+        self.reviewer = ReviewSessions(
+            self.review_plan, review_document, source_kind="paper-project"
+        )
+
+    def review_ready(self):
+        self.check_owner()
+        with self.job_lock:
+            if self.closing or (self.job and self.job["phase"] == "running"):
+                raise ProjectError("Wait for the paper job or reopen the closing workspace.")
+
+    def review_plan(self, provider, payload):
+        if set(payload) - {
+            "client",
+            "generation",
+            "expected_revision",
+            "figures",
+            "question",
+            "event",
+            "author_context",
+            "structured_output",
+        }:
+            raise ProjectError("Choose reviewer selection and author-context fields")
+        # The expected revision is the actual review collection, not a client report
+        # or the narrower editable-definition revision.
+        _review_token(payload.get("expected_revision"))
+        plan = _PaperReviewPlan(self, provider, payload)
+        if plan._binding != payload["expected_revision"]:
+            raise ProjectError("Review evidence changed since selection; refresh the collection.")
+        return plan
 
     def check_owner(self):
         if _owner(self.source.parent)["project_id"] != self.project_id:
@@ -495,6 +548,7 @@ class ProjectState:
     def close(self):
         with self.job_lock:
             self.closing = True
+        self.reviewer.close()
         if self.worker:
             self.worker.join()
 
@@ -567,6 +621,8 @@ class ProjectHandler(PreviewHandler):
                 from .project_review import project_review
 
                 self.json(project_review(state.source, event_id=value("event") or None))
+            elif route == "/api/reviewer/provider":
+                self.json(state.reviewer.info())
             elif route == "/api/scorecard":
                 from .project_scorecard import project_scorecard
 
@@ -640,10 +696,33 @@ class ProjectHandler(PreviewHandler):
                 return
             if not 0 < length <= MAX_SOURCE_BYTES:
                 raise ProjectError("Choose a nonempty request smaller than 20 MiB.")
+            if route.startswith("/api/reviewer/") and length > 65536:
+                raise ProjectError("Reviewer controls must fit within 64 KiB.")
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, dict):
                 raise ProjectError("Request must be a JSON object.")
-            if route == "/api/run":
+            if route.startswith("/api/reviewer/"):
+                operation = {
+                    "/api/reviewer/provider": state.reviewer.configure,
+                    "/api/reviewer/disclose": state.reviewer.disclose,
+                    "/api/reviewer/start": state.reviewer.start,
+                    "/api/reviewer/status": state.reviewer.status,
+                    "/api/reviewer/cancel": state.reviewer.cancel,
+                    "/api/reviewer/download": state.reviewer.download,
+                }.get(route)
+                if operation is None:
+                    self.json({"error": "Not found"}, 404)
+                    return
+                result = operation(payload)
+                if route == "/api/reviewer/download":
+                    self.send(
+                        json.dumps(result, allow_nan=False).encode(),
+                        "application/json; charset=utf-8",
+                        download="figure-review-" + payload["which"] + ".json",
+                    )
+                else:
+                    self.json(result, 202 if route == "/api/reviewer/start" else 200)
+            elif route == "/api/run":
                 self.json(state.start(payload), 202)
             elif route == "/api/journal-check":
                 self.json(state.journal_check(payload))
@@ -815,8 +894,11 @@ class ProjectServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", port), ProjectHandler)
 
     def server_close(self):
-        super().server_close()
-        self.state.close()
+        # Cancellation must precede ThreadingHTTPServer's handler joins.
+        try:
+            self.state.close()
+        finally:
+            super().server_close()
 
 
 def serve_project(path=".", port=8788, *, open_browser=False):

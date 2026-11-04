@@ -545,8 +545,10 @@ questions about selected paper figures using their actual saved checks. The
 Python/CLI workflow discloses the exact model request before consent and keeps
 failed checks separate from **unverified qualitative suggestions**. It preserves
 historical/missing evidence and changes no figure settings. Provider calls have
-a 90-second execution deadline and optional Python cancellation. The editor workflow
-is still in development; these source features are newer than PyPI0.8.0.
+a 90-second execution deadline and optional Python cancellation. The paper
+workspace also exposes consented, cancellable session HTTP APIs and JSON
+downloads. Browser reviewer controls are still in development; these source
+features are newer than PyPI0.8.0.
 
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,

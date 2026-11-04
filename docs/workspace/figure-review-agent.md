@@ -4,7 +4,8 @@ The current-source reviewer API and CLI combine an initialized paper project's
 actual saved checks with separately labelled model advice. Ask “What would a
 skeptical reviewer criticize about these figures?” or supply a specific question
 and study context. Select up to 20 actual figure keys, including PDF evidence.
-The editor workflow is the next milestone; this core does not complete idea4.
+The paper workspace also exposes session-only reviewer HTTP controls. Visible
+paper/editor browser controls remain in development; this core does not complete idea4.
 These features are newer than the published PyPI0.8.0 package.
 
 The result has two separate parts:
@@ -128,12 +129,64 @@ JSON, nonfinite numbers and incomplete/refused/tool-call replies fail explicitly
 No markup or model code is executed. `InvalidReview.reply` exposes unaccepted
 provider text to an explicit diagnostic; it is never accepted advice.
 
+## Paper workspace HTTP sessions
+
+The local `project-preview` server exposes the following token-protected routes.
+They use the existing workspace Host/Origin checks and `X-Preview-Token` header.
+These are integration APIs; visible browser reviewer controls are still pending.
+
+| Route | Purpose |
+| --- | --- |
+| `GET /api/reviewer/provider` | Read public provider configuration and whether authorization is configured; the key is never returned. |
+| `POST /api/reviewer/provider` | Configure `endpoint`, `model`, `protocol` and optional `api_key`; `{"enabled": false}` clears configuration and cancels prior work. |
+| `POST /api/reviewer/disclose` | Collect actual selected evidence and return the exact request/destination and consent digest without making a provider call. |
+| `POST /api/reviewer/start` | Explicitly consent to that disclosure; return `202` while one owned inference runs. |
+| `POST /api/reviewer/status` | Read its phase and separately labelled result; completed evidence is checked again before it is returned. |
+| `POST /api/reviewer/cancel` | Cancel a request or that client's current reviewer context and discard pending advice. |
+| `POST /api/reviewer/download` | Download the disclosed request or completed result as JSON after checking freshness again. |
+
+First load `GET /api/review`, optionally with `?event=EVENT_ID` for historical
+evidence. Send its `evidence_revision` as `expected_revision`, plus `client`
+(a nonsecret session identifier), integer `generation`, `figures` (actual keys),
+`question`, optional `event`, `author_context` and `structured_output` to
+`/api/reviewer/disclose`. The server recollects the project; a client-supplied
+report is refused. An active paper job, changed ownership or changed collection
+revision refuses the request.
+
+Subsequent controls use that `client`, `generation` and returned `review_id`.
+Start also requires `consent: true` and the exact disclosed `consent_sha256`.
+Downloads require `which: "request"` or `which: "result"`. A request download
+is the same replayable document accepted by `review-agent-run`; its secret key
+must be supplied separately. No result download is available for a failed,
+cancelled, incomplete or stale request.
+
+Increment the generation when selection, question, context or other reviewer
+inputs change. Older generations cannot cancel newer work. Cancellation without
+a `review_id` also invalidates in-progress disclosure preparation. Changing the
+provider invalidates all existing disclosures; each plan permits one attempt.
+Phases are `disclosed`, `running`, `completed`, `failed`, `cancelled` or `stale`.
+Failure clears prior advice; invalid provider reply text is not exported by these
+session routes. Cancellation/shutdown joins the owned local inference worker;
+it cannot unsend a request already received by a remote provider.
+
+Provider credentials live only in this server session. Controls are limited to
+64KiB, retained disclosures expire after ten minutes, and at most eight plans
+including preparations and 64 client-generation records are retained. One
+inference runs at a time. These bounds do not replace the request/reply limits
+or scientific caveats above.
+
 ## Verification
 
 `python/tests/test_review_agent.py` uses actual saved native positive/failed
 claims, historical/unrun/damaged evidence, PDF inspections, source/export races,
 request privacy and real loopback HTTP contracts on both protocols. These
 controlled providers are transport/behavior tests, not actual inference.
+
+`python/tests/test_review_sessions.py` adds real paper-server HTTP consent and
+download checks, exact provider-body comparison, active/source/history guards,
+provider failure/privacy, in-flight cancellation, shutdown, disclosure races and
+bounded preparation. Browser usability and actual configured inference through
+the forthcoming controls require their own evidence.
 
 `scripts/check-review-agent.py --out-dir NEW_DIRECTORY` creates and audits two
 figures from the repository's public Palmer penguins CSV, reverses a declared

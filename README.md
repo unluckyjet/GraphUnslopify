@@ -531,11 +531,14 @@ Matplotlib or Seaborn scripts. Review the extracted raw values and unsupported
 behavior, apply an editable figure, run strict checks and undo when needed.
 Source is never executed; original bytes and conversion evidence are preserved.
 
-The current-source [figure autopilot Python and CLI workflows](docs/workspace/figure-autopilot.md)
-proposes three views from a dataset and research question, explains trade-offs,
-and runs strict native checks after explicit review. Save a review with
-`autopilot-propose`,then generate all three with `autopilot-generate`.
-Editor integration is still in progress.
+The current-source [figure autopilot](docs/workspace/figure-autopilot.md) proposes
+three views from a dataset and research question, explains their trade-offs, and
+runs strict native checks after explicit review. In the local editor, open
+**Start from a research question**, review the fields and exclusions, compare
+all three checked drafts, then choose one to edit. Failed drafts remain visible
+and downloadable; applying supports guarded undo and keeps comparison ancestry.
+Python and CLI workflows are available too: save a review with
+`autopilot-propose`, then generate all three with `autopilot-generate`.
 
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,

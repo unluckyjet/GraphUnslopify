@@ -263,6 +263,14 @@ jobs:
       - run: npm run experiments-check
       - run: npm run trackers-check
       - run: npm run sources-check
+      - run: npm run autopilot-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: figure-autopilot-editor-verification
+          path: /tmp/gu-autopilot-editor-*/**
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

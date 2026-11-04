@@ -410,3 +410,28 @@ installed CLI PNGs reviewed;all52 README placements/51 original asset bytes
 remain. Generated queue refreshed from specs:95 shipped/96 in progress. Preparing
 normal CLI milestone push;exact14/new actual CLI CI artifacts and full editor
 work remain required. Full96/full30 remain active;no release.
+
+
+2026-11-04Pacific —96b saved-review CLI e3ab99b accepted after all14 exact
+main/Figure/native checks at07:05:31UTC;both actual Python profiles retain
+source-bound reviews,all3 native outcomes and original public-data values.
+The editor candidate now implements reviewed dataset/question alternatives,
+all-three native comparison,explicit selection,normal native checking,guarded
+undo and complete comparison ancestry/downloads. Current/minimum/installed
+browser15 and backend/import43 each pass;source-import browser11 regression
+passes. All101 package files match the package-only reinstalled private wheel.
+Actual download verification checks342 original observations/indices/groups,
+all3 script/export hashes,failed-draft retention and the101-file runtime bundle.
+Full frozen contribution checks and editor push/exactCI remain pending;96/full30
+remain in progress. No release or scientific-appropriateness claim.
+
+
+2026-11-04Pacific —96 editor candidate passes all10 frozen local checks:235 Node,
+2386 Python/no skips/one upstream SQLAlchemy deprecation warning1425.45s and
+15 gallery figures.992 protected source/config/fixture paths stayed unchanged;
+all101 installed files match. Current/minimum/installed browser15 and backend/
+import43 each,source-import browser11,actual packet hashes/observations/runtime
+and three-script strict download replay pass. All52 README placements/51 graphics/
+37 frozen protocol assets remain. Preparing normal editor milestone push;exact
+editor-commit main/Figure/native CI and actual new CI archive remain required.
+Full96/full30 remain in progress;no release.

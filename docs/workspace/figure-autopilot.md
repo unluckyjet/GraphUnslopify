@@ -1,9 +1,44 @@
 # Reviewed figure alternatives from a dataset and question
 
-Current source includes Python and CLI workflows that propose three figure views,
-explain their trade-offs and run actual strict native checks after review.
-Editor integration is still in progress. This is newer than published
+Current source includes editor, Python and CLI workflows that propose three
+figure views, explain their trade-offs and run actual strict native checks after
+review. This is newer than published
 PyPI0.8.0; use a current [local checkout](../../README.md).
+
+## Compare and choose in the local editor
+
+Run `graphunslopify preview` and choose your CSV, JSON table, Parquet file or Excel
+worksheet. In **Data & fields**, open **Start from a research question**.
+
+1. Describe the comparison, distribution, relationship or trend you want to see.
+   Use **Fields, units and question type** to choose fields explicitly when needed.
+   Units are author-supplied display labels; changing a label does not convert data.
+2. Select **Review three figure options**. Read the resolved fields, all three
+   explanations, trade-offs and assumptions, plus the sample and exclusions.
+   The display shows at most100 exclusion records and20 normalized rows; save
+   the review JSON for the complete exclusion list.
+3. Acknowledge the review and any recorded joint-sample exclusions, then select
+   **Generate and check all three**. Each draft receives its own real strict
+   native verdict and preview. Generating does not replace your current figure.
+4. Compare the three cards and open full-size previews when useful. Failed drafts
+   keep their verdicts, reports and exports. Choose a passed draft explicitly,
+   then select **Apply selected draft**. It becomes editable intent and runs
+   through the editor's normal checks again.
+5. Use **Undo applied draft** to restore the previous dataset and figure. Later
+   dataset, palette or figure edits block undo from overwriting that newer work.
+   All three original outcomes remain visible as history after applying or undoing.
+6. **Save all three drafts** downloads the original programs, specs, reports and
+   exports, including failures. Normalized observations are included only when
+   you select that option. The chosen figure's normal bundle also retains the
+   complete comparison ancestry; its separate source-data option remains explicit.
+
+Reviews bind the selected worksheet, dataset, palette and figure settings along
+with the question and choices. Changing these requires another review before
+applying; a late response cannot replace newer intent. Unresolved questions or
+unsupported data show a reason and offer no fabricated options. Your uploaded
+original remains unchanged. Draft comparisons expire after10 idle minutes; save
+them before closing the editor. A saved archive preserves the original results,
+rather than asserting a fresh verification or a standalone multi-script replay.
 
 ```python
 from graphunslopify.autopilot import propose_figures, generate_drafts
@@ -129,8 +164,11 @@ exclusion requirements, question-dependent alternatives and actual strict failur
 against actual numerical artists: raw group points, empirical steps and descriptive
 means. It retains strict layout failures. GitHub Actions runs this core check on
 both supported Python profiles and saves its artifacts,including actual saved-
-review CLI generation and refusal without review. Editor review/compare/select/
-apply/undo and the full feature's final acceptance remain unfinished.
+review CLI generation and refusal without review. `npm run autopilot-check`
+exercises the actual browser review/compare/select/apply/undo workflow, all four
+input formats, real failure retention, downloads, palette guards and delayed
+responses. CI retains its screenshots, actual archives, native reports and
+package-file hashes as `figure-autopilot-editor-verification`.
 
 See [the complete initiative](../../pipeline/research-platform-roadmap.md),
 [source imports](source-imports.md) and [the local editor](../local-editor.md).

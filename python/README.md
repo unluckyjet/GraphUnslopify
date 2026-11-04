@@ -124,12 +124,15 @@ CLI operations. See the repository agent guide for setup, error semantics and pr
 
 ## Reviewed three-figure proposals in current source
 
-The [autopilot API and CLI](../docs/workspace/figure-autopilot.md) accept a dataset
+The [figure autopilot](../docs/workspace/figure-autopilot.md) accepts a dataset
 and research question, exposes mappings/exclusions/assumptions for review, then
-generates three actual strict native drafts. Import `propose_figures` and
+generates three actual strict native drafts. In `graphunslopify preview`, open
+**Start from a research question** to compare all three, explicitly apply a
+passed draft and undo while preserving the complete comparison ancestry.
+Failed drafts remain visible and downloadable. Import `propose_figures` and
 `generate_drafts` from `graphunslopify.autopilot`,or use `autopilot-propose` to save
 a bound review and `autopilot-generate` to replay it after acknowledgement.
-Editor integration remains in progress;these features are newer than PyPI0.8.0.
+These current-source features are newer than PyPI0.8.0.
 
 ## Import Python figures in current source
 

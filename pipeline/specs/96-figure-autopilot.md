@@ -101,8 +101,33 @@ tests pass with source imports excluded. All99 installed package files match the
 candidate. Actual public-dataset API+CLI runs pass on current/minimum/installed
 profiles,including explicit unreviewed refusal and all-three native output.
 All10 frozen local gates pass:235 Node/2363 Python(no skips,one upstream
-warning)/15 gallery figures on988 unchanged protected source paths. Normal
-push/exact14 remain required for this CLI checkpoint. It is a
-coherent96b milestone,not full96 completion. Actual editor review/generate/
-compare/select/apply/undo,ancestry and source/palette/context/late-response browser
-controls remain required before idea3 acceptance.
+warning)/15 gallery figures on988 unchanged protected source paths. CLI commit
+e3ab99beaa490fcc121448ed7fcba694807165a3 was normally pushed and accepted after
+all14 exact checks at2026-11-04T07:05:31UTC. Both actual core/CLI CI artifacts
+retain original penguin values,all3 native outcomes and strict-failure evidence.
+It is a coherent96b milestone,not full96 completion.
+
+## Editor candidate
+
+The editor now offers actual dataset/question review, explicit field/unit choices,
+exclusion acknowledgements, all-three native generation and comparison, passed-
+draft selection, normal native rechecking and guarded undo. Original outcomes,
+including failures, remain visible/downloadable after applying and undoing. ZIP
+downloads explicitly include or omit normalized observations; normal selected-
+figure bundles preserve full comparison ancestry.
+
+Local current/minimum browser runs pass15 actual controls with no page errors or
+external page requests. They cover real CSV/JSON/Parquet/selected Excel, strict
+failure retention, source-free ancestry, downloads, newer palette/intent guards
+and held review/generation/selection responses. Current backend/import regressions
+pass43 tests, including actual native outputs, changed-file refusals, authorized
+HTTP artifacts, close-during-read, quota and idle-expiry cleanup. The palette undo
+guard has a real failing installed-parent control and passing current/minimum
+candidate controls. All101 files match the package-only reinstalled wheel and independent current/
+minimum/installed archive checks. All10 frozen local gates pass:235 Node/2386
+Python(no skips,one upstream SQLAlchemy warning1425.45s)/15 gallery figures,
+on992 unchanged protected source paths. Actual data-including download replay
+runs all3 original scripts after server close;all pass strict checks with the
+same342 observations and identical within-profile PNGs.52 README placements/
+51 graphics/37 frozen protocol assets remain unchanged. Normal push and exact
+editor-commit CI/artifact verification remain required;96 stays in progress.

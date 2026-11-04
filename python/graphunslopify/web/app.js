@@ -10,12 +10,14 @@ import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
 import { createExperimentImports } from "/experiment-imports.js";
 import { createSourceImports } from "/source-imports.js";
+import { createAutopilot } from "/autopilot.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
 let contextInspector = null;
 let experimentImports = null;
 let sourceImports = null;
+let autopilot = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -155,6 +157,7 @@ function invalidate() {
   revision++;
   experimentImports?.refresh();
   sourceImports?.refresh();
+  autopilot?.refresh();
   stagedPreview.invalidate();
   draftEditor?.invalidate();
   latest = null;
@@ -619,8 +622,8 @@ function applyExperiment(info, intent) {
     controlHistory.length=0;$("undo-controls").disabled=true;clearTimeout(timer);update(true);
   }
   swap(info,intent);
-  const applied=JSON.stringify(readSpec());
-  const current=()=>{try{return data?.id===info.id&&JSON.stringify(readSpec())===applied;}catch{return false;}};
+  const applied=JSON.stringify(readSpec()),appliedPaletteId=palette?.id;
+  const current=()=>{try{return data?.id===info.id&&palette?.id===appliedPaletteId&&JSON.stringify(readSpec())===applied;}catch{return false;}};
   return {current,undo(){if(!current())throw Error("Undo later figure edits before restoring the previous import.");swap(before.data,before.spec);controlHistory.push(...before.history);$("undo-controls").disabled=!controlHistory.length;}};
 }
 $("design-choice").onchange = showDesignReason;
@@ -752,6 +755,9 @@ experimentImports=createExperimentImports({mount:$("experiment-tools"),api,
   context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),apply:applyExperiment});
 sourceImports=createSourceImports({mount:$("experiment-tools"),api,
   context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),apply:applyExperiment});
+autopilot=createAutopilot({mount:$("experiment-tools"),resultsMount:$("autopilot-results"),api,
+  context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),dataset:()=>data,apply:applyExperiment,
+  fileURL:(path,download=false)=>path+"?token="+encodeURIComponent(token)+(download?"&download=1":"")});
 api("/api/info")
   .then((info) => {
     journalChecks.configure(info.journal_profiles);

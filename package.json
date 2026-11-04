@@ -36,7 +36,8 @@
     "scorecard-check": "node --experimental-strip-types scripts/scorecard-check.ts",
     "experiments-check": "node --experimental-strip-types scripts/experiments-check.ts",
     "trackers-check": "node --experimental-strip-types scripts/trackers-check.ts",
-    "sources-check": "node --experimental-strip-types scripts/sources-check.ts"
+    "sources-check": "node --experimental-strip-types scripts/sources-check.ts",
+    "autopilot-check": "node --experimental-strip-types scripts/autopilot-check.ts"
   },
   "type": "module",
   "dependencies": {

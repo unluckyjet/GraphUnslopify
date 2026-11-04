@@ -53,11 +53,13 @@ class PreviewState:
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
+        from .preview_autopilot import PreviewAutopilot
         from .preview_experiments import PreviewExperiments
         from .preview_sources import PreviewSources
 
         self.experiments = PreviewExperiments(self)
         self.sources = PreviewSources(self)
+        self.autopilot = PreviewAutopilot(self)
         self.stages = PreviewStages(self.root) if staged_preview else None
         self.worker = None
         self.translator = None
@@ -75,6 +77,7 @@ class PreviewState:
     def close(self):
         self.experiments.close()
         self.sources.close()
+        self.autopilot.close()
         if self.stages is not None:
             self.stages.close()
         try:
@@ -363,6 +366,7 @@ class PreviewState:
             for key, suffix in (
                 ("experiment_import", "experiment-import"),
                 ("source_import", "source-import"),
+                ("autopilot", "autopilot"),
             ):
                 if data.get(key) is not None:
                     import_name = f"{stem}.{suffix}.json"
@@ -595,6 +599,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/context-inspector.js",
                 "/experiment-imports.js",
                 "/source-imports.js",
+                "/autopilot.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -615,6 +620,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/context-inspector.js",
             "/experiment-imports.js",
             "/source-imports.js",
+            "/autopilot.js",
         }:
             name = {
                 "/": "index.html",
@@ -632,6 +638,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/context-inspector.js": "context-inspector.js",
                 "/experiment-imports.js": "experiment-imports.js",
                 "/source-imports.js": "source-imports.js",
+                "/autopilot.js": "autopilot.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -652,6 +659,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "context-inspector.js": "text/javascript; charset=utf-8",
                     "experiment-imports.js": "text/javascript; charset=utf-8",
                     "source-imports.js": "text/javascript; charset=utf-8",
+                    "autopilot.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -702,6 +710,20 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     raise ValueError("Unknown provisional output")
             except (ValueError, OSError, TypeError) as problem:
                 self.json({"error": str(problem), "verified": False}, 404)
+            return
+        if len(parts) == 3 and parts[0] == "autopilot-artifact":
+            try:
+                name = unquote(parts[2])
+                content = self.server.state.autopilot.artifact(parts[1], name)
+                self.send(
+                    content,
+                    mimetypes.guess_type(name)[0] or "application/octet-stream",
+                    download=Path(name).name
+                    if "download" in parse_qs(urlsplit(self.path).query)
+                    else None,
+                )
+            except (ValueError, OSError, TypeError) as problem:
+                self.json({"error": str(problem)}, 404)
             return
         if len(parts) == 3 and parts[0] == "artifact":
             run = self.server.state.runs.get(parts[1])
@@ -781,6 +803,14 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json(getattr(self.server.state.experiments, route.rsplit("/", 1)[-1])(payload))
             elif route in {"/api/sources/review", "/api/sources/accept", "/api/sources/cancel"}:
                 self.json(getattr(self.server.state.sources, route.rsplit("/", 1)[-1])(payload))
+            elif route in {
+                "/api/autopilot/review",
+                "/api/autopilot/generate",
+                "/api/autopilot/select",
+                "/api/autopilot/cancel",
+                "/api/autopilot/packet",
+            }:
+                self.json(getattr(self.server.state.autopilot, route.rsplit("/", 1)[-1])(payload))
             elif route == "/api/model-provider":
                 self.json(self.server.state.drafts.configure(payload))
             elif route in {

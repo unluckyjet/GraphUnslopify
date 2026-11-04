@@ -661,6 +661,43 @@ def _experiments(args: argparse.Namespace) -> int:
         return 2
 
 
+def _autopilot(args: argparse.Namespace) -> int:
+    import io
+
+    from .autopilot import propose_figures
+    from .autopilot_review import generate_reviewed, read_review, review_document, write_review
+
+    try:
+        if args.command == "autopilot-propose":
+            choices = {
+                name: getattr(args, name)
+                for name in ["target", "group", "predictor", "intent", "sheet"]
+                if getattr(args, name) is not None
+            }
+            if args.no_group:
+                choices["group"] = ""
+            if args.temporal_predictor:
+                choices["predictor_temporal"] = True
+            if args.units is not None:
+                choices["units"] = json.loads(args.units)
+            document = review_document(propose_figures(args.source, args.question, **choices))
+            write_review(document, args.out)
+            print(json.dumps(document, indent=2, allow_nan=False))
+            return 0 if document["report"]["ready"] else 2
+        with contextlib.redirect_stdout(io.StringIO()):
+            result = generate_reviewed(
+                read_review(args.review),
+                args.out_dir,
+                reviewed=args.reviewed,
+                accept_exclusions=args.accept_exclusions,
+            )
+        print(json.dumps(result, indent=2, allow_nan=False))
+        return result["exit_code"]
+    except (OSError, ValueError, TypeError) as problem:
+        print(json.dumps({"error": str(problem), "exit_code": 2}))
+        return 2
+
+
 def _source_import(args: argparse.Namespace) -> int:
     import io
 
@@ -813,6 +850,40 @@ def build_parser() -> argparse.ArgumentParser:
         "--artifact-root", help="exclusive root override for a moved audit archive"
     )
     tracked.set_defaults(handler=_track_mlflow)
+
+    propose = commands.add_parser(
+        "autopilot-propose", help="review three data/question proposals without rendering"
+    )
+    propose.add_argument("source", help="CSV,regular JSON,Parquet or Excel dataset")
+    propose.add_argument("--question", required=True)
+    propose.add_argument(
+        "--out", required=True, help="new JSON review file;existing files stay intact"
+    )
+    for option in ["target", "predictor", "sheet"]:
+        propose.add_argument("--" + option)
+    grouping = propose.add_mutually_exclusive_group()
+    grouping.add_argument("--group", help="explicit grouping field")
+    grouping.add_argument(
+        "--no-group", action="store_true", help="keep all observations in one sample"
+    )
+    propose.add_argument(
+        "--intent", choices=["comparison", "distribution", "relationship", "trend"]
+    )
+    propose.add_argument("--units", help='author unit labels as JSON,for example {"loss":"score"}')
+    propose.add_argument("--temporal-predictor", action="store_true")
+    propose.set_defaults(handler=_autopilot)
+    generate = commands.add_parser(
+        "autopilot-generate", help="strictly generate all three drafts from an unchanged review"
+    )
+    generate.add_argument("review", help="saved JSON from autopilot-propose")
+    generate.add_argument(
+        "--out-dir", required=True, help="new folder for all three native results"
+    )
+    generate.add_argument(
+        "--reviewed", action="store_true", help="acknowledge reviewed mappings and assumptions"
+    )
+    generate.add_argument("--accept-exclusions", action="store_true")
+    generate.set_defaults(handler=_autopilot)
 
     source_import = commands.add_parser(
         "import-source",

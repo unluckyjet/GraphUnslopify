@@ -139,8 +139,10 @@ def _discover(config):
     return paths
 
 
-def _contained_bytes(base, relative):
+def _contained_bytes(base, relative, *, limit=MAX_FILE_BYTES):
     """Open every relative component without following symlinks on POSIX."""
+    if type(limit) is not int or not 0 < limit <= MAX_SOURCE_BYTES:
+        raise ExperimentError("Invalid source file byte bound")
     if os.open in os.supports_dir_fd and hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"):
         directory = os.open(base, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         try:
@@ -156,9 +158,9 @@ def _contained_bytes(base, relative):
             )
             with os.fdopen(descriptor, "rb") as stream:
                 info = os.fstat(stream.fileno())
-                if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_FILE_BYTES:
+                if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
                     raise ExperimentError(f"Source must be a bounded regular file: {relative}")
-                return stream.read(MAX_FILE_BYTES + 1)
+                return stream.read(limit + 1)
         finally:
             os.close(directory)
     # Platforms without relative descriptor opens still refuse changed/escaped paths.
@@ -168,9 +170,9 @@ def _contained_bytes(base, relative):
         raise ExperimentError("Experiment source escaped its selected folder")
     with path.open("rb") as stream:
         info = os.fstat(stream.fileno())
-        if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_FILE_BYTES:
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
             raise ExperimentError(f"Source must be a bounded regular file: {relative}")
-        content = stream.read(MAX_FILE_BYTES + 1)
+        content = stream.read(limit + 1)
     if (
         path.is_symlink()
         or path.resolve(strict=True) != before

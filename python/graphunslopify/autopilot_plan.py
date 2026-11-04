@@ -228,8 +228,28 @@ def make_plan(path, question, choices):
         records.append(
             {"measure": value, "predictor": x, "group": label, "source_record": position}
         )
+    report.update(
+        selected_rows=len(records),
+        excluded_records=excluded,
+        excluded_count=len(excluded),
+        groups=groups,
+        exclusion_policy="All three use the same reviewed joint-valid sample across selected fields.",
+        normalization="Materialize selected plotting values,group display identities and zero-based source record positions in an owned JSON table; original input stays unchanged. Ready proposals require reader float64 agreement at rtol1e-14/atol0.",
+        units_policy="Units are author labels,no automatic conversion or percentage scaling.",
+        review_required=[
+            "question and field mapping",
+            "units or their absence",
+            "each draft's assumptions/trade-offs",
+            "joint-sample exclusions",
+        ],
+        finite_observations=len(records),
+    )
     if not records:
         return unresolved("No joint valid observations remain for the selected fields")
+    if len(records) < 2:
+        return unresolved("Three alternative views need at least two reviewed observations")
+    if intent == "comparison" and len(groups) < 2:
+        return unresolved("A comparison needs at least two retained groups after exclusions")
     data_text = json.dumps(records, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
     if len(data_text.encode()) > MAX_DATA:
         return unresolved("Normalized plotting data exceeds20MiB")
@@ -247,6 +267,17 @@ def make_plan(path, question, choices):
     names = pd.DataFrame(json.loads(data_text), dtype=object)
     if list(names["group"]) != [r["group"] for r in records]:
         return unresolved("Normalized source identities changed")
+    predictor_values = normalized["predictor"]
+    if temporal:
+        try:
+            # Match the canonical native reader rather than invent timezone conversions.
+            predictor_values = pd.to_datetime(predictor_values)
+        except (ValueError, TypeError, OverflowError):
+            return unresolved(
+                "Use a temporal predictor with a consistent native-readable format and timezone"
+            )
+    if intent in {"trend", "relationship"} and predictor_values.nunique(dropna=False) < 2:
+        return unresolved("This question needs at least two distinct retained predictor values")
 
     def axis(field, label, original=None):
         result = {"field": field, "label": label}
@@ -348,7 +379,9 @@ def make_plan(path, question, choices):
         }
         drafts = [box, empirical, third]
     elif intent in {"trend", "relationship"}:
-        duplicate = len(records) - len({(r["predictor"], r["group"]) for r in records})
+        duplicate = len(records) - len(
+            set(zip(predictor_values.tolist(), [r["group"] for r in records], strict=True))
+        )
         third = {
             "id": "ordered",
             "name": "Ordered descriptive profile",
@@ -382,21 +415,5 @@ def make_plan(path, question, choices):
         drafts = [points, third, empirical]
     else:
         drafts = [empirical, box, points]
-    report.update(
-        ready=True,
-        selected_rows=len(records),
-        excluded_records=excluded,
-        excluded_count=len(excluded),
-        groups=groups,
-        exclusion_policy="All three use the same reviewed joint-valid sample across selected fields.",
-        normalization="Materialize selected plotting values,group display identities and zero-based source record positions in an owned JSON table; original input stays unchanged. Reader float64 agreement is checked at rtol1e-14/atol0.",
-        units_policy="Units are author labels,no automatic conversion or percentage scaling.",
-        review_required=[
-            "question and field mapping",
-            "units or their absence",
-            "each draft's assumptions/trade-offs",
-            "joint-sample exclusions",
-        ],
-        finite_observations=len(records),
-    )
+    report["ready"] = True
     return {"report": report, "drafts": drafts, "data_text": data_text}

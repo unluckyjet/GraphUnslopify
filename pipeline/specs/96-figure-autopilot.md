@@ -76,5 +76,33 @@ Actual public penguin values,ECDF steps and group means match independent artist
 references on both profiles;all3 native drafts pass and a deliberate strict
 failure preserves all3 verdicts. CSV/JSON/Parquet/selected Excel identities001/002
 also survive all3 native views.52 README graphic placements/51 assets unchanged.
-Normal core push/exact14 and actual new CI artifacts are still pending at this
-checkpoint.96b CLI/editor/full idea3 remains unfinished;no release is authorized.
+Core commit8b1898c3eb5b328cda959ffde849ac6cbd3a048e was normally pushed and
+accepted after all14 exact checks on main41768890989/Figure41768890858/
+native41768890859 at2026-11-04T04:55:45UTC. Actual3.10/3.12 public-data artifacts
+verify source values,all3 drafts and failed-draft retention;6 native PNGs reviewed.
+Full96/idea3 remains unfinished;no release is authorized.
+
+## 96b saved-review CLI checkpoint
+
+The CLI now exports a new-file-only proposal review containing the actual source,
+full question,choices,report and all3 drafts. Generation requires explicit review
+and exclusion acknowledgement,reanalyzes the original dataset and refuses changed
+source,reader or reviewed metadata before creating outputs. All3 strict native
+verdicts and the exact reviewed document remain in the result directory. JSON
+stdout stays machine-readable. Oversized reviews and source overwrite refuse.
+
+Post-exclusion shape checks now refuse fewer than2 observations,comparison with
+fewer than2 groups and trend/relationship with one distinct predictor. Temporal
+predictors use the canonical native parser;ambiguous formats/timezones refuse.
+These are minimum shape checks,not scientific sample-size adequacy certification.
+
+Current/minimum planner26 tests and CLI10 tests pass;36 combined installed-wheel
+tests pass with source imports excluded. All99 installed package files match the
+candidate. Actual public-dataset API+CLI runs pass on current/minimum/installed
+profiles,including explicit unreviewed refusal and all-three native output.
+All10 frozen local gates pass:235 Node/2363 Python(no skips,one upstream
+warning)/15 gallery figures on988 unchanged protected source paths. Normal
+push/exact14 remain required for this CLI checkpoint. It is a
+coherent96b milestone,not full96 completion. Actual editor review/generate/
+compare/select/apply/undo,ancestry and source/palette/context/late-response browser
+controls remain required before idea3 acceptance.

@@ -385,3 +385,28 @@ gates,normal repair push and exact14 on its new commit remain required.
 2026-11-04T02:24:30UTC —95/a94446f full14/three-workflow acceptance. All10 local235 Node/2327 Python/one warning/g15;986 final bindings/95 installed files;actualCI importer11/original/native/source files verify. Full idea2 supported scope complete;full30 active. Started96 question-grounded three-draft autopilot core;CLI/editor/full acceptance still pending.
 
 2026-11-03 —96a core API checkpoint passes all10 frozen gates(235 Node/2345 Python,one upstream warning/no skips/gallery15;986 source paths).18 focused tests pass on current/minimum/cleanly reinstalled profiles;98 package files match. Public penguin raw values/ECDF/group means independently agree;all3 native drafts and deliberate strict-failure retention verify. Four actual readers preserve001/002 group names. Core normal push/exact14 and actual new CI artifacts remain pending;96b CLI/editor and the full30 goal remain open. Original README graphics preserved;no release.
+
+
+2026-11-04T04:55:45UTC —96a/8b1898c core accepted all14 exact checks across
+main41768890989/Figure41768890858/native41768890859. Both actual public-data
+artifacts/source quantities/all3 native verdicts and strict-failure retention
+verify;6 native PNGs reviewed. Inherited importer11 regression/source-free bundle
+also verifies. Full96/idea3/editor and full30 remain unfinished.
+
+2026-11-03Pacific —96b CLI checkpoint implemented:explicit saved proposal review,
+unchanged source/reader/question/choices replay,new-file outputs,all3 strict
+native verdicts and review ancestry;post-exclusion shape refusals preserve actual
+exclusions. Current/minimum planner26+CLI10 tests pass;36 combined tests use only
+the99-file matching installed package. Actual public API+CLI checks pass current/
+minimum/installed,including unreviewed refusal. Full frozen checks and checkpoint
+push/exact14 remain required;editor/browser workflow remains separate unfinished
+96b scope. No release or scientific-appropriateness certification.
+
+
+2026-11-03Pacific —96b CLI candidate passes all10 frozen local gates on988
+unchanged source/config/fixture paths:235 Node,2363 Python/no skips/one upstream
+warning1204.78s,gallery15. All99 installed package files match. Three actual
+installed CLI PNGs reviewed;all52 README placements/51 original asset bytes
+remain. Generated queue refreshed from specs:95 shipped/96 in progress. Preparing
+normal CLI milestone push;exact14/new actual CLI CI artifacts and full editor
+work remain required. Full96/full30 remain active;no release.

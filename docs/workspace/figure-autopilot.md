@@ -1,8 +1,8 @@
 # Reviewed figure alternatives from a dataset and question
 
-Current source includes a Python core API that proposes three figure views,
-explains their trade-offs and runs actual strict native checks after review.
-The CLI and editor workflow are still in progress. This is newer than published
+Current source includes Python and CLI workflows that propose three figure views,
+explain their trade-offs and run actual strict native checks after review.
+Editor integration is still in progress. This is newer than published
 PyPI0.8.0; use a current [local checkout](../../README.md).
 
 ```python
@@ -33,6 +33,37 @@ heuristics, clearly marked for review; there is no claim of arbitrary language
 understanding or certified scientific appropriateness. No model service receives
 data. Proposal validation and generation explicitly use the local compiler.
 
+## Review and generate from the command line
+
+```sh
+graphunslopify autopilot-propose results.csv \
+  --question "How does loss differ between models?" --out review.json
+```
+
+Read the saved report and three proposals,including their mappings,units,
+exclusions and assumptions. Then generate from that unchanged review:
+
+```sh
+graphunslopify autopilot-generate review.json --out-dir new-drafts --reviewed
+```
+
+Add `--accept-exclusions` only after reviewing any listed exclusions. Generation
+requires it when observations were excluded. All three drafts run through strict
+checks;failed results remain in the output folder and produce exit2.
+
+Proposal options include `--intent`, `--target`, `--group` or `--no-group`,
+`--predictor`, `--temporal-predictor`, `--sheet` and author labels such as
+`--units '{"loss":"score"}'`. For an unresolved request,the review is still saved
+with its reason and the command exits2;no figure is generated.
+
+Review files are bounded to32MiB and never overwrite an existing file. They bind
+the complete request,report and drafts to a fingerprint and retain the original
+data hash. Generation reads the actual source again and compares the complete
+proposal,including reader versions. Changed data,choices or readers need a fresh
+review. The output retains `reviewed-proposal.json` and its acknowledgement in
+`autopilot.json`. The review points to the original local source;it is separate
+from a standalone reproduction bundle.
+
 ## The three views
 
 | Question intent | Proposals | What to review |
@@ -59,6 +90,13 @@ missing/nonfinite/invalid values. All three views use the same reviewed joint-va
 sample across selected fields. If exclusions exist, generation requires both
 `reviewed=True` and `accept_exclusions=True`. This acknowledgment is explicit;
 it does not justify an exclusion scientifically.
+
+Three alternatives require at least two retained observations. A comparison
+needs two retained groups;trend/relationship needs two distinct native-readable
+x values. These checks run after exclusions. Unsupported shapes retain the
+actual exclusion report and return no drafts. Temporal values must be consistently
+readable by the same parser used by native figures. These are minimum plotting
+contracts,not a determination of scientific sample-size adequacy.
 
 Original inputs stay unchanged. Selected plotting values, source positions and
 group identities are materialized in an owned JSON table. The native identity
@@ -90,8 +128,9 @@ exclusion requirements, question-dependent alternatives and actual strict failur
 `scripts/check-figure-autopilot.py` additionally checks public penguin observations
 against actual numerical artists: raw group points, empirical steps and descriptive
 means. It retains strict layout failures. GitHub Actions runs this core check on
-both supported Python profiles and saves its artifacts. CLI/editor integration,
-review/compare/select/apply/undo and their final acceptance remain unfinished.
+both supported Python profiles and saves its artifacts,including actual saved-
+review CLI generation and refusal without review. Editor review/compare/select/
+apply/undo and the full feature's final acceptance remain unfinished.
 
 See [the complete initiative](../../pipeline/research-platform-roadmap.md),
 [source imports](source-imports.md) and [the local editor](../local-editor.md).

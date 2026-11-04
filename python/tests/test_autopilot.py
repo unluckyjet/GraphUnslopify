@@ -111,6 +111,97 @@ def test_univariate_data_has_three_distinct_descriptive_views(tmp_path):
     assert "not time" in plan.drafts[2]["spec"]["x"]["label"]
 
 
+@pytest.mark.parametrize(
+    "csv,choices,reason,retained,excluded",
+    [
+        (
+            "model,loss\nA,1\nA,2\nB,\n",
+            {"intent": "comparison", "target": "loss", "group": "model"},
+            "two retained groups",
+            2,
+            1,
+        ),
+        (
+            "step,loss\n1,1\n1,2\n2,\n",
+            {"intent": "trend", "target": "loss", "predictor": "step", "group": ""},
+            "distinct retained predictor",
+            2,
+            1,
+        ),
+        (
+            "step,loss\n1,1\n1,2\n2,\n",
+            {"intent": "relationship", "target": "loss", "predictor": "step", "group": ""},
+            "distinct retained predictor",
+            2,
+            1,
+        ),
+        (
+            "loss\n1\n",
+            {"intent": "distribution", "target": "loss"},
+            "two reviewed observations",
+            1,
+            0,
+        ),
+        (
+            "model,loss\nA,\nB,\n",
+            {"intent": "comparison", "target": "loss", "group": "model"},
+            "No joint valid",
+            0,
+            2,
+        ),
+    ],
+)
+def test_question_shape_refusals_keep_actual_exclusions_and_create_no_outputs(
+    tmp_path, csv, choices, reason, retained, excluded
+):
+    source = tmp_path / "insufficient.csv"
+    source.write_text(csv)
+    before = source.read_bytes()
+    plan = propose_figures(source, "Review this research question", **choices)
+    assert not plan.report["ready"] and not plan.drafts and plan.data_bytes is None
+    assert reason in plan.report["reason"]
+    assert plan.report["selected_rows"] == retained
+    assert plan.report["excluded_count"] == len(plan.report["excluded_records"]) == excluded
+    assert source.read_bytes() == before
+    with pytest.raises(AutopilotError, match="Resolve"):
+        generate_drafts(plan, tmp_path / "refused", reviewed=True, accept_exclusions=True)
+    assert not (tmp_path / "refused").exists()
+
+
+@pytest.mark.parametrize(
+    "times",
+    [
+        ["2026-01-01", "2026-01-01"],
+        ["2026-01-01T00:00:00+00:00", "2025-12-31T19:00:00-05:00"],
+    ],
+)
+def test_temporal_predictor_requires_distinct_native_readable_instants(tmp_path, times):
+    source = tmp_path / "dates.csv"
+    source.write_text(f"date,loss\n{times[0]},1\n{times[1]},2\n")
+    plan = propose_figures(
+        source,
+        "How does loss change with date?",
+        intent="trend",
+        target="loss",
+        predictor="date",
+        predictor_temporal=True,
+        group="",
+    )
+    assert not plan.report["ready"] and not plan.drafts and plan.data_bytes is None
+    assert "predictor" in plan.report["reason"]
+    assert plan.report["selected_rows"] == 2 and plan.report["excluded_count"] == 0
+
+
+def test_flat_outcome_can_describe_no_observed_change_along_distinct_predictors(tmp_path):
+    source = tmp_path / "flat.csv"
+    source.write_text("step,loss\n0,1\n1,1\n2,1\n")
+    plan = propose_figures(
+        source, "How does loss change with step?", target="loss", predictor="step", group=""
+    )
+    assert plan.report["ready"] and len(plan.drafts) == 3
+    assert [r["measure"] for r in json.loads(plan.data_bytes)] == [1, 1, 1]
+
+
 @pytest.mark.parametrize("suffix", [".csv", ".json", ".parquet", ".xlsx"])
 def test_actual_readers_preserve_leading_zero_group_identities(tmp_path, suffix):
     import pandas as pd

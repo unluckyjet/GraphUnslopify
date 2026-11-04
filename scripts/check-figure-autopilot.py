@@ -1,4 +1,4 @@
-"""Actual question/data API, public-value artist references and strict-failure evidence."""
+"""Actual question/data API/CLI,public-value artist references and strict-failure evidence."""
 
 from __future__ import annotations
 
@@ -18,6 +18,19 @@ import pandas as pd
 from graphunslopify.autopilot import generate_drafts, propose_figures
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def cli(*arguments):
+    run = subprocess.run(
+        [sys.executable, "-m", "graphunslopify.cli", *map(str, arguments)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert run.stdout, run.stderr[-2000:]
+    return run.returncode, json.loads(run.stdout)
 
 
 def check(out, expected_sha=None):
@@ -156,6 +169,46 @@ def check(out, expected_sha=None):
     assert len(failed["drafts"]) == 3 and any(
         d["status"] != "passed" for d in failed["drafts"]
     )
+    review_path = out / "cli-review.json"
+    code, document = cli(
+        "autopilot-propose",
+        source,
+        "--question",
+        plan.report["question"],
+        "--out",
+        review_path,
+    )
+    assert code == 0 and document["report"]["snapshot"] == plan.report["snapshot"]
+    assert json.loads(review_path.read_text()) == document
+    code, unreviewed = cli(
+        "autopilot-generate", review_path, "--out-dir", out / "cli-unreviewed"
+    )
+    assert (
+        code == unreviewed["exit_code"] == 2 and not (out / "cli-unreviewed").exists()
+    )
+    (out / "cli-unreviewed.json").write_text(json.dumps(unreviewed, indent=2) + "\n")
+    code, cli_result = cli(
+        "autopilot-generate",
+        review_path,
+        "--out-dir",
+        out / "cli-drafts",
+        "--reviewed",
+        "--accept-exclusions",
+    )
+    assert code == cli_result["exit_code"] == 0 and cli_result["status"] == "passed"
+    assert len(cli_result["drafts"]) == 3 and all(
+        d["status"] == "passed" for d in cli_result["drafts"]
+    )
+    assert (out / "cli-drafts/autopilot-data.json").read_bytes() == plan.data_bytes
+    assert cli_result["review"]["fingerprint"] == document["fingerprint"]
+    assert json.loads((out / "cli-drafts/autopilot.json").read_text()) == cli_result
+    assert (
+        out / "cli-drafts/reviewed-proposal.json"
+    ).read_bytes() == review_path.read_bytes()
+    assert all(
+        d["native_report"]["data"]["counts"]["prepared"] == int(valid.sum())
+        for d in cli_result["drafts"]
+    )
     assert source.read_bytes() == original
     proof = {
         "schema_version": 1,
@@ -175,9 +228,18 @@ def check(out, expected_sha=None):
             {"id": d["id"], "status": d["status"]} for d in failed["drafts"]
         ],
         "source_unchanged": True,
+        "cli": {
+            "review_fingerprint": document["fingerprint"],
+            "snapshot": document["report"]["snapshot"],
+            "unreviewed_exit_code": unreviewed["exit_code"],
+            "status": cli_result["status"],
+            "drafts": [
+                {"id": d["id"], "status": d["status"]} for d in cli_result["drafts"]
+            ],
+        },
         "model_service_used": False,
         "scientific_appropriateness_certified": False,
-        "scope": "Core Python API only;CLI/editor workflow remains unfinished",
+        "scope": "Core Python API and saved-review CLI;editor workflow remains unfinished",
         "passed": True,
     }
     (out / "verification.json").write_text(json.dumps(proof, indent=2) + "\n")

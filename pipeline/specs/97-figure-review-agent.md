@@ -93,3 +93,22 @@ Actual97b editor/paper UI and the full original7 requirements remain open.
 Durable proof:external Project Evidence/GraphUnslopify/research-platform-97/.
 
 Deadline correction local acceptance:all10 contribution checks passed (235 Node/2446 Python/one upstream warning/15 gallery),997 protected source paths unchanged.60 current/minimum/cleanly installed tests each and103 runtime bindings passed. Actual default deadline stops the controlled slow response at90.018s. Source6/installed7 local inference completes protocol but prose remains unsupported. Normal separate push/exact14 and actual installed worker CI evidence remain required.
+
+## Minimum-CI timing repair
+
+1f6074e's Python3.10 job failed one regression setup assertion:the2s deadline
+expired after slow child startup and only one response chunk had been observed.
+The worker was killed/reaped and the deadline itself held. Actual result:
+1 failed/2440 passed/5 skipped/28 warnings2729.20s. Two strict artifact uploads
+also failed because pytest prevented their producer steps;those requirements
+remain strict. The actual3.12 core artifact and all4 installed-worker controls
+passed,but they do not make1f's full CI accepted.
+
+The repair includes a real1s child startup delay,keeps a response progressing
+for longer than a configured5s deadline,joins its producer before inspecting
+timestamps,and retains deadline/progress/process cleanup assertions. An added
+real-child cancellation case stops during startup before HTTP. Production90s
+transport and all103 runtime files remain unchanged. New focused/full checks,
+normal repair push and exact14 remain required;actual97b/full30 stay active.
+
+2026-11-04 startup-fixture repair local checkpoint:all10 gates pass;235 Node/2447 Python(no skips,one upstream warning)/15 gallery.997 protected paths remained unchanged;61 current/minimum/installed focused tests pass. All103 runtime files are byte-identical to 1f6074e;production90s unchanged. Preparing a separate normal repair push;new exact14 remains required before actual97b UI. The old minimum failure remains recorded;full97/full30 stay active.

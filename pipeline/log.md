@@ -465,3 +465,23 @@ it. Full contribution gates,normal separate push and exact14 remain required.
 Actual97b editor/paper interface and all original30 ideas remain in scope.
 
 2026-11-04 reviewer deadline local checkpoint:all10 checks passed;235 Node/2446 Python(no skips,one upstream warning1405.67s)/15 gallery.997 protected source paths stayed unchanged;103 installed runtime files match. Preparing the separate normal deadline/cancellation push;its exact14 CI remains required before actual97b interface work. Full97/full30 remain active.
+
+2026-11-04 pushed1f6074e exact minimum CI failed one timing-fixture assertion:
+2s included child startup,leaving only one observed response chunk. The deadline
+and worker-reaping assertions passed. Actual job1 failed/2440 passed/5 skipped/
+28 warnings2729.20s;two missing artifact uploads are downstream of skipped
+producer steps. Failure log retained;no CI rerun or relaxed artifact gate.
+Repair exercises real slow startup,a progressing response beyond a5s configured
+deadline,stable pre-return timestamps and cancellation before HTTP during startup.
+Production90s and103 runtime files unchanged. New checks/push/exact14 pending;
+actual97b reviewer interface and full30 remain active.
+
+2026-11-04 startup-fixture repair focused checkpoint:61 tests each passed in
+current68.99s/minimum53.36s/installed70.47s. The installed run imports only the
+retained103-file package,whose bytes are unchanged. No wheel reinstall/new
+environment/model request was needed. Finished three fixture trees retired
+before the full batch:65699840 allocated bytes,86208512 observed free-window
+increase;source bytes unchanged. Required full local gates/new push/exact14
+remain pending. Full97 actual interface/full30 remain active.
+
+2026-11-04 startup-fixture repair local checkpoint:all10 gates pass;235 Node/2447 Python(no skips,one upstream warning)/15 gallery.997 protected paths remained unchanged;61 current/minimum/installed focused tests pass. All103 runtime files are byte-identical to 1f6074e;production90s unchanged. Preparing a separate normal repair push;new exact14 remains required before actual97b UI. The old minimum failure remains recorded;full97/full30 stay active.

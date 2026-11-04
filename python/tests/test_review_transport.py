@@ -18,11 +18,26 @@ from graphunslopify.drafts import MAX_REQUEST, MAX_RESPONSE, DraftProvider
 @pytest.fixture
 def workers(monkeypatch):
     actual = subprocess.Popen
-    owned = []
+
+    class OwnedWorkers(list):
+        startup_delay = 0
+
+        def __init__(self):
+            super().__init__()
+            self.launched = threading.Event()
+
+    owned = OwnedWorkers()
 
     def launch(*args, **kwargs):
-        worker = actual(*args, **kwargs)
+        command = list(args[0])
+        if owned.startup_delay:
+            position = command.index("-c") + 1
+            command[position] = (
+                f"import time;time.sleep({owned.startup_delay!r});" + command[position]
+            )
+        worker = actual(command, *args[1:], **kwargs)
         owned.append(worker)
+        owned.launched.set()
         return worker
 
     monkeypatch.setattr(transport.subprocess, "Popen", launch)
@@ -158,17 +173,27 @@ def test_response_larger_than_pipe_buffer_is_drained_without_loss(provider, work
 def test_actual_worker_deadline_covers_headers_and_continued_small_reads(
     provider, workers, before_headers
 ):
+    # Include a real slow child startup, then keep the response incomplete well
+    # beyond the configured deadline. CI startup need not fit a400ms chunk gap.
+    workers.startup_delay = 1.0
+    deadline = 5
     provider.before_headers = before_headers
-    provider.chunks, provider.delay = 12, 0.4
+    provider.reply = "actual partial response " * 100
+    provider.chunks, provider.delay = 100, 0.1
     started = time.monotonic()
-    with pytest.raises(ValueError, match="2-second request deadline"):
-        transport.reviewer_model_text(settings(provider), b"{}", timeout=2)
-    elapsed = time.monotonic() - started
-    assert 1.8 <= elapsed < 5
+    with pytest.raises(ValueError, match="5-second request deadline"):
+        transport.reviewer_model_text(settings(provider), b"{}", timeout=deadline)
+    finished = time.monotonic()
+    elapsed = finished - started
+    provider.release.set()
+    assert provider.finished.wait(5)
+    assert deadline - 0.2 <= elapsed < deadline + 3
     assert len(workers) == 1 and workers[0].returncode is not None
     assert provider.seen.is_set()
     if not before_headers:
-        assert len(provider.sent) >= 2, "Exercise an actively progressing body, not only a stall"
+        sent_before_return = [when for when in provider.sent if when < finished]
+        assert len(sent_before_return) >= 2, "Exercise a progressing body, not only a stall"
+        assert sent_before_return[-1] - sent_before_return[0] >= 0.05
 
 
 def test_cancel_before_launch_sends_nothing_and_starts_no_worker(provider, workers):
@@ -177,6 +202,29 @@ def test_cancel_before_launch_sends_nothing_and_starts_no_worker(provider, worke
     with pytest.raises(ValueError, match="no new request was sent"):
         transport.reviewer_model_text(settings(provider), b"{}", cancelled=cancelled)
     assert not provider.requests and not workers
+
+
+def test_cancel_during_actual_worker_startup_reaps_without_sending(provider, workers):
+    workers.startup_delay = 15
+    cancelled = threading.Event()
+
+    def cancel_after_launch():
+        assert workers.launched.wait(10)
+        cancelled.set()
+
+    cancel = threading.Thread(target=cancel_after_launch)
+    cancel.start()
+    started = time.monotonic()
+    try:
+        with pytest.raises(ValueError, match="cancelled"):
+            transport.reviewer_model_text(settings(provider), b"{}", cancelled=cancelled)
+        assert time.monotonic() - started < 5
+        assert len(workers) == 1 and workers[0].returncode is not None
+        assert not provider.requests
+    finally:
+        cancelled.set()
+        cancel.join(12)
+    assert not cancel.is_alive()
 
 
 def test_cancellation_reaps_actual_inflight_worker_and_discards_reply(provider, workers):

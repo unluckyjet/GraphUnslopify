@@ -1,13 +1,20 @@
 ---
 id: 94
 slug: tracker-experiment-histories
-status: in_progress
+status: done
 priority: P1
 title: Import bounded MLflow and W&B histories into reviewed comparative figures
 source_idea: 2026-11-02 research-platform idea1 remaining tracker providers
 ---
 
 # 94 — Tracker experiment histories
+
+Accepted a9981c9aee8cc2926e704261d32f5f32bf86aa4f after all14 exactCI/three
+workflows2026-11-03T22:11:13.428151UTC. All10 local gates235 Node/2286 Python/
+gallery15,971 protected/976 Git/89 installed-file bindings match. ActualCI
+tracker7/legacy10 browser artifacts/native/source-free provenance verify.
+Idea1 supported scope complete;no cloud-account success,new release or full30
+completion is claimed. Earlier pending sections below retain pre-publication scope.
 
 Starts after full93/dba0cf5 exact14 acceptance2026-11-03T20:04:25.583000UTC.
 The [full thirty-idea roadmap](../research-platform-roadmap.md) remains active.

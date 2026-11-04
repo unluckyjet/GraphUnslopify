@@ -9,11 +9,13 @@ import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
 import { createExperimentImports } from "/experiment-imports.js";
+import { createSourceImports } from "/source-imports.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
 let contextInspector = null;
 let experimentImports = null;
+let sourceImports = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -152,6 +154,7 @@ function setSpec(spec) {
 function invalidate() {
   revision++;
   experimentImports?.refresh();
+  sourceImports?.refresh();
   stagedPreview.invalidate();
   draftEditor?.invalidate();
   latest = null;
@@ -746,6 +749,8 @@ createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
 ] });
 setSpec(initial);
 experimentImports=createExperimentImports({mount:$("experiment-tools"),api,
+  context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),apply:applyExperiment});
+sourceImports=createSourceImports({mount:$("experiment-tools"),api,
   context:()=>({client,generation:revision,data_id:data?.id??null,palette_id:palette?.id??null,spec:readSpec()}),apply:applyExperiment});
 api("/api/info")
   .then((info) => {

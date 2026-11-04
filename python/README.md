@@ -122,6 +122,14 @@ configuration for the current environment. The host launches `graphunslopify mcp
 Seven read-only compiler tools share the canonical emitter; data profiling/rendering remain local
 CLI operations. See the repository agent guide for setup, error semantics and protocol tests.
 
+## Import Python figures in current source
+
+[Import supported Matplotlib/Seaborn scripts](../docs/workspace/source-imports.md)
+with `graphunslopify import-source original.py --out-dir new-import`, or use the
+local editor's reviewed import/apply/undo flow. User source is never run. Original
+bytes and located unsupported findings are preserved; CSV references need explicit
+mapping. Default CLI rendering is strict. This is newer than PyPI 0.8.0.
+
 ## Experiment tracking in current source
 
 Current source [imports CSV, TensorBoard, MLflow and W&B histories](../docs/workspace/experiment-histories.md)

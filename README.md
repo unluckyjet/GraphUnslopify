@@ -526,6 +526,11 @@ Tracker access needs explicit endpoint/key configuration; local MLflow uses an
 owned copy. Duplicate steps remain raw points. Cloud-account access is configured
 by the user; controlled SDK tests establish the tested integration scope.
 
+[Import existing Python figures](docs/workspace/source-imports.md) from supported
+Matplotlib or Seaborn scripts. Review the extracted raw values and unsupported
+behavior, apply an editable figure, run strict checks and undo when needed.
+Source is never executed; original bytes and conversion evidence are preserved.
+
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,
 exports and history. Read it in the review panel or with `graphunslopify project-scorecard paper/`;

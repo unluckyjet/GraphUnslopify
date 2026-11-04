@@ -661,6 +661,34 @@ def _experiments(args: argparse.Namespace) -> int:
         return 2
 
 
+def _source_import(args: argparse.Namespace) -> int:
+    import io
+
+    from .experiment_imports import _contained_bytes
+    from .source_imports import import_source, save_source_import
+
+    try:
+        source = Path(args.source).expanduser().resolve(strict=True)
+        original = _contained_bytes(source.parent, source.name)
+        data = None
+        if args.data:
+            mapped = Path(args.data).expanduser().resolve(strict=True)
+            data = _contained_bytes(mapped.parent, mapped.name)
+        proposal = import_source(original, data=data, name=source.name)
+        with contextlib.redirect_stdout(io.StringIO()):
+            result = save_source_import(
+                proposal,
+                args.out_dir,
+                accept_partial=args.accept_partial,
+                render=not args.no_render,
+            )
+        print(json.dumps(result, indent=2, allow_nan=False))
+        return result["exit_code"]
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"error": str(problem), "exit_code": 2}))
+        return 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -785,6 +813,30 @@ def build_parser() -> argparse.ArgumentParser:
         "--artifact-root", help="exclusive root override for a moved audit archive"
     )
     tracked.set_defaults(handler=_track_mlflow)
+
+    source_import = commands.add_parser(
+        "import-source",
+        help="review supported Python plotting patterns without executing the original",
+    )
+    source_import.add_argument("source", help="UTF8 Matplotlib/Seaborn Python source")
+    source_import.add_argument(
+        "--data",
+        help="explicit local CSV mapping; source references are never opened automatically",
+    )
+    source_import.add_argument(
+        "--out-dir", required=True, help="new original/report/spec/native output folder"
+    )
+    source_import.add_argument(
+        "--accept-partial",
+        action="store_true",
+        help="explicitly review all unsupported source/presentation behavior",
+    )
+    source_import.add_argument(
+        "--no-render",
+        action="store_true",
+        help="save an unverified draft instead of running strict native checks",
+    )
+    source_import.set_defaults(handler=_source_import)
 
     for name in ("experiment-runs", "experiment-compare"):
         experiment = commands.add_parser(

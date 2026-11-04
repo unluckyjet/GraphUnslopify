@@ -54,8 +54,10 @@ class PreviewState:
         self.render_lock = threading.Lock()
         self.drafts = PreviewDrafts(self)
         from .preview_experiments import PreviewExperiments
+        from .preview_sources import PreviewSources
 
         self.experiments = PreviewExperiments(self)
+        self.sources = PreviewSources(self)
         self.stages = PreviewStages(self.root) if staged_preview else None
         self.worker = None
         self.translator = None
@@ -72,6 +74,7 @@ class PreviewState:
 
     def close(self):
         self.experiments.close()
+        self.sources.close()
         if self.stages is not None:
             self.stages.close()
         try:
@@ -357,13 +360,16 @@ class PreviewState:
             paths = {item["path"]: folder / item["path"] for item in exports}
             for name in (script.name, spec_name, f"{stem}.report.json"):
                 paths[name] = folder / name
-            if data.get("experiment_import") is not None:
-                import_name = f"{stem}.experiment-import.json"
-                (folder / import_name).write_text(
-                    json.dumps(data["experiment_import"], indent=2, allow_nan=False),
-                    encoding="utf8",
-                )
-                paths[import_name] = folder / import_name
+            for key, suffix in (
+                ("experiment_import", "experiment-import"),
+                ("source_import", "source-import"),
+            ):
+                if data.get(key) is not None:
+                    import_name = f"{stem}.{suffix}.json"
+                    (folder / import_name).write_text(
+                        json.dumps(data[key], indent=2, allow_nan=False), encoding="utf8"
+                    )
+                    paths[import_name] = folder / import_name
             record = {
                 "folder": folder,
                 "files": paths,
@@ -588,6 +594,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/journal-checks.js",
                 "/context-inspector.js",
                 "/experiment-imports.js",
+                "/source-imports.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -607,6 +614,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/journal-checks.js",
             "/context-inspector.js",
             "/experiment-imports.js",
+            "/source-imports.js",
         }:
             name = {
                 "/": "index.html",
@@ -623,6 +631,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/journal-checks.js": "journal-checks.js",
                 "/context-inspector.js": "context-inspector.js",
                 "/experiment-imports.js": "experiment-imports.js",
+                "/source-imports.js": "source-imports.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -642,6 +651,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "journal-checks.js": "text/javascript; charset=utf-8",
                     "context-inspector.js": "text/javascript; charset=utf-8",
                     "experiment-imports.js": "text/javascript; charset=utf-8",
+                    "source-imports.js": "text/javascript; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )
@@ -769,6 +779,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/api/experiments/cancel",
             }:
                 self.json(getattr(self.server.state.experiments, route.rsplit("/", 1)[-1])(payload))
+            elif route in {"/api/sources/review", "/api/sources/accept", "/api/sources/cancel"}:
+                self.json(getattr(self.server.state.sources, route.rsplit("/", 1)[-1])(payload))
             elif route == "/api/model-provider":
                 self.json(self.server.state.drafts.configure(payload))
             elif route in {

@@ -6,10 +6,7 @@ import copy
 import hashlib
 import ipaddress
 import json
-import subprocess
-import sys
 import tempfile
-import threading
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -21,7 +18,8 @@ from .experiment_imports import (
     _number,
     _text,
 )
-from .worker_process import JsonWorker, WorkerError
+from .owned_reader import ReaderError, run_reader
+from .worker_process import JsonWorker
 
 MAX_OUTPUT = 64 * 1024 * 1024
 MAX_POINTS = 200_000
@@ -139,115 +137,27 @@ def _sqlite_files(config, destination=None):
 
 
 def _worker(config, access):
-    try:
-        import psutil
-    except ImportError as problem:
-        raise ExperimentError(
-            "Install graphunslopify[experiments] for bounded tracker workers"
-        ) from problem
     with tempfile.TemporaryDirectory(prefix="gu-tracker-") as directory:
         root = Path(directory)
         local_before = _sqlite_files(config, root) if config["transport"] == "sqlite_copy" else []
         if local_before and _sqlite_files(config) != local_before:
             raise ExperimentError("MLflow source changed during snapshot copying")
-        package = Path(__file__).resolve().parent.parent
-        bootstrap = (
-            "import os,sys; sys.path[:]=[p for p in sys.path if p and os.path.normcase(os.path.realpath(p)) != os.path.normcase(os.path.realpath(os.getcwd()))]; "
-            + f"sys.path.insert(0,{str(package)!r}); "
-            + "import runpy; runpy.run_module('graphunslopify.tracker_worker',run_name='__main__')"
-        )
-        worker = JsonWorker(
-            [sys.executable, "-c", bootstrap],
-            root,
-            kind="tracker",
-            max_requests=1,
-            expected_ready={"adapter_version": 1},
-        )
-        stopped = threading.Event()
-        overflow = threading.Event()
-        owned = {}
-
-        def monitor():
-            while not stopped.wait(0.05):
-                connection = worker.connection
-                if connection is None:
-                    continue
-                try:
-                    parent = psutil.Process(connection.process.pid)
-                    processes = [parent, *parent.children(recursive=True)]
-                    rss = 0
-                    for process in processes:
-                        owned[(process.pid, process.create_time())] = process
-                        rss += process.memory_info().rss
-                    if rss > MAX_RSS:
-                        overflow.set()
-                        connection.process.kill()
-                        return
-                except (psutil.Error, OSError):
-                    continue
-
-        thread = threading.Thread(target=monitor, daemon=True)
-        thread.start()
         try:
-            try:
-                answer, _ = worker.request({"config": config, "access": access}, timeout=90)
-            except (WorkerError, TimeoutError, subprocess.TimeoutExpired) as problem:
-                if overflow.is_set():
-                    raise ExperimentError(
-                        "Tracker worker exceeded the1GiB process-tree memory budget"
-                    ) from problem
-                if isinstance(problem, WorkerError) and str(problem).startswith(
-                    "Install graphunslopify[experiments]"
-                ):
-                    raise ExperimentError(
-                        "Install graphunslopify[experiments] for this tracker SDK"
-                    ) from problem
-                raise ExperimentError(
-                    "Tracker worker refused,failed or exceeded its deadline;no partial history accepted"
-                ) from problem
-            if overflow.is_set():
-                raise ExperimentError("Tracker worker exceeded memory budget")
-            if (
-                not isinstance(answer, dict)
-                or answer.get("file") != "history.json"
-                or type(answer.get("bytes")) is not int
-                or not 0 <= answer["bytes"] <= MAX_OUTPUT
-            ):
-                raise ExperimentError("Invalid tracker output descriptor")
-            path = root / "history.json"
-            if path.is_symlink():
-                raise ExperimentError("Tracker output is not an owned regular file")
-            with path.open("rb") as stream:
-                raw = stream.read(MAX_OUTPUT + 1)
-            if len(raw) != answer["bytes"] or hashlib.sha256(raw).hexdigest() != answer.get(
-                "sha256"
-            ):
-                raise ExperimentError("Tracker output bytes changed")
-            result = json.loads(raw)
-            if local_before and _sqlite_files(config) != local_before:
-                raise ExperimentError("MLflow source changed during history collection")
-            return result, local_before
-        finally:
-            worker.close()
-            stopped.set()
-            thread.join(timeout=1)
-            # SDK native cores may use another process group. Only recorded descendants
-            # with the same creation time belong to this worker invocation.
-            for (_pid, created), process in owned.items():
-                try:
-                    if (
-                        process.create_time() == created
-                        and process.is_running()
-                        and process.status() != psutil.STATUS_ZOMBIE
-                    ):
-                        process.terminate()
-                        try:
-                            process.wait(timeout=2)
-                        except psutil.TimeoutExpired:
-                            process.kill()
-                            process.wait(timeout=2)
-                except psutil.Error:
-                    pass
+            result = run_reader(
+                root,
+                module="graphunslopify.tracker_worker",
+                kind="tracker",
+                payload={"config": config, "access": access},
+                filename="history.json",
+                max_output=MAX_OUTPUT,
+                max_rss=MAX_RSS,
+                worker_factory=JsonWorker,
+            )
+        except ReaderError as problem:
+            raise ExperimentError(str(problem)) from problem
+        if local_before and _sqlite_files(config) != local_before:
+            raise ExperimentError("MLflow source changed during history collection")
+        return result, local_before
 
 
 class TrackerSnapshot(ExperimentSnapshot):

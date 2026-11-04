@@ -253,6 +253,14 @@ jobs:
       - run: npm run scorecard-check
       - run: npm run experiments-check
       - run: npm run trackers-check
+      - run: npm run sources-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-import-verification
+          path: /tmp/gu-sources-*/**
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

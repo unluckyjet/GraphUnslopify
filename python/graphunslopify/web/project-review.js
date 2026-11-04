@@ -30,11 +30,12 @@ function scorecard(parent, value) {
   }
 }
 
-export function createScientificReview({ api, protect, edit, audit, inspect, exportPacket, selection = () => {} }) {
+export function createScientificReview({ api, protect, edit, audit, inspect, exportPacket, selection = () => {}, onEvidenceChange = () => {} }) {
   let context, generation = 0, signature = "", selectedInEditor = "";
   let loadedSignature = "", lastQuery = 0, pending = 0;
   let desiredSelection = "", loadedRow = null, pageSource = "";
   let loadedCollection = null, exporting = false;
+  let foregroundQuery = 0, loadedSelectors = null;
   const eventSelect = $("review-event"), figureSelect = $("review-figure");
   const status = $("review-status"), preview = $("review-preview");
   const groups = $("review-groups"), downloads = $("review-downloads");
@@ -56,6 +57,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
   function unavailable(message) {
     generation++; signature = ""; loadedSignature = "";
     loadedCollection = null; exportControls();
+    foregroundQuery = 0; loadedSelectors = null; onEvidenceChange();
     clear(message); status.textContent = message;
     $("review-context").textContent = "Current project evidence cannot be verified. Saved history remains below.";
     $("review-audit").disabled = true; $("review-edit").disabled = true;
@@ -229,7 +231,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
     const version = ++generation;
     const selectedEvent = eventSelect.value, identity = figureSelect.value;
     lastQuery = Date.now();
-    if (!background) { loadedRow = null; loadedCollection = null; $("review-inspect").disabled = true; clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
+    if (!background) { foregroundQuery = version; loadedRow = null; loadedCollection = null; loadedSelectors = null; onEvidenceChange(); $("review-inspect").disabled = true; clear("Reading saved evidence…"); status.textContent = "Reading scientific review…"; }
     $("review-export").disabled = true;
     if (current() && context.dirty) {
       status.textContent = "Unsaved draft. Save and audit before reviewing this version.";
@@ -253,6 +255,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
         options(pageSelect, row.groups.legibility.pages.map((page) => [String(page.page), "Page " + page.page]), pageSource === row.id ? pageSelect.value : "");
         pageSource = row.id;
       }
+      loadedSelectors = [selectedEvent, identity, row.source_type === "pdf" ? pageSelect.value : ""];
       const incoming = pretty([row, result.selection, result.native_run, result.evidence_revision, context.busy, context.dirty, eventSelect.value, row.source_type === "pdf" ? pageSelect.value : ""]);
       if (background && incoming === loadedSignature) return;
       if (row.source_type === "pdf") {
@@ -279,7 +282,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
       loadedSignature = "";
       loadedCollection = null;
       note.hidden = false; note.textContent = "No current preview is available for this selection.";
-    } finally { pending--; exportControls(); }
+    } finally { pending--; if (foregroundQuery === version) foregroundQuery = 0; exportControls(); onEvidenceChange(); }
   }
   eventSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
   figureSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
@@ -301,6 +304,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
   function update(next) {
       context = next;
       exportControls();
+      onEvidenceChange();
       if (!next.state) return;
       if (!next.state.revision || !(next.state.figures.length + (next.state.inspections?.length || 0))) {
         figureSelect.replaceChildren();
@@ -329,7 +333,21 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
       if (signature !== key) { signature = key; load(); }
       else if (!pending && Date.now() - lastQuery >= 10000) load(true);
   }
+  function reviewerContext() {
+    if (!context?.state || context.dirty || context.busy || context.reviewerBusy || foregroundQuery || !loadedCollection?.evidence_revision) return null;
+    if (loadedCollection.current_revision !== context.state.revision || loadedCollection.inspection_revision && loadedCollection.inspection_revision !== context.state.inspection_revision) return null;
+    const selected = figureSelect.value, page = selected.startsWith("pdf:") ? pageSelect.value : "";
+    if (pretty(loadedSelectors) !== pretty([eventSelect.value, selected, page])) return null;
+    return {
+      key: pretty([loadedCollection.evidence_revision, eventSelect.value, selected, page]),
+      source_kind: "paper-project", collection: loadedCollection,
+      payload: {event: eventSelect.value || null}, selected: [selected],
+      figures: loadedCollection.figures.map(row => ({key: row.key || row.id, label: row.source_type === "pdf" ? `PDF · ${row.name || row.id}` : row.id || row.key})),
+      label: eventSelect.value ? `Saved historical evidence · ${eventSelect.value}` : "Current declared inputs · saved check evidence",
+    };
+  }
   return {
+    reviewerContext,
     refresh: () => load(), unavailable, update,
     selected: () => figureSelect.value,
     select(key) {

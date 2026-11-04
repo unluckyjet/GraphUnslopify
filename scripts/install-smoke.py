@@ -171,6 +171,11 @@ def main() -> None:
         action="store_true",
         help="require an installed owned reviewer worker with large loopback HTTP and cancellation",
     )
+    parser.add_argument(
+        "--require-reviewer-controls",
+        action="store_true",
+        help="exercise both actual installed reviewer browser workflows (requires --pdf and Playwright Chromium)",
+    )
     args = parser.parse_args()
     if args.require_statistics_cache and not (
         args.require_render_worker and args.require_translator_worker
@@ -182,6 +187,8 @@ def main() -> None:
         parser.error("--require-provisional requires both worker checks")
     if args.require_pdf_visual and not args.pdf:
         parser.error("--require-pdf-visual requires --pdf")
+    if args.require_reviewer_controls and not args.pdf:
+        parser.error("--require-reviewer-controls requires --pdf")
     if args.wheel is None:
         candidates = list(Path("dist").glob("graphunslopify-*-py3-none-any.whl"))
         if len(candidates) != 1:
@@ -1371,6 +1378,30 @@ def main() -> None:
             run([str(python), str(reviewer_script)], cwd=where, env=env)
         )
         assert reviewer_worker_result["status"] == "passed"
+    reviewer_browser_result = None
+    if args.require_reviewer_controls:
+        browser_env = env.copy()
+        # Playwright needs its own local browser connection. Keep the existing
+        # offline Python hook and the translator child's no-network Node hook.
+        browser_env["GRAPHUNSLOPIFY_REVIEWER_CHILD_NODE_OPTIONS"] = browser_env.pop(
+            "NODE_OPTIONS"
+        )
+        browser_env["GRAPHUNSLOPIFY_REVIEWER_OFFLINE_HOOKS"] = str(hooks)
+        browser_env["GRAPHUNSLOPIFY_REVIEWER_INSTALLED"] = "1"
+        browser_env["GRAPHUNSLOPIFY_REVIEWER_EVIDENCE"] = str(
+            where / "reviewer browser"
+        )
+        browser_env["PYTHON"] = str(python)
+        run(
+            ["node", "--experimental-strip-types", "scripts/reviewer-check.ts"],
+            cwd=Path(__file__).resolve().parents[1],
+            env=browser_env,
+        )
+        reviewer_browser_result = json.loads(
+            (where / "reviewer browser/verification.json").read_text(encoding="utf8")
+        )
+        assert reviewer_browser_result["status"] == "browser-controls-passed"
+        assert "site-packages" in reviewer_browser_result["runtime"]["package_root"]
     translator_worker_result = None
     if args.require_translator_worker:
         compiler_script = where / "translator-worker-check.py"
@@ -1741,6 +1772,7 @@ def main() -> None:
                 "translator_worker": translator_worker_result,
                 "editor_workers": editor_workers_result,
                 "reviewer_worker": reviewer_worker_result,
+                "reviewer_browser": reviewer_browser_result,
                 "work_dir": str(where),
             }
         )

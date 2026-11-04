@@ -7,6 +7,7 @@ import { createWorkspaceCommands } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
+import { createFigureReviewer } from "/figure-reviewer.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 let state, info, record, event, selected = "";
@@ -41,7 +42,7 @@ const el = (tag, text, parent) => {
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
 const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!selectionReview?.pending() || !!reuseEditor?.pending();
-let review, sharedReview, selectionReview, reuseEditor;
+let review, sharedReview, selectionReview, reuseEditor, figureReviewer;
 async function api(path, body) {
   const response = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
@@ -97,7 +98,7 @@ function lockControls() {
   $("pdf-upload").disabled = busy || dirty() || !state?.inspection_revision || !file || !!problem;
   for (const id of ["pdf-file", "pdf-id", "pdf-pages", "pdf-dpi"]) $(id).disabled = busy || dirty();
   if (refreshFailure) review?.unavailable(refreshFailure);
-  else review?.update({ state, selected, dirty: dirty(), busy, info });
+  else review?.update({ state, selected, dirty: dirty(), busy, reviewerBusy: busy || loadingFigure, info });
 }
 function pdfOptions() {
   const text = $("pdf-pages").value.trim();
@@ -483,6 +484,7 @@ async function compare() {
 }
 function action(work) { return async (...args) => { error(); try { await work(...args); } catch (problem) { error(problem.message); } }; }
 review = createScientificReview({ api, protect, audit: () => $("audit").click(),
+  onEvidenceChange: () => figureReviewer?.refresh(),
   exportPacket: action(async (collection) => {
     if (running || saving || dirty() || !state?.revision || state.revision !== collection.current_revision) throw Error("Refresh clean project evidence before exporting.");
     saving = true; ++refreshVersion; lockControls();
@@ -513,6 +515,7 @@ review = createScientificReview({ api, protect, audit: () => $("audit").click(),
     pendingPDF = id; activeJobKind = "inspection"; running = true; lockControls(); notice("PDF inspection started. Original data and numerical claims remain untested.");
   }),
 });
+figureReviewer = createFigureReviewer({mount: $("reviewer-tools"), token, context: () => review.reviewerContext()});
 async function save(route, body) {
   saving = true; lockControls();
   try { await api(route, body); sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await loadEvent(); notice("Saved. Audit the paper to check this version."); }

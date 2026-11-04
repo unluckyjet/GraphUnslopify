@@ -273,6 +273,8 @@ def main():
             "project-selection.js",
             "project.css",
             "controls.js",
+            "figure-reviewer.js",
+            "figure-reviewer.css",
             "app.css",
         ):
             assert request("/" + asset)[0]

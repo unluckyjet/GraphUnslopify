@@ -670,6 +670,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/experiment-imports.js",
                 "/source-imports.js",
                 "/autopilot.js",
+                "/figure-reviewer.js",
+                "/figure-reviewer.css",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -691,6 +693,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/experiment-imports.js",
             "/source-imports.js",
             "/autopilot.js",
+            "/figure-reviewer.js",
+            "/figure-reviewer.css",
         }:
             name = {
                 "/": "index.html",
@@ -709,6 +713,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/experiment-imports.js": "experiment-imports.js",
                 "/source-imports.js": "source-imports.js",
                 "/autopilot.js": "autopilot.js",
+                "/figure-reviewer.js": "figure-reviewer.js",
+                "/figure-reviewer.css": "figure-reviewer.css",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -730,6 +736,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "experiment-imports.js": "text/javascript; charset=utf-8",
                     "source-imports.js": "text/javascript; charset=utf-8",
                     "autopilot.js": "text/javascript; charset=utf-8",
+                    "figure-reviewer.js": "text/javascript; charset=utf-8",
+                    "figure-reviewer.css": "text/css; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
             )

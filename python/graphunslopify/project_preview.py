@@ -564,6 +564,8 @@ class ProjectHandler(PreviewHandler):
             "/": "project.html",
             "/project.js": "project.js",
             "/project-review.js": "project-review.js",
+            "/figure-reviewer.js": "figure-reviewer.js",
+            "/figure-reviewer.css": "figure-reviewer.css",
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
             "/reuse-intent.js": "reuse-intent.js",
@@ -888,6 +890,9 @@ class ProjectHandler(PreviewHandler):
 
 class ProjectServer(ThreadingHTTPServer):
     daemon_threads = False
+    # A browser requests the module graph as a burst, often across open tabs.
+    # Match the native editor's queue so queued imports are not reset at startup.
+    request_queue_size = 128
 
     def __init__(self, path, port=0):
         self.state = ProjectState(path)

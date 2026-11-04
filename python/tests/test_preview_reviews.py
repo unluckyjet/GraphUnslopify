@@ -141,6 +141,35 @@ def test_actual_native_http_consent_result_and_ephemeral_download(editor, native
         assert secret not in json.dumps(download) + json.dumps(result)
 
 
+def test_native_HTTP_literal_body_and_packet_stay_outside_ephemeral_document(
+    editor, native, server
+):
+    _, selection, _ = native
+    disclosure = disclose(editor, server, selection, question="Review Δ ≥ 0; source label café.")
+    raw = disclosure["request_body"].encode("utf8")
+    assert raw == _encoded(disclosure["request"])
+    assert hashlib.sha256(raw).hexdigest() == disclosure["request_sha256"]
+    assert len(raw) == disclosure["request_bytes"] and b"\\u0394" in raw
+    saved = post(editor, "/api/reviewer/download", {**control(disclosure), "which": "request"})
+    assert not saved["replayable"]
+    assert "request_body" not in saved["disclosure"]
+    assert "deterministic_evidence" not in saved["disclosure"]
+    start(editor, disclosure)
+    complete = finish(editor, disclosure)
+    assert complete["phase"] == "completed"
+    assert complete["result"]["deterministic_evidence"] == disclosure["deterministic_evidence"]
+    assert server.calls[0][0] == raw
+
+
+@pytest.mark.parametrize("suffix", ["js", "css"])
+def test_native_reviewer_static_assets_preserve_origin_policy(editor, suffix):
+    route = "/figure-reviewer." + suffix
+    assert request(editor, route, token=False)[0] == 200
+    assert (
+        request(editor, route, token=False, headers={"Origin": "https://other.invalid"})[0] == 403
+    )
+
+
 def test_strict_failed_claim_stays_failed_in_native_model_result(editor, native, server):
     _, _, payload = native
     spec = json.loads(json.dumps(payload["spec"]))

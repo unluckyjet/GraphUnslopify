@@ -11,6 +11,7 @@ import { createContextInspector } from "/context-inspector.js";
 import { createExperimentImports } from "/experiment-imports.js";
 import { createSourceImports } from "/source-imports.js";
 import { createAutopilot } from "/autopilot.js";
+import { createFigureReviewer } from "/figure-reviewer.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
@@ -18,6 +19,7 @@ let contextInspector = null;
 let experimentImports = null;
 let sourceImports = null;
 let autopilot = null;
+let figureReviewer = null, reviewableRender = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -45,6 +47,7 @@ const stagedPreview = createStagedPreview({
   current: () => ({generation: revision, data_id: data?.id, palette_id: palette?.id}),
   mount: ({url, stage, identity}) => {
     latest = null;
+    reviewableRender = null; figureReviewer?.refresh();
     journalChecks?.clear();
     textEditor.clear();
     contextInspector?.clear();
@@ -71,6 +74,16 @@ journalChecks = createJournalChecks($("journal-tools"), {
     return reuseEditor.reviewPdfExport(() => guard() && !!latest && latest.run_id === captured && revision === generation);
   },
 });
+figureReviewer = createFigureReviewer({mount: $("reviewer-tools"), token, context: () => {
+  if (!reviewableRender || reviewableRender.generation !== revision) return null;
+  return {
+    key: JSON.stringify([revision, data?.id, palette?.id, reviewableRender.run_id]),
+    source_kind: "editor-render", selected: ["figure"],
+    figures: [{key: "figure", label: "Current completed figure"}],
+    payload: {run_id: reviewableRender.run_id, render_client: client, render_generation: reviewableRender.generation},
+    label: `Completed editor render · recorded checks ${reviewableRender.status}`,
+  };
+}});
 function controlError(text) {
   $("control-error").textContent = text;
   $("control-error").hidden = !text;
@@ -155,6 +168,7 @@ function setSpec(spec) {
 }
 function invalidate() {
   revision++;
+  reviewableRender = null; figureReviewer?.refresh();
   experimentImports?.refresh();
   sourceImports?.refresh();
   autopilot?.refresh();
@@ -356,6 +370,7 @@ function artifact(run, name, download = false) {
   );
 }
 async function update(force) {
+  reviewableRender = null; figureReviewer?.refresh();
   if (!data) {
     status(workbook ? "Choose a worksheet" : "Choose data");
     return;
@@ -414,6 +429,8 @@ async function update(force) {
       return;
     }
     latest = result.report.outputs.length ? result : null;
+    reviewableRender = result.review?.available ? {run_id: result.run_id, generation: current, status: result.report.status} : null;
+    figureReviewer.refresh();
     if (latest) journalChecks.mount({
       key: JSON.stringify([revision, data?.id, palette?.id, latest.run_id]),
       files: result.files.filter(file => ["png", "svg", "pdf", "eps", "tiff", "tif", "jpeg", "jpg"].includes(file.format))

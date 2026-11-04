@@ -548,9 +548,12 @@ historical/missing evidence and changes no figure settings. Provider calls have
 a 90-second execution deadline and optional Python cancellation. The paper
 workspace and single-figure editor also expose consented, cancellable session
 HTTP APIs and JSON downloads. Editor requests use actual completed native
-renders and refuse changed inputs, programs, reports or exports. Browser
-reviewer controls are still in development; these source
-features are newer than PyPI0.8.0.
+renders and refuse changed inputs, programs, reports or exports. In either
+workspace, open **Ask a skeptical reviewer**, configure your model provider,
+choose figures and a question, then click **Review the model request**. Inspect
+the destination and exact request before checking consent and sending. Recorded
+findings and model advice appear separately, with request/result downloads and
+cancellation. These source features are newer than PyPI0.8.0.
 
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,

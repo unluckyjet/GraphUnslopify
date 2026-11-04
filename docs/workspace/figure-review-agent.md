@@ -4,8 +4,8 @@ The current-source reviewer API and CLI combine an initialized paper project's
 actual saved checks with separately labelled model advice. Ask “What would a
 skeptical reviewer criticize about these figures?” or supply a specific question
 and study context. Select up to 20 actual figure keys, including PDF evidence.
-The paper workspace and single-figure editor expose session-only reviewer HTTP controls. Visible
-paper/editor browser controls remain in development; this core does not complete idea4.
+The paper workspace and single-figure editor share visible reviewer controls and
+session-only HTTP APIs.
 These features are newer than the published PyPI0.8.0 package.
 
 The result has two separate parts:
@@ -22,6 +22,38 @@ passed. Failed native claims remain failed even if a model's prose disagrees.
 No settings are applied and no figures are executed by the reviewer itself.
 PDF numerical claims stay untested. No figure images are sent, so the model
 cannot inspect their appearance; it can discuss recorded inspection metadata.
+
+## Local editor and paper workspace
+
+1. Complete a figure render, or load a paper's current or explicitly selected
+   historical evidence. Failed checks and missing evidence can be reviewed too;
+   a provisional image cannot be reviewed as a completed execution.
+2. Open **Ask a skeptical reviewer** and **Reviewer model · this session only**.
+   Choose a protocol, full endpoint, model and optional API key, then save.
+   Saving makes no model request. The key field clears immediately; re-enter it
+   when saving again, because a blank key removes authorization.
+3. Choose 1–20 actual figures, enter a question and optional author context, and
+   select **Review the model request**. Inspect the destination, recorded evidence
+   and exact UTF-8 request bytes. No model call has happened yet.
+4. Check consent for that disclosure, then select **Send reviewed request**.
+   Recorded findings remain separate from **Unverified model suggestions**.
+   Neither advice nor a successful request changes the original scientific result.
+5. Save the request or completed result as JSON, or cancel/clear the review.
+   Paper requests can be replayed through the CLI while their evidence still
+   matches. Editor requests are explicitly ephemeral and cannot be replayed as
+   saved-paper requests.
+
+Editing the question, context, selection, provider or scientific inputs clears
+old consent and advice. A new render check clears the prior editor review before
+validation finishes. Unsaved paper definitions must be saved/reloaded first.
+Unchanged background evidence refreshes retain completed advice. Failed provider
+requests have no result download and never silently retry. Disclosures expire
+after ten minutes. Leaving the page sends a best-effort cancellation; the server
+also owns the provider worker's deadline and shutdown.
+
+No provider is started or downloaded by the controls. Configure your own local
+or remote compatible provider. A local provider keeps the disclosed request on
+that provider's host; a remote provider receives the exact disclosed content.
 
 ## CLI
 
@@ -121,7 +153,7 @@ Python callers may pass a `threading.Event` as `cancelled=` to `plan.request()`;
 set it to discard a pending reply and stop the local provider worker. An already
 transmitted request may still be processed remotely. Cancellation consumes the
 plan's one attempt, so a retry needs a newly disclosed request and consent.
-This API support does not yet provide an editor cancellation interface.
+The browser's **Cancel / clear review** uses the same session cancellation boundary.
 Oversized evidence refuses instead of silently dropping findings. Suggestions
 are capped at20, with bounded wording and known figure/evidence references.
 Unknown fields, scientific patches, missing citations, malformed/duplicate-key
@@ -133,7 +165,7 @@ provider text to an explicit diagnostic; it is never accepted advice.
 
 The local `project-preview` server exposes the following token-protected routes.
 They use the existing workspace Host/Origin checks and `X-Preview-Token` header.
-These are integration APIs; visible browser reviewer controls are still pending.
+The shared browser controls use these APIs.
 
 | Route | Purpose |
 | --- | --- |
@@ -164,6 +196,10 @@ Increment the generation when selection, question, context or other reviewer
 inputs change. Older generations cannot cancel newer work. Cancellation without
 a `review_id` also invalidates in-progress disclosure preparation. Changing the
 provider invalidates all existing disclosures; each plan permits one attempt.
+When cancelling an entire client context at the new generation, await that
+cancellation before preparing a disclosure at the same generation. Otherwise a
+late cancellation can cancel the new preparation. If cancellation cannot be
+acknowledged, prepare no new disclosure; ask the user to try explicitly again.
 Phases are `disclosed`, `running`, `completed`, `failed`, `cancelled` or `stale`.
 Failure clears prior advice; invalid provider reply text is not exported by these
 session routes. Cancellation/shutdown joins the owned local inference worker;
@@ -229,8 +265,14 @@ controlled providers are transport/behavior tests, not actual inference.
 `python/tests/test_review_sessions.py` adds real paper-server HTTP consent and
 download checks, exact provider-body comparison, active/source/history guards,
 provider failure/privacy, in-flight cancellation, shutdown, disclosure races and
-bounded preparation. Browser usability and actual configured inference through
-the forthcoming controls require their own evidence.
+bounded preparation. `npm run reviewer-check` exercises both actual browser
+workflows with public data and a controlled loopback provider, including exact
+consent, literal text, history/PDF/missing evidence, raw downloads, cancellation,
+late replies and narrow layouts. This is behavior evidence, not model inference.
+The driver records the actual Python/package files and retains failures.
+`scripts/install-smoke.py --require-reviewer-controls --pdf` runs these controls
+against the installed wheel; Playwright Chromium must already be installed.
+Configured inference and full milestone acceptance require separate evidence.
 
 `scripts/check-review-agent.py --out-dir NEW_DIRECTORY` creates and audits two
 figures from the repository's public Palmer penguins CSV, reverses a declared

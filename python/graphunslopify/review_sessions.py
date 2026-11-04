@@ -184,6 +184,9 @@ class ReviewSessions:
                 "source_kind": self.source_kind,
                 "phase": "disclosed",
                 **disclosure,
+                # HTTP presentation fields stay outside the replayable CLI document.
+                "request_body": plan._body.decode("utf8"),
+                "deterministic_evidence": copy.deepcopy(plan._packet),
             }
         finally:
             with self.lock:

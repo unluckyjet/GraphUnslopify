@@ -7,6 +7,7 @@
     <title>GraphUnslopify · Paper workspace</title>
     <link rel="stylesheet" href="/app.css" />
     <link rel="stylesheet" href="/project.css" />
+    <link rel="stylesheet" href="/figure-reviewer.css" />
     <script src="/project.js" type="module"></script>
   </head>
   <body class="paper-workspace">
@@ -97,6 +98,7 @@
           <p class="muted">The packet includes all figures in this review selection, saved files and a readable audit report. Raw datasets, original PDFs and source programs stay on this computer. Saved failures and untested checks remain visible.</p>
           <div class="review-layout"><div class="review-image"><label id="review-page-label" hidden>PDF page<select id="review-page"></select></label><img id="review-preview" alt="Saved figure under review" hidden /><p id="review-preview-note">Run paper checks to create evidence.</p><div id="review-downloads" class="downloads"></div></div><div id="review-groups" aria-live="polite"></div></div>
           <p class="muted">Source-backed figures and PDF visual evidence have separate scopes. Captured source and results for removed figures remain in Saved runs &amp; changes below.</p>
+          <div id="reviewer-tools"></div>
         </section>
         <section class="card definition-card">
           <div class="section-head"><h2 id="selected-title">Choose a figure</h2><button id="undo-controls" class="quiet" disabled>Undo control change</button></div>

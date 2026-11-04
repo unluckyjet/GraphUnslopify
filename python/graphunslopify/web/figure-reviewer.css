@@ -1,0 +1,22 @@
+#figure-reviewer { min-width: 0; margin-block: 1rem; }
+#figure-reviewer > summary { font-weight: 650; }
+#figure-reviewer label { display: block; margin-block: .6rem; }
+#figure-reviewer label.check { display: flex; gap: .6rem; align-items: start; }
+#figure-reviewer input:not([type="checkbox"]),
+#figure-reviewer select, #figure-reviewer textarea { width: 100%; max-width: 100%; box-sizing: border-box; }
+#figure-reviewer input:not([type="checkbox"]), #figure-reviewer select, #figure-reviewer textarea {
+  border: 1px solid var(--line, #cfdae0); border-radius: 7px; padding: 9px;
+  font: inherit; color: var(--ink, #24465a); background: white;
+}
+#figure-reviewer textarea { height: auto; min-height: 4.5rem; resize: vertical; }
+#figure-reviewer #reviewer-context { min-height: 3.5rem; }
+#figure-reviewer input[type="checkbox"] { flex: 0 0 auto; width: auto; margin-top: .25rem; }
+#figure-reviewer fieldset { min-width: 0; }
+#figure-reviewer pre { max-height: 24rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .78rem; }
+#figure-reviewer p, #figure-reviewer h4, #figure-reviewer label { overflow-wrap: anywhere; }
+#figure-reviewer section { margin-block: 1rem; border-top: 1px solid var(--line, #dedee5); padding-top: .8rem; }
+#figure-reviewer article { padding-block: .6rem; }
+#figure-reviewer button { margin: .25rem .25rem .25rem 0; }
+#reviewer-settings { margin-block: .75rem; }
+#reviewer-figures > div { max-height: 14rem; overflow: auto; }
+#reviewer-advice { border-left: 3px solid #b47620; padding-left: .8rem; }

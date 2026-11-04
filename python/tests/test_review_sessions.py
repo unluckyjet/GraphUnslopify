@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 import time
@@ -130,6 +131,44 @@ def test_actual_paper_http_disclosure_consent_result_and_replayable_download(
         400,
     )
     assert "attempted" in repeated["error"] and len(server.calls) == 1
+
+
+def test_literal_unicode_HTTP_disclosure_preserves_wire_and_saved_CLI_contract(
+    paper_server, server, paper
+):
+    configure(paper_server, server)
+    disclosure = disclose(
+        paper_server,
+        question="What does Δ ≥ 0 mean for these saved checks?",
+        author_context="Author's label: café; nominal level 1.0 is wording, not evidence.",
+    )
+    raw = disclosure["request_body"].encode("utf8")
+    assert raw == _encoded(disclosure["request"])
+    assert len(raw) == disclosure["request_bytes"]
+    assert hashlib.sha256(raw).hexdigest() == disclosure["request_sha256"]
+    assert b"\\u0394" in raw and b"KEY_MARKER" not in raw
+    document = download(paper_server, disclosure, "request")
+    assert "request_body" not in document["disclosure"]
+    assert "deterministic_evidence" not in document["disclosure"]
+    restored = restore_plan(document, paper, api_key="KEY_MARKER")
+    assert restored.disclosure() == document["disclosure"]
+    start(paper_server, disclosure)
+    complete = wait(paper_server, disclosure)
+    assert complete["phase"] == "completed"
+    assert complete["result"]["deterministic_evidence"] == disclosure["deterministic_evidence"]
+    assert server.calls[0][0] == raw
+
+
+@pytest.mark.parametrize("suffix,mime", [("js", "javascript"), ("css", "text/css")])
+def test_paper_reviewer_assets_keep_origin_checks_without_token(paper_server, suffix, mime):
+    route = "/figure-reviewer." + suffix
+    code, raw, headers = request(paper_server, route, token=False)
+    assert code == 200 and raw
+    assert mime in headers["Content-Type"]
+    assert (
+        request(paper_server, route, token=False, headers={"Origin": "https://other.invalid"})[0]
+        == 403
+    )
 
 
 @pytest.mark.parametrize("change", [{"consent": False}, {"consent_sha256": "0" * 64}])

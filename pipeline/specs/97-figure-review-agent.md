@@ -50,88 +50,65 @@ and configured-model evidence. Verify/push/exactCI before the editor milestone.
 and lifecycle guards,including browser and installed-artifact verification.
 97a alone does not complete idea4;all requirements above stay authoritative.
 
-##97a verified local checkpoint
+## Accepted foundations
 
-Actual project API and saved-review CLI disclose destination/body before consent,
-retain current/historical/failed/unavailable/PDF evidence,validate model references
-and reject stale source/exports before sending or returning. Schema-constrained
-output is default;explicit JSON mode retains full local validation. No model
-advice applies changes. Current/minimum/cleanly reinstalled35 focused tests each
-pass;all102 installed files match source. Public344-row penguin checks verify
-333 mass observations/342 finite scatter measurements,actual holds→fails,all4
-native programs/12 exports and same API/CLI consent.
+Saved-project Python/CLI review,owned90s provider workers,paper HTTP47c49e5 and
+native-editor backend4a592ea are accepted after their required local gates and
+exact14 CI. Latest native acceptance2026-11-04T21:48:01UTC verifies105 runtime/
+1005 Git files,two actual core artifacts,distribution and completed CI logs.
+Historical deadline/startup/unused-palette failures and their repairs remain in
+Git history and pipeline/log.md;do not treat a passing query as scientific acceptance.
 
-All10 required local gates pass on995 unchanged protected paths:235 Node/2421
-Python(no skips,one upstream SQLAlchemy warning1296.30s)/15 gallery figures.
-Original52 README placements/51 graphics/37 frozen protocol assets remain. Local
-artifact verifier positives and changed-PNG/invented-citation negatives pass.
-Actual cached Qwen2.5:3b/Ollama0.40.13 source and installed schema requests complete
-the integration protocol,but prose includes unsupported scientific advice.
-Earlier malformed/unknown-reference failures remain;no model quality acceptance
-follows. Every owned server stopped/unloaded;no new full environment/download.
+## Shared reviewer browser checkpoint97b3 · acceptance pending
 
-Core97a4a17283 is normally pushed and accepted2026-11-04T12:21:13UTC after
-all14 exact checks/main41817949630/Figure41817949689/native41817949872.
-Both actual core artifacts and actual distribution wheel bind102 committed
-runtime files;four actual CI PNGs inspected. Both completed Python jobs observed
-2416 passed/5 skipped (3.10:28 warnings,3.12:1 warning);skip reasons unobserved.
-Source/installed model trials bind the committed candidate through102 file hashes,
-despite being run before the commit under parent06edfbd/dirty candidate.
-Full97 and the full30 initiative stay active;no release/tag.
+Shared controls now configure session-only Responses/Chat providers,select actual
+figures,accept bounded author questions/context,display literal request bytes/SHA
+and destination,require explicit consent,and separate recorded findings from
+unverified advice. Original-byte request/result downloads,cancel,pagehide and
+late-context guards serve both actual editors. HTTP presentation fields stay
+outside replayable CLI disclosure. No scientific/presentation mutation is applied.
 
-## Lifecycle correction before the editor
+Actual31-control browser runs pass on current Python3.12,minimum3.10 and the
+installed private wheel with offline hooks. All107 source/wheel/installed/model
+runtime files match. Cases include failed/current/history/PDF two-page/missing/
+never-run evidence,1–20 selection,21 refusal,zero-export failure,real provisional
+preview,source/export changes,provider errors,Unicode wire bytes,literal model
+markup,cancel/pagehide while provider is held,late replies,same-generation new
+checks and narrow layouts. Controlled HTTP proves behavior,not inference.
 
-An actual controlled local response completed after93.034s under the earlier90s
-socket timeout;the timeout did not bound the whole request. The current candidate
-uses an owned provider process with an execution deadline and cancellation event,
-one complete stdin/stdout transfer,then kill/reap on timeout or cancellation.
-Large-request regressions cover pipe-sized,192KB and1MiB requests plus800KB replies.
-Core SDK cancellation consumes the one attempt and never unsends remote HTTP.
-Current/minimum/installed checks,actual configured inference,full local gates,
-normal separate push and exact14 remain required for this correction.
-Actual97b editor/paper UI and the full original7 requirements remain open.
-Durable proof:external Project Evidence/GraphUnslopify/research-platform-97/.
+Two actual cached local-model requests also complete through the installed
+native and paper browser workflows. Exact12237/12363-byte requests match observed
+provider bytes/SHA after visible consent,with failed science/data/definitions
+unchanged. Owned model/browser/servers stop. Valid citations do not certify
+advice:an earlier preserved model response suggested tuning observations and
+uncertainty to make an intentionally false claim pass. Latest wording is more
+restrained;no model-quality or independent-review improvement is established.
 
-Deadline correction local acceptance:all10 contribution checks passed (235 Node/2446 Python/one upstream warning/15 gallery),997 protected source paths unchanged.60 current/minimum/cleanly installed tests each and103 runtime bindings passed. Actual default deadline stops the controlled slow response at90.018s. Source6/installed7 local inference completes protocol but prose remains unsupported. Normal separate push/exact14 and actual installed worker CI evidence remain required.
+## Bugs found by actual browser execution
 
-## Minimum-CI timing repair
+The paper HTTP adapter must send event;core CLI uses event_id. A real request
+caught the mismatch. New disclosure preparation must await its same-generation
+whole-client cancellation;otherwise the cancellation can kill that new plan.
+Failed cancellation acknowledgement refuses preparation,without silent retry.
 
-1f6074e's Python3.10 job failed one regression setup assertion:the2s deadline
-expired after slow child startup and only one response chunk had been observed.
-The worker was killed/reaped and the deadline itself held. Actual result:
-1 failed/2440 passed/5 skipped/28 warnings2729.20s. Two strict artifact uploads
-also failed because pytest prevented their producer steps;those requirements
-remain strict. The actual3.12 core artifact and all4 installed-worker controls
-passed,but they do not make1f's full CI accepted.
+Paper module boot exposed27 actual connection resets across7/16 attempts with
+default ProjectServer queue5. Controlled queue128 gave16/16 boots and0resets;
+production128 then gave16/16/0. Native already used128. A new real32-buffered-TCP
+regression fails before the repair(ConnectionResetError),passes current/minimum
+after. This explains the measured resets,not every older historical blank UI.
+Browser diagnostics now capture failed module requests as well as page/HTTP errors.
 
-The repair includes a real1s child startup delay,keeps a response progressing
-for longer than a configured5s deadline,joins its producer before inspecting
-timestamps,and retains deadline/progress/process cleanup assertions. An added
-real-child cancellation case stops during startup before HTTP. Production90s
-transport and all103 runtime files remain unchanged. New focused/full checks,
-normal repair push and exact14 remain required;actual97b/full30 stay active.
+## Required remaining acceptance
 
-2026-11-04 startup-fixture repair local checkpoint:all10 gates pass;235 Node/2447 Python(no skips,one upstream warning)/15 gallery.997 protected paths remained unchanged;61 current/minimum/installed focused tests pass. All103 runtime files are byte-identical to 1f6074e;production90s unchanged. Preparing a separate normal repair push;new exact14 remains required before actual97b UI. The old minimum failure remains recorded;full97/full30 stay active.
+The first frozen gate batch was deliberately interrupted before this production
+repair;its incomplete result is preserved,not counted as passing. Explicit
+scratch retired346,157,056allocated bytes after fresh guards,with logs/source
+bindings retained. Terminal TCP fixtures retired98,304bytes separately.
 
-2026-11-04 reviewer97b1 paper-session checkpoint47c49e5 accepted19:15:28UTC:shared bounded coordinator and actual token/Host/Origin-protected provider/disclosure/explicit-consent/start/status/cancel/download APIs.53 combined focused tests pass in current/minimum/installed;104 installed files match. All10 frozen gates pass:235 Node/2479 Python(no skips,one upstream warning)/15 gallery. All14 exact checks and three workflows pass onmain41880799605/Figure41880799472/native41880799590. Actual two core artifacts/distribution104 bindings verify. Installed cached-model paper HTTP probes cover refusal and completed downloads;unsupported scientific prose remains unaccepted. Both browser interfaces/native editor adapter and configured inference through those controls remain;full97/full30 active.
+A fresh all10 frozen contribution/gallery batch is running on the repaired
+107-file candidate. Normal meaningful commit/push,new exact14/all3 workflows,
+and actual source-browser/core/all-platform installed artifact verification
+remain before full97/original idea4 acceptance. Preserve every requirement above
+and the complete thirty-idea roadmap. No release/tag or artificial commits.
 
-## Native editor evidence/session checkpoint97b2
-
-Current implementation binds completed actual editor renders to original/run
-inputs,prepared specification,generated program,report/spec,exports,strict exit
-and source/runtime evidence. The native palette parser observes its actual byte
-snapshot before normal lock allocation extends the run copy. Full local hashes
-remain separate from the report's16-hex-character data prefix. Renderer attempts
-and reviewer context generations are separate; even a same-generation failed
-translation retires old advice. Ephemeral editor downloads cannot be restored as
-paper CLI requests,and the public review identity is not the authorization token.
-
-Shutdown cancels/joins reviewer work before HTTP handlers,then closes native tools
-and removes the directory. Failed owner shutdown retains files through GC/retry.
-Actual current/minimum/installed/native/model checks and all10 local/exact14 are
-required before this checkpoint is accepted. Both browser controls and full97
-remain required;this backend milestone does not complete original idea4.
-
-2026-11-04 native targeted evidence:150 current/26 minimum/26 installed tests pass(138.43s/30.36s/33.10s),105 source/wheel/installed runtime files match and45 loaded Graph modules stay in site-packages. Real installed native public-penguin HTTP/model request12347bytes completes with fresh exact consent,ephemeral request/result downloads and preserved failed claim/exit2. Native bundle703854bytes is retained;temporary PNG inspected and retired after exact archive comparison. Model prose still makes unsupported balancing/failure-handling suggestions;scientific acceptance is not established. Owned model/editor servers stopped,public source/weights unchanged. Full10 local/new push/exact14 and both actual browser interfaces remain.
-
-2026-11-04 reviewer97b2 native editor local checkpoint:actual original/run input,program,report/spec/export/source bindings,strict exits and observed palette parser snapshots. Current153/minimum29/installed29 focused cases pass and105 installed files/45 loaded Graph modules bind. All10 frozen local gates pass:235 Node/2507 Python(no skips,one upstream warning)/15 gallery. New actual public-penguin native render/model API request12347bytes completes consent/download protocol with a failed comparison/exit2 unchanged. Model prose remains scientifically unverified;no edits applied. Owned servers stopped and weights/public source unchanged. Both browser interfaces/full97/full30 remain open. Preparing a normal separate push;new exact14 CI remains required.
+2026-11-04 reviewer97b3 local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.31 actual browser controls each in current/minimum/installed-offline and two actual installed local-model browser requests pass with original failed science unchanged. Measured paper module queue5 failure9/16/27 resets is repaired128/16/16/0 and realTCP32 red/current+minimum green;cancel/disclose race also corrected. Source/graphics/frozen30 scope retained. Preparing normal coherent push;new exact14/all3 workflows and actual CI artifacts remain required for full97. Full30 stays active;no release/tag.

@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import shutil
+import socket
 import threading
 import time
 import urllib.error
@@ -22,6 +23,43 @@ from graphunslopify.project import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_buffered_paper_module_connections_are_served_without_resets(tmp_path):
+    paper = tmp_path / "queued-paper"
+    shutil.copytree(ROOT / "examples/paper", paper)
+    initialize_project(paper)
+    server = workspace.ProjectServer(paper)
+    thread = None
+    clients = []
+    try:
+        # Hold acceptance until the complete burst is queued. This exercises
+        # actual TCP admission, rather than asserting a configured constant.
+        port = server.server_address[1]
+        for _ in range(32):
+            client = socket.create_connection(("127.0.0.1", port), timeout=2)
+            clients.append(client)
+            client.sendall(
+                f"GET /figure-reviewer.js HTTP/1.0\r\nHost: 127.0.0.1:{port}\r\n\r\n".encode()
+            )
+        thread = threading.Thread(target=server.serve_forever)
+        thread.start()
+        for client in clients:
+            client.settimeout(10)
+            chunks = []
+            while block := client.recv(65536):
+                chunks.append(block)
+            header, body = b"".join(chunks).split(b"\r\n\r\n", 1)
+            assert b" 200 " in header.split(b"\r\n", 1)[0]
+            assert body == (Path(workspace.__file__).parent / "web/figure-reviewer.js").read_bytes()
+    finally:
+        for client in clients:
+            client.close()
+        if thread is not None:
+            server.shutdown()
+            thread.join(10)
+            assert not thread.is_alive()
+        server.server_close()
 
 
 @pytest.fixture(scope="module")

@@ -134,6 +134,15 @@ Failed drafts remain visible and downloadable. Import `propose_figures` and
 a bound review and `autopilot-generate` to replay it after acknowledgement.
 These current-source features are newer than PyPI0.8.0.
 
+## Reviewer questions in current source
+
+The [figure reviewer](../docs/workspace/figure-review-agent.md) combines selected
+paper figures' saved checks with separately labelled,unverified model advice.
+Use `review-agent-plan` to inspect the exact provider request,then explicitly
+consent with `review-agent-run`. Python callers use `FigureReviewPlan` from
+`graphunslopify.review_agent`. Failed/stale/missing checks remain explicit and no
+figure settings are changed. The editor integration is the next milestone.
+
 ## Import Python figures in current source
 
 [Import supported Matplotlib/Seaborn scripts](../docs/workspace/source-imports.md)

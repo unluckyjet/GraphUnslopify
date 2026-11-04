@@ -1,7 +1,7 @@
 ---
 id: 96
 slug: figure-autopilot
-status: in_progress
+status: done
 priority: P1
 title: Recommend and verify three figure drafts from a dataset and research question
 source_idea: 2026-11-02 research-platform idea3
@@ -131,3 +131,21 @@ runs all3 original scripts after server close;all pass strict checks with the
 same342 observations and identical within-profile PNGs.52 README placements/
 51 graphics/37 frozen protocol assets remain unchanged. Normal push and exact
 editor-commit CI/artifact verification remain required;96 stays in progress.
+
+## Full96 acceptance at06edfbd
+
+Full supported idea3 is accepted2026-11-04T09:52:34.845540UTC at
+06edfbdff57d9ff8a3a78acda14960ba2b5cf683. All10 local checks and all14 exact
+checks passed on main41800602308/Figure41800602235/native41800602217.
+Actual CI editor13307713867(15 controls),source-import regression13308335668
+(11 controls),minimum core/CLI13309476789 and current core/CLI13309489690
+retain original public values,all3 outcomes,strict failures and101 committed
+runtime file bindings. Eleven actual screenshots/plots were inspected. Completed
+Python CI jobs report2381 passed/5 skipped each;reasons for skips are unprinted.
+Current/minimum/installed local43 backend/import and15 real-browser controls
+pass;all996 final Git paths match. No release,scientific certification or
+general productivity/adoption advantage is claimed. The full30 remains active.
+
+Durable acceptance:
+`/Users/shooter/Documents/Project Evidence/GraphUnslopify/research-platform-96/editor-final-acceptance.json`.
+Earlier candidate/pending sections above preserve the measured checkpoint history.

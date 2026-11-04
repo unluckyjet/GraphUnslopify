@@ -661,6 +661,49 @@ def _experiments(args: argparse.Namespace) -> int:
         return 2
 
 
+def _review_agent(args: argparse.Namespace) -> int:
+    from .drafts import DraftProvider
+    from .review_agent import (
+        FigureReviewPlan,
+        read_document,
+        restore_plan,
+        review_document,
+        write_document,
+    )
+
+    try:
+        destination = Path(args.out).expanduser()
+        if destination.exists() or destination.is_symlink():
+            raise ValueError("Choose a new output file; existing files stay intact")
+        if args.command == "review-agent-plan":
+            plan = FigureReviewPlan(
+                DraftProvider(args.endpoint, args.model, args.protocol),
+                args.path,
+                question=args.question,
+                figures=args.figure,
+                event_id=args.event,
+                author_context=args.author_context,
+                structured_output=not args.json_mode,
+            )
+            result = review_document(plan)
+            write_document(result, destination)
+        else:
+            plan = restore_plan(
+                read_document(args.review),
+                args.path,
+                api_key=os.environ.get("GRAPHUNSLOPIFY_DRAFT_API_KEY", ""),
+            )
+            result = plan.request(consent=args.consent, consent_sha256=args.consent_sha256)
+            with destination.open("x", encoding="utf8") as stream:
+                json.dump(result, stream, indent=2, allow_nan=False)
+                stream.write("\n")
+        print(json.dumps(result, indent=2, allow_nan=False))
+        return 0
+    except (OSError, ValueError, TypeError) as problem:
+        print(json.dumps({"error": str(problem), "exit_code": 2}))
+        return 2
+
+
 def _autopilot(args: argparse.Namespace) -> int:
     import io
 
@@ -850,6 +893,36 @@ def build_parser() -> argparse.ArgumentParser:
         "--artifact-root", help="exclusive root override for a moved audit archive"
     )
     tracked.set_defaults(handler=_track_mlflow)
+
+    reviewer = commands.add_parser(
+        "review-agent-plan", help="disclose a reviewer question grounded in saved paper checks"
+    )
+    reviewer.add_argument("path", nargs="?", default=".", help="initialized paper project")
+    reviewer.add_argument("--endpoint", required=True, help="HTTPS or loopback model endpoint")
+    reviewer.add_argument("--model", required=True)
+    reviewer.add_argument("--protocol", choices=["responses", "chat"], default="responses")
+    reviewer.add_argument(
+        "--question", default="What would a skeptical reviewer criticize about these figures?"
+    )
+    reviewer.add_argument("--figure", action="append", help="repeat actual review figure keys")
+    reviewer.add_argument("--event", help="explicit historical evidence selection")
+    reviewer.add_argument("--author-context", default="", help="author-supplied study context")
+    reviewer.add_argument(
+        "--json-mode",
+        action="store_true",
+        help="explicit JSON-only mode for providers without schema-constrained output",
+    )
+    reviewer.add_argument("--out", required=True, help="new JSON disclosure file")
+    reviewer.set_defaults(handler=_review_agent)
+    reviewed = commands.add_parser(
+        "review-agent-run", help="send an explicitly consented, unchanged reviewer disclosure"
+    )
+    reviewed.add_argument("review", help="saved JSON from review-agent-plan")
+    reviewed.add_argument("--path", default=".", help="same initialized paper project")
+    reviewed.add_argument("--consent", action="store_true")
+    reviewed.add_argument("--consent-sha256", help="destination/request digest in the disclosure")
+    reviewed.add_argument("--out", required=True, help="new JSON result file")
+    reviewed.set_defaults(handler=_review_agent)
 
     propose = commands.add_parser(
         "autopilot-propose", help="review three data/question proposals without rendering"

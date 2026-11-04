@@ -435,3 +435,13 @@ and three-script strict download replay pass. All52 README placements/51 graphic
 37 frozen protocol assets remain. Preparing normal editor milestone push;exact
 editor-commit main/Figure/native CI and actual new CI archive remain required.
 Full96/full30 remain in progress;no release.
+
+2026-11-04 full96 accepted at06edfbd:all10 local/exact14 checks,actual CI editor15/importer11/both core-CLI archives and101 runtime bytes verified;11 images inspected. Full30 active;97 reviewer API/CLI implementation started.
+
+2026-11-04 reviewer97a local checkpoint:actual project evidence-bound API/CLI,
+exact destination/request consent,current/stale/refusal and cited qualitative
+output. All10 local235 Node/2421 Python/one warning/g15;995 protected paths and
+102 installed files match. Current/minimum/installed35 controls each,actual
+public native programs/exports and configured source/installed local-model
+protocol pass. Model prose remains unverified and observed bad advice is retained.
+Preparing coherent core push/exact14 CI;97b UI/full97/full30 remain active.

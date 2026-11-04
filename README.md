@@ -540,6 +540,13 @@ and downloadable; applying supports guarded undo and keeps comparison ancestry.
 Python and CLI workflows are available too: save a review with
 `autopilot-propose`, then generate all three with `autopilot-generate`.
 
+The current-source [figure reviewer](docs/workspace/figure-review-agent.md) answers
+questions about selected paper figures using their actual saved checks. The
+Python/CLI workflow discloses the exact model request before consent and keeps
+failed checks separate from **unverified qualitative suggestions**. It preserves
+historical/missing evidence and changes no figure settings. The editor workflow
+is still in development; these source features are newer than PyPI0.8.0.
+
 The [reproducibility scorecard](docs/workspace/reproducibility-scorecard.md) shows
 Available, Partial or Missing data, source, programs, environment details, checks,
 exports and history. Read it in the review panel or with `graphunslopify project-scorecard paper/`;

@@ -72,8 +72,13 @@ report and tied to its input snapshot, specification, program, runtime and run.
 The reader/filter checkpoint and demo compatibility repair at `4a3e5c2` passed
 all fourteen exact checks and all three workflows. Preparation adds a second
 root for the actual prepared rows, source cells, conversions, cumulative
-prefixes, normalization ranges and matched baseline dependencies. Estimator,
-cache, and displayed-quantity tracing remain part of 98b and 98c.
+prefixes, normalization ranges and matched baseline dependencies. The
+preparation checkpoint at `01e8634` passed all fourteen checks and all three
+workflows. Ordinary summaries add a separate root for measured line, bar,
+forest and table estimates, declared-unit collapse and requested intervals.
+Positional grouping follows the actual reductions and survives numerical
+cache reuse, with current-run calculation ownership. Specialized estimators
+and displayed-quantity tracing remain part of 98b and 98c.
 
 98c: renderer quantity geometry,local API/CLI and real workspace explorer/code/
 download lifecycle,then a full requirement-by-requirement acceptance audit.
@@ -90,8 +95,8 @@ descriptive SD,not confidence intervals.
 Six unchanged actual generated-program cases per retained Python3.10.22 and
 3.12.14 match hand-computed no-transform,delta,percent-baseline,normalization,
 cumulative and technical-repeat results. A quoted CSV newline gives8 logical
-records across10 physical lines. Dependencies and exclusions are reference
-expectations;current generated programs do not emit their observation graph.
+records across10 physical lines. These independent reference fixtures predate
+the generated capture and remain unchanged.
 Durable script/receipts: Documents/Project Evidence/GraphUnslopify/
 research-platform-98/measure-dataflow-reference.py and dataflow-reference-*.json.
 

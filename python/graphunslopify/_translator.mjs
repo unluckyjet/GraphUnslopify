@@ -20456,7 +20456,7 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "35cd6b23d7dd0b32621df25994b6d32afb5cf25e6470dbb31fe57bb31bbe9869";
+var OBSERVATION_SOURCE_SHA256 = "e25356844c2b996f3b2efe02f922898def92161ed8c381ca61d21cb8b595e6d2";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -20745,17 +20745,23 @@ function emitCounts(spec, out) {
   }
   out.push("");
 }
-function emitSummaryInput(spec, out) {
+function emitSummaryInput(spec, out, traceSummary) {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const over = "uncertainty" in spec ? spec.uncertainty?.over : void 0;
-  out.push("", "def summary_input(frame, field):");
+  const recordsMembership = traceSummary && (aggregation === "mean" || aggregation === "median");
+  out.push("", recordsMembership ? "def summary_input(frame, field, *, membership=False):" : "def summary_input(frame, field):");
   if (aggregation !== "mean" && aggregation !== "median") {
     out.push("    return frame", "");
     return;
   }
   out.push(
     "    measured = frame.copy()",
-    '    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)'
+    ...recordsMembership ? [
+      '    numeric = pd.to_numeric(measured[field], errors="coerce")',
+      "    measured[field] = numeric.replace([np.inf, -np.inf], np.nan)",
+      "    if membership:",
+      "        witness = _observations._summary_input_witness(frame[field], numeric, measured[field])"
+    ] : ['    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)']
   );
   if (over) {
     const keys = [.../* @__PURE__ */ new Set([
@@ -20767,11 +20773,18 @@ function emitSummaryInput(spec, out) {
     out.push(
       `    if ${pyStr(over)} not in measured:`,
       `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,
-      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`,
+      ...recordsMembership ? [
+        `    units = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field]`,
+        `    measured = units.${aggregation}()`
+      ] : [`    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`],
       "    if measured.empty:",
       `        raise ValueError(${pyStr(`no usable replicate identifiers in ${over}`)})`
     );
   }
+  if (recordsMembership) out.push(
+    "    if membership:",
+    over ? "        return measured, witness, _observations._summary_group_codes(units), measured[field].tolist()" : "        return measured, witness, None, None"
+  );
   out.push("    return measured", "");
 }
 function transformBody(spec, transform2, traceObservations) {
@@ -20836,10 +20849,37 @@ function transformBody(spec, transform2, traceObservations) {
     ] : ["    df = df[df[GROUP] != BASELINE_SERIES]"]
   ];
 }
-function emitSummarise(spec, out) {
+function emitSummarise(spec, out, traceSummary) {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const uncertainty2 = "uncertainty" in spec ? spec.uncertainty : void 0;
-  out.push("", "def summarise(frame):");
+  if (traceSummary) {
+    const collapses = aggregation === "mean" || aggregation === "median";
+    out.push(
+      "",
+      "OBSERVATION_CAPTURE = None",
+      "",
+      "def summarise(frame):",
+      "    result, witness, unit_codes, unit_values, point_codes = _summarise_with_membership(frame)",
+      "    if OBSERVATION_CAPTURE is not None:",
+      "        OBSERVATION_CAPTURE.record_summary(",
+      "            frame, result, witness, unit_codes, unit_values, point_codes,",
+      "            keys=[X_FIELD] + ([GROUP] if GROUP is not None else []), field=Y_FIELD,",
+      `            aggregation=${pyStr(aggregation)}, unit_field=${uncertainty2?.over && collapses ? pyStr(uncertainty2.over) : "None"},`,
+      `            interval=${uncertainty2 ? pyStr(uncertainty2.kind) : "None"},`,
+      ...uncertainty2?.kind === "ci" ? [
+        `            bootstrap={"method": "percentile", "statistic": "${aggregation === "median" ? "median" : "mean"}",`,
+        '                       "seed": BOOTSTRAP_SEED, "draws": BOOTSTRAP_DRAWS, "level": CI_LEVEL},'
+      ] : [],
+      ...spec.repeat ? ["            panel=REPEAT_FIELDS.index(Y_FIELD) if Y_FIELD in REPEAT_FIELDS else None,"] : [],
+      ...spec.facet || spec.repeat ? [] : ["            panel=0,"],
+      "        )",
+      "    return result",
+      "",
+      "def _summarise_with_membership(frame):"
+    );
+  } else {
+    out.push("", "def summarise(frame):");
+  }
   if (aggregation === "median" && uncertainty2?.kind === "sem") {
     out.push('    raise ValueError("SEM requires a mean summary; use an explicit bootstrap CI for median uncertainty")', "");
     return;
@@ -20849,14 +20889,19 @@ function emitSummarise(spec, out) {
     return;
   }
   out.push(
-    "    frame = summary_input(frame, Y_FIELD)",
+    ...traceSummary ? aggregation === "mean" || aggregation === "median" ? ["    frame, witness, unit_codes, unit_values = summary_input(frame, Y_FIELD, membership=True)"] : [
+      "    measured = frame[Y_FIELD]",
+      "    witness = _observations._summary_input_witness(measured, measured, measured)",
+      "    unit_codes, unit_values = None, None"
+    ] : ["    frame = summary_input(frame, Y_FIELD)"],
     "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
     "    # sort=False keeps the file's category order instead of an alphabetical one.",
     "    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]",
     `    summary = grouped.${aggregation === "median" ? "median" : aggregation}(${aggregation === "sum" ? "min_count=1" : ""})`
   );
+  const result = traceSummary ? "    return summary, witness, unit_codes, unit_values, _observations._summary_group_codes(grouped)" : "    return summary";
   if (!uncertainty2) {
-    out.push("    return summary", "");
+    out.push(result, "");
     return;
   }
   out.push(
@@ -20905,7 +20950,7 @@ function emitSummarise(spec, out) {
     "    high = np.where(counts >= 2, high, np.nan)",
     '    summary["_low"] = low',
     '    summary["_high"] = high',
-    "    return summary",
+    result,
     ""
   );
 }
@@ -26228,7 +26273,7 @@ function emitPreamble(spec, out, sourceSpec = spec) {
     ""
   );
 }
-function emitMain(spec, out, traceObservations) {
+function emitMain(spec, out, traceObservations, traceSummary) {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates = (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
@@ -26278,26 +26323,41 @@ function emitMain(spec, out, traceObservations) {
     ] : [],
     "    return report.ok",
     "",
+    ""
+  );
+  if (traceSummary && spec.facet) out.push(
+    "def summary_subset(frame, mask, panel=None):",
+    "    if OBSERVATION_CAPTURE is None:",
+    "        return frame[mask]",
+    "    return OBSERVATION_CAPTURE.summary_subset(frame, mask, panel)",
     "",
+    ""
+  );
+  out.push(
     "def panels(df):",
     '    """One entry per panel. Without faceting that is the whole frame."""'
   );
   if (spec.facet?.rows) {
     out.push(
-      "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
+      traceSummary ? "    valid = summary_subset(df, df[FACET_BY].notna() & df[FACET_ROWS].notna())" : "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
       "    names = list(dict.fromkeys(valid[FACET_BY].tolist()))",
       "    rows = list(dict.fromkeys(valid[FACET_ROWS].tolist()))",
       "    if len(names) > FACET_COLUMNS:",
       '        raise ValueError(f"nested facet has {len(names)} column levels; increase facet.columns")',
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name), "row": str(row)} for row in rows for name in names]',
-      '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
-      "            for row in rows for name in names]"
+      ...traceSummary ? [
+        '    return [(f"{row} / {name}", summary_subset(valid, (valid[FACET_ROWS] == row) & (valid[FACET_BY] == name), index))',
+        "            for index, (row, name) in enumerate((row, name) for row in rows for name in names)]"
+      ] : [
+        '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
+        "            for row in rows for name in names]"
+      ]
     );
   } else if (spec.facet) {
     out.push(
       "    names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))",
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name)} for name in names]',
-      "    return [(name, df[df[FACET_BY] == name]) for name in names]"
+      traceSummary ? "    return [(name, summary_subset(df, df[FACET_BY] == name, index)) for index, name in enumerate(names)]" : "    return [(name, df[df[FACET_BY] == name]) for name in names]"
     );
   } else {
     out.push("    return [(None, df)]");
@@ -26315,16 +26375,24 @@ function emitMain(spec, out, traceObservations) {
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...traceSummary ? ["    global OBSERVATION_CAPTURE"] : [],
     ...unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : [],
     ...spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : [],
     ...traceObservations ? [
       "    df, selection = load()",
       "    try:",
       "        df = prepare(df, selection)",
+      ...traceSummary ? ["        OBSERVATION_CAPTURE = selection"] : [],
       "        report_counts(df)",
+      "        return draw_prepared(df)",
       "    finally:",
+      ...traceSummary ? ["        OBSERVATION_CAPTURE = None"] : [],
       "        if selection.node_id is not None:",
-      '            RUN_REPORT["observation_selection"] = selection.write(Path.cwd())'
+      '            RUN_REPORT["observation_selection"] = selection.write(Path.cwd())',
+      "",
+      "",
+      "def draw_prepared(df):",
+      "    global ALT_TEXT"
     ] : ["    df = prepare(load())", "    report_counts(df)"],
     "    validate_legend_aliases(df)"
   );
@@ -26495,6 +26563,7 @@ function emitSaveBlock(spec, out) {
   );
 }
 function emitPython(spec, traceObservations = false) {
+  const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind) && "aggregation" in spec && spec.aggregation !== "none";
   const out = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
@@ -26504,10 +26573,10 @@ function emitPython(spec, traceObservations = false) {
   emitLoad(spec, out, traceObservations);
   emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
-  emitSummaryInput(spec, out);
+  emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
-  emitSummarise(spec, out);
+  emitSummarise(spec, out, traceSummary);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
@@ -26536,8 +26605,7 @@ function emitPython(spec, traceObservations = false) {
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations);
-  out.push('if __name__ == "__main__":');
+  emitMain(spec, out, traceObservations, traceSummary);
   if (traceObservations) {
     const formats = new Set(spec.output.formats);
     if (spec.kind === "table") {
@@ -26545,10 +26613,18 @@ function emitPython(spec, traceObservations = false) {
       formats.add("tex");
     }
     if (spec.animate) formats.add(spec.animate.format);
+    if (spec.output.latex) formats.add("tex");
+    if (spec.output.interactive) formats.add("html");
     const outputs = pyList([...formats].map((format) => `${spec.output.stem}.${format}`));
-    out.push(`    raise SystemExit(_observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}))`);
+    out.push(
+      "def run_observation_cli(argv=None):",
+      `    return _observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}, argv)`,
+      "",
+      'if __name__ == "__main__":',
+      "    raise SystemExit(run_observation_cli())"
+    );
   } else {
-    out.push("    raise SystemExit(run_cli())");
+    out.push('if __name__ == "__main__":', "    raise SystemExit(run_cli())");
   }
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";
   return shareRuntime(source.replace(

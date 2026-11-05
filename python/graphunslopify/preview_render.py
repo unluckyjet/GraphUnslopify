@@ -32,7 +32,8 @@ def _execute(script):
         cache.install(context)
     if observer is not None:
         observer("ready", context)
-    raise SystemExit(context["run_cli"](sys.argv[1:]))
+    render = context.get("run_observation_cli", context["run_cli"])
+    raise SystemExit(render(sys.argv[1:]))
 
 
 def main() -> None:

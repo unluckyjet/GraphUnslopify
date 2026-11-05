@@ -38,7 +38,7 @@
       "type": "object"
     },
     "observation_selection": {
-      "description": "Optional local evidence from the reader, filters and completed preparation.",
+      "description": "Optional local evidence from the reader, filters, preparation and ordinary summaries.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -61,6 +61,10 @@
           "pattern": "^calculation:[a-f0-9]{64}$"
         },
         "preparation_node_id": {
+          "type": "string",
+          "pattern": "^calculation:[a-f0-9]{64}$"
+        },
+        "summary_node_id": {
           "type": "string",
           "pattern": "^calculation:[a-f0-9]{64}$"
         },

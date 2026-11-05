@@ -17,6 +17,8 @@ import re
 import sys
 import tempfile
 import uuid
+import weakref
+from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from decimal import Decimal
 from numbers import Integral, Real
@@ -335,6 +337,43 @@ class ObservationLedger:
             raise ValueError("Malformed observation evidence") from problem
 
 
+def _summary_group_codes(grouped):
+    # Unlike dictionary iteration over GroupBy.indices, these positions follow
+    # the order of the actual group reduction across supported pandas versions.
+    return grouped.ngroup().to_numpy(dtype="int64", na_value=-1)
+
+
+def _summary_input_witness(original, numeric, measured):
+    statuses = [
+        None
+        if available
+        else "missing_measurement"
+        if absent
+        else "nonfinite_measurement"
+        if parsed
+        else "invalid_numeric_measurement"
+        for available, absent, parsed in zip(
+            measured.notna(), original.isna(), numeric.notna(), strict=True
+        )
+    ]
+    converted = (
+        (measured.tolist(), str(original.dtype), str(measured.dtype))
+        if original.dtype != measured.dtype
+        else None
+    )
+    return statuses, converted
+
+
+def _summary_groups(codes, count):
+    groups = [[] for _ in range(count)]
+    for position, code in enumerate(codes):
+        if code >= 0:
+            groups[code].append(position)
+    if any(not group for group in groups):
+        raise ValueError("Observation groups do not match the summary result")
+    return groups
+
+
 class _ObservationSelection:
     """Track parsed positions through the renderer's actual pandas operations."""
 
@@ -366,6 +405,8 @@ class _ObservationSelection:
         self._fields = {}
         self._preparation_exclusions = []
         self._identifier_steps = []
+        self._summary_frames = {}
+        self._summary_roots = {}
 
     def sort(self, frame, field):
         # Carry positions through the actual sort, including duplicate labels and NaT.
@@ -708,10 +749,208 @@ class _ObservationSelection:
             metadata={"identifier_steps": self._identifier_steps},
             excluded=[*self.exclusions, *self._preparation_exclusions],
         )
+        self._summary_frames[id(frame)] = (weakref.ref(frame), range(len(frame)), None, set())
+
+    def _summary_frame(self, frame):
+        reference, positions, panel, fields = self._summary_frames.get(
+            id(frame), (None, None, None, None)
+        )
+        if reference is None or reference() is not frame or len(positions) != len(frame):
+            raise ValueError("Observation summary frame has no prepared row mapping")
+        return positions, panel, fields
+
+    def summary_subset(self, frame, mask, panel):
+        positions, _, _ = self._summary_frame(frame)
+        if not mask.index.equals(frame.index):
+            raise ValueError("Observation panel mask is not aligned to its source frame")
+        subset = frame[mask]
+        membership = mask.to_numpy(dtype=bool, na_value=False)
+        kept = [
+            position for position, include in zip(positions, membership, strict=True) if include
+        ]
+        if len(kept) != len(subset):
+            raise ValueError("Observation panel membership differs from pandas selection")
+        self._summary_frames[id(subset)] = (weakref.ref(subset), kept, panel, set())
+        return subset
+
+    def _summary_support(self, members, references, witness, field):
+        statuses, converted = witness
+        inputs = []
+        rejected = defaultdict(list)
+        for position in members:
+            reference = references[position]
+            reason = statuses[position]
+            if reason is not None:
+                rejected[reason].append(reference)
+                continue
+            if converted is not None:
+                values, input_dtype, output_dtype = converted
+                reference = self._measurement(
+                    "summary_numeric_conversion",
+                    [reference],
+                    values[position],
+                    {"field": field, "from_dtype": input_dtype, "to_dtype": output_dtype},
+                )
+            inputs.append(reference)
+        exclusions = [
+            self.ledger.exclude(reason, refs, stage="summary", metadata={"field": field})
+            for reason, refs in rejected.items()
+        ]
+        return inputs, exclusions
+
+    def record_summary(
+        self,
+        frame,
+        result,
+        witness,
+        unit_codes,
+        unit_values,
+        point_codes,
+        *,
+        keys,
+        field,
+        aggregation,
+        unit_field,
+        interval,
+        bootstrap=None,
+        panel=None,
+    ):
+        positions, registered_panel, summarized_fields = self._summary_frame(frame)
+        if registered_panel is not None:
+            panel = registered_panel
+        if field in summarized_fields:
+            return
+        source_field = self._fields.get(field, self._rows)
+        references = [source_field[i] for i in positions]
+        groups = _summary_groups(point_codes, len(result))
+        point_keys = list(result[keys].itertuples(index=False, name=None))
+        omitted = defaultdict(list)
+        units = None
+        if unit_codes is None:
+            omitted[None, "missing_summary_key"] = [
+                ref for ref, code in zip(references, point_codes, strict=True) if code < 0
+            ]
+        else:
+            unit_groups = _summary_groups(unit_codes, len(unit_values))
+            units = []
+            for group, value in zip(unit_groups, unit_values, strict=True):
+                inputs, excluded = self._summary_support(group, references, witness, field)
+                units.append(
+                    self._measurement(
+                        "technical_repeat_summary",
+                        inputs,
+                        value,
+                        {
+                            "field": field,
+                            "unit_field": unit_field,
+                            "unit": str(frame[unit_field].iat[group[0]]),
+                            "estimator": aggregation,
+                        },
+                        excluded=excluded,
+                    )
+                )
+            lookup = {key: index for index, key in enumerate(point_keys)}
+            for i, key in enumerate(frame[keys].itertuples(index=False, name=None)):
+                if unit_codes[i] >= 0:
+                    continue
+                if any(pd.isna(value) for value in key):
+                    omitted[None, "missing_summary_key"].append(references[i])
+                else:
+                    reason = (
+                        "missing_unit_identifier"
+                        if pd.isna(frame[unit_field].iat[i])
+                        else "missing_unit_group_key"
+                    )
+                    omitted[lookup.get(key), reason].append(references[i])
+        exclusions = defaultdict(list)
+        for (index, reason), refs in omitted.items():
+            if refs:
+                exclusions[index].append(
+                    self.ledger.exclude(reason, refs, stage="summary", metadata={"field": field})
+                )
+        roots = []
+        for index, members in enumerate(groups):
+            rejected = exclusions[index]
+            if units is None:
+                inputs, rejected_measurements = self._summary_support(
+                    members, references, witness, field
+                )
+                rejected += rejected_measurements
+            else:
+                inputs = [units[i] for i in members if not pd.isna(unit_values[i])]
+                invalid_units = [units[i] for i in members if pd.isna(unit_values[i])]
+                if invalid_units:
+                    rejected.append(
+                        self.ledger.exclude(
+                            "unusable_unit_measurement", invalid_units, stage="summary"
+                        )
+                    )
+            metadata = {
+                "field": field,
+                "keys": dict(zip(keys, map(str, point_keys[index]), strict=True)),
+                "point": index,
+            }
+            support = self.ledger.calculate(
+                "summary_sample",
+                inputs,
+                value=len(inputs),
+                metadata={**metadata, "unit_field": unit_field},
+                excluded=rejected,
+            )
+            center = self._measurement(
+                "summary_estimate",
+                [support],
+                result[field].iat[index],
+                {**metadata, "estimator": aggregation},
+            )
+            roots.append(center)
+            if interval is not None:
+                roots.append(
+                    self._summary_interval(
+                        result, index, support, center, len(inputs), metadata, interval, bootstrap
+                    )
+                )
+        root = self.ledger.calculate(
+            "summary_panel",
+            roots,
+            value=len(groups),
+            metadata={"panel": panel, "field": field, "unit_field": unit_field},
+            excluded=exclusions[None],
+        )
+        self._summary_roots[root] = None
+        summarized_fields.add(field)
+
+    def _summary_interval(self, result, index, support, center, count, metadata, kind, bootstrap):
+        low, lower_status = self._number(result["_low"].iat[index])
+        high, upper_status = self._number(result["_high"].iat[index])
+        return self.ledger.calculate(
+            "summary_interval",
+            [support, center] if kind in {"std", "sem"} else [support],
+            value=[low, high],
+            metadata={
+                **metadata,
+                "estimator": kind,
+                "lower_status": lower_status,
+                "upper_status": upper_status,
+                **({"ddof": 1} if kind in {"std", "sem"} else {}),
+                **({"quantiles": [0.25, 0.75]} if kind == "iqr" else {}),
+                **({"bootstrap": bootstrap} if bootstrap is not None else {}),
+                **({"unavailable": "insufficient_measurements"} if count < 2 else {}),
+            },
+        )
 
     def write(self, directory: Path) -> dict[str, str]:
         if self.node_id is None:
             raise ValueError("Observation selection is incomplete")
+        summary = (
+            self.ledger.calculate(
+                "ordinary_summaries",
+                self._summary_roots,
+                value=len(self._summary_roots),
+            )
+            if self._summary_roots
+            else None
+        )
         payload = self.ledger.to_json()
         path = None
         try:
@@ -735,6 +974,7 @@ class _ObservationSelection:
                 if self.preparation_node_id
                 else {}
             ),
+            **({"summary_node_id": summary} if summary is not None else {}),
         }
 
 
@@ -782,6 +1022,17 @@ def _read_observation_selection(
             or len(preparation["inputs"]) != preparation["value"]
         ):
             raise ValueError("Observation preparation root does not match the prepared frame")
+    if "summary_node_id" in selection:
+        summary = graph._nodes.get(selection["summary_node_id"], {})
+        if (
+            "preparation_node_id" not in selection
+            or summary.get("operation") != "ordinary_summaries"
+            or summary["value"] != len(summary["inputs"])
+            or any(
+                graph._nodes[item].get("operation") != "summary_panel" for item in summary["inputs"]
+            )
+        ):
+            raise ValueError("Observation summary root does not match the calculated panels")
     return path
 
 
@@ -799,14 +1050,14 @@ def _protect_observation_inputs(directory: Path, inputs, outputs) -> None:
                 raise ValueError(f"Output {target.name} would overwrite an observation input")
 
 
-def _run_observation_cli(run_cli, stem, inputs, outputs) -> int:
+def _run_observation_cli(run_cli, stem, inputs, outputs, argv=None) -> int:
     # The canonical renderer still parses and handles all of its own arguments.
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--report", default=f"{stem}.report.json")
-    options, _ = parser.parse_known_args()
+    options, _ = parser.parse_known_args(argv)
     try:
         _protect_observation_inputs(Path.cwd(), inputs, [*outputs, options.report])
     except (OSError, ValueError) as problem:
         print(problem, file=sys.stderr)
         return 1
-    return run_cli()
+    return run_cli(argv)

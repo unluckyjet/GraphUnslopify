@@ -2,8 +2,9 @@
 
 The observation-level explorer is in development. A local Python ledger records
 which original records and calculations produced a quantity. Opt-in generated
-renders populate it through reading, filtering and preparation. Estimator and
-per-mark evidence and the clickable explorer are tracked in
+renders populate it through reading, filtering, preparation and ordinary
+summaries. Specialized calculations, per-mark evidence and the clickable
+explorer are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
 For example, subtracting a baseline depends on both the displayed measurement
@@ -30,6 +31,19 @@ cumulative prefixes and normalization ranges. Decimal values retain their
 exact spelling as strings. Exclusions retain their own stage, so a baseline
 can be hidden from the prepared rows while contributing
 to the calculated values.
+
+For aggregated line, bar, forest and table figures, `summary_node_id` points
+to the calculated summaries for each panel and metric. Each point records its
+grouping keys, estimate, contributing measurements or declared units, and
+interval when requested. The trace follows technical repeats through their
+actual mean or median and records which measurements and unit identifiers
+were unavailable. A singleton retains its estimate and an explicit unavailable
+interval. Bootstrap evidence records the draws, seed and level used.
+
+Use `explain()` on the point's estimate or interval node for its scoped
+contributors and exclusions. Use the original filter root for the figure-wide
+selection. The numerical cache can reuse results and positional membership
+while the ledger binds calculations to each current render.
 
 ## Local ledger API
 

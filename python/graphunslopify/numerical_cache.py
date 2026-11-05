@@ -134,9 +134,15 @@ class NumericalRequest:
                 and instructions[1].opname == "RETURN_VALUE"
             )
 
+        # Traced programs keep the run-owned ledger outside the cached helper.
+        helpers = (
+            (*HELPERS[:-1], "_summarise_with_membership")
+            if callable(context.get("_summarise_with_membership"))
+            else HELPERS
+        )
         functions = {
             name: context[name]
-            for name in HELPERS
+            for name in helpers
             if callable(context.get(name)) and not identity_only(context[name])
         }
         if not functions:

@@ -294,7 +294,9 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   );
 }
 
-function emitMain(spec: FigureSpec, out: string[], traceObservations: boolean): void {
+function emitMain(
+  spec: FigureSpec, out: string[], traceObservations: boolean, traceSummary: boolean,
+): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates =
@@ -350,25 +352,44 @@ function emitMain(spec: FigureSpec, out: string[], traceObservations: boolean): 
     "    return report.ok",
     "",
     "",
+  );
+  if (traceSummary && spec.facet) out.push(
+    "def summary_subset(frame, mask, panel=None):",
+    "    if OBSERVATION_CAPTURE is None:",
+    "        return frame[mask]",
+    "    return OBSERVATION_CAPTURE.summary_subset(frame, mask, panel)",
+    "",
+    "",
+  );
+  out.push(
     "def panels(df):",
     '    """One entry per panel. Without faceting that is the whole frame."""',
   );
   if (spec.facet?.rows) {
     out.push(
-      "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
+      traceSummary
+        ? "    valid = summary_subset(df, df[FACET_BY].notna() & df[FACET_ROWS].notna())"
+        : "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
       "    names = list(dict.fromkeys(valid[FACET_BY].tolist()))",
       "    rows = list(dict.fromkeys(valid[FACET_ROWS].tolist()))",
       "    if len(names) > FACET_COLUMNS:",
       '        raise ValueError(f"nested facet has {len(names)} column levels; increase facet.columns")',
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name), "row": str(row)} for row in rows for name in names]',
-      '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
-      "            for row in rows for name in names]",
+      ...(traceSummary ? [
+        '    return [(f"{row} / {name}", summary_subset(valid, (valid[FACET_ROWS] == row) & (valid[FACET_BY] == name), index))',
+        "            for index, (row, name) in enumerate((row, name) for row in rows for name in names)]",
+      ] : [
+        '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
+        "            for row in rows for name in names]",
+      ]),
     );
   } else if (spec.facet) {
     out.push(
       "    names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))",
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name)} for name in names]',
-      "    return [(name, df[df[FACET_BY] == name]) for name in names]",
+      traceSummary
+        ? "    return [(name, summary_subset(df, df[FACET_BY] == name, index)) for index, name in enumerate(names)]"
+        : "    return [(name, df[df[FACET_BY] == name]) for name in names]",
     );
   } else {
     out.push("    return [(None, df)]");
@@ -382,16 +403,24 @@ function emitMain(spec: FigureSpec, out: string[], traceObservations: boolean): 
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
+    ...(traceSummary ? ["    global OBSERVATION_CAPTURE"] : []),
     ...(unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : []),
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
     ...(traceObservations ? [
       "    df, selection = load()",
       "    try:",
       "        df = prepare(df, selection)",
+      ...(traceSummary ? ["        OBSERVATION_CAPTURE = selection"] : []),
       "        report_counts(df)",
+      "        return draw_prepared(df)",
       "    finally:",
+      ...(traceSummary ? ["        OBSERVATION_CAPTURE = None"] : []),
       "        if selection.node_id is not None:",
       '            RUN_REPORT["observation_selection"] = selection.write(Path.cwd())',
+      "",
+      "",
+      "def draw_prepared(df):",
+      "    global ALT_TEXT",
     ] : ["    df = prepare(load())", "    report_counts(df)"]),
     "    validate_legend_aliases(df)",
   );
@@ -598,6 +627,8 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
 }
 
 export function emitPython(spec: FigureSpec, traceObservations = false): string {
+  const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind)
+    && "aggregation" in spec && spec.aggregation !== "none";
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
@@ -607,10 +638,10 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitLoad(spec, out, traceObservations);
   emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
-  emitSummaryInput(spec, out);
+  emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
-  emitSummarise(spec, out);
+  emitSummarise(spec, out, traceSummary);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
@@ -639,8 +670,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations);
-  out.push('if __name__ == "__main__":');
+  emitMain(spec, out, traceObservations, traceSummary);
   if (traceObservations) {
     const formats = new Set<string>(spec.output.formats);
     if (spec.kind === "table") {
@@ -648,10 +678,18 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
       formats.add("tex");
     }
     if (spec.animate) formats.add(spec.animate.format);
+    if (spec.output.latex) formats.add("tex");
+    if (spec.output.interactive) formats.add("html");
     const outputs = pyList([...formats].map(format => `${spec.output.stem}.${format}`));
-    out.push(`    raise SystemExit(_observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}))`);
+    out.push(
+      "def run_observation_cli(argv=None):",
+      `    return _observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}, argv)`,
+      "",
+      'if __name__ == "__main__":',
+      "    raise SystemExit(run_observation_cli())",
+    );
   } else {
-    out.push("    raise SystemExit(run_cli())");
+    out.push('if __name__ == "__main__":', "    raise SystemExit(run_cli())");
   }
 
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";

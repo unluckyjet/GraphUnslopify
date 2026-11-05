@@ -303,17 +303,25 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
 }
 
 /** Numeric summaries use finite measurements and one value per declared unit. */
-export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
+export function emitSummaryInput(spec: FigureSpec, out: string[], traceSummary: boolean): void {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const over = "uncertainty" in spec ? spec.uncertainty?.over : undefined;
-  out.push("", "def summary_input(frame, field):");
+  const recordsMembership = traceSummary && (aggregation === "mean" || aggregation === "median");
+  out.push("", recordsMembership
+    ? "def summary_input(frame, field, *, membership=False):"
+    : "def summary_input(frame, field):");
   if (aggregation !== "mean" && aggregation !== "median") {
     out.push("    return frame", "");
     return;
   }
   out.push(
     "    measured = frame.copy()",
-    '    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)',
+    ...(recordsMembership ? [
+      '    numeric = pd.to_numeric(measured[field], errors="coerce")',
+      '    measured[field] = numeric.replace([np.inf, -np.inf], np.nan)',
+      "    if membership:",
+      "        witness = _observations._summary_input_witness(frame[field], numeric, measured[field])",
+    ] : ['    measured[field] = pd.to_numeric(measured[field], errors="coerce").replace([np.inf, -np.inf], np.nan)']),
   );
   if (over) {
     const keys = [...new Set([spec.x.field, ...(spec.group ? [spec.group] : []),
@@ -321,11 +329,20 @@ export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
     out.push(
       `    if ${pyStr(over)} not in measured:`,
       `        raise ValueError(${pyStr(`replicate identifier column ${over} is missing`)})`,
-      `    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`,
+      ...(recordsMembership ? [
+        `    units = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field]`,
+        `    measured = units.${aggregation}()`,
+      ] : [`    measured = measured.groupby(${pyList(keys)}, as_index=False, sort=False, observed=True)[field].${aggregation}()`]),
       "    if measured.empty:",
       `        raise ValueError(${pyStr(`no usable replicate identifiers in ${over}`)})`,
     );
   }
+  if (recordsMembership) out.push(
+    "    if membership:",
+    over
+      ? "        return measured, witness, _observations._summary_group_codes(units), measured[field].tolist()"
+      : "        return measured, witness, None, None",
+  );
   out.push("    return measured", "");
 }
 
@@ -408,11 +425,36 @@ function transformBody(
  * so the script needs numpy and nothing else, and it makes no assumption about
  * the shape of the distribution over seeds.
  */
-export function emitSummarise(spec: FigureSpec, out: string[]): void {
+export function emitSummarise(spec: FigureSpec, out: string[], traceSummary: boolean): void {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const uncertainty = "uncertainty" in spec ? spec.uncertainty : undefined;
 
-  out.push("", "def summarise(frame):");
+  if (traceSummary) {
+    const collapses = aggregation === "mean" || aggregation === "median";
+    out.push("", "OBSERVATION_CAPTURE = None", "", "def summarise(frame):",
+      "    result, witness, unit_codes, unit_values, point_codes = _summarise_with_membership(frame)",
+      "    if OBSERVATION_CAPTURE is not None:",
+      "        OBSERVATION_CAPTURE.record_summary(",
+      "            frame, result, witness, unit_codes, unit_values, point_codes,",
+      "            keys=[X_FIELD] + ([GROUP] if GROUP is not None else []), field=Y_FIELD,",
+      `            aggregation=${pyStr(aggregation)}, unit_field=${uncertainty?.over && collapses ? pyStr(uncertainty.over) : "None"},`,
+      `            interval=${uncertainty ? pyStr(uncertainty.kind) : "None"},`,
+      ...(uncertainty?.kind === "ci"
+        ? [
+          `            bootstrap={"method": "percentile", "statistic": "${aggregation === "median" ? "median" : "mean"}",`,
+          '                       "seed": BOOTSTRAP_SEED, "draws": BOOTSTRAP_DRAWS, "level": CI_LEVEL},',
+        ]
+        : []),
+      ...(spec.repeat ? ["            panel=REPEAT_FIELDS.index(Y_FIELD) if Y_FIELD in REPEAT_FIELDS else None,"] : []),
+      ...(spec.facet || spec.repeat ? [] : ["            panel=0,"]),
+      "        )",
+      "    return result",
+      "",
+      "def _summarise_with_membership(frame):",
+    );
+  } else {
+    out.push("", "def summarise(frame):");
+  }
   if (aggregation === "median" && uncertainty?.kind === "sem") {
     out.push('    raise ValueError("SEM requires a mean summary; use an explicit bootstrap CI for median uncertainty")', "");
     return;
@@ -423,15 +465,26 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
   }
 
   out.push(
-    "    frame = summary_input(frame, Y_FIELD)",
+    ...(traceSummary
+      ? aggregation === "mean" || aggregation === "median"
+        ? ["    frame, witness, unit_codes, unit_values = summary_input(frame, Y_FIELD, membership=True)"]
+        : [
+          "    measured = frame[Y_FIELD]",
+          "    witness = _observations._summary_input_witness(measured, measured, measured)",
+          "    unit_codes, unit_values = None, None",
+        ]
+      : ["    frame = summary_input(frame, Y_FIELD)"]),
     "    keys = [X_FIELD] + ([GROUP] if GROUP is not None else [])",
     "    # sort=False keeps the file's category order instead of an alphabetical one.",
     "    grouped = frame.groupby(keys, as_index=False, sort=False, observed=True)[Y_FIELD]",
     `    summary = grouped.${aggregation === "median" ? "median" : aggregation}(${aggregation === "sum" ? "min_count=1" : ""})`,
   );
 
+  const result = traceSummary
+    ? "    return summary, witness, unit_codes, unit_values, _observations._summary_group_codes(grouped)"
+    : "    return summary";
   if (!uncertainty) {
-    out.push("    return summary", "");
+    out.push(result, "");
     return;
   }
 
@@ -486,7 +539,7 @@ export function emitSummarise(spec: FigureSpec, out: string[]): void {
     "    high = np.where(counts >= 2, high, np.nan)",
     '    summary["_low"] = low',
     '    summary["_high"] = high',
-    "    return summary",
+    result,
     "",
   );
 }

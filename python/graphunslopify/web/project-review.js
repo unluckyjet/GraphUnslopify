@@ -286,8 +286,12 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
   }
   eventSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
   figureSelect.onchange = () => { desiredSelection = ""; signature = ""; update(context); };
-  pageSelect.onchange = () => { signature = ""; load(); };
-  $("review-latest").onclick = () => { eventSelect.value = ""; signature = ""; load(); };
+  function reloadSelection() {
+    signature = "";
+    return context?.state ? update(context) : load();
+  }
+  pageSelect.onchange = reloadSelection;
+  $("review-latest").onclick = () => { eventSelect.value = ""; return reloadSelection(); };
   $("review-audit").onclick = audit;
   $("review-edit").onclick = () => edit(figureSelect.value);
   $("review-inspect").onclick = () => {
@@ -330,8 +334,10 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
         next.state.figures.map((item) => [item.id, item.freshness, item.last_accepted, item.artifacts_verified, item.errors]),
         next.state.inspection_revision, next.state.inspections,
         next.dirty, next.busy, eventSelect.value, figureSelect.value]);
-      if (signature !== key) { signature = key; load(); }
-      else if (!pending && Date.now() - lastQuery >= 10000) load(true);
+      // Every foreground query records its signature, including page/latest
+      // navigation. Otherwise the next unchanged state poll cancels its review.
+      if (signature !== key) { signature = key; return load(); }
+      else if (!pending && Date.now() - lastQuery >= 10000) return load(true);
   }
   function reviewerContext() {
     if (!context?.state || context.dirty || context.busy || context.reviewerBusy || foregroundQuery || !loadedCollection?.evidence_revision) return null;
@@ -348,7 +354,7 @@ export function createScientificReview({ api, protect, edit, audit, inspect, exp
   }
   return {
     reviewerContext,
-    refresh: () => load(), unavailable, update,
+    refresh: reloadSelection, unavailable, update,
     selected: () => figureSelect.value,
     select(key) {
       if (exporting) return;

@@ -496,3 +496,20 @@ remain pending. Full97 actual interface/full30 remain active.
 2026-11-04 reviewer97b3 working checkpoint:shared actual editor/paper controls now pass31 browser cases in current/minimum/installed-offline and two actual installed cached-model UI requests;107 source/private-wheel/installed hashes match. Actual same-generation cancel/disclose race corrected by awaiting acknowledgement. Paper bootstrap default queue5 reproduced9/16 boots/27 module resets;controlled128 and production128 each16/16/0. RealTCP32 regression fails original,passes current/minimum. First full batch deliberately stopped before this source repair,346157056allocated bytes retired;98304bytes terminal TCP fixtures separately. New all10 frozen batch is running;normal coherent push/exact14 and actual CI artifact acceptance remain. Model advice stays unverified/unapplied,original failures and full30 preserved,no release/tag.
 
 2026-11-04 reviewer97b3 local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.31 actual browser controls each in current/minimum/installed-offline and two actual installed local-model browser requests pass with original failed science unchanged. Measured paper module queue5 failure9/16/27 resets is repaired128/16/16/0 and realTCP32 red/current+minimum green;cancel/disclose race also corrected. Source/graphics/frozen30 scope retained. Preparing normal coherent push;new exact14/all3 workflows and actual CI artifacts remain required for full97. Full30 stays active;no release/tag.
+
+2026-11-04 reviewer562 actual CI repair:the normal pushed UI passed its all10
+local checkpoint,but exactCI Ubuntu3.10 failed PDF-page2 disclosure with older
+context;Windows failed waiting for a native reviewer choice. A real next-state-
+poll red reproduces unchanged polling canceling a fresh disclosure. Working
+reloadSelection records its query signature through update(context),preserving
+strict actual-context invalidation and safe pre-initialization handling. Final
+current/minimum/installed-offline34 browser controls each pass;107 source/private4/
+installed/model4 production hashes match. Windows cause is unestablished:driver
+now immediately saves/asserts native JSON and captures failure UI;distribution
+artifacts upload on failure. Actual installed model4 completes native/paper
+consent/download workflows with failed science unchanged;prose remains unverified.
+Previous repair full batch deliberately interrupted before diagnostic changes,
+not accepted;346185728allocated bytes retired. New all10 frozen batch running;
+new meaningful repair push/exact14/actual artifacts remain. Full97/full30 active.
+
+2026-11-04 reviewer polling repair local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.34 actual browser controls each pass in current/minimum/installed-offline;fresh PDF/latest disclosures survive the next real state poll and early Review latest is safe. Two actual installed model4 browser requests complete with failed science unchanged;advice remains unverified. Windows cause is unestablished;immediate native JSON/failure UI and always-upload distribution artifacts enable diagnosis. Preparing normal meaningful repair push;new exact14/all3 workflows and actual artifacts remain required. Full97/full30 stay active;no release/tag.

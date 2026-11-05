@@ -117,10 +117,12 @@ async function download(page:Page,which:string,name:string){
 async function render(page:Page){
  const response=page.waitForResponse(r=>new URL(r.url()).pathname==="/api/render");await page.locator("#render").click();
  const reply=await response;assert.equal(reply.status(),200);const value=await reply.json();
+ writeFileSync(join(evidence,"native-render-response.json"),JSON.stringify(value,null,2)+"\n");
+ assert.equal(value.exit_code,2);assert(value.review?.available,JSON.stringify(value.review));assert.equal(value.report.data.counts.prepared,333);
+ assert(value.report.claims.some((c:any)=>c.verdict==="fails"));
  await page.locator('#status[data-state="failed"]').waitFor();
  await page.waitForFunction(()=>document.querySelectorAll("#reviewer-figures input").length===1);
- assert.equal(value.exit_code,2);assert(value.review.available);assert.equal(value.report.data.counts.prepared,333);
- assert(value.report.claims.some((c:any)=>c.verdict==="fails"));return value;
+ return value;
 }
 async function preserveNativeFiles(page:Page,value:any){
  const links=await page.locator("#files a").evaluateAll((nodes:any[])=>nodes.map(e=>e.href));
@@ -159,7 +161,9 @@ try{
  assert.equal(await page.locator("#spec").inputValue(),specBefore);assert.equal(await page.locator("#status").getAttribute("data-state"),"failed");
  await download(page,"result","native-result.json");await page.locator("#figure-reviewer").screenshot({path:join(evidence,"native-reviewer.png")});
  controls.push({control:"native-consented-exact-wire-literal-advice-and-unchanged-science",passed:true});
- const paper=await browser.newPage();activePage=paper;observe(paper);paper.on("dialog",dialog=>void dialog.accept());await paper.goto(fixture.paper);
+ const paper=await browser.newPage();activePage=paper;observe(paper);paper.on("dialog",dialog=>void dialog.accept());const initialInfo=await holdResponse(paper,"info");await paper.goto(fixture.paper);await initialInfo.captured;
+ await paper.locator("#review-latest").click();await settled(paper);assert.deepEqual(errors,[]);await initialInfo.release();
+ controls.push({control:"review-latest-before-project-initialization-remains-safe",passed:true});
  await paper.locator('#review-figure option[value="mass"]').waitFor({state:"attached"});await paper.locator("#review-figure").selectOption("mass");
  await configure(paper,"chat");await paper.locator("#reviewer-question").fill("Review the saved failed comparison; author label Δ.");
  const paperDisclosure=await disclose(paper);assert.equal(paperDisclosure.source_kind,"paper-project");assert(paperDisclosure.deterministic_evidence.recorded_failures.length);
@@ -194,8 +198,15 @@ try{
  const pdfDisclosure=await disclose(paper);assert.equal(pdfDisclosure.deterministic_evidence.figures[0].source_type,"pdf");
  assert(JSON.stringify(pdfDisclosure.deterministic_evidence.figures[0].groups.claims).includes("untested"));assert.equal(pdfDisclosure.deterministic_evidence.images_supplied,false);await run(paper);
  controls.push({control:"actual-source-free-PDF-review-keeps-numerical-claims-untested",passed:true});
- await paper.locator("#review-page").selectOption("2");assert(await paper.locator("#reviewer-advice").isHidden());assert(await paper.locator("#reviewer-disclosure").isHidden());await disclose(paper);
+ await paper.locator("#review-page").selectOption("2");assert(await paper.locator("#reviewer-advice").isHidden());assert(await paper.locator("#reviewer-disclosure").isHidden());const secondPage=await disclose(paper);
  controls.push({control:"actual-PDF-page-change-requires-fresh-disclosure-and-consent",passed:true});
+ const pagePoll=await paper.waitForResponse(r=>new URL(r.url()).pathname==="/api/state");assert.equal(pagePoll.status(),200);await pagePoll.finished();await settled(paper);
+ assert.equal(await paper.locator("#figure-reviewer").getAttribute("data-phase"),"disclosed");assert((await paper.locator("#reviewer-request-digest").textContent())!.includes(secondPage.request_sha256));assert.equal(await paper.locator("#reviewer-consent").isChecked(),false);
+ controls.push({control:"unchanged-real-state-poll-after-PDF-page-choice-preserves-disclosure",passed:true});
+ await paper.locator("#review-latest").click();const latestDisclosure=await disclose(paper);
+ const latestPoll=await paper.waitForResponse(r=>new URL(r.url()).pathname==="/api/state");assert.equal(latestPoll.status(),200);await latestPoll.finished();await settled(paper);
+ assert.equal(await paper.locator("#figure-reviewer").getAttribute("data-phase"),"disclosed");assert((await paper.locator("#reviewer-request-digest").textContent())!.includes(latestDisclosure.request_sha256));assert.equal(await paper.locator("#reviewer-consent").isChecked(),false);
+ controls.push({control:"unchanged-real-state-poll-after-review-latest-preserves-disclosure",passed:true});
  await paper.locator("#review-latest").click();await paper.locator('#figure-list [data-review-key="mass"]').click();
  const add=paper.locator("details").filter({has:paper.locator("#new-id")}).first();if(!await add.evaluate((e:any)=>e.open))await add.locator("summary").click();
  await paper.locator("#new-id").fill("unrun");await paper.locator("#duplicate").click();await paper.locator('#review-figure option[value="unrun"]').waitFor({state:"attached"});await paper.locator("#review-figure").selectOption("unrun");
@@ -312,7 +323,7 @@ try{
  writeFileSync(join(evidence,"verification.json"),JSON.stringify({status:"browser-controls-passed",controls,requests:state.calls,errors,external,resource_errors:resources,source_revision:revision.stdout.trim(),runtime:fixture.runtime,native_artifacts:nativeArtifacts,driver_sha256:sha(readFileSync(join(root,"scripts/reviewer-check.ts"))),fixture_sha256:sha(readFileSync(join(root,"scripts/serve-reviewer-check.py"))),public_source_sha256:fixture.public_source_sha256,public_source_unchanged:true,scientific_definitions_unchanged:true,scope:"Actual native/paper browser controls and controlled HTTP;not inference or full97 acceptance",remaining:"provisional/source-change/configured-inference/current-minimum-installed/full-gate acceptance"},null,2)+"\n");
  console.log(JSON.stringify({evidence,controls:controls.length,scope:"actual reviewer browser controls;full97 acceptance remains open"}));
 }catch(error){
- const ui=activePage?await activePage.evaluate(()=>({phase:document.querySelector("#figure-reviewer")?.dataset.phase,status:document.querySelector("#reviewer-status")?.textContent})).catch(()=>null):null;
+ const ui=activePage?await activePage.evaluate(()=>({phase:document.querySelector("#figure-reviewer")?.dataset.phase,status:document.querySelector("#reviewer-status")?.textContent,native_status:document.querySelector("#status")?.textContent,native_state:document.querySelector("#status")?.dataset.state,figure_choices:document.querySelectorAll("#reviewer-figures input").length})).catch(()=>null):null;
  writeFileSync(join(evidence,"failure.json"),JSON.stringify({error:String(error),controls,errors,external,resource_errors:resources,runtime:fixture?.runtime,ui,stderr},null,2)+"\n");
  if(activePage)await activePage.screenshot({path:join(evidence,"failure.png"),fullPage:true});throw error;
 }finally{

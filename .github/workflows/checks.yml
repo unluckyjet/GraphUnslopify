@@ -504,6 +504,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: python scripts/install-smoke.py --work-dir "${{ runner.temp }}/gu-installed-check" --agent --pdf --excel --require-environment --require-comparison --require-workflow --tracking --require-editor-controls --require-render-worker --require-translator-worker --require-statistics-cache --require-provisional --require-project --require-project-interface --require-diagnostics --require-pdf-visual --require-reviewer-worker --require-reviewer-controls
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: distribution-${{ matrix.os }}-py${{ matrix.python }}
           path: |

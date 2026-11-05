@@ -59,56 +59,70 @@ exact14 CI. Latest native acceptance2026-11-04T21:48:01UTC verifies105 runtime/
 Historical deadline/startup/unused-palette failures and their repairs remain in
 Git history and pipeline/log.md;do not treat a passing query as scientific acceptance.
 
-## Shared reviewer browser checkpoint97b3 · acceptance pending
+## Shared browser checkpoint97b3 and CI repair · acceptance pending
 
-Shared controls now configure session-only Responses/Chat providers,select actual
+Shared controls configure session-only Responses/Chat providers,select actual
 figures,accept bounded author questions/context,display literal request bytes/SHA
 and destination,require explicit consent,and separate recorded findings from
-unverified advice. Original-byte request/result downloads,cancel,pagehide and
-late-context guards serve both actual editors. HTTP presentation fields stay
-outside replayable CLI disclosure. No scientific/presentation mutation is applied.
+unverified advice. Original-byte downloads,cancel/pagehide and stale-context
+guards serve both workspaces. No scientific/presentation mutation is applied.
 
-Actual31-control browser runs pass on current Python3.12,minimum3.10 and the
-installed private wheel with offline hooks. All107 source/wheel/installed/model
-runtime files match. Cases include failed/current/history/PDF two-page/missing/
-never-run evidence,1–20 selection,21 refusal,zero-export failure,real provisional
-preview,source/export changes,provider errors,Unicode wire bytes,literal model
-markup,cancel/pagehide while provider is held,late replies,same-generation new
-checks and narrow layouts. Controlled HTTP proves behavior,not inference.
+The UI is normally pushed as56274f6 after all10 frozen local gates:235 Node/
+2514 Python(no skips,one upstream warning)/15 gallery,1009 actual Git bindings
+and107 source/private-wheel/installed hashes. Actual31-control source current/
+minimum/installed-offline browser runs and two installed local-model browser
+requests verify the original checkpoint. This is not exact-CI acceptance.
 
-Two actual cached local-model requests also complete through the installed
-native and paper browser workflows. Exact12237/12363-byte requests match observed
-provider bytes/SHA after visible consent,with failed science/data/definitions
-unchanged. Owned model/browser/servers stop. Valid citations do not certify
-advice:an earlier preserved model response suggested tuning observations and
-uncertainty to make an intentionally false claim pass. Latest wording is more
-restrained;no model-quality or independent-review improvement is established.
+Actual562 CI failed Ubuntu3.10 distribution job126944989188 at PDF-page2
+disclosure400/older context. The next actual state poll locally reproduces it:
+foreground page/latest reloads cleared their query signature without recording
+it again,so unchanged polling unnecessarily canceled the fresh disclosure.
+Working reloadSelection records the signature through update(context),with a
+safe pre-initialization path. Actual source/evidence invalidation stays strict.
+Final34-control current/minimum/installed-offline runs each pass,including
+retaining fresh PDF/latest disclosures across real polls and early Review latest.
 
-## Bugs found by actual browser execution
+Windows distribution126944989142 timed out waiting for the native reviewer
+choice. The old driver saved/asserted the native response after that wait and
+its failed-job artifact upload was skipped. The underlying Windows cause remains
+unestablished. The new driver immediately retains/asserts actual native JSON,
+captures failure UI and always uploads distribution artifacts. If repeated,
+inspect the new actual response rather than infer a cause or weaken bindings.
 
-The paper HTTP adapter must send event;core CLI uses event_id. A real request
-caught the mismatch. New disclosure preparation must await its same-generation
-whole-client cancellation;otherwise the cancellation can kill that new plan.
-Failed cancellation acknowledgement refuses preparation,without silent retry.
+Current package4 binds107 source/wheel/installed files. Actual cached-model4
+native12237/paper12363-byte requests exactly match observed bytes/SHA after
+visible consent;failed science,data,specs and exports stay unchanged. Owned
+model/browser/servers stop. Model prose remains unverified:it can conflate an
+authored false comparison with changed observations and introduce confidence-
+interval premises despite declared std. Earlier data-tuning advice is preserved;
+no model-quality or independent scientific-review improvement is established.
 
-Paper module boot exposed27 actual connection resets across7/16 attempts with
-default ProjectServer queue5. Controlled queue128 gave16/16 boots and0resets;
-production128 then gave16/16/0. Native already used128. A new real32-buffered-TCP
-regression fails before the repair(ConnectionResetError),passes current/minimum
-after. This explains the measured resets,not every older historical blank UI.
-Browser diagnostics now capture failed module requests as well as page/HTTP errors.
+## Browser defects already repaired in562
 
-## Required remaining acceptance
+The paper HTTP adapter uses event while core CLI uses event_id. New disclosure
+preparation awaits its own same-generation whole-client cancellation;failure
+acknowledgement refuses preparation without silent retry. Actual browser cases
+cover both contracts and held/failing cancellation.
 
-The first frozen gate batch was deliberately interrupted before this production
-repair;its incomplete result is preserved,not counted as passing. Explicit
-scratch retired346,157,056allocated bytes after fresh guards,with logs/source
-bindings retained. Terminal TCP fixtures retired98,304bytes separately.
+Paper default queue5 produced9/16 boots and27 module connection resets.
+Controlled128 and then production128 each gave16/16 boots/zero resets;native
+already used128. A real32-buffered-TCP regression fails before the repair and
+passes current/minimum after. This explains those resets,not all historical
+blank-page failures. The browser driver records module request failures.
 
-A fresh all10 frozen contribution/gallery batch is running on the repaired
-107-file candidate. Normal meaningful commit/push,new exact14/all3 workflows,
-and actual source-browser/core/all-platform installed artifact verification
-remain before full97/original idea4 acceptance. Preserve every requirement above
-and the complete thirty-idea roadmap. No release/tag or artificial commits.
+## Remaining acceptance
 
-2026-11-04 reviewer97b3 local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.31 actual browser controls each in current/minimum/installed-offline and two actual installed local-model browser requests pass with original failed science unchanged. Measured paper module queue5 failure9/16/27 resets is repaired128/16/16/0 and realTCP32 red/current+minimum green;cancel/disclose race also corrected. Source/graphics/frozen30 scope retained. Preparing normal coherent push;new exact14/all3 workflows and actual CI artifacts remain required for full97. Full30 stays active;no release/tag.
+The new frozen all10 contribution/gallery batch gates-refresh-2 passes against
+the final query-signature repair and diagnostic driver/workflow. The previous
+repair batch was deliberately interrupted to add Windows diagnostics;its
+incomplete run is preserved,not passing. Its owned scratch retired346185728
+allocated bytes after fresh guards. Pushed562's finished full batch separately
+retired920326144bytes after compact evidence/source/Git checks.
+
+All10 local gates pass;prepare a meaningful repair commit and normal push.
+New exact14/all3 workflow conclusions and actual source-browser/core/all-platform
+installed artifact verification remain before full97/original idea4 acceptance.
+Preserve all seven requirements,the full thirty-idea roadmap,original graphics
+and frozen research results. No release/tag or artificial commits.
+
+2026-11-04 reviewer polling repair local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.34 actual browser controls each pass in current/minimum/installed-offline;fresh PDF/latest disclosures survive the next real state poll and early Review latest is safe. Two actual installed model4 browser requests complete with failed science unchanged;advice remains unverified. Windows cause is unestablished;immediate native JSON/failure UI and always-upload distribution artifacts enable diagnosis. Preparing normal meaningful repair push;new exact14/all3 workflows and actual artifacts remain required. Full97/full30 stay active;no release/tag.

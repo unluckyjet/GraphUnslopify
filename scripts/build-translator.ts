@@ -53,6 +53,8 @@ await build({
   entryPoints: ["src/local.ts"],
   outfile: "python/graphunslopify/_translator.mjs",
   bundle: true,
+  // Keep module comments relative to this checkout when dependencies are shared by symlink.
+  preserveSymlinks: true,
   platform: "node",
   format: "esm",
   target: "node22",

@@ -100,7 +100,33 @@
           <button id="edit-figure-text" class="quiet" disabled aria-pressed="false">Edit figure text</button>
           <button id="show-diagnostics" class="quiet" disabled aria-pressed="false">Show findings</button>
           <button id="inspect-element" class="quiet" disabled aria-pressed="false">Inspect element</button>
+          <button id="trace-observations" class="quiet" disabled aria-pressed="false">Trace observations</button>
         </div>
+        <section id="observation-explorer" hidden aria-label="Observation provenance">
+          <h3>Observation provenance</h3>
+          <p class="muted">Heatmap and confusion matrix evidence stays in this local editor.</p>
+          <p id="observation-status" role="status" aria-live="polite"></p>
+          <div class="observation-picker">
+            <label>Panel <select id="observation-panel"></select></label>
+            <label>Row <input id="observation-row" type="number" min="1" step="1" required></label>
+            <label>Column <input id="observation-column" type="number" min="1" step="1" required></label>
+            <button id="observation-pick" class="quiet" type="button">Inspect cell</button>
+          </div>
+          <div class="figure-tools">
+            <button id="observation-filters" class="quiet" type="button">Figure filters</button>
+            <button id="observation-preparation" class="quiet" type="button">Data preparation</button>
+            <button id="observation-back" class="quiet" type="button">Back</button>
+            <button id="observation-close" class="quiet" type="button">Close</button>
+          </div>
+          <div id="observation-details"></div>
+          <div class="figure-tools">
+            <button id="observation-previous" class="quiet" type="button">Previous page</button>
+            <button id="observation-next" class="quiet" type="button">Next page</button>
+            <button id="observation-program" class="quiet" type="button">View generated code</button>
+            <button id="observation-graph" class="quiet" type="button">Download observation graph</button>
+          </div>
+          <pre id="observation-code" tabindex="0" aria-label="Generated Python" hidden></pre>
+        </section>
         <section id="diagnostic-review" hidden aria-label="Review figure findings">
           <label for="diagnostic-finding">Finding</label>
           <select id="diagnostic-finding"><option value="">Choose a finding</option></select>

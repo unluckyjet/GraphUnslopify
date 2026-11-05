@@ -105,8 +105,13 @@ graphunslopify explain-cell render/figure.report.json 240 160
 ```
 
 Use the export's own pixel coordinates measured from the upper-left corner.
-This command inspects the saved render. Live editor ownership checks, browser
-selection and other mark types remain in the full scope.
+In the local editor, **Trace observations** opts into the same matrix evidence.
+A cell can be selected by PNG position or panel, row, and column. The explorer
+pages contributors and exclusions, links calculation inputs and the filter
+and preparation roots, shows the generated Python and offers an explicit graph
+download. Editor generation, render attempt, runtime and file checks protect
+against stale or altered evidence. The rest of the renderer and quantity
+inventory remains part of the full scope.
 
 ## Measured references and current limits
 

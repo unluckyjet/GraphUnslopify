@@ -1,16 +1,33 @@
-# Observation lineage foundation
+# Observation provenance
 
-The observation-level explorer is in development. A local Python ledger records
-which original records and calculations produced a quantity. Opt-in generated
-renders populate it through reading, filtering, preparation, ordinary
-summaries and matrix cells. Other specialized calculations, per-mark evidence and the clickable
-explorer are tracked in
+A local Python ledger records which original records and calculations produced a
+quantity. Opt-in renders record reading, filtering, preparation, ordinary summaries
+and matrix cells. The local editor can pick cells in heatmaps and confusion matrices.
+Other marks and specialized calculations are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
 For example, subtracting a baseline depends on both the displayed measurement
 and the observations used to estimate that baseline. Hiding the baseline series
 does not remove those dependencies. Likewise, averaging technical repeats into
 one declared unit does not make those repeats independent observations.
+
+## Inspect a matrix in the local editor
+
+1. Open the editor with `graphunslopify preview --open` and choose data for a
+   heatmap or confusion matrix with a PNG export.
+2. Choose **Trace observations**. Once the final PNG appears, click a cell or
+   choose its panel, row, and column.
+3. Follow calculation inputs or scoped exclusions to inspect their records. Use
+   **Figure filters** and **Data preparation** for the broader selection.
+   The editor numbers parsed records from 1. Quoted CSV lines and worksheet
+   rows can use different file positions.
+4. Choose **View generated code** to see the Python used for this render. Use
+   **Download observation graph** to save the complete local graph.
+
+The trace is tied to the actual PNG, specification, source snapshot and render
+attempt. Edits clear it. Changed evidence is refused. The explicit graph
+download may contain derived values and labels from the input. The editor keeps
+it separate from standard exports and model-review requests.
 
 ## Trace a generated render
 

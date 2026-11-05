@@ -29,6 +29,7 @@ from .describe import profile
 from .drafts import InvalidDraft
 from .errors import SpecError
 from .preview_drafts import PreviewDrafts
+from .preview_observations import MATRIX_KINDS, PreviewObservations
 from .preview_staging import PreviewStages
 from .transport import local_request
 from .workbook import EXCEL_SUFFIXES, workbook_sheets
@@ -60,6 +61,7 @@ class PreviewState:
         from .review_sessions import ReviewSessions
 
         self.review_sources = PreviewReviews(self)
+        self.observations = PreviewObservations(self)
         self.reviewer = ReviewSessions(
             self.review_sources.plan, self.review_sources.document, source_kind="editor-render"
         )
@@ -297,7 +299,16 @@ class PreviewState:
                 self.render_attempts[client] = render_attempt
             self.generations[client] = max(generation, self.generations.get(client, -1))
         spec, data, palette = self.prepare(payload)
-        translated, translation_execution = self._compiler_request("convert", spec)
+        trace = payload.get("trace_observations", False)
+        if type(trace) is not bool:
+            raise TypeError("trace_observations must be a boolean")
+        if trace and spec.get("kind") not in MATRIX_KINDS:
+            raise ValueError(
+                "Observation picking currently supports heatmaps and confusion matrices"
+            )
+        translated, translation_execution = self._compiler_request(
+            "convert-observations" if trace else "convert", spec
+        )
         answer = {
             "generation": generation,
             "spec": spec,
@@ -479,6 +490,8 @@ class PreviewState:
                 answer["execution"],
                 answer["export_errors"],
             )
+            if trace:
+                record["observations"] = self.observations.bind(record)
             # Publish reviewable runs only after final native evidence is complete.
             with self.lock:
                 self.runs[identity] = record
@@ -493,6 +506,12 @@ class PreviewState:
                 "error": record["review_evidence"].get("error"),
                 "source_kind": "editor-render",
             }
+            if trace:
+                answer["observations"] = (
+                    {"available": False, "error": "Observation render is stale"}
+                    if answer["stale"]
+                    else record["observations"]
+                )
             return answer
 
     def bundle(self, identity: str, include_data: bool) -> bytes:
@@ -672,6 +691,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/autopilot.js",
                 "/figure-reviewer.js",
                 "/figure-reviewer.css",
+                "/observation-explorer.js",
             }
         ):
             self.json({"error": "This local editor request is not authorized"}, 403)
@@ -695,6 +715,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/autopilot.js",
             "/figure-reviewer.js",
             "/figure-reviewer.css",
+            "/observation-explorer.js",
         }:
             name = {
                 "/": "index.html",
@@ -715,6 +736,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/autopilot.js": "autopilot.js",
                 "/figure-reviewer.js": "figure-reviewer.js",
                 "/figure-reviewer.css": "figure-reviewer.css",
+                "/observation-explorer.js": "observation-explorer.js",
             }[route]
             data = files("graphunslopify").joinpath("web/" + name).read_bytes()
             data = data.replace(b"__PREVIEW_TOKEN__", self.server.state.token.encode())
@@ -737,6 +759,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "source-imports.js": "text/javascript; charset=utf-8",
                     "autopilot.js": "text/javascript; charset=utf-8",
                     "figure-reviewer.js": "text/javascript; charset=utf-8",
+                    "observation-explorer.js": "text/javascript; charset=utf-8",
                     "figure-reviewer.css": "text/css; charset=utf-8",
                     "app.css": "text/css; charset=utf-8",
                 }[name],
@@ -840,6 +863,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
             route = urlsplit(self.path).path
             if route.startswith("/api/reviewer/") and size > 65536:
                 raise ValueError("Reviewer control request exceeds 64KiB")
+            if route.startswith("/api/observations/") and size > 65536:
+                raise ValueError("Observation control request exceeds 64KiB")
             body = self.rfile.read(size)
             if route == "/api/upload":
                 self.json(
@@ -957,6 +982,11 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json({k: v for k, v in result.items() if k != "code"})
             elif route == "/api/render":
                 self.json(self.server.state.render(payload))
+            elif route == "/api/observations/query":
+                self.json(self.server.state.observations.query(payload))
+            elif route == "/api/observations/download":
+                content, content_type, name = self.server.state.observations.download(payload)
+                self.send(content, content_type, download=name)
             elif route == "/api/journal-check":
                 self.json(self.server.state.journal_check(payload))
             else:

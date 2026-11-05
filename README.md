@@ -711,10 +711,11 @@ labels outside the visible axes rather than reporting collisions with invisible 
 
 ## Development
 
-The [observation provenance explorer](docs/observation-provenance.md) is in development.
-Its initial local Python ledger records observation identities, calculation dependencies
-and scoped exclusions. Automatic tracing of plotted quantities and the clickable explorer
-are tracked in [spec98](pipeline/specs/98-observation-provenance.md).
+Use **Trace observations** in the local editor to inspect a heatmap or confusion
+matrix. Click a cell or choose its panel, row, and column to see its calculation
+and contributing records. The [observation provenance guide](docs/observation-provenance.md)
+covers graph downloads and generated code. Additional plot types and marks are
+tracked in [spec98](pipeline/specs/98-observation-provenance.md).
 
 From a checkout, install Node dependencies and the Python package with development extras:
 

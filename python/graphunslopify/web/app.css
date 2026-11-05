@@ -548,6 +548,16 @@ footer {
 #text-editor button { margin-top: 12px; }
 #text-error { color: var(--red); }
 .figure-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+#preview.observation-active { cursor: crosshair; }
+#observation-explorer .observation-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+#observation-explorer .observation-picker input { width: 5rem; }
+#observation-explorer pre { max-height: 22rem; overflow: auto; }
 #diagnostic-targets { position: absolute; inset: 0; pointer-events: none; }
 #diagnostic-targets[hidden], #diagnostic-review[hidden] { display: none; }
 #diagnostic-targets .diagnostic-target {

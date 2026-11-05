@@ -13,6 +13,7 @@ import { checkDiagnostics } from "./preview-diagnostics-check.ts";
 import { checkHeadings } from "./preview-headings-check.ts";
 import { checkOutsideLegends } from "./preview-legends-check.ts";
 import { checkOwnedText } from "./preview-owned-text-check.ts";
+import { checkObservations } from "./preview-observations-check.ts";
 import { checkStaging } from "./preview-staging-check.ts";
 
 // Module-local browser globals; importing lib.dom changes unrelated Node stream types.
@@ -1069,6 +1070,7 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
   const ownedHeadings = await checkHeadings(page, evidence);
   const ownedLegends = await checkOutsideLegends(page, evidence);
   const ownedText = await checkOwnedText(page, evidence);
+  const observations = await checkObservations(page, evidence);
   const staged = await checkStaging(browser, evidence, env, python);
   await Promise.all(workerObservations);
   assert.ok(workerExecutions.length >= 10);
@@ -1092,8 +1094,10 @@ print('Metric/facet labels reproduced with actual original columns, panel keys a
         owned_legends: ownedLegends,
         owned_text: ownedText,
         staged_preview: staged,
+        observations,
         workflows: [
           ...staged.workflows,
+          ...observations.workflows,
           ...diagnosticOverlays.workflows,
           ...ownedHeadings.workflows,
           ...ownedLegends.workflows,

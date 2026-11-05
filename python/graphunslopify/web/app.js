@@ -12,6 +12,7 @@ import { createExperimentImports } from "/experiment-imports.js";
 import { createSourceImports } from "/source-imports.js";
 import { createAutopilot } from "/autopilot.js";
 import { createFigureReviewer } from "/figure-reviewer.js";
+import { createObservationExplorer, verifiedObservationImage } from "/observation-explorer.js";
 let draftEditor = null;
 let reuseEditor = null, reusePresets = [];
 let journalChecks = null;
@@ -20,6 +21,7 @@ let experimentImports = null;
 let sourceImports = null;
 let autopilot = null;
 let figureReviewer = null, reviewableRender = null;
+let observationExplorer = null;
 let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
@@ -52,6 +54,7 @@ const stagedPreview = createStagedPreview({
     textEditor.clear();
     contextInspector?.clear();
     diagnosticOverlays.clear();
+    observationExplorer?.clear();
     $("bundle").disabled = true;
     $("files").replaceChildren();
     const image = $("preview");
@@ -113,13 +116,22 @@ const textEditor = createTextEditor({
 const diagnosticOverlays = createDiagnosticOverlays({
   current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
   catalog: () => diagnosticCatalog,
-  deactivateText: () => {textEditor.hide();contextInspector?.hide();},
+  deactivateText: () => {textEditor.hide();contextInspector?.hide();observationExplorer?.hide();},
 });
 contextInspector = createContextInspector({
   current: () => ({revision, dataId: data?.id, result: latest, spec: readSpec()}),
-  controls, deactivate: () => {textEditor.hide();diagnosticOverlays.hide();},
+  controls, deactivate: () => {textEditor.hide();diagnosticOverlays.hide();observationExplorer?.hide();},
 });
-$("edit-figure-text").addEventListener("click", () => {diagnosticOverlays.hide();contextInspector.hide();});
+$("edit-figure-text").addEventListener("click", () => {diagnosticOverlays.hide();contextInspector.hide();observationExplorer?.hide();});
+observationExplorer = createObservationExplorer({
+  api, token, client, current: () => ({generation: revision, run: latest?.run_id}),
+  supported: () => {
+    try { return !!data && ["heatmap", "confusion_matrix"].includes(readSpec().kind); }
+    catch { return false; }
+  },
+  trace: () => { clearTimeout(timer); void update(true, true); },
+  deactivate: () => {textEditor.hide();diagnosticOverlays.hide();contextInspector.hide();},
+});
 draftEditor = createDraftEditor({
   api, identity: () => ({client, generation: revision}), flush: () => controls.flush(),
   snapshot: () => ({client, generation: revision, spec: readSpec(), data_id: data?.id, palette_id: palette?.id, data_name: data?.name, rows: data?.rows, sheet: data?.profile?.sheet, columns: data?.columns.map(column => column.name) || []}),
@@ -179,6 +191,7 @@ function invalidate() {
   textEditor.clear();
     contextInspector?.clear();
   diagnosticOverlays.clear();
+  observationExplorer?.clear();
   $("figure-surface").hidden = true;
   $("bundle").disabled = true;
   $("files").replaceChildren();
@@ -369,7 +382,7 @@ function artifact(run, name, download = false) {
     (download ? "&download=true" : "")
   );
 }
-async function update(force) {
+async function update(force, traceObservations = false) {
   reviewableRender = null; figureReviewer?.refresh();
   if (!data) {
     status(workbook ? "Choose a worksheet" : "Choose data");
@@ -390,6 +403,7 @@ async function update(force) {
   textEditor.clear();
     contextInspector?.clear();
   diagnosticOverlays.clear();
+  observationExplorer.clear();
   const current = revision;
   const attempt = stagedPreview.begin({generation: current, data_id: data.id, palette_id: palette?.id});
   status("Checking…");
@@ -418,7 +432,9 @@ async function update(force) {
       return;
     }
     status("Rendering…");
-    const final = api("/api/render", {...payload, ...attempt.payload});
+    const final = api("/api/render", {
+      ...payload, ...attempt.payload, ...(traceObservations ? {trace_observations: true} : {}),
+    });
     attempt.start();
     const result = await final;
     attempt.finish();
@@ -454,12 +470,17 @@ async function update(force) {
     }
     const image = result.files.find((file) => file.format === "png");
     if (image) {
-      $("preview").src = artifact(result.run_id, image.name);
+      const url = artifact(result.run_id, image.name);
+      const observedImage = result.observations?.available ? result.observations.image : null;
+      const source = observedImage ? await verifiedObservationImage(url, observedImage) : url;
+      if (!attempt.isCurrent()) return;
+      $("preview").src = source;
       $("preview").alt = report.alt_text;
       $("preview").dataset.phase = "final";
       $("preview").dataset.generation = String(current);
       $("preview").dataset.runId = result.run_id;
-      delete $("preview").dataset.imageSha256;
+      if (observedImage) $("preview").dataset.imageSha256 = observedImage.sha256;
+      else delete $("preview").dataset.imageSha256;
       $("preview").hidden = false;
       $("figure-surface").hidden = false;
       textEditor.mount(result);
@@ -471,6 +492,7 @@ async function update(force) {
       $("empty").lastElementChild.textContent =
         "Review the findings and update the specification.";
     }
+    observationExplorer.mount(result);
     const counts = report.data.counts;
     $("counts").textContent =
       `${counts.read ?? 0} rows read · ${counts.after_filter ?? 0} after filters${counts.unit_column ? ` · units: ${counts.unit_column}` : ""}`;

@@ -1378,11 +1378,13 @@ def draw_panel(ax, df):
 function emitConfusionMatrix(
   spec: FigureSpec & { kind: "confusion_matrix" },
   out: string[],
+  traceMatrix: boolean,
 ): void {
   const counts = spec.value
     ? 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, values=VALUE_FIELD, aggfunc="sum", fill_value=0, observed=True)'
     : 'df.pivot_table(index=Y_FIELD, columns=X_FIELD, aggfunc="size", fill_value=0, observed=True)';
-  out.push("", "def confusion_counts(df):");
+  const traceWeights = traceMatrix && !!spec.value;
+  out.push("", traceWeights ? "def confusion_counts(df, *, with_weights=False):" : "def confusion_counts(df):");
   if (spec.value) out.push(
     "    df = df.copy()",
     '    values = pd.to_numeric(df[VALUE_FIELD], errors="raise").to_numpy(dtype=float)',
@@ -1393,9 +1395,14 @@ function emitConfusionMatrix(
   out.push(
     `    matrix = ${counts}`,
     "    labels = sorted(set(matrix.index) | set(matrix.columns), key=str)",
-    "    return matrix.reindex(index=labels, columns=labels, fill_value=0)",
+    ...(traceWeights ? [
+      "    matrix = matrix.reindex(index=labels, columns=labels, fill_value=0)",
+      "    return (matrix, values) if with_weights else matrix",
+    ] : ["    return matrix.reindex(index=labels, columns=labels, fill_value=0)"]),
     "", "", "def draw_panel(ax, df):",
-    "    matrix = confusion_counts(df)",
+    traceWeights
+      ? "    matrix, weights = confusion_counts(df, with_weights=True)"
+      : "    matrix = confusion_counts(df)",
     "    labels = list(matrix.index)",
     "    raw = matrix.to_numpy(dtype=float)",
     "    shown = raw.copy()",
@@ -1427,6 +1434,7 @@ function emitConfusionMatrix(
   );
   if (spec.annotate_cells) {
     out.push(
+      ...(traceMatrix ? ["    cell_text = {}"] : []),
       "    # A printed number is exact where shading is estimated, and a",
       "    # confusion matrix is usually read one cell at a time.",
       "    for row in range(len(labels)):",
@@ -1445,8 +1453,18 @@ function emitConfusionMatrix(
       "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT,",
       "            )",
+      ...(traceMatrix ? ["            cell_text[row, column] = text"] : []),
     );
   }
+  if (traceMatrix) out.push(
+    "    if OBSERVATION_CAPTURE is not None:",
+    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
+    "            df, matrix, shown, axes=(Y_FIELD, X_FIELD),",
+    `            field=${spec.value ? "VALUE_FIELD" : "None"}, aggregation=${pyStr(spec.value ? "sum" : "size")},`,
+    `            normalization=${pyStr(spec.normalize)}, totals=${spec.normalize === "none" ? "None" : "totals"},`,
+    `            weights=${traceWeights ? "weights" : "None"}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
+    "        )",
+  );
   out.push("");
 }
 
@@ -1576,7 +1594,9 @@ function emitSparklineGrid(spec: FigureSpec & { kind: "sparkline_grid" }, out: s
   );
 }
 
-function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): void {
+function emitHeatmap(
+  spec: FigureSpec & { kind: "heatmap" }, out: string[], traceMatrix: boolean,
+): void {
   out.push(
     "",
     "def heatmap_matrix(df):",
@@ -1621,6 +1641,7 @@ function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): voi
 
   if (spec.annotate_cells) {
     out.push(
+      ...(traceMatrix ? ["    cell_text = {}"] : []),
       "    # Compare actual normalized cell backgrounds with pure black and white.",
       "    # One precision for every cell, so the grid reads like a table.",
       "    reach = np.nanmax(np.abs(values)) if np.isfinite(values).any() else 1.0",
@@ -1630,21 +1651,30 @@ function emitHeatmap(spec: FigureSpec & { kind: "heatmap" }, out: string[]): voi
       "            cell = values[row, column]",
       "            if not np.isfinite(cell):",
       "                continue",
+      ...(traceMatrix ? ['            text = f"{cell:.{digits}f}"'] : []),
       "            ax.text(",
       "                column,",
       "                row,",
-      '                f"{cell:.{digits}f}",',
+      traceMatrix ? "                text," : '                f"{cell:.{digits}f}",',
       '                ha="center",',
       '                va="center",',
       "                color=cell_text_colour(ax, column, row),",
       "                fontsize=ANNOTATION_PT - 1,",
       "            )",
+      ...(traceMatrix ? ["            cell_text[row, column] = text"] : []),
     );
   }
+  if (traceMatrix) out.push(
+    "    if OBSERVATION_CAPTURE is not None:",
+    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
+    "            df, matrix, values, axes=(Y_FIELD, X_FIELD), field=VALUE_FIELD,",
+    `            aggregation=${pyStr(spec.aggregation)}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
+    "        )",
+  );
   out.push("");
 }
 
-export function emitDraw(spec: PlottedSpec, out: string[]): void {
+export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean): void {
   emitSeriesHelpers(spec, out);
   if (hasCategoricalX(spec)) {
     emitCategories(spec, out);
@@ -1699,7 +1729,7 @@ export function emitDraw(spec: PlottedSpec, out: string[]): void {
       emitScalingFit(spec, out);
       break;
     case "confusion_matrix":
-      emitConfusionMatrix(spec, out);
+      emitConfusionMatrix(spec, out, traceMatrix);
       break;
     case "waterfall":
       emitWaterfall(spec, out);
@@ -1708,7 +1738,7 @@ export function emitDraw(spec: PlottedSpec, out: string[]): void {
       emitSparklineGrid(spec, out);
       break;
     case "heatmap":
-      emitHeatmap(spec, out);
+      emitHeatmap(spec, out, traceMatrix);
       break;
     default: {
       const unhandled: never = spec;

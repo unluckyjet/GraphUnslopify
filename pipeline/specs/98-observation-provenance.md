@@ -77,8 +77,13 @@ preparation checkpoint at `01e8634` passed all fourteen checks and all three
 workflows. Ordinary summaries add a separate root for measured line, bar,
 forest and table estimates, declared-unit collapse and requested intervals.
 Positional grouping follows the actual reductions and survives numerical
-cache reuse, with current-run calculation ownership. Specialized estimators
-and displayed-quantity tracing remain part of 98b and 98c.
+cache reuse, with current-run calculation ownership. The ordinary summary
+checkpoint at `b165188` passed all fourteen exact checks and all three
+workflows. Heatmap and confusion-matrix cells now record actual aggregates,
+measurements, exclusions and annotations. Normalized confusion shares link to
+their own count and the actual row or column denominator. Native matrix image
+arrays retain ordered cell IDs. Other specialized estimators and final-export
+geometry remain part of 98b and 98c.
 
 98c: renderer quantity geometry,local API/CLI and real workspace explorer/code/
 download lifecycle,then a full requirement-by-requirement acceptance audit.

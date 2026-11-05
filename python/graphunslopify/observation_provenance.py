@@ -374,6 +374,10 @@ def _summary_groups(codes, count):
     return groups
 
 
+def _matrix_key(row, column):
+    return tuple(None if pd.isna(label) else label for label in (row, column))
+
+
 class _ObservationSelection:
     """Track parsed positions through the renderer's actual pandas operations."""
 
@@ -405,8 +409,9 @@ class _ObservationSelection:
         self._fields = {}
         self._preparation_exclusions = []
         self._identifier_steps = []
-        self._summary_frames = {}
+        self._prepared_frames = {}
         self._summary_roots = {}
+        self._matrix_roots = {}
 
     def sort(self, frame, field):
         # Carry positions through the actual sort, including duplicate labels and NaT.
@@ -749,18 +754,18 @@ class _ObservationSelection:
             metadata={"identifier_steps": self._identifier_steps},
             excluded=[*self.exclusions, *self._preparation_exclusions],
         )
-        self._summary_frames[id(frame)] = (weakref.ref(frame), range(len(frame)), None, set())
+        self._prepared_frames[id(frame)] = (weakref.ref(frame), range(len(frame)), None, set())
 
-    def _summary_frame(self, frame):
-        reference, positions, panel, fields = self._summary_frames.get(
+    def _prepared_frame(self, frame):
+        reference, positions, panel, fields = self._prepared_frames.get(
             id(frame), (None, None, None, None)
         )
         if reference is None or reference() is not frame or len(positions) != len(frame):
-            raise ValueError("Observation summary frame has no prepared row mapping")
+            raise ValueError("Observation calculation frame has no prepared row mapping")
         return positions, panel, fields
 
-    def summary_subset(self, frame, mask, panel):
-        positions, _, _ = self._summary_frame(frame)
+    def prepared_subset(self, frame, mask, panel):
+        positions, _, _ = self._prepared_frame(frame)
         if not mask.index.equals(frame.index):
             raise ValueError("Observation panel mask is not aligned to its source frame")
         subset = frame[mask]
@@ -770,7 +775,7 @@ class _ObservationSelection:
         ]
         if len(kept) != len(subset):
             raise ValueError("Observation panel membership differs from pandas selection")
-        self._summary_frames[id(subset)] = (weakref.ref(subset), kept, panel, set())
+        self._prepared_frames[id(subset)] = (weakref.ref(subset), kept, panel, set())
         return subset
 
     def _summary_support(self, members, references, witness, field):
@@ -815,7 +820,7 @@ class _ObservationSelection:
         bootstrap=None,
         panel=None,
     ):
-        positions, registered_panel, summarized_fields = self._summary_frame(frame)
+        positions, registered_panel, summarized_fields = self._prepared_frame(frame)
         if registered_panel is not None:
             panel = registered_panel
         if field in summarized_fields:
@@ -939,6 +944,177 @@ class _ObservationSelection:
             },
         )
 
+    def record_matrix(
+        self,
+        frame,
+        matrix,
+        shown,
+        *,
+        axes,
+        field,
+        aggregation,
+        text,
+        normalization=None,
+        totals=None,
+        weights=None,
+    ):
+        """Bind the actual image array to positional memberships and aggregates."""
+        positions, panel, _ = self._prepared_frame(frame)
+        confusion = normalization is not None
+        if shown.shape != matrix.shape:
+            raise ValueError("Observation matrix does not match the displayed array")
+
+        # Match the numeric pivot's grouping policy. Its post-aggregation
+        # reindexing can add cells, so bind by actual labels rather than group order.
+        grouped = frame.groupby(list(axes), observed=True, sort=confusion, dropna=confusion).indices
+        groups = {_matrix_key(*key): members for key, members in grouped.items()}
+        field_references = self._fields.get(field, self._rows)
+        references = [field_references[position] for position in positions]
+        if weights is not None:
+            metadata = {
+                "field": field,
+                "from_dtype": str(frame[field].dtype),
+                "to_dtype": str(weights.dtype),
+            }
+            references = [
+                self._measurement("confusion_weight", [reference], value, metadata)
+                for reference, value in zip(references, weights, strict=True)
+            ]
+        missing = frame[field].isna().to_numpy() if field is not None and weights is None else None
+        unassigned = set(range(len(frame)))
+        cell_nodes = []
+        cell_metadata = []
+        for row, row_label in enumerate(matrix.index):
+            row_nodes = []
+            row_metadata = []
+            for column, column_label in enumerate(matrix.columns):
+                members = groups.get(_matrix_key(row_label, column_label), ())
+                unassigned.difference_update(members)
+                inputs = []
+                rejected = []
+                for position in members:
+                    target = rejected if missing is not None and missing[position] else inputs
+                    target.append(references[position])
+                excluded = (
+                    [
+                        self.ledger.exclude(
+                            "missing_measurement",
+                            rejected,
+                            stage="matrix",
+                            metadata={"field": field},
+                        )
+                    ]
+                    if rejected
+                    else []
+                )
+                aggregate, aggregate_status = self._number(matrix.iat[row, column])
+                metadata = {
+                    "row": row,
+                    "column": column,
+                    "row_label": str(row_label),
+                    "column_label": str(column_label),
+                    "aggregation": aggregation,
+                    "aggregate": aggregate,
+                    "aggregate_status": aggregate_status,
+                    "record_count": len(members),
+                    "contributing_count": len(inputs),
+                    "membership": (
+                        "unobserved"
+                        if len(members) == 0
+                        else "observed"
+                        if inputs
+                        else "all_missing"
+                    ),
+                }
+                if (row, column) in text:
+                    metadata["annotation"] = text[row, column]
+                row_metadata.append(metadata)
+                if totals is None:
+                    node = self._measurement(
+                        "matrix_cell", inputs, shown[row, column], metadata, excluded=excluded
+                    )
+                else:
+                    count_metadata = {
+                        key: value for key, value in metadata.items() if key != "annotation"
+                    }
+                    node = self._measurement(
+                        "matrix_count",
+                        inputs,
+                        matrix.iat[row, column],
+                        count_metadata,
+                        excluded=excluded,
+                    )
+                row_nodes.append(node)
+            cell_nodes.append(row_nodes)
+            cell_metadata.append(row_metadata)
+
+        if totals is not None:
+            cell_nodes = self._normalized_matrix(
+                cell_nodes, cell_metadata, shown, totals, normalization
+            )
+        excluded = (
+            [
+                self.ledger.exclude(
+                    "matrix_key_not_displayed",
+                    (references[position] for position in sorted(unassigned)),
+                    stage="matrix",
+                    metadata={"axes": axes},
+                )
+            ]
+            if unassigned
+            else []
+        )
+        root = self.ledger.calculate(
+            "matrix_panel",
+            (node for row in cell_nodes for node in row),
+            value=int(matrix.size),
+            metadata={
+                "panel": panel if panel is not None else 0,
+                "kind": "confusion_matrix" if confusion else "heatmap",
+                "row_field": axes[0],
+                "column_field": axes[1],
+                "value_field": field,
+                "normalization": normalization,
+                "shape": matrix.shape,
+            },
+            excluded=excluded,
+        )
+        self._matrix_roots[root] = None
+        return cell_nodes
+
+    def _normalized_matrix(self, counts, metadata, shown, totals, normalization):
+        by_row = normalization == "row"
+        axis_counts = counts if by_row else list(zip(*counts, strict=True))
+        values = totals.ravel()
+        denominators = [
+            self._measurement(
+                "matrix_normalization_total",
+                inputs,
+                value,
+                {"axis": normalization, "position": index, "zero_total": bool(value == 0)},
+            )
+            for index, (inputs, value) in enumerate(zip(axis_counts, values, strict=True))
+        ]
+        displayed = []
+        for row, nodes in enumerate(counts):
+            row_nodes = []
+            for column, numerator in enumerate(nodes):
+                index = row if by_row else column
+                row_nodes.append(
+                    self._measurement(
+                        "matrix_cell",
+                        [numerator, denominators[index]],
+                        shown[row, column],
+                        {
+                            **metadata[row][column],
+                            "normalization": normalization,
+                            "zero_total": bool(values[index] == 0),
+                        },
+                    )
+                )
+            displayed.append(row_nodes)
+        return displayed
+
     def write(self, directory: Path) -> dict[str, str]:
         if self.node_id is None:
             raise ValueError("Observation selection is incomplete")
@@ -949,6 +1125,13 @@ class _ObservationSelection:
                 value=len(self._summary_roots),
             )
             if self._summary_roots
+            else None
+        )
+        matrix = (
+            self.ledger.calculate(
+                "matrix_panels", self._matrix_roots, value=len(self._matrix_roots)
+            )
+            if self._matrix_roots
             else None
         )
         payload = self.ledger.to_json()
@@ -975,6 +1158,7 @@ class _ObservationSelection:
                 else {}
             ),
             **({"summary_node_id": summary} if summary is not None else {}),
+            **({"matrix_node_id": matrix} if matrix is not None else {}),
         }
 
 
@@ -1022,17 +1206,23 @@ def _read_observation_selection(
             or len(preparation["inputs"]) != preparation["value"]
         ):
             raise ValueError("Observation preparation root does not match the prepared frame")
-    if "summary_node_id" in selection:
-        summary = graph._nodes.get(selection["summary_node_id"], {})
+    for kind, operation, panel_operation in (
+        ("summary", "ordinary_summaries", "summary_panel"),
+        ("matrix", "matrix_panels", "matrix_panel"),
+    ):
+        name = f"{kind}_node_id"
+        if name not in selection:
+            continue
+        root = graph._nodes.get(selection[name], {})
         if (
             "preparation_node_id" not in selection
-            or summary.get("operation") != "ordinary_summaries"
-            or summary["value"] != len(summary["inputs"])
+            or root.get("operation") != operation
+            or root["value"] != len(root["inputs"])
             or any(
-                graph._nodes[item].get("operation") != "summary_panel" for item in summary["inputs"]
+                graph._nodes[item].get("operation") != panel_operation for item in root["inputs"]
             )
         ):
-            raise ValueError("Observation summary root does not match the calculated panels")
+            raise ValueError(f"Observation {kind} root does not match the calculated panels")
     return path
 
 

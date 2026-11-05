@@ -431,7 +431,7 @@ export function emitSummarise(spec: FigureSpec, out: string[], traceSummary: boo
 
   if (traceSummary) {
     const collapses = aggregation === "mean" || aggregation === "median";
-    out.push("", "OBSERVATION_CAPTURE = None", "", "def summarise(frame):",
+    out.push("", "def summarise(frame):",
       "    result, witness, unit_codes, unit_values, point_codes = _summarise_with_membership(frame)",
       "    if OBSERVATION_CAPTURE is not None:",
       "        OBSERVATION_CAPTURE.record_summary(",

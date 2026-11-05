@@ -2,8 +2,8 @@
 
 The observation-level explorer is in development. A local Python ledger records
 which original records and calculations produced a quantity. Opt-in generated
-renders populate it through reading, filtering, preparation and ordinary
-summaries. Specialized calculations, per-mark evidence and the clickable
+renders populate it through reading, filtering, preparation, ordinary
+summaries and matrix cells. Other specialized calculations, per-mark evidence and the clickable
 explorer are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
@@ -44,6 +44,14 @@ Use `explain()` on the point's estimate or interval node for its scoped
 contributors and exclusions. Use the original filter root for the figure-wide
 selection. The numerical cache can reuse results and positional membership
 while the ledger binds calculations to each current render.
+
+For heatmaps and confusion matrices, `matrix_node_id` points to each rendered
+panel and its cells in image-array order. Each cell carries its axis labels,
+aggregate, displayed numeric value and printed annotation when present. The
+trace distinguishes an unobserved cell, an all-missing measurement group and
+a measured zero. In a normalized confusion matrix, a cell links separately
+to its count and the actual row or column total. A zero total is recorded
+explicitly alongside the renderer's zero placeholder.
 
 ## Local ledger API
 

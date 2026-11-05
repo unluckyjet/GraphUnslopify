@@ -488,7 +488,7 @@ class Figure:
         Strict verification defaults on. Explicit `strict=False` opts out of
         verification rejection; the report still records the actual verdict.
         `fail_on_warning` defaults off and always implies strict verification.
-        `trace_observations` records local reader, filter, preparation and ordinary summary evidence.
+        `trace_observations` records local reader, filter, preparation and supported calculation evidence.
         """
         # Resolve input paths before moving to the output directory. Keep paths
         # relative to the generated program, and do not mutate the author's spec.

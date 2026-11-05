@@ -1164,7 +1164,7 @@ def build_parser() -> argparse.ArgumentParser:
     generated.add_argument(
         "--trace-observations",
         action="store_true",
-        help="record observation dependencies through filters, preparation and summaries (local translator)",
+        help="record observation dependencies through filters, preparation and supported calculations (local translator)",
     )
     _verification_options(generated)
     generated.add_argument("--json", action="store_true")

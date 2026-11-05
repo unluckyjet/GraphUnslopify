@@ -295,7 +295,7 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
 }
 
 function emitMain(
-  spec: FigureSpec, out: string[], traceObservations: boolean, traceSummary: boolean,
+  spec: FigureSpec, out: string[], traceObservations: boolean, traceQuantities: boolean,
 ): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
@@ -353,11 +353,12 @@ function emitMain(
     "",
     "",
   );
-  if (traceSummary && spec.facet) out.push(
-    "def summary_subset(frame, mask, panel=None):",
+  if (traceQuantities) out.push("OBSERVATION_CAPTURE = None", "", "");
+  if (traceQuantities && spec.facet) out.push(
+    "def observation_subset(frame, mask, panel=None):",
     "    if OBSERVATION_CAPTURE is None:",
     "        return frame[mask]",
-    "    return OBSERVATION_CAPTURE.summary_subset(frame, mask, panel)",
+    "    return OBSERVATION_CAPTURE.prepared_subset(frame, mask, panel)",
     "",
     "",
   );
@@ -367,16 +368,16 @@ function emitMain(
   );
   if (spec.facet?.rows) {
     out.push(
-      traceSummary
-        ? "    valid = summary_subset(df, df[FACET_BY].notna() & df[FACET_ROWS].notna())"
+      traceQuantities
+        ? "    valid = observation_subset(df, df[FACET_BY].notna() & df[FACET_ROWS].notna())"
         : "    valid = df.dropna(subset=[FACET_BY, FACET_ROWS])",
       "    names = list(dict.fromkeys(valid[FACET_BY].tolist()))",
       "    rows = list(dict.fromkeys(valid[FACET_ROWS].tolist()))",
       "    if len(names) > FACET_COLUMNS:",
       '        raise ValueError(f"nested facet has {len(names)} column levels; increase facet.columns")',
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name), "row": str(row)} for row in rows for name in names]',
-      ...(traceSummary ? [
-        '    return [(f"{row} / {name}", summary_subset(valid, (valid[FACET_ROWS] == row) & (valid[FACET_BY] == name), index))',
+      ...(traceQuantities ? [
+        '    return [(f"{row} / {name}", observation_subset(valid, (valid[FACET_ROWS] == row) & (valid[FACET_BY] == name), index))',
         "            for index, (row, name) in enumerate((row, name) for row in rows for name in names)]",
       ] : [
         '    return [(f"{row} / {name}", valid[(valid[FACET_ROWS] == row) & (valid[FACET_BY] == name)])',
@@ -387,8 +388,8 @@ function emitMain(
     out.push(
       "    names = list(dict.fromkeys(df[FACET_BY].dropna().tolist()))",
       '    globals()["PANEL_SOURCE_KEYS"] = [{"value": str(name)} for name in names]',
-      traceSummary
-        ? "    return [(name, summary_subset(df, df[FACET_BY] == name, index)) for index, name in enumerate(names)]"
+      traceQuantities
+        ? "    return [(name, observation_subset(df, df[FACET_BY] == name, index)) for index, name in enumerate(names)]"
         : "    return [(name, df[df[FACET_BY] == name]) for name in names]",
     );
   } else {
@@ -403,18 +404,18 @@ function emitMain(
     "",
     "def main():",
     "    global DATA_HASH, ALT_TEXT",
-    ...(traceSummary ? ["    global OBSERVATION_CAPTURE"] : []),
+    ...(traceQuantities ? ["    global OBSERVATION_CAPTURE"] : []),
     ...(unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : []),
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
     ...(traceObservations ? [
       "    df, selection = load()",
       "    try:",
       "        df = prepare(df, selection)",
-      ...(traceSummary ? ["        OBSERVATION_CAPTURE = selection"] : []),
+      ...(traceQuantities ? ["        OBSERVATION_CAPTURE = selection"] : []),
       "        report_counts(df)",
       "        return draw_prepared(df)",
       "    finally:",
-      ...(traceSummary ? ["        OBSERVATION_CAPTURE = None"] : []),
+      ...(traceQuantities ? ["        OBSERVATION_CAPTURE = None"] : []),
       "        if selection.node_id is not None:",
       '            RUN_REPORT["observation_selection"] = selection.write(Path.cwd())',
       "",
@@ -629,6 +630,7 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
 export function emitPython(spec: FigureSpec, traceObservations = false): string {
   const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind)
     && "aggregation" in spec && spec.aggregation !== "none";
+  const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
@@ -650,7 +652,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   if (spec.kind === "table") {
     emitTable(spec, out);
   } else {
-    emitDraw(spec, out);
+    emitDraw(spec, out, traceMatrix);
     emitLayers(spec, out);
     emitInset(spec, out);
     emitAxisBreak(spec, out);
@@ -670,7 +672,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations, traceSummary);
+  emitMain(spec, out, traceObservations, traceSummary || traceMatrix);
   if (traceObservations) {
     const formats = new Set<string>(spec.output.formats);
     if (spec.kind === "table") {

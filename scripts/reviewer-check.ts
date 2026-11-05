@@ -99,8 +99,11 @@ async function run(page:Page){
 }
 async function send(page:Page){
  await page.locator("#reviewer-consent").check();
- const response=page.waitForResponse(r=>new URL(r.url()).pathname==="/api/reviewer/start");
- await page.locator("#reviewer-start").click();assert.equal((await response).status(),202);
+ const [reply]=await Promise.all([
+  page.waitForResponse(r=>new URL(r.url()).pathname==="/api/reviewer/start"),
+  page.locator("#reviewer-start").click(),
+ ]);
+ assert.equal(reply.status(),202);
 }
 async function settled(page:Page){await page.evaluate(()=>new Promise(ok=>window.requestAnimationFrame(()=>window.requestAnimationFrame(ok))));}
 async function waitInactive(which:"native"|"paper"){
@@ -278,14 +281,54 @@ try{
  await paper.locator("#reviewer-model").fill("newer-unsaved-provider-intent");await lateProvider.release();
  assert.equal(await paper.locator("#reviewer-model").inputValue(),"newer-unsaved-provider-intent");assert(await paper.locator("#reviewer-disclose").isDisabled());
  await configure(paper,"chat");controls.push({control:"late-provider-save-cannot-overwrite-newer-provider-form-intent",passed:true});
- const changedSourceDisclosure=await disclose(paper);await paper.locator("#reviewer-consent").check();const beforeSourceChange=(await snapshot()).calls.length;await rpc("damage-paper-source");await send(paper);
- // A concurrent real background refresh may clear the changed context before
- // the failed status is displayed. Both must suppress all model I/O.
- await paper.waitForFunction(()=>["idle","failed"].includes(document.querySelector("#figure-reviewer").dataset.phase));
- const refusedSource=await waitInactive("paper");assert.equal(refusedSource.calls.length,beforeSourceChange);
- assert(refusedSource.paper_sessions.some((r:any)=>r.id===changedSourceDisclosure.review_id&&["failed","cancelled","stale"].includes(r.phase)&&!r.result_present&&!r.worker_alive));
- assert(await paper.locator("#reviewer-advice").isHidden());await rpc("restore-paper-source");
+ const changedSourceDisclosure=await disclose(paper);
+ await paper.locator("#reviewer-consent").check();
+ const heldProjectPoll=await holdResponse(paper,"state");
+ await heldProjectPoll.captured;
+ const beforeSourceChange=(await snapshot()).calls.length;
+ try {
+  // Keep the real project poll pending so the request reaches server preflight.
+  await rpc("damage-paper-source");
+  await send(paper);
+  await paper.locator('#figure-reviewer[data-phase="failed"]').waitFor();
+  const refusedSource=await waitInactive("paper");
+  assert.equal(refusedSource.calls.length,beforeSourceChange);
+  assert(refusedSource.paper_sessions.some((r:any)=>r.id===changedSourceDisclosure.review_id
+    &&["failed","cancelled","stale"].includes(r.phase)&&!r.result_present&&!r.worker_alive));
+  assert(await paper.locator("#reviewer-advice").isHidden());
+ } finally {
+  await rpc("restore-paper-source");
+  await heldProjectPoll.release();
+ }
  controls.push({control:"actual-paper-source-change-after-consent-refuses-provider-call",passed:true});
+ const refreshedDisclosure=await disclose(paper);
+ await paper.locator("#reviewer-consent").check();
+ const beforeRefresh=(await snapshot()).calls.length;
+ let staleStarts=0;
+ const countStart=(request:{url():string})=>{
+  if(new URL(request.url()).pathname==="/api/reviewer/start")staleStarts++;
+ };
+ paper.on("request",countStart);
+ try {
+  const [cancelled]=await Promise.all([
+   paper.waitForResponse(r=>new URL(r.url()).pathname==="/api/reviewer/cancel"),
+   rpc("damage-paper-source"),
+   paper.waitForFunction(()=>document.querySelector("#reviewer-start").disabled
+     &&!document.querySelector("#reviewer-consent").checked
+     &&document.querySelector("#reviewer-disclosure").hidden),
+  ]);
+  assert.equal(cancelled.status(),200);
+  const refreshed=await waitInactive("paper");
+  assert.equal(staleStarts,0);
+  assert.equal(refreshed.calls.length,beforeRefresh);
+  assert(refreshed.paper_sessions.some((r:any)=>r.id===refreshedDisclosure.review_id
+    &&r.phase==="cancelled"&&r.cancelled&&!r.result_present&&!r.worker_alive));
+  assert(await paper.locator("#reviewer-advice").isHidden());
+ } finally {
+  paper.off("request",countStart);
+  await rpc("restore-paper-source");
+ }
+ controls.push({control:"actual-paper-refresh-revokes-consent-before-dispatch",passed:true});
  // Rechecking unchanged native intent must revoke old consent before validation returns.
  activePage=page;await disclose(page);const heldValidation=await holdResponse(page,"validate");
  await page.locator("#render").click();await heldValidation.captured;

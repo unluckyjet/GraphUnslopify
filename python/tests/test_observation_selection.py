@@ -210,3 +210,12 @@ def test_trace_refuses_report_and_figure_aliases_without_changing_source(tmp_pat
     assert completed.returncode == 1
     assert b"would overwrite an observation input" in completed.stderr
     assert source.read_bytes() == original
+
+
+def test_demo_uses_the_default_render_without_observation_tracing(tmp_path, capsys):
+    output = tmp_path / "demo with spaces"
+    assert main(["demo", str(output), "--json"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "passed"
+    assert "observation_selection" not in report
+    assert not list(output.glob("observations-*.json"))

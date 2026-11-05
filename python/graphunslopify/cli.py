@@ -35,6 +35,7 @@ def _load_spec(path: str) -> Figure:
 
 
 def _render_spec(args: argparse.Namespace) -> int:
+    trace_observations = getattr(args, "trace_observations", False)
     try:
         figure = _load_spec(args.spec)
         with contextlib.redirect_stdout(sys.stderr):
@@ -43,7 +44,7 @@ def _render_spec(args: argparse.Namespace) -> int:
                 api=args.api,
                 strict=args.strict,
                 fail_on_warning=args.fail_on_warning,
-                trace_observations=args.trace_observations,
+                trace_observations=trace_observations,
             )
     except (SpecError, OSError, ValueError) as problem:
         report = getattr(problem, "report", None)
@@ -66,7 +67,7 @@ def _render_spec(args: argparse.Namespace) -> int:
         print(json.dumps(result["report"]))
     else:
         print(f"Wrote {result['script']} and {result['report_path']}")
-        if args.trace_observations:
+        if trace_observations:
             print(f"Wrote observation selection {result['observation_path']}")
     return 0
 

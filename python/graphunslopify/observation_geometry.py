@@ -242,27 +242,43 @@ def _interval_strokes(artist, renderer):
         for index, (node_id, segment) in enumerate(zip(ids, segments, strict=True)):
             if not len(segment):
                 continue
+            if node_id is None:
+                raise ValueError("An error-bar stem has no calculation at its drawn position")
             if segment.shape != (2, 2):
                 raise ValueError("An error-bar stem must have two endpoints")
             endpoints = transform.transform(segment).tolist()
             radius = renderer.points_to_pixels(float(widths[index % len(widths)])) / 2
             yield node_id, endpoints, float(radius), clip, "stem"
-    elif isinstance(artist, Line2D) and artist.get_marker() == "_":
+    elif isinstance(artist, Line2D) and hasattr(artist, "_graphunslopify_interval_role"):
+        points = artist.get_xydata()
+        if len(ids) != 1 or points.shape != (2, 2):
+            raise ValueError("A forest interval stroke does not match its summary position")
+        radius = renderer.points_to_pixels(artist.get_linewidth()) / 2
+        yield (
+            ids[0],
+            transform.transform(points).tolist(),
+            float(radius),
+            clip,
+            artist._graphunslopify_interval_role,
+        )
+    elif isinstance(artist, Line2D) and artist.get_marker() in ("_", "|"):
         points = transform.transform(artist.get_xydata()).tolist()
         if len(points) != len(ids):
             raise ValueError("Error-bar caps do not match their calculation positions")
         half_span = renderer.points_to_pixels(artist.get_markersize()) / 2
         radius = renderer.points_to_pixels(artist.get_markeredgewidth()) / 2
+        horizontal = artist.get_marker() == "_"
         for node_id, (x, y) in zip(ids, points, strict=True):
             if not (finite_number(x) and finite_number(y)):
                 continue
-            yield (
-                node_id,
-                [[x - half_span, y], [x + half_span, y]],
-                float(radius),
-                clip,
-                "cap",
+            if node_id is None:
+                raise ValueError("An error-bar cap has no calculation at its drawn position")
+            endpoints = (
+                [[x - half_span, y], [x + half_span, y]]
+                if horizontal
+                else [[x, y - half_span], [x, y + half_span]]
             )
+            yield node_id, endpoints, float(radius), clip, "cap"
     else:
         raise ValueError("Unsupported error-bar artist")
 

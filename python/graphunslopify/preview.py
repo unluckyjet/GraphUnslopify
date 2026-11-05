@@ -304,7 +304,7 @@ class PreviewState:
             raise TypeError("trace_observations must be a boolean")
         if trace and not can_trace_observations(spec):
             raise ValueError(
-                "Observation picking supports heatmaps, confusion matrices and aggregated line error bars"
+                "Observation picking supports matrix cells and intervals on aggregated line, bar and forest figures"
             )
         translated, translation_execution = self._compiler_request(
             "convert-observations" if trace else "convert", spec

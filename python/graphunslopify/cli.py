@@ -1185,7 +1185,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     for name, target in (
         ("explain-cell", "a matrix cell"),
-        ("explain-interval", "a line interval"),
+        ("explain-interval", "a summary interval"),
     ):
         explain = commands.add_parser(name, help=f"inspect {target} in an observation-traced PNG")
         explain.add_argument(

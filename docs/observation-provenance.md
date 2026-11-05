@@ -3,7 +3,7 @@
 A local Python ledger records which original records and calculations produced a
 quantity. Opt-in renders record reading, filtering, preparation, ordinary summaries
 and matrix cells. The local editor can pick cells in heatmaps and confusion
-matrices, and the stems and caps of error bars on aggregated line figures.
+matrices, and the stems and caps of intervals on aggregated line, bar, and forest figures.
 Other marks and specialized calculations are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
@@ -30,16 +30,17 @@ attempt. Edits clear it. Changed evidence is refused. The explicit graph
 download may contain derived values and labels from the input. The editor keeps
 it separate from standard exports and model-review requests.
 
-## Inspect a line interval
+## Inspect a summary interval
 
-Choose a line figure with mean or median aggregation, PNG output, and
-**Error bars** as the uncertainty display. Choose **Trace observations** and
-click an error-bar stem or cap. The numbered interval control selects among
+Use PNG output and mean or median aggregation. On a line figure, choose
+**Error bars** as the uncertainty display. Nonstacked bar figures and forest
+figures also support interval selection. Choose **Trace observations** and
+click an interval's stem or cap. The numbered interval control selects among
 the intervals visible in the final PNG. The explanation records the actual
 bounds, estimator, contributing records and calculation links. A bootstrap
 interval also records its statistic, draws, confidence level and seed.
 
-For a saved line render, run
+For a saved interval render, run
 `graphunslopify explain-interval figure.report.json X Y` using the PNG's own
 pixel coordinates from its upper-left corner. The same operation is available
 as `graphunslopify.observation_provenance.explain_saved_interval`. The

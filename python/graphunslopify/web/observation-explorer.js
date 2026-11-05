@@ -104,7 +104,7 @@ export function createObservationExplorer({api, token, client, current, supporte
       $("observation-interval-picker").hidden = false;
       intervalIndex.value = "1";
       intervalIndex.max = String(binding.intervals);
-      note.textContent = "Click a visible error bar, or enter its interval number.";
+      note.textContent = "Click a visible interval, or enter its number.";
     } else {
       $("observation-cell-picker").hidden = false;
       binding.grids.forEach((_, index) => picker.add(new Option("Panel " + (index + 1), String(index))));

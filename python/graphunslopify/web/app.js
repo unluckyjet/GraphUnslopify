@@ -129,9 +129,10 @@ observationExplorer = createObservationExplorer({
     if (!data) return false;
     try {
       const spec = readSpec();
-      return ["heatmap", "confusion_matrix"].includes(spec.kind)
-        || (spec.kind === "line" && ["mean", "median"].includes(spec.aggregation)
-          && spec.uncertainty?.display === "bar");
+      if (["heatmap", "confusion_matrix", "forest"].includes(spec.kind)) return true;
+      if (!["mean", "median"].includes(spec.aggregation) || !spec.uncertainty) return false;
+      if (spec.kind === "line") return spec.uncertainty.display === "bar";
+      return spec.kind === "bar" && !spec.stacked;
     } catch { return false; }
   },
   trace: () => { clearTimeout(timer); void update(true, true); },

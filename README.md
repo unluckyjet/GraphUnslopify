@@ -712,7 +712,7 @@ labels outside the visible axes rather than reporting collisions with invisible 
 ## Development
 
 Use **Trace observations** in the local editor to inspect heatmap cells,
-confusion-matrix cells, or error bars on an aggregated line figure. Click a mark
+confusion-matrix cells, or intervals on aggregated line, bar, and forest figures. Click a mark
 or use the numbered controls to see its calculation and contributing records. The [observation provenance guide](docs/observation-provenance.md)
 covers graph downloads and generated code. Additional plot types and marks are
 tracked in [spec98](pipeline/specs/98-observation-provenance.md).

@@ -17,15 +17,15 @@ _PROGRAM_BYTES = 20 * 1024 * 1024
 
 
 def can_trace_observations(spec):
-    if spec.get("kind") in MATRIX_KINDS:
+    kind = spec.get("kind")
+    if kind in MATRIX_KINDS or kind == "forest":
         return True
     uncertainty = spec.get("uncertainty")
-    return (
-        spec.get("kind") == "line"
-        and spec.get("aggregation") in ("mean", "median")
-        and isinstance(uncertainty, dict)
-        and uncertainty.get("display") == "bar"
-    )
+    if spec.get("aggregation") not in ("mean", "median") or not isinstance(uncertainty, dict):
+        return False
+    if kind == "line":
+        return uncertainty.get("display") == "bar"
+    return kind == "bar" and not spec.get("stacked", False)
 
 
 class PreviewObservations:
@@ -43,7 +43,7 @@ class PreviewObservations:
             raise ValueError("The observation render folder changed")
         report = evidence["report"]
         reference = report.get("observation_selection") or {}
-        interval = report["spec"]["kind"] == "line"
+        interval = report["spec"]["kind"] in ("line", "bar", "forest")
         key = "summary_interval_geometry" if interval else "matrix_geometry"
         geometry_id = reference.get(f"{key}_node_id")
         if geometry_id is None:
@@ -172,7 +172,7 @@ class PreviewObservations:
             payload, selectors | {"offset", "tolerance"}
         )
         if "tolerance" in payload and ("position" not in payload or "strokes" not in geometry):
-            raise ValueError("Pick tolerance only applies to a line interval position")
+            raise ValueError("Pick tolerance only applies to an interval position")
         if "node_id" in payload:
             node_id = payload["node_id"]
             if not isinstance(node_id, str) or node_id not in graph._nodes:
@@ -181,11 +181,11 @@ class PreviewObservations:
             index = payload["interval_index"]
             ids = self._interval_ids(geometry) if "strokes" in geometry else ()
             if type(index) is not int or not 0 <= index < len(ids):
-                raise ValueError("Choose a visible line interval")
+                raise ValueError("Choose a visible interval")
             node_id = ids[index]
         else:
             if "cell" in payload and "grids" not in geometry:
-                raise ValueError("This PNG has line intervals. Choose an interval or a pixel.")
+                raise ValueError("This PNG has intervals. Choose an interval or a pixel.")
             point = (
                 self._cell_center(geometry, payload["cell"])
                 if "cell" in payload

@@ -953,15 +953,21 @@ class _ObservationSelection:
 
     def bind_summary_intervals(self, container, drawn):
         """Associate actual error bars with the interval nodes in draw order."""
-        interval_ids = tuple(drawn[self._interval_column])
+        # Reindexing grouped bars inserts empty positions between real summaries.
+        interval_ids = tuple(
+            value if isinstance(value, str) else None for value in drawn[self._interval_column]
+        )
         _, caps, stems = container.lines
         if len(stems) != 1:
-            raise ValueError(
-                "Observation interval binding requires one vertical error-bar collection"
-            )
+            raise ValueError("Observation interval binding requires one error-bar collection")
         stems[0]._graphunslopify_interval_ids = interval_ids
         for cap in caps:
             cap._graphunslopify_interval_ids = interval_ids
+
+    def bind_summary_interval_line(self, artist, drawn, role):
+        """Bind the interval from the first summary row chosen by the forest drawer."""
+        artist._graphunslopify_interval_ids = (drawn[self._interval_column].iloc[0],)
+        artist._graphunslopify_interval_role = role
 
     def _summary_interval(self, result, index, support, center, count, metadata, kind, bootstrap):
         low, lower_status = self._number(result["_low"].iat[index])
@@ -1402,7 +1408,7 @@ def explain_saved_matrix_cell(
 def explain_saved_interval(
     report_path: str | Path, x: float, y: float, *, run_directory: str | Path | None = None
 ) -> dict[str, Any]:
-    """Explain the interval at a coordinate in the exact saved line PNG."""
+    """Explain the summary interval at a coordinate in the exact saved PNG."""
     return _explain_saved_position(report_path, x, y, run_directory, interval=True)
 
 

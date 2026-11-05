@@ -147,14 +147,17 @@ export async function checkObservations(page: Page, evidence: string) {
   await page.setViewportSize({ width: 1500, height: 1000 });
   assert.equal(hash(readFileSync(fixture)), hash(rawSource));
   const intervals = await checkLineIntervals(page, watch, click);
+  const summaryCharts = await checkSummaryChartIntervals(page, watch, click);
   const proof = {
     passed: true,
     intervals,
+    summary_charts: summaryCharts,
     workflows: [
       "opt-in trace with private graph download and exact generated Python",
       "same independently recomputed Iris cell via keyboard, desktop and narrow view",
       "scoped exclusions with paging and no late browser response after edit",
       "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
+      "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
     ],
     cell: { id: node.id, estimate: mean, contributing: expected.length, display_widths: sizes },
     sha256: { source: hash(rawSource), image: binding.image.sha256, graph: reference.sha256 },
@@ -237,4 +240,83 @@ async function checkLineIntervals(
   await page.setViewportSize({ width: 1500, height: 1000 });
   assert.equal(digest(readFileSync(fixture)), digest(raw));
   return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths };
+}
+
+async function checkSummaryChartIntervals(
+  page: Page,
+  watch: (route: string) => Promise<Response>,
+  click: (id: string, route: string) => Promise<Response>,
+) {
+  const source = Buffer.from(
+    "category,method,score\nb,ours,6\na,other,10\nc,ours,20\nb,ours,8\n"
+    + "a,other,14\nc,ours,24\nc,other,30\nc,other,32\n",
+  );
+  const [uploaded] = await Promise.all([
+    watch("/api/upload"),
+    page.locator("#data-file").setInputFiles({ name: "summary-methods.csv", mimeType: "text/csv", buffer: source }),
+  ]);
+  assert.ok(uploaded.ok());
+  await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.startsWith("summary-methods.csv"));
+  const specifications = [
+    { kind: "bar", group: "method", orientation: "horizontal", interval_count: 4 },
+    { kind: "forest", interval_count: 3 },
+  ];
+  const proved = [];
+  for (const { interval_count, ...specification } of specifications) {
+    await page.locator("#spec").fill(JSON.stringify({
+      ...specification,
+      x: { field: "category", label: "Condition" },
+      y: { field: "score", label: "Score" },
+      category_order: ["c", "a", "b"],
+      aggregation: "mean",
+      uncertainty: { kind: "range", display: "bar" },
+      output: { stem: specification.kind + "-intervals", formats: ["png"], dpi: 300, size: "double_column" },
+    }));
+    await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+    const result = await (await click("trace-observations", "/api/render")).json();
+    assert.equal(result.report.status, "passed", JSON.stringify(result.report.findings));
+    assert.equal(result.observations.intervals, interval_count);
+    await page.locator("#observation-interval-picker").waitFor();
+    const [download] = await Promise.all([
+      page.waitForEvent("download"), page.locator("#observation-graph").click(),
+    ]);
+    const saved = await download.path();
+    assert.ok(saved);
+    const bytes = readFileSync(saved);
+    const reference = result.report.observation_selection;
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), reference.sha256);
+    const graph = JSON.parse(bytes.toString());
+    assert.equal(graph.source.snapshot_sha256, createHash("sha256").update(source).digest("hex"));
+    const root = graph.nodes.find((entry: { id: string }) => entry.id === reference.summary_interval_geometry_node_id);
+    const query = "/api/observations/query";
+    const selected = (await (await click("observation-pick-interval", query)).json()).selection;
+    assert.equal(selected.node.id, root.inputs[0]);
+    const { category, method } = selected.node.metadata.keys;
+    const rows = source.toString().trim().split("\n").slice(1).flatMap((row, index) => {
+      const [name, family, score] = row.split(",");
+      return name === category && (method === undefined || family === method) ? [{ index, score: Number(score) }] : [];
+    });
+    assert.deepEqual(selected.contributing_records.items, rows.map(row => row.index));
+    const scores = rows.map(row => row.score);
+    assert.deepEqual(selected.node.value, [Math.min(...scores), Math.max(...scores)]);
+    await page.setViewportSize({ width: 390, height: 1000 });
+    const image = page.locator("#preview");
+    const box = await image.boundingBox();
+    assert.ok(box);
+    for (const role of ["cap", "stem"]) {
+      const stroke = root.metadata.strokes.find((entry: { node_id: string; role: string }) =>
+        entry.node_id === selected.node.id && entry.role === role);
+      const x = (stroke.endpoints[0][0] + stroke.endpoints[1][0]) / 2;
+      const y = (stroke.endpoints[0][1] + stroke.endpoints[1][1]) / 2;
+      const position: { x: number; y: number } = {
+        x: x * box.width / result.observations.image.width,
+        y: y * box.height / result.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      assert.equal((await response.json()).selection?.node.id, selected.node.id);
+    }
+    await page.setViewportSize({ width: 1500, height: 1000 });
+    proved.push({ kind: specification.kind, interval_count, picked: { category, method, bounds: selected.node.value, records: rows.length } });
+  }
+  return proved;
 }

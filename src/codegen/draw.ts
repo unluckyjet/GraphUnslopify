@@ -286,7 +286,7 @@ function emitScatter(spec: FigureSpec & { kind: "scatter" }, out: string[]): voi
   out.push("");
 }
 
-function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
+function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceIntervals: boolean): void {
   const vertical = spec.orientation === "vertical";
   const plot = vertical ? "bar" : "barh";
   const tick = vertical ? "x" : "y";
@@ -295,7 +295,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
   out.push(
     "",
     "def draw_panel(ax, df):",
-    "    frame = summarise(df)",
+    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
     ...(needsMissingIntervalReport(spec) ? ["    note_missing_interval(frame)"] : []),
     "    categories = category_order(frame)",
     "    positions = np.arange(len(categories))",
@@ -358,6 +358,10 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
     );
     out.push("        series_artist(_series_bars, name)");
     if (spec.uncertainty) out.push("        inspector_interval(_series_bars)");
+    if (traceIntervals) out.push(
+      "        if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
+      "            OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)",
+    );
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
@@ -374,6 +378,10 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[]): void {
       "    )",
     );
     if (spec.uncertainty) out.push("    inspector_interval(_series_bars)");
+    if (traceIntervals) out.push(
+      "    if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
+      "        OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)",
+    );
     if (spec.value_labels) out.push("    label_bars(ax, block[Y_FIELD], positions)");
   }
 
@@ -697,7 +705,7 @@ def record_density(profile):
 `.trim().split("\n"), "");
 }
 
-function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void {
+function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[], traceIntervals: boolean): void {
   void spec;
   // One row per entry, the effect as a dot and its interval as the bar through
   // it, with a line at the value that means nothing happened. An ablation
@@ -705,7 +713,7 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void 
   out.push(
     "",
     "def draw_panel(ax, df):",
-    "    frame = summarise(df)",
+    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
     "    note_missing_interval(frame)",
     "    categories = category_order(frame)",
     "    for index, name in enumerate(categories):",
@@ -718,7 +726,7 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void 
     '        high = float(block["_high"].iloc[0]) if "_high" in block else np.nan',
     "        colour = PALETTE[index % len(PALETTE)]",
     "        if np.isfinite(low) and np.isfinite(high):",
-    "            ax.plot(",
+    `            ${traceIntervals ? "_interval_stem, = " : ""}ax.plot(`,
     "                [low, high],",
     "                [row, row],",
     "                color=colour,",
@@ -726,8 +734,16 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[]): void 
     '                solid_capstyle="butt",',
     "                zorder=2,",
     "            )",
+    ...(traceIntervals ? [
+      "            if OBSERVATION_CAPTURE is not None:",
+      '                OBSERVATION_CAPTURE.bind_summary_interval_line(_interval_stem, block, "stem")',
+    ] : []),
     "            for edge in (low, high):",
-    "                ax.plot([edge, edge], [row - 0.14, row + 0.14], color=colour, linewidth=1.0, zorder=2)",
+    `                ${traceIntervals ? "_interval_cap, = " : ""}ax.plot([edge, edge], [row - 0.14, row + 0.14], color=colour, linewidth=1.0, zorder=2)`,
+    ...(traceIntervals ? [
+      "                if OBSERVATION_CAPTURE is not None:",
+      '                    OBSERVATION_CAPTURE.bind_summary_interval_line(_interval_cap, block, "cap")',
+    ] : []),
     '        ax.plot([centre], [row], marker="o", markersize=5, color=colour, zorder=3, linestyle="none")',
     "    ax.axvline(",
     "        NULL_VALUE,",
@@ -1694,7 +1710,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean,
       emitScatter(spec, out);
       break;
     case "bar":
-      emitBar(spec, out);
+      emitBar(spec, out, traceIntervals);
       break;
     case "box":
     case "violin":
@@ -1710,7 +1726,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean,
       emitRidgeline(spec, out);
       break;
     case "forest":
-      emitForest(spec, out);
+      emitForest(spec, out, traceIntervals);
       break;
     case "paired_difference":
       emitPairedDifference(spec, out);

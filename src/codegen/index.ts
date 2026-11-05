@@ -652,8 +652,10 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind)
     && "aggregation" in spec && spec.aggregation !== "none";
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
-  const traceIntervals = traceSummary && spec.kind === "line" && spec.uncertainty?.display === "bar"
-    && spec.output.formats.includes("png");
+  const traceIntervals = traceSummary && spec.output.formats.includes("png") && (
+    spec.kind === "forest" || (spec.kind === "line" && spec.uncertainty?.display === "bar")
+    || (spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty))
+  );
   const observationPng = traceMatrix && spec.output.formats.includes("png")
     ? "matrix" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];

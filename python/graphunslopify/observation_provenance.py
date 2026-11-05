@@ -280,6 +280,19 @@ class ObservationLedger:
             }
         )
 
+    def explain_matrix_cell(
+        self, geometry_node_id: str, png: str | Path, x: float, y: float
+    ) -> dict[str, Any] | None:
+        """Explain the cell at a top-left PNG coordinate in this exact saved run."""
+        from .observation_geometry import inspect_png, resolve_matrix_cell, validate_matrix_geometry
+
+        geometry = validate_matrix_geometry(self._nodes.get(geometry_node_id, {}), self._nodes)
+        actual = inspect_png(png, self._context["run_id"])
+        if any(geometry["image"].get(key) != value for key, value in actual.items()):
+            raise ValueError("PNG bytes or dimensions changed since the matrix draw")
+        node_id = resolve_matrix_cell(geometry, self._nodes, x, y)
+        return self.explain(node_id) if node_id is not None else None
+
     @classmethod
     def from_json(
         cls, payload: bytes, *, expected_context=None, expected_source=None, **budgets
@@ -412,6 +425,7 @@ class _ObservationSelection:
         self._prepared_frames = {}
         self._summary_roots = {}
         self._matrix_roots = {}
+        self._matrix_geometry = None
 
     def sort(self, frame, field):
         # Carry positions through the actual sort, including duplicate labels and NaT.
@@ -946,6 +960,7 @@ class _ObservationSelection:
 
     def record_matrix(
         self,
+        image,
         frame,
         matrix,
         shown,
@@ -1080,7 +1095,36 @@ class _ObservationSelection:
             excluded=excluded,
         )
         self._matrix_roots[root] = None
-        return cell_nodes
+        image._graphunslopify_matrix_panel_id = root
+        image._graphunslopify_matrix_node_ids = cell_nodes
+
+    def record_matrix_geometry(self, capture, output):
+        # Keep only the final saved PNG if an output format was repeated.
+        self._matrix_geometry = (capture, output)
+
+    def _matrix_geometry_reference(self):
+        if self._matrix_geometry is None:
+            return {}
+        (image, grids, gaps), output = self._matrix_geometry
+        if image is None:
+            return {"matrix_geometry_gap": gaps[0]}
+        if any(image[key] != output[key] for key in ("sha256", "bytes")):
+            return {"matrix_geometry_gap": "The PNG changed during matrix geometry capture"}
+        try:
+            node_id = self.ledger.calculate(
+                "matrix_png_geometry",
+                dict.fromkeys(grid["panel_id"] for grid in grids),
+                value=len(grids),
+                metadata={
+                    "coordinates": "pixels_top_left",
+                    "image": {"path": output["path"], **image},
+                    "grids": grids,
+                    "gaps": gaps,
+                },
+            )
+        except ValueError as problem:
+            return {"matrix_geometry_gap": str(problem)}
+        return {"matrix_geometry_node_id": node_id}
 
     def _normalized_matrix(self, counts, metadata, shown, totals, normalization):
         by_row = normalization == "row"
@@ -1134,6 +1178,7 @@ class _ObservationSelection:
             if self._matrix_roots
             else None
         )
+        matrix_geometry = self._matrix_geometry_reference()
         payload = self.ledger.to_json()
         path = None
         try:
@@ -1159,6 +1204,7 @@ class _ObservationSelection:
             ),
             **({"summary_node_id": summary} if summary is not None else {}),
             **({"matrix_node_id": matrix} if matrix is not None else {}),
+            **matrix_geometry,
         }
 
 
@@ -1166,6 +1212,20 @@ def _read_observation_selection(
     directory: Path, report: dict, *, run_id: str, program_sha256: str
 ) -> Path:
     """Read the bounded graph owned by this SDK invocation before returning it."""
+    path, _ = _load_observation_selection(
+        directory, report, run_id=run_id, program_sha256=program_sha256
+    )
+    return path
+
+
+def _load_observation_selection(
+    directory: Path,
+    report: dict,
+    *,
+    run_id: str,
+    program_sha256: str,
+    require_contained_png: bool = False,
+) -> tuple[Path, ObservationLedger]:
     selection = report["observation_selection"]
     name = selection["path"]
     if selection["run_id"] != run_id or not re.fullmatch(
@@ -1223,7 +1283,84 @@ def _read_observation_selection(
             )
         ):
             raise ValueError(f"Observation {kind} root does not match the calculated panels")
-    return path
+    if "matrix_geometry_node_id" in selection:
+        from .observation_geometry import inspect_png, validate_matrix_geometry
+
+        if "matrix_geometry_gap" in selection:
+            raise ValueError("Observation report contains conflicting matrix geometry references")
+        geometry_node = graph._nodes.get(selection["matrix_geometry_node_id"], {})
+        geometry = validate_matrix_geometry(geometry_node, graph._nodes)
+        matrix_root = graph._nodes.get(selection.get("matrix_node_id"), {})
+        if not set(geometry_node["inputs"]) <= set(matrix_root.get("inputs", [])):
+            raise ValueError("Matrix PNG geometry belongs to a different matrix calculation")
+        image = geometry["image"]
+        output = next(
+            (
+                row
+                for row in reversed(report["outputs"])
+                if row["format"] == "png" and row["path"] == image["path"]
+            ),
+            None,
+        )
+        if output is None or any(image[key] != output[key] for key in ("sha256", "bytes")):
+            raise ValueError("Matrix PNG geometry does not match the recorded output")
+        png = directory / image["path"]
+        if require_contained_png and not png.resolve().is_relative_to(directory.resolve()):
+            raise ValueError("Matrix PNG escapes the saved render directory")
+        actual = inspect_png(png, run_id)
+        if any(image.get(key) != value for key, value in actual.items()):
+            raise ValueError("PNG bytes or dimensions changed since the matrix draw")
+    return path, graph
+
+
+def explain_saved_matrix_cell(
+    report_path: str | Path, x: float, y: float, *, run_directory: str | Path | None = None
+) -> dict[str, Any]:
+    """Resolve a saved SDK render without executing its program or rereading its data."""
+    from .observation_geometry import resolve_matrix_cell
+
+    path = Path(report_path).expanduser().resolve()
+    report_suffix = ".report.json"
+    if not path.name.endswith(report_suffix) or not path.is_file():
+        raise ValueError("Use the matrix render's <stem>.report.json file")
+    program = path.with_name(path.name.removesuffix(report_suffix) + ".py")
+    directory = Path(run_directory).expanduser().resolve() if run_directory else path.parent
+    if not program.resolve().is_relative_to(directory) or not program.is_file():
+        raise ValueError("The saved render's generated Python program is missing")
+    with path.open("rb") as source:
+        raw = source.read(_MAX_BYTES + 1)
+    if len(raw) > _MAX_BYTES:
+        raise ValueError("Render report exceeds the observation byte budget")
+    report = json.loads(raw, object_pairs_hook=_unique_keys)
+    if not isinstance(report, dict):
+        raise TypeError("Use a saved matrix render report")
+    selection = report.get("observation_selection")
+    if not isinstance(selection, dict) or "matrix_geometry_node_id" not in selection:
+        gap = selection.get("matrix_geometry_gap") if isinstance(selection, dict) else None
+        raise ValueError(gap or "This saved render has no matrix PNG geometry")
+    with program.open("rb") as source:
+        program_bytes = source.read(_MAX_BYTES + 1)
+    if len(program_bytes) > _MAX_BYTES:
+        raise ValueError("Generated program exceeds the observation byte budget")
+    run_id = selection["run_id"]
+    program_sha256 = hashlib.sha256(program_bytes).hexdigest()
+    graph_path, graph = _load_observation_selection(
+        directory,
+        report,
+        run_id=run_id,
+        program_sha256=program_sha256,
+        require_contained_png=True,
+    )
+    node = graph._nodes[selection["matrix_geometry_node_id"]]
+    cell_id = resolve_matrix_cell(node["metadata"], graph._nodes, x, y)
+    return {
+        "run_id": run_id,
+        "image": copy.deepcopy(node["metadata"]["image"]),
+        "program": {"path": str(program), "sha256": program_sha256},
+        "observation_selection": {**selection, "path": str(graph_path)},
+        "position": [x, y],
+        "explanation": graph.explain(cell_id) if cell_id is not None else None,
+    }
 
 
 def _protect_observation_inputs(directory: Path, inputs, outputs) -> None:

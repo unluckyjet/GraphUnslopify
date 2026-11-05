@@ -1458,8 +1458,8 @@ function emitConfusionMatrix(
   }
   if (traceMatrix) out.push(
     "    if OBSERVATION_CAPTURE is not None:",
-    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
-    "            df, matrix, shown, axes=(Y_FIELD, X_FIELD),",
+    "        OBSERVATION_CAPTURE.record_matrix(",
+    "            image, df, matrix, shown, axes=(Y_FIELD, X_FIELD),",
     `            field=${spec.value ? "VALUE_FIELD" : "None"}, aggregation=${pyStr(spec.value ? "sum" : "size")},`,
     `            normalization=${pyStr(spec.normalize)}, totals=${spec.normalize === "none" ? "None" : "totals"},`,
     `            weights=${traceWeights ? "weights" : "None"}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
@@ -1666,8 +1666,8 @@ function emitHeatmap(
   }
   if (traceMatrix) out.push(
     "    if OBSERVATION_CAPTURE is not None:",
-    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
-    "            df, matrix, values, axes=(Y_FIELD, X_FIELD), field=VALUE_FIELD,",
+    "        OBSERVATION_CAPTURE.record_matrix(",
+    "            image, df, matrix, values, axes=(Y_FIELD, X_FIELD), field=VALUE_FIELD,",
     `            aggregation=${pyStr(spec.aggregation)}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
     "        )",
   );

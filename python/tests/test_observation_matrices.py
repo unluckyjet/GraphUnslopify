@@ -11,9 +11,15 @@ import jsonschema
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from PIL import Image
 
 from graphunslopify import Figure, SpecError
-from graphunslopify.observation_provenance import ObservationLedger, _read_observation_selection
+from graphunslopify.cli import main as cli
+from graphunslopify.observation_provenance import (
+    ObservationLedger,
+    _read_observation_selection,
+    explain_saved_matrix_cell,
+)
 
 
 def matrix_figure(kind, path, **settings):
@@ -112,10 +118,75 @@ def test_heatmap_keeps_masked_absent_all_missing_and_observed_zero(tmp_path, red
     if reducer == "mean":
         schema = files("graphunslopify").joinpath("schemas", "runtime-report.schema.json")
         jsonschema.Draft202012Validator(json.loads(schema.read_text())).validate(result["report"])
+        reference = result["report"]["observation_selection"]
+        geometry_id = reference["matrix_geometry_node_id"]
+        geometry = nodes[geometry_id]["metadata"]
+        (grid,) = geometry["grids"]
+        assert grid["panel_id"] == panel["id"]
+        png = result["script"].with_suffix(".png")
+        for cell in quantities:
+            metadata = cell["metadata"]
+            row, column = metadata["row"], metadata["column"]
+            x = sum(grid["x_edges"][column : column + 2]) / 2
+            y = sum(grid["y_edges"][row : row + 2]) / 2
+            assert ledger.explain_matrix_cell(geometry_id, png, x, y) == ledger.explain(cell["id"])
         tampered = copy.deepcopy(result)
         tampered["report"]["observation_selection"]["matrix_node_id"] = panel["id"]
         with pytest.raises(ValueError, match="matrix root"):
             matrix_evidence(tampered)
+
+
+def test_saved_png_cell_query_refuses_replaced_artifact_and_code(tmp_path, capsys):
+    source = tmp_path / "matrix.csv"
+    source.write_text("x,y,w\none,row,1\ntwo,row,4\none,row,3\n")
+    figure = matrix_figure(
+        "heatmap", source, value="w", value_label="Weight", aggregation="mean", annotate_cells=False
+    )
+    trace = figure.render(cwd=tmp_path / "trace", strict=False, trace_observations=True)
+    other = figure.render(cwd=tmp_path / "other", strict=False, trace_observations=True)
+    plain = figure.render(cwd=tmp_path / "plain", strict=False)
+    ledger, (panel,), nodes = matrix_evidence(trace)
+    reference = trace["report"]["observation_selection"]
+    geometry_id = reference["matrix_geometry_node_id"]
+    (grid,) = nodes[geometry_id]["metadata"]["grids"]
+    x, y = sum(grid["x_edges"][:2]) / 2, sum(grid["y_edges"]) / 2
+    report = trace["report_path"]
+    png = trace["script"].with_suffix(".png")
+    other_png = other["script"].with_suffix(".png")
+    with (
+        Image.open(png) as first,
+        Image.open(other_png) as second,
+        Image.open(plain["script"].with_suffix(".png")) as standard,
+    ):
+        assert first.tobytes() == second.tobytes() == standard.tobytes()
+    assert png.read_bytes() != other_png.read_bytes()
+    assert trace["script"].read_bytes() == other["script"].read_bytes()
+    assert ledger.explain_matrix_cell(geometry_id, png, 0, 0) is None
+    with pytest.raises(ValueError, match="finite numbers"):
+        ledger.explain_matrix_cell(geometry_id, png, float("nan"), y)
+    with pytest.raises(ValueError, match="different observation run"):
+        ledger.explain_matrix_cell(geometry_id, other_png, x, y)
+
+    expected = explain_saved_matrix_cell(report, x, y)
+    assert expected["explanation"]["node_id"] == panel["inputs"][0]
+    assert expected["explanation"]["contributing_records"] == [0, 2]
+    assert expected["program"]["path"] == str(trace["script"])
+    capsys.readouterr()
+    assert cli(["explain-cell", str(report), str(x), str(y)]) == 0
+    assert json.loads(capsys.readouterr().out) == expected
+
+    original = png.read_bytes()
+    png.write_bytes(original + b"changed")
+    with pytest.raises(ValueError, match="PNG bytes or dimensions changed"):
+        explain_saved_matrix_cell(report, x, y)
+    png.write_bytes(other_png.read_bytes())
+    with pytest.raises(ValueError, match="different observation run"):
+        explain_saved_matrix_cell(report, x, y)
+    png.write_bytes(original)
+    program = trace["script"]
+    program.write_bytes(program.read_bytes() + b"\n# edited\n")
+    assert cli(["explain-cell", str(report), str(x), str(y)]) == 2
+    assert "different generated program" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize("weighted", [False, True])
@@ -191,6 +262,14 @@ def test_matrix_native_artist_ids_and_nested_facet_transform_dependencies(tmp_pa
     )
     ledger, panels, nodes = matrix_evidence(result)
     assert [panel["metadata"]["panel"] for panel in panels] == [0, 3]
+    geometry_id = result["report"]["observation_selection"]["matrix_geometry_node_id"]
+    grids = nodes[geometry_id]["metadata"]["grids"]
+    assert {grid["panel_id"] for grid in grids} == {panel["id"] for panel in panels}
+    for grid in grids:
+        x, y = sum(grid["x_edges"]) / 2, sum(grid["y_edges"]) / 2
+        png = result["script"].with_suffix(".png")
+        explanation = ledger.explain_matrix_cell(geometry_id, png, x, y)
+        assert explanation["node_id"] == nodes[grid["panel_id"]]["inputs"][0]
     expected = [0.2, 0.8]
     for panel, value in zip(panels, expected, strict=True):
         (cell,) = cells(panel, nodes)

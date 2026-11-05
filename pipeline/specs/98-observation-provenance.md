@@ -82,12 +82,31 @@ checkpoint at `b165188` passed all fourteen exact checks and all three
 workflows. Heatmap and confusion-matrix cells now record actual aggregates,
 measurements, exclusions and annotations. Normalized confusion shares link to
 their own count and the actual row or column denominator. Native matrix image
-arrays retain ordered cell IDs. Other specialized estimators and final-export
-geometry remain part of 98b and 98c.
+arrays retain ordered cell IDs. This calculation checkpoint passed all fourteen
+checks and three workflows at `1e6de8e`. Other specialized estimators remain
+part of 98b.
 
 98c: renderer quantity geometry,local API/CLI and real workspace explorer/code/
 download lifecycle,then a full requirement-by-requirement acceptance audit.
 Split further meaningful milestones where needed without shrinking any requirement.
+
+The matrix PNG path captures the final tight-cropped draw for traced heatmaps
+and confusion matrices. It records the image artist's transformed cell edges
+and actual rectangular clip, then binds the grid to the ordered matrix cell
+calculations and to the saved image. The opt-in PNG carries a unique run stamp.
+The local lookup checks the report, generated program and PNG before reading
+the saved graph. It refuses altered exports, overlapping cells with different
+calculations and unsupported placement. The returned graph points to separate
+filter and preparation roots.
+
+```sh
+graphunslopify render figure.json --trace-observations --out-dir render
+graphunslopify explain-cell render/figure.report.json 240 160
+```
+
+Use the export's own pixel coordinates measured from the upper-left corner.
+This command inspects the saved render. Live editor ownership checks, browser
+selection and other mark types remain in the full scope.
 
 ## Measured references and current limits
 

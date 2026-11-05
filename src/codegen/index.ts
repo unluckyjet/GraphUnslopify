@@ -29,6 +29,7 @@ import {
 } from "./compose.ts";
 import { emitDraw } from "./draw.ts";
 import { CELL_COLOUR_SOURCE } from "./cell-colour-source.ts";
+import { OBSERVATION_GEOMETRY_SHA256 } from "./observation-source.ts";
 import { plotAxis, sharedCategoryAxes, sharedSeriesStyles, sharedSeriesLegend, unusedGrouping } from "../capabilities.ts";
 import {
   emitAltTextConstants,
@@ -296,6 +297,7 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
 
 function emitMain(
   spec: FigureSpec, out: string[], traceObservations: boolean, traceQuantities: boolean,
+  traceMatrixPng: boolean,
 ): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
@@ -486,7 +488,7 @@ function emitMain(
         ? "        fit_outside_legends(fig, [upper, lower], df, lambda: fit_break_layout(fig, upper, lower))"
         : "        fit_break_layout(fig, upper, lower)",
     );
-    emitSaveBlock(spec, out);
+    emitSaveBlock(spec, out, traceMatrixPng);
     return;
   }
 
@@ -584,10 +586,10 @@ function emitMain(
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
-  emitSaveBlock(spec, out);
+  emitSaveBlock(spec, out, traceMatrixPng);
 }
 
-function emitSaveBlock(spec: FigureSpec, out: string[]): void {
+function emitSaveBlock(spec: FigureSpec, out: string[], traceMatrixPng: boolean): void {
   out.push(
     "        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
@@ -597,8 +599,27 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
     "            meta = metadata_for(fmt)",
-    "            fig.savefig(path, bbox_inches=\"tight\", metadata=meta, **({\"dpi\": DPI} if fmt == \"png\" else {}))",
+  );
+  const save = 'fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))';
+  if (traceMatrixPng) {
+    out.push(
+      '            if fmt == "png" and OBSERVATION_CAPTURE is not None:',
+      "                matrix_geometry = _observation_geometry.save_matrix_png(",
+      "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
+      "                )",
+      "            else:",
+      "                matrix_geometry = None",
+      `                ${save}`,
+    );
+  } else {
+    out.push(`            ${save}`);
+  }
+  out.push(
     "            record_output(path)",
+    ...(traceMatrixPng ? [
+      "            if matrix_geometry is not None:",
+      '                OBSERVATION_CAPTURE.record_matrix_geometry(matrix_geometry, RUN_REPORT["outputs"][-1])',
+    ] : []),
     '            print(f"wrote {path}")',
     "        check(fig)",
   );
@@ -631,12 +652,18 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind)
     && "aggregation" in spec && spec.aggregation !== "none";
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
+  const traceMatrixPng = traceMatrix && spec.output.formats.includes("png");
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
   emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
+  if (traceMatrixPng) out.push(
+    "", "from graphunslopify import observation_geometry as _observation_geometry",
+    `if hashlib.sha256(Path(_observation_geometry.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_GEOMETRY_SHA256)}:`,
+    '    raise RuntimeError("Observation geometry requires the matching GraphUnslopify runtime")',
+  );
   emitLoad(spec, out, traceObservations);
   emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
@@ -672,7 +699,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations, traceSummary || traceMatrix);
+  emitMain(spec, out, traceObservations, traceSummary || traceMatrix, traceMatrixPng);
   if (traceObservations) {
     const formats = new Set<string>(spec.output.formats);
     if (spec.kind === "table") {

@@ -20456,7 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "4c5dd2a73b06b75ab3e3ac02dc5258e9e1d4adf647dd6d3b5893bc3d67ce6826";
+var OBSERVATION_SOURCE_SHA256 = "826bdf225b0d85ba5630a03cae71a64f8b6e6c619b17b8d884c497bd5cf57afb";
+var OBSERVATION_GEOMETRY_SHA256 = "47779b2a9cad4ea8bc1b52c70436b9ddde696c61c77742309789794e59d2bb4a";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -24119,8 +24120,8 @@ function emitConfusionMatrix(spec, out, traceMatrix) {
   }
   if (traceMatrix) out.push(
     "    if OBSERVATION_CAPTURE is not None:",
-    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
-    "            df, matrix, shown, axes=(Y_FIELD, X_FIELD),",
+    "        OBSERVATION_CAPTURE.record_matrix(",
+    "            image, df, matrix, shown, axes=(Y_FIELD, X_FIELD),",
     `            field=${spec.value ? "VALUE_FIELD" : "None"}, aggregation=${pyStr(spec.value ? "sum" : "size")},`,
     `            normalization=${pyStr(spec.normalize)}, totals=${spec.normalize === "none" ? "None" : "totals"},`,
     `            weights=${traceWeights ? "weights" : "None"}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
@@ -24316,8 +24317,8 @@ function emitHeatmap(spec, out, traceMatrix) {
   }
   if (traceMatrix) out.push(
     "    if OBSERVATION_CAPTURE is not None:",
-    "        image._graphunslopify_matrix_node_ids = OBSERVATION_CAPTURE.record_matrix(",
-    "            df, matrix, values, axes=(Y_FIELD, X_FIELD), field=VALUE_FIELD,",
+    "        OBSERVATION_CAPTURE.record_matrix(",
+    "            image, df, matrix, values, axes=(Y_FIELD, X_FIELD), field=VALUE_FIELD,",
     `            aggregation=${pyStr(spec.aggregation)}, text=${spec.annotate_cells ? "cell_text" : "{}"},`,
     "        )"
   );
@@ -26296,7 +26297,7 @@ function emitPreamble(spec, out, sourceSpec = spec) {
     ""
   );
 }
-function emitMain(spec, out, traceObservations, traceQuantities) {
+function emitMain(spec, out, traceObservations, traceQuantities, traceMatrixPng) {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates = (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
@@ -26473,7 +26474,7 @@ function emitMain(spec, out, traceObservations, traceQuantities) {
       ...spec.title ? [`        edit_target(upper.set_title(${pyStr(spec.title)}), ["title"], "title")`] : [],
       hasOutsideLegendLayout(spec) ? "        fit_outside_legends(fig, [upper, lower], df, lambda: fit_break_layout(fig, upper, lower))" : "        fit_break_layout(fig, upper, lower)"
     );
-    emitSaveBlock(spec, out);
+    emitSaveBlock(spec, out, traceMatrixPng);
     return;
   }
   out.push(
@@ -26547,9 +26548,9 @@ function emitMain(spec, out, traceObservations, traceQuantities) {
   if (spec.kind === "line" && spec.y2) {
     out.push('        print(f"dual axis in use. Justification: {Y2_JUSTIFICATION}")');
   }
-  emitSaveBlock(spec, out);
+  emitSaveBlock(spec, out, traceMatrixPng);
 }
-function emitSaveBlock(spec, out) {
+function emitSaveBlock(spec, out, traceMatrixPng) {
   out.push(
     "        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
@@ -26558,9 +26559,28 @@ function emitSaveBlock(spec, out) {
     "        capture_environment(fig)",
     "        for fmt in FORMATS:",
     '            path = f"{STEM}.{fmt}"',
-    "            meta = metadata_for(fmt)",
-    '            fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))',
+    "            meta = metadata_for(fmt)"
+  );
+  const save = 'fig.savefig(path, bbox_inches="tight", metadata=meta, **({"dpi": DPI} if fmt == "png" else {}))';
+  if (traceMatrixPng) {
+    out.push(
+      '            if fmt == "png" and OBSERVATION_CAPTURE is not None:',
+      "                matrix_geometry = _observation_geometry.save_matrix_png(",
+      "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
+      "                )",
+      "            else:",
+      "                matrix_geometry = None",
+      `                ${save}`
+    );
+  } else {
+    out.push(`            ${save}`);
+  }
+  out.push(
     "            record_output(path)",
+    ...traceMatrixPng ? [
+      "            if matrix_geometry is not None:",
+      '                OBSERVATION_CAPTURE.record_matrix_geometry(matrix_geometry, RUN_REPORT["outputs"][-1])'
+    ] : [],
     '            print(f"wrote {path}")',
     "        check(fig)"
   );
@@ -26589,12 +26609,19 @@ function emitSaveBlock(spec, out) {
 function emitPython(spec, traceObservations = false) {
   const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind) && "aggregation" in spec && spec.aggregation !== "none";
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
+  const traceMatrixPng = traceMatrix && spec.output.formats.includes("png");
   const out = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
   emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
+  if (traceMatrixPng) out.push(
+    "",
+    "from graphunslopify import observation_geometry as _observation_geometry",
+    `if hashlib.sha256(Path(_observation_geometry.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_GEOMETRY_SHA256)}:`,
+    '    raise RuntimeError("Observation geometry requires the matching GraphUnslopify runtime")'
+  );
   emitLoad(spec, out, traceObservations);
   emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
@@ -26630,7 +26657,7 @@ function emitPython(spec, traceObservations = false) {
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations, traceSummary || traceMatrix);
+  emitMain(spec, out, traceObservations, traceSummary || traceMatrix, traceMatrixPng);
   if (traceObservations) {
     const formats = new Set(spec.output.formats);
     if (spec.kind === "table") {

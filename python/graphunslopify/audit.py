@@ -200,6 +200,9 @@ def _run(
     with subprocess.Popen(
         command,
         cwd=folder,
+        # Audit workers are noninteractive. Never inherit a workspace/MCP
+        # controller's input pipe or let an executed program consume commands.
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,

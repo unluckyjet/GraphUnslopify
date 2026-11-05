@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import faulthandler
 import hashlib
 import io
 import json
@@ -15,12 +16,13 @@ import os
 import platform
 import shutil
 import threading
+import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import graphunslopify
-from graphunslopify import preview_reviews, project, review_agent
+from graphunslopify import preview_reviews, project, project_inspections, review_agent
 from graphunslopify.preview import PreviewServer
 from graphunslopify.preview_worker import RenderWorker
 from graphunslopify.project_preview import ProjectServer
@@ -269,6 +271,41 @@ def main():
         )
 
     native.state._run_generated = profiled_run
+    # Preserve actual PDF process phases and blocked thread stacks on a failed
+    # platform. Keep the production worker/deadline and its result unchanged.
+    inspection_run = project_inspections._run
+    inspection_runs = []
+
+    def observed_inspection_run(command, folder, timeout):
+        started = time.monotonic()
+        row = {"phase": "starting", "timeout_seconds": timeout}
+        inspection_runs.append(row)
+        path = args.out / f"pdf-worker-{len(inspection_runs)}"
+
+        def record():
+            row["elapsed_seconds"] = time.monotonic() - started
+            save(path.with_suffix(".json"), row)
+
+        def on_start():
+            row["phase"] = "communicating"
+            row["process_start_seconds"] = time.monotonic() - started
+            record()
+
+        record()
+        with path.with_suffix(".stacks.txt").open("xb") as stacks:
+            faulthandler.dump_traceback_later(10, repeat=True, file=stacks)
+            try:
+                completed = inspection_run(command, folder, timeout, on_start=on_start)
+                row.update(phase="complete", exit_code=completed.returncode)
+                return completed
+            except BaseException as problem:
+                row.update(phase="failed", error=f"{type(problem).__name__}: {problem}")
+                raise
+            finally:
+                faulthandler.cancel_dump_traceback_later()
+                record()
+
+    project_inspections._run = observed_inspection_run
     active_hold = None
     servers = {
         "native": native,

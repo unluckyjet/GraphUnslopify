@@ -18,6 +18,7 @@ if(process.env.GRAPHUNSLOPIFY_REVIEWER_INSTALLED)delete env.PYTHONPATH;else env.
 if(process.env.GRAPHUNSLOPIFY_REVIEWER_OFFLINE_HOOKS)env.PYTHONPATH=process.env.GRAPHUNSLOPIFY_REVIEWER_OFFLINE_HOOKS;
 if(process.env.GRAPHUNSLOPIFY_REVIEWER_CHILD_NODE_OPTIONS)env.NODE_OPTIONS=process.env.GRAPHUNSLOPIFY_REVIEWER_CHILD_NODE_OPTIONS;
 const python=process.env.PYTHON||"python", controls:any[]=[],errors:string[]=[],external:string[]=[],resources:any[]=[];
+const projectJobs:any[]=[];
 const record=controls.push.bind(controls);
 controls.push=(...items:any[])=>{const count=record(...items);writeFileSync(join(evidence,"progress.json"),JSON.stringify({controls,recorded_utc:new Date().toISOString()},null,2)+"\n");return count;};
 const sha=(raw:Buffer)=>createHash("sha256").update(raw).digest("hex");
@@ -52,6 +53,17 @@ function observe(page:Page){
  page.on("pageerror",e=>errors.push(e.message));
  page.on("request",r=>{if(/^https?:/.test(r.url())&&!/^http:\/\/127\.0\.0\.1:/.test(r.url()))external.push(r.url());});
  page.on("response",r=>{if(r.status()>=400&&["script","stylesheet","image"].includes(r.request().resourceType()))resources.push({path:new URL(r.url()).pathname,status:r.status()});});
+ page.on("response",r=>{
+  const path=new URL(r.url()).pathname;if(!["/api/state","/api/job","/api/pdf-upload"].includes(path))return;
+  void r.json().then(value=>{
+   const job=value.job??(value.kind==="inspection"?value:null);
+   projectJobs.push({at:new Date().toISOString(),path,status:r.status(),error:value.error,history_integrity:value.history_integrity,
+    job:job?{phase:job.phase,kind:job.kind,error:job.error,result:job.result}:undefined,
+    inspections:value.inspections?.map((row:any)=>({id:row.id,event:row.event,evidence_state:row.evidence_state,errors:row.errors}))});
+   if(projectJobs.length>64)projectJobs.shift();
+   writeFileSync(join(evidence,"project-jobs.json"),JSON.stringify(projectJobs,null,2)+"\n");
+  }).catch(()=>{});
+ });
  page.on("requestfailed",r=>{if(["script","stylesheet"].includes(r.resourceType()))resources.push({path:new URL(r.url()).pathname,error:r.failure()?.errorText});});
 }
 async function configure(page:Page,protocol="responses"){
@@ -194,7 +206,9 @@ try{
  assert(await paper.locator("#reviewer-disclose").isDisabled());assert(await paper.locator("#reviewer-advice").isHidden());assert(await paper.locator("#save-definition").isDisabled());
  await configure(paper,"chat");controls.push({control:"provider-form-edits-clear-consent-without-dirtying-scientific-definitions",passed:true});
  await paper.locator("#review-latest").click();await paper.locator("#pdf-file").setInputFiles(fixture.pdf);await paper.locator("#pdf-id").fill("visual");await paper.locator("#pdf-pages").fill("1,2");
- await paper.locator("#pdf-upload").click();await paper.locator('#review-figure option[value="pdf:visual"]').waitFor({state:"attached"});await paper.locator("#review-figure").selectOption("pdf:visual");
+ const pdfUpload=paper.waitForResponse(r=>new URL(r.url()).pathname==="/api/pdf-upload");
+ await paper.locator("#pdf-upload").click();const acceptedPDF=await pdfUpload;assert.equal(acceptedPDF.status(),202);
+ await paper.locator('#review-figure option[value="pdf:visual"]').waitFor({state:"attached"});await paper.locator("#review-figure").selectOption("pdf:visual");
  const pdfDisclosure=await disclose(paper);assert.equal(pdfDisclosure.deterministic_evidence.figures[0].source_type,"pdf");
  assert(JSON.stringify(pdfDisclosure.deterministic_evidence.figures[0].groups.claims).includes("untested"));assert.equal(pdfDisclosure.deterministic_evidence.images_supplied,false);await run(paper);
  controls.push({control:"actual-source-free-PDF-review-keeps-numerical-claims-untested",passed:true});
@@ -323,7 +337,7 @@ try{
  writeFileSync(join(evidence,"verification.json"),JSON.stringify({status:"browser-controls-passed",controls,requests:state.calls,errors,external,resource_errors:resources,source_revision:revision.stdout.trim(),runtime:fixture.runtime,native_artifacts:nativeArtifacts,driver_sha256:sha(readFileSync(join(root,"scripts/reviewer-check.ts"))),fixture_sha256:sha(readFileSync(join(root,"scripts/serve-reviewer-check.py"))),public_source_sha256:fixture.public_source_sha256,public_source_unchanged:true,scientific_definitions_unchanged:true,scope:"Actual native/paper browser controls and controlled HTTP;not inference or full97 acceptance",remaining:"provisional/source-change/configured-inference/current-minimum-installed/full-gate acceptance"},null,2)+"\n");
  console.log(JSON.stringify({evidence,controls:controls.length,scope:"actual reviewer browser controls;full97 acceptance remains open"}));
 }catch(error){
- const ui=activePage?await activePage.evaluate(()=>({phase:document.querySelector("#figure-reviewer")?.dataset.phase,status:document.querySelector("#reviewer-status")?.textContent,native_status:document.querySelector("#status")?.textContent,native_state:document.querySelector("#status")?.dataset.state,figure_choices:document.querySelectorAll("#reviewer-figures input").length})).catch(()=>null):null;
+ const ui=activePage?await activePage.evaluate(()=>({phase:document.querySelector("#figure-reviewer")?.dataset.phase,status:document.querySelector("#reviewer-status")?.textContent,native_status:document.querySelector("#status")?.textContent,native_state:document.querySelector("#status")?.dataset.state,project_error:document.querySelector("#error")?.textContent,project_notice:document.querySelector("#notice")?.textContent,project_running:document.querySelector("#running")?.textContent,figure_choices:document.querySelectorAll("#reviewer-figures input").length})).catch(()=>null):null;
  writeFileSync(join(evidence,"failure.json"),JSON.stringify({error:String(error),controls,errors,external,resource_errors:resources,runtime:fixture?.runtime,ui,stderr},null,2)+"\n");
  if(activePage)await activePage.screenshot({path:join(evidence,"failure.png"),fullPage:true});throw error;
 }finally{

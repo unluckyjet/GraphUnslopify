@@ -120,14 +120,45 @@ production128 each16/16/0,with a meaningful real TCP32 before/after regression.
 Polling repair records the foreground query signature before loading,so unchanged
 real state polls retain PDF/latest disclosure while real changes still invalidate.
 
+## Windows PDF preparation investigation
+
+Metadata repair919b9ab was normally pushed after all10 local gates:
+235 Node,2522 Python(no skips,one upstream warning),15 gallery;1008 actual
+index/full-Git and107 runtime bindings. Actual Windows3.12.10 artifact13380313767
+now verifies native review availability,strict exit2/333 retained rows and8
+browser controls. All107 loaded runtime files match919 Git. Its new private
+probe records equal path/handle ctimes;it does not identify the fields that
+differed during the older1d failure. The Windows job still fails waiting for the
+uploaded PDF option. Its screenshot shows a running inspection;the retained
+packet/result/7 receipt files/6 assets are consistent after shutdown. This does
+not establish the original stall’s cause or completion time. No blind retry.
+
+A real background-child regression reproduces inherited controller stdin:
+old audit._run times out after3s while the owner's control pipe remains open.
+The working worker receives DEVNULL instead;the child sees EOF and the owner
+still receives its exact control command. Three real process tests pass current,
+minimum and installed. Existing interruption/process-group cleanup remains.
+Transparent PDF fixture observations record process phases,elapsed time and
+periodic blocked-thread stacks;the browser records bounded actual job/state
+responses and asserts upload202. Worker/DOM deadlines are unchanged.
+
+A diagnostic’s eager successful-response body read failed in all3 local browser
+profiles;those failures remain. The corrected status assertion does not require
+an evictable browser body. Final current/minimum/installed-offline each pass34
+controls with private package6/all107 source/wheel/installed files matching.
+Only audit.py differs from private5. Existing all39 native/model5 evidence is
+historical to919,not acceptance of the new production byte. Actual configured
+model6 and the new frozen all10 batch provide the new checkpoint.
+
 ## Remaining acceptance
 
-New all10 frozen contribution/gallery gates-windows-1 passes on the final
-Windows metadata repair. Old1d all10 is historical,not this source's acceptance.
-Local all10 pass;normal meaningful commit/push,exact14/all3 workflow conclusions and
-actual source-browser/core/all-four installed distribution artifacts are required.
-Actual Windows execution of the new probe/control suite is still pending.
+New frozen gates-stdin-1 passes for the noninteractive audit input change,
+real child regression and PDF diagnostics. After all required checks,make a
+normal meaningful commit/push and verify its exact14/all3 workflow conclusions,
+actual source-browser/core and all-four installed distribution artifacts.
+Actual Windows PDF control acceptance remains required;the verified local stdin
+bug is not yet a proven explanation of the historical Windows stall.
 All seven requirements and all thirty roadmap ideas remain. Preserve original
 graphics/frozen research results;no release/tag or artificial commits.
 
-2026-11-04 Windows reviewer metadata repair local checkpoint:all10 frozen gates pass;235 Node/2522 Python(no skips)/15 gallery,107 source/private-wheel/installed files match. Eight regressions and39 native tests per current/minimum/installed retain identity/content/metadata/replacement refusals. Actual34 browser controls per profile and two installed model5 requests pass with failed science unchanged. Guard compares compatible identity/content across APIs and full metadata within each API;private exact-decimal probe records actual platform fields. Preparing normal meaningful push;new exact14/all3/actual Windows and all-platform artifacts remain required. Full97/full30 active;no release/tag.
+2026-11-04 reviewer audit input isolation local checkpoint:all10 frozen gates pass;235 Node/2523 Python(no skips)/15 gallery,107 source/private6/installed files match. An actual child-control-pipe test fails old inherited stdin at3s;closed input yields EOF while preserving the owner command. Three process regressions per current/minimum/installed and34 browser controls per profile pass. Actual installed model6 native/paper requests complete with failed science unchanged;paper advice contains documented interpretation errors and remains unapplied. PDF worker phases/thread stacks and bounded browser job/state diagnostics retain production deadlines. Historical919 Windows passes8 controls/native review but fails the PDF wait;its cause remains unproven. Preparing normal meaningful push;new exact14/all3/actual Windows/all-platform artifacts/full97/full30 acceptance remain. No release/tag.

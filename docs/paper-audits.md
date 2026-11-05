@@ -70,6 +70,8 @@ The manifest is validated against [manifest.schema.json](manifest.schema.json).
   moving to an isolated output directory, and preserves the original program's source hash.
   Source imports/top-level code still execute normally. Arbitrary legacy scripts without the
   report contract fail explicitly; they are not reported as verified.
+  Audited programs receive end-of-file on standard input. Supply inputs through declared
+  files and options; interactive prompts cannot read the workspace controller’s commands.
 - Optional `data` on a script entry asserts that its actual input bytes match the declared file;
   it does not rewrite the program's analysis. Claims belong in that program's source spec.
 - Optional `artifacts` names existing PNG/SVG/PDF/HTML exports to check against regenerated

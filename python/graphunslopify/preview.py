@@ -29,7 +29,7 @@ from .describe import profile
 from .drafts import InvalidDraft
 from .errors import SpecError
 from .preview_drafts import PreviewDrafts
-from .preview_observations import MATRIX_KINDS, PreviewObservations
+from .preview_observations import PreviewObservations, can_trace_observations
 from .preview_staging import PreviewStages
 from .transport import local_request
 from .workbook import EXCEL_SUFFIXES, workbook_sheets
@@ -302,9 +302,9 @@ class PreviewState:
         trace = payload.get("trace_observations", False)
         if type(trace) is not bool:
             raise TypeError("trace_observations must be a boolean")
-        if trace and spec.get("kind") not in MATRIX_KINDS:
+        if trace and not can_trace_observations(spec):
             raise ValueError(
-                "Observation picking currently supports heatmaps and confusion matrices"
+                "Observation picking supports heatmaps, confusion matrices and aggregated line error bars"
             )
         translated, translation_execution = self._compiler_request(
             "convert-observations" if trace else "convert", spec

@@ -126,8 +126,13 @@ $("edit-figure-text").addEventListener("click", () => {diagnosticOverlays.hide()
 observationExplorer = createObservationExplorer({
   api, token, client, current: () => ({generation: revision, run: latest?.run_id}),
   supported: () => {
-    try { return !!data && ["heatmap", "confusion_matrix"].includes(readSpec().kind); }
-    catch { return false; }
+    if (!data) return false;
+    try {
+      const spec = readSpec();
+      return ["heatmap", "confusion_matrix"].includes(spec.kind)
+        || (spec.kind === "line" && ["mean", "median"].includes(spec.aggregation)
+          && spec.uncertainty?.display === "bar");
+    } catch { return false; }
   },
   trace: () => { clearTimeout(timer); void update(true, true); },
   deactivate: () => {textEditor.hide();diagnosticOverlays.hide();contextInspector.hide();},

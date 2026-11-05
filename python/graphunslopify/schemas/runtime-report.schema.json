@@ -81,6 +81,15 @@
           "minLength": 1,
           "maxLength": 250
         },
+        "summary_interval_geometry_node_id": {
+          "type": "string",
+          "pattern": "^calculation:[a-f0-9]{64}$"
+        },
+        "summary_interval_geometry_gap": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
         "run_id": {
           "type": "string",
           "pattern": "^[a-f0-9]{32}$"

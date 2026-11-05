@@ -110,8 +110,13 @@ A cell can be selected by PNG position or panel, row, and column. The explorer
 pages contributors and exclusions, links calculation inputs and the filter
 and preparation roots, shows the generated Python and offers an explicit graph
 download. Editor generation, render attempt, runtime and file checks protect
-against stale or altered evidence. The rest of the renderer and quantity
-inventory remains part of the full scope.
+against stale or altered evidence. Line summaries with discrete error bars
+carry interval IDs through the actual sort and series selection into the
+stems and caps. The final draw records their cropped PNG geometry. The
+SDK, `explain-interval` CLI, and local editor select those interval nodes.
+A singleton has no hit geometry, and the reader rejects overlapping distinct
+intervals. Filled bands, estimates and the rest of the renderer and quantity
+inventory remain part of the full scope.
 
 ## Measured references and current limits
 

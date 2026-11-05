@@ -84,11 +84,12 @@ def _bundle_spec(args: argparse.Namespace) -> int:
     return 0
 
 
-def _explain_cell(args: argparse.Namespace) -> int:
-    from .observation_provenance import explain_saved_matrix_cell
+def _explain_observation(args: argparse.Namespace) -> int:
+    from .observation_provenance import explain_saved_interval, explain_saved_matrix_cell
 
     try:
-        result = explain_saved_matrix_cell(args.report, args.x, args.y, run_directory=args.run_dir)
+        explain = explain_saved_interval if args.interval else explain_saved_matrix_cell
+        result = explain(args.report, args.x, args.y, run_directory=args.run_dir)
     except (AttributeError, OSError, KeyError, TypeError, ValueError) as problem:
         print(str(problem), file=sys.stderr)
         return 2
@@ -1182,14 +1183,24 @@ def build_parser() -> argparse.ArgumentParser:
     generated.add_argument("--json", action="store_true")
     generated.set_defaults(handler=_render_spec)
 
-    cell = commands.add_parser(
-        "explain-cell", help="inspect a cell in an observation-traced matrix PNG"
-    )
-    cell.add_argument("report", help="saved <stem>.report.json beside its generated Python file")
-    cell.add_argument("x", type=float, help="horizontal pixel coordinate from the PNG's left edge")
-    cell.add_argument("y", type=float, help="vertical pixel coordinate from the PNG's top edge")
-    cell.add_argument("--run-dir", help="original render directory (default: beside the report)")
-    cell.set_defaults(handler=_explain_cell)
+    for name, target in (
+        ("explain-cell", "a matrix cell"),
+        ("explain-interval", "a line interval"),
+    ):
+        explain = commands.add_parser(name, help=f"inspect {target} in an observation-traced PNG")
+        explain.add_argument(
+            "report", help="saved <stem>.report.json beside its generated Python file"
+        )
+        explain.add_argument(
+            "x", type=float, help="horizontal pixel coordinate from the PNG's left edge"
+        )
+        explain.add_argument(
+            "y", type=float, help="vertical pixel coordinate from the PNG's top edge"
+        )
+        explain.add_argument(
+            "--run-dir", help="original render directory (default: beside the report)"
+        )
+        explain.set_defaults(handler=_explain_observation, interval=name == "explain-interval")
 
     demo = commands.add_parser("demo", help="generate and strictly verify public toy results")
     demo.add_argument("directory", nargs="?", default="graphunslopify-demo")

@@ -426,6 +426,8 @@ class _ObservationSelection:
         self._summary_roots = {}
         self._matrix_roots = {}
         self._matrix_geometry = None
+        self._interval_column = object()
+        self._interval_geometry = None
 
     def sort(self, frame, field):
         # Carry positions through the actual sort, including duplicate labels and NaT.
@@ -768,7 +770,7 @@ class _ObservationSelection:
             metadata={"identifier_steps": self._identifier_steps},
             excluded=[*self.exclusions, *self._preparation_exclusions],
         )
-        self._prepared_frames[id(frame)] = (weakref.ref(frame), range(len(frame)), None, set())
+        self._prepared_frames[id(frame)] = (weakref.ref(frame), range(len(frame)), None, {})
 
     def _prepared_frame(self, frame):
         reference, positions, panel, fields = self._prepared_frames.get(
@@ -789,7 +791,7 @@ class _ObservationSelection:
         ]
         if len(kept) != len(subset):
             raise ValueError("Observation panel membership differs from pandas selection")
-        self._prepared_frames[id(subset)] = (weakref.ref(subset), kept, panel, set())
+        self._prepared_frames[id(subset)] = (weakref.ref(subset), kept, panel, {})
         return subset
 
     def _summary_support(self, members, references, witness, field):
@@ -838,7 +840,7 @@ class _ObservationSelection:
         if registered_panel is not None:
             panel = registered_panel
         if field in summarized_fields:
-            return
+            return summarized_fields[field]
         source_field = self._fields.get(field, self._rows)
         references = [source_field[i] for i in positions]
         groups = _summary_groups(point_codes, len(result))
@@ -937,7 +939,29 @@ class _ObservationSelection:
             excluded=exclusions[None],
         )
         self._summary_roots[root] = None
-        summarized_fields.add(field)
+        intervals = tuple(roots[1::2]) if interval is not None else ()
+        summarized_fields[field] = intervals
+        return intervals
+
+    def summary_interval_frame(self, result, interval_ids):
+        """Tag the drawn summary so actual sorting and selection carry its identities."""
+        if len(interval_ids) != len(result):
+            raise ValueError("Observation interval IDs do not match the summary positions")
+        tagged = result.copy(deep=False)
+        tagged[self._interval_column] = list(interval_ids)
+        return tagged
+
+    def bind_summary_intervals(self, container, drawn):
+        """Associate actual error bars with the interval nodes in draw order."""
+        interval_ids = tuple(drawn[self._interval_column])
+        _, caps, stems = container.lines
+        if len(stems) != 1:
+            raise ValueError(
+                "Observation interval binding requires one vertical error-bar collection"
+            )
+        stems[0]._graphunslopify_interval_ids = interval_ids
+        for cap in caps:
+            cap._graphunslopify_interval_ids = interval_ids
 
     def _summary_interval(self, result, index, support, center, count, metadata, kind, bootstrap):
         low, lower_status = self._number(result["_low"].iat[index])
@@ -1102,6 +1126,36 @@ class _ObservationSelection:
         # Keep only the final saved PNG if an output format was repeated.
         self._matrix_geometry = (capture, output)
 
+    def record_summary_interval_geometry(self, capture, output):
+        self._interval_geometry = (capture, output)
+
+    def _interval_geometry_reference(self):
+        if self._interval_geometry is None:
+            return {}
+        (image, strokes, gaps), output = self._interval_geometry
+        if image is None or gaps:
+            return {"summary_interval_geometry_gap": gaps[0]}
+        if not strokes:
+            return {"summary_interval_geometry_gap": "No visible error bars in the final PNG"}
+        if any(image[key] != output[key] for key in ("sha256", "bytes")):
+            return {
+                "summary_interval_geometry_gap": "The PNG changed during interval geometry capture"
+            }
+        try:
+            node_id = self.ledger.calculate(
+                "summary_interval_png_geometry",
+                dict.fromkeys(stroke["node_id"] for stroke in strokes),
+                value=len(strokes),
+                metadata={
+                    "coordinates": "pixels_top_left",
+                    "image": {"path": output["path"], **image},
+                    "strokes": strokes,
+                },
+            )
+        except ValueError as problem:
+            return {"summary_interval_geometry_gap": str(problem)}
+        return {"summary_interval_geometry_node_id": node_id}
+
     def _matrix_geometry_reference(self):
         if self._matrix_geometry is None:
             return {}
@@ -1179,6 +1233,7 @@ class _ObservationSelection:
             else None
         )
         matrix_geometry = self._matrix_geometry_reference()
+        interval_geometry = self._interval_geometry_reference()
         payload = self.ledger.to_json()
         path = None
         try:
@@ -1205,6 +1260,7 @@ class _ObservationSelection:
             **({"summary_node_id": summary} if summary is not None else {}),
             **({"matrix_node_id": matrix} if matrix is not None else {}),
             **matrix_geometry,
+            **interval_geometry,
         }
 
 
@@ -1283,8 +1339,9 @@ def _load_observation_selection(
             )
         ):
             raise ValueError(f"Observation {kind} root does not match the calculated panels")
+    geometry = None
     if "matrix_geometry_node_id" in selection:
-        from .observation_geometry import inspect_png, validate_matrix_geometry
+        from .observation_geometry import validate_matrix_geometry
 
         if "matrix_geometry_gap" in selection:
             raise ValueError("Observation report contains conflicting matrix geometry references")
@@ -1293,6 +1350,24 @@ def _load_observation_selection(
         matrix_root = graph._nodes.get(selection.get("matrix_node_id"), {})
         if not set(geometry_node["inputs"]) <= set(matrix_root.get("inputs", [])):
             raise ValueError("Matrix PNG geometry belongs to a different matrix calculation")
+    if "summary_interval_geometry_node_id" in selection:
+        from .observation_geometry import validate_summary_interval_geometry
+
+        if geometry is not None or "summary_interval_geometry_gap" in selection:
+            raise ValueError("Observation report contains conflicting PNG geometry references")
+        geometry_node = graph._nodes.get(selection["summary_interval_geometry_node_id"], {})
+        geometry = validate_summary_interval_geometry(geometry_node, graph._nodes)
+        summary_root = graph._nodes.get(selection.get("summary_node_id"), {})
+        panel_inputs = {
+            node_id
+            for panel_id in summary_root.get("inputs", [])
+            for node_id in graph._nodes[panel_id]["inputs"]
+        }
+        if not set(geometry_node["inputs"]) <= panel_inputs:
+            raise ValueError("Interval PNG geometry belongs to a different summary calculation")
+    if geometry is not None:
+        from .observation_geometry import inspect_png
+
         image = geometry["image"]
         output = next(
             (
@@ -1303,26 +1378,44 @@ def _load_observation_selection(
             None,
         )
         if output is None or any(image[key] != output[key] for key in ("sha256", "bytes")):
-            raise ValueError("Matrix PNG geometry does not match the recorded output")
+            raise ValueError("Observation PNG geometry does not match the recorded output")
         png = directory / image["path"]
         if require_contained_png and not png.resolve().is_relative_to(directory.resolve()):
-            raise ValueError("Matrix PNG escapes the saved render directory")
+            raise ValueError("Observation PNG escapes the saved render directory")
         actual = inspect_png(png, run_id)
         if any(image.get(key) != value for key, value in actual.items()):
-            raise ValueError("PNG bytes or dimensions changed since the matrix draw")
+            raise ValueError("PNG bytes or dimensions changed since the observation draw")
     return path, graph
 
 
 def explain_saved_matrix_cell(
-    report_path: str | Path, x: float, y: float, *, run_directory: str | Path | None = None
+    report_path: str | Path,
+    x: float,
+    y: float,
+    *,
+    run_directory: str | Path | None = None,
 ) -> dict[str, Any]:
     """Resolve a saved SDK render without executing its program or rereading its data."""
-    from .observation_geometry import resolve_matrix_cell
+    return _explain_saved_position(report_path, x, y, run_directory, interval=False)
+
+
+def explain_saved_interval(
+    report_path: str | Path, x: float, y: float, *, run_directory: str | Path | None = None
+) -> dict[str, Any]:
+    """Explain the interval at a coordinate in the exact saved line PNG."""
+    return _explain_saved_position(report_path, x, y, run_directory, interval=True)
+
+
+def _explain_saved_position(report_path, x, y, run_directory, *, interval):
+    from .observation_geometry import resolve_matrix_cell, resolve_summary_interval
 
     path = Path(report_path).expanduser().resolve()
     report_suffix = ".report.json"
+    label = "summary interval" if interval else "matrix"
+    geometry_key = "summary_interval_geometry" if interval else "matrix_geometry"
+    geometry_id = f"{geometry_key}_node_id"
     if not path.name.endswith(report_suffix) or not path.is_file():
-        raise ValueError("Use the matrix render's <stem>.report.json file")
+        raise ValueError(f"Use the {label} render's <stem>.report.json file")
     program = path.with_name(path.name.removesuffix(report_suffix) + ".py")
     directory = Path(run_directory).expanduser().resolve() if run_directory else path.parent
     if not program.resolve().is_relative_to(directory) or not program.is_file():
@@ -1333,11 +1426,11 @@ def explain_saved_matrix_cell(
         raise ValueError("Render report exceeds the observation byte budget")
     report = json.loads(raw, object_pairs_hook=_unique_keys)
     if not isinstance(report, dict):
-        raise TypeError("Use a saved matrix render report")
+        raise TypeError(f"Use a saved {label} render report")
     selection = report.get("observation_selection")
-    if not isinstance(selection, dict) or "matrix_geometry_node_id" not in selection:
-        gap = selection.get("matrix_geometry_gap") if isinstance(selection, dict) else None
-        raise ValueError(gap or "This saved render has no matrix PNG geometry")
+    if not isinstance(selection, dict) or geometry_id not in selection:
+        gap = selection.get(f"{geometry_key}_gap") if isinstance(selection, dict) else None
+        raise ValueError(gap or f"This saved render has no {label} PNG geometry")
     with program.open("rb") as source:
         program_bytes = source.read(_MAX_BYTES + 1)
     if len(program_bytes) > _MAX_BYTES:
@@ -1351,15 +1444,19 @@ def explain_saved_matrix_cell(
         program_sha256=program_sha256,
         require_contained_png=True,
     )
-    node = graph._nodes[selection["matrix_geometry_node_id"]]
-    cell_id = resolve_matrix_cell(node["metadata"], graph._nodes, x, y)
+    node = graph._nodes[selection[geometry_id]]
+    target_id = (
+        resolve_summary_interval(node["metadata"], x, y)
+        if interval
+        else resolve_matrix_cell(node["metadata"], graph._nodes, x, y)
+    )
     return {
         "run_id": run_id,
         "image": copy.deepcopy(node["metadata"]["image"]),
         "program": {"path": str(program), "sha256": program_sha256},
         "observation_selection": {**selection, "path": str(graph_path)},
         "position": [x, y],
-        "explanation": graph.explain(cell_id) if cell_id is not None else None,
+        "explanation": graph.explain(target_id) if target_id is not None else None,
     }
 
 

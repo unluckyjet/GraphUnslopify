@@ -557,6 +557,7 @@ footer {
   margin-bottom: 8px;
 }
 #observation-explorer .observation-picker input { width: 5rem; }
+#observation-explorer .observation-picker[hidden] { display: none; }
 #observation-explorer pre { max-height: 22rem; overflow: auto; }
 #diagnostic-targets { position: absolute; inset: 0; pointer-events: none; }
 #diagnostic-targets[hidden], #diagnostic-review[hidden] { display: none; }

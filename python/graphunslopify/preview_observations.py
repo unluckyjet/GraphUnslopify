@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-from .observation_geometry import resolve_matrix_cell
+from .observation_geometry import resolve_matrix_cell, resolve_summary_interval
 from .observation_provenance import _load_observation_selection
 from .preview_reviews import _file
 from .project import _execution_source, _inside
@@ -14,6 +14,18 @@ MATRIX_KINDS = frozenset({"heatmap", "confusion_matrix"})
 _PAGE_SIZE = 50
 _DETAIL_BYTES = 65536
 _PROGRAM_BYTES = 20 * 1024 * 1024
+
+
+def can_trace_observations(spec):
+    if spec.get("kind") in MATRIX_KINDS:
+        return True
+    uncertainty = spec.get("uncertainty")
+    return (
+        spec.get("kind") == "line"
+        and spec.get("aggregation") in ("mean", "median")
+        and isinstance(uncertainty, dict)
+        and uncertainty.get("display") == "bar"
+    )
 
 
 class PreviewObservations:
@@ -31,10 +43,12 @@ class PreviewObservations:
             raise ValueError("The observation render folder changed")
         report = evidence["report"]
         reference = report.get("observation_selection") or {}
-        geometry_id = reference.get("matrix_geometry_node_id")
+        interval = report["spec"]["kind"] == "line"
+        key = "summary_interval_geometry" if interval else "matrix_geometry"
+        geometry_id = reference.get(f"{key}_node_id")
         if geometry_id is None:
             raise ValueError(
-                reference.get("matrix_geometry_gap") or "This run has no matrix geometry"
+                reference.get(f"{key}_gap") or "This run has no supported PNG observation geometry"
             )
         _, graph = _load_observation_selection(
             folder,
@@ -46,9 +60,9 @@ class PreviewObservations:
         if graph._source["snapshot_sha256"] != evidence["data_sha256"]:
             raise ValueError("The observation graph belongs to a different input snapshot")
         geometry = graph._nodes[geometry_id]["metadata"]
-        if geometry["gaps"]:
+        if not interval and geometry["gaps"]:
             raise ValueError("Matrix placement is unavailable. " + geometry["gaps"][0])
-        if not geometry["grids"]:
+        if not interval and not geometry["grids"]:
             raise ValueError("The final PNG contains no matrix panels")
         return graph, geometry, reference
 
@@ -56,13 +70,15 @@ class PreviewObservations:
         """Publish geometry and scope handles only, keeping raw records on the server."""
         try:
             _, geometry, reference = self._load(record)
+            interval_ids = self._interval_ids(geometry) if "strokes" in geometry else ()
             return {
                 "available": True,
                 "image": geometry["image"],
                 "grids": [
                     {"rows": len(grid["y_edges"]) - 1, "columns": len(grid["x_edges"]) - 1}
-                    for grid in geometry["grids"]
+                    for grid in geometry.get("grids", ())
                 ],
+                "intervals": len(interval_ids),
                 "filters": reference["node_id"],
                 "preparation": reference.get("preparation_node_id"),
             }
@@ -122,6 +138,10 @@ class PreviewObservations:
         self._check_owner(owner, record)
 
     @staticmethod
+    def _interval_ids(geometry):
+        return tuple(dict.fromkeys(stroke["node_id"] for stroke in geometry["strokes"]))
+
+    @staticmethod
     def _cell_center(geometry, cell):
         if not isinstance(cell, list) or len(cell) != 3:
             raise ValueError("Choose a matrix panel, row and column")
@@ -143,17 +163,29 @@ class PreviewObservations:
         return (x0 + x1) / 2, (y0 + y1) / 2
 
     def query(self, payload):
-        selectors = {"position", "cell", "node_id"}
+        selectors = {"position", "cell", "interval_index", "node_id"}
         selected = selectors & payload.keys()
         offset = payload.get("offset", 0)
         if len(selected) != 1 or type(offset) is not int or not 0 <= offset <= 200_000:
             raise ValueError("Choose one observation target and a valid page")
-        owner, record, graph, geometry, reference = self._owned(payload, selectors | {"offset"})
+        owner, record, graph, geometry, reference = self._owned(
+            payload, selectors | {"offset", "tolerance"}
+        )
+        if "tolerance" in payload and ("position" not in payload or "strokes" not in geometry):
+            raise ValueError("Pick tolerance only applies to a line interval position")
         if "node_id" in payload:
             node_id = payload["node_id"]
             if not isinstance(node_id, str) or node_id not in graph._nodes:
                 raise ValueError("Unknown observation graph node")
+        elif "interval_index" in payload:
+            index = payload["interval_index"]
+            ids = self._interval_ids(geometry) if "strokes" in geometry else ()
+            if type(index) is not int or not 0 <= index < len(ids):
+                raise ValueError("Choose a visible line interval")
+            node_id = ids[index]
         else:
+            if "cell" in payload and "grids" not in geometry:
+                raise ValueError("This PNG has line intervals. Choose an interval or a pixel.")
             point = (
                 self._cell_center(geometry, payload["cell"])
                 if "cell" in payload
@@ -161,7 +193,11 @@ class PreviewObservations:
             )
             if not isinstance(point, (list, tuple)) or len(point) != 2:
                 raise ValueError("Use two natural image coordinates")
-            node_id = resolve_matrix_cell(geometry, graph._nodes, *point)
+            node_id = (
+                resolve_summary_interval(geometry, *point, tolerance=payload.get("tolerance", 2))
+                if "strokes" in geometry
+                else resolve_matrix_cell(geometry, graph._nodes, *point)
+            )
         answer = None if node_id is None else self._page(graph, node_id, offset)
         self._finish(owner, record, geometry, reference)
         return {"selection": answer, "page_size": _PAGE_SIZE}

@@ -14,6 +14,7 @@ from pathlib import Path
 
 RUN_STAMP = "GraphUnslopifyObservationRun"
 MAX_PANELS = 512
+MAX_INTERVAL_STROKES = 12_000
 
 
 def inspect_png(path, run_id):
@@ -120,24 +121,17 @@ def _grid(image):
     }
 
 
-def save_matrix_png(figure, path, *, metadata, dpi, run_id):
-    """Save once and measure the final draw in the actual tight PNG coordinate system."""
+def _save_observation_png(figure, path, *, metadata, dpi, run_id, collect, label):
+    """Save once and keep only the final observed tight PNG draw."""
     snapshot = {}
 
-    def drawn(_event):
+    def drawn(event):
         snapshot.clear()
-        snapshot.update(origin=figure.bbox.p0.tolist(), grids=[], gaps=[])
+        snapshot.update(origin=figure.bbox.p0.tolist(), entries=[], gaps=[])
         try:
-            for index, image in enumerate(_visible_matrix_images(figure)):
-                if index >= MAX_PANELS:
-                    snapshot["gaps"].append("Matrix geometry exceeds the panel capacity")
-                    break
-                try:
-                    snapshot["grids"].append(_grid(image))
-                except ValueError as problem:
-                    snapshot["gaps"].append(str(problem))
-        except (AttributeError, TypeError, RuntimeError) as problem:
-            snapshot["gaps"].append(f"Could not measure a matrix draw ({type(problem).__name__})")
+            collect(figure, event.renderer, snapshot["entries"], snapshot["gaps"])
+        except (AttributeError, TypeError, RuntimeError, ValueError) as problem:
+            snapshot["gaps"].append(f"Could not measure a {label} draw ({type(problem).__name__})")
 
     canvas = figure.canvas
     callback = canvas.mpl_connect("draw_event", drawn)
@@ -149,16 +143,50 @@ def save_matrix_png(figure, path, *, metadata, dpi, run_id):
     try:
         identity = inspect_png(path, run_id)
     except (OSError, ValueError) as problem:
-        return None, [], [f"Could not verify the matrix PNG ({type(problem).__name__})"]
-    width, height = identity["width"], identity["height"]
+        return (
+            None,
+            {},
+            [f"Could not verify the {label} PNG ({type(problem).__name__})"],
+        )
     if not snapshot:
-        return identity, [], ["No final matrix PNG draw was observed"]
+        return identity, {}, [f"No final {label} PNG draw was observed"]
+    return identity, snapshot, sorted(set(snapshot["gaps"]))
+
+
+def _collect_matrix(figure, _renderer, entries, gaps):
+    for index, image in enumerate(_visible_matrix_images(figure)):
+        if index >= MAX_PANELS:
+            gaps.append("Matrix geometry exceeds the panel capacity")
+            break
+        try:
+            entries.append(_grid(image))
+        except ValueError as problem:
+            gaps.append(str(problem))
+
+
+def save_matrix_png(figure, path, *, metadata, dpi, run_id):
+    """Measure matrix boundaries in the actual tight PNG coordinate system."""
+    identity, snapshot, gaps = _save_observation_png(
+        figure,
+        path,
+        metadata=metadata,
+        dpi=dpi,
+        run_id=run_id,
+        collect=_collect_matrix,
+        label="matrix",
+    )
+    if not snapshot:
+        return identity, [], gaps
+    width, height = identity["width"], identity["height"]
     origin_x, origin_y = snapshot["origin"]
     grids = []
-    for grid in snapshot["grids"]:
+    for grid in snapshot["entries"]:
         left, bottom, right, top = grid["clip"]
         left, right = max(0, left - origin_x), min(width, right - origin_x)
-        top, bottom = max(0, height - top + origin_y), min(height, height - bottom + origin_y)
+        top, bottom = (
+            max(0, height - top + origin_y),
+            min(height, height - bottom + origin_y),
+        )
         if left < right and top < bottom:
             grids.append(
                 {
@@ -168,7 +196,145 @@ def save_matrix_png(figure, path, *, metadata, dpi, run_id):
                     "clip": [left, top, right, bottom],
                 }
             )
-    return identity, grids, sorted(set(snapshot["gaps"]))
+    return identity, grids, gaps
+
+
+def _visible_interval_artists(artist):
+    if not artist.get_visible():
+        return
+    if hasattr(artist, "_graphunslopify_interval_ids"):
+        alpha = artist.get_alpha()
+        if not (isinstance(alpha, Real) and alpha == 0):
+            yield artist
+        return
+    for child in artist.get_children():
+        yield from _visible_interval_artists(child)
+
+
+def _interval_clip(artist):
+    if not artist.get_clip_on():
+        return None
+    if artist.get_clip_path() is not None:
+        raise ValueError("An interval has a nonrectangular clip")
+    box = artist.get_clip_box()
+    if box is None:
+        return None
+    clip = box.extents.tolist()
+    if not all(map(finite_number, clip)):
+        raise ValueError("An interval has a nonfinite clip box")
+    return clip
+
+
+def _interval_strokes(artist, renderer):
+    from matplotlib.collections import LineCollection
+    from matplotlib.lines import Line2D
+
+    ids = artist._graphunslopify_interval_ids
+    clip = _interval_clip(artist)
+    transform = artist.get_transform()
+    if not transform.is_separable:
+        raise ValueError("An interval has a nonseparable transform")
+    if isinstance(artist, LineCollection):
+        segments = artist.get_segments()
+        widths = artist.get_linewidths()
+        if len(segments) != len(ids) or len(widths) == 0:
+            raise ValueError("Error-bar segments do not match their calculation positions")
+        for index, (node_id, segment) in enumerate(zip(ids, segments, strict=True)):
+            if not len(segment):
+                continue
+            if segment.shape != (2, 2):
+                raise ValueError("An error-bar stem must have two endpoints")
+            endpoints = transform.transform(segment).tolist()
+            radius = renderer.points_to_pixels(float(widths[index % len(widths)])) / 2
+            yield node_id, endpoints, float(radius), clip, "stem"
+    elif isinstance(artist, Line2D) and artist.get_marker() == "_":
+        points = transform.transform(artist.get_xydata()).tolist()
+        if len(points) != len(ids):
+            raise ValueError("Error-bar caps do not match their calculation positions")
+        half_span = renderer.points_to_pixels(artist.get_markersize()) / 2
+        radius = renderer.points_to_pixels(artist.get_markeredgewidth()) / 2
+        for node_id, (x, y) in zip(ids, points, strict=True):
+            if not (finite_number(x) and finite_number(y)):
+                continue
+            yield (
+                node_id,
+                [[x - half_span, y], [x + half_span, y]],
+                float(radius),
+                clip,
+                "cap",
+            )
+    else:
+        raise ValueError("Unsupported error-bar artist")
+
+
+def _collect_intervals(figure, renderer, entries, gaps):
+    for artist in _visible_interval_artists(figure):
+        try:
+            for stroke in _interval_strokes(artist, renderer):
+                if len(entries) >= MAX_INTERVAL_STROKES:
+                    gaps.append("Interval geometry exceeds its stroke capacity")
+                    return
+                entries.append(stroke)
+        except ValueError as problem:
+            gaps.append(str(problem))
+
+
+def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
+    """Capture the actual transformed strokes for visible summary error bars."""
+    identity, snapshot, gaps = _save_observation_png(
+        figure,
+        path,
+        metadata=metadata,
+        dpi=dpi,
+        run_id=run_id,
+        collect=_collect_intervals,
+        label="summary interval",
+    )
+    if not snapshot:
+        return identity, [], gaps
+    width, height = identity["width"], identity["height"]
+    origin_x, origin_y = snapshot["origin"]
+    strokes = []
+    for node_id, points, radius, raw_clip, role in snapshot["entries"]:
+        if not all(finite_number(value) for point in points for value in point):
+            gaps.append("An error-bar stem has nonfinite endpoints")
+            continue
+        bounds = [0, 0, width, height]
+        if raw_clip is not None:
+            left, bottom, right, top = raw_clip
+            bounds = [
+                max(0, left - origin_x),
+                max(0, height - top + origin_y),
+                min(width, right - origin_x),
+                min(height, height - bottom + origin_y),
+            ]
+        if bounds[0] >= bounds[2] or bounds[1] >= bounds[3]:
+            continue
+        pixels = [[x - origin_x, height - y + origin_y] for x, y in points]
+        if radius == 0:
+            continue
+        if not finite_number(radius) or not 0 < radius <= 128:
+            gaps.append("An error-bar stroke has an unsupported width")
+            continue
+        (x0, y0), (x1, y1) = pixels
+        left, top, right, bottom = bounds
+        if (
+            max(x0, x1) + radius <= left
+            or min(x0, x1) - radius >= right
+            or max(y0, y1) + radius <= top
+            or min(y0, y1) - radius >= bottom
+        ):
+            continue
+        strokes.append(
+            {
+                "node_id": node_id,
+                "endpoints": pixels,
+                "radius": radius,
+                "clip": bounds,
+                "role": role,
+            }
+        )
+    return identity, strokes, sorted(set(gaps))
 
 
 def cell_index(edges, position):
@@ -260,4 +426,88 @@ def resolve_matrix_cell(info, nodes, x, y):
         matches.add(cell_id)
     if len(matches) > 1:
         raise ValueError("More than one matrix cell occupies that PNG position")
+    return next(iter(matches), None)
+
+
+def validate_summary_interval_geometry(node, nodes):
+    if node.get("operation") != "summary_interval_png_geometry":
+        raise ValueError("Unknown summary interval PNG geometry root")
+    info = node.get("metadata", {})
+    image = info.get("image", {})
+    strokes = info.get("strokes")
+    if (
+        info.get("coordinates") != "pixels_top_left"
+        or not isinstance(image, dict)
+        or not all(
+            type(image.get(key)) is int and image[key] > 0 for key in ("width", "height", "bytes")
+        )
+        or not isinstance(strokes, list)
+        or not 0 < len(strokes) <= MAX_INTERVAL_STROKES
+        or type(node["value"]) is not int
+        or len(strokes) != node["value"]
+    ):
+        raise ValueError("Malformed summary interval PNG geometry")
+    inputs = {}
+    for stroke in strokes:
+        if not isinstance(stroke, dict) or not isinstance(stroke.get("node_id"), str):
+            raise TypeError("An error-bar stroke has no calculation identity")
+        identity = stroke["node_id"]
+        endpoints, clip, radius = (
+            stroke.get("endpoints"),
+            stroke.get("clip"),
+            stroke.get("radius"),
+        )
+        target = nodes.get(identity, {})
+        if (
+            target.get("operation") != "summary_interval"
+            or not isinstance(target.get("value"), list)
+            or len(target["value"]) != 2
+            or not all(map(finite_number, target["value"]))
+            or stroke.get("role") not in ("stem", "cap")
+            or not isinstance(endpoints, list)
+            or len(endpoints) != 2
+            or not all(
+                isinstance(point, list) and len(point) == 2 and all(map(finite_number, point))
+                for point in endpoints
+            )
+            or not finite_number(radius)
+            or not 0 < radius <= 128
+            or not isinstance(clip, list)
+            or len(clip) != 4
+            or not all(map(finite_number, clip))
+        ):
+            raise ValueError("Error-bar stroke does not match a finite interval")
+        left, top, right, bottom = clip
+        if not (0 <= left < right <= image["width"] and 0 <= top < bottom <= image["height"]):
+            raise ValueError("Error-bar clip lies outside the actual PNG")
+        inputs[identity] = None
+    if node["inputs"] != list(inputs):
+        raise ValueError("Error-bar strokes do not match their calculation inputs")
+    return info
+
+
+def resolve_summary_interval(info, x, y, *, tolerance=2):
+    """Find the unique visible interval stroke near a natural PNG coordinate."""
+    if not finite_number(x) or not finite_number(y):
+        raise ValueError("Interval PNG coordinates must be finite numbers")
+    if not finite_number(tolerance) or not 0 <= tolerance <= 64:
+        raise ValueError("Interval PNG pick tolerance must be between 0 and 64 pixels")
+    matches = set()
+    for stroke in info["strokes"]:
+        left, top, right, bottom = stroke["clip"]
+        if not (left <= x < right and top <= y < bottom):
+            continue
+        (x0, y0), (x1, y1) = stroke["endpoints"]
+        dx, dy = x1 - x0, y1 - y0
+        length_squared = dx * dx + dy * dy
+        fraction = (
+            min(1, max(0, ((x - x0) * dx + (y - y0) * dy) / length_squared))
+            if length_squared
+            else 0
+        )
+        distance = math.hypot(x - (x0 + fraction * dx), y - (y0 + fraction * dy))
+        if distance <= stroke["radius"] + tolerance:
+            matches.add(stroke["node_id"])
+    if len(matches) > 1:
+        raise ValueError("More than one observation interval occupies that PNG position")
     return next(iter(matches), None)

@@ -104,13 +104,17 @@
         </div>
         <section id="observation-explorer" hidden aria-label="Observation provenance">
           <h3>Observation provenance</h3>
-          <p class="muted">Heatmap and confusion matrix evidence stays in this local editor.</p>
+          <p class="muted">Observation evidence stays in this local editor.</p>
           <p id="observation-status" role="status" aria-live="polite"></p>
-          <div class="observation-picker">
+          <div id="observation-cell-picker" class="observation-picker" hidden>
             <label>Panel <select id="observation-panel"></select></label>
             <label>Row <input id="observation-row" type="number" min="1" step="1" required></label>
             <label>Column <input id="observation-column" type="number" min="1" step="1" required></label>
             <button id="observation-pick" class="quiet" type="button">Inspect cell</button>
+          </div>
+          <div id="observation-interval-picker" class="observation-picker" hidden>
+            <label>Visible interval <input id="observation-interval-index" type="number" min="1" step="1" required></label>
+            <button id="observation-pick-interval" class="quiet" type="button">Inspect interval</button>
           </div>
           <div class="figure-tools">
             <button id="observation-filters" class="quiet" type="button">Figure filters</button>

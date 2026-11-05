@@ -125,11 +125,12 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
   out.push("");
 }
 
-function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
+function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceIntervals: boolean): void {
   const preset = PRESETS[spec.style.preset];
   const band = spec.uncertainty?.display === "band";
 
-  out.push("", "def draw_panel(ax, df):", "    frame = summarise(df)");
+  out.push("", "def draw_panel(ax, df):",
+    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)");
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
 
   const plot = (indentLevel: string, source: string, styleExpr: string, label: string) => {
@@ -196,6 +197,10 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[]): void {
         `${indentLevel}        zorder=${styleExpr}["zorder"],`,
         `${indentLevel}    )`,
         `${indentLevel}    inspector_interval(_gu_interval)`,
+        ...(traceIntervals ? [
+          `${indentLevel}    if OBSERVATION_CAPTURE is not None:`,
+          `${indentLevel}        OBSERVATION_CAPTURE.bind_summary_intervals(_gu_interval, ${source})`,
+        ] : []),
       );
     }
     return lines;
@@ -1674,7 +1679,7 @@ function emitHeatmap(
   out.push("");
 }
 
-export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean): void {
+export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean, traceIntervals: boolean): void {
   emitSeriesHelpers(spec, out);
   if (hasCategoricalX(spec)) {
     emitCategories(spec, out);
@@ -1683,7 +1688,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean)
 
   switch (spec.kind) {
     case "line":
-      emitLine(spec, out);
+      emitLine(spec, out, traceIntervals);
       break;
     case "scatter":
       emitScatter(spec, out);

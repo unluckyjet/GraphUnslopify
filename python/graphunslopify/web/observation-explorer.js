@@ -18,8 +18,9 @@ export function createObservationExplorer({api, token, client, current, supporte
   const $ = id => document.getElementById(id);
   const image = $("preview"), trigger = $("trace-observations"), panel = $("observation-explorer");
   const picker = $("observation-panel"), row = $("observation-row"), column = $("observation-column");
+  const intervalIndex = $("observation-interval-index");
   const note = $("observation-status"), details = $("observation-details"), code = $("observation-code");
-  const buttons = ["observation-pick", "observation-filters", "observation-preparation",
+  const buttons = ["observation-pick", "observation-pick-interval", "observation-filters", "observation-preparation",
     "observation-graph", "observation-program"];
   let binding = null, active = false, version = 0, selection = null, history = [];
 
@@ -58,6 +59,8 @@ export function createObservationExplorer({api, token, client, current, supporte
     code.hidden = true;
     code.textContent = "";
     picker.replaceChildren();
+    $("observation-cell-picker").hidden = true;
+    $("observation-interval-picker").hidden = true;
     hide();
   }
 
@@ -93,12 +96,21 @@ export function createObservationExplorer({api, token, client, current, supporte
       width: packet.image.width,
       height: packet.image.height,
       grids: packet.grids,
+      intervals: packet.intervals,
       filters: packet.filters,
       preparation: packet.preparation,
     };
-    binding.grids.forEach((_, index) => picker.add(new Option("Panel " + (index + 1), String(index))));
-    updatePicker();
-    note.textContent = "Click a cell in the figure, or choose its panel, row, and column.";
+    if (binding.intervals) {
+      $("observation-interval-picker").hidden = false;
+      intervalIndex.value = "1";
+      intervalIndex.max = String(binding.intervals);
+      note.textContent = "Click a visible error bar, or enter its interval number.";
+    } else {
+      $("observation-cell-picker").hidden = false;
+      binding.grids.forEach((_, index) => picker.add(new Option("Panel " + (index + 1), String(index))));
+      updatePicker();
+      note.textContent = "Click a cell in the figure, or choose its panel, row, and column.";
+    }
     open();
   }
 
@@ -138,6 +150,10 @@ export function createObservationExplorer({api, token, client, current, supporte
     const item = value.node, metadata = item.metadata || {};
     let title = readable(item.operation || item.reason || item.kind);
     if (item.operation === "matrix_cell") title += " · " + metadata.row_label + " × " + metadata.column_label;
+    if (item.operation === "summary_interval") {
+      const keys = Object.entries(metadata.keys || {}).map(([name, value]) => readable(name) + " " + value);
+      if (keys.length) title += " · " + keys.join(", ");
+    }
     if (item.kind === "observation") title = "Record " + (item.record_ordinal + 1);
     node("h3", title);
     if ("value" in item) node("p", item.value === null ? "Value unavailable" : "Value " + JSON.stringify(item.value));
@@ -166,7 +182,8 @@ export function createObservationExplorer({api, token, client, current, supporte
       details.replaceChildren();
       if (!answer.selection) {
         selection = null;
-        note.textContent = "No matrix cell occupies that position.";
+        note.textContent = binding.intervals ? "No visible interval occupies that position."
+          : "No matrix cell occupies that position.";
       } else {
         if (remember && previous) history.push({target: previous.target, offset: previous.offset});
         const value = answer.selection;
@@ -229,6 +246,9 @@ export function createObservationExplorer({api, token, client, current, supporte
     if (row.checkValidity() && column.checkValidity())
       void select({cell: [Number(picker.value), row.valueAsNumber - 1, column.valueAsNumber - 1]});
   };
+  $("observation-pick-interval").onclick = () => {
+    if (intervalIndex.checkValidity()) void select({interval_index: intervalIndex.valueAsNumber - 1});
+  };
   $("observation-filters").onclick = () => void select({node_id: binding?.filters});
   $("observation-preparation").onclick = () => void select({node_id: binding?.preparation});
   $("observation-back").onclick = () => {
@@ -248,10 +268,11 @@ export function createObservationExplorer({api, token, client, current, supporte
     if (!active || !ready()) return;
     const rect = image.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    void select({position: [
-      (event.clientX - rect.left) * binding.width / rect.width,
-      (event.clientY - rect.top) * binding.height / rect.height,
-    ]});
+    const xScale = binding.width / rect.width, yScale = binding.height / rect.height;
+    const position = [(event.clientX - rect.left) * xScale, (event.clientY - rect.top) * yScale];
+    const target = {position};
+    if (binding.intervals) target.tolerance = Math.min(64, 2 * Math.max(xScale, yScale));
+    void select(target);
   });
   return {mount, clear, hide, refresh};
 }

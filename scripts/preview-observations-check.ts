@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import type { Page } from "playwright";
+import type { Page, Response } from "playwright";
 
 declare const document: {
   querySelector(selector: string): { complete: boolean; textContent: string; dataset: { runId?: string } } | null;
@@ -146,16 +146,95 @@ export async function checkObservations(page: Page, evidence: string) {
   assert.equal(await page.locator("#observation-details").textContent(), "");
   await page.setViewportSize({ width: 1500, height: 1000 });
   assert.equal(hash(readFileSync(fixture)), hash(rawSource));
+  const intervals = await checkLineIntervals(page, watch, click);
   const proof = {
     passed: true,
+    intervals,
     workflows: [
       "opt-in trace with private graph download and exact generated Python",
       "same independently recomputed Iris cell via keyboard, desktop and narrow view",
       "scoped exclusions with paging and no late browser response after edit",
+      "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
     ],
     cell: { id: node.id, estimate: mean, contributing: expected.length, display_widths: sizes },
     sha256: { source: hash(rawSource), image: binding.image.sha256, graph: reference.sha256 },
   };
   writeFileSync(join(evidence, "observation-explorer.json"), JSON.stringify(proof, null, 2) + "\n");
   return proof;
+}
+
+async function checkLineIntervals(
+  page: Page,
+  watch: (route: string) => Promise<Response>,
+  click: (id: string, route: string) => Promise<Response>,
+) {
+  const fixture = resolve("benchmarks/papers/sources/penguins.csv");
+  const raw = readFileSync(fixture);
+  const digest = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+  const [uploaded] = await Promise.all([
+    watch("/api/upload"), page.locator("#data-file").setInputFiles(fixture),
+  ]);
+  assert.ok(uploaded.ok());
+  await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.startsWith("penguins.csv"));
+  await page.locator("#spec").fill(JSON.stringify({
+    kind: "line",
+    x: { field: "year", label: "Year" },
+    y: { field: "body_mass_g", label: "Body mass (g)" },
+    filter: [{ field: "species", op: "eq", value: "Adelie" }, { field: "sex", op: "eq", value: "male" }],
+    aggregation: "mean", marker: true,
+    uncertainty: { kind: "ci", level: 0.9, display: "bar" },
+    output: { stem: "public-ci", formats: ["png"], dpi: 300, size: "double_column" },
+  }));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const rendered = await (await click("trace-observations", "/api/render")).json();
+  assert.equal(rendered.report.status, "passed", JSON.stringify(rendered.report.findings));
+  assert.equal(rendered.observations.intervals, 3);
+  await page.locator("#observation-interval-picker").waitFor();
+  assert.ok(await page.locator("#observation-cell-picker").isHidden());
+  const [download] = await Promise.all([
+    page.waitForEvent("download"), page.locator("#observation-graph").click(),
+  ]);
+  const saved = await download.path();
+  assert.ok(saved);
+  const graphBytes = readFileSync(saved);
+  const reference = rendered.report.observation_selection;
+  assert.equal(digest(graphBytes), reference.sha256);
+  const graph = JSON.parse(graphBytes.toString());
+  assert.equal(graph.source.snapshot_sha256, digest(raw));
+  const root = graph.nodes.find((node: { id: string }) => node.id === reference.summary_interval_geometry_node_id);
+  const query = "/api/observations/query";
+  const keyboard = (await (await click("observation-pick-interval", query)).json()).selection;
+  assert.equal(keyboard.node.id, root.inputs[0]);
+  assert.equal(keyboard.node.metadata.estimator, "ci");
+  const year = keyboard.node.metadata.keys.year;
+  const rows = raw.toString().trim().split(/\r?\n/).slice(1).flatMap((text, index) => {
+    const fields = text.split(",");
+    return fields[0] === "Adelie" && fields[6] === "male" && fields[7] === year ? [index] : [];
+  });
+  assert.deepEqual(keyboard.contributing_records.items, rows);
+
+  const image = page.locator("#preview");
+  const widths: number[] = [];
+  for (const width of [1500, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const box = await image.boundingBox();
+    assert.ok(box);
+    widths.push(box.width);
+    for (const role of ["stem", "cap"]) {
+      const stroke = root.metadata.strokes.find((item: { node_id: string; role: string }) =>
+        item.node_id === keyboard.node.id && item.role === role);
+      const x = (stroke.endpoints[0][0] + stroke.endpoints[1][0]) / 2;
+      const y = (stroke.endpoints[0][1] + stroke.endpoints[1][1]) / 2;
+      const position: { x: number; y: number } = {
+        x: x * box.width / rendered.observations.image.width,
+        y: y * box.height / rendered.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      assert.equal((await response.json()).selection?.node.id, keyboard.node.id);
+    }
+  }
+  assert.notEqual(widths[0], widths[1]);
+  await page.setViewportSize({ width: 1500, height: 1000 });
+  assert.equal(digest(readFileSync(fixture)), digest(raw));
+  return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths };
 }

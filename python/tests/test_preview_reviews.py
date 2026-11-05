@@ -8,6 +8,7 @@ import json
 import shutil
 import threading
 import weakref
+from types import SimpleNamespace
 
 import pytest
 from test_preview import request
@@ -332,6 +333,128 @@ def test_owned_regular_file_reader_refuses_symlink_and_oversized_file(tmp_path, 
         pytest.skip("Symlink creation unavailable for this account")
     with pytest.raises(ValueError, match="symlink"):
         preview_reviews._file(tmp_path, link.name)
+
+
+def test_owned_reader_accepts_distinct_path_and_handle_ctime(tmp_path, monkeypatch):
+    target = tmp_path / "data.csv"
+    raw = b"unchanged observations\r\n1,2\r\n"
+    target.write_bytes(raw)
+    original = preview_reviews.os.fstat
+
+    def handle_stat(fd):
+        actual = original(fd)
+        # CPython3.12 Windows path ctime is creation time; handle ctime is
+        # metadata-change time. The identity, size and mtime still agree.
+        values = {
+            key: getattr(actual, key)
+            for key in ("st_mode", "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+        }
+        values["st_ctime_ns"] += 1000000000
+        return SimpleNamespace(**values)
+
+    monkeypatch.setattr(preview_reviews.os, "fstat", handle_stat)
+    assert preview_reviews._file(tmp_path, target.name) == {
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "bytes": len(raw),
+    }
+
+
+@pytest.mark.parametrize("field", ["st_dev", "st_ino", "st_size", "st_mtime_ns"])
+def test_owned_reader_keeps_cross_api_identity_and_content_checks(tmp_path, monkeypatch, field):
+    target = tmp_path / "data.csv"
+    target.write_bytes(b"unchanged observations")
+    original = preview_reviews.os.fstat
+
+    def handle_stat(fd):
+        actual = original(fd)
+        values = {
+            key: getattr(actual, key)
+            for key in ("st_mode", "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+        }
+        values["st_ctime_ns"] += 1000000000
+        values[field] += 1
+        return SimpleNamespace(**values)
+
+    monkeypatch.setattr(preview_reviews.os, "fstat", handle_stat)
+    with pytest.raises(ValueError, match="changed while opening"):
+        preview_reviews._file(tmp_path, target.name)
+
+
+def test_owned_reader_keeps_handle_metadata_change_check(tmp_path, monkeypatch):
+    target = tmp_path / "data.csv"
+    target.write_bytes(b"unchanged observations")
+    original = preview_reviews.os.fstat
+    calls = 0
+
+    def handle_stat(fd):
+        nonlocal calls
+        calls += 1
+        actual = original(fd)
+        values = {
+            key: getattr(actual, key)
+            for key in ("st_mode", "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+        }
+        values["st_ctime_ns"] += 1000000000 + calls
+        return SimpleNamespace(**values)
+
+    monkeypatch.setattr(preview_reviews.os, "fstat", handle_stat)
+    with pytest.raises(ValueError, match="changed while reading"):
+        preview_reviews._file(tmp_path, target.name)
+
+
+def test_owned_reader_keeps_path_metadata_change_check(tmp_path, monkeypatch):
+    target = tmp_path / "data.csv"
+    target.write_bytes(b"unchanged observations")
+    original_fstat = preview_reviews.os.fstat
+    original_lstat = type(target).lstat
+    calls = 0
+
+    def handle_stat(fd):
+        nonlocal calls
+        calls += 1
+        actual = original_fstat(fd)
+        values = {
+            key: getattr(actual, key)
+            for key in ("st_mode", "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+        }
+        values["st_ctime_ns"] += 1000000000
+        return SimpleNamespace(**values)
+
+    def path_stat(path, *args, **kwargs):
+        actual = original_lstat(path, *args, **kwargs)
+        if path != target or calls < 2:
+            return actual
+        values = {
+            key: getattr(actual, key)
+            for key in ("st_mode", "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+        }
+        values["st_ctime_ns"] += 1
+        return SimpleNamespace(**values)
+
+    monkeypatch.setattr(preview_reviews.os, "fstat", handle_stat)
+    monkeypatch.setattr(type(target), "lstat", path_stat)
+    with pytest.raises(ValueError, match="changed while reading"):
+        preview_reviews._file(tmp_path, target.name)
+
+
+def test_owned_reader_refuses_real_replacement_with_same_bytes_and_mtime(tmp_path, monkeypatch):
+    target = tmp_path / "data.csv"
+    replacement = tmp_path / "replacement.csv"
+    raw = b"same bytes do not imply the same file"
+    target.write_bytes(raw)
+    replacement.write_bytes(raw)
+    before = target.stat()
+    preview_reviews.os.utime(replacement, ns=(before.st_atime_ns, before.st_mtime_ns))
+    original = preview_reviews.os.open
+
+    def swapped_open(path, flags, *args, **kwargs):
+        if path == target:
+            replacement.replace(target)
+        return original(path, flags, *args, **kwargs)
+
+    monkeypatch.setattr(preview_reviews.os, "open", swapped_open)
+    with pytest.raises(ValueError, match="changed while opening"):
+        preview_reviews._file(tmp_path, target.name)
 
 
 def test_native_shutdown_cancels_real_held_request_before_removing_root(editor, native, server):

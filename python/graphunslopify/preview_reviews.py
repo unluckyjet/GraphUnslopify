@@ -31,7 +31,10 @@ def _file(root, name):
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
     with os.fdopen(os.open(target, flags), "rb") as stream:
         opened = os.fstat(stream.fileno())
-        if not stat.S_ISREG(opened.st_mode) or _stamp(before) != _stamp(opened):
+        # Windows CPython3.12 path ctime is creation time, but fstat ctime is
+        # metadata-change time. Compare identity/content across APIs, then
+        # retain full ctime checks within each API before and after the read.
+        if not stat.S_ISREG(opened.st_mode) or _stamp(before)[:-1] != _stamp(opened)[:-1]:
             raise ValueError("Review evidence file changed while opening")
         digest, size = hashlib.sha256(), 0
         for chunk in iter(lambda: stream.read(65536), b""):
@@ -42,7 +45,7 @@ def _file(root, name):
         after = os.fstat(stream.fileno())
     if (
         _inside(root, name) != target
-        or _stamp(before) != _stamp(after)
+        or _stamp(opened) != _stamp(after)
         or _stamp(before) != _stamp(target.lstat())
         or size != before.st_size
     ):

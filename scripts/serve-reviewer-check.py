@@ -20,7 +20,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import graphunslopify
-from graphunslopify import project, review_agent
+from graphunslopify import preview_reviews, project, review_agent
 from graphunslopify.preview import PreviewServer
 from graphunslopify.preview_worker import RenderWorker
 from graphunslopify.project_preview import ProjectServer
@@ -58,6 +58,27 @@ def main():
     args = parser.parse_args()
     args.out.mkdir(exist_ok=False)
     initial_runtime = runtime()
+    # Record both actual platform APIs, including Windows creation/change ctime.
+    # This private probe is separate from scientific observations/provider data.
+    probe = args.out / "file-stamp-probe.bin"
+    probe_bytes = b"native reviewer file metadata probe\r\n"
+    probe.write_bytes(probe_bytes)
+    os.utime(probe, ns=(978307200000000000, 978307200000000000))
+    fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+    path_stat = probe.lstat()
+    with probe.open("rb") as stream:
+        handle_stat = os.fstat(stream.fileno())
+    observed = preview_reviews._file(args.out, probe.name)
+    assert observed == {"bytes": len(probe_bytes), "sha256": digest(probe_bytes)}
+    file_stamp_probe = {
+        "path": {key: str(getattr(path_stat, key)) for key in fields},
+        "handle": {key: str(getattr(handle_stat, key)) for key in fields},
+        "encoding": "Exact decimal integers;preserved through browser JSON",
+        "reader": observed,
+        "scope": "Actual private file APIs;no scientific data or inference",
+    }
+    save(args.out / "file-stamp-probe.json", file_stamp_probe)
+    probe.unlink()
     original = (ROOT / "benchmarks/papers/sources/penguins.csv").read_bytes()
     paper = args.out / "paper"
     paper.mkdir()
@@ -311,7 +332,7 @@ def main():
 
     emit(
         {
-            "runtime": initial_runtime,
+            "runtime": {**initial_runtime, "file_stamp_probe": file_stamp_probe},
             "native": f"http://127.0.0.1:{native.server_port}/",
             "paper": f"http://127.0.0.1:{saved.server_port}/",
             "fresh": f"http://127.0.0.1:{fresh_server.server_port}/",

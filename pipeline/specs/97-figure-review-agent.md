@@ -59,70 +59,75 @@ exact14 CI. Latest native acceptance2026-11-04T21:48:01UTC verifies105 runtime/
 Historical deadline/startup/unused-palette failures and their repairs remain in
 Git history and pipeline/log.md;do not treat a passing query as scientific acceptance.
 
-## Shared browser checkpoint97b3 and CI repair · acceptance pending
+## Shared browser checkpoint97b3 · exact CI still required
 
-Shared controls configure session-only Responses/Chat providers,select actual
-figures,accept bounded author questions/context,display literal request bytes/SHA
-and destination,require explicit consent,and separate recorded findings from
-unverified advice. Original-byte downloads,cancel/pagehide and stale-context
-guards serve both workspaces. No scientific/presentation mutation is applied.
+Actual editor/paper controls configure Responses/Chat providers,select1–20 real
+figures,accept author questions/context,display literal request bytes/SHA and
+destination,require explicit consent,and separate recorded findings from
+unverified advice. Original-byte downloads,cancel/pagehide and source/context/
+late-response fences serve both workspaces. No advice applies figure changes.
 
-The UI is normally pushed as56274f6 after all10 frozen local gates:235 Node/
-2514 Python(no skips,one upstream warning)/15 gallery,1009 actual Git bindings
-and107 source/private-wheel/installed hashes. Actual31-control source current/
-minimum/installed-offline browser runs and two installed local-model browser
-requests verify the original checkpoint. This is not exact-CI acceptance.
+Original UI56274f6 passed all10 local235 Node/2514 Python/15 gallery,1009 Git/
+107 runtime bindings and31 browser controls per profile,but actual CI exposed
+PDF-page polling and Windows failures. Polling repair1d979b1 passed new all10
+local235 Node/2514 Python(no skips,one warning1620.91s)/15 gallery,1008 Git
+bindings and34 controls per current/minimum/installed-offline profile,then was
+normally pushed. Actual1d Ubuntu3.12 CI artifact verifies34 installed controls
+and all107 wheel/Git files. Full97 remains unaccepted because Windows failed.
 
-Actual562 CI failed Ubuntu3.10 distribution job126944989188 at PDF-page2
-disclosure400/older context. The next actual state poll locally reproduces it:
-foreground page/latest reloads cleared their query signature without recording
-it again,so unchanged polling unnecessarily canceled the fresh disclosure.
-Working reloadSelection records the signature through update(context),with a
-safe pre-initialization path. Actual source/evidence invalidation stays strict.
-Final34-control current/minimum/installed-offline runs each pass,including
-retaining fresh PDF/latest disclosures across real polls and early Review latest.
+## Windows file-integrity repair
 
-Windows distribution126944989142 timed out waiting for the native reviewer
-choice. The old driver saved/asserted the native response after that wait and
-its failed-job artifact upload was skipped. The underlying Windows cause remains
-unestablished. The new driver immediately retains/asserts actual native JSON,
-captures failure UI and always uploads distribution artifacts. If repeated,
-inspect the new actual response rather than infer a cause or weaken bindings.
+Actual1d Windows/Python3.12.10 job126970925794 now retains the failed artifact:
+344 source/333 prepared rows,strict exit2 and the real failed comparison remain,
+but review is unavailable with “Review evidence file changed while opening.”
+The prior opaque DOM timeout is not a renderer/scientific failure.
 
-Current package4 binds107 source/wheel/installed files. Actual cached-model4
-native12237/paper12363-byte requests exactly match observed bytes/SHA after
-visible consent;failed science,data,specs and exports stay unchanged. Owned
-model/browser/servers stop. Model prose remains unverified:it can conflate an
-authored false comparison with changed observations and introduce confidence-
-interval premises despite declared std. Earlier data-tuning advice is preserved;
-no model-quality or independent scientific-review improvement is established.
+Pinned CPython3.12.10 source gives path ctime creation-time semantics and handle
+fstat ctime metadata-change semantics. A local controlled red offsets only
+handle ctime while device/inode/size/mtime/bytes stay fixed;old code refuses it.
+The actual earlier Windows fields were not individually logged,so this is the
+source-confirmed mismatch class,not a claimed old field-by-field measurement.
 
-## Browser defects already repaired in562
+Working preview_reviews._file compares identity/size/mtime across APIs and full
+stamps separately path-before/path-after and handle-before/handle-after.
+It retains regular-file,symlink,containment,size/digest and mutation fences.
+Eight tests cover the harmless timestamp difference,all four cross-API fields,
+both same-API metadata changes and a real replacement with identical bytes/mtime.
 
-The paper HTTP adapter uses event while core CLI uses event_id. New disclosure
-preparation awaits its own same-generation whole-client cancellation;failure
-acknowledgement refuses preparation without silent retry. Actual browser cases
-cover both contracts and held/failing cancellation.
+All39 native reviewer tests pass in current90.81s/minimum83.59s/installed48.93s.
+Installed imports stay in site-packages;all107 source/private-wheel/installed
+files match. Actual browser34 controls pass per current/minimum/installed-offline
+profile. A private actual file-API probe records exact decimal metadata strings,
+preserved through Node JSON,for the next Windows artifact. Its diagnostics stay
+outside the immutable runtime identity baseline.
 
-Paper default queue5 produced9/16 boots and27 module connection resets.
-Controlled128 and then production128 each gave16/16 boots/zero resets;native
-already used128. A real32-buffered-TCP regression fails before the repair and
-passes current/minimum after. This explains those resets,not all historical
-blank-page failures. The browser driver records module request failures.
+Actual installed model5 completes native12237/paper12363-byte consented requests
+with exact observed provider bytes/SHA,failed science/data/specs unchanged and
+owned model/browser/servers stopped. Suggestions remain unverified:the model can
+confuse declared std with a confidence interval and make unsupported layout/
+citation claims. No independent scientific-review or quality improvement claim.
+
+Primary implementation sources:
+[CPython path stat](https://github.com/python/cpython/blob/v3.12.10/Modules/posixmodule.c#L2015),
+[CPython handle stat](https://github.com/python/cpython/blob/v3.12.10/Python/fileutils.c#L1026).
+
+## Earlier actual browser repairs
+
+Paper HTTP uses event while core CLI uses event_id. Disclosure preparation awaits
+its same-generation cancellation acknowledgement;failure refuses preparation
+without retry. Paper queue5 yielded9/16 boots/27 module resets;controlled128 and
+production128 each16/16/0,with a meaningful real TCP32 before/after regression.
+Polling repair records the foreground query signature before loading,so unchanged
+real state polls retain PDF/latest disclosure while real changes still invalidate.
 
 ## Remaining acceptance
 
-The new frozen all10 contribution/gallery batch gates-refresh-2 passes against
-the final query-signature repair and diagnostic driver/workflow. The previous
-repair batch was deliberately interrupted to add Windows diagnostics;its
-incomplete run is preserved,not passing. Its owned scratch retired346185728
-allocated bytes after fresh guards. Pushed562's finished full batch separately
-retired920326144bytes after compact evidence/source/Git checks.
+New all10 frozen contribution/gallery gates-windows-1 passes on the final
+Windows metadata repair. Old1d all10 is historical,not this source's acceptance.
+Local all10 pass;normal meaningful commit/push,exact14/all3 workflow conclusions and
+actual source-browser/core/all-four installed distribution artifacts are required.
+Actual Windows execution of the new probe/control suite is still pending.
+All seven requirements and all thirty roadmap ideas remain. Preserve original
+graphics/frozen research results;no release/tag or artificial commits.
 
-All10 local gates pass;prepare a meaningful repair commit and normal push.
-New exact14/all3 workflow conclusions and actual source-browser/core/all-platform
-installed artifact verification remain before full97/original idea4 acceptance.
-Preserve all seven requirements,the full thirty-idea roadmap,original graphics
-and frozen research results. No release/tag or artificial commits.
-
-2026-11-04 reviewer polling repair local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.34 actual browser controls each pass in current/minimum/installed-offline;fresh PDF/latest disclosures survive the next real state poll and early Review latest is safe. Two actual installed model4 browser requests complete with failed science unchanged;advice remains unverified. Windows cause is unestablished;immediate native JSON/failure UI and always-upload distribution artifacts enable diagnosis. Preparing normal meaningful repair push;new exact14/all3 workflows and actual artifacts remain required. Full97/full30 stay active;no release/tag.
+2026-11-04 Windows reviewer metadata repair local checkpoint:all10 frozen gates pass;235 Node/2522 Python(no skips)/15 gallery,107 source/private-wheel/installed files match. Eight regressions and39 native tests per current/minimum/installed retain identity/content/metadata/replacement refusals. Actual34 browser controls per profile and two installed model5 requests pass with failed science unchanged. Guard compares compatible identity/content across APIs and full metadata within each API;private exact-decimal probe records actual platform fields. Preparing normal meaningful push;new exact14/all3/actual Windows and all-platform artifacts remain required. Full97/full30 active;no release/tag.

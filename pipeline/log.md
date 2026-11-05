@@ -513,3 +513,19 @@ not accepted;346185728allocated bytes retired. New all10 frozen batch running;
 new meaningful repair push/exact14/actual artifacts remain. Full97/full30 active.
 
 2026-11-04 reviewer polling repair local checkpoint:all10 frozen gates pass;235 Node/2514 Python(no skips)/15 gallery,107 source/private-wheel/installed files match.34 actual browser controls each pass in current/minimum/installed-offline;fresh PDF/latest disclosures survive the next real state poll and early Review latest is safe. Two actual installed model4 browser requests complete with failed science unchanged;advice remains unverified. Windows cause is unestablished;immediate native JSON/failure UI and always-upload distribution artifacts enable diagnosis. Preparing normal meaningful repair push;new exact14/all3 workflows and actual artifacts remain required. Full97/full30 stay active;no release/tag.
+
+2026-11-04 actual1d Windows failure and working repair:retained artifact shows
+strict exit2/344 source/333 prepared rows and review unavailable because the
+file changed while opening. Pinned CPython3.12.10 reveals incompatible path/
+handle ctime semantics;local controlled red offsets ctime only and old code
+refuses unchanged bytes. Working guard compares identity/content across APIs and
+full metadata within each API. Eight regressions retain real replacement,all
+four cross-API fields and both metadata-change checks. Native39 passes current/
+minimum/installed90.81s/83.59s/48.93s;107 source/private5/installed files match.
+Actual34 browser controls per profile and two installed model5 requests pass,
+original failed science unchanged;advice unverified. Private exact-decimal
+platform probe will expose actual Windows fields. Finished focus scratch retired
+147456allocated bytes;new all10 frozen gates-windows-1 running. New meaningful
+push/exact14/all3/actual artifacts remain;full97/full30 active,no release/tag.
+
+2026-11-04 Windows reviewer metadata repair local checkpoint:all10 frozen gates pass;235 Node/2522 Python(no skips)/15 gallery,107 source/private-wheel/installed files match. Eight regressions and39 native tests per current/minimum/installed retain identity/content/metadata/replacement refusals. Actual34 browser controls per profile and two installed model5 requests pass with failed science unchanged. Guard compares compatible identity/content across APIs and full metadata within each API;private exact-decimal probe records actual platform fields. Preparing normal meaningful push;new exact14/all3/actual Windows and all-platform artifacts remain required. Full97/full30 active;no release/tag.

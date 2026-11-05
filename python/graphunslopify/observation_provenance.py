@@ -2,21 +2,29 @@
 
 This ledger records caller-supplied computation evidence. Its hashes establish
 identity and internal consistency, not scientific validity or authenticity.
-Renderer/dataflow instrumentation and the interactive explorer consume it later.
+Generated programs can record actual reader and filter selection with it.
 """
 
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import json
 import math
+import os
 import re
+import sys
+import tempfile
+import uuid
 from collections.abc import Iterable, Mapping
+from pathlib import Path
 from typing import Any
 
 _SHA256 = re.compile(r"[a-f0-9]{64}\Z")
 _MAX_BYTES = 20 * 1024 * 1024
+_MAX_NODES = 50_000
+_RUN_ID_ENV = "GRAPHUNSLOPIFY_OBSERVATION_RUN_ID"
 
 
 def _plain(value: Any, depth: int = 0) -> Any:
@@ -77,7 +85,7 @@ class ObservationLedger:
         reader: Mapping[str, Any],
         record_count: int,
         context: Mapping[str, Any],
-        max_nodes: int = 50000,
+        max_nodes: int = _MAX_NODES,
         max_edges: int = 200000,
         max_bytes: int = _MAX_BYTES,
     ):
@@ -321,3 +329,169 @@ class ObservationLedger:
             return result
         except (KeyError, TypeError, UnicodeError, RecursionError, json.JSONDecodeError) as problem:
             raise ValueError("Malformed observation evidence") from problem
+
+
+class _ObservationSelection:
+    """Track parsed positions through the renderer's actual pandas operations."""
+
+    def __init__(
+        self, snapshot, *, reader, record_count, spec_json, program_sha256, runtime_sha256
+    ):
+        if record_count >= _MAX_NODES:
+            raise ValueError("Observation selection exceeds its node budget")
+        run_id = os.environ.get(_RUN_ID_ENV)
+        self.run_id = uuid.uuid4().hex if run_id is None else run_id
+        if not re.fullmatch(r"[a-f0-9]{32}", self.run_id):
+            raise ValueError("Invalid observation selection run ID")
+        self.ledger = ObservationLedger.from_snapshot(
+            snapshot,
+            reader=reader,
+            record_count=record_count,
+            context={
+                "run_id": self.run_id,
+                "spec_sha256": hashlib.sha256(spec_json.encode("utf8")).hexdigest(),
+                "program_sha256": program_sha256,
+                "runtime_source_sha256": runtime_sha256,
+            },
+        )
+        self.positions = list(range(record_count))
+        self.exclusions = []
+
+    def sort(self, frame, field):
+        # A temporary column follows the real sort, including ties and NaT.
+        # An object label cannot collide with a parsed input field.
+        position = object()
+        tagged = frame.copy(deep=False)
+        tagged[position] = self.positions
+        ordered = tagged.sort_values(field)
+        self.positions = ordered.pop(position).tolist()
+        ordered.columns = frame.columns
+        return ordered
+
+    def filter(self, frame, mask, step):
+        if len(frame) != len(self.positions) or not mask.index.equals(frame.index):
+            raise ValueError("Observation filter mask is not aligned to the parsed positions")
+        selected = frame[mask]
+        kept = []
+        missing = []
+        rejected = []
+        for ordinal, keep, absent in zip(
+            self.positions, mask.to_numpy(dtype=bool, na_value=False), mask.isna(), strict=True
+        ):
+            if keep:
+                kept.append(ordinal)
+            elif absent:
+                missing.append(ordinal)
+            else:
+                rejected.append(ordinal)
+        if len(selected) != len(kept):
+            raise ValueError("Observation filter membership differs from pandas selection")
+        for reason, records in (
+            ("filter_predicate_false", rejected),
+            ("filter_predicate_missing", missing),
+        ):
+            if records:
+                self.exclusions.append(
+                    self.ledger.exclude(
+                        reason,
+                        map(self.ledger.observation, records),
+                        stage="filter",
+                        metadata={"step": step},
+                    )
+                )
+        self.positions = kept
+        return selected
+
+    def write(self, directory: Path, sort_field: str | None, filter_count: int) -> dict[str, str]:
+        node_id = self.ledger.calculate(
+            "reader_filter_selection",
+            map(self.ledger.observation, self.positions),
+            value=len(self.positions),
+            metadata={"temporal_sort_field": sort_field, "filter_count": filter_count},
+            excluded=self.exclusions,
+        )
+        payload = self.ledger.to_json()
+        path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                dir=directory, prefix=f"observations-{self.run_id}-", suffix=".json", delete=False
+            ) as output:
+                path = Path(output.name)
+                output.write(payload)
+        except OSError:
+            if path is not None:
+                path.unlink(missing_ok=True)
+            raise
+        # Publish the reference only after the exclusively created file is complete.
+        return {
+            "path": path.name,
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "node_id": node_id,
+            "run_id": self.run_id,
+        }
+
+
+def _read_observation_selection(
+    directory: Path, report: dict, *, run_id: str, program_sha256: str
+) -> Path:
+    """Read the bounded graph owned by this SDK invocation before returning it."""
+    selection = report["observation_selection"]
+    name = selection["path"]
+    if selection["run_id"] != run_id or not re.fullmatch(
+        rf"observations-{re.escape(run_id)}-[a-z0-9_]+\.json", name
+    ):
+        raise ValueError("Observation selection belongs to a different run")
+    if report["script"]["sha256"] != program_sha256:
+        raise ValueError("Observation selection belongs to a different generated program")
+    path = directory / name
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("Observation selection must be a local regular file")
+    with path.open("rb") as source:
+        payload = source.read(_MAX_BYTES + 1)
+    if len(payload) > _MAX_BYTES or hashlib.sha256(payload).hexdigest() != selection["sha256"]:
+        raise ValueError("Observation selection content changed or exceeds its byte budget")
+    graph = ObservationLedger.from_json(payload)
+    if (
+        graph._context["run_id"] != run_id
+        or graph._context["program_sha256"] != program_sha256
+        or graph._context["spec_sha256"][:16] != report["spec_hash"]
+        or graph._context.get("runtime_source_sha256")
+        != report["script"]["runtime"]["source_sha256"]
+        or graph._source["snapshot_sha256"][:16] != report["data"]["sha256_prefix"]
+        or graph._source["record_count"] != report["data"]["counts"]["read"]
+    ):
+        raise ValueError("Observation selection does not match its render report")
+    node = graph._nodes.get(selection["node_id"], {})
+    if (
+        node.get("operation") != "reader_filter_selection"
+        or node["value"] != report["data"]["counts"]["after_filter"]
+    ):
+        raise ValueError("Observation selection root does not match the rendered selection")
+    return path
+
+
+def _protect_observation_inputs(directory: Path, inputs, outputs) -> None:
+    """Refuse to overwrite data or palette inputs, including existing hard links."""
+    for name in inputs:
+        if not name or "://" in str(name):
+            continue
+        source = directory / name
+        for output in outputs:
+            target = directory / output
+            if source.resolve() == target.resolve() or (
+                source.exists() and target.exists() and source.samefile(target)
+            ):
+                raise ValueError(f"Output {target.name} would overwrite an observation input")
+
+
+def _run_observation_cli(run_cli, stem, inputs, outputs) -> int:
+    # The canonical renderer still parses and handles all of its own arguments.
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--report", default=f"{stem}.report.json")
+    options, _ = parser.parse_known_args()
+    try:
+        _protect_observation_inputs(Path.cwd(), inputs, [*outputs, options.report])
+    except (OSError, ValueError) as problem:
+        print(problem, file=sys.stderr)
+        return 1
+    return run_cli()

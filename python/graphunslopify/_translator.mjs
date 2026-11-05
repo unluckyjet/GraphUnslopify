@@ -20455,6 +20455,9 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
         return frame
 `;
 
+// src/codegen/observation-source.ts
+var OBSERVATION_SOURCE_SHA256 = "0dc48dd1d4709500c83175a8fb26dcc23714206dde040b9a980f563dc6b5b278";
+
 // src/codegen/data.ts
 var OPERATORS = {
   eq: (f, v) => `df[${f}] == ${v}`,
@@ -20466,9 +20469,17 @@ var OPERATORS = {
   in: (f, v) => `df[${f}].isin(${v})`,
   not_in: (f, v) => `~df[${f}].isin(${v})`
 };
-function emitLoad(spec, out) {
+function emitLoad(spec, out, traceObservations) {
   const identities = identityFields(spec);
   if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
+  if (traceObservations) {
+    out.push(
+      "",
+      "from graphunslopify import observation_provenance as _observations",
+      `if hashlib.sha256(Path(_observations.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_SOURCE_SHA256)}:`,
+      '    raise RuntimeError("Observation capture requires the matching GraphUnslopify runtime")'
+    );
+  }
   out.push(
     "",
     `IDENTITY_FIELDS = ${pyList(identities)}`,
@@ -20485,7 +20496,7 @@ ${RUNTIME_HELPERS.normalize_identities}
     "    global DATA_HASH",
     '    with pd.io.common.get_handle(DATA_PATH, "rb", compression=None, is_text=False) as raw:',
     "        snapshot = raw.handle.read()",
-    '        decoded = raw.compression.get("method") is not None',
+    ...traceObservations ? ['        transport_compression = raw.compression.get("method")', "        decoded = transport_compression is not None"] : ['        decoded = raw.compression.get("method") is not None'],
     "    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]"
   );
   if (spec.data.format !== "parquet" && spec.data.format !== "excel") {
@@ -20496,7 +20507,15 @@ ${RUNTIME_HELPERS.normalize_identities}
       "        payload = handle.handle.read()"
     );
   } else out.push("    payload = snapshot");
-  out.push(spec.data.format === "excel" ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === void 0 ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)` : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  if (traceObservations && spec.data.format === "parquet") {
+    out.push(
+      "    from pandas.io.parquet import get_engine",
+      '    engine = get_engine("auto")',
+      "    df = engine.read(io.BytesIO(payload))"
+    );
+  } else {
+    out.push(spec.data.format === "excel" ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === void 0 ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)` : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  }
   if (spec.data.format === "json" || identities.length && spec.data.format === "csv") {
     out.push(
       "    # Preserve names from the same bytes; filters still see the typed frame.",
@@ -20515,17 +20534,32 @@ ${RUNTIME_HELPERS.normalize_identities}
     );
   }
   out.push("    ROW_COUNTS.clear()", '    ROW_COUNTS["read"] = len(df)');
+  if (traceObservations) {
+    out.push(
+      `    reader = {"format": ${pyStr(spec.data.format)}, "pandas_version": pd.__version__,`,
+      '              "transport_compression": transport_compression, "identity_fields": IDENTITY_FIELDS}',
+      ...spec.data.format === "excel" ? [
+        '    reader.update(sheet=df.attrs["_graphunslopify_excel_sheet"],',
+        '                  engine=df.attrs["_graphunslopify_excel_engine"])'
+      ] : spec.data.format === "parquet" ? [
+        "    reader.update(engine=engine.api.__name__, engine_version=engine.api.__version__)"
+      ] : ["    reader.update(compression=compression)"],
+      "    selection = _observations._ObservationSelection(",
+      "        snapshot, reader=reader, record_count=len(df), spec_json=SPEC_JSON,",
+      '        program_sha256=script_fingerprint(), runtime_sha256=RUNTIME_BINDING["source_sha256"])'
+    );
+  }
   if (spec.x.temporal) {
     out.push(
       "    df[X_FIELD] = pd.to_datetime(df[X_FIELD])",
       // A date export in reverse order draws the line backwards, and unlike a
       // numeric x nobody notices until they read the dates.
-      "    df = df.sort_values(X_FIELD)"
+      traceObservations ? "    df = selection.sort(df, X_FIELD)" : "    df = df.sort_values(X_FIELD)"
     );
   }
-  out.push("    return df", "");
+  out.push(traceObservations ? "    return df, selection" : "    return df", "");
 }
-function emitPrepare(spec, out) {
+function emitPrepare(spec, out, traceObservations) {
   const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
   if (ordinary) {
     const summarized = "aggregation" in spec && ["mean", "median"].includes(spec.aggregation) ? [spec.y.field, ...spec.repeat?.fields ?? []] : [];
@@ -20546,15 +20580,16 @@ function emitPrepare(spec, out) {
       ""
     );
   }
-  out.push("", "def prepare(df):");
+  out.push("", traceObservations ? "def prepare(df, selection):" : "def prepare(df):");
   const body = [];
   if (spec.filter?.length) {
     body.push('    ROW_COUNTS["filtering"] = {"source_rows": len(df), "steps": []}');
   }
-  for (const clause of spec.filter ?? []) {
+  for (const [index, clause] of (spec.filter ?? []).entries()) {
     const build = OPERATORS[clause.op];
+    const mask = build(pyStr(clause.field), pyValue(clause.value));
     body.push("    before = len(df)");
-    body.push(`    df = df[${build(pyStr(clause.field), pyValue(clause.value))}]`);
+    body.push(traceObservations ? `    df = selection.filter(df, ${mask}, ${index})` : `    df = df[${mask}]`);
     body.push(
       `    step = json.loads(${pyStr(JSON.stringify(clause))})`,
       "    step.update(before=before, after=len(df), removed=before - len(df))",
@@ -20562,6 +20597,9 @@ function emitPrepare(spec, out) {
     );
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
+  if (traceObservations) {
+    body.push(`    RUN_REPORT["observation_selection"] = selection.write(Path.cwd(), ${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
+  }
   if (spec.filter?.length) {
     body.push(
       '    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))',
@@ -26157,7 +26195,7 @@ function emitPreamble(spec, out, sourceSpec = spec) {
     ""
   );
 }
-function emitMain(spec, out) {
+function emitMain(spec, out, traceObservations) {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates = (spec.kind === "line" || spec.kind === "bar") && spec.aggregation === "none";
@@ -26246,7 +26284,7 @@ function emitMain(spec, out) {
     "    global DATA_HASH, ALT_TEXT",
     ...unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : [],
     ...spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : [],
-    "    df = prepare(load())",
+    traceObservations ? "    df = prepare(*load())" : "    df = prepare(load())",
     "    report_counts(df)",
     "    validate_legend_aliases(df)"
   );
@@ -26259,9 +26297,7 @@ function emitMain(spec, out) {
       "    print(DISCLOSURE)",
       '    print(f"data sha256:{DATA_HASH}")',
       "",
-      "",
-      'if __name__ == "__main__":',
-      "    raise SystemExit(run_cli())"
+      ""
     );
     return;
   }
@@ -26415,20 +26451,18 @@ function emitSaveBlock(spec, out) {
     "    if not claims_hold:",
     '        print("at least one claim failed. The caption must not assert it.")',
     "",
-    "",
-    'if __name__ == "__main__":',
-    "    raise SystemExit(run_cli())"
+    ""
   );
 }
-function emitPython(spec) {
+function emitPython(spec, traceObservations = false) {
   const out = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
   emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
-  emitLoad(spec, out);
-  emitPrepare(spec, out);
+  emitLoad(spec, out, traceObservations);
+  emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
   emitSummaryInput(spec, out);
   emitBootstrap(spec, out);
@@ -26462,7 +26496,20 @@ function emitPython(spec) {
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out);
+  emitMain(spec, out, traceObservations);
+  out.push('if __name__ == "__main__":');
+  if (traceObservations) {
+    const formats = new Set(spec.output.formats);
+    if (spec.kind === "table") {
+      formats.add("md");
+      formats.add("tex");
+    }
+    if (spec.animate) formats.add(spec.animate.format);
+    const outputs = pyList([...formats].map((format) => `${spec.output.stem}.${format}`));
+    out.push(`    raise SystemExit(_observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}))`);
+  } else {
+    out.push("    raise SystemExit(run_cli())");
+  }
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";
   return shareRuntime(source.replace(
     "import matplotlib.pyplot as plt",
@@ -26479,7 +26526,7 @@ function coerce(input2) {
     return input2;
   }
 }
-function translate(input2) {
+function translate(input2, traceObservations = false) {
   const parsed = FigureSpec.safeParse(coerce(input2));
   if (!parsed.success) {
     return {
@@ -26497,7 +26544,7 @@ function translate(input2) {
     ok: !hasErrors(findings),
     findings,
     filename: `${spec.output.stem}.py`,
-    code: emitPython(spec)
+    code: emitPython(spec, traceObservations)
   };
 }
 
@@ -27076,6 +27123,7 @@ function remapTemplateFields(input2, mapping) {
 // src/local.ts
 function dispatch(operation, payload) {
   if (operation === "convert") return translate(payload);
+  if (operation === "convert-observations") return translate(payload, true);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7" });
   if (operation === "template-fields") return templateFields(payload);

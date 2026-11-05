@@ -37,6 +37,35 @@
     "spec": {
       "type": "object"
     },
+    "observation_selection": {
+      "description": "Optional local evidence from the reader and filters, before later preparation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "node_id",
+        "run_id"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^observations-[a-f0-9]{32}-[a-z0-9_]+\\.json$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "node_id": {
+          "type": "string",
+          "pattern": "^calculation:[a-f0-9]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        }
+      }
+    },
     "status": {
       "enum": [
         "passed",

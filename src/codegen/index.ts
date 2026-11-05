@@ -294,7 +294,7 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   );
 }
 
-function emitMain(spec: FigureSpec, out: string[]): void {
+function emitMain(spec: FigureSpec, out: string[], traceObservations: boolean): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
   const warnsDuplicates =
@@ -384,7 +384,7 @@ function emitMain(spec: FigureSpec, out: string[]): void {
     "    global DATA_HASH, ALT_TEXT",
     ...(unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : []),
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
-    "    df = prepare(load())",
+    traceObservations ? "    df = prepare(*load())" : "    df = prepare(load())",
     "    report_counts(df)",
     "    validate_legend_aliases(df)",
   );
@@ -399,8 +399,6 @@ function emitMain(spec: FigureSpec, out: string[]): void {
       '    print(f"data sha256:{DATA_HASH}")',
       "",
       "",
-      'if __name__ == "__main__":',
-      "    raise SystemExit(run_cli())",
     );
     return;
   }
@@ -589,20 +587,18 @@ function emitSaveBlock(spec: FigureSpec, out: string[]): void {
     '        print("at least one claim failed. The caption must not assert it.")',
     "",
     "",
-    'if __name__ == "__main__":',
-    "    raise SystemExit(run_cli())",
   );
 }
 
-export function emitPython(spec: FigureSpec): string {
+export function emitPython(spec: FigureSpec, traceObservations = false): string {
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
   emitPreamble(spec, out, sourceSpec);
   emitEnvironment(out, spec.data.format === "excel");
   emitRuntime(sourceSpec, out);
-  emitLoad(spec, out);
-  emitPrepare(spec, out);
+  emitLoad(spec, out, traceObservations);
+  emitPrepare(spec, out, traceObservations);
   emitCounts(spec, out);
   emitSummaryInput(spec, out);
   emitBootstrap(spec, out);
@@ -636,7 +632,20 @@ export function emitPython(spec: FigureSpec): string {
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out);
+  emitMain(spec, out, traceObservations);
+  out.push('if __name__ == "__main__":');
+  if (traceObservations) {
+    const formats = new Set<string>(spec.output.formats);
+    if (spec.kind === "table") {
+      formats.add("md");
+      formats.add("tex");
+    }
+    if (spec.animate) formats.add(spec.animate.format);
+    const outputs = pyList([...formats].map(format => `${spec.output.stem}.${format}`));
+    out.push(`    raise SystemExit(_observations._run_observation_cli(run_cli, STEM, [DATA_PATH, PALETTE_LOCK], ${outputs}))`);
+  } else {
+    out.push("    raise SystemExit(run_cli())");
+  }
 
   const source = out.join("\n").replace(/\n{3,}/g, "\n\n\n") + "\n";
   return shareRuntime(source.replace(

@@ -36,7 +36,7 @@ function coerce(input: unknown): unknown {
   }
 }
 
-export function translate(input: unknown): TranslateResult {
+export function translate(input: unknown, traceObservations = false): TranslateResult {
   const parsed = FigureSpec.safeParse(coerce(input));
 
   if (!parsed.success) {
@@ -56,6 +56,6 @@ export function translate(input: unknown): TranslateResult {
     ok: !hasErrors(findings),
     findings,
     filename: `${spec.output.stem}.py`,
-    code: emitPython(spec),
+    code: emitPython(spec, traceObservations),
   };
 }

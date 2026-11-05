@@ -4,6 +4,7 @@ import { pyList, pyStr, pyValue } from "./py.ts";
 import { READERS } from "./theme.ts";
 import { identityFields, identityConflicts, requiredIdentityFields, numericFields } from "../identity.ts";
 import { WORKBOOK_SOURCE } from "./workbook-source.ts";
+import { OBSERVATION_SOURCE_SHA256 } from "./observation-source.ts";
 
 /**
  * The data pipeline the generated script runs before anything is drawn.
@@ -24,9 +25,14 @@ const OPERATORS: Record<FilterOp, (field: string, value: string) => string> = {
   not_in: (f, v) => `~df[${f}].isin(${v})`,
 };
 
-export function emitLoad(spec: FigureSpec, out: string[]): void {
+export function emitLoad(spec: FigureSpec, out: string[], traceObservations: boolean): void {
   const identities = identityFields(spec);
   if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
+  if (traceObservations) {
+    out.push("", "from graphunslopify import observation_provenance as _observations",
+      `if hashlib.sha256(Path(_observations.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_SOURCE_SHA256)}:`,
+      '    raise RuntimeError("Observation capture requires the matching GraphUnslopify runtime")');
+  }
   out.push("", `IDENTITY_FIELDS = ${pyList(identities)}`,
     `REQUIRED_IDENTITY_FIELDS = ${pyList(requiredIdentityFields(spec))}`,
     `IDENTITY_CONFLICTS = ${pyList(identityConflicts(spec))}`);
@@ -37,7 +43,9 @@ ${RUNTIME_HELPERS.normalize_identities}
   out.push("", "def load():", "    global DATA_HASH",
     '    with pd.io.common.get_handle(DATA_PATH, "rb", compression=None, is_text=False) as raw:',
     "        snapshot = raw.handle.read()",
-    '        decoded = raw.compression.get("method") is not None',
+    ...(traceObservations
+      ? ['        transport_compression = raw.compression.get("method")', "        decoded = transport_compression is not None"]
+      : ['        decoded = raw.compression.get("method") is not None']),
     "    DATA_HASH = hashlib.sha256(snapshot).hexdigest()[:16]");
   if (spec.data.format !== "parquet" && spec.data.format !== "excel") {
     out.push(
@@ -47,9 +55,15 @@ ${RUNTIME_HELPERS.normalize_identities}
       "        payload = handle.handle.read()",
     );
   } else out.push("    payload = snapshot");
-  out.push(spec.data.format === "excel"
-    ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === undefined ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)`
-    : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  if (traceObservations && spec.data.format === "parquet") {
+    out.push("    from pandas.io.parquet import get_engine",
+      '    engine = get_engine("auto")',
+      "    df = engine.read(io.BytesIO(payload))");
+  } else {
+    out.push(spec.data.format === "excel"
+      ? `    df = read_excel_table(io.BytesIO(payload), sheet=${spec.data.sheet === undefined ? "None" : pyStr(spec.data.sheet)}, identity_fields=IDENTITY_FIELDS)`
+      : `    df = pd.${READERS[spec.data.format]}(io.BytesIO(payload))`);
+  }
   if (spec.data.format === "json" || identities.length && spec.data.format === "csv") {
     out.push(
       "    # Preserve names from the same bytes; filters still see the typed frame.",
@@ -70,18 +84,33 @@ ${RUNTIME_HELPERS.normalize_identities}
     );
   }
   out.push('    ROW_COUNTS.clear()', '    ROW_COUNTS["read"] = len(df)');
+  if (traceObservations) {
+    out.push(
+      `    reader = {"format": ${pyStr(spec.data.format)}, "pandas_version": pd.__version__,`,
+      '              "transport_compression": transport_compression, "identity_fields": IDENTITY_FIELDS}',
+      ...(spec.data.format === "excel" ? [
+        '    reader.update(sheet=df.attrs["_graphunslopify_excel_sheet"],',
+        '                  engine=df.attrs["_graphunslopify_excel_engine"])',
+      ] : spec.data.format === "parquet" ? [
+        "    reader.update(engine=engine.api.__name__, engine_version=engine.api.__version__)",
+      ] : ["    reader.update(compression=compression)"]),
+      "    selection = _observations._ObservationSelection(",
+      "        snapshot, reader=reader, record_count=len(df), spec_json=SPEC_JSON,",
+      '        program_sha256=script_fingerprint(), runtime_sha256=RUNTIME_BINDING["source_sha256"])',
+    );
+  }
   if (spec.x.temporal) {
     out.push(
       "    df[X_FIELD] = pd.to_datetime(df[X_FIELD])",
       // A date export in reverse order draws the line backwards, and unlike a
       // numeric x nobody notices until they read the dates.
-      "    df = df.sort_values(X_FIELD)",
+      traceObservations ? "    df = selection.sort(df, X_FIELD)" : "    df = df.sort_values(X_FIELD)",
     );
   }
-  out.push("    return df", "");
+  out.push(traceObservations ? "    return df, selection" : "    return df", "");
 }
 
-export function emitPrepare(spec: FigureSpec, out: string[]): void {
+export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: boolean): void {
   const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
   if (ordinary) {
     // Mean/median summaries already retain finite measurements with explicit counts.
@@ -101,22 +130,26 @@ export function emitPrepare(spec: FigureSpec, out: string[]): void {
       "        frame[field] = measured",
       "");
   }
-  out.push("", "def prepare(df):");
+  out.push("", traceObservations ? "def prepare(df, selection):" : "def prepare(df):");
   const body: string[] = [];
 
   if (spec.filter?.length) {
     body.push('    ROW_COUNTS["filtering"] = {"source_rows": len(df), "steps": []}');
   }
 
-  for (const clause of spec.filter ?? []) {
+  for (const [index, clause] of (spec.filter ?? []).entries()) {
     const build = OPERATORS[clause.op];
+    const mask = build(pyStr(clause.field), pyValue(clause.value));
     body.push("    before = len(df)");
-    body.push(`    df = df[${build(pyStr(clause.field), pyValue(clause.value))}]`);
+    body.push(traceObservations ? `    df = selection.filter(df, ${mask}, ${index})` : `    df = df[${mask}]`);
     body.push(`    step = json.loads(${pyStr(JSON.stringify(clause))})`,
       '    step.update(before=before, after=len(df), removed=before - len(df))',
       '    ROW_COUNTS["filtering"]["steps"].append(step)');
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
+  if (traceObservations) {
+    body.push(`    RUN_REPORT["observation_selection"] = selection.write(Path.cwd(), ${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
+  }
   if (spec.filter?.length) {
     body.push('    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))',
       "    if df.empty:", '        raise SystemExit("every row was filtered out")');

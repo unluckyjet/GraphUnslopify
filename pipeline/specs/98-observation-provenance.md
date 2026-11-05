@@ -65,6 +65,12 @@ attach an actual plotted quantity or deliver the clickable explorer.
 
 98b: actual reader/prepare/summary and specialized calculation tracing,including
 independent public/synthetic membership/value references and useful cache hits.
+The reader/filter checkpoint adds opt-in local SDK and CLI capture for actual CSV,
+JSON, Parquet and Excel readers. It records temporal ordering, exact filter masks,
+and exclusions before reshape. The bounded sidecar is referenced by the render
+report and tied to its input snapshot, specification, program, runtime and run.
+All later preparation, estimator, caching, and displayed-quantity tracing remain
+part of 98b and 98c.
 
 98c: renderer quantity geometry,local API/CLI and real workspace explorer/code/
 download lifecycle,then a full requirement-by-requirement acceptance audit.
@@ -96,9 +102,10 @@ The repaired ledger copies already validated trees and validates expected reader
 ownership at the same input boundary. All38 targeted tests pass current3.12.14,
 minimum3.10.22 and cleanly reinstalled package. All108 package files match and
 parent107 files are unchanged. Both profiles export/reload a6001-node graph with
-identical bytes. New all ten gates,push and exact CI remain before98a acceptance;
-automatic generator/quantity/UI tracing and full98 remain incomplete.
+identical bytes. Automatic quantity and UI tracing remain part of full 98.
 
 The observation ledger passed all ten local gates. The suite covered 235 Node tests, 2,561 Python tests, and 15 gallery figures. All 38 targeted tests passed on each Python profile and the reinstalled package. The wheel and installed runtime match the 108 source files.
 
-The ledger records logical observation identities, calculation dependencies, and scoped exclusions. It exports bounded graphs tied to the reader and run. The next checkpoints connect generated calculations to plot marks and the explorer. GitHub CI acceptance follows this checkpoint.
+Commit `afb87e7` passed all fourteen checks and all three workflows, including
+four verified distributions. The remaining checkpoints connect the actual
+computations to plot marks and the explorer.

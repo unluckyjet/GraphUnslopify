@@ -54,6 +54,27 @@ Use `[interactive]` for supported self-contained Plotly HTML. Strict verificatio
 or untested required checks; literal data claims are not statistical significance tests.
 Read the repository documentation for the supported combinations and limits.
 
+## Trace which observations survive filters
+
+In current development source, enable local reader and filter tracing on a render.
+
+```sh
+graphunslopify render figure.json --trace-observations --json
+```
+
+The SDK equivalent is `figure.render(trace_observations=True)`. The report's
+`observation_selection` names the evidence file and its root node, and the SDK
+returns the file as `observation_path`. Load it with
+`ObservationLedger.from_json(path.read_bytes())` from
+`graphunslopify.observation_provenance` and call `explain(root_node_id)`.
+
+The graph covers parsed record positions, temporal ordering, and actual filter
+membership before reshaping and statistical calculations. Ordinals start at
+zero and refer to parsed records. A quoted CSV record can span multiple lines.
+The graph keeps duplicate records distinct and identifies the filter step that
+excluded each record. It records the source snapshot hash without copying row
+values. This stage describes selection for the figure as a whole.
+
 ## What it checks
 
 `text_too_small` and `text_near_minimum` measure every text element at the width the figure will

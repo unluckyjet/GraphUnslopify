@@ -43,6 +43,7 @@ def _render_spec(args: argparse.Namespace) -> int:
                 api=args.api,
                 strict=args.strict,
                 fail_on_warning=args.fail_on_warning,
+                trace_observations=args.trace_observations,
             )
     except (SpecError, OSError, ValueError) as problem:
         report = getattr(problem, "report", None)
@@ -65,6 +66,8 @@ def _render_spec(args: argparse.Namespace) -> int:
         print(json.dumps(result["report"]))
     else:
         print(f"Wrote {result['script']} and {result['report_path']}")
+        if args.trace_observations:
+            print(f"Wrote observation selection {result['observation_path']}")
     return 0
 
 
@@ -1157,6 +1160,11 @@ def build_parser() -> argparse.ArgumentParser:
     generated.add_argument("spec", help="JSON file; data paths resolve beside it")
     generated.add_argument("--out-dir", help="output directory (default: beside the data)")
     generated.add_argument("--api", help="explicit HTTP translator URL, or local")
+    generated.add_argument(
+        "--trace-observations",
+        action="store_true",
+        help="record parsed observations retained and excluded by filters (local translator)",
+    )
     _verification_options(generated)
     generated.add_argument("--json", action="store_true")
     generated.set_defaults(handler=_render_spec)

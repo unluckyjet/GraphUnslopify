@@ -24,10 +24,12 @@ Nothing here reimplements the emitter, because two emitters drift.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
 import sys
+import uuid
 from copy import copy
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,6 +38,12 @@ from typing import Any, Literal
 from typing_extensions import Self
 
 from .errors import SpecError
+from .observation_provenance import (
+    _RUN_ID_ENV,
+    _protect_observation_inputs,
+    _read_observation_selection,
+)
+from .transport import local_request
 from .transport import post as _post
 from .workbook import EXCEL_SUFFIXES
 
@@ -381,9 +389,17 @@ class Figure:
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.spec, indent=indent)
 
-    def translate(self, api: str | None = None) -> dict[str, Any]:
+    def translate(
+        self, api: str | None = None, *, trace_observations: bool = False
+    ) -> dict[str, Any]:
         """Use the local translator, or an explicitly selected HTTP API."""
-        result = _post("/api/convert", self.spec, api=api)
+        if trace_observations:
+            selected = api if api is not None else os.environ.get("GRAPHUNSLOPIFY_API", "local")
+            if selected != "local":
+                raise SpecError("Observation selection requires the local translator")
+            result = local_request("convert-observations", self.spec)
+        else:
+            result = _post("/api/convert", self.spec, api=api)
         if result.get("status") != "translated":
             from .diagnostics import format_findings, schema_findings
 
@@ -462,6 +478,8 @@ class Figure:
         api: str | None = None,
         strict: bool = True,
         fail_on_warning: bool = False,
+        *,
+        trace_observations: bool = False,
     ) -> dict[str, Any]:
         """Translate, write the script beside the data, and run it.
 
@@ -470,6 +488,7 @@ class Figure:
         Strict verification defaults on. Explicit `strict=False` opts out of
         verification rejection; the report still records the actual verdict.
         `fail_on_warning` defaults off and always implies strict verification.
+        `trace_observations` records the local reader and filter selection.
         """
         # Resolve input paths before moving to the output directory. Keep paths
         # relative to the generated program, and do not mutate the author's spec.
@@ -497,7 +516,11 @@ class Figure:
             )
         translator = copy(self)
         translator.spec = prepared
-        result = translator.translate(api)
+        result = (
+            translator.translate(api, trace_observations=True)
+            if trace_observations
+            else translator.translate(api)
+        )
         findings = result.get("findings", [])
         errors = [f for f in findings if f.get("severity") == "error"]
         if errors and (strict or fail_on_warning):
@@ -511,13 +534,26 @@ class Figure:
         where.mkdir(parents=True, exist_ok=True)
         stem = self.spec.get("output", {}).get("stem", "figure")
         script = where / f"{stem}.py"
-        script.write_text(result["code"], encoding="utf8")
+        report_path = where / f"{stem}.report.json"
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        if trace_observations:
+            try:
+                _protect_observation_inputs(
+                    where, [source_path, prepared.get("palette_lock")], [script, report_path]
+                )
+            except (OSError, ValueError) as problem:
+                raise SpecError(str(problem)) from problem
+            code = result["code"].encode("utf8")
+            script.write_bytes(code)
+            program_sha256 = hashlib.sha256(code).hexdigest()
+            run_id = env[_RUN_ID_ENV] = uuid.uuid4().hex
+        else:
+            script.write_text(result["code"], encoding="utf8")
 
         command = [sys.executable, str(script.resolve())]
         command.append("--strict" if strict else "--no-strict")
         if fail_on_warning:
             command.append("--fail-on-warning")
-        report_path = where / f"{stem}.report.json"
         # Do not mistake an earlier run's evidence for this execution.
         report_path.unlink(missing_ok=True)
         completed = subprocess.run(
@@ -526,12 +562,22 @@ class Figure:
             capture_output=True,
             text=True,
             encoding="utf8",
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+            env=env,
             check=False,
         )
         if completed.stdout.strip():
             print(completed.stdout.strip())
         report = json.loads(report_path.read_text()) if report_path.exists() else None
+        observation_path = None
+        if trace_observations and (
+            completed.returncode == 0 or (report and "observation_selection" in report)
+        ):
+            try:
+                observation_path = _read_observation_selection(
+                    where, report or {}, run_id=run_id, program_sha256=program_sha256
+                )
+            except (OSError, KeyError, TypeError, ValueError) as problem:
+                raise SpecError(f"Could not verify observation selection: {problem}") from problem
         if completed.returncode != 0:
             detail = (
                 completed.stderr.strip()
@@ -545,4 +591,5 @@ class Figure:
             "output": completed.stdout,
             "report": report,
             "report_path": report_path if report is not None else None,
+            **({"observation_path": observation_path} if trace_observations else {}),
         }

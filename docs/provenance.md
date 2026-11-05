@@ -1,5 +1,8 @@
 # Exported provenance
 
+Observation-level calculation ancestry is separate from this export envelope.
+See the [local lineage foundation and explorer status](observation-provenance.md).
+
 PNG, SVG, PDF and supported HTML exports embed the same version 1 evidence envelope:
 
 - `schema_version`: 1.

@@ -1,7 +1,7 @@
 ---
 id: 97
 slug: figure-review-agent
-status: in_progress
+status: done
 priority: P1
 title: Answer reviewer questions using actual checks and separately labelled model advice
 source_idea: 2026-11-02 research-platform idea4
@@ -11,6 +11,26 @@ source_idea: 2026-11-02 research-platform idea4
 
 Starts after full96/06edfbd exact14 acceptance2026-11-04T09:52:34UTC.
 The [full thirty-idea roadmap](../research-platform-roadmap.md) remains active.
+
+## Final acceptance
+
+All seven required behaviors are accepted at `0c7e14137d805184f67a9fbcefe1ed210d6ef5b3`
+after all ten local gates and all14 exact main/Figure/native CI checks at
+2026-11-05T04:02:03.378343+00:00. Local235 Node/2523 Python(no skips)/15 gallery,1009 tested
+Git paths and107 runtime files match. Seven actual current CI artifacts verify:
+both core Python profiles,source browser and all four installed distributions.
+Each browser passes34 controls;each wheel verifies112 RECORD entries. Windows
+native/paper/PDF succeeds. Both actual configured local-model requests complete
+exact disclosure/consent with failed science unchanged;their recorded wrong
+interpretations remain labelled unverified and unapplied.
+
+The original graphics/frozen study are unchanged. No release/tag was created.
+Durable acceptance: `research-platform-97/reviewer-ui/full97-acceptance-0c7.json`
+in Documents/Project Evidence/GraphUnslopify. The full thirty-idea goal remains
+active; [observation provenance](../specs/98-observation-provenance.md) is next.
+
+The required behaviors below are achieved. Later implementation checkpoints
+retain their historical pending status and failures as evidence.
 
 ## Required behavior
 
@@ -59,7 +79,7 @@ exact14 CI. Latest native acceptance2026-11-04T21:48:01UTC verifies105 runtime/
 Historical deadline/startup/unused-palette failures and their repairs remain in
 Git history and pipeline/log.md;do not treat a passing query as scientific acceptance.
 
-## Shared browser checkpoint97b3 · exact CI still required
+## Historical shared browser checkpoint97b3
 
 Actual editor/paper controls configure Responses/Chat providers,select1–20 real
 figures,accept author questions/context,display literal request bytes/SHA and
@@ -150,7 +170,7 @@ Only audit.py differs from private5. Existing all39 native/model5 evidence is
 historical to919,not acceptance of the new production byte. Actual configured
 model6 and the new frozen all10 batch provide the new checkpoint.
 
-## Remaining acceptance
+## Historical pre-push acceptance requirements
 
 New frozen gates-stdin-1 passes for the noninteractive audit input change,
 real child regression and PDF diagnostics. After all required checks,make a

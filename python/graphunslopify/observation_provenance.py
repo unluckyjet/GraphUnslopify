@@ -2,7 +2,7 @@
 
 This ledger records caller-supplied computation evidence. Its hashes establish
 identity and internal consistency, not scientific validity or authenticity.
-Generated programs can record actual reader and filter selection with it.
+Generated programs can record reader, filter and preparation dependencies.
 """
 
 from __future__ import annotations
@@ -18,8 +18,12 @@ import sys
 import tempfile
 import uuid
 from collections.abc import Iterable, Mapping
+from decimal import Decimal
+from numbers import Integral, Real
 from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 _SHA256 = re.compile(r"[a-f0-9]{64}\Z")
 _MAX_BYTES = 20 * 1024 * 1024
@@ -356,16 +360,25 @@ class _ObservationSelection:
         )
         self.positions = list(range(record_count))
         self.exclusions = []
+        self.node_id = None
+        self.preparation_node_id = None
+        self._rows = []
+        self._fields = {}
+        self._preparation_exclusions = []
+        self._identifier_steps = []
 
     def sort(self, frame, field):
-        # A temporary column follows the real sort, including ties and NaT.
-        # An object label cannot collide with a parsed input field.
+        # Carry positions through the actual sort, including duplicate labels and NaT.
         position = object()
         tagged = frame.copy(deep=False)
-        tagged[position] = self.positions
+        tagged[position] = range(len(frame))
         ordered = tagged.sort_values(field)
-        self.positions = ordered.pop(position).tolist()
+        order = ordered.pop(position).tolist()
         ordered.columns = frame.columns
+        if self.node_id is None:
+            self.positions = [self.positions[i] for i in order]
+        else:
+            self._remap(order)
         return ordered
 
     def filter(self, frame, mask, step):
@@ -402,14 +415,303 @@ class _ObservationSelection:
         self.positions = kept
         return selected
 
-    def write(self, directory: Path, sort_field: str | None, filter_count: int) -> dict[str, str]:
-        node_id = self.ledger.calculate(
+    def seal_filters(self, sort_field: str | None, filter_count: int) -> None:
+        self._rows = [self.ledger.observation(i) for i in self.positions]
+        self.node_id = self.ledger.calculate(
             "reader_filter_selection",
-            map(self.ledger.observation, self.positions),
+            self._rows,
             value=len(self.positions),
             metadata={"temporal_sort_field": sort_field, "filter_count": filter_count},
             excluded=self.exclusions,
         )
+
+    def _remap(self, order):
+        self._rows = [self._rows[i] for i in order]
+        self._fields = {field: [refs[i] for i in order] for field, refs in self._fields.items()}
+
+    def identifiers(self, frame, normalize, fields, *, final=True):
+        normalized = normalize(frame, final=final)
+        present = [field for field in fields if field in normalized]
+        if present:
+            lexical = frame.attrs.get("_graphunslopify_identity_rows", {})
+            self._identifier_steps.append(
+                {"fields": present, "lexical_fields": [f for f in present if f in lexical]}
+            )
+        return normalized
+
+    def melt(self, frame, *, id_vars, value_vars, var_name, value_name):
+        # A string label keeps pandas' original string column dtype on pandas 3.
+        marker = "_graphunslopify_lineage_position"
+        while marker in frame.columns or marker in (var_name, value_name):
+            marker += "_"
+        tagged = frame.copy(deep=False)
+        tagged[marker] = range(len(frame))
+        result = tagged.melt(
+            id_vars=[*id_vars, marker],
+            value_vars=value_vars,
+            var_name=var_name,
+            value_name=value_name,
+        )
+        self._remap(result.pop(marker).tolist())
+        self._rows = [
+            self.ledger.calculate(
+                "wide_reshape",
+                [row],
+                value=None,
+                metadata={"source_field": field, "measurement_field": value_name},
+            )
+            for row, field in zip(self._rows, result[var_name], strict=True)
+        ]
+        return result
+
+    @staticmethod
+    def _number(value):
+        if isinstance(value, Decimal):
+            if value.is_finite():
+                return str(value), "finite"
+            if value.is_nan():
+                return None, "missing"
+            return None, "negative_infinity" if value.is_signed() else "positive_infinity"
+        if pd.isna(value):
+            return None, "missing"
+        if isinstance(value, Integral):
+            return int(value), "finite"
+        if isinstance(value, Real):
+            value = float(value)
+            if math.isfinite(value):
+                return value, "finite"
+            return None, "positive_infinity" if value > 0 else "negative_infinity"
+        raise ValueError("Unexpected numeric value in observation preparation")
+
+    def numeric(self, field, before, after, stage):
+        refs = self._fields.get(field, self._rows)
+        missing = [ref for ref, absent in zip(refs, after.isna(), strict=True) if absent]
+        if missing:
+            self._preparation_exclusions.append(
+                self.ledger.exclude(
+                    "missing_measurement", missing, stage=stage, metadata={"field": field}
+                )
+            )
+        if before.dtype != after.dtype:
+            metadata = {
+                "field": field,
+                "from_dtype": str(before.dtype),
+                "to_dtype": str(after.dtype),
+                "stage": stage,
+            }
+            self._fields[field] = [
+                self._measurement("numeric_conversion", [ref], value, metadata)
+                for ref, value in zip(refs, after.tolist(), strict=True)
+            ]
+
+    def _measurement(self, operation, inputs, value, metadata, *, excluded=()):
+        number, status = self._number(value)
+        if isinstance(value, Decimal):
+            metadata = {**metadata, "numeric_encoding": "decimal"}
+        return self.ledger.calculate(
+            operation,
+            inputs,
+            value=number,
+            metadata={**metadata, "value_status": status},
+            excluded=excluded,
+        )
+
+    def _excluded_measurement(self, reason, ref, field):
+        return self.ledger.exclude(reason, [ref], stage="transform", metadata={"field": field})
+
+    def _grouped_measurements(self, operation, field, after, groups, visit):
+        refs = self._fields.get(field, self._rows)
+        values = after.tolist()
+        result = [None] * len(refs)
+        for key, positions in groups.items():
+            visit(key, positions, refs, values, result)
+        for index, ref in enumerate(refs):
+            if result[index] is None:
+                excluded = self._excluded_measurement("missing_transform_group", ref, field)
+                result[index] = self._measurement(
+                    operation, [], values[index], {"field": field}, excluded=[excluded]
+                )
+        self._fields[field] = result
+
+    def cumulative(self, field, before, after, groups):
+        missing = before.isna().tolist()
+
+        def group(_key, positions, refs, values, result):
+            previous = None
+            skipped = []
+            for index in positions:
+                inputs = [] if previous is None else [previous]
+                if missing[index]:
+                    absent = self._excluded_measurement("missing_measurement", refs[index], field)
+                    skipped.append(absent)
+                    result[index] = self._measurement(
+                        "cumulative", inputs, values[index], {"field": field}, excluded=[absent]
+                    )
+                else:
+                    previous = result[index] = self._measurement(
+                        "cumulative",
+                        [*inputs, refs[index]],
+                        values[index],
+                        {"field": field},
+                        excluded=skipped,
+                    )
+                    # Later outputs inherit these exclusions through the prefix node.
+                    skipped.clear()
+
+        self._grouped_measurements("cumulative", field, after, groups, group)
+
+    def normalize(self, field, before, after, groups, ranges):
+        missing = before.isna().tolist()
+
+        def group(key, positions, refs, values, result):
+            low, high = ranges[key]
+            low_value, low_status = self._number(low)
+            high_value, high_status = self._number(high)
+            present = [refs[i] for i in positions if not missing[i]]
+            excluded = [refs[i] for i in positions if missing[i]]
+            range_node = self.ledger.calculate(
+                "normalization_range",
+                present,
+                value=[low_value, high_value],
+                metadata={
+                    "field": field,
+                    "constant_range": bool(present) and bool(high == low),
+                    "bound_status": [low_status, high_status],
+                },
+                excluded=(
+                    [
+                        self.ledger.exclude(
+                            "missing_measurement",
+                            excluded,
+                            stage="normalization_range",
+                            metadata={"field": field},
+                        )
+                    ]
+                    if excluded
+                    else []
+                ),
+            )
+            for index in positions:
+                inputs, absent = [range_node], []
+                if missing[index]:
+                    absent.append(
+                        self._excluded_measurement("missing_measurement", refs[index], field)
+                    )
+                else:
+                    inputs.insert(0, refs[index])
+                result[index] = self._measurement(
+                    "normalize", inputs, values[index], {"field": field}, excluded=absent
+                )
+
+        self._grouped_measurements("normalize", field, after, groups, group)
+
+    def baseline(
+        self,
+        frame,
+        field,
+        before,
+        *,
+        source_mask,
+        display_mask,
+        reference,
+        groups,
+        x_field,
+        operation,
+    ):
+        refs = self._fields.get(field, self._rows)
+        missing = before.isna().tolist()
+        source = [
+            i for i, take in enumerate(source_mask.to_numpy(dtype=bool, na_value=False)) if take
+        ]
+        means = []
+        for key, value in reference.items():
+            members = [source[i] for i in groups[key]]
+            excluded = [refs[i] for i in members if missing[i]]
+            absent = (
+                [
+                    self.ledger.exclude(
+                        "missing_measurement",
+                        excluded,
+                        stage="baseline_mean",
+                        metadata={"field": field},
+                    )
+                ]
+                if excluded
+                else []
+            )
+            means.append(
+                self._measurement(
+                    "baseline_mean",
+                    [refs[i] for i in members if not missing[i]],
+                    value,
+                    {"field": field},
+                    excluded=absent,
+                )
+            )
+        match = reference.index.get_indexer(frame[x_field])
+        kept, removed = [], []
+        result = list(refs)
+        for i, (take, value) in enumerate(
+            zip(
+                display_mask.to_numpy(dtype=bool, na_value=False),
+                frame[field].tolist(),
+                strict=True,
+            )
+        ):
+            if not take:
+                removed.append(self._rows[i])
+                continue
+            kept.append(i)
+            inputs, absent = [], []
+            if missing[i]:
+                absent.append(self._excluded_measurement("missing_measurement", refs[i], field))
+            else:
+                inputs.append(refs[i])
+            if match[i] < 0:
+                absent.append(self._excluded_measurement("baseline_unmatched", refs[i], field))
+            else:
+                inputs.append(means[match[i]])
+            result[i] = self._measurement(
+                operation, inputs, value, {"field": field}, excluded=absent
+            )
+        if removed:
+            self._preparation_exclusions.append(
+                self.ledger.exclude("baseline_hidden", removed, stage="after_baseline_transform")
+            )
+        self._fields[field] = result
+        self._remap(kept)
+        return frame[display_mask]
+
+    def finish_preparation(self, frame) -> None:
+        if len(self._rows) != len(frame):
+            raise ValueError("Observation preparation does not match the prepared frame")
+        rows = []
+        for index, row in enumerate(self._rows):
+            changed = {
+                field: refs[index] for field, refs in self._fields.items() if refs[index] != row
+            }
+            if changed:
+                rows.append(
+                    self.ledger.calculate(
+                        "prepared_observation",
+                        [row, *changed.values()],
+                        value=None,
+                        metadata={"measurement_fields": list(changed)},
+                    )
+                )
+            else:
+                rows.append(row)
+        self.preparation_node_id = self.ledger.calculate(
+            "prepared_selection",
+            rows,
+            value=len(rows),
+            metadata={"identifier_steps": self._identifier_steps},
+            excluded=[*self.exclusions, *self._preparation_exclusions],
+        )
+
+    def write(self, directory: Path) -> dict[str, str]:
+        if self.node_id is None:
+            raise ValueError("Observation selection is incomplete")
         payload = self.ledger.to_json()
         path = None
         try:
@@ -426,8 +728,13 @@ class _ObservationSelection:
         return {
             "path": path.name,
             "sha256": hashlib.sha256(payload).hexdigest(),
-            "node_id": node_id,
+            "node_id": self.node_id,
             "run_id": self.run_id,
+            **(
+                {"preparation_node_id": self.preparation_node_id}
+                if self.preparation_node_id
+                else {}
+            ),
         }
 
 
@@ -467,6 +774,14 @@ def _read_observation_selection(
         or node["value"] != report["data"]["counts"]["after_filter"]
     ):
         raise ValueError("Observation selection root does not match the rendered selection")
+    if "preparation_node_id" in selection:
+        preparation = graph._nodes.get(selection["preparation_node_id"], {})
+        if (
+            preparation.get("operation") != "prepared_selection"
+            or preparation["value"] != report["data"]["counts"]["prepared"]
+            or len(preparation["inputs"]) != preparation["value"]
+        ):
+            raise ValueError("Observation preparation root does not match the prepared frame")
     return path
 
 

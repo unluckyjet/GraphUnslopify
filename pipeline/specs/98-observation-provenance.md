@@ -69,8 +69,11 @@ The reader/filter checkpoint adds opt-in local SDK and CLI capture for actual CS
 JSON, Parquet and Excel readers. It records temporal ordering, exact filter masks,
 and exclusions before reshape. The bounded sidecar is referenced by the render
 report and tied to its input snapshot, specification, program, runtime and run.
-All later preparation, estimator, caching, and displayed-quantity tracing remain
-part of 98b and 98c.
+The reader/filter checkpoint and demo compatibility repair at `4a3e5c2` passed
+all fourteen exact checks and all three workflows. Preparation adds a second
+root for the actual prepared rows, source cells, conversions, cumulative
+prefixes, normalization ranges and matched baseline dependencies. Estimator,
+cache, and displayed-quantity tracing remain part of 98b and 98c.
 
 98c: renderer quantity geometry,local API/CLI and real workspace explorer/code/
 download lifecycle,then a full requirement-by-requirement acceptance audit.

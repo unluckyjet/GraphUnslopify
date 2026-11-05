@@ -3,7 +3,6 @@
 import json
 import sys
 
-import psutil
 import pytest
 
 from graphunslopify.owned_reader import ReaderError, run_reader
@@ -13,8 +12,8 @@ from graphunslopify.worker_process import PROTOCOL, JsonWorker
 @pytest.mark.parametrize("mode", ["deadline", "memory", "descriptor"])
 def test_real_reader_resource_and_output_fences(tmp_path, mode):
     program = f"""import json,os,sys,time
-from pathlib import Path
-Path('owned.pid').write_text(str(os.getpid()))
+if {mode!r} == 'memory':
+ time.sleep(30)
 print(json.dumps({{'protocol':{PROTOCOL!r},'kind':'test-reader','pid':os.getpid(),'ready':True,'adapter_version':1}}),flush=True)
 request=json.loads(sys.stdin.readline())
 if {mode!r} == 'descriptor':
@@ -22,9 +21,19 @@ if {mode!r} == 'descriptor':
 else:
  time.sleep(30)
 """
+    launched = []
+
+    class ObservedWorker(JsonWorker):
+        def _start(self, env, signature, deadline, timeout):
+            try:
+                super()._start(env, signature, deadline, timeout)
+            finally:
+                # The RSS monitor can stop the process before it sends readiness.
+                if self.connection is not None:
+                    launched.append(self.connection.process)
 
     def factory(_args, root, **kwargs):
-        return JsonWorker([sys.executable, "-c", program], root, **kwargs)
+        return ObservedWorker([sys.executable, "-c", program], root, **kwargs)
 
     with pytest.raises(
         ReaderError,
@@ -41,7 +50,8 @@ else:
             timeout=0.5 if mode == "deadline" else 10,
             worker_factory=factory,
         )
-    assert not psutil.pid_exists(int((tmp_path / "owned.pid").read_text()))
+    (process,) = launched
+    assert process.poll() is not None
     assert not (tmp_path / "result.json").exists()
 
 

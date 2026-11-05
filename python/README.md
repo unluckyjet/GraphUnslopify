@@ -54,26 +54,28 @@ Use `[interactive]` for supported self-contained Plotly HTML. Strict verificatio
 or untested required checks; literal data claims are not statistical significance tests.
 Read the repository documentation for the supported combinations and limits.
 
-## Trace which observations survive filters
+## Trace how observations reach the prepared data
 
-In current development source, enable local reader and filter tracing on a render.
+Enable local reader, filter and preparation tracing on a render.
 
 ```sh
 graphunslopify render figure.json --trace-observations --json
 ```
 
 The SDK equivalent is `figure.render(trace_observations=True)`. The report's
-`observation_selection` names the evidence file and its root node, and the SDK
-returns the file as `observation_path`. Load it with
+`observation_selection` names the evidence file and two roots. `node_id` is
+the reader and filter selection. `preparation_node_id` is present after
+successful preparation. The SDK returns the file as `observation_path`. Load it with
 `ObservationLedger.from_json(path.read_bytes())` from
 `graphunslopify.observation_provenance` and call `explain(root_node_id)`.
 
-The graph covers parsed record positions, temporal ordering, and actual filter
-membership before reshaping and statistical calculations. Ordinals start at
-zero and refer to parsed records. A quoted CSV record can span multiple lines.
-The graph keeps duplicate records distinct and identifies the filter step that
-excluded each record. It records the source snapshot hash without copying row
-values. This stage describes selection for the figure as a whole.
+The graph follows parsed records through filters, wide reshaping, numeric
+conversion, cumulative totals, normalization, and baseline comparisons. It
+keeps duplicate records distinct and records why a record was filtered out,
+missing, unmatched, or hidden after a baseline comparison. Ordinals start at
+zero and refer to parsed records, including quoted CSV records spanning multiple
+lines. The graph records derived values locally. This evidence covers
+preparation before statistical summaries and per-mark rendering.
 
 ## What it checks
 

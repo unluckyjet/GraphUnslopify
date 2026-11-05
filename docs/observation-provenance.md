@@ -1,15 +1,35 @@
 # Observation lineage foundation
 
-The observation-level explorer is in development. Its first component is a local
-Python ledger for recording which original records and calculations produced a
-quantity. Generated figures do not yet populate this ledger automatically, and
-the clickable explorer is still pending. The complete scope is tracked in
+The observation-level explorer is in development. A local Python ledger records
+which original records and calculations produced a quantity. Opt-in generated
+renders populate it through reading, filtering and preparation. Estimator and
+per-mark evidence and the clickable explorer are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
 For example, subtracting a baseline depends on both the displayed measurement
 and the observations used to estimate that baseline. Hiding the baseline series
 does not remove those dependencies. Likewise, averaging technical repeats into
 one declared unit does not make those repeats independent observations.
+
+## Trace a generated render
+
+Run `graphunslopify render figure.json --trace-observations --json` or
+`Figure.render(trace_observations=True)` with the local translator. The
+`observation_selection` report entry points to the bounded JSON sidecar and
+binds it to this input snapshot, specification, program, runtime and run.
+Use `node_id` to explain the original filter selection. When preparation
+completes, `preparation_node_id` explains its ordered rows and scoped exclusions.
+The filter graph is still available if a later preparation step fails.
+
+Wide reshape nodes identify the source column and original record. Numeric
+conversions identify their input and output dtypes. A prepared row with changed
+measurements lists the fields in `measurement_fields`. Its first input is the
+row, and the remaining inputs are the corresponding field values. Transforms
+record their actual derived values and inputs, including baseline means, ordered
+cumulative prefixes and normalization ranges. Decimal values retain their
+exact spelling as strings. Exclusions retain their own stage, so a baseline
+can be hidden from the prepared rows while contributing
+to the calculated values.
 
 ## Local ledger API
 
@@ -40,11 +60,12 @@ retaining a copy of the dataset. Context requires `run_id`, `spec_sha256` and
 
 `as_dict()` and explanations return copies. Nesting limits apply to each input
 metadata/value tree or reader configuration before the graph wraps it; accepted
-content stays exportable and inspectable at that boundary. The default limits are50,000 nodes,
+content stays exportable and inspectable at that boundary. The default limits are 50,000 nodes,
 200,000 edges and20MiB of serialized evidence. Budget failures leave the ledger
 unchanged. Deserialization rejects unknown/forward/cyclic references,duplicate
-nodes/JSON keys,modified node contents and nonfinite numbers. This module reads
-no files,executes no programs and makes no network requests.
+nodes/JSON keys,modified node contents and nonfinite numbers. The ledger API
+operates on supplied bytes and values. The generated render handles local
+artifact I/O separately.
 
 ## Meaning of the evidence
 

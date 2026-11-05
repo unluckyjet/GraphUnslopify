@@ -118,7 +118,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
       ? [spec.y.field, ...(spec.repeat?.fields ?? [])] : [];
     const numeric = numericFields(spec).filter(field => !(spec.x.temporal && field === spec.x.field)
       && (!summarized.includes(field) || field === spec.x.field));
-    out.push("", "def validate_numeric_domains(frame):",
+    out.push("", traceObservations ? "def validate_numeric_domains(frame, selection):" : "def validate_numeric_domains(frame):",
       `    for field in ${pyList(numeric)}:`,
       "        if field not in frame:", "            continue",
       '        measured = pd.to_numeric(frame[field], errors="coerce")',
@@ -127,6 +127,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
       '            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")',
       "        if isinstance(measured.dtype, pd.api.extensions.ExtensionDtype) and measured.isna().any():",
       "            measured = measured.astype(object).where(measured.notna(), np.nan)",
+      ...(traceObservations ? ['        selection.numeric(field, frame[field], measured, "numeric_domain")'] : []),
       "        frame[field] = measured",
       "");
   }
@@ -148,28 +149,38 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
   if (traceObservations) {
-    body.push(`    RUN_REPORT["observation_selection"] = selection.write(Path.cwd(), ${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
+    body.push(`    selection.seal_filters(${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
   }
   if (spec.filter?.length) {
     body.push('    ROW_COUNTS["filtering"].update(retained_rows=len(df), removed_rows=ROW_COUNTS["filtering"]["source_rows"] - len(df))',
       "    if df.empty:", '        raise SystemExit("every row was filtered out")');
   }
   const melt = spec.series_from_columns;
-  body.push(`    df = normalize_identities(df${melt ? ", final=False" : ""})`);
+  const normalize = (final: boolean) => traceObservations
+    ? `    df = selection.identifiers(df, normalize_identities, IDENTITY_FIELDS${final ? "" : ", final=False"})`
+    : `    df = normalize_identities(df${final ? "" : ", final=False"})`;
+  const validate = traceObservations ? "    validate_numeric_domains(df, selection)" : "    validate_numeric_domains(df)";
+  const numericInput = (name: string, fields: string[]) => {
+    if (traceObservations) body.push("    before_numeric = df");
+    body.push(`    df = ${name}_input(df)`);
+    if (traceObservations) body.push(...fields.map(field =>
+      `    selection.numeric(${field}, before_numeric[${field}], df[${field}], "${name}_input")`));
+  };
+  body.push(normalize(!melt));
   if (melt) {
     body.push(
       "    # Wide columns become one series each.",
       `    keep = [c for c in df.columns if c not in ${pyList(melt.fields)}]`,
-      "    df = df.melt(",
+      traceObservations ? "    df = selection.melt(df," : "    df = df.melt(",
       "        id_vars=keep,",
       `        value_vars=${pyList(melt.fields)},`,
       `        var_name=${pyStr(melt.series_name)},`,
       `        value_name=${pyStr(melt.value_name)},`,
       "    )",
-      "    df = normalize_identities(df)",
+      normalize(true),
     );
   }
-  if (ordinary) body.push("    validate_numeric_domains(df)");
+  if (ordinary) body.push(validate);
 
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
     const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
@@ -181,23 +192,24 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
   }
 
   if (spec.kind === "qq") {
-    body.push("    df = qq_input(df)");
+    numericInput("qq", ["Y_FIELD"]);
     if (spec.transform && !["none", "normalize"].includes(spec.transform.kind)) {
       body.push('    raise ValueError("Q-Q raw-x transforms are unsupported; normalize observations or transform the source data explicitly")');
     }
   }
 
-  if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
+  if (spec.kind === "scaling_fit") numericInput("scaling", ["X_FIELD", "Y_FIELD"]);
 
   const transform = spec.transform;
   if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none"
       && (spec.kind !== "qq" || transform.kind === "normalize")) {
-    body.push(...transformBody(spec, transform));
-    if (spec.kind === "qq") body.push("    df = qq_input(df)");
-    if (spec.kind === "scaling_fit") body.push("    df = scaling_input(df)");
-    if (ordinary) body.push("    validate_numeric_domains(df)");
+    body.push(...transformBody(spec, transform, traceObservations));
+    if (spec.kind === "qq") numericInput("qq", ["Y_FIELD"]);
+    if (spec.kind === "scaling_fit") numericInput("scaling", ["X_FIELD", "Y_FIELD"]);
+    if (ordinary) body.push(validate);
   }
 
+  if (traceObservations) body.push("    selection.finish_preparation(df)");
   body.push("    return df");
   out.push(...body, "");
 }
@@ -320,6 +332,7 @@ export function emitSummaryInput(spec: FigureSpec, out: string[]): void {
 function transformBody(
   spec: FigureSpec,
   transform: NonNullable<FigureSpec["transform"]>,
+  traceObservations: boolean,
 ): string[] {
   const value = spec.kind === "heatmap" ? "VALUE_FIELD" : "Y_FIELD";
 
@@ -327,40 +340,64 @@ function transformBody(
     return [
       "    # Running total along x within each series.",
       "    order = [X_FIELD] if GROUP is None else [GROUP, X_FIELD]",
-      "    df = df.sort_values(order)",
+      traceObservations ? "    df = selection.sort(df, order)" : "    df = df.sort_values(order)",
       `    key = GROUP if GROUP is not None else lambda _: 0`,
-      `    df[${value}] = df.groupby(key, sort=False, observed=True)[${value}].cumsum()`,
+      ...(traceObservations ? [
+        `    before_transform = df[${value}]`,
+        `    grouped = df.groupby(key, sort=False, observed=True)[${value}]`,
+        `    df[${value}] = grouped.cumsum()`,
+        `    selection.cumulative(${value}, before_transform, df[${value}], grouped.indices)`,
+      ] : [`    df[${value}] = df.groupby(key, sort=False, observed=True)[${value}].cumsum()`]),
     ];
   }
 
   if (transform.kind === "normalize") {
     return [
       "    # Rescale each series to its own 0-1 range.",
+      ...(traceObservations ? [`    before_transform = df[${value}]`, "    ranges = {}"] : []),
       "    def _unit(values):",
       "        low, high = values.min(), values.max()",
+      ...(traceObservations ? ["        ranges[values.name] = (low, high)"] : []),
       "        return values * 0 if high == low else (values - low) / (high - low)",
       "    if GROUP is None:",
       `        df[${value}] = _unit(df[${value}])`,
+      ...(traceObservations ? ["        groups = {before_transform.name: range(len(df))}"] : []),
       "    else:",
-      `        df[${value}] = df.groupby(GROUP, sort=False, observed=True)[${value}].transform(_unit)`,
+      ...(traceObservations ? [
+        `        grouped = df.groupby(GROUP, sort=False, observed=True)[${value}]`,
+        `        df[${value}] = grouped.transform(_unit)`,
+        "        groups = grouped.indices",
+        `    selection.normalize(${value}, before_transform, df[${value}], groups, ranges)`,
+      ] : [`        df[${value}] = df.groupby(GROUP, sort=False, observed=True)[${value}].transform(_unit)`]),
     ];
   }
 
   const percent = transform.kind === "percent_of_baseline";
   return [
     `    # Compare every series against ${pyStr(transform.baseline ?? "")}.`,
-    "    reference = (",
-    "        df[df[GROUP] == BASELINE_SERIES]",
-    `        .groupby(X_FIELD, sort=False, observed=True)[${value}]`,
-    "        .mean()",
-    "    )",
+    ...(traceObservations ? [
+      `    before_transform = df[${value}]`,
+      "    baseline_mask = df[GROUP] == BASELINE_SERIES",
+      `    baseline = df[baseline_mask].groupby(X_FIELD, sort=False, observed=True)[${value}]`,
+      "    reference = baseline.mean()",
+    ] : [
+      "    reference = (",
+      "        df[df[GROUP] == BASELINE_SERIES]",
+      `        .groupby(X_FIELD, sort=False, observed=True)[${value}]`,
+      "        .mean()",
+      "    )",
+    ]),
     "    if reference.empty:",
     '        raise SystemExit(f"baseline series {BASELINE_SERIES!r} is not in the data")',
     "    matched = df[X_FIELD].map(reference)",
     percent
       ? `    df[${value}] = 100.0 * df[${value}] / matched`
       : `    df[${value}] = df[${value}] - matched`,
-    "    df = df[df[GROUP] != BASELINE_SERIES]",
+    ...(traceObservations ? [
+      `    df = selection.baseline(df, ${value}, before_transform, source_mask=baseline_mask,`,
+      "                            display_mask=df[GROUP] != BASELINE_SERIES, reference=reference,",
+      `                            groups=baseline.indices, x_field=X_FIELD, operation=${pyStr(transform.kind)})`,
+    ] : ["    df = df[df[GROUP] != BASELINE_SERIES]"]),
   ];
 }
 

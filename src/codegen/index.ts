@@ -384,8 +384,15 @@ function emitMain(spec: FigureSpec, out: string[], traceObservations: boolean): 
     "    global DATA_HASH, ALT_TEXT",
     ...(unusedGrouping(spec) ? [`    raise ValueError(${pyStr(`Unsupported grouping: ${spec.kind} does not draw separate group series; use facets or explicitly remove grouping to pool observations`)})`] : []),
     ...(spec.repeat ? [`    globals()["Y_FIELD"] = ${pyStr(spec.y.field)}`] : []),
-    traceObservations ? "    df = prepare(*load())" : "    df = prepare(load())",
-    "    report_counts(df)",
+    ...(traceObservations ? [
+      "    df, selection = load()",
+      "    try:",
+      "        df = prepare(df, selection)",
+      "        report_counts(df)",
+      "    finally:",
+      "        if selection.node_id is not None:",
+      '            RUN_REPORT["observation_selection"] = selection.write(Path.cwd())',
+    ] : ["    df = prepare(load())", "    report_counts(df)"]),
     "    validate_legend_aliases(df)",
   );
 

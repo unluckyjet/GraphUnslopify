@@ -485,6 +485,42 @@ def _track_mlflow(args: argparse.Namespace) -> int:
     return int(result["exit_code"])
 
 
+def _project_claim_links(args: argparse.Namespace) -> int:
+    from .experiment_imports import _contained_bytes
+    from .project_claim_links import (
+        project_claim_links,
+        remove_claim_link,
+        review_claim_link,
+        save_claim_link,
+    )
+
+    try:
+        if args.confirm is not None and args.draft is None:
+            raise ValueError("--confirm requires --draft")
+        if args.links_revision is not None and args.remove is None:
+            raise ValueError("--links-revision requires --remove")
+        if args.draft is not None:
+            draft_path = Path(args.draft).expanduser().resolve(strict=True)
+            raw = _contained_bytes(draft_path.parent, draft_path.name, limit=16 * 1024)
+            if len(raw) > 16 * 1024:
+                raise ValueError("Claim-link drafts must fit within 16 KiB")
+            draft = json.loads(raw)
+            result = (
+                review_claim_link(args.path, draft)
+                if args.confirm is None
+                else save_claim_link(args.path, draft, review_sha256=args.confirm, confirmed=True)
+            )
+        elif args.remove is not None:
+            result = remove_claim_link(args.path, args.remove, links_revision=args.links_revision)
+        else:
+            result = project_claim_links(args.path)
+    except (KeyError, OSError, TypeError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+    return result.get("exit_code", 0)
+
+
 def _project(args: argparse.Namespace) -> int:
     from .project import (
         initialize_project,
@@ -1009,6 +1045,17 @@ def build_parser() -> argparse.ArgumentParser:
     paper.add_argument("--port", type=int, default=8788)
     paper.add_argument("--open", action="store_true", help="open the browser")
     paper.set_defaults(handler=_project_preview)
+
+    claim_links = commands.add_parser(
+        "project-claim-links", help="check exact manuscript passages against saved figure evidence"
+    )
+    claim_links.add_argument("path", nargs="?", default=".")
+    action = claim_links.add_mutually_exclusive_group()
+    action.add_argument("--draft", help="review a local JSON link draft")
+    action.add_argument("--remove", help="remove a saved claim link by its ID")
+    claim_links.add_argument("--confirm", help="confirm the exact excerpt and the reviewed SHA-256")
+    claim_links.add_argument("--links-revision", help="current links revision for removal")
+    claim_links.set_defaults(handler=_project_claim_links)
 
     mcp = commands.add_parser("mcp", help="serve the local compiler over MCP stdio (agent extra)")
     mcp.set_defaults(handler=_mcp)

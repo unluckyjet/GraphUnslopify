@@ -586,6 +586,7 @@ class ProjectHandler(PreviewHandler):
             "/figure-reviewer.css": "figure-reviewer.css",
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
+            "/project-comments.js": "project-comments.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
             "/journal-checks.js": "journal-checks.js",
@@ -676,6 +677,10 @@ class ProjectHandler(PreviewHandler):
                 self.send(data, "application/octet-stream", download=name)
             elif route == "/api/comparison":
                 self.json(state.comparison(value("event"), value("figure")))
+            elif route == "/api/figure-comments":
+                from .project_comments import read_figure_comments
+
+                self.json(read_figure_comments(state, value("event"), value("figure")))
             else:
                 self.json({"error": "Not found"}, 404)
         except (OSError, ValueError, TypeError, KeyError, SpecError) as problem:
@@ -721,6 +726,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Choose a nonempty request smaller than 20 MiB.")
             if route.startswith("/api/reviewer/") and length > 65536:
                 raise ProjectError("Reviewer controls must fit within 64 KiB.")
+            if route == "/api/figure-comments" and length > 16384:
+                raise ProjectError("Figure comment requests must fit within 16 KiB.")
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, dict):
                 raise ProjectError("Request must be a JSON object.")
@@ -751,6 +758,10 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.journal_check(payload))
             elif route == "/api/element-map":
                 self.json(state.element_map(payload))
+            elif route == "/api/figure-comments":
+                from .project_comments import change_figure_comments
+
+                self.json(change_figure_comments(state, payload))
             elif route == "/api/review-export":
                 from .project_export import create_review_packet
 

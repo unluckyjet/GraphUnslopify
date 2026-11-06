@@ -86,6 +86,47 @@ try {
   const firstBytes = inventory(firstFolder);
   workflows.push("two-figure strict audit and actual preview");
 
+  const comments = page.locator("#figure-comments");
+  const commentsQuery = (event: string) => "/api/figure-comments?" + new URLSearchParams({ event, figure: "figure" });
+  const commentText = "Please review this point <img src=foreign onerror=alert(1)>.";
+  await comments.locator("summary").click();
+  await comments.locator("#comments-content").waitFor();
+  const commentAnchor = await api(commentsQuery(first));
+  assert.equal(commentAnchor.anchor.event, first);
+  const commentImage = comments.locator("#comments-image");
+  const commentFrame = await commentImage.boundingBox();
+  assert.ok(commentFrame);
+  await commentImage.click({ position: { x: commentFrame.width * 0.32, y: commentFrame.height * 0.41 } });
+  const x = Number(await comments.locator("#comment-x").inputValue());
+  const y = Number(await comments.locator("#comment-y").inputValue());
+  assert.ok(Math.abs(x / commentAnchor.anchor.width - 0.32) < 0.01);
+  assert.ok(Math.abs(y / commentAnchor.anchor.height - 0.41) < 0.01);
+  await comments.getByLabel("Reviewer name").fill("Local reviewer");
+  await comments.getByLabel("New comment").fill(commentText);
+  await comments.getByRole("button", { name: "Add comment" }).click();
+  await comments.getByText(commentText, { exact: true }).waitFor();
+  assert.equal(await comments.locator("#comment-threads img").count(), 0);
+  await comments.getByRole("button", { name: "Go to comment 1" }).click();
+  assert.match(await page.evaluate('document.activeElement.textContent'), /Comment 1/);
+  await comments.getByLabel("Reply to comment 1").fill("I checked the saved chart.");
+  await comments.getByRole("button", { name: "Post reply" }).click();
+  await comments.getByText("I checked the saved chart.").waitFor();
+  await comments.getByRole("button", { name: "Resolve comment 1" }).click();
+  await comments.getByRole("button", { name: "Reopen comment 1" }).waitFor();
+  assert.equal(await comments.getByRole("button", { name: "Go to comment 1" }).getAttribute("data-resolved"), "true");
+  await comments.getByRole("button", { name: "Reopen comment 1" }).click();
+  await comments.getByRole("button", { name: "Resolve comment 1" }).waitFor();
+  const retainedComment = await api(commentsQuery(first));
+  assert.deepEqual(retainedComment.threads.map((row: { x: number; y: number }) => [row.x, row.y]), [[x, y]]);
+  const desktopViewport = page.viewportSize();
+  assert.ok(desktopViewport);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await comments.locator(".comment-surface").screenshot({ path: join(evidence, "figure-comment-mobile.png") });
+  await page.setViewportSize(desktopViewport);
+  await comments.locator("summary").first().click();
+  workflows.push("real saved PNG supports located comments, literal text, replies, resolution, reopen and mobile pins");
+
   await page.locator('[data-figure="second"]').click();
   await page.waitForFunction(() => document.querySelector("#selected-title")?.textContent === "second");
   assert.equal(JSON.parse(await page.locator("#definition").inputValue()).kind, "table");
@@ -149,6 +190,22 @@ try {
   const styled = await audit("passed");
   const styledEvent = await api("/api/event?id=" + styled);
   for (const figure of styledEvent.result.audit.figures) { assert.equal(figure.report.spec.output.size, "double_column"); assert.equal(figure.report.spec.output.dpi, 144); assert.equal(figure.report.spec.style.grid, true); }
+  await comments.locator("summary").first().click();
+  await comments.getByText("No comments on this render yet.").waitFor();
+  assert.equal((await api(commentsQuery(styled))).threads.length, 0);
+  await page.locator("#history").selectOption(first);
+  await comments.getByText(commentText, { exact: true }).waitFor();
+  assert.deepEqual(await api(commentsQuery(first)), retainedComment);
+  await comments.locator("summary").first().click();
+  await page.locator("#history").selectOption(styled);
+  await page.waitForFunction(() => document.querySelector("#preview")?.naturalWidth && !document.querySelector("#preview")?.hidden);
+  writeFileSync(join(evidence, "figure-comment-evidence.json"), JSON.stringify({
+    anchor: retainedComment.anchor, anchor_key: retainedComment.anchor_key, x, y,
+    replies: retainedComment.threads[0].replies.length,
+    status_changes: retainedComment.threads[0].status_history.map((row: { resolved: boolean }) => row.resolved),
+    newer_event: styled,
+  }, null, 2) + "\n");
+  workflows.push("new audit opens an empty comment view and selecting the older audit restores its original pins");
   await page.locator("#show-comparison").click();
   await page.waitForFunction(() => document.querySelector("#comparison")?.hidden === false);
   assert.equal(await page.locator(".comparison-images img").count(), 2);

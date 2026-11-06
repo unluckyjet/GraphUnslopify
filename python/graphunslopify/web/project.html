@@ -145,6 +145,31 @@
           <div class="actions"><button id="show-comparison" class="secondary" disabled>Compare with baseline</button><button id="show-source" class="quiet" disabled>Read captured source</button></div>
           <div id="journal-tools"></div>
           <div id="comparison" hidden></div>
+          <details id="figure-comments" hidden>
+            <summary>Figure comments</summary>
+            <p id="comments-status" role="status"></p>
+            <button id="comments-reload" type="button" class="quiet">Reload comments</button>
+            <div id="comments-content" hidden>
+              <p class="muted">Click the saved figure to choose a location, or enter X and Y in original image pixels from the top-left corner.</p>
+              <div class="comment-surface">
+                <img id="comments-image" alt="Saved figure for comments">
+                <div id="comment-pins"></div>
+              </div>
+              <fieldset id="comments-controls">
+                <legend>Review this saved render</legend>
+                <label>Reviewer name<input id="comments-author" maxlength="80" autocomplete="off" required></label>
+                <form id="comment-create">
+                  <div class="comment-coordinates">
+                    <label>X pixel<input id="comment-x" type="number" min="0" step="1" required></label>
+                    <label>Y pixel<input id="comment-y" type="number" min="0" step="1" required></label>
+                  </div>
+                  <label>New comment<textarea id="comment-body" rows="3" maxlength="2000" required></textarea></label>
+                  <button>Add comment</button>
+                </form>
+                <div id="comment-threads"></div>
+              </fieldset>
+            </div>
+          </details>
           <details id="saved-source-panel" hidden><summary id="saved-source-label">Captured source</summary><label class="sr-only" for="saved-source">Captured historical source</label><textarea id="saved-source" readonly></textarea></details>
           <details><summary>Selected event evidence</summary><pre id="event-json"></pre></details>
         </section>

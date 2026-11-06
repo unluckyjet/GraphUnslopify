@@ -90,6 +90,16 @@
 .comparison-wipe input { display: block; width: 100%; min-height: 32px; }
 .comparison-wipe figcaption { font-size: 12px; color: var(--muted); }
 #comparison { margin-top: 22px; overflow-wrap: anywhere; }
+.comment-surface { position: relative; max-width: 680px; margin: 12px 0; }
+.comment-surface img { display: block; width: 100%; height: auto; cursor: crosshair; }
+#comment-pins { position: absolute; inset: 0; pointer-events: none; }
+#comment-pins button { position: absolute; min-width: 28px; min-height: 28px; padding: 2px; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: auto; }
+#comment-pins button[data-resolved="true"] { background: #516474; color: white; }
+#comments-controls { min-width: 0; display: grid; gap: 10px; margin: 0; }
+.comment-coordinates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#comment-threads article { padding: 10px 0; border-top: 1px solid var(--line); }
+#comment-threads p { white-space: pre-wrap; overflow-wrap: anywhere; }
+#comment-threads .comment-reply { margin-left: 12px; }
 .paper-workspace [hidden] { display: none !important; }
 @media (max-width: 1100px) { .paper-workspace main { grid-template-columns: 230px minmax(0, 1fr); } .evidence-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .paper-workspace header { padding: 22px 18px; align-items: start; flex-direction: column; } .workspace-notices { padding: 0 18px; } .paper-workspace main { padding: 0 18px 24px; grid-template-columns: minmax(0, 1fr); } .history-selectors, .comparison-images { grid-template-columns: minmax(0, 1fr); } .section-head { flex-wrap: wrap; } .paper-workspace .card { padding: 18px; } }

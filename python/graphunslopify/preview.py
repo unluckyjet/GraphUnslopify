@@ -31,6 +31,8 @@ from .errors import SpecError
 from .preview_drafts import PreviewDrafts
 from .preview_observations import PreviewObservations, can_trace_observations
 from .preview_staging import PreviewStages
+from .sensitivity_workspace import MAX_REQUEST as MAX_SENSITIVITY_REQUEST
+from .sensitivity_workspace import WorkspaceSensitivity, owned_input
 from .transport import local_request
 from .workbook import EXCEL_SUFFIXES, workbook_sheets
 
@@ -57,6 +59,7 @@ class PreviewState:
         self.lock = threading.Lock()
         self.render_lock = threading.Lock()
         self.closing = False
+        self.sensitivity = WorkspaceSensitivity()
         from .preview_reviews import PreviewReviews
         from .review_sessions import ReviewSessions
 
@@ -266,6 +269,32 @@ class PreviewState:
             raise TypeError("output.formats must be an array")
         output["formats"] = list(dict.fromkeys([*requested, "png"]))
         return spec, data, palette
+
+    def sensitivity_preview(self, payload):
+        client, generation = payload.get("client"), payload.get("generation")
+        if (
+            not isinstance(client, str)
+            or not 1 <= len(client) <= 128
+            or type(generation) is not int
+            or generation < 0
+        ):
+            raise ValueError("Invalid sensitivity editor revision")
+
+        def current():
+            with self.lock:
+                if self.closing or self.generations.get(client, -1) > generation:
+                    raise ValueError("The editor revision changed; review the current figure.")
+
+        spec, data, palette = self.prepare(payload)
+        return self.sensitivity.compare(
+            payload,
+            spec,
+            owned_input(data["path"], data["sha256"]),
+            owned_input(palette["path"], palette["sha256"], 1024**2) if palette else None,
+            owner=[client, generation, data["id"], palette["id"] if palette else None],
+            current=current,
+            scratch=self.root,
+        )
 
     def cleaning_preview(self, payload):
         from .cleaning_preview import preview_preparation
@@ -698,6 +727,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/cleaning-preview.js",
                 "/statistical-power.js",
                 "/effect-sizes.js",
+                "/sensitivity-workspace.js",
                 "/journal-checks.js",
                 "/context-inspector.js",
                 "/experiment-imports.js",
@@ -725,6 +755,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/cleaning-preview.js",
             "/statistical-power.js",
             "/effect-sizes.js",
+            "/sensitivity-workspace.js",
             "/journal-checks.js",
             "/context-inspector.js",
             "/experiment-imports.js",
@@ -749,6 +780,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/cleaning-preview.js": "cleaning-preview.js",
                 "/statistical-power.js": "statistical-power.js",
                 "/effect-sizes.js": "effect-sizes.js",
+                "/sensitivity-workspace.js": "sensitivity-workspace.js",
                 "/journal-checks.js": "journal-checks.js",
                 "/context-inspector.js": "context-inspector.js",
                 "/experiment-imports.js": "experiment-imports.js",
@@ -776,6 +808,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "cleaning-preview.js": "text/javascript; charset=utf-8",
                     "statistical-power.js": "text/javascript; charset=utf-8",
                     "effect-sizes.js": "text/javascript; charset=utf-8",
+                    "sensitivity-workspace.js": "text/javascript; charset=utf-8",
                     "journal-checks.js": "text/javascript; charset=utf-8",
                     "context-inspector.js": "text/javascript; charset=utf-8",
                     "experiment-imports.js": "text/javascript; charset=utf-8",
@@ -893,6 +926,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 raise ValueError("Observation control request exceeds 64KiB")
             if route == "/api/statistical-power" and size > 4096:
                 raise ValueError("Statistical power requests must fit within 4 KiB.")
+            if route == "/api/sensitivity" and size > MAX_SENSITIVITY_REQUEST:
+                raise ValueError("Sensitivity requests must fit within 128 KiB.")
             if route == "/api/effect-sizes":
                 from .effect_sizes import MAX_EFFECT_REQUEST_BYTES
 
@@ -1017,6 +1052,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json(self.server.state.render(payload))
             elif route == "/api/cleaning-preview":
                 self.json(self.server.state.cleaning_preview(payload))
+            elif route == "/api/sensitivity":
+                self.json(self.server.state.sensitivity_preview(payload))
             elif route == "/api/statistical-power":
                 from .statistical_power import plan_power
 

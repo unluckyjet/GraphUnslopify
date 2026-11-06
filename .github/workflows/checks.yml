@@ -260,6 +260,12 @@ jobs:
       - run: npm run preview-check
       - run: npm run cleaning-preview-check
       - run: npm run power-check
+      - run: npm run sensitivity-check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sensitivity-workspace-verification
+          path: /tmp/gu-sensitivity-workspace-check-*/**
+          if-no-files-found: error
       - run: npm run journal-check
       - uses: actions/upload-artifact@v4
         if: always()

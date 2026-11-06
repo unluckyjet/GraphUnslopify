@@ -1,6 +1,7 @@
 import { createCleaningPreview } from "/cleaning-preview.js";
 import { createStatisticalPower } from "/statistical-power.js";
 import { createEffectExplorer } from "/effect-sizes.js";
+import { createSensitivity } from "/sensitivity-workspace.js";
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
@@ -77,8 +78,18 @@ const cleaningPreview = createCleaningPreview({
       payload: () => ({id: selected, expected_revision: record.revision}),
     } : null,
 });
+const sensitivity = createSensitivity({
+  mount: $("sensitivity-workspace"), api,
+  sourceLabel: "Use the current saved paper definition, including paper settings.",
+  context: () => !running && !saving && !loadingFigure && !dirty() && !refreshFailure &&
+    !state?.error && record?.source_type === "spec" && state?.revision === record.revision ? {
+      key: JSON.stringify([record.revision, selected]),
+      payload: () => ({id: selected, expected_revision: record.revision}),
+    } : null,
+});
 function lockControls() {
   cleaningPreview.update();
+  sensitivity.update();
   journalChecks.update();
   elementInspector?.update();
   sharedReview?.update();

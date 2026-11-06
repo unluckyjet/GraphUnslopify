@@ -1,6 +1,7 @@
 import { createCleaningPreview } from "/cleaning-preview.js";
 import { createStatisticalPower } from "/statistical-power.js";
 import { createEffectExplorer } from "/effect-sizes.js";
+import { createSensitivity } from "/sensitivity-workspace.js";
 import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
@@ -195,9 +196,18 @@ const cleaningPreview = createCleaningPreview({
     payload: () => ({spec: readSpec(), data_id: data.id, palette_id: palette?.id}),
   } : null,
 });
+const sensitivity = createSensitivity({
+  mount: $("sensitivity-workspace"), api, flush: () => controls.flush(),
+  sourceLabel: "Use the current figure draft and selected dataset.",
+  context: () => data ? {
+    key: JSON.stringify([revision, data.id, palette?.id, $("spec").value]),
+    payload: () => ({client, generation: revision, spec: readSpec(), data_id: data.id, palette_id: palette?.id}),
+  } : null,
+});
 function invalidate() {
   revision++;
   cleaningPreview.update();
+  sensitivity.update();
   reviewableRender = null; figureReviewer?.refresh();
   experimentImports?.refresh();
   sourceImports?.refresh();

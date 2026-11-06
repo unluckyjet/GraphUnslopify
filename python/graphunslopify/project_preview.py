@@ -41,6 +41,8 @@ from .project import (
 )
 from .review_agent import DEFAULT_QUESTION, FigureReviewPlan, review_document
 from .review_sessions import ReviewSessions
+from .sensitivity_workspace import MAX_REQUEST as MAX_SENSITIVITY_REQUEST
+from .sensitivity_workspace import WorkspaceSensitivity, owned_input
 from .transport import local_request
 
 
@@ -77,6 +79,7 @@ class ProjectState:
         self.worker = None
         self.job = None
         self.closing = False
+        self.sensitivity = WorkspaceSensitivity()
         self.reviewer = ReviewSessions(
             self.review_plan, review_document, source_kind="paper-project"
         )
@@ -86,6 +89,48 @@ class ProjectState:
         with self.job_lock:
             if self.closing or (self.job and self.job["phase"] == "running"):
                 raise ProjectError("Wait for the paper job or reopen the closing workspace.")
+
+    def sensitivity_preview(self, payload):
+        self.review_ready()
+        identity, revision = payload.get("id"), payload.get("expected_revision")
+        _review_token(revision)
+        record = project_figure(self.source, identity)
+        if record["revision"] != revision:
+            raise ProjectError("Project inputs changed; refresh before comparing alternatives.")
+        spec = record["clone"].get("spec")
+        if record["source_type"] != "spec" or not isinstance(spec, dict) or record["errors"]:
+            raise ProjectError("Choose a valid saved JSON figure with owned data.")
+        snapshot = project_status(self.source)
+        if snapshot["revision"] != revision:
+            raise ProjectError("Project inputs changed; refresh before comparing alternatives.")
+        (row,) = (item for item in snapshot["figures"] if item["id"] == identity)
+        paper = self.source.parent.parent
+
+        def input_bytes(role, name, limit):
+            path = _inside(paper, name)
+            witness = next(
+                (item for item in row["files"] if item["role"] == role and item["path"] == name),
+                None,
+            )
+            if witness is None:
+                raise ProjectError("The selected source has no captured " + role + " evidence.")
+            return owned_input(path, witness["sha256"], limit)
+
+        def current():
+            self.review_ready()
+            if project_status(self.source)["revision"] != revision:
+                raise ProjectError("Project inputs changed during sensitivity analysis; refresh.")
+
+        return self.sensitivity.compare(
+            payload,
+            spec,
+            input_bytes("data", spec["data"]["path"], 16 * 1024**2),
+            input_bytes("palette", spec["palette_lock"], 1024**2)
+            if spec.get("palette_lock")
+            else None,
+            owner=[identity, revision],
+            current=current,
+        )
 
     def cleaning_preview(self, payload):
         from .cleaning_preview import preview_preparation
@@ -592,6 +637,7 @@ class ProjectHandler(PreviewHandler):
             "/cleaning-preview.js": "cleaning-preview.js",
             "/statistical-power.js": "statistical-power.js",
             "/effect-sizes.js": "effect-sizes.js",
+            "/sensitivity-workspace.js": "sensitivity-workspace.js",
             "/journal-checks.js": "journal-checks.js",
             "/context-inspector.js": "context-inspector.js",
             "/workspace-commands.js": "workspace-commands.js",
@@ -739,6 +785,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
             if route == "/api/statistical-power" and length > 4096:
                 raise ProjectError("Statistical power requests must fit within 4 KiB.")
+            if route == "/api/sensitivity" and length > MAX_SENSITIVITY_REQUEST:
+                raise ProjectError("Sensitivity requests must fit within 128 KiB.")
             if route == "/api/effect-sizes":
                 from .effect_sizes import MAX_EFFECT_REQUEST_BYTES
 
@@ -796,6 +844,8 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.start_inspection(payload), 202)
             elif route == "/api/cleaning-preview":
                 self.json(state.cleaning_preview(payload))
+            elif route == "/api/sensitivity":
+                self.json(state.sensitivity_preview(payload))
             elif route == "/api/statistical-power":
                 from .statistical_power import plan_power
 

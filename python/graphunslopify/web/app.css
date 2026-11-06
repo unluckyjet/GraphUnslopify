@@ -640,3 +640,19 @@ kbd { font:inherit; font-size:11px; white-space:nowrap; border:1px solid var(--l
 .effect-interval span { position: absolute; top: calc(50% - 1px); height: 2px; left: var(--effect-left, 0); width: var(--effect-width, 0); background: #146587; }
 .effect-interval i { position: absolute; width: 9px; height: 9px; top: 50%; left: var(--effect-center); transform: translate(-50%, -50%); border-radius: 50%; background: #146587; }
 @media (max-width: 600px) { .effect-fields { grid-template-columns: minmax(0, 1fr); } }
+
+/* Statistical alternatives and their native comparison evidence. */
+#sensitivity-workspace { overflow-wrap: anywhere; }
+.sensitivity-choice { min-width: 0; margin: 12px 0; }
+.sensitivity-choice textarea { display: block; width: 100%; resize: vertical; min-height: 3rem; }
+.sensitivity-fields, .sensitivity-images { display: grid; gap: 8px 14px; }
+.sensitivity-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 152px), 1fr)); }
+.sensitivity-images { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.sensitivity-images article { min-width: 0; border-top: 1px solid var(--line); }
+.sensitivity-images img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
+.sensitivity-table { overflow: auto; max-height: 360px; }
+.sensitivity-table table { width: 100%; border-collapse: collapse; text-align: left; }
+.sensitivity-table th, .sensitivity-table td { padding: 6px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.sensitivity-table small { display: block; }
+.sensitivity-table thead th { overflow-wrap: normal; }
+#sensitivity-workspace pre { white-space: pre-wrap; max-height: 180px; overflow: auto; }

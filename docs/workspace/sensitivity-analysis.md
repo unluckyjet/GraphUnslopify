@@ -5,6 +5,23 @@ alternatives. Each choice uses the same data snapshot and generates its own
 strictly checked PNG and report. Compare estimates, interval bounds, unit counts,
 filter counts, and verdicts for the figure's existing machine-checkable claims.
 
+## Compare in either local workspace
+
+Open **Sensitivity analysis** with the current draft and data in the single
+editor, or with the current saved figure in the paper workspace. Give each
+alternative a name and scientific justification, then select an estimator,
+uncertainty method or cohort-filter change. Add up to four alternatives.
+Review the baseline and proposed settings, confirm the assumptions, and render
+the comparison. The workspace shows native PNGs and group-aligned estimates,
+intervals, counts and claim verdicts. Automatic axis limits may differ between
+previews. Use the numerical table to compare values directly.
+
+The preview keeps the original figure and project history intact. Changes to
+the selected source, definition or alternatives require another review. The
+comparison report can be downloaded separately from its browser previews.
+The workspace displays up to 8 MiB of verified PNG previews per comparison.
+The local CLI retains the full evidence in a selected output directory.
+
 ## Run from the terminal
 
 Provide a JSON array containing the name, justification and changes for each

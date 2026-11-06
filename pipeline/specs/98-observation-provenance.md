@@ -137,7 +137,10 @@ For smoothed summaries, the plotted pandas window supplies the actual value
 and settings. The trace captures finite rolling-window membership or causal
 exponential state, with scoped unavailable positions. When the unsmoothed
 summary overlay is drawn, it can be selected independently of the smoothed
-curve. Secondary axes, unaggregated lines and remaining paths stay in scope.
+curve. Unaggregated lines carry each prepared position into the drawn series.
+Equal values preserve separate source identities, and transformed values
+keep their actual measurement dependencies. Secondary axes and remaining
+paths stay in scope.
 
 ## Measured references and current limits
 

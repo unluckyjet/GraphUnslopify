@@ -28,7 +28,7 @@ def can_trace_observations(spec):
     aggregation = spec.get("aggregation")
     if kind == "bar":
         return aggregation in ("mean", "median", "sum", "count") and not spec.get("stacked", False)
-    return kind == "line" and aggregation in ("mean", "median")
+    return kind == "line" and aggregation in (None, "none", "mean", "median")
 
 
 class PreviewObservations:

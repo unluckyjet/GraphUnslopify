@@ -129,7 +129,7 @@ export function createObservationExplorer({api, token, client, current, supporte
       intervalIndex.value = estimateIndex.value = "1";
       intervalIndex.max = String(binding.intervals);
       for (const role of Object.keys(binding.curves)) {
-        curve.add(new Option(role === "raw" ? "Unsmoothed summary" : "Smoothed estimate", role));
+        curve.add(new Option(role === "raw" ? "Unsmoothed curve" : "Smoothed estimate", role));
       }
       mode.value = binding.intervals ? "interval" : "estimate";
       $("observation-summary-mode-label").hidden = !(binding.intervals && binding.estimates);
@@ -179,19 +179,19 @@ export function createObservationExplorer({api, token, client, current, supporte
     const item = value.node, metadata = item.metadata || {};
     let title = readable(item.operation || item.reason || item.kind);
     if (item.operation === "matrix_cell") title += " · " + metadata.row_label + " × " + metadata.column_label;
-    if (["summary_estimate", "summary_smoothed_estimate", "summary_interval"].includes(item.operation)) {
+    if (["line_observation", "summary_estimate", "summary_smoothed_estimate", "summary_interval"].includes(item.operation)) {
       const keys = Object.entries(metadata.keys || {}).map(([name, value]) => readable(name) + " " + value);
       if (keys.length) title += " · " + keys.join(", ");
     }
     if (item.operation === "summary_smoothed_estimate") title = title.replace(/^Summary smoothed estimate/i, "Smoothed estimate");
     if (item.operation === "summary_band_span") title = "Band between calculated intervals";
-    if (item.operation === "summary_line_span") title = "Line between calculated estimates";
+    if (item.operation === "summary_line_span") title = "Line between plotted values";
     if (item.kind === "observation") title = "Record " + (item.record_ordinal + 1);
     node("h3", title);
     if (item.operation === "summary_band_span") {
       node("p", "The renderer joins the two calculated bounds. Follow the calculation links to inspect each interval.");
     } else if (item.operation === "summary_line_span") {
-      node("p", "The stroke connects two calculated estimates. Follow their links to inspect each estimate.");
+      node("p", "The stroke connects two plotted values. Follow the links to inspect each one.");
     } else if ("value" in item) node("p", item.value === null ? "Value unavailable" : "Value " + JSON.stringify(item.value));
     if (item.detail_in_download) node("p", "The complete node detail is available in the graph download.");
     else if (Object.keys(metadata).length) {

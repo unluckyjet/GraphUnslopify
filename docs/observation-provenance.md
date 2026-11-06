@@ -61,9 +61,11 @@ use the **Estimates** picker to choose the estimate at an overlapping position.
 The numbered control selects the same estimates by keyboard. A singleton
 forest row can have a selectable dot even when its interval is unavailable.
 
-Unsmoothed line summaries also expose visible points. On a solid connection
-between two points, the graph shows both endpoint calculations and their
-source records. The connection has no separate numerical estimate. Dashed
+Unsmoothed lines expose visible points whether drawn directly or summarized.
+A point drawn directly links its prepared measurement to the original
+record and any transformation inputs. Duplicate points keep separate
+record identities. Use the numbered picker when they overlap. On a solid
+connection, the graph shows both endpoint values and their source records. The connection has no separate numerical estimate. Dashed
 and simplified paths offer visible point markers where present, with a
 coverage message for the connections.
 
@@ -74,8 +76,9 @@ exponential estimate links its previous smoothing state and current
 measurement. Missing points can advance decay without contributing a
 measurement. When the unsmoothed summary overlay is visible, choose
 **Curve** to inspect it separately. The saved estimate command also accepts
-`--curve raw` or `--curve smoothed`. Secondary-axis and unaggregated line
-values remain in the provenance roadmap.
+`--curve raw` or `--curve smoothed`. Smoothing can use either plotted
+observations or calculated summaries. Secondary-axis values remain in the
+provenance roadmap.
 
 For a saved render, run `graphunslopify explain-estimate figure.report.json X Y`
 or call `graphunslopify.observation_provenance.explain_saved_estimate`. Coordinates

@@ -20456,8 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "5d328d00d7eecaa55bd134278695a1534791f21b8a2ff634c16e7f06a6844ad3";
-var OBSERVATION_GEOMETRY_SHA256 = "a9ed2cfe89a930392410073f135c13745445d782ae72058c1fdaa10dad3830f4";
+var OBSERVATION_SOURCE_SHA256 = "754c8034ed1d43b4cf2328a538456bc98111f780d38965c721669f7e215db972";
+var OBSERVATION_GEOMETRY_SHA256 = "a35d75338eb7b774dea28fa99c35758b76bad25775ed08c66216753376e94b35";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -22860,10 +22860,15 @@ function emitCategories(spec, out) {
 function emitLine(spec, out, traceIntervals, traceEstimates) {
   const preset = PRESETS[spec.style.preset];
   const band = spec.uncertainty?.display === "band";
+  const traceRows = traceEstimates && spec.aggregation === "none";
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals || traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)"
+    (traceIntervals || traceEstimates) && !traceRows ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)"
+  );
+  if (traceRows) out.push(
+    "    if OBSERVATION_CAPTURE is not None:",
+    "        frame = OBSERVATION_CAPTURE.line_observation_frame(frame, x_field=X_FIELD, field=Y_FIELD, group=GROUP)"
   );
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
   const plot = (indentLevel, source, styleExpr, label) => {
@@ -26674,7 +26679,7 @@ function emitPython(spec, traceObservations = false) {
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked || spec.kind === "line");
+  const traceEstimates = traceObservations && spec.output.formats.includes("png") && (spec.kind === "line" || traceSummary && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked));
   const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;
@@ -26723,7 +26728,7 @@ function emitPython(spec, traceObservations = false) {
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations, traceSummary || traceMatrix, observationPng);
+  emitMain(spec, out, traceObservations, traceSummary || traceMatrix || traceEstimates, observationPng);
   if (traceObservations) {
     const formats = new Set(spec.output.formats);
     if (spec.kind === "table") {

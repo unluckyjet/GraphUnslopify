@@ -148,10 +148,12 @@ export async function checkObservations(page: Page, evidence: string) {
   assert.equal(hash(readFileSync(fixture)), hash(rawSource));
   const intervals = await checkLineIntervals(page, watch, click);
   const summaryCharts = await checkSummaryChartIntervals(page, watch, click);
+  const rawLine = await checkRawLine(page, watch, click);
   const proof = {
     passed: true,
     intervals,
     summary_charts: summaryCharts,
+    raw_line: rawLine,
     workflows: [
       "opt-in trace with private graph download and exact generated Python",
       "same independently recomputed Iris cell via keyboard, desktop and narrow view",
@@ -163,6 +165,7 @@ export async function checkObservations(page: Page, evidence: string) {
       "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
       "bar bodies and forest center dots select their estimates independently of intervals by keyboard and PNG position",
       "a bar without intervals opens the estimate picker directly",
+      "an unaggregated line preserves quoted-record positions through temporal sorting and refuses coincident pixel selection",
     ],
     cell: { id: node.id, estimate: mean, contributing: expected.length, display_widths: sizes },
     sha256: { source: hash(rawSource), image: binding.image.sha256, graph: reference.sha256 },
@@ -337,7 +340,7 @@ async function checkLineIntervals(
         assert.equal(selected.node.value, null);
         assert.deepEqual(selected.inputs.items.map((item: { id: string }) => item.id), segment.endpoint_ids);
         assert.deepEqual(selected.contributing_records.items, bandRows);
-        await page.getByText(/The stroke connects two calculated estimates/).waitFor();
+        await page.getByText(/The stroke connects two plotted values/).waitFor();
       }
     }
   }
@@ -543,4 +546,84 @@ async function checkSummaryChartIntervals(
   assert.equal(selected.node.value, records.reduce((total, record) => total + record.score, 0));
   proved.push({ kind: "bar without intervals", estimate: { keys: selected.node.metadata.keys, value: selected.node.value, records: records.length } });
   return proved;
+}
+
+
+async function checkRawLine(
+  page: Page,
+  watch: (route: string) => Promise<Response>,
+  click: (id: string, route: string) => Promise<Response>,
+) {
+  const raw = Buffer.from(
+    'day,y,notes,selected\n2026-01-03,40,"two\nlines",yes\n2026-01-01,10,first,yes\n'
+    + "2026-01-02,20,one,yes\n2026-01-02,20,two,yes\n2026-01-04,99,no,no\n",
+  );
+  const [uploaded] = await Promise.all([
+    watch("/api/upload"),
+    page.locator("#data-file").setInputFiles({ name: "raw-observations.csv", mimeType: "text/csv", buffer: raw }),
+  ]);
+  assert.ok(uploaded.ok());
+  await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.startsWith("raw-observations.csv"));
+  await page.locator("#spec").fill(JSON.stringify({
+    kind: "line",
+    x: { field: "day", label: "Date", temporal: true },
+    y: { field: "y", label: "Response" },
+    marker: true,
+    filter: [{ field: "selected", op: "eq", value: "yes" }],
+    output: { stem: "raw-positions", formats: ["png"], dpi: 300, size: "double_column" },
+  }));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const result = await (await click("trace-observations", "/api/render")).json();
+  assert.ok(result.observations.available, JSON.stringify(result.observations));
+  assert.equal(result.observations.intervals, 0);
+  await page.locator("#observation-estimate-picker").waitFor();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"), page.locator("#observation-graph").click(),
+  ]);
+  const path = await download.path();
+  assert.ok(path);
+  const bytes = readFileSync(path);
+  const reference = result.report.observation_selection;
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), reference.sha256);
+  const graph = JSON.parse(bytes.toString());
+  assert.equal(graph.source.snapshot_sha256, createHash("sha256").update(raw).digest("hex"));
+  const root = graph.nodes.find((node: { id: string }) => node.id === reference.summary_estimate_geometry_node_id);
+  const query = "/api/observations/query";
+  const ordinals: number[] = [];
+  for (const number of [1, 2, 3, 4]) {
+    await page.locator("#observation-estimate-index").fill(String(number));
+    const found = (await (await click("observation-pick-estimate", query)).json()).selection;
+    assert.equal(found.node.operation, "line_observation");
+    assert.equal(found.node.id, root.metadata.estimates[number - 1].node_id);
+    assert.equal(found.contributing_records.items.length, 1);
+    ordinals.push(found.contributing_records.items[0]);
+  }
+  assert.equal(ordinals[0], 1);
+  assert.equal(ordinals[3], 0);
+  assert.deepEqual(ordinals.slice(1, 3).sort(), [2, 3]);
+  assert.deepEqual(root.metadata.estimates[1].center, root.metadata.estimates[2].center);
+  const image = page.locator("#preview");
+  await page.setViewportSize({ width: 390, height: 1000 });
+  const box = await image.boundingBox();
+  assert.ok(box);
+  for (const index of [1, 3]) {
+    const mark = root.metadata.estimates[index];
+    const position: { x: number; y: number } = {
+      x: mark.center[0] * box.width / result.observations.image.width,
+      y: mark.center[1] * box.height / result.observations.image.height,
+    };
+    const [response] = await Promise.all([watch(query), image.click({ position })]);
+    if (index === 1) {
+      assert.equal(response.status(), 400);
+      await page.getByText(/More than one observation estimate/).waitFor();
+    } else {
+      const found = (await response.json()).selection;
+      assert.equal(found.node.id, mark.node_id);
+      assert.deepEqual(found.contributing_records.items, [0]);
+    }
+  }
+  await page.setViewportSize({ width: 1500, height: 1000 });
+  const filtered = (await (await click("observation-filters", query)).json()).selection;
+  assert.deepEqual(filtered.excluded_records.items, [4]);
+  return { plotted_records: ordinals, excluded_record: 4, overlap_refused: true };
 }

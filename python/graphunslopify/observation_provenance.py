@@ -959,6 +959,55 @@ class _ObservationSelection:
             tagged[self._interval_column] = list(intervals)
         return tagged
 
+    def line_observation_frame(self, frame, *, x_field, field, group):
+        """Carry actual prepared row identities through the line's series selection."""
+        positions, panel, _ = self._prepared_frame(frame)
+        x_references = self._fields.get(x_field, self._rows)
+        y_references = self._fields.get(field, self._rows)
+        group_references = self._fields.get(group, self._rows)
+        identities = []
+        columns = [x_field, field] + ([group] if group is not None else [])
+        for position, (x, y, *series) in zip(
+            positions, frame[columns].itertuples(index=False, name=None), strict=True
+        ):
+            refs = tuple(
+                dict.fromkeys(
+                    (x_references[position], y_references[position], group_references[position])
+                )
+            )
+            available = self._number(y)[1] == "finite"
+            excluded = (
+                [self.ledger.exclude("unavailable_line_measurement", refs, stage="line_draw")]
+                if not available
+                else []
+            )
+            keys = {x_field: str(x)}
+            if series:
+                keys[group] = str(series[0])
+            identities.append(
+                self._measurement(
+                    "line_observation",
+                    refs if available else (),
+                    y,
+                    {"field": field, "keys": keys, "panel": panel, "prepared_position": position},
+                    excluded=excluded,
+                )
+            )
+        root = self.ledger.calculate(
+            "summary_panel",
+            identities,
+            value=len(identities),
+            metadata={
+                "panel": panel,
+                "field": field,
+                "x_field": x_field,
+                "group_field": group,
+                "aggregation": "none",
+            },
+        )
+        self._summary_roots[root] = None
+        return self.summary_geometry_frame(frame, (identities, ()))
+
     def bind_summary_bars(self, container, drawn):
         """Tag real bars only, keeping reindexed category slots empty."""
         for patch, identity in zip(container.patches, drawn[self._estimate_column], strict=True):
@@ -1474,6 +1523,43 @@ def _read_observation_selection(
     return path
 
 
+def _validate_line_panel(graph, panel, prepared_ids):
+    scope = panel["metadata"]
+    names = (scope["x_field"], scope["field"], scope["group_field"])
+    for identity in panel["inputs"]:
+        point = graph._nodes[identity]
+        metadata = point["metadata"]
+        index = metadata.get("prepared_position")
+        if (
+            point.get("operation") != "line_observation"
+            or type(index) is not int
+            or not 0 <= index < len(prepared_ids)
+            or metadata.get("field") != scope["field"]
+            or metadata.get("panel") != scope.get("panel")
+        ):
+            raise ValueError("Line observation does not match its prepared position")
+        row = prepared_ids[index]
+        prepared = graph._nodes[row]
+        changes = {}
+        if prepared.get("operation") == "prepared_observation":
+            row, *fields = prepared["inputs"]
+            changes = dict(zip(prepared["metadata"]["measurement_fields"], fields, strict=True))
+        refs = list(dict.fromkeys(changes.get(name, row) for name in names))
+        excluded = point["excluded"]
+        if metadata["value_status"] == "finite":
+            valid = point["inputs"] == refs and not excluded
+        else:
+            valid = not point["inputs"] and len(excluded) == 1
+            if valid:
+                omission = graph._nodes[excluded[0]]
+                valid = (
+                    omission.get("reason") == "unavailable_line_measurement"
+                    and omission["inputs"] == refs
+                )
+        if not valid:
+            raise ValueError("Line observation inputs do not match its prepared position")
+
+
 def _load_observation_selection(
     directory: Path,
     report: dict,
@@ -1539,6 +1625,11 @@ def _load_observation_selection(
             )
         ):
             raise ValueError(f"Observation {kind} root does not match the calculated panels")
+        if kind == "summary":
+            for identity in root["inputs"]:
+                panel = graph._nodes[identity]
+                if panel["metadata"].get("aggregation") == "none":
+                    _validate_line_panel(graph, panel, preparation["inputs"])
     geometry = None
     if "matrix_geometry_node_id" in selection:
         from .observation_geometry import validate_matrix_geometry

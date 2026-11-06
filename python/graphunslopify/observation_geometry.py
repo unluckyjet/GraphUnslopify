@@ -914,8 +914,12 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
 
 
 def _finite_estimate(node, role):
-    operation = "summary_smoothed_estimate" if role == "smoothed" else "summary_estimate"
-    return node.get("operation") == operation and finite_number(node.get("value"))
+    operations = (
+        ("summary_smoothed_estimate",)
+        if role == "smoothed"
+        else ("summary_estimate", "line_observation")
+    )
+    return node.get("operation") in operations and finite_number(node.get("value"))
 
 
 def _valid_line_span(mark, span, nodes, image):

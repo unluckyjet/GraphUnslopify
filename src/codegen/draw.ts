@@ -129,8 +129,13 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
   const preset = PRESETS[spec.style.preset];
   const band = spec.uncertainty?.display === "band";
 
+  const traceRows = traceEstimates && spec.aggregation === "none";
   out.push("", "def draw_panel(ax, df):",
-    traceIntervals || traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)");
+    (traceIntervals || traceEstimates) && !traceRows ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)");
+  if (traceRows) out.push(
+    "    if OBSERVATION_CAPTURE is not None:",
+    "        frame = OBSERVATION_CAPTURE.line_observation_frame(frame, x_field=X_FIELD, field=Y_FIELD, group=GROUP)",
+  );
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
 
   const plot = (indentLevel: string, source: string, styleExpr: string, label: string) => {

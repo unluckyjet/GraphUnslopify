@@ -663,9 +663,9 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
     || (spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty))
   );
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceSummary && spec.output.formats.includes("png")
-    && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked)
-      || spec.kind === "line");
+  const traceEstimates = traceObservations && spec.output.formats.includes("png") && (
+    spec.kind === "line" || (traceSummary && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked)))
+  );
   const observationPng = traceMatrix && spec.output.formats.includes("png")
     ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];
@@ -714,7 +714,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitLatex(spec, out);
   emitInteractive(spec, out);
   emitAnimation(spec, out);
-  emitMain(spec, out, traceObservations, traceSummary || traceMatrix, observationPng);
+  emitMain(spec, out, traceObservations, traceSummary || traceMatrix || traceEstimates, observationPng);
   if (traceObservations) {
     const formats = new Set<string>(spec.output.formats);
     if (spec.kind === "table") {

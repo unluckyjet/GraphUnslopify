@@ -131,7 +131,7 @@ observationExplorer = createObservationExplorer({
       const spec = readSpec();
       if (["heatmap", "confusion_matrix", "forest"].includes(spec.kind)) return true;
       if (spec.kind === "bar") return ["mean", "median", "sum", "count"].includes(spec.aggregation) && !spec.stacked;
-      return spec.kind === "line" && ["mean", "median"].includes(spec.aggregation);
+      return spec.kind === "line" && ["none", "mean", "median"].includes(spec.aggregation ?? "none");
     } catch { return false; }
   },
   trace: () => { clearTimeout(timer); void update(true, true); },

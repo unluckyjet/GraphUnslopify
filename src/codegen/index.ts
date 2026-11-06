@@ -295,9 +295,11 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
   );
 }
 
+type ObservationPng = "matrix" | "summary_interval" | "summary_band" | "summary_marks";
+
 function emitMain(
   spec: FigureSpec, out: string[], traceObservations: boolean, traceQuantities: boolean,
-  observationPng: "matrix" | "summary_interval" | "summary_band" | null,
+  observationPng: ObservationPng | null,
 ): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
@@ -589,7 +591,7 @@ function emitMain(
   emitSaveBlock(spec, out, observationPng);
 }
 
-function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: "matrix" | "summary_interval" | "summary_band" | null): void {
+function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: ObservationPng | null): void {
   out.push(
     "        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
@@ -606,6 +608,8 @@ function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: "matrix"
       '            if fmt == "png" and OBSERVATION_CAPTURE is not None:',
       `                observation_geometry = _observation_geometry.save_${observationPng}_png(`,
       "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
+      ...(observationPng === "summary_marks" && !("uncertainty" in spec && spec.uncertainty)
+        ? ["                    include_intervals=False,"] : []),
       "                )",
       "            else:",
       "                observation_geometry = None",
@@ -657,8 +661,10 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
     || (spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty))
   );
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
+  const traceEstimates = traceSummary && spec.output.formats.includes("png")
+    && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked));
   const observationPng = traceMatrix && spec.output.formats.includes("png")
-    ? "matrix" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
+    ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
@@ -676,7 +682,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
-  emitSummarise(spec, out, traceSummary, traceIntervals);
+  emitSummarise(spec, out, traceSummary, traceIntervals || traceEstimates);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
@@ -685,7 +691,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   if (spec.kind === "table") {
     emitTable(spec, out);
   } else {
-    emitDraw(spec, out, traceMatrix, traceIntervals);
+    emitDraw(spec, out, traceMatrix, traceIntervals, traceEstimates);
     emitLayers(spec, out);
     emitInset(spec, out);
     emitAxisBreak(spec, out);

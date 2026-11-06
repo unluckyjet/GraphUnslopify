@@ -85,10 +85,19 @@ def _bundle_spec(args: argparse.Namespace) -> int:
 
 
 def _explain_observation(args: argparse.Namespace) -> int:
-    from .observation_provenance import explain_saved_interval, explain_saved_matrix_cell
+    from .observation_provenance import (
+        explain_saved_estimate,
+        explain_saved_interval,
+        explain_saved_matrix_cell,
+    )
 
+    handlers = {
+        "explain-cell": explain_saved_matrix_cell,
+        "explain-interval": explain_saved_interval,
+        "explain-estimate": explain_saved_estimate,
+    }
     try:
-        explain = explain_saved_interval if args.interval else explain_saved_matrix_cell
+        explain = handlers[args.observation_command]
         result = explain(args.report, args.x, args.y, run_directory=args.run_dir)
     except (AttributeError, OSError, KeyError, TypeError, ValueError) as problem:
         print(str(problem), file=sys.stderr)
@@ -1186,6 +1195,7 @@ def build_parser() -> argparse.ArgumentParser:
     for name, target in (
         ("explain-cell", "a matrix cell"),
         ("explain-interval", "a summary interval"),
+        ("explain-estimate", "a summary estimate"),
     ):
         explain = commands.add_parser(name, help=f"inspect {target} in an observation-traced PNG")
         explain.add_argument(
@@ -1200,7 +1210,7 @@ def build_parser() -> argparse.ArgumentParser:
         explain.add_argument(
             "--run-dir", help="original render directory (default: beside the report)"
         )
-        explain.set_defaults(handler=_explain_observation, interval=name == "explain-interval")
+        explain.set_defaults(handler=_explain_observation, observation_command=name)
 
     demo = commands.add_parser("demo", help="generate and strictly verify public toy results")
     demo.add_argument("directory", nargs="?", default="graphunslopify-demo")

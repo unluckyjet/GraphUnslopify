@@ -20456,8 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "332517868f0ef3a1e9918cff8d1a933959516fec34fede6505d7a35c32e864b5";
-var OBSERVATION_GEOMETRY_SHA256 = "fc7f388aab979218fc9be99dd185acbb02f20feaaf2bb94360ae73fa19278703";
+var OBSERVATION_SOURCE_SHA256 = "945fe0430758447267946f9d6ebdd8ec5abd1d628a31da1081acef675526819f";
+var OBSERVATION_GEOMETRY_SHA256 = "08044116b008891238b8e51447bf24f54c2f14fab177d178773a791da272b464";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -20850,17 +20850,17 @@ function transformBody(spec, transform2, traceObservations) {
     ] : ["    df = df[df[GROUP] != BASELINE_SERIES]"]
   ];
 }
-function emitSummarise(spec, out, traceSummary, traceIntervals) {
+function emitSummarise(spec, out, traceSummary, traceGeometry) {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const uncertainty2 = "uncertainty" in spec ? spec.uncertainty : void 0;
   if (traceSummary) {
     const collapses = aggregation === "mean" || aggregation === "median";
     out.push(
       "",
-      traceIntervals ? "def summarise(frame, *, for_intervals=False):" : "def summarise(frame):",
+      traceGeometry ? "def summarise(frame, *, for_geometry=False):" : "def summarise(frame):",
       "    result, witness, unit_codes, unit_values, point_codes = _summarise_with_membership(frame)",
       "    if OBSERVATION_CAPTURE is not None:",
-      `        ${traceIntervals ? "interval_ids = " : ""}OBSERVATION_CAPTURE.record_summary(`,
+      `        ${traceGeometry ? "summary_ids = " : ""}OBSERVATION_CAPTURE.record_summary(`,
       "            frame, result, witness, unit_codes, unit_values, point_codes,",
       "            keys=[X_FIELD] + ([GROUP] if GROUP is not None else []), field=Y_FIELD,",
       `            aggregation=${pyStr(aggregation)}, unit_field=${uncertainty2?.over && collapses ? pyStr(uncertainty2.over) : "None"},`,
@@ -20872,9 +20872,9 @@ function emitSummarise(spec, out, traceSummary, traceIntervals) {
       ...spec.repeat ? ["            panel=REPEAT_FIELDS.index(Y_FIELD) if Y_FIELD in REPEAT_FIELDS else None,"] : [],
       ...spec.facet || spec.repeat ? [] : ["            panel=0,"],
       "        )",
-      ...traceIntervals ? [
-        "        if for_intervals:",
-        "            return OBSERVATION_CAPTURE.summary_interval_frame(result, interval_ids)"
+      ...traceGeometry ? [
+        "        if for_geometry:",
+        "            return OBSERVATION_CAPTURE.summary_geometry_frame(result, summary_ids)"
       ] : [],
       "    return result",
       "",
@@ -22856,7 +22856,7 @@ function emitLine(spec, out, traceIntervals) {
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)"
+    traceIntervals ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)"
   );
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
   const plot = (indentLevel, source, styleExpr, label) => {
@@ -23009,7 +23009,7 @@ function emitScatter(spec, out) {
   if (spec.frontier) out.push("    draw_frontier(ax, frame)");
   out.push("");
 }
-function emitBar(spec, out, traceIntervals) {
+function emitBar(spec, out, traceIntervals, traceEstimates) {
   const vertical = spec.orientation === "vertical";
   const plot = vertical ? "bar" : "barh";
   const tick = vertical ? "x" : "y";
@@ -23017,7 +23017,7 @@ function emitBar(spec, out, traceIntervals) {
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
+    traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)",
     ...needsMissingIntervalReport(spec) ? ["    note_missing_interval(frame)"] : [],
     "    categories = category_order(frame)",
     "    positions = np.arange(len(categories))"
@@ -23081,6 +23081,10 @@ function emitBar(spec, out, traceIntervals) {
       "        if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
       "            OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)"
     );
+    if (traceEstimates) out.push(
+      "        if OBSERVATION_CAPTURE is not None:",
+      "            OBSERVATION_CAPTURE.bind_summary_bars(_series_bars, block)"
+    );
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
@@ -23100,6 +23104,10 @@ function emitBar(spec, out, traceIntervals) {
     if (traceIntervals) out.push(
       "    if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
       "        OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)"
+    );
+    if (traceEstimates) out.push(
+      "    if OBSERVATION_CAPTURE is not None:",
+      "        OBSERVATION_CAPTURE.bind_summary_bars(_series_bars, block)"
     );
     if (spec.value_labels) out.push("    label_bars(ax, block[Y_FIELD], positions)");
   }
@@ -23404,12 +23412,12 @@ def record_density(profile):
           f"bandwidth={record['bandwidth']}, status={record['status']}; profiles are normalized to their own peak")
 `.trim().split("\n"), "");
 }
-function emitForest(spec, out, traceIntervals) {
+function emitForest(spec, out, traceIntervals, traceEstimates) {
   void spec;
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
+    traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)",
     "    note_missing_interval(frame)",
     "    categories = category_order(frame)",
     "    for index, name in enumerate(categories):",
@@ -23440,7 +23448,11 @@ function emitForest(spec, out, traceIntervals) {
       "                if OBSERVATION_CAPTURE is not None:",
       '                    OBSERVATION_CAPTURE.bind_summary_interval_line(_interval_cap, block, "cap")'
     ] : [],
-    '        ax.plot([centre], [row], marker="o", markersize=5, color=colour, zorder=3, linestyle="none")',
+    `        ${traceEstimates ? "_summary_dot, = " : ""}ax.plot([centre], [row], marker="o", markersize=5, color=colour, zorder=3, linestyle="none")`,
+    ...traceEstimates ? [
+      "        if OBSERVATION_CAPTURE is not None:",
+      "            OBSERVATION_CAPTURE.bind_summary_dot(_summary_dot, block)"
+    ] : [],
     "    ax.axvline(",
     "        NULL_VALUE,",
     '        color="#606060",',
@@ -24356,7 +24368,7 @@ function emitHeatmap(spec, out, traceMatrix) {
   );
   out.push("");
 }
-function emitDraw(spec, out, traceMatrix, traceIntervals) {
+function emitDraw(spec, out, traceMatrix, traceIntervals, traceEstimates) {
   emitSeriesHelpers(spec, out);
   if (hasCategoricalX(spec)) {
     emitCategories(spec, out);
@@ -24370,7 +24382,7 @@ function emitDraw(spec, out, traceMatrix, traceIntervals) {
       emitScatter(spec, out);
       break;
     case "bar":
-      emitBar(spec, out, traceIntervals);
+      emitBar(spec, out, traceIntervals, traceEstimates);
       break;
     case "box":
     case "violin":
@@ -24386,7 +24398,7 @@ function emitDraw(spec, out, traceMatrix, traceIntervals) {
       emitRidgeline(spec, out);
       break;
     case "forest":
-      emitForest(spec, out, traceIntervals);
+      emitForest(spec, out, traceIntervals, traceEstimates);
       break;
     case "paired_difference":
       emitPairedDifference(spec, out);
@@ -26599,6 +26611,7 @@ function emitSaveBlock(spec, out, observationPng) {
       '            if fmt == "png" and OBSERVATION_CAPTURE is not None:',
       `                observation_geometry = _observation_geometry.save_${observationPng}_png(`,
       "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
+      ...observationPng === "summary_marks" && !("uncertainty" in spec && spec.uncertainty) ? ["                    include_intervals=False,"] : [],
       "                )",
       "            else:",
       "                observation_geometry = None",
@@ -26643,7 +26656,8 @@ function emitPython(spec, traceObservations = false) {
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
+  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked);
+  const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };
@@ -26662,7 +26676,7 @@ function emitPython(spec, traceObservations = false) {
   emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
-  emitSummarise(spec, out, traceSummary, traceIntervals);
+  emitSummarise(spec, out, traceSummary, traceIntervals || traceEstimates);
   emitSmooth(spec, out);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
@@ -26671,7 +26685,7 @@ function emitPython(spec, traceObservations = false) {
   if (spec.kind === "table") {
     emitTable(spec, out);
   } else {
-    emitDraw(spec, out, traceMatrix, traceIntervals);
+    emitDraw(spec, out, traceMatrix, traceIntervals, traceEstimates);
     emitLayers(spec, out);
     emitInset(spec, out);
     emitAxisBreak(spec, out);

@@ -159,6 +159,8 @@ export async function checkObservations(page: Page, evidence: string) {
       "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
       "a filled band span links both computed endpoints and an endpoint click selects its actual interval",
       "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
+      "bar bodies and forest center dots select their estimates independently of intervals by keyboard and PNG position",
+      "a bar without intervals opens the estimate picker directly",
     ],
     cell: { id: node.id, estimate: mean, contributing: expected.length, display_widths: sizes },
     sha256: { source: hash(rawSource), image: binding.image.sha256, graph: reference.sha256 },
@@ -370,8 +372,67 @@ async function checkSummaryChartIntervals(
       const [response] = await Promise.all([watch(query), image.click({ position })]);
       assert.equal((await response.json()).selection?.node.id, selected.node.id);
     }
-    await page.setViewportSize({ width: 1500, height: 1000 });
-    proved.push({ kind: specification.kind, interval_count, picked: { category, method, bounds: selected.node.value, records: rows.length } });
+    assert.equal(result.observations.estimates, interval_count);
+    const estimateRoot = graph.nodes.find((entry: { id: string }) => entry.id === reference.summary_estimate_geometry_node_id);
+    assert.deepEqual(estimateRoot.metadata.image, root.metadata.image);
+    await page.locator("#observation-summary-mode").selectOption("estimate");
+    const estimate = (await (await click("observation-pick-estimate", query)).json()).selection;
+    assert.equal(estimate.node.id, estimateRoot.inputs[0]);
+    assert.equal(estimate.node.operation, "summary_estimate");
+    const estimateKeys = estimate.node.metadata.keys;
+    const contributing = source.toString().trim().split("\n").slice(1).flatMap((line, index) => {
+      const [name, family, score] = line.split(",");
+      return name === estimateKeys.category && (estimateKeys.method === undefined || family === estimateKeys.method)
+        ? [{ index, score: Number(score) }] : [];
+    });
+    assert.deepEqual(estimate.contributing_records.items, contributing.map(row => row.index));
+    assert.equal(estimate.node.value, contributing.reduce((total, row) => total + row.score, 0) / contributing.length);
+    const mark = estimateRoot.metadata.estimates[0];
+    assert.equal(mark.node_id, estimate.node.id);
+    assert.equal(mark.kind, specification.kind === "bar" ? "bar" : "dot");
+    const [x, y] = mark.kind === "dot" ? mark.center
+      : [(mark.bounds[0] + mark.bounds[2]) / 2, (mark.bounds[1] + mark.bounds[3]) / 2];
+    for (const width of [390, 1500]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const estimateBox = await image.boundingBox();
+      assert.ok(estimateBox);
+      const position = {
+        x: x * estimateBox.width / result.observations.image.width,
+        y: y * estimateBox.height / result.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      const picked = (await response.json()).selection;
+      assert.equal(picked?.node.id, estimate.node.id);
+      assert.notEqual(picked.node.id, selected.node.id);
+    }
+    proved.push({
+      kind: specification.kind, interval_count,
+      picked: { category, method, bounds: selected.node.value, records: rows.length },
+      estimate: { keys: estimateKeys, value: estimate.node.value, records: contributing.length },
+    });
   }
+  await page.locator("#spec").fill(JSON.stringify({
+    kind: "bar",
+    x: { field: "category", label: "Condition" },
+    y: { field: "score", label: "Total score" },
+    aggregation: "sum",
+    output: { stem: "totals", formats: ["png"], dpi: 300, size: "double_column" },
+  }));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const totals = await (await click("trace-observations", "/api/render")).json();
+  assert.equal(totals.report.status, "passed", JSON.stringify(totals.report.findings));
+  assert.equal(totals.observations.intervals, 0);
+  assert.equal(totals.observations.estimates, 3);
+  await page.locator("#observation-estimate-picker").waitFor();
+  assert.ok(await page.locator("#observation-summary-mode-label").isHidden());
+  const selected = (await (await click("observation-pick-estimate", "/api/observations/query")).json()).selection;
+  const category = selected.node.metadata.keys.category;
+  const records = source.toString().trim().split("\n").slice(1).flatMap((line, index) => {
+    const [name, , score] = line.split(",");
+    return name === category ? [{ index, score: Number(score) }] : [];
+  });
+  assert.deepEqual(selected.contributing_records.items, records.map(record => record.index));
+  assert.equal(selected.node.value, records.reduce((total, record) => total + record.score, 0));
+  proved.push({ kind: "bar without intervals", estimate: { keys: selected.node.metadata.keys, value: selected.node.value, records: records.length } });
   return proved;
 }

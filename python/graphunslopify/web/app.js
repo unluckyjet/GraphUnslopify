@@ -130,9 +130,9 @@ observationExplorer = createObservationExplorer({
     try {
       const spec = readSpec();
       if (["heatmap", "confusion_matrix", "forest"].includes(spec.kind)) return true;
-      if (!["mean", "median"].includes(spec.aggregation) || !spec.uncertainty) return false;
-      if (spec.kind === "line") return ["bar", "band"].includes(spec.uncertainty.display ?? "band");
-      return spec.kind === "bar" && !spec.stacked;
+      if (spec.kind === "bar") return ["mean", "median", "sum", "count"].includes(spec.aggregation) && !spec.stacked;
+      return spec.kind === "line" && ["mean", "median"].includes(spec.aggregation) && !!spec.uncertainty
+        && ["bar", "band"].includes(spec.uncertainty.display ?? "band");
     } catch { return false; }
   },
   trace: () => { clearTimeout(timer); void update(true, true); },

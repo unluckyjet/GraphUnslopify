@@ -425,16 +425,16 @@ function transformBody(
  * so the script needs numpy and nothing else, and it makes no assumption about
  * the shape of the distribution over seeds.
  */
-export function emitSummarise(spec: FigureSpec, out: string[], traceSummary: boolean, traceIntervals: boolean): void {
+export function emitSummarise(spec: FigureSpec, out: string[], traceSummary: boolean, traceGeometry: boolean): void {
   const aggregation = "aggregation" in spec ? spec.aggregation : "none";
   const uncertainty = "uncertainty" in spec ? spec.uncertainty : undefined;
 
   if (traceSummary) {
     const collapses = aggregation === "mean" || aggregation === "median";
-    out.push("", traceIntervals ? "def summarise(frame, *, for_intervals=False):" : "def summarise(frame):",
+    out.push("", traceGeometry ? "def summarise(frame, *, for_geometry=False):" : "def summarise(frame):",
       "    result, witness, unit_codes, unit_values, point_codes = _summarise_with_membership(frame)",
       "    if OBSERVATION_CAPTURE is not None:",
-      `        ${traceIntervals ? "interval_ids = " : ""}OBSERVATION_CAPTURE.record_summary(`,
+      `        ${traceGeometry ? "summary_ids = " : ""}OBSERVATION_CAPTURE.record_summary(`,
       "            frame, result, witness, unit_codes, unit_values, point_codes,",
       "            keys=[X_FIELD] + ([GROUP] if GROUP is not None else []), field=Y_FIELD,",
       `            aggregation=${pyStr(aggregation)}, unit_field=${uncertainty?.over && collapses ? pyStr(uncertainty.over) : "None"},`,
@@ -448,9 +448,9 @@ export function emitSummarise(spec: FigureSpec, out: string[], traceSummary: boo
       ...(spec.repeat ? ["            panel=REPEAT_FIELDS.index(Y_FIELD) if Y_FIELD in REPEAT_FIELDS else None,"] : []),
       ...(spec.facet || spec.repeat ? [] : ["            panel=0,"]),
       "        )",
-      ...(traceIntervals ? [
-        "        if for_intervals:",
-        "            return OBSERVATION_CAPTURE.summary_interval_frame(result, interval_ids)",
+      ...(traceGeometry ? [
+        "        if for_geometry:",
+        "            return OBSERVATION_CAPTURE.summary_geometry_frame(result, summary_ids)",
       ] : []),
       "    return result",
       "",

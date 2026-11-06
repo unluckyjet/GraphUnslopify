@@ -18,9 +18,10 @@ export function createObservationExplorer({api, token, client, current, supporte
   const $ = id => document.getElementById(id);
   const image = $("preview"), trigger = $("trace-observations"), panel = $("observation-explorer");
   const picker = $("observation-panel"), row = $("observation-row"), column = $("observation-column");
-  const intervalIndex = $("observation-interval-index");
+  const intervalIndex = $("observation-interval-index"), estimateIndex = $("observation-estimate-index");
+  const mode = $("observation-summary-mode");
   const note = $("observation-status"), details = $("observation-details"), code = $("observation-code");
-  const buttons = ["observation-pick", "observation-pick-interval", "observation-filters", "observation-preparation",
+  const buttons = ["observation-pick", "observation-pick-interval", "observation-pick-estimate", "observation-filters", "observation-preparation",
     "observation-graph", "observation-program"];
   let binding = null, active = false, version = 0, selection = null, history = [];
 
@@ -61,6 +62,8 @@ export function createObservationExplorer({api, token, client, current, supporte
     picker.replaceChildren();
     $("observation-cell-picker").hidden = true;
     $("observation-interval-picker").hidden = true;
+    $("observation-estimate-picker").hidden = true;
+    $("observation-summary-mode-label").hidden = true;
     hide();
   }
 
@@ -77,6 +80,15 @@ export function createObservationExplorer({api, token, client, current, supporte
     row.max = String(grid.rows);
     column.max = String(grid.columns);
     row.value = column.value = "1";
+  }
+
+  function updateSummaryPicker() {
+    const estimate = mode.value === "estimate";
+    $("observation-estimate-picker").hidden = !estimate;
+    $("observation-interval-picker").hidden = estimate;
+    note.textContent = estimate ? "Click a bar or dot, or enter its estimate number."
+      : binding.band ? "Click the band, or enter a calculated interval number."
+        : "Click a visible interval, or enter its number.";
   }
 
   function mount(result) {
@@ -97,16 +109,18 @@ export function createObservationExplorer({api, token, client, current, supporte
       height: packet.image.height,
       grids: packet.grids,
       intervals: packet.intervals,
+      estimates: packet.estimates,
       band: packet.band,
       filters: packet.filters,
       preparation: packet.preparation,
     };
-    if (binding.intervals) {
-      $("observation-interval-picker").hidden = false;
-      intervalIndex.value = "1";
+    if (binding.intervals || binding.estimates) {
+      intervalIndex.value = estimateIndex.value = "1";
       intervalIndex.max = String(binding.intervals);
-      note.textContent = binding.band ? "Click the band, or enter a calculated interval number."
-        : "Click a visible interval, or enter its number.";
+      estimateIndex.max = String(binding.estimates);
+      mode.value = binding.intervals ? "interval" : "estimate";
+      $("observation-summary-mode-label").hidden = !(binding.intervals && binding.estimates);
+      updateSummaryPicker();
     } else {
       $("observation-cell-picker").hidden = false;
       binding.grids.forEach((_, index) => picker.add(new Option("Panel " + (index + 1), String(index))));
@@ -152,7 +166,7 @@ export function createObservationExplorer({api, token, client, current, supporte
     const item = value.node, metadata = item.metadata || {};
     let title = readable(item.operation || item.reason || item.kind);
     if (item.operation === "matrix_cell") title += " · " + metadata.row_label + " × " + metadata.column_label;
-    if (item.operation === "summary_interval") {
+    if (["summary_estimate", "summary_interval"].includes(item.operation)) {
       const keys = Object.entries(metadata.keys || {}).map(([name, value]) => readable(name) + " " + value);
       if (keys.length) title += " · " + keys.join(", ");
     }
@@ -187,8 +201,9 @@ export function createObservationExplorer({api, token, client, current, supporte
       details.replaceChildren();
       if (!answer.selection) {
         selection = null;
-        note.textContent = binding.intervals ? "No visible interval occupies that position."
-          : "No matrix cell occupies that position.";
+        note.textContent = target.position_kind === "estimate" ? "No visible estimate occupies that position."
+          : binding.intervals ? "No visible interval occupies that position."
+            : "No matrix cell occupies that position.";
       } else {
         if (remember && previous) history.push({target: previous.target, offset: previous.offset});
         const value = answer.selection;
@@ -254,6 +269,17 @@ export function createObservationExplorer({api, token, client, current, supporte
   $("observation-pick-interval").onclick = () => {
     if (intervalIndex.checkValidity()) void select({interval_index: intervalIndex.valueAsNumber - 1});
   };
+  $("observation-pick-estimate").onclick = () => {
+    if (estimateIndex.checkValidity()) void select({estimate_index: estimateIndex.valueAsNumber - 1});
+  };
+  mode.onchange = () => {
+    version++;
+    selection = null;
+    history = [];
+    details.replaceChildren();
+    updateSummaryPicker();
+    refresh();
+  };
   $("observation-filters").onclick = () => void select({node_id: binding?.filters});
   $("observation-preparation").onclick = () => void select({node_id: binding?.preparation});
   $("observation-back").onclick = () => {
@@ -276,7 +302,8 @@ export function createObservationExplorer({api, token, client, current, supporte
     const xScale = binding.width / rect.width, yScale = binding.height / rect.height;
     const position = [(event.clientX - rect.left) * xScale, (event.clientY - rect.top) * yScale];
     const target = {position};
-    if (binding.intervals) target.tolerance = Math.min(64, 2 * Math.max(xScale, yScale));
+    if (binding.estimates && mode.value === "estimate") target.position_kind = "estimate";
+    if (binding.intervals || binding.estimates) target.tolerance = Math.min(64, 2 * Math.max(xScale, yScale));
     void select(target);
   });
   return {mount, clear, hide, refresh};

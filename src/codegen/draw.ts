@@ -130,7 +130,7 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
   const band = spec.uncertainty?.display === "band";
 
   out.push("", "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)");
+    traceIntervals ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)");
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
 
   const plot = (indentLevel: string, source: string, styleExpr: string, label: string) => {
@@ -290,7 +290,7 @@ function emitScatter(spec: FigureSpec & { kind: "scatter" }, out: string[]): voi
   out.push("");
 }
 
-function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceIntervals: boolean): void {
+function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceIntervals: boolean, traceEstimates: boolean): void {
   const vertical = spec.orientation === "vertical";
   const plot = vertical ? "bar" : "barh";
   const tick = vertical ? "x" : "y";
@@ -299,7 +299,7 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceInterva
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
+    traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)",
     ...(needsMissingIntervalReport(spec) ? ["    note_missing_interval(frame)"] : []),
     "    categories = category_order(frame)",
     "    positions = np.arange(len(categories))",
@@ -366,6 +366,10 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceInterva
       "        if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
       "            OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)",
     );
+    if (traceEstimates) out.push(
+      "        if OBSERVATION_CAPTURE is not None:",
+      "            OBSERVATION_CAPTURE.bind_summary_bars(_series_bars, block)",
+    );
     if (spec.value_labels) out.push("        label_bars(ax, block[Y_FIELD], positions + offset)");
   } else {
     out.push(
@@ -385,6 +389,10 @@ function emitBar(spec: FigureSpec & { kind: "bar" }, out: string[], traceInterva
     if (traceIntervals) out.push(
       "    if OBSERVATION_CAPTURE is not None and _series_bars.errorbar is not None:",
       "        OBSERVATION_CAPTURE.bind_summary_intervals(_series_bars.errorbar, block)",
+    );
+    if (traceEstimates) out.push(
+      "    if OBSERVATION_CAPTURE is not None:",
+      "        OBSERVATION_CAPTURE.bind_summary_bars(_series_bars, block)",
     );
     if (spec.value_labels) out.push("    label_bars(ax, block[Y_FIELD], positions)");
   }
@@ -709,7 +717,7 @@ def record_density(profile):
 `.trim().split("\n"), "");
 }
 
-function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[], traceIntervals: boolean): void {
+function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[], traceIntervals: boolean, traceEstimates: boolean): void {
   void spec;
   // One row per entry, the effect as a dot and its interval as the bar through
   // it, with a line at the value that means nothing happened. An ablation
@@ -717,7 +725,7 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[], traceI
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_intervals=True)" : "    frame = summarise(df)",
+    traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)",
     "    note_missing_interval(frame)",
     "    categories = category_order(frame)",
     "    for index, name in enumerate(categories):",
@@ -748,7 +756,11 @@ function emitForest(spec: FigureSpec & { kind: "forest" }, out: string[], traceI
       "                if OBSERVATION_CAPTURE is not None:",
       '                    OBSERVATION_CAPTURE.bind_summary_interval_line(_interval_cap, block, "cap")',
     ] : []),
-    '        ax.plot([centre], [row], marker="o", markersize=5, color=colour, zorder=3, linestyle="none")',
+    `        ${traceEstimates ? "_summary_dot, = " : ""}ax.plot([centre], [row], marker="o", markersize=5, color=colour, zorder=3, linestyle="none")`,
+    ...(traceEstimates ? [
+      "        if OBSERVATION_CAPTURE is not None:",
+      "            OBSERVATION_CAPTURE.bind_summary_dot(_summary_dot, block)",
+    ] : []),
     "    ax.axvline(",
     "        NULL_VALUE,",
     '        color="#606060",',
@@ -1699,7 +1711,7 @@ function emitHeatmap(
   out.push("");
 }
 
-export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean, traceIntervals: boolean): void {
+export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean, traceIntervals: boolean, traceEstimates: boolean): void {
   emitSeriesHelpers(spec, out);
   if (hasCategoricalX(spec)) {
     emitCategories(spec, out);
@@ -1714,7 +1726,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean,
       emitScatter(spec, out);
       break;
     case "bar":
-      emitBar(spec, out, traceIntervals);
+      emitBar(spec, out, traceIntervals, traceEstimates);
       break;
     case "box":
     case "violin":
@@ -1730,7 +1742,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean,
       emitRidgeline(spec, out);
       break;
     case "forest":
-      emitForest(spec, out, traceIntervals);
+      emitForest(spec, out, traceIntervals, traceEstimates);
       break;
     case "paired_difference":
       emitPairedDifference(spec, out);

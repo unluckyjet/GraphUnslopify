@@ -112,6 +112,16 @@
             <label>Column <input id="observation-column" type="number" min="1" step="1" required></label>
             <button id="observation-pick" class="quiet" type="button">Inspect cell</button>
           </div>
+          <label id="observation-summary-mode-label" hidden>Pick on figure
+            <select id="observation-summary-mode">
+              <option value="interval">Intervals</option>
+              <option value="estimate">Estimates</option>
+            </select>
+          </label>
+          <div id="observation-estimate-picker" class="observation-picker" hidden>
+            <label>Visible estimate <input id="observation-estimate-index" type="number" min="1" step="1" required></label>
+            <button id="observation-pick-estimate" class="quiet" type="button">Inspect estimate</button>
+          </div>
           <div id="observation-interval-picker" class="observation-picker" hidden>
             <label>Visible interval <input id="observation-interval-index" type="number" min="1" step="1" required></label>
             <button id="observation-pick-interval" class="quiet" type="button">Inspect interval</button>

@@ -1,4 +1,4 @@
-"""Capture matrix-cell geometry from the draw that writes the owned PNG."""
+"""Capture observation geometry from the draw that writes the owned PNG."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from pathlib import Path
 RUN_STAMP = "GraphUnslopifyObservationRun"
 MAX_PANELS = 512
 MAX_INTERVAL_STROKES = 12_000
+MAX_ESTIMATE_MARKS = 4_000
 
 
 def inspect_png(path, run_id):
@@ -199,29 +200,29 @@ def save_matrix_png(figure, path, *, metadata, dpi, run_id):
     return identity, grids, gaps
 
 
-def _visible_interval_artists(artist):
+def _visible_tagged_artists(artist, attribute):
     if not artist.get_visible():
         return
-    if hasattr(artist, "_graphunslopify_interval_ids"):
+    if hasattr(artist, attribute):
         alpha = artist.get_alpha()
         if not (isinstance(alpha, Real) and alpha == 0):
             yield artist
         return
     for child in artist.get_children():
-        yield from _visible_interval_artists(child)
+        yield from _visible_tagged_artists(child, attribute)
 
 
-def _interval_clip(artist):
+def _rectangular_clip(artist):
     if not artist.get_clip_on():
         return None
     if artist.get_clip_path() is not None:
-        raise ValueError("An interval has a nonrectangular clip")
+        raise ValueError("An observation mark has a nonrectangular clip")
     box = artist.get_clip_box()
     if box is None:
         return None
     clip = box.extents.tolist()
     if not all(map(finite_number, clip)):
-        raise ValueError("An interval has a nonfinite clip box")
+        raise ValueError("An observation mark has a nonfinite clip box")
     return clip
 
 
@@ -230,7 +231,7 @@ def _interval_strokes(artist, renderer):
     from matplotlib.lines import Line2D
 
     ids = artist._graphunslopify_interval_ids
-    clip = _interval_clip(artist)
+    clip = _rectangular_clip(artist)
     transform = artist.get_transform()
     if not transform.is_separable:
         raise ValueError("An interval has a nonseparable transform")
@@ -284,7 +285,7 @@ def _interval_strokes(artist, renderer):
 
 
 def _collect_intervals(figure, renderer, entries, gaps):
-    for artist in _visible_interval_artists(figure):
+    for artist in _visible_tagged_artists(figure, "_graphunslopify_interval_ids"):
         try:
             for stroke in _interval_strokes(artist, renderer):
                 if len(entries) >= MAX_INTERVAL_STROKES:
@@ -319,12 +320,20 @@ def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
         collect=_collect_intervals,
         label="summary interval",
     )
+    return (
+        identity,
+        _stroke_pixels(identity, snapshot, snapshot.get("entries", ()), gaps),
+        sorted(set(gaps)),
+    )
+
+
+def _stroke_pixels(image, snapshot, entries, gaps):
     if not snapshot:
-        return identity, [], gaps
-    width, height = identity["width"], identity["height"]
+        return []
+    width, height = image["width"], image["height"]
     origin_x, origin_y = snapshot["origin"]
     strokes = []
-    for node_id, points, radius, raw_clip, role in snapshot["entries"]:
+    for node_id, points, radius, raw_clip, role in entries:
         if not all(finite_number(value) for point in points for value in point):
             gaps.append("An error-bar stem has nonfinite endpoints")
             continue
@@ -355,7 +364,7 @@ def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
                 "role": role,
             }
         )
-    return identity, strokes, sorted(set(gaps))
+    return strokes
 
 
 def _band_strips(artist):
@@ -368,7 +377,7 @@ def _band_strips(artist):
     transform = artist.get_transform()
     if not transform.is_separable:
         raise ValueError("A band has a nonseparable transform")
-    clip = _interval_clip(artist)
+    clip = _rectangular_clip(artist)
     valid = np.flatnonzero(np.isfinite(x) & np.isfinite(low) & np.isfinite(high))
     runs = np.split(valid, np.flatnonzero(np.diff(valid) != 1) + 1) if len(valid) else []
     paths = artist.get_paths()
@@ -398,7 +407,7 @@ def _band_strips(artist):
 
 
 def _collect_bands(figure, _renderer, entries, gaps):
-    for artist in _visible_interval_artists(figure):
+    for artist in _visible_tagged_artists(figure, "_graphunslopify_interval_ids"):
         try:
             for strip in _band_strips(artist):
                 if len(entries) >= MAX_INTERVAL_STROKES:
@@ -435,6 +444,121 @@ def save_summary_band_png(figure, path, *, metadata, dpi, run_id):
             continue
         strips.append({"interval_ids": ids, "endpoints": pixels, "clip": bounds})
     return identity, strips, gaps
+
+
+def _estimate_shape(artist, renderer):
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Rectangle
+
+    transform = artist.get_transform()
+    if not transform.is_separable:
+        raise ValueError("A summary estimate has a nonseparable transform")
+    if isinstance(artist, Rectangle):
+        if artist.get_width() == 0 or artist.get_height() == 0 or artist.get_facecolor()[3] == 0:
+            return None
+        bounds = artist.get_window_extent(renderer).extents.tolist()
+        if not all(map(finite_number, bounds)):
+            return None
+        return "bar", bounds
+    if isinstance(artist, Line2D) and artist.get_marker() == "o":
+        points = artist.get_xydata()
+        if points.shape != (1, 2):
+            raise ValueError("A forest dot must have one calculated position")
+        x, y = transform.transform(points)[0].tolist()
+        if not (finite_number(x) and finite_number(y)):
+            return None
+        radius = renderer.points_to_pixels(
+            (artist.get_markersize() + artist.get_markeredgewidth()) / 2
+        )
+        if radius == 0:
+            return None
+        if not finite_number(radius) or not 0 < radius <= 128:
+            raise ValueError("A forest dot has an unsupported marker size")
+        return "dot", [x, y, float(radius)]
+    raise ValueError("Unsupported summary estimate artist")
+
+
+def _collect_estimates(figure, renderer, entries, gaps):
+    for artist in _visible_tagged_artists(figure, "_graphunslopify_estimate_id"):
+        try:
+            shape = _estimate_shape(artist, renderer)
+            if shape is None:
+                continue
+            if len(entries) >= MAX_ESTIMATE_MARKS:
+                gaps.append("Estimate geometry exceeds its mark capacity")
+                return
+            entries.append((artist._graphunslopify_estimate_id, _rectangular_clip(artist), shape))
+        except ValueError as problem:
+            gaps.append(str(problem))
+
+
+def _estimate_pixels(image, snapshot, entries):
+    width, height = image["width"], image["height"]
+    origin_x, origin_y = snapshot["origin"]
+    marks = []
+    for identity, raw_clip, (kind, points) in entries:
+        clip = _pixel_clip(raw_clip, snapshot["origin"], width, height)
+        left, top, right, bottom = clip
+        if left >= right or top >= bottom:
+            continue
+        if kind == "bar":
+            x0, y0, x1, y1 = points
+            bounds = [
+                max(left, x0 - origin_x),
+                max(top, height - y1 + origin_y),
+                min(right, x1 - origin_x),
+                min(bottom, height - y0 + origin_y),
+            ]
+            if bounds[0] < bounds[2] and bounds[1] < bounds[3]:
+                marks.append({"node_id": identity, "kind": kind, "bounds": bounds})
+        else:
+            x, y, radius = points
+            x, y = x - origin_x, height - y + origin_y
+            if (
+                x + radius > left
+                and x - radius < right
+                and y + radius > top
+                and y - radius < bottom
+            ):
+                marks.append(
+                    {
+                        "node_id": identity,
+                        "kind": kind,
+                        "center": [x, y],
+                        "radius": radius,
+                        "clip": clip,
+                    }
+                )
+    return marks
+
+
+def save_summary_marks_png(figure, path, *, metadata, dpi, run_id, include_intervals=True):
+    """Read estimate and interval artists during the same final PNG draw."""
+
+    def collect(figure, renderer, entries, _gaps):
+        strokes, stroke_gaps, marks, mark_gaps = [], [], [], []
+        if include_intervals:
+            _collect_intervals(figure, renderer, strokes, stroke_gaps)
+        _collect_estimates(figure, renderer, marks, mark_gaps)
+        entries.append((strokes, stroke_gaps, marks, mark_gaps))
+
+    image, snapshot, gaps = _save_observation_png(
+        figure,
+        path,
+        metadata=metadata,
+        dpi=dpi,
+        run_id=run_id,
+        collect=collect,
+        label="summary mark",
+    )
+    if not snapshot or gaps:
+        intervals = (image, [], gaps) if include_intervals else None
+        return intervals, (image, [], gaps)
+    ((strokes, stroke_gaps, marks, mark_gaps),) = snapshot["entries"]
+    strokes = _stroke_pixels(image, snapshot, strokes, stroke_gaps)
+    marks = _estimate_pixels(image, snapshot, marks)
+    intervals = (image, strokes, sorted(set(stroke_gaps))) if include_intervals else None
+    return intervals, (image, marks, sorted(set(mark_gaps)))
 
 
 def cell_index(edges, position):
@@ -674,4 +798,75 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
         matches.update(_pick_band(strip, x, y, tolerance))
     if len(matches) > 1:
         raise ValueError("More than one observation interval occupies that PNG position")
+    return next(iter(matches), None)
+
+
+def validate_summary_estimate_geometry(node, nodes):
+    if node.get("operation") != "summary_estimate_png_geometry":
+        raise ValueError("Unknown summary estimate PNG geometry root")
+    info = node["metadata"]
+    image, marks = info.get("image"), info.get("estimates")
+    if (
+        info.get("coordinates") != "pixels_top_left"
+        or not isinstance(image, dict)
+        or not all(
+            type(image.get(key)) is int and image[key] > 0 for key in ("width", "height", "bytes")
+        )
+        or not isinstance(marks, list)
+        or not 0 < len(marks) <= MAX_ESTIMATE_MARKS
+        or type(node["value"]) is not int
+        or len(marks) != node["value"]
+    ):
+        raise ValueError("Malformed summary estimate PNG geometry")
+    inputs = {}
+    for mark in marks:
+        if not isinstance(mark, dict) or not isinstance(mark.get("node_id"), str):
+            raise TypeError("An estimate mark has no calculation identity")
+        identity = mark["node_id"]
+        target = nodes.get(identity, {})
+        if target.get("operation") != "summary_estimate" or not finite_number(target.get("value")):
+            raise ValueError("Estimate geometry does not match a finite summary estimate")
+        if mark.get("kind") == "bar":
+            if not _valid_clip(mark.get("bounds"), image):
+                raise ValueError("An estimate bar has invalid PNG bounds")
+        elif mark.get("kind") == "dot":
+            radius = mark.get("radius")
+            if (
+                not _finite_points([mark.get("center")], 1)
+                or not finite_number(radius)
+                or not 0 < radius <= 128
+                or not _valid_clip(mark.get("clip"), image)
+            ):
+                raise ValueError("An estimate dot has invalid PNG geometry")
+        else:
+            raise ValueError("Unknown summary estimate mark")
+        inputs[identity] = None
+    if list(inputs) != node["inputs"]:
+        raise ValueError("Estimate marks do not match their calculation inputs")
+    return info
+
+
+def resolve_summary_estimate(info, x, y, *, tolerance=0):
+    """Pick a unique bar body or forest dot in natural PNG coordinates."""
+    if not finite_number(x) or not finite_number(y):
+        raise ValueError("Estimate PNG coordinates must be finite numbers")
+    if not finite_number(tolerance) or not 0 <= tolerance <= 64:
+        raise ValueError("Estimate PNG pick tolerance must be between 0 and 64 pixels")
+    matches = set()
+    for mark in info["estimates"]:
+        if mark["kind"] == "bar":
+            left, top, right, bottom = mark["bounds"]
+            hit = left <= x < right and top <= y < bottom
+        else:
+            left, top, right, bottom = mark["clip"]
+            cx, cy = mark["center"]
+            hit = (
+                left <= x < right
+                and top <= y < bottom
+                and math.hypot(x - cx, y - cy) <= mark["radius"] + tolerance
+            )
+        if hit:
+            matches.add(mark["node_id"])
+    if len(matches) > 1:
+        raise ValueError("More than one observation estimate occupies that PNG position")
     return next(iter(matches), None)

@@ -121,6 +121,13 @@ opens those calculations. Gaps in the actual band have no selectable span.
 Nonmonotone bands, estimates and the remaining renderer and quantity
 inventory remain part of the full scope.
 
+Nonstacked summary bars and forest center dots carry estimate IDs separately
+from their intervals. The editor can switch between the two on the same PNG
+and offers indexed selection for each. The local `explain-estimate` command
+checks the saved evidence before resolving the pixel. A singleton forest dot
+retains its estimate when no interval is available. Stacked contributions and
+the remaining quantity inventory remain part of the full scope.
+
 ## Measured references and current limits
 
 Before implementation,the actual public-penguin final PNG has two uncertainty

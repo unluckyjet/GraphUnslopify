@@ -35,8 +35,8 @@ it separate from standard exports and model-review requests.
 Use PNG output and mean or median aggregation. Line figures support error
 bars and filled uncertainty bands. Nonstacked bar and forest figures support
 interval selection on stems and caps. Choose **Trace observations** and click
-the figure. The numbered control selects a calculated interval. The explanation records the actual
-bounds, estimator, contributing records and calculation links. A bootstrap
+the figure. The numbered control selects a calculated interval. The explanation records
+the actual bounds, estimator, contributing records and calculation links. A bootstrap
 interval also records its statistic, draws, confidence level and seed.
 
 Within a filled band, a click at a measured x position opens its calculated
@@ -51,6 +51,21 @@ as `graphunslopify.observation_provenance.explain_saved_interval`. The
 lookup checks the program, report, graph and exact PNG. Unavailable
 intervals have no clickable stroke. Error-bar overlap can make a pixel
 ambiguous. Other mark types and unsupported band placements remain in spec98.
+
+## Inspect a bar or forest estimate
+
+With traced PNG output, click a nonstacked bar body or a forest dot to inspect
+the estimate, its estimator and the original contributing records. Bar bodies
+support mean, median, sum and count. If the figure also has visible intervals,
+use the **Estimates** picker to choose the estimate at an overlapping position.
+The numbered control selects the same estimates by keyboard. A singleton
+forest row can have a selectable dot even when its interval is unavailable.
+
+For a saved render, run `graphunslopify explain-estimate figure.report.json X Y`
+or call `graphunslopify.observation_provenance.explain_saved_estimate`. Coordinates
+refer to the final PNG. The estimate and interval maps share the same render
+identity and image hash. Overlapping marks with distinct estimates are refused.
+Stacked contributions and other mark types remain in spec98.
 
 ## Trace a generated render
 

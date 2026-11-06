@@ -4,7 +4,7 @@ import { describeFinding } from "/diagnostics.js";
 import { createDraftEditor } from "/drafts.js";
 import { createDiagnosticOverlays, findingIdentity } from "/diagnostic-overlays.js";
 import { createStagedPreview } from "/staged-preview.js";
-import { createWorkspaceCommands } from "/workspace-commands.js";
+import { chartEntries, createWorkspaceCommands, settingEntries } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
@@ -589,13 +589,14 @@ $("live").onchange = () => {
 };
 for (const id of ["kind", "x-field", "y-field", "group"])
   $(id).onchange = () => {
+    const value = $(id).value;
     try {
       if (!controls.flush()) {
         syncFields(readSpec());
         return;
       }
       const spec = readSpec();
-      if (id === "kind") spec.kind = $(id).value;
+      if (id === "kind") spec.kind = value;
       else if (id === "group") {
         if ($(id).value) spec.group = $(id).value;
         else delete spec.group;
@@ -780,7 +781,29 @@ reuseEditor = createIntentReuse({
   context: () => ({key:JSON.stringify([revision,data?.id,palette?.id,$("spec").value]),spec:readSpec(),payload:{client,generation:revision,data_id:data?.id,palette_id:palette?.id},columns:data?.columns.map(c=>c.name)||[],presets:reusePresets,canRead:!!data,editable:!!data,busy:false,reason:data?"":"Choose a dataset before saving or reusing a design."}),
   apply: spec => { changeControls(spec);clearTimeout(timer);update(true); },
 });
-createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+function editorPaletteEntries() {
+  let spec;
+  try { spec = readSpec(); } catch {}
+  const title = typeof spec?.title === "string" ? spec.title.trim() : "";
+  const stem = typeof spec?.output?.stem === "string" ? spec.output.stem : "";
+  return [
+    ...chartEntries(formSchema, "kind", (kind) => {
+      const control = $("kind");
+      if (control.value === kind) return;
+      control.value = kind;
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+    }, () => !!spec),
+    ...settingEntries($("settings"), {
+      group: "Figure settings", reveal: () => contextInspector.hide(),
+    }),
+    ...["x-field", "y-field", "group", "live", "include-data"].flatMap((id) => settingEntries($(id))),
+    ...(spec ? [{
+      id: "figure-current", category: "figure", label: title || stem || "Current figure",
+      keywords: "current preview " + stem, target: "figure-heading", focusOnly: true,
+    }] : []),
+  ];
+}
+createWorkspaceCommands({ trigger: $("workspace-command-open"), entries: editorPaletteEntries, commands: [
   { id: "render", label: "Render and check figure", target: "render", shortcut: "Enter", typingWithin: "#spec", enabled: () => !!data, keywords: "verify preview scientific checks", unavailable: "Choose a dataset first." },
   { id: "undo", label: "Undo figure control change", target: "undo-controls", shortcut: "z", unavailable: "No figure control change to undo. Text fields keep their own undo." },
   { id: "text", label: "Edit visible figure text", target: "edit-figure-text", unavailable: "Finish the current figure check before editing its visible text." },

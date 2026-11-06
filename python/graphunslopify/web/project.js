@@ -3,7 +3,7 @@ import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
 import { createSelectionReview } from "/project-selection.js";
-import { createWorkspaceCommands } from "/workspace-commands.js";
+import { chartEntries, createWorkspaceCommands, settingEntries } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
 import { createContextInspector } from "/context-inspector.js";
@@ -142,16 +142,17 @@ function syncDefinition() {
   } catch (problem) { controls.disable(problem.message); }
   lockControls();
 }
+function changeDefinitionControls(value) {
+  undo.push($("definition").value);
+  if (undo.length > 20) undo.shift();
+  $("definition").value = pretty(value);
+  draft("source"); syncDefinition();
+}
 const controls = createControls($("figure-controls"), {
   read: () => object($("definition").value, "Definition"),
   edit: () => draft("source"),
   error: controlError,
-  change: (value) => {
-    undo.push($("definition").value);
-    if (undo.length > 20) undo.shift();
-    $("definition").value = pretty(value);
-    draft("source"); syncDefinition();
-  },
+  change: changeDefinitionControls,
 });
 function inspectorCurrent() {
   if (!state?.revision || state.error || dirty() || running || saving || loadingFigure || refreshFailure ||
@@ -625,7 +626,29 @@ function runAudit(selective = false) { return action(async () => {
 }); }
 $("audit").onclick = runAudit();
 $("regenerate").onclick = runAudit(true);
-createWorkspaceCommands({ trigger: $("workspace-command-open"), commands: [
+function paperFigureEntries() {
+  return [...$("figure-list").querySelectorAll("button[data-review-key]")].map((button) => ({
+    id: "figure-" + encodeURIComponent(button.dataset.reviewKey), category: "figure",
+    label: button.querySelector("strong").textContent, keywords: button.dataset.reviewKey,
+    context: button.dataset.pdf ? "PDF visual review" : "Paper definition",
+    target: button,
+    enabled: () => !saving && !sharedReview?.applying() && !selectionReview?.applying(),
+    unavailable: "Finish the current save before opening another figure.",
+  }));
+}
+createWorkspaceCommands({ trigger: $("workspace-command-open"), entries: () => [
+  ...chartEntries(info?.schema, "definition", action((kind) => {
+    if (!controls.flush()) return;
+    const spec = object($("definition").value, "Definition");
+    if (spec.kind !== kind) changeDefinitionControls({ ...spec, kind });
+  }), () => !!record?.editable && !loadingFigure && !$("figure-controls").disabled),
+  ...settingEntries($("figure-controls"), {
+    group: "Figure definition", reveal: () => { if (!$("element-inspector").hidden) elementInspector.hide(); },
+  }),
+  ...settingEntries($("shared-controls"), { group: "Shared paper settings" }),
+  ...settingEntries($("selection-settings"), { group: "Selected figures" }),
+  ...paperFigureEntries(),
+], commands: [
   { id: "template", label: "Open a figure template", target: "reuse-file", keywords: "reuse import canonical design", unavailable: "Choose an editable JSON definition and finish other operations." },
   { id: "preset", label: "Choose an export preset", target: "reuse-preset", focusOnly: true, keywords: "publication print PNG SVG PDF", unavailable: "Choose an editable JSON definition and finish other operations." },
   { id: "selection", label: "Review selected figure changes", target: "selection-review", keywords: "batch presentation style width DPI", unavailable: "Choose figures and presentation settings, and finish other drafts first." },

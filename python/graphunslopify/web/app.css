@@ -593,7 +593,7 @@ kbd { font:inherit; font-size:11px; white-space:nowrap; border:1px solid var(--l
 .workspace-commands input { width:100%; min-height:42px; margin-bottom:12px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:white; color:var(--ink); font:inherit; }
 #workspace-command-results { max-height:52vh; overflow:auto; overscroll-behavior:contain; }
 .command-option { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid transparent; border-radius:8px; cursor:pointer; }
-.command-option strong { display:block; }
+.command-option strong { display:block; overflow-wrap:anywhere; }
 .command-option small { display:block; margin-top:4px; color:var(--muted); }
 .command-option[aria-disabled="true"] strong { color:var(--muted); }
 .command-option[aria-selected="true"] { border-color:#91bfd0; background:#edf6fa; }

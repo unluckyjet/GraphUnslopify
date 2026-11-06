@@ -655,6 +655,11 @@ class PreviewHandler(BaseHTTPRequestHandler):
             status,
         )
 
+    def send_template_gallery(self):
+        from .figure_templates import template_gallery
+
+        self.json(template_gallery())
+
     def allowed(self, *, token: bool = True) -> bool:
         port = self.server.server_address[1]
         hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
@@ -770,6 +775,9 @@ class PreviewHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/model-provider":
             self.json(self.server.state.drafts.info())
+            return
+        if route == "/api/reuse/gallery":
+            self.send_template_gallery()
             return
         if route == "/api/info":
             from .diagnostics import catalog

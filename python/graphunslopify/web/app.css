@@ -6,6 +6,11 @@
 #reuse-tools .reuse-check input { width:auto; flex:none; margin-top:3px; }
 .reuse-changes { max-height:320px; overflow:auto; }
 .reuse-changes code { white-space:pre-wrap; overflow-wrap:anywhere; }
+.template-gallery { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap:12px; }
+.template-gallery article { min-width:0; padding:12px; border:1px solid var(--line); border-radius:8px; }
+.template-gallery img { display:block; width:100%; height:160px; object-fit:contain; background:white; border-radius:4px; }
+.template-gallery h3 { margin:10px 0 4px; }
+.template-gallery p { margin:0 0 6px; }
 #reuse-tools button { margin:5px 0; }
 :root {
   color-scheme: light;

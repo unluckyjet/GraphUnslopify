@@ -2,6 +2,12 @@
 export function createIntentReuse({mount,context,api,flush=()=>{},apply,onState=()=>{}}) {
   mount.innerHTML = `<details id="reuse-panel"><summary>Templates &amp; export presets</summary>
     <p class="muted">Save a design as a local file, or reuse one with this dataset. Review field mappings, calculations and authored text before applying. Checks run again.</p>
+    <details id="reuse-gallery"><summary>Browse figure templates</summary>
+      <p class="muted">Previews use synthetic examples. Choose a starting design and map it to your own columns.</p>
+      <label>Use case<select id="reuse-gallery-filter" disabled><option value="">All use cases</option></select></label>
+      <p id="reuse-gallery-status" class="muted" role="status"></p>
+      <div id="reuse-gallery-cards" class="template-gallery"></div>
+    </details>
     <label>Template name<input id="reuse-name" type="text" maxlength="100" value="My figure design"></label>
     <button id="reuse-save" class="secondary">Save template file</button>
     <label>Open template file<input id="reuse-file" type="file" accept=".json,application/json"></label>
@@ -19,6 +25,7 @@ export function createIntentReuse({mount,context,api,flush=()=>{},apply,onState=
     </div><button id="reuse-cancel" class="quiet">Close or cancel review</button></details>`;
   const $=id=>mount.querySelector("#reuse-"+id),pretty=value=>value===undefined?"(absent)":JSON.stringify(value);
   let template=null,plan=null,busy=false,epoch=0,key="",fields=[],mapping=Object.create(null),presetKey="",allowedPaths=null,proposalGuard=null;
+  let gallery=null, loadingGallery=false;
   const current=()=>{try{return context();}catch{return {key:"invalid",busy:true,reason:"Correct the current JSON before reusing intent.",columns:[],presets:[]};}};
   const say=text=>{$("status").textContent=text;};
   function reset(message="",notify=true){epoch++;plan=null;busy=false;proposalGuard=null;$("review").hidden=true;$("reviewed").checked=false;if(message)say(message);buttons();if(notify)onState();}
@@ -32,6 +39,9 @@ export function createIntentReuse({mount,context,api,flush=()=>{},apply,onState=
     $("preset-review").disabled=blocked||!ctx.editable||!$("preset").value;
     $("apply").disabled=blocked||!ctx.editable||!plan?.can_apply||!$("reviewed").checked;
     for(const select of $("mapping").querySelectorAll("select"))select.disabled=blocked||!ctx.editable;
+    for (const button of $("gallery-cards").querySelectorAll("button")) {
+      button.disabled = blocked || !ctx.editable;
+    }
     const narrow=!!allowedPaths;
     $("mapping").hidden=narrow;
     $("claims").closest("label").hidden=narrow;
@@ -39,6 +49,67 @@ export function createIntentReuse({mount,context,api,flush=()=>{},apply,onState=
     $("preset").closest("label").hidden=narrow;
     $("preset-description").hidden=narrow;$("preset-review").hidden=narrow;
   }
+  async function chooseStarter(entry) {
+    const ctx = current();
+    if (busy || ctx.busy || !ctx.editable) return;
+    allowedPaths = null;
+    template = entry.template;
+    fields = [];
+    mapping = Object.create(null);
+    $("file").value = "";
+    $("claims").checked = false;
+    $("loaded").textContent = "Gallery design · " + entry.template.name;
+    $("gallery").open = false;
+    showMapping();
+    await request("template");
+    if (!$("gallery").open && template === entry.template && !$("panel").hidden && $("panel").open) {
+      ($("mapping").querySelector("select") || $("template-review")).focus();
+    }
+  }
+  function showGallery() {
+    const cards = $("gallery-cards");
+    cards.replaceChildren();
+    const filter = $("gallery-filter").value;
+    for (const entry of gallery) {
+      if (filter && entry.use_case !== filter) continue;
+      const card = document.createElement("article");
+      const image = document.createElement("img");
+      image.alt = entry.preview_alt;
+      image.src = entry.preview;
+      image.loading = "lazy";
+      const title = document.createElement("h3");
+      title.textContent = entry.template.name;
+      const description = document.createElement("p");
+      description.textContent = entry.use_case + " · " + entry.description;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "secondary";
+      button.textContent = "Choose " + entry.template.name;
+      button.onclick = () => chooseStarter(entry);
+      card.append(image, title, description, button);
+      cards.append(card);
+    }
+    $("gallery-status").textContent = cards.children.length + (cards.children.length === 1 ? " design" : " designs");
+    buttons();
+  }
+  $("gallery-filter").onchange = showGallery;
+  $("gallery").ontoggle = async () => {
+    if (!$("gallery").open || gallery || loadingGallery) return;
+    loadingGallery = true;
+    $("gallery-status").textContent = "Loading designs…";
+    try {
+      gallery = await api("/api/reuse/gallery");
+      const useCases = [...new Set(gallery.map(entry => entry.use_case))];
+      $("gallery-filter").append(...useCases.map(useCase => new Option(useCase, useCase)));
+      $("gallery-filter").disabled = false;
+      showGallery();
+    } catch {
+      gallery = null;
+      $("gallery-status").textContent = "Could not load designs. Close and reopen the gallery to try again.";
+    } finally {
+      loadingGallery = false;
+    }
+  };
   function showMapping(){
     const columns=current().columns||[];$("mapping").replaceChildren();
     for(const field of fields){

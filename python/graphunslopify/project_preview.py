@@ -601,6 +601,8 @@ class ProjectHandler(PreviewHandler):
             value = lambda key: query.get(key, [""])[0]
             if route == "/api/state":
                 self.json(state.snapshot())
+            elif route == "/api/reuse/gallery":
+                self.send_template_gallery()
             elif route == "/api/info":
                 from .diagnostics import catalog
                 from .figure_templates import presets

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import copy
 import json
+from base64 import b64encode
+from importlib.resources import files
 
 from .errors import SpecError
 from .project_changes import _differences
@@ -53,6 +55,15 @@ class TemplateError(ValueError):
 
 def presets():
     return copy.deepcopy(PRESETS)
+
+
+def template_gallery():
+    web = files("graphunslopify").joinpath("web")
+    entries = json.loads(web.joinpath("template-gallery.json").read_text(encoding="utf8"))
+    for entry in entries:
+        preview = web.joinpath(f"template-{entry['id']}.png").read_bytes()
+        entry["preview"] = "data:image/png;base64," + b64encode(preview).decode("ascii")
+    return entries
 
 
 def _check(spec, validator):

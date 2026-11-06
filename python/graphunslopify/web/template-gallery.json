@@ -1,0 +1,279 @@
+[
+  {
+    "id": "trend",
+    "use_case": "Change over time",
+    "description": "Compare methods over ordered steps. Repeated measurements at a step use their mean.",
+    "preview_alt": "Line chart showing test accuracy rising over training for four models.",
+    "template": {
+      "kind": "graphunslopify.figure-template",
+      "schema_version": 1,
+      "name": "Training curves",
+      "intent": {
+        "title": "Training curves",
+        "group": "model",
+        "legend": {
+          "show": true,
+          "position": "outside_right",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "x": {
+          "field": "epoch",
+          "label": "Step",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "accuracy",
+          "label": "Outcome",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "line",
+        "marker": false,
+        "sort_x": true,
+        "aggregation": "mean"
+      }
+    }
+  },
+  {
+    "id": "comparison",
+    "use_case": "Compare categories",
+    "description": "Use horizontal labels for long category names. Each bar shows the category mean.",
+    "preview_alt": "Horizontal bars comparing the mean inference latency of four models.",
+    "template": {
+      "kind": "graphunslopify.figure-template",
+      "schema_version": 1,
+      "name": "Horizontal category comparison",
+      "intent": {
+        "title": "Horizontal category comparison",
+        "legend": {
+          "show": false,
+          "position": "best",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "x": {
+          "field": "model",
+          "label": "Category",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "latency_ms",
+          "label": "Outcome",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "bar",
+        "orientation": "horizontal",
+        "aggregation": "mean",
+        "baseline_zero": true,
+        "stacked": false,
+        "value_labels": false
+      }
+    }
+  },
+  {
+    "id": "relationship",
+    "use_case": "Explore a relationship",
+    "description": "Compare two measurements per observation and mark the groups. Individual points are retained.",
+    "preview_alt": "Scatter plot comparing test accuracy and inference latency, marked by model.",
+    "template": {
+      "kind": "graphunslopify.figure-template",
+      "schema_version": 1,
+      "name": "Grouped scatter",
+      "intent": {
+        "title": "Grouped scatter",
+        "group": "model",
+        "legend": {
+          "show": true,
+          "position": "outside_bottom",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "x": {
+          "field": "latency_ms",
+          "label": "First measurement",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "accuracy",
+          "label": "Second measurement",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "scatter",
+        "trendline": "none"
+      }
+    }
+  },
+  {
+    "id": "distribution",
+    "use_case": "Inspect distributions",
+    "description": "Compare medians, spread and outliers across groups. Individual points are summarized in boxes.",
+    "preview_alt": "Box plots showing the distribution of test accuracy across epochs for each model.",
+    "template": {
+      "kind": "graphunslopify.figure-template",
+      "schema_version": 1,
+      "name": "Box distributions",
+      "intent": {
+        "title": "Box distributions",
+        "legend": {
+          "show": false,
+          "position": "best",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "x": {
+          "field": "model",
+          "label": "Group",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "accuracy",
+          "label": "Outcome",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "kind": "box",
+        "show_points": false,
+        "notch": false,
+        "sort": {
+          "by": "value",
+          "direction": "desc"
+        }
+      }
+    }
+  },
+  {
+    "id": "parameter-grid",
+    "use_case": "Compare a parameter grid",
+    "description": "Compare a measured response across two settings. Each populated cell shows its mean.",
+    "preview_alt": "Annotated heatmap showing validation accuracy for learning rates and batch sizes.",
+    "template": {
+      "kind": "graphunslopify.figure-template",
+      "schema_version": 1,
+      "name": "Parameter sweep heatmap",
+      "intent": {
+        "title": "Parameter sweep heatmap",
+        "legend": {
+          "show": true,
+          "position": "best",
+          "style": "box"
+        },
+        "output": {
+          "interactive": false,
+          "latex": false,
+          "size": "single_column",
+          "formats": [
+            "png",
+            "svg",
+            "pdf"
+          ],
+          "dpi": 600
+        },
+        "style": {
+          "preset": "paper",
+          "grid": false,
+          "despine": true,
+          "venue": "none"
+        },
+        "kind": "heatmap",
+        "x": {
+          "field": "learning_rate",
+          "label": "First setting",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "y": {
+          "field": "batch_size",
+          "label": "Second setting",
+          "scale": "linear",
+          "percent": false,
+          "temporal": false
+        },
+        "value": "accuracy",
+        "value_label": "Response",
+        "aggregation": "mean",
+        "annotate_cells": true,
+        "diverging": false
+      }
+    }
+  }
+]

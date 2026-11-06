@@ -755,6 +755,6 @@ workspace's existing draft, review and export controls.
 
 Current source supports [reviewed presentation edits across selected figures](docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.
 
-Both local workspaces also offer [portable figure templates and export presets](docs/workspace/intent-reuse.md). Save a design as a file, map its fields onto another dataset, review the changes, and apply it with undo. Presets prepare single-column or double-column PNG/SVG/PDF figures, or a smaller PNG for review. Current data, palette and output names stay bound to the editor; checks run again.
+Both local workspaces offer a [figure template gallery and export presets](docs/workspace/intent-reuse.md). Browse synthetic previews by use case, or save your own design as a file. Map the fields onto your dataset, review the proposed changes, and apply with undo. Presets prepare single-column or double-column PNG/SVG/PDF figures, or a smaller PNG for review. The editor keeps your data, palette and output name, and checks run again.
 
 The [completed public-workflow comparison](benchmarks/workspace/results/formal-v1/README.md) retains all436 planned observations and original outputs. Both pipelines match the selected scientific/integrity controls; GraphUnslopify fails the frozen physical-width tasks, so no verified-speed advantage is established. The [78–89 delivery audit](docs/workspace/workspace-delivery-audit.md) maps implemented features, measured results and remaining limitations.

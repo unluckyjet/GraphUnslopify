@@ -158,6 +158,7 @@ export async function checkObservations(page: Page, evidence: string) {
       "scoped exclusions with paging and no late browser response after edit",
       "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
       "a filled band span links both computed endpoints and an endpoint click selects its actual interval",
+      "the same public PNG offers calculated line vertices and stroke connections independently of the uncertainty band",
       "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
       "bar bodies and forest center dots select their estimates independently of intervals by keyboard and PNG position",
       "a bar without intervals opens the estimate picker directly",
@@ -293,10 +294,56 @@ async function checkLineIntervals(
       }
     }
   }
-  await page.setViewportSize({ width: 1500, height: 1000 });
+  const curve = bandGraph.nodes.find((node: { id: string }) => node.id === bandRef.summary_estimate_geometry_node_id);
+  assert.deepEqual(curve.metadata.image, bandRoot.metadata.image);
+  assert.equal(band.observations.estimates, 5);
+  const [vertex] = curve.metadata.estimates;
+  const segment = curve.metadata.estimates.find((mark: { kind: string }) => mark.kind === "segment");
+  assert.equal(vertex.kind, "dot");
+  assert.equal(vertex.node_id, segment.endpoint_ids[0]);
+  const firstYear = bandGraph.nodes.find((node: { id: string }) => node.id === vertex.node_id).metadata.keys.year;
+  assert.equal(firstYear, "2007");
+  const masses = raw.toString().trim().split(/\r?\n/).slice(1).flatMap((line, index) => {
+    const fields = line.split(",");
+    return fields[0] === "Adelie" && fields[6] === "male" && fields[7] === firstYear
+      ? [{ index, grams: Number(fields[5]) }] : [];
+  });
+  const mean = masses.reduce((total, row) => total + row.grams, 0) / masses.length;
+  await page.locator("#observation-summary-mode").selectOption("estimate");
+  const estimate = (await (await click("observation-pick-estimate", query)).json()).selection;
+  assert.equal(estimate.node.id, vertex.node_id);
+  assert.equal(estimate.node.value, mean);
+  assert.deepEqual(estimate.contributing_records.items, masses.map(row => row.index));
+  const segmentPoint: [number, number] = [
+    (segment.endpoints[0][0] + segment.endpoints[1][0]) / 2,
+    (segment.endpoints[0][1] + segment.endpoints[1][1]) / 2,
+  ];
+  for (const width of [390, 1500]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const box = await image.boundingBox();
+    assert.ok(box);
+    const targets: [[number, number], string][] = [[vertex.center, vertex.node_id], [segmentPoint, segment.node_id]];
+    for (const [point, identity] of targets) {
+      const position: { x: number; y: number } = {
+        x: point[0] * box.width / band.observations.image.width,
+        y: point[1] * box.height / band.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      const selected = (await response.json()).selection;
+      assert.equal(selected.node.id, identity);
+      if (identity === segment.node_id) {
+        assert.equal(selected.node.operation, "summary_line_span");
+        assert.equal(selected.node.value, null);
+        assert.deepEqual(selected.inputs.items.map((item: { id: string }) => item.id), segment.endpoint_ids);
+        assert.deepEqual(selected.contributing_records.items, bandRows);
+        await page.getByText(/The stroke connects two calculated estimates/).waitFor();
+      }
+    }
+  }
   assert.equal(digest(readFileSync(fixture)), digest(raw));
   return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths,
-    band: { endpoint_years: bandYears, contributors: bandRows.length, linked_calculations: 2 } };
+    band: { endpoint_years: bandYears, contributors: bandRows.length, linked_calculations: 2 },
+    estimate: { year: firstYear, mean, contributors: masses.length, connection_contributors: bandRows.length } };
 }
 
 async function checkSummaryChartIntervals(

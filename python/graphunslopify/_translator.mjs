@@ -20456,8 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "945fe0430758447267946f9d6ebdd8ec5abd1d628a31da1081acef675526819f";
-var OBSERVATION_GEOMETRY_SHA256 = "08044116b008891238b8e51447bf24f54c2f14fab177d178773a791da272b464";
+var OBSERVATION_SOURCE_SHA256 = "211fac1b49e8f881c4e0c4d61cd5f31e3f28266e534ee639a06190e007a9c497";
+var OBSERVATION_GEOMETRY_SHA256 = "bd0dc56163e4a7962574a548d948ef33338ed02c45c46c6fd11288bd54d46f23";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -22850,13 +22850,13 @@ function emitCategories(spec, out) {
   }
   out.push("");
 }
-function emitLine(spec, out, traceIntervals) {
+function emitLine(spec, out, traceIntervals, traceEstimates) {
   const preset = PRESETS[spec.style.preset];
   const band = spec.uncertainty?.display === "band";
   out.push(
     "",
     "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)"
+    traceIntervals || traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)"
   );
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
   const plot = (indentLevel, source, styleExpr, label) => {
@@ -22888,6 +22888,10 @@ function emitLine(spec, out, traceIntervals) {
     lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
     lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
+    if (traceEstimates) lines.push(
+      `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
+      `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`
+    );
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
       `${indentLevel}_annotation_curve._graphunslopify_annotation_series = ${spec.group ? "name" : "None"}`
@@ -24376,7 +24380,7 @@ function emitDraw(spec, out, traceMatrix, traceIntervals, traceEstimates) {
   if (spec.kind === "ridgeline") emitDensityHelper(out);
   switch (spec.kind) {
     case "line":
-      emitLine(spec, out, traceIntervals);
+      emitLine(spec, out, traceIntervals, traceEstimates);
       break;
     case "scatter":
       emitScatter(spec, out);
@@ -26611,7 +26615,8 @@ function emitSaveBlock(spec, out, observationPng) {
       '            if fmt == "png" and OBSERVATION_CAPTURE is not None:',
       `                observation_geometry = _observation_geometry.save_${observationPng}_png(`,
       "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
-      ...observationPng === "summary_marks" && !("uncertainty" in spec && spec.uncertainty) ? ["                    include_intervals=False,"] : [],
+      ...observationPng === "summary_marks" && !("uncertainty" in spec && spec.uncertainty) ? ["                    interval_kind=None,"] : [],
+      ...observationPng === "summary_marks" && spec.kind === "line" && spec.uncertainty?.display === "band" ? ['                    interval_kind="bands",'] : [],
       "                )",
       "            else:",
       "                observation_geometry = None",
@@ -26656,7 +26661,7 @@ function emitPython(spec, traceObservations = false) {
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked);
+  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked || spec.kind === "line" && !spec.smooth);
   const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;

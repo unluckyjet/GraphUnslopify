@@ -609,7 +609,9 @@ function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: Observat
       `                observation_geometry = _observation_geometry.save_${observationPng}_png(`,
       "                    fig, path, metadata=meta, dpi=DPI, run_id=OBSERVATION_CAPTURE.run_id,",
       ...(observationPng === "summary_marks" && !("uncertainty" in spec && spec.uncertainty)
-        ? ["                    include_intervals=False,"] : []),
+        ? ["                    interval_kind=None,"] : []),
+      ...(observationPng === "summary_marks" && spec.kind === "line" && spec.uncertainty?.display === "band"
+        ? ['                    interval_kind="bands",'] : []),
       "                )",
       "            else:",
       "                observation_geometry = None",
@@ -662,7 +664,8 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   );
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
   const traceEstimates = traceSummary && spec.output.formats.includes("png")
-    && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked));
+    && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked)
+      || (spec.kind === "line" && !spec.smooth));
   const observationPng = traceMatrix && spec.output.formats.includes("png")
     ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];

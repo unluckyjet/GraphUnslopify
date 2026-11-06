@@ -27,13 +27,12 @@ def can_trace_observations(spec):
     aggregation = spec.get("aggregation")
     if kind == "bar":
         return aggregation in ("mean", "median", "sum", "count") and not spec.get("stacked", False)
+    if kind != "line" or aggregation not in ("mean", "median"):
+        return False
+    if not spec.get("smooth"):
+        return True
     uncertainty = spec.get("uncertainty")
-    return (
-        kind == "line"
-        and aggregation in ("mean", "median")
-        and isinstance(uncertainty, dict)
-        and uncertainty.get("display", "band") in ("bar", "band")
-    )
+    return isinstance(uncertainty, dict) and uncertainty.get("display", "band") in ("bar", "band")
 
 
 class PreviewObservations:
@@ -84,6 +83,8 @@ class PreviewObservations:
         try:
             _, geometry, reference = self._load(record)
             interval_ids = self._interval_ids(geometry)
+            coverage = geometry.get("coverage", [])
+            gap = reference.get("summary_estimate_geometry_gap")
             return {
                 "available": True,
                 "image": geometry["image"],
@@ -93,6 +94,7 @@ class PreviewObservations:
                 ],
                 "intervals": len(interval_ids),
                 "estimates": len(self._estimate_ids(geometry)),
+                "estimate_coverage": [gap] if gap else coverage,
                 "band": bool(geometry.get("bands")),
                 "filters": reference["node_id"],
                 "preparation": reference.get("preparation_node_id"),

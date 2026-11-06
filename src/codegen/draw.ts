@@ -125,12 +125,12 @@ function emitCategories(spec: FigureSpec, out: string[]): void {
   out.push("");
 }
 
-function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceIntervals: boolean): void {
+function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceIntervals: boolean, traceEstimates: boolean): void {
   const preset = PRESETS[spec.style.preset];
   const band = spec.uncertainty?.display === "band";
 
   out.push("", "def draw_panel(ax, df):",
-    traceIntervals ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)");
+    traceIntervals || traceEstimates ? "    frame = summarise(df, for_geometry=True)" : "    frame = summarise(df)");
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
 
   const plot = (indentLevel: string, source: string, styleExpr: string, label: string) => {
@@ -162,6 +162,10 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
     lines.push(`${indentLevel}    marker="o" if ${spec.marker ? "True" : `len(${source}) == 1`} else None,`);
     lines.push(`${indentLevel})`);
     lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
+    if (traceEstimates) lines.push(
+      `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
+      `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`,
+    );
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
       `${indentLevel}_annotation_curve._graphunslopify_annotation_series = ${spec.group ? "name" : "None"}`,
@@ -1720,7 +1724,7 @@ export function emitDraw(spec: PlottedSpec, out: string[], traceMatrix: boolean,
 
   switch (spec.kind) {
     case "line":
-      emitLine(spec, out, traceIntervals);
+      emitLine(spec, out, traceIntervals, traceEstimates);
       break;
     case "scatter":
       emitScatter(spec, out);

@@ -52,7 +52,7 @@ lookup checks the program, report, graph and exact PNG. Unavailable
 intervals have no clickable stroke. Error-bar overlap can make a pixel
 ambiguous. Other mark types and unsupported band placements remain in spec98.
 
-## Inspect a bar or forest estimate
+## Inspect an estimate or line connection
 
 With traced PNG output, click a nonstacked bar body or a forest dot to inspect
 the estimate, its estimator and the original contributing records. Bar bodies
@@ -60,6 +60,13 @@ support mean, median, sum and count. If the figure also has visible intervals,
 use the **Estimates** picker to choose the estimate at an overlapping position.
 The numbered control selects the same estimates by keyboard. A singleton
 forest row can have a selectable dot even when its interval is unavailable.
+
+Unsmoothed line summaries also expose visible points. On a solid connection
+between two points, the graph shows both endpoint calculations and their
+source records. The connection has no separate numerical estimate. Dashed
+and simplified paths offer visible point markers where present, with a
+coverage message for the connections. Primary smoothed values and secondary
+axes are still part of the provenance roadmap.
 
 For a saved render, run `graphunslopify explain-estimate figure.report.json X Y`
 or call `graphunslopify.observation_provenance.explain_saved_estimate`. Coordinates

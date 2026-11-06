@@ -969,6 +969,11 @@ class _ObservationSelection:
         """Tag the center marker with the estimate from the forest's chosen row."""
         artist._graphunslopify_estimate_id = drawn[self._estimate_column].iloc[0]
 
+    def bind_summary_curve(self, artist, drawn):
+        """Attach ordered summary points to the actual primary line artist."""
+        artist._graphunslopify_estimate_id = None
+        artist._graphunslopify_estimate_ids = tuple(drawn[self._estimate_column])
+
     def bind_summary_intervals(self, container, drawn):
         """Associate actual error bars with the interval nodes in draw order."""
         # Reindexing grouped bars inserts empty positions between real summaries.
@@ -1169,22 +1174,30 @@ class _ObservationSelection:
     def record_summary_marks_geometry(self, capture, output):
         intervals, estimates = capture
         if intervals is not None:
-            self.record_summary_interval_geometry(intervals, output)
+            image, marks, gaps, kind = intervals
+            self._interval_geometry = ((image, marks, gaps), output, kind)
         self._estimate_geometry = (estimates, output)
 
     def _estimate_geometry_reference(self):
         if self._estimate_geometry is None:
             return {}
-        (image, entries, gaps), output = self._estimate_geometry
+        (image, entries, gaps, coverage), output = self._estimate_geometry
         if image is None or gaps:
             return {"summary_estimate_geometry_gap": gaps[0]}
         if not entries:
-            return {"summary_estimate_geometry_gap": "No visible estimates in the final PNG"}
+            return {
+                "summary_estimate_geometry_gap": next(
+                    iter(coverage), "No visible estimates in the final PNG"
+                )
+            }
         if any(image[key] != output[key] for key in ("sha256", "bytes")):
             return {
                 "summary_estimate_geometry_gap": "The PNG changed during estimate geometry capture"
             }
         try:
+            entries = [
+                self._line_span(entry) if entry["kind"] == "segment" else entry for entry in entries
+            ]
             identity = self.ledger.calculate(
                 "summary_estimate_png_geometry",
                 dict.fromkeys(entry["node_id"] for entry in entries),
@@ -1193,11 +1206,26 @@ class _ObservationSelection:
                     "coordinates": "pixels_top_left",
                     "image": {"path": output["path"], **image},
                     "estimates": entries,
+                    **({"coverage": coverage} if coverage else {}),
                 },
             )
         except ValueError as problem:
             return {"summary_estimate_geometry_gap": str(problem)}
         return {"summary_estimate_geometry_node_id": identity}
+
+    def _line_span(self, entry):
+        endpoints = entry["endpoint_ids"]
+        span = self.ledger.calculate(
+            "summary_line_span",
+            endpoints,
+            value=None,
+            metadata={
+                "endpoint_keys": [
+                    self.ledger._nodes[item]["metadata"]["keys"] for item in endpoints
+                ]
+            },
+        )
+        return {**entry, "node_id": span}
 
     def _interval_geometry_reference(self):
         if self._interval_geometry is None:
@@ -1465,13 +1493,16 @@ def _load_observation_selection(
         geometry_node = graph._nodes.get(selection["summary_estimate_geometry_node_id"], {})
         estimates = validate_summary_estimate_geometry(geometry_node, graph._nodes)
         summary_root = graph._nodes.get(selection.get("summary_node_id"), {})
-        panel_inputs = {
-            identity
-            for panel in summary_root.get("inputs", [])
-            for identity in graph._nodes[panel]["inputs"]
-        }
-        if not set(geometry_node["inputs"]) <= panel_inputs:
-            raise ValueError("Estimate PNG geometry belongs to a different summary calculation")
+        panels = [set(graph._nodes[panel]["inputs"]) for panel in summary_root.get("inputs", [])]
+        panel_inputs = set().union(*panels)
+        for identity in geometry_node["inputs"]:
+            target = graph._nodes[identity]
+            if target["operation"] == "summary_line_span":
+                valid = any(set(target["inputs"]) <= panel for panel in panels)
+            else:
+                valid = identity in panel_inputs
+            if not valid:
+                raise ValueError("Estimate PNG geometry belongs to a different summary calculation")
         if geometry is not None and geometry["image"] != estimates["image"]:
             raise ValueError("Summary interval and estimate geometry belong to different PNGs")
         geometry = estimates

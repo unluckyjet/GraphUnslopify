@@ -106,6 +106,7 @@
           <h3>Observation provenance</h3>
           <p class="muted">Observation evidence stays in this local editor.</p>
           <p id="observation-status" role="status" aria-live="polite"></p>
+          <p id="observation-coverage" class="muted" hidden></p>
           <div id="observation-cell-picker" class="observation-picker" hidden>
             <label>Panel <select id="observation-panel"></select></label>
             <label>Row <input id="observation-row" type="number" min="1" step="1" required></label>
@@ -119,8 +120,8 @@
             </select>
           </label>
           <div id="observation-estimate-picker" class="observation-picker" hidden>
-            <label>Visible estimate <input id="observation-estimate-index" type="number" min="1" step="1" required></label>
-            <button id="observation-pick-estimate" class="quiet" type="button">Inspect estimate</button>
+            <label>Visible mark <input id="observation-estimate-index" type="number" min="1" step="1" required></label>
+            <button id="observation-pick-estimate" class="quiet" type="button">Inspect mark</button>
           </div>
           <div id="observation-interval-picker" class="observation-picker" hidden>
             <label>Visible interval <input id="observation-interval-index" type="number" min="1" step="1" required></label>

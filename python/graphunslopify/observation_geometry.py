@@ -428,12 +428,16 @@ def save_summary_band_png(figure, path, *, metadata, dpi, run_id):
         collect=_collect_bands,
         label="summary band",
     )
+    return identity, _band_pixels(identity, snapshot, snapshot.get("entries", ())), gaps
+
+
+def _band_pixels(image, snapshot, entries):
     if not snapshot:
-        return identity, [], gaps
-    width, height = identity["width"], identity["height"]
+        return []
+    width, height = image["width"], image["height"]
     origin_x, origin_y = snapshot["origin"]
     strips = []
-    for ids, points, raw_clip in snapshot["entries"]:
+    for ids, points, raw_clip in entries:
         bounds = _pixel_clip(raw_clip, snapshot["origin"], width, height)
         left, top, right, bottom = bounds
         pixels = [[x - origin_x, height - y + origin_y] for x, y in points]
@@ -443,7 +447,7 @@ def save_summary_band_png(figure, path, *, metadata, dpi, run_id):
         if max(ys) <= top or min(ys) >= bottom:
             continue
         strips.append({"interval_ids": ids, "endpoints": pixels, "clip": bounds})
-    return identity, strips, gaps
+    return strips
 
 
 def _estimate_shape(artist, renderer):
@@ -478,16 +482,88 @@ def _estimate_shape(artist, renderer):
     raise ValueError("Unsupported summary estimate artist")
 
 
-def _collect_estimates(figure, renderer, entries, gaps):
+def _estimate_curve(artist, renderer):
+    from matplotlib.lines import Line2D
+
+    if not isinstance(artist, Line2D) or artist.get_drawstyle() != "default":
+        raise ValueError("An estimate curve requires the ordinary line draw style")
+    if artist.get_path_effects() or not artist.get_transform().is_separable:
+        raise ValueError("An estimate curve uses an unsupported transform or path effect")
+    identities = artist._graphunslopify_estimate_ids
+    xy = artist.get_xydata()
+    if len(identities) != len(xy):
+        raise ValueError("Estimate positions do not match the rendered curve")
+    points = artist.get_transform().transform(xy).tolist()
+    finite = [all(map(finite_number, point)) for point in points]
+    marker = artist.get_marker()
+    has_markers = marker == "o" and artist.get_markersize() > 0
+    if marker not in ("o", "None", "none", None, "", " ") or artist.get_markevery() is not None:
+        raise ValueError("An estimate curve has unsupported marker geometry")
+    line_radius = renderer.points_to_pixels(artist.get_linewidth()) / 2
+    has_stroke = artist.get_linestyle() != "None" and line_radius > 0
+    stroke_supported = (
+        has_stroke and not artist.is_dashed() and not artist.get_path().should_simplify
+    )
+    marker_radius = (
+        renderer.points_to_pixels((artist.get_markersize() + artist.get_markeredgewidth()) / 2)
+        if has_markers
+        else 0
+    )
+    if any(
+        not finite_number(radius) or not 0 <= radius <= 128
+        for radius in (line_radius, marker_radius)
+    ):
+        raise ValueError("An estimate curve has an unsupported stroke or marker width")
+    connected = [False] * len(points)
+    segments = []
+    if stroke_supported:
+        for index, (first, second) in enumerate(pairwise(points)):
+            if finite[index] and finite[index + 1] and first != second:
+                connected[index] = connected[index + 1] = True
+                segments.append(
+                    (
+                        identities[index : index + 2],
+                        ("segment", [first, second, float(line_radius)]),
+                    )
+                )
+    for identity, point, valid, on_stroke in zip(
+        identities, points, finite, connected, strict=True
+    ):
+        if valid and (has_markers or on_stroke):
+            x, y = point
+            radius = max(marker_radius, line_radius if on_stroke else 0)
+            yield identity, ("dot" if has_markers else "vertex", [x, y, float(radius)])
+    yield from segments
+
+
+def _curve_connections_unavailable(artist):
+    if artist.is_dashed():
+        return (
+            "Dashed line connections are unavailable. Visible point markers can still be selected."
+        )
+    if artist.get_path().should_simplify:
+        return "Simplified line connections are unavailable. Visible point markers can still be selected."
+    return None
+
+
+def _collect_estimates(figure, renderer, entries, gaps, coverage):
     for artist in _visible_tagged_artists(figure, "_graphunslopify_estimate_id"):
         try:
-            shape = _estimate_shape(artist, renderer)
-            if shape is None:
-                continue
-            if len(entries) >= MAX_ESTIMATE_MARKS:
-                gaps.append("Estimate geometry exceeds its mark capacity")
-                return
-            entries.append((artist._graphunslopify_estimate_id, _rectangular_clip(artist), shape))
+            identity = artist._graphunslopify_estimate_id
+            clip = _rectangular_clip(artist)
+            if identity is None:
+                limitation = _curve_connections_unavailable(artist)
+                if limitation:
+                    coverage.append(limitation)
+                shapes = _estimate_curve(artist, renderer)
+            else:
+                shape = _estimate_shape(artist, renderer)
+                shapes = () if shape is None else ((identity, shape),)
+            for mark_identity, mark_shape in shapes:
+                if len(entries) >= MAX_ESTIMATE_MARKS:
+                    gaps.append("Estimate geometry exceeds its mark capacity")
+                    return
+                entries.append((mark_identity, clip, mark_shape))
         except ValueError as problem:
             gaps.append(str(problem))
 
@@ -511,6 +587,19 @@ def _estimate_pixels(image, snapshot, entries):
             ]
             if bounds[0] < bounds[2] and bounds[1] < bounds[3]:
                 marks.append({"node_id": identity, "kind": kind, "bounds": bounds})
+        elif kind == "segment":
+            first, second, radius = points
+            endpoints = [[x - origin_x, height - y + origin_y] for x, y in (first, second)]
+            if _segment_intersects_clip(endpoints, clip, radius):
+                marks.append(
+                    {
+                        "endpoint_ids": identity,
+                        "kind": kind,
+                        "endpoints": endpoints,
+                        "radius": radius,
+                        "clip": clip,
+                    }
+                )
         else:
             x, y, radius = points
             x, y = x - origin_x, height - y + origin_y
@@ -532,15 +621,35 @@ def _estimate_pixels(image, snapshot, entries):
     return marks
 
 
-def save_summary_marks_png(figure, path, *, metadata, dpi, run_id, include_intervals=True):
+def _segment_intersects_clip(points, clip, radius):
+    """Test the centerline against the clip expanded by the stroke radius."""
+    start, end = points
+    lo, hi = 0.0, 1.0
+    for index, (lower, upper) in enumerate(zip(clip[:2], clip[2:], strict=True)):
+        delta = end[index] - start[index]
+        minimum, maximum = lower - radius - start[index], upper + radius - start[index]
+        if delta == 0:
+            if not minimum <= 0 <= maximum:
+                return False
+        else:
+            first, last = sorted((minimum / delta, maximum / delta))
+            lo, hi = max(lo, first), min(hi, last)
+            if hi < lo:
+                return False
+    return True
+
+
+def save_summary_marks_png(figure, path, *, metadata, dpi, run_id, interval_kind="strokes"):
     """Read estimate and interval artists during the same final PNG draw."""
+    collectors = {"strokes": _collect_intervals, "bands": _collect_bands}
+    interval_collector = collectors.get(interval_kind)
 
     def collect(figure, renderer, entries, _gaps):
-        strokes, stroke_gaps, marks, mark_gaps = [], [], [], []
-        if include_intervals:
-            _collect_intervals(figure, renderer, strokes, stroke_gaps)
-        _collect_estimates(figure, renderer, marks, mark_gaps)
-        entries.append((strokes, stroke_gaps, marks, mark_gaps))
+        intervals, interval_gaps, marks, mark_gaps, coverage = [], [], [], [], []
+        if interval_collector is not None:
+            interval_collector(figure, renderer, intervals, interval_gaps)
+        _collect_estimates(figure, renderer, marks, mark_gaps, coverage)
+        entries.append((intervals, interval_gaps, marks, mark_gaps, coverage))
 
     image, snapshot, gaps = _save_observation_png(
         figure,
@@ -552,13 +661,20 @@ def save_summary_marks_png(figure, path, *, metadata, dpi, run_id, include_inter
         label="summary mark",
     )
     if not snapshot or gaps:
-        intervals = (image, [], gaps) if include_intervals else None
-        return intervals, (image, [], gaps)
-    ((strokes, stroke_gaps, marks, mark_gaps),) = snapshot["entries"]
-    strokes = _stroke_pixels(image, snapshot, strokes, stroke_gaps)
+        intervals = (image, [], gaps, interval_kind) if interval_collector else None
+        return intervals, (image, [], gaps, [])
+    ((intervals, interval_gaps, marks, mark_gaps, coverage),) = snapshot["entries"]
+    if interval_kind == "strokes":
+        intervals = _stroke_pixels(image, snapshot, intervals, interval_gaps)
+    elif interval_kind == "bands":
+        intervals = _band_pixels(image, snapshot, intervals)
     marks = _estimate_pixels(image, snapshot, marks)
-    intervals = (image, strokes, sorted(set(stroke_gaps))) if include_intervals else None
-    return intervals, (image, marks, sorted(set(mark_gaps)))
+    interval_capture = (
+        (image, intervals, sorted(set(interval_gaps)), interval_kind)
+        if interval_collector
+        else None
+    )
+    return interval_capture, (image, marks, sorted(set(mark_gaps)), sorted(set(coverage)))
 
 
 def cell_index(edges, position):
@@ -783,15 +899,7 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
         left, top, right, bottom = stroke["clip"]
         if not (left <= x < right and top <= y < bottom):
             continue
-        (x0, y0), (x1, y1) = stroke["endpoints"]
-        dx, dy = x1 - x0, y1 - y0
-        length_squared = dx * dx + dy * dy
-        fraction = (
-            min(1, max(0, ((x - x0) * dx + (y - y0) * dy) / length_squared))
-            if length_squared
-            else 0
-        )
-        distance = math.hypot(x - (x0 + fraction * dx), y - (y0 + fraction * dy))
+        distance = _distance_to_segment(stroke["endpoints"], x, y)
         if distance <= stroke["radius"] + tolerance:
             matches.add(stroke["node_id"])
     for strip in info.get("bands", ()):
@@ -801,11 +909,39 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
     return next(iter(matches), None)
 
 
+def _finite_estimate(node):
+    return node.get("operation") == "summary_estimate" and finite_number(node.get("value"))
+
+
+def _valid_line_span(mark, span, nodes, image):
+    endpoints = mark.get("endpoint_ids")
+    points = mark.get("endpoints")
+    radius = mark.get("radius")
+    return (
+        span.get("operation") == "summary_line_span"
+        and span["value"] is None
+        and isinstance(endpoints, list)
+        and len(endpoints) == 2
+        and all(isinstance(identity, str) for identity in endpoints)
+        and endpoints[0] != endpoints[1]
+        and span["inputs"] == endpoints
+        and all(_finite_estimate(nodes.get(identity, {})) for identity in endpoints)
+        and span["metadata"].get("endpoint_keys")
+        == [nodes[identity]["metadata"]["keys"] for identity in endpoints]
+        and _finite_points(points, 2)
+        and points[0] != points[1]
+        and finite_number(radius)
+        and 0 < radius <= 128
+        and _valid_clip(mark.get("clip"), image)
+    )
+
+
 def validate_summary_estimate_geometry(node, nodes):
     if node.get("operation") != "summary_estimate_png_geometry":
         raise ValueError("Unknown summary estimate PNG geometry root")
     info = node["metadata"]
     image, marks = info.get("image"), info.get("estimates")
+    coverage = info.get("coverage", [])
     if (
         info.get("coordinates") != "pixels_top_left"
         or not isinstance(image, dict)
@@ -816,6 +952,9 @@ def validate_summary_estimate_geometry(node, nodes):
         or not 0 < len(marks) <= MAX_ESTIMATE_MARKS
         or type(node["value"]) is not int
         or len(marks) != node["value"]
+        or not isinstance(coverage, list)
+        or len(coverage) > 10
+        or not all(isinstance(gap, str) and 0 < len(gap) <= 250 for gap in coverage)
     ):
         raise ValueError("Malformed summary estimate PNG geometry")
     inputs = {}
@@ -824,12 +963,16 @@ def validate_summary_estimate_geometry(node, nodes):
             raise TypeError("An estimate mark has no calculation identity")
         identity = mark["node_id"]
         target = nodes.get(identity, {})
-        if target.get("operation") != "summary_estimate" or not finite_number(target.get("value")):
+        kind = mark.get("kind")
+        if kind == "segment":
+            if not _valid_line_span(mark, target, nodes, image):
+                raise ValueError("Line connection does not match its two finite endpoint estimates")
+        elif not _finite_estimate(target):
             raise ValueError("Estimate geometry does not match a finite summary estimate")
-        if mark.get("kind") == "bar":
+        elif kind == "bar":
             if not _valid_clip(mark.get("bounds"), image):
                 raise ValueError("An estimate bar has invalid PNG bounds")
-        elif mark.get("kind") == "dot":
+        elif kind in ("dot", "vertex"):
             radius = mark.get("radius")
             if (
                 not _finite_points([mark.get("center")], 1)
@@ -837,7 +980,7 @@ def validate_summary_estimate_geometry(node, nodes):
                 or not 0 < radius <= 128
                 or not _valid_clip(mark.get("clip"), image)
             ):
-                raise ValueError("An estimate dot has invalid PNG geometry")
+                raise ValueError("An estimate point has invalid PNG geometry")
         else:
             raise ValueError("Unknown summary estimate mark")
         inputs[identity] = None
@@ -846,27 +989,40 @@ def validate_summary_estimate_geometry(node, nodes):
     return info
 
 
+def _distance_to_segment(points, x, y):
+    (x0, y0), (x1, y1) = points
+    dx, dy = x1 - x0, y1 - y0
+    length_squared = dx * dx + dy * dy
+    fraction = (
+        min(1, max(0, ((x - x0) * dx + (y - y0) * dy) / length_squared)) if length_squared else 0
+    )
+    return math.hypot(x - (x0 + fraction * dx), y - (y0 + fraction * dy))
+
+
 def resolve_summary_estimate(info, x, y, *, tolerance=0):
-    """Pick a unique bar body or forest dot in natural PNG coordinates."""
+    """Pick a bar, center or line connection in natural PNG coordinates."""
     if not finite_number(x) or not finite_number(y):
         raise ValueError("Estimate PNG coordinates must be finite numbers")
     if not finite_number(tolerance) or not 0 <= tolerance <= 64:
         raise ValueError("Estimate PNG pick tolerance must be between 0 and 64 pixels")
-    matches = set()
+    matches, spans = set(), {}
     for mark in info["estimates"]:
-        if mark["kind"] == "bar":
-            left, top, right, bottom = mark["bounds"]
-            hit = left <= x < right and top <= y < bottom
-        else:
-            left, top, right, bottom = mark["clip"]
-            cx, cy = mark["center"]
-            hit = (
-                left <= x < right
-                and top <= y < bottom
-                and math.hypot(x - cx, y - cy) <= mark["radius"] + tolerance
-            )
-        if hit:
+        kind = mark["kind"]
+        left, top, right, bottom = mark["bounds"] if kind == "bar" else mark["clip"]
+        if not (left <= x < right and top <= y < bottom):
+            continue
+        if kind == "segment":
+            if _distance_to_segment(mark["endpoints"], x, y) <= mark["radius"] + tolerance:
+                spans[mark["node_id"]] = mark["endpoint_ids"]
+        elif kind == "bar":
             matches.add(mark["node_id"])
-    if len(matches) > 1:
+        else:
+            cx, cy = mark["center"]
+            if math.hypot(x - cx, y - cy) <= mark["radius"] + tolerance:
+                matches.add(mark["node_id"])
+    # A hit on a vertex selects that estimate rather than its adjacent connections.
+    connections = {span for span, endpoints in spans.items() if matches.isdisjoint(endpoints)}
+    candidates = matches | connections
+    if len(candidates) > 1:
         raise ValueError("More than one observation estimate occupies that PNG position")
-    return next(iter(matches), None)
+    return next(iter(candidates), None)

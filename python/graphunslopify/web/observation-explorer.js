@@ -21,6 +21,7 @@ export function createObservationExplorer({api, token, client, current, supporte
   const intervalIndex = $("observation-interval-index"), estimateIndex = $("observation-estimate-index");
   const mode = $("observation-summary-mode");
   const note = $("observation-status"), details = $("observation-details"), code = $("observation-code");
+  const coverage = $("observation-coverage");
   const buttons = ["observation-pick", "observation-pick-interval", "observation-pick-estimate", "observation-filters", "observation-preparation",
     "observation-graph", "observation-program"];
   let binding = null, active = false, version = 0, selection = null, history = [];
@@ -56,6 +57,8 @@ export function createObservationExplorer({api, token, client, current, supporte
     binding = selection = null;
     history = [];
     note.textContent = "";
+    coverage.textContent = "";
+    coverage.hidden = true;
     details.replaceChildren();
     code.hidden = true;
     code.textContent = "";
@@ -86,7 +89,7 @@ export function createObservationExplorer({api, token, client, current, supporte
     const estimate = mode.value === "estimate";
     $("observation-estimate-picker").hidden = !estimate;
     $("observation-interval-picker").hidden = estimate;
-    note.textContent = estimate ? "Click a bar or dot, or enter its estimate number."
+    note.textContent = estimate ? "Click a plotted mark, or enter its number."
       : binding.band ? "Click the band, or enter a calculated interval number."
         : "Click a visible interval, or enter its number.";
   }
@@ -100,6 +103,8 @@ export function createObservationExplorer({api, token, client, current, supporte
       note.textContent = packet.error || "This render has no supported observation geometry.";
       return;
     }
+    coverage.textContent = (packet.estimate_coverage || []).join(" ");
+    coverage.hidden = !coverage.textContent;
     binding = {
       run_id: result.run_id,
       render_client: client,
@@ -171,10 +176,13 @@ export function createObservationExplorer({api, token, client, current, supporte
       if (keys.length) title += " · " + keys.join(", ");
     }
     if (item.operation === "summary_band_span") title = "Band between calculated intervals";
+    if (item.operation === "summary_line_span") title = "Line between calculated estimates";
     if (item.kind === "observation") title = "Record " + (item.record_ordinal + 1);
     node("h3", title);
     if (item.operation === "summary_band_span") {
       node("p", "The renderer joins the two calculated bounds. Follow the calculation links to inspect each interval.");
+    } else if (item.operation === "summary_line_span") {
+      node("p", "The stroke connects two calculated estimates. Follow their links to inspect each estimate.");
     } else if ("value" in item) node("p", item.value === null ? "Value unavailable" : "Value " + JSON.stringify(item.value));
     if (item.detail_in_download) node("p", "The complete node detail is available in the graph download.");
     else if (Object.keys(metadata).length) {
@@ -201,7 +209,7 @@ export function createObservationExplorer({api, token, client, current, supporte
       details.replaceChildren();
       if (!answer.selection) {
         selection = null;
-        note.textContent = target.position_kind === "estimate" ? "No visible estimate occupies that position."
+        note.textContent = target.position_kind === "estimate" ? "No visible estimate mark occupies that position."
           : binding.intervals ? "No visible interval occupies that position."
             : "No matrix cell occupies that position.";
       } else {

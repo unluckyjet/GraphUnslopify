@@ -128,6 +128,13 @@ checks the saved evidence before resolving the pixel. A singleton forest dot
 retains its estimate when no interval is available. Stacked contributions and
 the remaining quantity inventory remain part of the full scope.
 
+Unsmoothed primary summary lines bind visible point markers and vertices to
+their estimates. A supported solid stroke links its two calculated endpoints.
+Missing values break the path. The line, its point estimates, and its uncertainty
+strokes or band are picked against the same final PNG. Dashed and simplified
+connections show an explicit coverage gap while retaining visible point markers.
+The smoothing, secondary-axis and remaining line paths stay in the full scope.
+
 ## Measured references and current limits
 
 Before implementation,the actual public-penguin final PNG has two uncertainty

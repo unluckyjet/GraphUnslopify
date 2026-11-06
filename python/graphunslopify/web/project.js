@@ -1,4 +1,5 @@
 import { createCleaningPreview } from "/cleaning-preview.js";
+import { createStatisticalPower } from "/statistical-power.js";
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
@@ -13,6 +14,7 @@ import { createContextInspector } from "/context-inspector.js";
 import { createFigureReviewer } from "/figure-reviewer.js";
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
+createStatisticalPower($("statistical-power"), api);
 let state, info, record, event, selected = "";
 let sourceDirty = false, entryDirty = false, sharedDirty = false, running = false;
 let sourceError = "", sharedError = "", sourceValid = false, sharedValid = true;

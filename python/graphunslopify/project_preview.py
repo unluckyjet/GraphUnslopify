@@ -590,6 +590,7 @@ class ProjectHandler(PreviewHandler):
             "/project-presentation.js": "project-presentation.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
+            "/statistical-power.js": "statistical-power.js",
             "/journal-checks.js": "journal-checks.js",
             "/context-inspector.js": "context-inspector.js",
             "/workspace-commands.js": "workspace-commands.js",
@@ -735,6 +736,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Reviewer controls must fit within 64 KiB.")
             if route == "/api/figure-comments" and length > 16384:
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
+            if route == "/api/statistical-power" and length > 4096:
+                raise ProjectError("Statistical power requests must fit within 4 KiB.")
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, dict):
                 raise ProjectError("Request must be a JSON object.")
@@ -787,6 +790,10 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.start_inspection(payload), 202)
             elif route == "/api/cleaning-preview":
                 self.json(state.cleaning_preview(payload))
+            elif route == "/api/statistical-power":
+                from .statistical_power import plan_power
+
+                self.json(plan_power(payload))
             elif route in ("/api/reuse/template", "/api/reuse/proposal"):
                 import copy
 

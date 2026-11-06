@@ -696,6 +696,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/workspace-commands.js",
                 "/reuse-intent.js",
                 "/cleaning-preview.js",
+                "/statistical-power.js",
                 "/journal-checks.js",
                 "/context-inspector.js",
                 "/experiment-imports.js",
@@ -721,6 +722,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/workspace-commands.js",
             "/reuse-intent.js",
             "/cleaning-preview.js",
+            "/statistical-power.js",
             "/journal-checks.js",
             "/context-inspector.js",
             "/experiment-imports.js",
@@ -743,6 +745,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/workspace-commands.js": "workspace-commands.js",
                 "/reuse-intent.js": "reuse-intent.js",
                 "/cleaning-preview.js": "cleaning-preview.js",
+                "/statistical-power.js": "statistical-power.js",
                 "/journal-checks.js": "journal-checks.js",
                 "/context-inspector.js": "context-inspector.js",
                 "/experiment-imports.js": "experiment-imports.js",
@@ -768,6 +771,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "workspace-commands.js": "text/javascript; charset=utf-8",
                     "reuse-intent.js": "text/javascript; charset=utf-8",
                     "cleaning-preview.js": "text/javascript; charset=utf-8",
+                    "statistical-power.js": "text/javascript; charset=utf-8",
                     "journal-checks.js": "text/javascript; charset=utf-8",
                     "context-inspector.js": "text/javascript; charset=utf-8",
                     "experiment-imports.js": "text/javascript; charset=utf-8",
@@ -883,6 +887,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 raise ValueError("Reviewer control request exceeds 64KiB")
             if route.startswith("/api/observations/") and size > 65536:
                 raise ValueError("Observation control request exceeds 64KiB")
+            if route == "/api/statistical-power" and size > 4096:
+                raise ValueError("Statistical power requests must fit within 4 KiB.")
             body = self.rfile.read(size)
             if route == "/api/upload":
                 self.json(
@@ -1002,6 +1008,10 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json(self.server.state.render(payload))
             elif route == "/api/cleaning-preview":
                 self.json(self.server.state.cleaning_preview(payload))
+            elif route == "/api/statistical-power":
+                from .statistical_power import plan_power
+
+                self.json(plan_power(payload))
             elif route == "/api/observations/query":
                 self.json(self.server.state.observations.query(payload))
             elif route == "/api/observations/download":

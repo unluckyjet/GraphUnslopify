@@ -1,4 +1,5 @@
 import { createCleaningPreview } from "/cleaning-preview.js";
+import { createStatisticalPower } from "/statistical-power.js";
 import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
@@ -27,6 +28,7 @@ let diagnosticCatalog = {};
 let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
+createStatisticalPower($("statistical-power"), api);
 const client = crypto.randomUUID();
 let revision = 0,
   data = null,

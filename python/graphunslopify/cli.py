@@ -798,6 +798,32 @@ def _source_import(args: argparse.Namespace) -> int:
         return 2
 
 
+def _statistical_power(args: argparse.Namespace) -> int:
+    from .statistical_power import plan_power
+
+    try:
+        result = plan_power(
+            {
+                "design": args.design,
+                "calculation": "power" if args.target_power is None else "detectable_effect",
+                "n": args.n,
+                "n_other": args.n_other,
+                "alpha": args.alpha,
+                "alternative": args.alternative,
+                "effect": args.effect,
+                "target_power": args.target_power,
+                "sd": args.sd,
+                "sd_other": args.sd_other,
+                "assumptions_confirmed": args.confirm_assumptions,
+            }
+        )
+    except ValueError as problem:
+        print(json.dumps({"status": "failed", "error": str(problem), "exit_code": 2}))
+        return 2
+    print(json.dumps(result, indent=2, allow_nan=False))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -820,6 +846,36 @@ def build_parser() -> argparse.ArgumentParser:
     journal.add_argument("--output", help="also write the technical report as JSON")
     journal.add_argument("--json", action="store_true")
     journal.set_defaults(handler=_journal_check)
+
+    power = commands.add_parser("power", help="calculate prospective mean-difference power")
+    power.add_argument(
+        "--design", required=True, choices=("one_sample", "paired", "pooled", "welch")
+    )
+    power.add_argument(
+        "--n", required=True, type=int, help="planned observations, pairs or first-group units"
+    )
+    power.add_argument("--n-other", type=int, help="planned second-group units")
+    power.add_argument("--alpha", required=True, type=float)
+    power.add_argument("--alternative", required=True, choices=("two_sided", "greater", "less"))
+    power.add_argument(
+        "--sd", type=float, help="planning SD in outcome units, or first-group SD for Welch"
+    )
+    power.add_argument("--sd-other", type=float, help="second-group planning SD for Welch")
+    goal = power.add_mutually_exclusive_group(required=True)
+    goal.add_argument(
+        "--effect",
+        type=float,
+        help="signed planning difference in outcome units with SD, or in SD units",
+    )
+    goal.add_argument(
+        "--target-power", type=float, help="solve for a difference that attains this power"
+    )
+    power.add_argument(
+        "--confirm-assumptions",
+        action="store_true",
+        help="confirm the declared normal-model design",
+    )
+    power.set_defaults(handler=_statistical_power)
 
     bundle = commands.add_parser("bundle", help="archive a figure with its actual source runtime")
     bundle.add_argument("spec", help="FigureSpec JSON file")

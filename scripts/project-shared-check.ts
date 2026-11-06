@@ -6,7 +6,7 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync, readdirSync, rena
 import { tmpdir } from "node:os";
 import { join, resolve, relative } from "node:path";
 import { createInterface } from "node:readline";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page, type Request } from "playwright";
 
 declare const document: { querySelector(selector: string): { textContent: string; hidden: boolean; disabled: boolean } | null; documentElement: { scrollWidth: number } };
 declare const window: { innerWidth: number };
@@ -48,7 +48,7 @@ try {
   const open = async () => { await page.locator("#shared-panel").evaluate(node => node.setAttribute("open", ""));await page.locator("#shared-json").locator("..").evaluate(node => node.setAttribute("open", "")); };
   const shared = { style: { grid: true }, output: { size: "double_column", dpi: 144 } };
   const draft = async (value: unknown) => { await open();await page.locator("#shared-json").fill(JSON.stringify(value)); };
-  const review = async (value: unknown) => { await draft(value);const response = page.waitForResponse(r => r.url().endsWith("/api/shared-review") && r.request().method() === "POST");await page.locator("#save-shared").click();const result = await response;assert.equal(result.status(), 200);const plan = await result.json();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);return plan; };
+  const review = async (value: unknown) => { await draft(value);const [result] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/shared-review") && r.request().method() === "POST"), page.locator("#save-shared").click()]);assert.equal(result.status(), 200, await result.text());const plan = await result.json();await page.waitForFunction(() => document.querySelector("#apply-shared-review")?.disabled === false);return plan; };
   // Hold a genuine user reload across a scheduled background poll. Its ownership
   // must survive the overlap, rather than leaving a discarded draft on screen.
   let reloadArrived!: () => void, releaseReload!: () => void, reloadDone!: () => void;
@@ -90,6 +90,30 @@ try {
   await page.locator("#shared-undo-event").selectOption(saved.id);await page.locator("#review-shared-undo").click();
   await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("conflict"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);
   workflows.push("conflicting older undo is refused without another history event");
+  await draft(shared);
+  let reviewRequests = 0;
+  const observeReview = (request: Request) => { if (request.url().endsWith("/api/shared-review") && request.method() === "POST") reviewRequests++; };
+  page.on("request", observeReview);
+  await page.route("**/api/state", async route => {
+    const response = await route.fetch();
+    const state = await response.json();
+    await route.fulfill({ response, json: { ...state, status: "unavailable", revision: null, inspection_revision: null, figures: [], inspections: [], error: "Project inputs/history changed while reading inspections; refresh." } });
+  });
+  await page.waitForFunction(() => document.querySelector("#error")?.textContent.includes("changed while reading inspections"));
+  assert.equal(await page.locator("#save-shared").isDisabled(), true, "Shared review must wait for the current revision");
+  assert.equal(await page.locator("#review-shared-undo").isDisabled(), true);
+  assert.deepEqual(JSON.parse(await page.locator("#shared-json").inputValue()), shared);
+  await page.locator("#shared-json").press("Control+s");
+  const disabledReview = page.getByRole("option", { name: /Review shared settings changes/ });
+  await disabledReview.waitFor();
+  assert.equal(await disabledReview.getAttribute("aria-disabled"), "true");
+  assert.equal(reviewRequests, 0);
+  await page.keyboard.press("Escape");
+  page.off("request", observeReview);
+  await page.unroute("**/api/state");
+  await page.waitForFunction(() => document.querySelector("#save-shared")?.disabled === false);
+  assert.deepEqual(JSON.parse(await page.locator("#shared-json").inputValue()), shared);
+  workflows.push("an unavailable project revision preserves the draft and waits before posting shared review");
   const stale = await review(shared), beforeStale = (await api("/api/state")).history.length;
   writeFileSync(join(paper, "results.csv"), Buffer.concat([data, Buffer.from("\n")]));
   await page.waitForFunction(() => document.querySelector("#shared-review-status")?.textContent.includes("changed"));assert.equal(await page.locator("#apply-shared-review").isDisabled(), true);

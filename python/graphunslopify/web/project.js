@@ -42,6 +42,7 @@ const el = (tag, text, parent) => {
 function error(message = "") { $("error").textContent = message; $("error").hidden = !message; }
 function notice(message) { $("notice").textContent = message; }
 const dirty = () => sourceDirty || entryDirty || sharedDirty || !!sharedReview?.pending() || !!selectionReview?.pending() || !!reuseEditor?.pending();
+const sharedAvailable = () => Boolean(state?.revision) && !refreshFailure;
 let review, sharedReview, selectionReview, reuseEditor, figureReviewer;
 async function api(path, body) {
   const response = await fetch(path, {
@@ -74,7 +75,7 @@ function lockControls() {
   $("running").textContent = activeJobKind === "inspection" ? "Preparing PDF visual evidence. Numerical claims remain untested." : "Auditing the paper. Definitions stay locked until this audit finishes.";
   $("shared-controls").disabled = busy || sourceDirty || entryDirty || !sharedValid;
   $("shared-json").disabled = busy || sourceDirty || entryDirty;
-  $("save-shared").disabled = busy || !sharedDirty || !!sharedError || !!sharedReview?.loading();
+  $("save-shared").disabled = busy || !sharedAvailable() || !sharedDirty || !!sharedError || !!sharedReview?.loading();
   $("discard-shared").disabled = busy || sourceDirty || entryDirty;
   $("figure-controls").disabled = busy || sharedDirty || entryDirty || !record?.editable || !sourceValid;
   $("definition").disabled = busy || sharedDirty || entryDirty || !record;
@@ -529,7 +530,7 @@ $("save-definition").onclick = action(async () => { if (!controls.flush()) retur
 $("save-entry").onclick = action(() => save("/api/entry", { id: selected, entry: object($("entry").value, "Manifest binding"), expected_revision: record.revision }));
 sharedReview = createSharedChangeReview({
   api,
-  context: () => ({ state, busy: running || saving || !!selectionReview?.applying(), sourceDirty: sourceDirty || !!selectionReview?.pending() || !!reuseEditor?.pending(), entryDirty, sharedDirty,
+  context: () => ({ state, available: sharedAvailable(), busy: running || saving || !!selectionReview?.applying(), sourceDirty: sourceDirty || !!selectionReview?.pending() || !!reuseEditor?.pending(), entryDirty, sharedDirty,
     text: $("shared-json").value, read: () => object($("shared-json").value, "Shared settings") }),
   onState: lockControls,
   onApplied: async () => {

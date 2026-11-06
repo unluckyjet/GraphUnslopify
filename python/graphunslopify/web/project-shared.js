@@ -24,7 +24,7 @@ export function createSharedChangeReview({ api, context, onState, onApplied }) {
       historyKey = key;
     }
     if ((proposal || loading) && reviewed !== signature()) clear("Project inputs, history or draft changed. Review again before applying.", false);
-    const busy = c.busy || applying;
+    const busy = c.busy || applying || !c.available;
     $("shared-undo-event").disabled = busy || c.sourceDirty || c.entryDirty || c.sharedDirty || !choices.length;
     $("review-shared-undo").disabled = $("shared-undo-event").disabled || loading;
     $("apply-shared-review").disabled = busy || loading || !proposal?.can_apply;
@@ -56,6 +56,7 @@ export function createSharedChangeReview({ api, context, onState, onApplied }) {
   }
   async function request(undo = false) {
     const c = context();
+    if (!c.available) throw Error("Wait for the current project inputs before reviewing shared settings.");
     if (c.busy || applying || c.sourceDirty || c.entryDirty || (undo && c.sharedDirty)) throw Error("Save or reload other drafts before reviewing this change.");
     const body = undo ? { undo_event: $("shared-undo-event").value, expected_revision: c.state.revision } : { shared: c.read(), expected_revision: c.state.revision };
     clear("Reading current inputs and resolving affected figures…", false);
@@ -70,7 +71,8 @@ export function createSharedChangeReview({ api, context, onState, onApplied }) {
     }
   }
   async function apply() {
-    if (!proposal?.can_apply || reviewed !== signature() || context().busy || applying) throw Error("Review current shared changes before applying.");
+    const c = context();
+    if (!proposal?.can_apply || reviewed !== signature() || !c.available || c.busy || applying) throw Error("Review current shared changes before applying.");
     const plan = proposal;
     applying = true;onState();
     try {

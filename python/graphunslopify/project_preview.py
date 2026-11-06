@@ -632,6 +632,7 @@ class ProjectHandler(PreviewHandler):
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
             "/project-comments.js": "project-comments.js",
+            "/project-claim-links.js": "project-claim-links.js",
             "/project-presentation.js": "project-presentation.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
@@ -726,6 +727,13 @@ class ProjectHandler(PreviewHandler):
                 self.send(data, "application/octet-stream", download=name)
             elif route == "/api/comparison":
                 self.json(state.comparison(value("event"), value("figure")))
+            elif route == "/api/claim-links":
+                from .project_claim_links import project_claim_links
+
+                state.review_ready()
+                report = project_claim_links(state.source)
+                state.review_ready()
+                self.json(report)
             elif route == "/api/figure-comments":
                 from .project_comments import read_figure_comments
 
@@ -781,6 +789,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Choose a nonempty request smaller than 20 MiB.")
             if route.startswith("/api/reviewer/") and length > 65536:
                 raise ProjectError("Reviewer controls must fit within 64 KiB.")
+            if route == "/api/claim-links" and length > 16384:
+                raise ProjectError("Claim link requests must fit within 16 KiB.")
             if route == "/api/figure-comments" and length > 16384:
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
             if route == "/api/statistical-power" and length > 4096:
@@ -822,6 +832,34 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.journal_check(payload))
             elif route == "/api/element-map":
                 self.json(state.element_map(payload))
+            elif route == "/api/claim-links":
+                from .project_claim_links import (
+                    remove_claim_link,
+                    review_claim_link,
+                    save_claim_link,
+                )
+
+                state.review_ready()
+                action = payload.get("action")
+                if action == "review":
+                    result = review_claim_link(state.source, payload.get("draft"))
+                    state.review_ready()
+                elif action == "save":
+                    result = save_claim_link(
+                        state.source,
+                        payload.get("draft"),
+                        review_sha256=payload.get("review_sha256"),
+                        confirmed=payload.get("confirmed"),
+                    )
+                elif action == "remove":
+                    result = remove_claim_link(
+                        state.source,
+                        payload.get("id"),
+                        links_revision=payload.get("links_revision"),
+                    )
+                else:
+                    raise ProjectError("Choose review, save or remove for a claim link.")
+                self.json(result)
             elif route == "/api/figure-comments":
                 from .project_comments import change_figure_comments
 

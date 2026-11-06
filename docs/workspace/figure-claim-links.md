@@ -5,6 +5,19 @@ claim in a strict paper audit. The link records which figure and check the
 author selected. The check uses the existing claim declaration in the figure
 specification, including its series, metric, panel and tolerance when relevant.
 
+## Link text in the paper workspace
+
+Open **Figure claim links** in the scientific review pane. Choose a figure
+and recorded check, then paste a unique excerpt from its caption or enter
+the project-relative manuscript path and paste the passage. Review the
+exact location, proposition and recorded result. Confirm that the selected
+check represents the passage before saving.
+
+Refresh the links after editing a manuscript. The panel distinguishes stale
+text and stale figure evidence, and shows a contradiction when the current
+recorded check fails. Open a linked figure audit to see its saved native
+preview and findings.
+
 ## Create a link from the terminal
 
 1. Run the project audit with the current figures and inputs.

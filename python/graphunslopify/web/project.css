@@ -112,3 +112,13 @@
 .paper-workspace [hidden] { display: none !important; }
 @media (max-width: 1100px) { .paper-workspace main { grid-template-columns: 230px minmax(0, 1fr); } .evidence-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .paper-workspace header { padding: 22px 18px; align-items: start; flex-direction: column; } .workspace-notices { padding: 0 18px; } .paper-workspace main { padding: 0 18px 24px; grid-template-columns: minmax(0, 1fr); } .history-selectors, .comparison-images { grid-template-columns: minmax(0, 1fr); } .section-head { flex-wrap: wrap; } .paper-workspace .card { padding: 18px; } }
+
+/* Exact passages and the audit evidence behind their claim links. */
+#claim-links { overflow-wrap: anywhere; }
+#claim-links fieldset { min-width: 0; }
+#claim-links textarea { display: block; width: 100%; min-height: 5rem; resize: vertical; }
+#claim-links blockquote { margin: 0 0 12px; padding-left: 12px; border-left: 3px solid var(--line); white-space: pre-wrap; }
+#claim-links article { padding: 12px; margin: 10px 0; border: 1px solid var(--line); border-radius: 8px; }
+#claim-links article[data-state="contradiction"] { border-left: 4px solid #ad392d; }
+#claim-links article[data-state="supported"] { border-left: 4px solid #25745a; }
+.claim-link-fields { display: grid; gap: 0 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr)); }

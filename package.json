@@ -19,6 +19,7 @@
     "build:translator": "node --experimental-strip-types scripts/build-translator.ts",
     "preview-check": "node --experimental-strip-types scripts/preview-check.ts",
     "cleaning-preview-check": "node --experimental-strip-types scripts/cleaning-preview-check.ts",
+    "claim-links-check": "node --experimental-strip-types scripts/claim-links-workspace-check.ts",
     "sensitivity-check": "node --experimental-strip-types scripts/sensitivity-workspace-check.ts",
     "power-check": "node --experimental-strip-types scripts/statistical-power-check.ts",
     "journal-check": "node --experimental-strip-types scripts/journal-check.ts",

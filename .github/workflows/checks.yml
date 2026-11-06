@@ -260,6 +260,16 @@ jobs:
       - run: npm run preview-check
       - run: npm run cleaning-preview-check
       - run: npm run power-check
+      - run: npm run claim-links-check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: claim-links-workspace-verification
+          path: |
+            /tmp/gu-claim-links-workspace-check-*/verification.json
+            /tmp/gu-claim-links-workspace-check-*/contradictory-links.json
+            /tmp/gu-claim-links-workspace-check-*/*.png
+            /tmp/gu-claim-links-workspace-check-*/input.csv
+          if-no-files-found: error
       - run: npm run sensitivity-check
       - uses: actions/upload-artifact@v4
         with:

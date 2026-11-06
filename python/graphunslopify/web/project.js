@@ -8,6 +8,7 @@ import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
 import { createSelectionReview } from "/project-selection.js";
 import { createFigureComments } from "/project-comments.js";
+import { createClaimLinks } from "/project-claim-links.js";
 import { createPresentationPreview } from "/project-presentation.js";
 import { chartEntries, createWorkspaceCommands, settingEntries } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
@@ -87,9 +88,27 @@ const sensitivity = createSensitivity({
       payload: () => ({id: selected, expected_revision: record.revision}),
     } : null,
 });
+const claimLinks = createClaimLinks($("claim-links"), {
+  api,
+  current: () => state?.mode === "source_backed" && state.revision && !state.error && !running && !saving && !refreshFailure
+    ? JSON.stringify([state.revision, state.history?.[0]?.id, state.history?.[0]?.integrity]) : null,
+  openAudit: async (identity, figure) => {
+    if (![...$("history").options].some(option => option.value === identity))
+      throw Error("Refresh the paper to open this saved audit.");
+    $("history").value = identity;
+    await loadEvent();
+    if (event?.id !== identity || ![...$("history-figure").options].some(option => option.value === figure))
+      throw Error("The linked figure audit is unavailable.");
+    $("history-figure").value = figure;
+    await showFigure();
+    $("history").scrollIntoView({ behavior: "smooth", block: "center" });
+  },
+});
 function lockControls() {
   cleaningPreview.update();
   sensitivity.update();
+  $("claim-links").hidden = state?.mode === "review_only";
+  claimLinks.update();
   journalChecks.update();
   elementInspector?.update();
   sharedReview?.update();

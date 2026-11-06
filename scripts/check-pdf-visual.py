@@ -41,9 +41,8 @@ def main():
     normal = native["pages"][0]["visual"]["checks"][0]
     assert normal["status"] == "checked" and normal["minimum_pt"] >= 6
     writer = PdfWriter()
-    page = PdfReader(original).pages[0]
+    page = writer.add_page(PdfReader(original).pages[0])
     page.add_transformation(Transformation().scale(0.5))
-    writer.add_page(page)
     reduced = where / "reduced.pdf"
     writer.write(reduced)
     reduced_bytes = reduced.read_bytes()

@@ -654,16 +654,16 @@ function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: Observat
   );
 }
 
-export function emitPython(spec: FigureSpec, traceObservations = false): string {
-  const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind)
+export function emitPython(spec: FigureSpec, traceObservations = false, cleaningPreview = false): string {
+  const traceSummary = traceObservations && !cleaningPreview && ["line", "bar", "forest", "table"].includes(spec.kind)
     && "aggregation" in spec && spec.aggregation !== "none";
-  const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
+  const traceMatrix = traceObservations && !cleaningPreview && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (
     spec.kind === "forest" || (spec.kind === "line" && Boolean(spec.uncertainty))
     || (spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty))
   );
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceObservations && spec.output.formats.includes("png") && (
+  const traceEstimates = traceObservations && !cleaningPreview && spec.output.formats.includes("png") && (
     spec.kind === "line" || (traceSummary && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked)))
   );
   const observationPng = traceMatrix && spec.output.formats.includes("png")
@@ -679,9 +679,10 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
     `if hashlib.sha256(Path(_observation_geometry.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_GEOMETRY_SHA256)}:`,
     '    raise RuntimeError("Observation geometry requires the matching GraphUnslopify runtime")',
   );
-  emitLoad(spec, out, traceObservations);
-  emitPrepare(spec, out, traceObservations);
-  emitCounts(spec, out);
+  if (cleaningPreview) out.push("", "from graphunslopify import cleaning_preview as _cleaning");
+  emitLoad(spec, out, traceObservations, cleaningPreview);
+  emitPrepare(spec, out, traceObservations, cleaningPreview);
+  emitCounts(spec, out, cleaningPreview);
   emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
@@ -715,7 +716,9 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitInteractive(spec, out);
   emitAnimation(spec, out);
   emitMain(spec, out, traceObservations, traceSummary || traceMatrix || traceEstimates, observationPng);
-  if (traceObservations) {
+  if (cleaningPreview) {
+    out.push('if __name__ == "__main__":', '    raise SystemExit("Use the local data preparation preview")');
+  } else if (traceObservations) {
     const formats = new Set<string>(spec.output.formats);
     if (spec.kind === "table") {
       formats.add("md");

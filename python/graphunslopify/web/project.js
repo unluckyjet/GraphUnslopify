@@ -1,3 +1,4 @@
+import { createCleaningPreview } from "/cleaning-preview.js";
 import { createControls } from "/controls.js";
 import { describeFinding } from "/diagnostics.js";
 import { createScientificReview } from "/project-review.js";
@@ -60,7 +61,16 @@ function object(text, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw Error(label + " must be a JSON object.");
   return value;
 }
+const cleaningPreview = createCleaningPreview({
+  mount: $("cleaning-preview"), api,
+  context: () => !running && !saving && !loadingFigure && !dirty() && !refreshFailure &&
+    !state?.error && record?.editable && state?.revision === record.revision ? {
+      key: JSON.stringify([record.revision, selected]),
+      payload: () => ({id: selected, expected_revision: record.revision}),
+    } : null,
+});
 function lockControls() {
+  cleaningPreview.update();
   journalChecks.update();
   elementInspector?.update();
   sharedReview?.update();

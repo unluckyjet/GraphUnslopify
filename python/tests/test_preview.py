@@ -65,6 +65,71 @@ def request(server, path, payload=None, *, token=True, headers=None):
         return response.code, response.read()
 
 
+def test_cleaning_preview_distinguishes_omissions_and_keeps_owned_data(editor):
+    data = b"x,y,keep\n1,1.2,1\n2,broken,1\n3,,1\n4,inf,1\n5,7,0\n"
+    code, raw = request(editor, "/api/upload", data, headers={"X-Filename": "mixed.csv"})
+    assert code == 200, raw
+    identity = json.loads(raw)["id"]
+    spec = {
+        "kind": "line",
+        "x": {"field": "x", "label": "X"},
+        "y": {"field": "y", "label": "Y"},
+        "data": {"path": "/unowned/ignored.csv"},
+        "aggregation": "mean",
+        "filter": [{"field": "keep", "op": "eq", "value": 1}],
+        "output": {"formats": ["png"]},
+    }
+    route = "/api/cleaning-preview"
+    payload = {"spec": spec, "data_id": identity}
+    assert request(editor, route, payload, token=False)[0] == 403
+    assert request(editor, route, payload, headers={"Origin": "https://example.org"})[0] == 403
+    code, raw = request(editor, route, payload)
+    assert code == 200, raw
+    result = json.loads(raw)
+    assert result["status"] == "prepared", result
+    assert result["rows"] == {"read": 5, "after_filter": 4, "prepared": 4, "missing_plot_keys": 0}
+    assert next(field for field in result["columns"] if field["field"] == "y")["missing"] == 1
+    assert {row["reason"]: row["records"] for row in result["exclusions"]} == {
+        "filter_predicate_false": [5],
+        "missing_measurement": [3],
+        "invalid_numeric_measurement": [2],
+        "infinite_measurement": [4],
+    }
+    assert result["conversions"][0]["became_missing"] == result["conversions"][0]["infinite"] == 1
+    assert result["measurements"]["y"] == {"finite": 1, "nonfinite": 3}
+    assert editor.state.selected_data(identity)["path"].read_bytes() == data
+    assert editor.state.runs == {} and not list(editor.state.root.glob("gu-cleaning-preview-*"))
+
+    code, raw = request(editor, route, {**payload, "spec": {**spec, "aggregation": "none"}})
+    assert code == 200, raw
+    blocked = json.loads(raw)
+    assert blocked["status"] == "blocked" and "finite numeric" in blocked["error"]
+    assert blocked["rows"]["after_filter"] == 4 and blocked["conversions"][0]["became_missing"] == 1
+
+
+def test_cleaning_preview_counts_all_large_input_rows_and_bounds_examples(editor):
+    count = 60_010
+    data = ("x,y,keep\n" + "".join(f"{i},1,{i % 2}\n" for i in range(count))).encode()
+    code, raw = request(editor, "/api/upload", data, headers={"X-Filename": "large.csv"})
+    assert code == 200, raw
+    spec = {
+        "kind": "line",
+        "x": {"field": "x", "label": "X"},
+        "y": {"field": "y", "label": "Y"},
+        "filter": [{"field": "keep", "op": "eq", "value": 1}],
+    }
+    code, raw = request(
+        editor, "/api/cleaning-preview", {"spec": spec, "data_id": json.loads(raw)["id"]}
+    )
+    assert code == 200, raw
+    result = json.loads(raw)
+    assert result["status"] == "prepared", result
+    assert result["rows"]["read"] == count and result["rows"]["after_filter"] == count // 2
+    assert result["exclusions"][0]["count"] == count // 2
+    assert result["exclusions"][0]["records"] == list(range(1, 40, 2))
+    assert editor.state.runs == {}
+
+
 def test_portable_intent_http_uses_owned_bindings_without_rendering(editor, monkeypatch):
     demo = json.loads(request(editor, "/api/demo", {})[1])
 
@@ -268,6 +333,26 @@ def test_worksheet_selections_have_immutable_owned_bindings(editor, native_workb
     )
     assert editor.state.uploads[uploaded["id"]]["profile"] is None
     assert editor.state.uploads[measured["id"]]["profile"]["sheet"] == "Measured results"
+
+
+def test_cleaning_preview_reads_the_selected_owned_worksheet(editor, native_workbook):
+    workbook = upload_workbook(editor, native_workbook)
+    sheet = select_workbook(editor, workbook, "Measured results")
+    spec = {
+        "kind": "bar",
+        "x": {"field": "subject", "label": "Subject"},
+        "y": {"field": "score", "label": "Score"},
+        "aggregation": "mean",
+        "data": {"sheet": "Control experiment"},
+    }
+    status, raw = request(editor, "/api/cleaning-preview", {"spec": spec, "data_id": sheet["id"]})
+    assert status == 200, raw
+    result = json.loads(raw)
+    assert result["status"] == "prepared", result
+    assert result["rows"]["read"] == sheet["rows"]
+    assert [entry["field"] for entry in result["columns"]] == ["subject", "score"]
+    assert any("subject" in step["fields"] for step in result["identifier_steps"])
+    assert editor.state.selected_data(sheet["id"])["path"].read_bytes() == native_workbook
 
 
 def test_native_workbook_render_bundle_consent_and_extracted_reproduction(

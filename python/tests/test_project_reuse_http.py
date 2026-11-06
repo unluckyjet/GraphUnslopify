@@ -92,6 +92,22 @@ def test_actual_http_selective_job_reports_saved_counts_and_original_execution(s
     assert all(f["execution"]["mode"] == "reused" for f in event["result"]["audit"]["figures"])
 
 
+def test_saved_paper_cleaning_preview_never_dispatches_or_changes_history(server):
+    _, root = server
+    state = request(server, "/api/state")
+    identity = state["figures"][0]["id"]
+    payload = {"id": identity, "expected_revision": state["revision"]}
+    route = "/api/cleaning-preview"
+    history = model.project_history(root)
+    request(server, route, payload, token=False, status=403)
+    request(server, route, {**payload, "expected_revision": "stale"}, status=400)
+    preview = request(server, route, payload)
+    assert preview["status"] == "prepared" and preview["rows"]["read"] > 0
+    assert len(preview["source_sha256"]) == 64
+    assert request(server, "/api/state")["job"] is None
+    assert model.project_history(root) == history
+
+
 def test_auth_origin_boolean_and_stale_revision_refuse_before_new_history(server):
     _, root = server
     state = request(server, "/api/state")

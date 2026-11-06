@@ -20470,7 +20470,7 @@ var OPERATORS = {
   in: (f, v) => `df[${f}].isin(${v})`,
   not_in: (f, v) => `~df[${f}].isin(${v})`
 };
-function emitLoad(spec, out, traceObservations) {
+function emitLoad(spec, out, traceObservations, cleaningPreview = false) {
   const identities = identityFields(spec);
   if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
   if (traceObservations) {
@@ -20545,14 +20545,19 @@ ${RUNTIME_HELPERS.normalize_identities}
       ] : spec.data.format === "parquet" ? [
         "    reader.update(engine=engine.api.__name__, engine_version=engine.api.__version__)"
       ] : ["    reader.update(compression=compression)"],
-      "    selection = _observations._ObservationSelection(",
+      cleaningPreview ? "    selection = _cleaning.CleaningSelection(" : "    selection = _observations._ObservationSelection(",
       "        snapshot, reader=reader, record_count=len(df), spec_json=SPEC_JSON,",
-      '        program_sha256=script_fingerprint(), runtime_sha256=RUNTIME_BINDING["source_sha256"])'
+      '        program_sha256=script_fingerprint(), runtime_sha256=RUNTIME_BINDING["source_sha256"])',
+      ...cleaningPreview ? ["    selection.source_columns(df)"] : []
     );
   }
   if (spec.x.temporal) {
     out.push(
-      "    df[X_FIELD] = pd.to_datetime(df[X_FIELD])",
+      ...cleaningPreview ? [
+        "    temporal = pd.to_datetime(df[X_FIELD])",
+        '    selection.conversion(X_FIELD, df[X_FIELD], temporal, "temporal")',
+        "    df[X_FIELD] = temporal"
+      ] : ["    df[X_FIELD] = pd.to_datetime(df[X_FIELD])"],
       // A date export in reverse order draws the line backwards, and unlike a
       // numeric x nobody notices until they read the dates.
       traceObservations ? "    df = selection.sort(df, X_FIELD)" : "    df = df.sort_values(X_FIELD)"
@@ -20560,7 +20565,7 @@ ${RUNTIME_HELPERS.normalize_identities}
   }
   out.push(traceObservations ? "    return df, selection" : "    return df", "");
 }
-function emitPrepare(spec, out, traceObservations) {
+function emitPrepare(spec, out, traceObservations, cleaningPreview = false) {
   const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
   if (ordinary) {
     const summarized = "aggregation" in spec && ["mean", "median"].includes(spec.aggregation) ? [spec.y.field, ...spec.repeat?.fields ?? []] : [];
@@ -20573,6 +20578,7 @@ function emitPrepare(spec, out, traceObservations) {
       "            continue",
       '        measured = pd.to_numeric(frame[field], errors="coerce")',
       "        values = measured.to_numpy(dtype=float, na_value=np.nan)",
+      ...cleaningPreview ? ['        selection.conversion(field, frame[field], measured, "numeric_domain")'] : [],
       "        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():",
       '            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")',
       "        if isinstance(measured.dtype, pd.api.extensions.ExtensionDtype) and measured.isna().any():",
@@ -20599,7 +20605,7 @@ function emitPrepare(spec, out, traceObservations) {
     );
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
-  if (traceObservations) {
+  if (traceObservations && !cleaningPreview) {
     body.push(`    selection.seal_filters(${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
   }
   if (spec.filter?.length) {
@@ -20635,7 +20641,18 @@ function emitPrepare(spec, out, traceObservations) {
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
     const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
     const label = spec.kind === "kaplan_meier" ? "Kaplan-Meier" : spec.kind === "calibration" ? "Calibration" : "Paired differences";
-    body.push(`    ${name}_input(df)`);
+    if (cleaningPreview) {
+      body.push(`    converted = ${name}_input(df)`);
+      if (name === "paired") {
+        body.push('    selection.conversion(Y_FIELD, df[Y_FIELD], converted[Y_FIELD], "paired_input")');
+      } else {
+        const field = name === "calibration" ? "OUTCOME_FIELD" : "EVENT_FIELD";
+        body.push(
+          `    selection.conversion(X_FIELD, df[X_FIELD], pd.Series(converted[0], index=df.index), "${name}_input")`,
+          `    selection.conversion(${field}, df[${field}], pd.Series(converted[1], index=df.index), "${name}_input")`
+        );
+      }
+    } else body.push(`    ${name}_input(df)`);
     if (spec.transform && spec.transform.kind !== "none") {
       body.push(`    raise ValueError(${pyStr(`${label} does not apply transforms to a raw y column`)})`);
     }
@@ -20649,7 +20666,7 @@ function emitPrepare(spec, out, traceObservations) {
   if (spec.kind === "scaling_fit") numericInput("scaling", ["X_FIELD", "Y_FIELD"]);
   const transform2 = spec.transform;
   if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform2 && transform2.kind !== "none" && (spec.kind !== "qq" || transform2.kind === "normalize")) {
-    body.push(...transformBody(spec, transform2, traceObservations));
+    body.push(...transformBody(spec, transform2, traceObservations, cleaningPreview));
     if (spec.kind === "qq") numericInput("qq", ["Y_FIELD"]);
     if (spec.kind === "scaling_fit") numericInput("scaling", ["X_FIELD", "Y_FIELD"]);
     if (ordinary) body.push(validate2);
@@ -20658,7 +20675,7 @@ function emitPrepare(spec, out, traceObservations) {
   body.push("    return df");
   out.push(...body, "");
 }
-function emitCounts(spec, out) {
+function emitCounts(spec, out, cleaningPreview = false) {
   const aggregated = "aggregation" in spec && spec.aggregation !== "none";
   const measure = spec.kind === "ecdf" ? spec.x.field : spec.kind === "confusion_matrix" || derivedAxis(spec, "y") ? void 0 : spec.kind === "heatmap" ? spec.value : spec.y.field;
   const fields = spec.repeat?.fields ?? (measure ? [measure] : []);
@@ -20670,7 +20687,7 @@ function emitCounts(spec, out) {
     "ROW_COUNTS = {}",
     'SAMPLE_SIZE_TEXT = ""',
     "",
-    "def report_counts(frame):",
+    cleaningPreview ? "def report_counts(frame, selection=None):" : "def report_counts(frame):",
     "    global SAMPLE_SIZE_TEXT",
     '    SAMPLE_SIZE_TEXT = ""',
     '    ROW_COUNTS["prepared"] = len(frame)',
@@ -20688,7 +20705,12 @@ function emitCounts(spec, out) {
   ])];
   out.push(
     `    plot_keys = [field for field in ${pyList(plotKeys)} if field in frame]`,
-    '    ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0',
+    ...cleaningPreview ? [
+      "    missing_keys = frame[plot_keys].isna().any(axis=1)",
+      '    ROW_COUNTS["missing_plot_keys"] = int(missing_keys.sum())',
+      "    if selection is not None:",
+      '        selection.record_excluded("missing_plot_key", missing_keys, "plot_keys")'
+    ] : ['    ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0'],
     '    if ROW_COUNTS["missing_plot_keys"]:',
     `        print(f"warning: {ROW_COUNTS['missing_plot_keys']} rows lack plotting keys and cannot be assigned to a point, panel or series")`
   );
@@ -20701,7 +20723,12 @@ function emitCounts(spec, out) {
     `    for field in ${pyList(fields)}:`,
     "        if field not in frame:",
     "            continue",
-    '        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))',
+    ...cleaningPreview ? [
+      '        numeric = pd.to_numeric(frame[field], errors="coerce")',
+      "        finite = np.isfinite(numeric.to_numpy(dtype=float))",
+      "        if selection is not None:",
+      `            selection.measurements(field, frame[field], numeric, finite, ${"aggregation" in spec && ["mean", "median"].includes(spec.aggregation) ? "True" : "False"})`
+    ] : ['        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))'],
     '        counts = {"finite": int(finite.sum()), "nonfinite": int((~finite).sum())}',
     '        ROW_COUNTS["measurements"][field] = counts',
     `        print(f"  {counts['finite']} rows with a finite {field} ({counts['nonfinite']} non-finite)")`
@@ -20788,7 +20815,7 @@ function emitSummaryInput(spec, out, traceSummary) {
   );
   out.push("    return measured", "");
 }
-function transformBody(spec, transform2, traceObservations) {
+function transformBody(spec, transform2, traceObservations, cleaningPreview) {
   const value = spec.kind === "heatmap" ? "VALUE_FIELD" : "Y_FIELD";
   if (transform2.kind === "cumulative") {
     return [
@@ -20846,7 +20873,7 @@ function transformBody(spec, transform2, traceObservations) {
     ...traceObservations ? [
       `    df = selection.baseline(df, ${value}, before_transform, source_mask=baseline_mask,`,
       "                            display_mask=df[GROUP] != BASELINE_SERIES, reference=reference,",
-      `                            groups=baseline.indices, x_field=X_FIELD, operation=${pyStr(transform2.kind)})`
+      `                            groups=baseline.indices, x_field=X_FIELD, operation=${pyStr(transform2.kind)}${cleaningPreview ? ", matched=matched" : ""})`
     ] : ["    df = df[df[GROUP] != BASELINE_SERIES]"]
   ];
 }
@@ -26674,12 +26701,12 @@ function emitSaveBlock(spec, out, observationPng) {
     ""
   );
 }
-function emitPython(spec, traceObservations = false) {
-  const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind) && "aggregation" in spec && spec.aggregation !== "none";
-  const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
+function emitPython(spec, traceObservations = false, cleaningPreview = false) {
+  const traceSummary = traceObservations && !cleaningPreview && ["line", "bar", "forest", "table"].includes(spec.kind) && "aggregation" in spec && spec.aggregation !== "none";
+  const traceMatrix = traceObservations && !cleaningPreview && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceObservations && spec.output.formats.includes("png") && (spec.kind === "line" || traceSummary && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked));
+  const traceEstimates = traceObservations && !cleaningPreview && spec.output.formats.includes("png") && (spec.kind === "line" || traceSummary && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked));
   const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;
@@ -26693,9 +26720,10 @@ function emitPython(spec, traceObservations = false) {
     `if hashlib.sha256(Path(_observation_geometry.__file__).read_bytes()).hexdigest() != ${pyStr(OBSERVATION_GEOMETRY_SHA256)}:`,
     '    raise RuntimeError("Observation geometry requires the matching GraphUnslopify runtime")'
   );
-  emitLoad(spec, out, traceObservations);
-  emitPrepare(spec, out, traceObservations);
-  emitCounts(spec, out);
+  if (cleaningPreview) out.push("", "from graphunslopify import cleaning_preview as _cleaning");
+  emitLoad(spec, out, traceObservations, cleaningPreview);
+  emitPrepare(spec, out, traceObservations, cleaningPreview);
+  emitCounts(spec, out, cleaningPreview);
   emitSummaryInput(spec, out, traceSummary);
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
@@ -26729,7 +26757,9 @@ function emitPython(spec, traceObservations = false) {
   emitInteractive(spec, out);
   emitAnimation(spec, out);
   emitMain(spec, out, traceObservations, traceSummary || traceMatrix || traceEstimates, observationPng);
-  if (traceObservations) {
+  if (cleaningPreview) {
+    out.push('if __name__ == "__main__":', '    raise SystemExit("Use the local data preparation preview")');
+  } else if (traceObservations) {
     const formats = new Set(spec.output.formats);
     if (spec.kind === "table") {
       formats.add("md");
@@ -26765,7 +26795,7 @@ function coerce(input2) {
     return input2;
   }
 }
-function translate(input2, traceObservations = false) {
+function translate(input2, traceObservations = false, cleaningPreview = false) {
   const parsed = FigureSpec.safeParse(coerce(input2));
   if (!parsed.success) {
     return {
@@ -26783,7 +26813,7 @@ function translate(input2, traceObservations = false) {
     ok: !hasErrors(findings),
     findings,
     filename: `${spec.output.stem}.py`,
-    code: emitPython(spec, traceObservations)
+    code: emitPython(spec, traceObservations, cleaningPreview)
   };
 }
 
@@ -27363,6 +27393,7 @@ function remapTemplateFields(input2, mapping) {
 function dispatch(operation, payload) {
   if (operation === "convert") return translate(payload);
   if (operation === "convert-observations") return translate(payload, true);
+  if (operation === "convert-cleaning-preview") return translate(payload, true, true);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return external_exports.toJSONSchema(FigureSpec, { target: "draft-7" });
   if (operation === "template-fields") return templateFields(payload);

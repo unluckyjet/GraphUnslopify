@@ -25,7 +25,7 @@ const OPERATORS: Record<FilterOp, (field: string, value: string) => string> = {
   not_in: (f, v) => `~df[${f}].isin(${v})`,
 };
 
-export function emitLoad(spec: FigureSpec, out: string[], traceObservations: boolean): void {
+export function emitLoad(spec: FigureSpec, out: string[], traceObservations: boolean, cleaningPreview = false): void {
   const identities = identityFields(spec);
   if (spec.data.format === "excel") out.push("", WORKBOOK_SOURCE);
   if (traceObservations) {
@@ -94,14 +94,19 @@ ${RUNTIME_HELPERS.normalize_identities}
       ] : spec.data.format === "parquet" ? [
         "    reader.update(engine=engine.api.__name__, engine_version=engine.api.__version__)",
       ] : ["    reader.update(compression=compression)"]),
-      "    selection = _observations._ObservationSelection(",
+      cleaningPreview ? "    selection = _cleaning.CleaningSelection(" : "    selection = _observations._ObservationSelection(",
       "        snapshot, reader=reader, record_count=len(df), spec_json=SPEC_JSON,",
       '        program_sha256=script_fingerprint(), runtime_sha256=RUNTIME_BINDING["source_sha256"])',
+      ...(cleaningPreview ? ["    selection.source_columns(df)"] : []),
     );
   }
   if (spec.x.temporal) {
     out.push(
-      "    df[X_FIELD] = pd.to_datetime(df[X_FIELD])",
+      ...(cleaningPreview ? [
+        "    temporal = pd.to_datetime(df[X_FIELD])",
+        '    selection.conversion(X_FIELD, df[X_FIELD], temporal, "temporal")',
+        "    df[X_FIELD] = temporal",
+      ] : ["    df[X_FIELD] = pd.to_datetime(df[X_FIELD])"]),
       // A date export in reverse order draws the line backwards, and unlike a
       // numeric x nobody notices until they read the dates.
       traceObservations ? "    df = selection.sort(df, X_FIELD)" : "    df = df.sort_values(X_FIELD)",
@@ -110,7 +115,7 @@ ${RUNTIME_HELPERS.normalize_identities}
   out.push(traceObservations ? "    return df, selection" : "    return df", "");
 }
 
-export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: boolean): void {
+export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: boolean, cleaningPreview = false): void {
   const ordinary = !["kaplan_meier", "calibration", "paired_difference", "qq", "scaling_fit", "ridgeline", "confusion_matrix"].includes(spec.kind);
   if (ordinary) {
     // Mean/median summaries already retain finite measurements with explicit counts.
@@ -123,6 +128,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
       "        if field not in frame:", "            continue",
       '        measured = pd.to_numeric(frame[field], errors="coerce")',
       '        values = measured.to_numpy(dtype=float, na_value=np.nan)',
+      ...(cleaningPreview ? ['        selection.conversion(field, frame[field], measured, "numeric_domain")'] : []),
       "        if (frame[field].notna() & measured.isna()).any() or np.isinf(values).any():",
       '            raise ValueError(f"Field {field} requires finite numeric measurements or missing values; filter invalid observations explicitly")',
       "        if isinstance(measured.dtype, pd.api.extensions.ExtensionDtype) and measured.isna().any():",
@@ -148,7 +154,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
       '    ROW_COUNTS["filtering"]["steps"].append(step)');
   }
   body.push('    ROW_COUNTS["after_filter"] = len(df)');
-  if (traceObservations) {
+  if (traceObservations && !cleaningPreview) {
     body.push(`    selection.seal_filters(${spec.x.temporal ? "X_FIELD" : "None"}, ${spec.filter?.length ?? 0})`);
   }
   if (spec.filter?.length) {
@@ -185,7 +191,18 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
   if (spec.kind === "kaplan_meier" || spec.kind === "calibration" || spec.kind === "paired_difference") {
     const name = spec.kind === "kaplan_meier" ? "survival" : spec.kind === "calibration" ? "calibration" : "paired";
     const label = spec.kind === "kaplan_meier" ? "Kaplan-Meier" : spec.kind === "calibration" ? "Calibration" : "Paired differences";
-    body.push(`    ${name}_input(df)`);
+    if (cleaningPreview) {
+      body.push(`    converted = ${name}_input(df)`);
+      if (name === "paired") {
+        body.push('    selection.conversion(Y_FIELD, df[Y_FIELD], converted[Y_FIELD], "paired_input")');
+      } else {
+        const field = name === "calibration" ? "OUTCOME_FIELD" : "EVENT_FIELD";
+        body.push(
+          `    selection.conversion(X_FIELD, df[X_FIELD], pd.Series(converted[0], index=df.index), "${name}_input")`,
+          `    selection.conversion(${field}, df[${field}], pd.Series(converted[1], index=df.index), "${name}_input")`,
+        );
+      }
+    } else body.push(`    ${name}_input(df)`);
     if (spec.transform && spec.transform.kind !== "none") {
       body.push(`    raise ValueError(${pyStr(`${label} does not apply transforms to a raw y column`)})`);
     }
@@ -203,7 +220,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
   const transform = spec.transform;
   if (spec.kind !== "kaplan_meier" && spec.kind !== "calibration" && spec.kind !== "paired_difference" && transform && transform.kind !== "none"
       && (spec.kind !== "qq" || transform.kind === "normalize")) {
-    body.push(...transformBody(spec, transform, traceObservations));
+    body.push(...transformBody(spec, transform, traceObservations, cleaningPreview));
     if (spec.kind === "qq") numericInput("qq", ["Y_FIELD"]);
     if (spec.kind === "scaling_fit") numericInput("scaling", ["X_FIELD", "Y_FIELD"]);
     if (ordinary) body.push(validate);
@@ -215,7 +232,7 @@ export function emitPrepare(spec: FigureSpec, out: string[], traceObservations: 
 }
 
 /** Figure-wide accounting uses the prepared rows, before any panel is drawn. */
-export function emitCounts(spec: FigureSpec, out: string[]): void {
+export function emitCounts(spec: FigureSpec, out: string[], cleaningPreview = false): void {
   const aggregated = "aggregation" in spec && spec.aggregation !== "none";
   const measure = spec.kind === "ecdf" ? spec.x.field : spec.kind === "confusion_matrix" || derivedAxis(spec, "y")
     ? undefined : spec.kind === "heatmap" ? spec.value : spec.y.field;
@@ -227,7 +244,7 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
   const over = "uncertainty" in spec ? spec.uncertainty?.over : undefined;
   out.push(
     "", "ROW_COUNTS = {}", 'SAMPLE_SIZE_TEXT = ""', "",
-    "def report_counts(frame):",
+    cleaningPreview ? "def report_counts(frame, selection=None):" : "def report_counts(frame):",
     "    global SAMPLE_SIZE_TEXT",
     '    SAMPLE_SIZE_TEXT = ""',
     '    ROW_COUNTS["prepared"] = len(frame)',
@@ -245,7 +262,12 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
   ])];
   out.push(
     `    plot_keys = [field for field in ${pyList(plotKeys)} if field in frame]`,
-    '    ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0',
+    ...(cleaningPreview ? [
+      "    missing_keys = frame[plot_keys].isna().any(axis=1)",
+      '    ROW_COUNTS["missing_plot_keys"] = int(missing_keys.sum())',
+      "    if selection is not None:",
+      '        selection.record_excluded("missing_plot_key", missing_keys, "plot_keys")',
+    ] : ['    ROW_COUNTS["missing_plot_keys"] = int(frame[plot_keys].isna().any(axis=1).sum()) if plot_keys else 0']),
     '    if ROW_COUNTS["missing_plot_keys"]:',
     '        print(f"warning: {ROW_COUNTS[\'missing_plot_keys\']} rows lack plotting keys and cannot be assigned to a point, panel or series")',
   );
@@ -257,7 +279,12 @@ export function emitCounts(spec: FigureSpec, out: string[]): void {
     '    ROW_COUNTS["measurements"] = {}',
     `    for field in ${pyList(fields)}:`,
     "        if field not in frame:", "            continue",
-    '        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))',
+    ...(cleaningPreview ? [
+      '        numeric = pd.to_numeric(frame[field], errors="coerce")',
+      "        finite = np.isfinite(numeric.to_numpy(dtype=float))",
+      "        if selection is not None:",
+      `            selection.measurements(field, frame[field], numeric, finite, ${"aggregation" in spec && ["mean", "median"].includes(spec.aggregation) ? "True" : "False"})`,
+    ] : ['        finite = np.isfinite(pd.to_numeric(frame[field], errors="coerce").to_numpy(dtype=float))']),
     '        counts = {"finite": int(finite.sum()), "nonfinite": int((~finite).sum())}',
     '        ROW_COUNTS["measurements"][field] = counts',
     '        print(f"  {counts[\'finite\']} rows with a finite {field} ({counts[\'nonfinite\']} non-finite)")',
@@ -350,6 +377,7 @@ function transformBody(
   spec: FigureSpec,
   transform: NonNullable<FigureSpec["transform"]>,
   traceObservations: boolean,
+  cleaningPreview: boolean,
 ): string[] {
   const value = spec.kind === "heatmap" ? "VALUE_FIELD" : "Y_FIELD";
 
@@ -413,7 +441,7 @@ function transformBody(
     ...(traceObservations ? [
       `    df = selection.baseline(df, ${value}, before_transform, source_mask=baseline_mask,`,
       "                            display_mask=df[GROUP] != BASELINE_SERIES, reference=reference,",
-      `                            groups=baseline.indices, x_field=X_FIELD, operation=${pyStr(transform.kind)})`,
+      `                            groups=baseline.indices, x_field=X_FIELD, operation=${pyStr(transform.kind)}${cleaningPreview ? ", matched=matched" : ""})`,
     ] : ["    df = df[df[GROUP] != BASELINE_SERIES]"]),
   ];
 }

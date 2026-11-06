@@ -87,6 +87,24 @@ class ProjectState:
             if self.closing or (self.job and self.job["phase"] == "running"):
                 raise ProjectError("Wait for the paper job or reopen the closing workspace.")
 
+    def cleaning_preview(self, payload):
+        from .cleaning_preview import preview_preparation
+
+        self.review_ready()
+        record = project_figure(self.source, payload.get("id"))
+        revision = payload.get("expected_revision")
+        if not revision or revision != record["revision"]:
+            raise ProjectError("Project inputs changed; refresh before previewing preparation.")
+        spec = record["clone"].get("spec")
+        if not record["editable"] or not isinstance(spec, dict) or record["errors"]:
+            raise ProjectError("Choose a valid saved JSON definition with owned data.")
+        data = _inside(self.source.parent.parent, spec["data"]["path"])
+        report = preview_preparation(spec, data, local_request)
+        self.review_ready()
+        if project_status(self.source)["revision"] != revision:
+            raise ProjectError("Project inputs changed during the preparation preview.")
+        return report
+
     def review_plan(self, provider, payload):
         if set(payload) - {
             "client",
@@ -569,6 +587,7 @@ class ProjectHandler(PreviewHandler):
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
             "/reuse-intent.js": "reuse-intent.js",
+            "/cleaning-preview.js": "cleaning-preview.js",
             "/journal-checks.js": "journal-checks.js",
             "/context-inspector.js": "context-inspector.js",
             "/workspace-commands.js": "workspace-commands.js",
@@ -748,6 +767,8 @@ class ProjectHandler(PreviewHandler):
                 self.send(data, "application/zip", download="paper-review.zip")
             elif route == "/api/pdf-inspection":
                 self.json(state.start_inspection(payload), 202)
+            elif route == "/api/cleaning-preview":
+                self.json(state.cleaning_preview(payload))
             elif route in ("/api/reuse/template", "/api/reuse/proposal"):
                 import copy
 

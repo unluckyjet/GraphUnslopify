@@ -105,6 +105,13 @@
           <p id="source" class="muted"></p><p id="source-note" class="muted"></p>
           <p id="control-error" role="alert" hidden></p>
           <div id="reuse-tools"></div>
+          <details id="cleaning-preview">
+            <summary>Data preparation preview</summary>
+            <p class="muted">Inspect the saved figure's data and filters before auditing.</p>
+            <button id="cleaning-run" class="secondary" disabled>Preview data preparation</button>
+            <p id="cleaning-status" role="status"></p>
+            <div id="cleaning-results"></div>
+          </details>
           <div id="definition-inspector-layout"><div id="paper-inspector-host" hidden></div><div>
           <fieldset id="figure-controls" aria-label="Figure definition controls" disabled></fieldset>
           </div></div>

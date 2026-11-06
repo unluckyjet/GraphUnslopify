@@ -40,6 +40,13 @@
         </div>
         <div id="columns" class="profile"></div>
         <p id="profile-note" class="muted" hidden></p>
+        <details id="cleaning-preview">
+          <summary>Data preparation preview</summary>
+          <p class="muted">Inspect the current draft's missing values, conversions and exclusions before rendering.</p>
+          <button id="cleaning-run" class="secondary" disabled>Preview data preparation</button>
+          <p id="cleaning-status" role="status"></p>
+          <div id="cleaning-results"></div>
+        </details>
         <details id="designs" open hidden>
           <summary>Suggested figures</summary>
           <label>Starting design<select id="design-choice"></select></label>

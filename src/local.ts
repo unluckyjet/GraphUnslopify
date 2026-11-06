@@ -14,6 +14,7 @@ import { templateFields, remapTemplateFields } from "./template-fields.ts";
 export function dispatch(operation: string, payload: unknown): unknown {
   if (operation === "convert") return translate(payload);
   if (operation === "convert-observations") return translate(payload, true);
+  if (operation === "convert-cleaning-preview") return translate(payload, true, true);
   if (operation === "info") return { version: TOOL_VERSION, kinds: FIGURE_KINDS, node: process.version };
   if (operation === "schema") return z.toJSONSchema(FigureSpec, { target: "draft-7" });
   if (operation === "template-fields") return templateFields(payload);

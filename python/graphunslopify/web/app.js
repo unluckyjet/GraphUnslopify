@@ -1,3 +1,4 @@
+import { createCleaningPreview } from "/cleaning-preview.js";
 import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
@@ -183,8 +184,16 @@ function setSpec(spec) {
   $("spec").value = JSON.stringify(spec, null, 2);
   syncFields(spec);
 }
+const cleaningPreview = createCleaningPreview({
+  mount: $("cleaning-preview"), api, flush: () => controls.flush(),
+  context: () => data ? {
+    key: JSON.stringify([revision, data.id, palette?.id]),
+    payload: () => ({spec: readSpec(), data_id: data.id, palette_id: palette?.id}),
+  } : null,
+});
 function invalidate() {
   revision++;
+  cleaningPreview.update();
   reviewableRender = null; figureReviewer?.refresh();
   experimentImports?.refresh();
   sourceImports?.refresh();

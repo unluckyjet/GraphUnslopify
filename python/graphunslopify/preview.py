@@ -267,6 +267,12 @@ class PreviewState:
         output["formats"] = list(dict.fromkeys([*requested, "png"]))
         return spec, data, palette
 
+    def cleaning_preview(self, payload):
+        from .cleaning_preview import preview_preparation
+
+        spec, data, _ = self.prepare(payload)
+        return preview_preparation(spec, data["path"], self.local_request, scratch_root=self.root)
+
     def render(self, payload: dict[str, Any]) -> dict[str, Any]:
         client, generation = payload.get("client"), payload.get("generation")
         if (
@@ -689,6 +695,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/staged-preview.js",
                 "/workspace-commands.js",
                 "/reuse-intent.js",
+                "/cleaning-preview.js",
                 "/journal-checks.js",
                 "/context-inspector.js",
                 "/experiment-imports.js",
@@ -713,6 +720,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             "/staged-preview.js",
             "/workspace-commands.js",
             "/reuse-intent.js",
+            "/cleaning-preview.js",
             "/journal-checks.js",
             "/context-inspector.js",
             "/experiment-imports.js",
@@ -734,6 +742,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 "/staged-preview.js": "staged-preview.js",
                 "/workspace-commands.js": "workspace-commands.js",
                 "/reuse-intent.js": "reuse-intent.js",
+                "/cleaning-preview.js": "cleaning-preview.js",
                 "/journal-checks.js": "journal-checks.js",
                 "/context-inspector.js": "context-inspector.js",
                 "/experiment-imports.js": "experiment-imports.js",
@@ -758,6 +767,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     "staged-preview.js": "text/javascript; charset=utf-8",
                     "workspace-commands.js": "text/javascript; charset=utf-8",
                     "reuse-intent.js": "text/javascript; charset=utf-8",
+                    "cleaning-preview.js": "text/javascript; charset=utf-8",
                     "journal-checks.js": "text/javascript; charset=utf-8",
                     "context-inspector.js": "text/javascript; charset=utf-8",
                     "experiment-imports.js": "text/javascript; charset=utf-8",
@@ -990,6 +1000,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json({k: v for k, v in result.items() if k != "code"})
             elif route == "/api/render":
                 self.json(self.server.state.render(payload))
+            elif route == "/api/cleaning-preview":
+                self.json(self.server.state.cleaning_preview(payload))
             elif route == "/api/observations/query":
                 self.json(self.server.state.observations.query(payload))
             elif route == "/api/observations/download":

@@ -135,9 +135,10 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
 
   const plot = (indentLevel: string, source: string, styleExpr: string, label: string) => {
     const lines: string[] = [];
+    const traceSmoothing = traceEstimates && spec.smooth;
     if (spec.smooth?.show_raw) {
       lines.push(
-        `${indentLevel}ax.plot(`,
+        `${indentLevel}${traceSmoothing ? "_raw_curve, = " : ""}ax.plot(`,
         `${indentLevel}    ${source}[X_FIELD],`,
         `${indentLevel}    ${source}[Y_FIELD],`,
         `${indentLevel}    color=${styleExpr}["colour"],`,
@@ -146,8 +147,13 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
         `${indentLevel}    zorder=${styleExpr}["zorder"] - 1,`,
         `${indentLevel})`,
       );
+      if (traceSmoothing) lines.push(
+        `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
+        `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_raw_curve, ${source}, role="raw")`,
+      );
     }
-    const values = spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
+    if (traceSmoothing) lines.push(`${indentLevel}_smoothed_values, _smoothing_window = smooth(${source}[Y_FIELD], capture_window=True)`);
+    const values = traceSmoothing ? "_smoothed_values" : spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
     lines.push(
       `${indentLevel}_annotation_curve, = ax.plot(`,
       `${indentLevel}    ${source}[X_FIELD],`,
@@ -164,7 +170,9 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
     lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
     if (traceEstimates) lines.push(
       `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
-      `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`,
+      traceSmoothing
+        ? `${indentLevel}    OBSERVATION_CAPTURE.bind_smoothed_summary_curve(_annotation_curve, ${source}, _smoothed_values, _smoothing_window, method=${pyStr(traceSmoothing.kind)})`
+        : `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`,
     );
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,

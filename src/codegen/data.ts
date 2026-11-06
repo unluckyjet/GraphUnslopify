@@ -635,15 +635,19 @@ export function emitBootstrap(spec: FigureSpec, out: string[]): void {
   );
 }
 
-export function emitSmooth(spec: FigureSpec, out: string[]): void {
+export function emitSmooth(spec: FigureSpec, out: string[], traceEstimates: boolean): void {
   if (spec.kind !== "line" || !spec.smooth) return;
   const { kind, window } = spec.smooth;
-  out.push(
-    "",
-    "def smooth(values):",
-    kind === "ema"
-      ? `    return values.ewm(span=${window}, adjust=False).mean()`
-      : `    return values.rolling(${window}, min_periods=1, center=True).mean()`,
-    "",
-  );
+  const operation = kind === "ema"
+    ? `values.ewm(span=${window}, adjust=False)`
+    : `values.rolling(${window}, min_periods=1, center=True)`;
+  if (traceEstimates) {
+    out.push("", "def smooth(values, *, capture_window=False):",
+      `    window = ${operation}`,
+      "    result = window.mean()",
+      "    return (result, window) if capture_window else result",
+      "");
+  } else {
+    out.push("", "def smooth(values):", `    return ${operation}.mean()`, "");
+  }
 }

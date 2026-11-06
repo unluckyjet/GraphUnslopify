@@ -19,7 +19,7 @@ export function createObservationExplorer({api, token, client, current, supporte
   const image = $("preview"), trigger = $("trace-observations"), panel = $("observation-explorer");
   const picker = $("observation-panel"), row = $("observation-row"), column = $("observation-column");
   const intervalIndex = $("observation-interval-index"), estimateIndex = $("observation-estimate-index");
-  const mode = $("observation-summary-mode");
+  const mode = $("observation-summary-mode"), curve = $("observation-estimate-curve");
   const note = $("observation-status"), details = $("observation-details"), code = $("observation-code");
   const coverage = $("observation-coverage");
   const buttons = ["observation-pick", "observation-pick-interval", "observation-pick-estimate", "observation-filters", "observation-preparation",
@@ -63,10 +63,12 @@ export function createObservationExplorer({api, token, client, current, supporte
     code.hidden = true;
     code.textContent = "";
     picker.replaceChildren();
+    curve.replaceChildren();
     $("observation-cell-picker").hidden = true;
     $("observation-interval-picker").hidden = true;
     $("observation-estimate-picker").hidden = true;
     $("observation-summary-mode-label").hidden = true;
+    $("observation-estimate-curve-label").hidden = true;
     hide();
   }
 
@@ -89,6 +91,9 @@ export function createObservationExplorer({api, token, client, current, supporte
     const estimate = mode.value === "estimate";
     $("observation-estimate-picker").hidden = !estimate;
     $("observation-interval-picker").hidden = estimate;
+    $("observation-estimate-curve-label").hidden = !estimate || curve.options.length < 2;
+    estimateIndex.value = "1";
+    estimateIndex.max = String(binding.curves[curve.value] || binding.estimates);
     note.textContent = estimate ? "Click a plotted mark, or enter its number."
       : binding.band ? "Click the band, or enter a calculated interval number."
         : "Click a visible interval, or enter its number.";
@@ -115,6 +120,7 @@ export function createObservationExplorer({api, token, client, current, supporte
       grids: packet.grids,
       intervals: packet.intervals,
       estimates: packet.estimates,
+      curves: packet.estimate_curves || {},
       band: packet.band,
       filters: packet.filters,
       preparation: packet.preparation,
@@ -122,7 +128,9 @@ export function createObservationExplorer({api, token, client, current, supporte
     if (binding.intervals || binding.estimates) {
       intervalIndex.value = estimateIndex.value = "1";
       intervalIndex.max = String(binding.intervals);
-      estimateIndex.max = String(binding.estimates);
+      for (const role of Object.keys(binding.curves)) {
+        curve.add(new Option(role === "raw" ? "Unsmoothed summary" : "Smoothed estimate", role));
+      }
       mode.value = binding.intervals ? "interval" : "estimate";
       $("observation-summary-mode-label").hidden = !(binding.intervals && binding.estimates);
       updateSummaryPicker();
@@ -171,10 +179,11 @@ export function createObservationExplorer({api, token, client, current, supporte
     const item = value.node, metadata = item.metadata || {};
     let title = readable(item.operation || item.reason || item.kind);
     if (item.operation === "matrix_cell") title += " · " + metadata.row_label + " × " + metadata.column_label;
-    if (["summary_estimate", "summary_interval"].includes(item.operation)) {
+    if (["summary_estimate", "summary_smoothed_estimate", "summary_interval"].includes(item.operation)) {
       const keys = Object.entries(metadata.keys || {}).map(([name, value]) => readable(name) + " " + value);
       if (keys.length) title += " · " + keys.join(", ");
     }
+    if (item.operation === "summary_smoothed_estimate") title = title.replace(/^Summary smoothed estimate/i, "Smoothed estimate");
     if (item.operation === "summary_band_span") title = "Band between calculated intervals";
     if (item.operation === "summary_line_span") title = "Line between calculated estimates";
     if (item.kind === "observation") title = "Record " + (item.record_ordinal + 1);
@@ -278,9 +287,13 @@ export function createObservationExplorer({api, token, client, current, supporte
     if (intervalIndex.checkValidity()) void select({interval_index: intervalIndex.valueAsNumber - 1});
   };
   $("observation-pick-estimate").onclick = () => {
-    if (estimateIndex.checkValidity()) void select({estimate_index: estimateIndex.valueAsNumber - 1});
+    if (estimateIndex.checkValidity()) {
+      const target = {estimate_index: estimateIndex.valueAsNumber - 1};
+      if (curve.value) target.curve = curve.value;
+      void select(target);
+    }
   };
-  mode.onchange = () => {
+  mode.onchange = curve.onchange = () => {
     version++;
     selection = null;
     history = [];
@@ -310,7 +323,10 @@ export function createObservationExplorer({api, token, client, current, supporte
     const xScale = binding.width / rect.width, yScale = binding.height / rect.height;
     const position = [(event.clientX - rect.left) * xScale, (event.clientY - rect.top) * yScale];
     const target = {position};
-    if (binding.estimates && mode.value === "estimate") target.position_kind = "estimate";
+    if (binding.estimates && mode.value === "estimate") {
+      target.position_kind = "estimate";
+      if (curve.value) target.curve = curve.value;
+    }
     if (binding.intervals || binding.estimates) target.tolerance = Math.min(64, 2 * Math.max(xScale, yScale));
     void select(target);
   });

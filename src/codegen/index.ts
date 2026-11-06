@@ -665,7 +665,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
   const traceEstimates = traceSummary && spec.output.formats.includes("png")
     && (spec.kind === "forest" || (spec.kind === "bar" && !spec.stacked)
-      || (spec.kind === "line" && !spec.smooth));
+      || spec.kind === "line");
   const observationPng = traceMatrix && spec.output.formats.includes("png")
     ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];
@@ -686,7 +686,7 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
   emitSummarise(spec, out, traceSummary, traceIntervals || traceEstimates);
-  emitSmooth(spec, out);
+  emitSmooth(spec, out, traceEstimates);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
     out.push("", CELL_COLOUR_SOURCE, "");

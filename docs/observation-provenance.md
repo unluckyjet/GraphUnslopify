@@ -65,8 +65,17 @@ Unsmoothed line summaries also expose visible points. On a solid connection
 between two points, the graph shows both endpoint calculations and their
 source records. The connection has no separate numerical estimate. Dashed
 and simplified paths offer visible point markers where present, with a
-coverage message for the connections. Primary smoothed values and secondary
-axes are still part of the provenance roadmap.
+coverage message for the connections.
+
+On an aggregated line with smoothing, the smoothed estimate shows its
+actual pandas result and settings. A centered rolling estimate links the
+usable summary points in its window and lists unavailable inputs. An
+exponential estimate links its previous smoothing state and current
+measurement. Missing points can advance decay without contributing a
+measurement. When the unsmoothed summary overlay is visible, choose
+**Curve** to inspect it separately. The saved estimate command also accepts
+`--curve raw` or `--curve smoothed`. Secondary-axis and unaggregated line
+values remain in the provenance roadmap.
 
 For a saved render, run `graphunslopify explain-estimate figure.report.json X Y`
 or call `graphunslopify.observation_provenance.explain_saved_estimate`. Coordinates

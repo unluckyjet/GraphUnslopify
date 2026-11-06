@@ -159,6 +159,7 @@ export async function checkObservations(page: Page, evidence: string) {
       "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
       "a filled band span links both computed endpoints and an endpoint click selects its actual interval",
       "the same public PNG offers calculated line vertices and stroke connections independently of the uncertainty band",
+      "the public smoothed curve and its unsmoothed overlay have independent keyboard and pixel targets",
       "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
       "bar bodies and forest center dots select their estimates independently of intervals by keyboard and PNG position",
       "a bar without intervals opens the estimate picker directly",
@@ -340,10 +341,70 @@ async function checkLineIntervals(
       }
     }
   }
+  await page.locator("#spec").fill(JSON.stringify({
+    ...spec,
+    uncertainty: undefined,
+    smooth: { kind: "rolling", window: 3, show_raw: true },
+    output: { ...spec.output, stem: "smoothed" },
+  }));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const smoothRender = await (await click("trace-observations", "/api/render")).json();
+  assert.equal(smoothRender.report.status, "passed", JSON.stringify(smoothRender.report.findings));
+  assert.equal(smoothRender.observations.intervals, 0);
+  assert.deepEqual(smoothRender.observations.estimate_curves, { smoothed: 5, raw: 5 });
+  await page.locator("#observation-estimate-curve-label").waitFor();
+  const rolePicker = page.locator("#observation-estimate-curve");
+  assert.equal(await rolePicker.inputValue(), "smoothed");
+  const [smoothDownload] = await Promise.all([
+    page.waitForEvent("download"), page.locator("#observation-graph").click(),
+  ]);
+  const smoothPath = await smoothDownload.path();
+  assert.ok(smoothPath);
+  const smoothBytes = readFileSync(smoothPath);
+  const smoothRef = smoothRender.report.observation_selection;
+  assert.equal(digest(smoothBytes), smoothRef.sha256);
+  const smoothGraph = JSON.parse(smoothBytes.toString());
+  const smoothGeometry = smoothGraph.nodes.find((node: { id: string }) => node.id === smoothRef.summary_estimate_geometry_node_id);
+  const nextMasses = raw.toString().trim().split(/\r?\n/).slice(1).flatMap(line => {
+    const fields = line.split(",");
+    return fields[0] === "Adelie" && fields[6] === "male" && fields[7] === "2008" ? [Number(fields[5])] : [];
+  });
+  const nextMean = nextMasses.reduce((total, value) => total + value, 0) / nextMasses.length;
+  const expectedSmooth = (mean + nextMean) / 2;
+  const expectedRoles = [
+    { role: "smoothed", operation: "summary_smoothed_estimate", value: expectedSmooth, records: bandRows },
+    { role: "raw", operation: "summary_estimate", value: mean, records: masses.map(row => row.index) },
+  ];
+  for (const expected of expectedRoles) {
+    await rolePicker.selectOption(expected.role);
+    const chosen = (await (await click("observation-pick-estimate", query)).json()).selection;
+    const mark = smoothGeometry.metadata.estimates.find((item: { curve: string }) => item.curve === expected.role);
+    assert.equal(chosen.node.id, mark.node_id);
+    assert.equal(chosen.node.operation, expected.operation);
+    assert.equal(chosen.node.value, expected.value);
+    assert.deepEqual(chosen.contributing_records.items, expected.records);
+    if (expected.role === "smoothed") {
+      assert.equal(chosen.node.metadata.window, 3);
+      assert.equal(chosen.node.metadata.estimator, "centered_rolling_mean");
+    }
+    for (const width of [1500, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      const box = await image.boundingBox();
+      assert.ok(box);
+      const position = {
+        x: mark.center[0] * box.width / smoothRender.observations.image.width,
+        y: mark.center[1] * box.height / smoothRender.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      assert.equal((await response.json()).selection?.node.id, chosen.node.id);
+    }
+  }
+  await page.setViewportSize({ width: 1500, height: 1000 });
   assert.equal(digest(readFileSync(fixture)), digest(raw));
   return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths,
     band: { endpoint_years: bandYears, contributors: bandRows.length, linked_calculations: 2 },
-    estimate: { year: firstYear, mean, contributors: masses.length, connection_contributors: bandRows.length } };
+    estimate: { year: firstYear, mean, contributors: masses.length, connection_contributors: bandRows.length },
+    smoothing: { smoothed: expectedSmooth, raw: mean, smoothed_records: bandRows.length, raw_records: masses.length } };
 }
 
 async function checkSummaryChartIntervals(

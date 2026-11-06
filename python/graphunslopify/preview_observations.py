@@ -9,6 +9,7 @@ from .observation_geometry import (
     resolve_matrix_cell,
     resolve_summary_estimate,
     resolve_summary_interval,
+    summary_estimate_marks,
 )
 from .observation_provenance import _load_observation_selection
 from .preview_reviews import _file
@@ -27,12 +28,7 @@ def can_trace_observations(spec):
     aggregation = spec.get("aggregation")
     if kind == "bar":
         return aggregation in ("mean", "median", "sum", "count") and not spec.get("stacked", False)
-    if kind != "line" or aggregation not in ("mean", "median"):
-        return False
-    if not spec.get("smooth"):
-        return True
-    uncertainty = spec.get("uncertainty")
-    return isinstance(uncertainty, dict) and uncertainty.get("display", "band") in ("bar", "band")
+    return kind == "line" and aggregation in ("mean", "median")
 
 
 class PreviewObservations:
@@ -85,6 +81,7 @@ class PreviewObservations:
             interval_ids = self._interval_ids(geometry)
             coverage = geometry.get("coverage", [])
             gap = reference.get("summary_estimate_geometry_gap")
+            curves = {mark["curve"] for mark in geometry.get("estimates", ()) if "curve" in mark}
             return {
                 "available": True,
                 "image": geometry["image"],
@@ -94,6 +91,11 @@ class PreviewObservations:
                 ],
                 "intervals": len(interval_ids),
                 "estimates": len(self._estimate_ids(geometry)),
+                "estimate_curves": {
+                    role: len(self._estimate_ids(geometry, role))
+                    for role in ("smoothed", "raw")
+                    if role in curves
+                },
                 "estimate_coverage": [gap] if gap else coverage,
                 "band": bool(geometry.get("bands")),
                 "filters": reference["node_id"],
@@ -163,8 +165,10 @@ class PreviewObservations:
         return tuple(dict.fromkeys(identities))
 
     @staticmethod
-    def _estimate_ids(geometry):
-        return tuple(dict.fromkeys(mark["node_id"] for mark in geometry.get("estimates", ())))
+    def _estimate_ids(geometry, curve=None):
+        return tuple(
+            dict.fromkeys(mark["node_id"] for mark in summary_estimate_marks(geometry, curve))
+        )
 
     @staticmethod
     def _cell_center(geometry, cell):
@@ -194,7 +198,7 @@ class PreviewObservations:
         if len(selected) != 1 or type(offset) is not int or not 0 <= offset <= 200_000:
             raise ValueError("Choose one observation target and a valid page")
         owner, record, graph, geometry, reference = self._owned(
-            payload, selectors | {"offset", "tolerance", "position_kind"}
+            payload, selectors | {"offset", "tolerance", "position_kind", "curve"}
         )
         estimate = payload.get("position_kind") == "estimate" or (
             "estimates" in geometry and "strokes" not in geometry
@@ -205,6 +209,12 @@ class PreviewObservations:
             or "estimates" not in geometry
         ):
             raise ValueError("Choose a position on the estimate PNG")
+        curve = payload.get("curve")
+        if "curve" in payload and (
+            curve not in ("raw", "smoothed")
+            or not ("estimate_index" in payload or ("position" in payload and estimate))
+        ):
+            raise ValueError("Choose a raw or smoothed estimate mark")
         if "tolerance" in payload and (
             "position" not in payload or ("strokes" not in geometry and not estimate)
         ):
@@ -217,7 +227,7 @@ class PreviewObservations:
             interval = "interval_index" in payload
             key = "interval_index" if interval else "estimate_index"
             index = payload[key]
-            ids = self._interval_ids(geometry) if interval else self._estimate_ids(geometry)
+            ids = self._interval_ids(geometry) if interval else self._estimate_ids(geometry, curve)
             if type(index) is not int or not 0 <= index < len(ids):
                 raise ValueError(
                     "Choose a visible interval" if interval else "Choose a visible estimate"
@@ -235,7 +245,7 @@ class PreviewObservations:
                 raise ValueError("Use two natural image coordinates")
             if estimate:
                 node_id = resolve_summary_estimate(
-                    geometry, *point, tolerance=payload.get("tolerance", 0)
+                    geometry, *point, tolerance=payload.get("tolerance", 0), curve=curve
                 )
             elif "strokes" in geometry:
                 node_id = resolve_summary_interval(

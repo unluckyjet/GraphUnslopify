@@ -133,7 +133,11 @@ their estimates. A supported solid stroke links its two calculated endpoints.
 Missing values break the path. The line, its point estimates, and its uncertainty
 strokes or band are picked against the same final PNG. Dashed and simplified
 connections show an explicit coverage gap while retaining visible point markers.
-The smoothing, secondary-axis and remaining line paths stay in the full scope.
+For smoothed summaries, the plotted pandas window supplies the actual value
+and settings. The trace captures finite rolling-window membership or causal
+exponential state, with scoped unavailable positions. When the unsmoothed
+summary overlay is drawn, it can be selected independently of the smoothed
+curve. Secondary axes, unaggregated lines and remaining paths stay in scope.
 
 ## Measured references and current limits
 

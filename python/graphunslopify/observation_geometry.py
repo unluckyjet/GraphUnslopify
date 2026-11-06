@@ -563,7 +563,8 @@ def _collect_estimates(figure, renderer, entries, gaps, coverage):
                 if len(entries) >= MAX_ESTIMATE_MARKS:
                     gaps.append("Estimate geometry exceeds its mark capacity")
                     return
-                entries.append((mark_identity, clip, mark_shape))
+                role = getattr(artist, "_graphunslopify_estimate_role", None)
+                entries.append((mark_identity, clip, mark_shape, role))
         except ValueError as problem:
             gaps.append(str(problem))
 
@@ -572,8 +573,9 @@ def _estimate_pixels(image, snapshot, entries):
     width, height = image["width"], image["height"]
     origin_x, origin_y = snapshot["origin"]
     marks = []
-    for identity, raw_clip, (kind, points) in entries:
+    for identity, raw_clip, (kind, points), role in entries:
         clip = _pixel_clip(raw_clip, snapshot["origin"], width, height)
+        scoped = {"curve": role} if role is not None else {}
         left, top, right, bottom = clip
         if left >= right or top >= bottom:
             continue
@@ -586,7 +588,7 @@ def _estimate_pixels(image, snapshot, entries):
                 min(bottom, height - y0 + origin_y),
             ]
             if bounds[0] < bounds[2] and bounds[1] < bounds[3]:
-                marks.append({"node_id": identity, "kind": kind, "bounds": bounds})
+                marks.append({"node_id": identity, "kind": kind, "bounds": bounds, **scoped})
         elif kind == "segment":
             first, second, radius = points
             endpoints = [[x - origin_x, height - y + origin_y] for x, y in (first, second)]
@@ -598,6 +600,7 @@ def _estimate_pixels(image, snapshot, entries):
                         "endpoints": endpoints,
                         "radius": radius,
                         "clip": clip,
+                        **scoped,
                     }
                 )
         else:
@@ -616,6 +619,7 @@ def _estimate_pixels(image, snapshot, entries):
                         "center": [x, y],
                         "radius": radius,
                         "clip": clip,
+                        **scoped,
                     }
                 )
     return marks
@@ -909,8 +913,9 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
     return next(iter(matches), None)
 
 
-def _finite_estimate(node):
-    return node.get("operation") == "summary_estimate" and finite_number(node.get("value"))
+def _finite_estimate(node, role):
+    operation = "summary_smoothed_estimate" if role == "smoothed" else "summary_estimate"
+    return node.get("operation") == operation and finite_number(node.get("value"))
 
 
 def _valid_line_span(mark, span, nodes, image):
@@ -925,7 +930,9 @@ def _valid_line_span(mark, span, nodes, image):
         and all(isinstance(identity, str) for identity in endpoints)
         and endpoints[0] != endpoints[1]
         and span["inputs"] == endpoints
-        and all(_finite_estimate(nodes.get(identity, {})) for identity in endpoints)
+        and all(
+            _finite_estimate(nodes.get(identity, {}), mark.get("curve")) for identity in endpoints
+        )
         and span["metadata"].get("endpoint_keys")
         == [nodes[identity]["metadata"]["keys"] for identity in endpoints]
         and _finite_points(points, 2)
@@ -963,11 +970,13 @@ def validate_summary_estimate_geometry(node, nodes):
             raise TypeError("An estimate mark has no calculation identity")
         identity = mark["node_id"]
         target = nodes.get(identity, {})
-        kind = mark.get("kind")
+        kind, role = mark.get("kind"), mark.get("curve")
+        if "curve" in mark and (role not in ("raw", "smoothed") or kind == "bar"):
+            raise ValueError("Unknown summary line curve")
         if kind == "segment":
             if not _valid_line_span(mark, target, nodes, image):
                 raise ValueError("Line connection does not match its two finite endpoint estimates")
-        elif not _finite_estimate(target):
+        elif not _finite_estimate(target, role):
             raise ValueError("Estimate geometry does not match a finite summary estimate")
         elif kind == "bar":
             if not _valid_clip(mark.get("bounds"), image):
@@ -999,14 +1008,27 @@ def _distance_to_segment(points, x, y):
     return math.hypot(x - (x0 + fraction * dx), y - (y0 + fraction * dy))
 
 
-def resolve_summary_estimate(info, x, y, *, tolerance=0):
+def summary_estimate_marks(info, curve=None):
+    """Return the marks for the requested curve, or the visible default."""
+    marks = info.get("estimates", ())
+    if curve is not None and curve not in ("raw", "smoothed"):
+        raise ValueError("Choose the raw or smoothed curve")
+    roles = {mark.get("curve") for mark in marks}
+    if curve is not None and curve not in roles:
+        raise ValueError("The selected curve has no visible marks")
+    if curve is None:
+        curve = next((role for role in ("smoothed", "raw") if role in roles), None)
+    return tuple(mark for mark in marks if mark.get("curve") == curve)
+
+
+def resolve_summary_estimate(info, x, y, *, tolerance=0, curve=None):
     """Pick a bar, center or line connection in natural PNG coordinates."""
     if not finite_number(x) or not finite_number(y):
         raise ValueError("Estimate PNG coordinates must be finite numbers")
     if not finite_number(tolerance) or not 0 <= tolerance <= 64:
         raise ValueError("Estimate PNG pick tolerance must be between 0 and 64 pixels")
     matches, spans = set(), {}
-    for mark in info["estimates"]:
+    for mark in summary_estimate_marks(info, curve):
         kind = mark["kind"]
         left, top, right, bottom = mark["bounds"] if kind == "bar" else mark["clip"]
         if not (left <= x < right and top <= y < bottom):

@@ -98,7 +98,10 @@ def _explain_observation(args: argparse.Namespace) -> int:
     }
     try:
         explain = handlers[args.observation_command]
-        result = explain(args.report, args.x, args.y, run_directory=args.run_dir)
+        options = {"run_directory": args.run_dir}
+        if args.observation_command == "explain-estimate":
+            options["curve"] = args.curve
+        result = explain(args.report, args.x, args.y, **options)
     except (AttributeError, OSError, KeyError, TypeError, ValueError) as problem:
         print(str(problem), file=sys.stderr)
         return 2
@@ -1210,6 +1213,10 @@ def build_parser() -> argparse.ArgumentParser:
         explain.add_argument(
             "--run-dir", help="original render directory (default: beside the report)"
         )
+        if name == "explain-estimate":
+            explain.add_argument(
+                "--curve", choices=("raw", "smoothed"), help="choose a displayed curve"
+            )
         explain.set_defaults(handler=_explain_observation, observation_command=name)
 
     demo = commands.add_parser("demo", help="generate and strictly verify public toy results")

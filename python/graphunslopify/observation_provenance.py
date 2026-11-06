@@ -969,10 +969,93 @@ class _ObservationSelection:
         """Tag the center marker with the estimate from the forest's chosen row."""
         artist._graphunslopify_estimate_id = drawn[self._estimate_column].iloc[0]
 
-    def bind_summary_curve(self, artist, drawn):
-        """Attach ordered summary points to the actual primary line artist."""
+    @staticmethod
+    def _tag_summary_curve(artist, identities, role):
         artist._graphunslopify_estimate_id = None
-        artist._graphunslopify_estimate_ids = tuple(drawn[self._estimate_column])
+        artist._graphunslopify_estimate_ids = identities
+        artist._graphunslopify_estimate_role = role
+
+    def bind_summary_curve(self, artist, drawn, *, role=None):
+        """Attach the summary positions in this artist's draw order."""
+        self._tag_summary_curve(artist, tuple(drawn[self._estimate_column]), role)
+
+    def bind_smoothed_summary_curve(self, artist, drawn, values, smoothing, *, method):
+        """Attach the actual smoothing outputs and their positional dependencies."""
+        import numpy as np
+
+        source_ids = tuple(drawn[self._estimate_column])
+        if len(source_ids) != len(values) or len(source_ids) != len(smoothing.obj):
+            raise ValueError("Smoothing results do not match the drawn summary positions")
+        base = [self.ledger._nodes[item] for item in source_ids]
+        usable = np.isfinite(smoothing.obj.to_numpy(dtype=float, na_value=np.nan))
+        config = {"pandas": pd.__version__, "min_periods": smoothing.min_periods}
+        if method == "rolling":
+            if not smoothing.center or smoothing.closed is not None or smoothing.step is not None:
+                raise ValueError("Unsupported rolling window placement")
+            window = smoothing.window
+            config.update(estimator="centered_rolling_mean", window=window, center=smoothing.center)
+        elif method == "ema":
+            if smoothing.adjust or smoothing.ignore_na or smoothing.times is not None:
+                raise ValueError("Unsupported exponential smoothing settings")
+            config.update(
+                estimator="exponential_mean",
+                span=smoothing.span,
+                adjust=smoothing.adjust,
+                ignore_na=smoothing.ignore_na,
+            )
+        else:
+            raise ValueError("Unsupported smoothing estimator")
+
+        result = []
+        previous = None
+        for index, value in enumerate(values):
+            if method == "rolling":
+                start = max(0, index - window // 2)
+                stop = min(len(base), index + (window - 1) // 2 + 1)
+                inputs = [source_ids[i] for i in range(start, stop) if usable[i]]
+                missing = [source_ids[i] for i in range(start, stop) if not usable[i]]
+            else:
+                inputs = [previous] if previous is not None else []
+                missing = []
+                if usable[index]:
+                    inputs.append(source_ids[index])
+                else:
+                    missing.append(source_ids[index])
+            excluded = (
+                [
+                    self.ledger.exclude(
+                        "smoothing_input_unavailable",
+                        missing,
+                        stage="smoothing",
+                        metadata={"advances_decay": method == "ema" and previous is not None},
+                    )
+                ]
+                if missing
+                else []
+            )
+            identity = self._measurement(
+                "summary_smoothed_estimate",
+                inputs,
+                value,
+                {
+                    **config,
+                    "keys": base[index]["metadata"]["keys"],
+                    "field": base[index]["metadata"]["field"],
+                    "curve_position": index,
+                },
+                excluded=excluded,
+            )
+            result.append(identity)
+            if method == "ema" and (previous is not None or usable[index]):
+                previous = identity
+        root = self.ledger.calculate(
+            "summary_panel",
+            result,
+            value=len(result),
+            metadata={"curve": "smoothed", **config},
+        )
+        self._summary_roots[root] = None
+        self._tag_summary_curve(artist, tuple(result), "smoothed")
 
     def bind_summary_intervals(self, container, drawn):
         """Associate actual error bars with the interval nodes in draw order."""
@@ -1550,15 +1633,20 @@ def explain_saved_interval(
 
 
 def explain_saved_estimate(
-    report_path: str | Path, x: float, y: float, *, run_directory: str | Path | None = None
+    report_path: str | Path,
+    x: float,
+    y: float,
+    *,
+    run_directory: str | Path | None = None,
+    curve: str | None = None,
 ) -> dict[str, Any]:
-    """Explain the summary estimate at a coordinate in the exact saved PNG."""
+    """Explain a mark in the saved PNG, optionally selecting its raw or smoothed curve."""
     return _explain_saved_position(
-        report_path, x, y, run_directory, geometry_key="summary_estimate"
+        report_path, x, y, run_directory, geometry_key="summary_estimate", curve=curve
     )
 
 
-def _explain_saved_position(report_path, x, y, run_directory, *, geometry_key):
+def _explain_saved_position(report_path, x, y, run_directory, *, geometry_key, curve=None):
     from .observation_geometry import (
         resolve_matrix_cell,
         resolve_summary_estimate,
@@ -1605,7 +1693,7 @@ def _explain_saved_position(report_path, x, y, run_directory, *, geometry_key):
     elif geometry_key == "summary_interval":
         target_id = resolve_summary_interval(node["metadata"], x, y)
     else:
-        target_id = resolve_summary_estimate(node["metadata"], x, y)
+        target_id = resolve_summary_estimate(node["metadata"], x, y, curve=curve)
     return {
         "run_id": run_id,
         "image": copy.deepcopy(node["metadata"]["image"]),

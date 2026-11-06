@@ -20456,8 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "211fac1b49e8f881c4e0c4d61cd5f31e3f28266e534ee639a06190e007a9c497";
-var OBSERVATION_GEOMETRY_SHA256 = "bd0dc56163e4a7962574a548d948ef33338ed02c45c46c6fd11288bd54d46f23";
+var OBSERVATION_SOURCE_SHA256 = "5d328d00d7eecaa55bd134278695a1534791f21b8a2ff634c16e7f06a6844ad3";
+var OBSERVATION_GEOMETRY_SHA256 = "a9ed2cfe89a930392410073f135c13745445d782ae72058c1fdaa10dad3830f4";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -21025,15 +21025,22 @@ function emitBootstrap(spec, out) {
     ""
   );
 }
-function emitSmooth(spec, out) {
+function emitSmooth(spec, out, traceEstimates) {
   if (spec.kind !== "line" || !spec.smooth) return;
   const { kind, window } = spec.smooth;
-  out.push(
-    "",
-    "def smooth(values):",
-    kind === "ema" ? `    return values.ewm(span=${window}, adjust=False).mean()` : `    return values.rolling(${window}, min_periods=1, center=True).mean()`,
-    ""
-  );
+  const operation = kind === "ema" ? `values.ewm(span=${window}, adjust=False)` : `values.rolling(${window}, min_periods=1, center=True)`;
+  if (traceEstimates) {
+    out.push(
+      "",
+      "def smooth(values, *, capture_window=False):",
+      `    window = ${operation}`,
+      "    result = window.mean()",
+      "    return (result, window) if capture_window else result",
+      ""
+    );
+  } else {
+    out.push("", "def smooth(values):", `    return ${operation}.mean()`, "");
+  }
 }
 
 // src/capabilities.ts
@@ -22861,9 +22868,10 @@ function emitLine(spec, out, traceIntervals, traceEstimates) {
   if (needsMissingIntervalReport(spec)) out.push("    note_missing_interval(frame)");
   const plot = (indentLevel, source, styleExpr, label) => {
     const lines = [];
+    const traceSmoothing = traceEstimates && spec.smooth;
     if (spec.smooth?.show_raw) {
       lines.push(
-        `${indentLevel}ax.plot(`,
+        `${indentLevel}${traceSmoothing ? "_raw_curve, = " : ""}ax.plot(`,
         `${indentLevel}    ${source}[X_FIELD],`,
         `${indentLevel}    ${source}[Y_FIELD],`,
         `${indentLevel}    color=${styleExpr}["colour"],`,
@@ -22872,8 +22880,13 @@ function emitLine(spec, out, traceIntervals, traceEstimates) {
         `${indentLevel}    zorder=${styleExpr}["zorder"] - 1,`,
         `${indentLevel})`
       );
+      if (traceSmoothing) lines.push(
+        `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
+        `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_raw_curve, ${source}, role="raw")`
+      );
     }
-    const values = spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
+    if (traceSmoothing) lines.push(`${indentLevel}_smoothed_values, _smoothing_window = smooth(${source}[Y_FIELD], capture_window=True)`);
+    const values = traceSmoothing ? "_smoothed_values" : spec.smooth ? `smooth(${source}[Y_FIELD])` : `${source}[Y_FIELD]`;
     lines.push(
       `${indentLevel}_annotation_curve, = ax.plot(`,
       `${indentLevel}    ${source}[X_FIELD],`,
@@ -22890,7 +22903,7 @@ function emitLine(spec, out, traceIntervals, traceEstimates) {
     lines.push(`${indentLevel}series_artist(_annotation_curve, ${spec.group ? "name" : "None"})`);
     if (traceEstimates) lines.push(
       `${indentLevel}if OBSERVATION_CAPTURE is not None:`,
-      `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`
+      traceSmoothing ? `${indentLevel}    OBSERVATION_CAPTURE.bind_smoothed_summary_curve(_annotation_curve, ${source}, _smoothed_values, _smoothing_window, method=${pyStr(traceSmoothing.kind)})` : `${indentLevel}    OBSERVATION_CAPTURE.bind_summary_curve(_annotation_curve, ${source})`
     );
     if (spec.annotate?.length) lines.push(
       `${indentLevel}_annotation_curve._graphunslopify_annotation_primary = True`,
@@ -26661,7 +26674,7 @@ function emitPython(spec, traceObservations = false) {
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
   const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
-  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked || spec.kind === "line" && !spec.smooth);
+  const traceEstimates = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "bar" && !spec.stacked || spec.kind === "line");
   const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceEstimates ? "summary_marks" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;
@@ -26682,7 +26695,7 @@ function emitPython(spec, traceObservations = false) {
   emitBootstrap(spec, out);
   emitMissingIntervalReport(spec, out);
   emitSummarise(spec, out, traceSummary, traceIntervals || traceEstimates);
-  emitSmooth(spec, out);
+  emitSmooth(spec, out, traceEstimates);
   emitHelpers(spec, out);
   if ((spec.kind === "heatmap" || spec.kind === "confusion_matrix") && spec.annotate_cells) {
     out.push("", CELL_COLOUR_SOURCE, "");

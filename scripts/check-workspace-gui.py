@@ -31,6 +31,13 @@ def check(browser_file, output, *, execution_context=None):
     evaluate = runpy.run_path(str(HERE / "evaluation.py"))["evaluate"]
     truth = json.loads((HERE / "ground-truth.json").read_text(encoding="utf8"))
     digest = lambda raw: hashlib.sha256(raw).hexdigest()
+    package = runner["expected_package"]()
+    # Offline bundles carry editor images alongside the run's original exports.
+    runtime_images = {
+        f"_graphunslopify/runtime/graphunslopify/{name}": signature
+        for name, signature in package.items()
+        if name.endswith((".png", ".svg", ".pdf"))
+    }
     startup = json.loads((root / "server/startup.json").read_text(encoding="utf8"))
     closure = json.loads((root / "server/closure.json").read_text(encoding="utf8"))
     errors = []
@@ -42,7 +49,7 @@ def check(browser_file, output, *, execution_context=None):
         errors.append("actual_gui_execution_profile_differs")
     if (
         startup["source_sha256"] != runner["source_snapshot"]()
-        or startup["package_sha256"] != runner["expected_package"]()
+        or startup["package_sha256"] != package
         or closure["errors"]
         or closure["pid"] != startup["pid"]
         or browser["server_exit_code"] != 0
@@ -179,17 +186,15 @@ def check(browser_file, output, *, execution_context=None):
                             raise ValueError("GUI bundle has an unsafe member")
                         archive.read(name)
                     original = observed[download["run_id"]]["result"]
-                    exports = {
-                        name
+                    images = {
+                        name: digest(archive.read(name))
                         for name in archive.namelist()
                         if name.endswith((".png", ".svg", ".pdf"))
                     }
-                    if exports != set(original["outputs"]) or any(
-                        digest(archive.read(name)) != signature
-                        for name, signature in original["outputs"].items()
-                    ):
+                    expected_images = original["outputs"] | runtime_images
+                    if images != expected_images:
                         raise ValueError(
-                            "Downloaded GUI bundle does not contain the current original exports"
+                            "Downloaded GUI bundle images differ from the current exports or runtime package"
                         )
             elif download["kind"] == "template":
                 template = json.loads(path.read_text(encoding="utf8"))

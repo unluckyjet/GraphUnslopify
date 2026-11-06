@@ -151,7 +151,8 @@ try {
   for (const figure of styledEvent.result.audit.figures) { assert.equal(figure.report.spec.output.size, "double_column"); assert.equal(figure.report.spec.output.dpi, 144); assert.equal(figure.report.spec.style.grid, true); }
   await page.locator("#show-comparison").click();
   await page.waitForFunction(() => document.querySelector("#comparison")?.hidden === false);
-  assert.equal(await page.locator("#comparison img").count(), 2);
+  assert.equal(await page.locator(".comparison-images img").count(), 2);
+  assert.equal(await page.getByRole("slider", { name: /Reveal updated render/ }).count(), 0);
   workflows.push("shared settings applied to every actual report and verified before-after previews");
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("link", { name: "PNG", exact: true }).click();
@@ -163,6 +164,7 @@ try {
 
   if (await page.locator("#definition-panel").getAttribute("open") === null) await page.locator("#definition-panel > summary").click();
   const wrong = structuredClone(good); wrong.claims[0].subject = "base"; wrong.claims[0].reference = "ours";
+  wrong.marker = true;
   await page.locator("#definition").fill(JSON.stringify(wrong, null, 2));
   await page.locator("#save-definition").click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
@@ -175,11 +177,63 @@ try {
   assert.match(await page.locator("#checks").innerText(), /Why it matters:[\s\S]*Recommended correction:/);
   await page.locator("#show-comparison").click();
   await page.waitForFunction(() => document.querySelector("#comparison")?.hidden === false);
-  assert.equal(await page.locator("#comparison img").count(), 3);
+  assert.equal(await page.locator(".comparison-images img").count(), 3);
+  const compared = await api("/api/comparison?" + new URLSearchParams({ event: failed, figure: "figure" }));
+  assert.ok(compared.metrics.visible_pixels_changed > 0);
+  assert.deepEqual(compared.before.dimensions, compared.after.dimensions);
+  const slider = page.getByRole("slider", { name: "Reveal updated render for figure" });
+  const stack = page.locator(".comparison-wipe-stack");
+  for (const [index, side] of ["before", "after"].entries()) {
+    await page.waitForFunction(selector => {
+      const image = document.querySelector(selector);
+      return image?.complete && image.naturalWidth > 0;
+    }, ".comparison-wipe-" + side);
+    assert.equal(await stack.locator(".comparison-wipe-" + side).getAttribute("src"),
+      await page.locator(".comparison-images img").nth(index).getAttribute("src"));
+  }
+  const wipe = () => page.evaluate('getComputedStyle(document.querySelector(".comparison-wipe-stack")).getPropertyValue("--wipe-position")');
+  await slider.focus();
+  await slider.press("Home");
+  assert.equal(await wipe(), "0%");
+  assert.equal(await slider.getAttribute("aria-valuetext"), "Before only");
+  await slider.press("End");
+  assert.equal(await wipe(), "100%");
+  assert.equal(await slider.getAttribute("aria-valuetext"), "After only");
+  await slider.press("Home");
+  await slider.scrollIntoViewIfNeeded();
+  const track = await slider.boundingBox();
+  assert.ok(track);
+  const midpoint = track.y + track.height / 2;
+  await page.mouse.move(track.x + 7, midpoint);
+  await page.mouse.down();
+  await page.mouse.move(track.x + track.width * 0.73, midpoint, { steps: 8 });
+  await page.mouse.up();
+  const dragged = Number(await slider.inputValue());
+  assert.ok(dragged > 65 && dragged < 80);
+  assert.equal(await wipe(), dragged + "%");
+  assert.notEqual(await page.evaluate('getComputedStyle(document.querySelector(".comparison-wipe-after")).clipPath'), "none");
+  const beforeViewport = page.viewportSize();
+  assert.ok(beforeViewport);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await page.locator(".comparison-wipe").screenshot({ path: join(evidence, "comparison-wipe-mobile.png") });
+  await page.setViewportSize(beforeViewport);
+  const imageHashes = Object.fromEntries(Object.entries(compared.images).map(([side, url]) => {
+    const encoded = String(url).split(",", 2)[1];
+    assert.ok(encoded);
+    return [side, hash(Buffer.from(encoded, "base64"))];
+  }));
+  writeFileSync(join(evidence, "comparison-wipe-evidence.json"), JSON.stringify({
+    before: compared.baseline, after: failed, dimensions: compared.before.dimensions,
+    visible_pixels_changed: compared.metrics.visible_pixels_changed, image_hashes: imageHashes,
+    pointer_position: dragged, keyboard_endpoints: ["Before only", "After only"],
+  }, null, 2) + "\n");
+  workflows.push("real saved comparable renders support pointer and keyboard wipe, with no wipe for unequal canvases");
   await page.locator("#show-source").click();
   await page.waitForFunction(() => document.querySelector("#saved-source-panel")?.hidden === false);
   assert.equal(JSON.parse(await page.locator("#saved-source").inputValue()).claims[0].subject, "base");
   await page.locator("#definition").fill(JSON.stringify(good, null, 2));
+  assert.equal(await slider.isHidden(), true);
   await page.locator("#save-definition").click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent.includes("Saved. Audit"));
   await audit("passed");

@@ -93,6 +93,13 @@ comparisons of decoded channels, not perceptual-similarity, ICC color-managed
 equivalence or statistical-equivalence measures. Original color profiles are not
 applied to the channel measurements or normalized PNG previews.
 
+In the paper workspace, open a saved audit and choose **Compare with baseline**.
+For a verified pair on the same raster grid, drag **Reveal updated render** or
+use its arrow keys. The left side reveals the updated image as the divider
+moves. Home shows the baseline and End shows the updated render. The separate
+previews and difference map remain available. A missing or incompatible pair
+keeps its individual previews and evidence messages.
+
 ## Meaning and exit policy
 
 Explanations show actual before/after claim verdicts, setting paths, errors,

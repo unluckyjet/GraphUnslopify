@@ -476,6 +476,35 @@ async function showFigure() {
     image.src = source; image.hidden = false;
   } catch (problem) { if (version === evidence) $("preview-note").textContent = problem.message; }
 }
+function comparisonWipe(root, images, id) {
+  const figure = el("figure", undefined, root);
+  figure.className = "comparison-wipe";
+  const stack = el("div", undefined, figure);
+  stack.className = "comparison-wipe-stack";
+  stack.setAttribute("aria-hidden", "true");
+  for (const key of ["before", "after"]) {
+    const image = el("img", undefined, stack);
+    image.className = "comparison-wipe-" + key;
+    image.alt = "";
+    image.src = images[key];
+  }
+  const label = el("label", "Reveal updated render", figure);
+  const slider = el("input", undefined, label);
+  slider.type = "range";
+  slider.min = "0"; slider.max = "100"; slider.value = "50";
+  slider.setAttribute("aria-label", "Reveal updated render for " + id);
+  const caption = el("figcaption", undefined, figure);
+  const update = () => {
+    const value = Number(slider.value);
+    stack.style.setProperty("--wipe-position", value + "%");
+    const text = value === 0 ? "Before only" : value === 100 ? "After only" : value + "% after, " + (100 - value) + "% before";
+    slider.setAttribute("aria-valuetext", text);
+    caption.textContent = text;
+  };
+  slider.addEventListener("input", update);
+  update();
+}
+
 async function compare() {
   const version = evidence, id = $("history-figure").value;
   const result = await api("/api/comparison?" + new URLSearchParams({ event: event.id, figure: id }));
@@ -483,6 +512,7 @@ async function compare() {
   const root = $("comparison"); root.replaceChildren(); root.hidden = false;
   el("h3", "Before, after & difference", root);
   if (!result.available) { el("p", result.reason, root); return; }
+  if (result.metrics) comparisonWipe(root, result.images, id);
   const grid = el("div", undefined, root); grid.className = "comparison-images";
   for (const key of ["before", "after", "difference"]) {
     const frame = el("figure", undefined, grid);

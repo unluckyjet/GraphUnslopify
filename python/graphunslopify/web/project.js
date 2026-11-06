@@ -5,6 +5,7 @@ import { createScientificReview } from "/project-review.js";
 import { createSharedChangeReview } from "/project-shared.js";
 import { createSelectionReview } from "/project-selection.js";
 import { createFigureComments } from "/project-comments.js";
+import { createPresentationPreview } from "/project-presentation.js";
 import { chartEntries, createWorkspaceCommands, settingEntries } from "/workspace-commands.js";
 import { createIntentReuse } from "/reuse-intent.js";
 import { createJournalChecks } from "/journal-checks.js";
@@ -58,6 +59,7 @@ async function api(path, body) {
 }
 const protect = (path, query) => path + "?" + new URLSearchParams({ ...query, token });
 const figureComments = createFigureComments($("figure-comments"), { api, token });
+const presentationPreview = createPresentationPreview($("figure-presentation"), api);
 function object(text, label) {
   const value = JSON.parse(text);
   if (!value || typeof value !== "object" || Array.isArray(value)) throw Error(label + " must be a JSON object.");
@@ -368,6 +370,7 @@ function clearEvidence() {
   clearInspector();
   journalChecks.clear();
   figureComments.mount(null);
+  presentationPreview.mount(null);
   $("preview").hidden = true; $("preview").removeAttribute("src");
   $("preview-note").hidden = false;
   $("preview-note").textContent = "No static preview in this event.";
@@ -441,6 +444,7 @@ async function showFigure() {
   if (report?.alt_text) { const details = el("details", undefined, $("checks")); el("summary", "Figure description", details); el("p", report.alt_text, details); }
   figure.outputs.forEach((output, index) => { const link = el("a", output.format.toUpperCase(), $("exports")); link.className = "download"; link.href = protect("/api/artifact", { event: event.id, figure: id, index }); });
   if (figure.outputs.some(output => output.format === "png")) figureComments.mount({ event: event.id, figure: id });
+  if (figure.outputs.some(output => ["pdf", "png", "svg"].includes(output.format))) presentationPreview.mount({ event: event.id, figure: id });
   journalChecks.mount({
     key: journalIdentity(),
     files: figure.outputs.flatMap((output, index) => ["png", "svg", "pdf", "eps", "tiff", "tif", "jpeg", "jpg"].includes(output.format)

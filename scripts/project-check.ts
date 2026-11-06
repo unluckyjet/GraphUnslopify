@@ -86,6 +86,49 @@ try {
   const firstBytes = inventory(firstFolder);
   workflows.push("two-figure strict audit and actual preview");
 
+  const presentation = page.locator("#figure-presentation");
+  await presentation.locator("summary").click();
+  await presentation.locator("#presentation-content").waitFor();
+  const placement = await api("/api/presentation?" + new URLSearchParams({ event: first, figure: "figure" }));
+  assert.equal(placement.event, first);
+  assert.equal(placement.exit_code, 0);
+  const layout = presentation.getByLabel("Page layout");
+  const sheet = presentation.locator(".presentation-sheet");
+  const placed = presentation.locator("#presentation-image");
+  const scaleEvidence = [];
+  for (const key of ["single_column", "double_column", "slide"]) {
+    await layout.selectOption(key);
+    const measured = placement.layouts[key];
+    const pageBox = await sheet.boundingBox();
+    const figureBox = await placed.boundingBox();
+    const headingBox = await sheet.locator(".presentation-heading").boundingBox();
+    assert.ok(pageBox && figureBox && headingBox);
+    assert.ok(headingBox.y + headingBox.height <= figureBox.y);
+    assert.ok(Math.abs(pageBox.width / pageBox.height - measured.page_mm[0] / measured.page_mm[1]) < 0.01);
+    assert.ok(Math.abs(figureBox.width / pageBox.width - measured.placed_mm[2] / measured.page_mm[0]) < 0.01);
+    assert.equal(await placed.getAttribute("src"), placement.image);
+    const description = await presentation.locator("#presentation-measurements").innerText();
+    assert.ok(description.includes(measured.placed_mm[2].toFixed(1) + " × " + measured.placed_mm[3].toFixed(1)));
+    if (measured.minimum_text_pt !== null) assert.ok(description.includes(measured.minimum_text_pt.toFixed(1) + " pt"));
+    if (measured.raster_dpi) assert.match(description, /Effective raster resolution/);
+    await sheet.screenshot({ path: join(evidence, "presentation-" + key + ".png") });
+    scaleEvidence.push({ key, placement: measured, description });
+  }
+  const presentationViewport = page.viewportSize();
+  assert.ok(presentationViewport);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  const slideHeading = await sheet.locator(".presentation-heading").boundingBox();
+  const slideFigure = await placed.boundingBox();
+  assert.ok(slideHeading && slideFigure && slideHeading.y + slideHeading.height <= slideFigure.y);
+  await sheet.screenshot({ path: join(evidence, "presentation-mobile.png") });
+  await page.setViewportSize(presentationViewport);
+  await presentation.locator("summary").click();
+  writeFileSync(join(evidence, "presentation-evidence.json"), JSON.stringify({
+    event: first, source: placement.export, text: placement.text, layouts: scaleEvidence,
+  }, null, 2) + "\n");
+  workflows.push("actual saved figure fits two manuscript columns and a widescreen slide with measured placement");
+
   const comments = page.locator("#figure-comments");
   const commentsQuery = (event: string) => "/api/figure-comments?" + new URLSearchParams({ event, figure: "figure" });
   const commentText = "Please review this point <img src=foreign onerror=alert(1)>.";

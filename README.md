@@ -755,6 +755,7 @@ workspace's existing draft, review and export controls.
 
 Current source supports [reviewed presentation edits across selected figures](docs/workspace/selected-presentation.md), with per-figure overrides, explicit PDF/program exclusions, selective checks and undo.
 The paper workspace also supports [comments pinned to saved figure renders](docs/workspace/figure-comments.md), with local replies and resolution history.
+Use the [presentation preview](docs/workspace/presentation-preview.md) to check a saved figure on manuscript pages or a widescreen slide at a measured placement size.
 
 The [data preparation preview](docs/workspace/data-preparation.md) shows
 missing values, type conversions and excluded records before rendering.

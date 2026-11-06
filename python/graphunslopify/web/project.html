@@ -145,6 +145,24 @@
           <div class="actions"><button id="show-comparison" class="secondary" disabled>Compare with baseline</button><button id="show-source" class="quiet" disabled>Read captured source</button></div>
           <div id="journal-tools"></div>
           <div id="comparison" hidden></div>
+          <details id="figure-presentation" hidden>
+            <summary>Presentation preview</summary>
+            <p id="presentation-status" role="status"></p>
+            <div id="presentation-content" hidden>
+              <label>Page layout<select id="presentation-layout"></select></label>
+              <p id="presentation-measurements"></p>
+              <div class="presentation-sheet" aria-label="Preview page with sample surrounding text">
+                <div class="presentation-heading">
+                  <strong id="presentation-heading"></strong>
+                  <p id="presentation-subheading"></p>
+                </div>
+                <div class="presentation-text presentation-text-left" aria-hidden="true"></div>
+                <div class="presentation-text presentation-text-right" aria-hidden="true"></div>
+                <img id="presentation-image" alt="Saved figure placed in the selected layout">
+              </div>
+              <p class="muted">The page scales to fit this window. Measurements describe the selected placement.</p>
+            </div>
+          </details>
           <details id="figure-comments" hidden>
             <summary>Figure comments</summary>
             <p id="comments-status" role="status"></p>

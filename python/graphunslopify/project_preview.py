@@ -587,6 +587,7 @@ class ProjectHandler(PreviewHandler):
             "/project-shared.js": "project-shared.js",
             "/project-selection.js": "project-selection.js",
             "/project-comments.js": "project-comments.js",
+            "/project-presentation.js": "project-presentation.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
             "/journal-checks.js": "journal-checks.js",
@@ -681,6 +682,12 @@ class ProjectHandler(PreviewHandler):
                 from .project_comments import read_figure_comments
 
                 self.json(read_figure_comments(state, value("event"), value("figure")))
+            elif route == "/api/presentation":
+                from .project_presentation import presentation_preview
+
+                with state.media_lock:
+                    result = presentation_preview(state, value("event"), value("figure"))
+                self.json(result)
             else:
                 self.json({"error": "Not found"}, 404)
         except (OSError, ValueError, TypeError, KeyError, SpecError) as problem:

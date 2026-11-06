@@ -1,6 +1,7 @@
-/** Real prospective planning in the local figure and paper workspaces. */
+/** Real planning and effect estimates in the local figure and paper workspaces. */
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -52,6 +53,38 @@ async function open(page: Page, url: string) {
   await page.goto(url);
   await page.locator("#statistical-power > summary").click();
   return page.locator("#statistical-power");
+}
+
+async function effects(page: Page, raw: Buffer, design: string, unit: string, pairs: [string, string][]) {
+  const explorer = page.locator("#effect-sizes");
+  await explorer.locator("summary").click();
+  await explorer.getByLabel("Effect comparison CSV").setInputFiles({
+    name: "observations.csv", mimeType: "text/csv", buffer: raw,
+  });
+  await explorer.getByLabel("Comparison design").selectOption(design);
+  await explorer.getByLabel("Outcome column").selectOption("value");
+  await explorer.getByLabel("Group column").selectOption("group");
+  await explorer.getByRole("combobox", { name: /^Independent unit/ }).selectOption(unit);
+  if (design === "paired") await explorer.getByLabel("Repeated measurements").selectOption("mean");
+  for (const [index, [left, right]] of pairs.entries()) {
+    if (index > 0) await explorer.getByRole("button", { name: "Add another contrast" }).click();
+    await explorer.getByLabel("Left group").nth(index).selectOption(left);
+    await explorer.getByLabel("Right group").nth(index).selectOption(right);
+  }
+  await explorer.getByRole("checkbox").check();
+  const result = page.waitForResponse(response => response.url().endsWith("/api/effect-sizes"));
+  await explorer.getByRole("button", { name: "Compare effects" }).click();
+  const response = await result;
+  assert.equal(response.status(), 200, await response.text());
+  const report = await response.json();
+  assert.equal(report.source.sha256, createHash("sha256").update(raw).digest("hex"));
+  assert.equal(report.status, "estimated");
+  assert.equal(report.assumptions_verified, false);
+  const display = explorer.getByRole("region", { name: "Effect comparison results" });
+  const [first] = pairs;
+  assert.ok(first);
+  await display.getByRole("heading", { name: first.join(" minus ") }).waitFor();
+  return { report, display };
 }
 
 const chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -126,10 +159,38 @@ try {
   await (await completed).finished();
   assert.equal(await panel.getByRole("heading", { name: /Estimated power/ }).count(), 0);
   await project.unroute("**" + route);
+  const pairedCsv = Buffer.from('unit,group,value,note\n01,A,1,"first\nrecord"\n01,A,3,repeat\n1,A,5,ok\n'
+    + "01,B,0,ok\n1,B,2,ok\n02,A,10,unmatched\n03,B,inf,nonfinite\n11,C,0,outside\n");
+  const pairedEffects = await effects(chart, pairedCsv, "paired", "field:unit", [["A", "B"], ["B", "A"]]);
+  assert.deepEqual(pairedEffects.report.comparisons.map((row: { raw: { estimate: number } }) => row.raw.estimate), [2.5, -2.5]);
+  const lineage = pairedEffects.report.comparisons[0].provenance;
+  assert.deepEqual(lineage.left_units, [[1, 2], [3]]);
+  assert.deepEqual(lineage.excluded, { unmatched_pair: [6], nonfinite_measurement: [7], outside_selected_groups: [8] });
+  await pairedEffects.display.getByLabel("Effect scale").selectOption("standardized");
+  assert.equal(await pairedEffects.display.getByText(/Cohen dz/).count(), 2);
+  await pairedEffects.display.getByText("Contributing and excluded CSV records").first().click();
+  await pairedEffects.display.getByText(/Unmatched pair.*6/).waitFor();
+  await pairedEffects.display.getByText("Complete record lineage").click();
+  await pairedEffects.display.getByText(/"unmatched_pair"/).waitFor();
+  await pairedEffects.display.getByText("Complete record lineage").click();
+  assert.equal(await chart.evaluate("document.documentElement.scrollWidth <= window.innerWidth"), true);
+  await pairedEffects.display.screenshot({ path: join(evidence, "effects-paired-mobile.png") });
+  workflows.push("chart explorer compares two signed paired effects and discloses exact original-record membership");
+
+  const welchCsv = Buffer.from("group,value\nA,1\nA,2\nA,5\nA,8\nB,0\nB,1\nB,2\nB,4\nB,9\n");
+  const welchEffects = await effects(project, welchCsv, "welch", "rows", [["A", "B"]]);
+  await welchEffects.display.getByLabel("Effect scale").selectOption("standardized");
+  await welchEffects.display.getByText(/Unpooled Cohen d.*Approximate interval/).waitFor();
+  assert.equal(welchEffects.report.comparisons[0].standardized.approximate, true);
+  assert.equal(await welchEffects.display.locator(".effect-interval").count(), 1);
+  await welchEffects.display.screenshot({ path: join(evidence, "effects-welch-desktop.png") });
+  workflows.push("paper explorer labels the Welch standardized interval approximate and draws the saved calculation");
+
   assert.deepEqual(filenames.map(name => readFileSync(join(paper, name))), before);
   assert.deepEqual([errors, external, writes], [[], [], []]);
   workflows.push("an old real result cannot reappear after planning inputs change and files stay intact");
-  const proof = { status: "passed", workflows, paired, welch, errors, external, writes };
+  const proof = { status: "passed", workflows, paired, welch, errors, external, writes,
+    effects: { paired: pairedEffects.report, welch: welchEffects.report } };
   writeFileSync(join(evidence, "verification.json"), JSON.stringify(proof, null, 2) + "\n");
   console.log(JSON.stringify({ ...proof, evidence }));
 } finally {

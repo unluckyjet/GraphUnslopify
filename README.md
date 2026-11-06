@@ -757,6 +757,7 @@ Current source supports [reviewed presentation edits across selected figures](do
 The paper workspace also supports [comments pinned to saved figure renders](docs/workspace/figure-comments.md), with local replies and resolution history.
 Use the [presentation preview](docs/workspace/presentation-preview.md) to check a saved figure on manuscript pages or a widescreen slide at a measured placement size.
 The [statistical power assistant](docs/workspace/statistical-power.md) plans power or detectable differences for a declared study design in either local workspace or the CLI.
+The [effect size explorer](docs/workspace/effect-size-explorer.md) compares observed differences and confidence intervals and traces them to the original CSV records.
 
 The [data preparation preview](docs/workspace/data-preparation.md) shows
 missing values, type conversions and excluded records before rendering.

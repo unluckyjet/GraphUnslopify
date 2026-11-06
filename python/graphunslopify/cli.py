@@ -824,6 +824,33 @@ def _statistical_power(args: argparse.Namespace) -> int:
     return 0
 
 
+def _effect_sizes(args: argparse.Namespace) -> int:
+    from .effect_sizes import MAX_EFFECT_CSV_BYTES, compare_effects
+
+    try:
+        with Path(args.path).expanduser().open("rb") as source:
+            raw = source.read(MAX_EFFECT_CSV_BYTES + 1)
+        result = compare_effects(
+            raw,
+            {
+                "outcome": args.outcome,
+                "group": args.group,
+                "unit": args.unit,
+                "rows_are_units": args.rows_are_units,
+                "design": args.design,
+                "reduction": args.reduction,
+                "contrasts": args.contrast,
+                "confidence": args.confidence,
+                "assumptions_confirmed": args.confirm_assumptions,
+            },
+        )
+    except (OSError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem), "exit_code": 2}))
+        return 2
+    print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+    return result["exit_code"]
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="graphunslopify", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -876,6 +903,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="confirm the declared normal-model design",
     )
     power.set_defaults(handler=_statistical_power)
+
+    effects = commands.add_parser("effects", help="compare observed mean differences and intervals")
+    effects.add_argument("path", help="UTF-8 CSV of original observations")
+    effects.add_argument("--design", required=True, choices=("paired", "pooled", "welch"))
+    effects.add_argument("--outcome", required=True, help="measurement column")
+    effects.add_argument("--group", required=True, help="condition or group column")
+    unit = effects.add_mutually_exclusive_group(required=True)
+    unit.add_argument("--unit", help="independent or paired unit column")
+    unit.add_argument(
+        "--rows-are-units", action="store_true", help="declare separate independent units per row"
+    )
+    effects.add_argument("--reduction", choices=("refuse", "mean"), default="refuse")
+    effects.add_argument(
+        "--contrast", nargs=2, action="append", required=True, metavar=("LEFT", "RIGHT")
+    )
+    effects.add_argument("--confidence", type=float, default=0.95)
+    effects.add_argument("--confirm-assumptions", action="store_true")
+    effects.set_defaults(handler=_effect_sizes)
 
     bundle = commands.add_parser("bundle", help="archive a figure with its actual source runtime")
     bundle.add_argument("spec", help="FigureSpec JSON file")

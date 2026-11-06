@@ -591,6 +591,7 @@ class ProjectHandler(PreviewHandler):
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
             "/statistical-power.js": "statistical-power.js",
+            "/effect-sizes.js": "effect-sizes.js",
             "/journal-checks.js": "journal-checks.js",
             "/context-inspector.js": "context-inspector.js",
             "/workspace-commands.js": "workspace-commands.js",
@@ -738,6 +739,11 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
             if route == "/api/statistical-power" and length > 4096:
                 raise ProjectError("Statistical power requests must fit within 4 KiB.")
+            if route == "/api/effect-sizes":
+                from .effect_sizes import MAX_EFFECT_REQUEST_BYTES
+
+                if length > MAX_EFFECT_REQUEST_BYTES:
+                    raise ProjectError("Effect comparison requests support at most 2 MiB of CSV.")
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, dict):
                 raise ProjectError("Request must be a JSON object.")
@@ -794,6 +800,10 @@ class ProjectHandler(PreviewHandler):
                 from .statistical_power import plan_power
 
                 self.json(plan_power(payload))
+            elif route == "/api/effect-sizes":
+                from .effect_sizes import effect_request
+
+                self.json(effect_request(payload))
             elif route in ("/api/reuse/template", "/api/reuse/proposal"):
                 import copy
 

@@ -1,5 +1,6 @@
 import { createCleaningPreview } from "/cleaning-preview.js";
 import { createStatisticalPower } from "/statistical-power.js";
+import { createEffectExplorer } from "/effect-sizes.js";
 import { createControls } from "/controls.js";
 import { createTextEditor } from "/text-editing.js";
 import { describeFinding } from "/diagnostics.js";
@@ -29,6 +30,7 @@ let suggested = [], suggestedData = null;
 const $ = (id) => document.getElementById(id);
 const token = document.querySelector('meta[name="preview-token"]').content;
 createStatisticalPower($("statistical-power"), api);
+createEffectExplorer($("effect-sizes"), api);
 const client = crypto.randomUUID();
 let revision = 0,
   data = null,

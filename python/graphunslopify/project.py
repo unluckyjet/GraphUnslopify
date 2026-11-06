@@ -23,6 +23,7 @@ DEFAULT_FOLDER = "graphunslopify-project"
 KIND = "graphunslopify.paper-project"
 EVENT = re.compile(r"[0-9]{8}-[a-f0-9]{32}")
 MAX_SOURCE_BYTES = 20 * 1024 * 1024
+_SELECTED_SECTIONS = ("style", "output", "x", "y", "legend")
 
 
 class ProjectError(ValueError):
@@ -107,10 +108,15 @@ def _owner(folder: Path) -> dict:
 
 
 @lru_cache(maxsize=1)
+def _figure_schema_properties():
+    return local_request("schema")["oneOf"][0]["properties"]
+
+
+@lru_cache(maxsize=1)
 def _shared_schema():
     from jsonschema import Draft7Validator
 
-    properties = local_request("schema")["oneOf"][0]["properties"]
+    properties = _figure_schema_properties()
     style = copy.deepcopy(properties["style"])
     style.pop("required", None)
     output = {
@@ -143,6 +149,36 @@ def _validate_shared(value) -> None:
         raise ProjectError("Project palette locks must be local files.")
 
 
+@lru_cache(maxsize=1)
+def _selected_schema():
+    from jsonschema import Draft7Validator
+
+    properties = _figure_schema_properties()
+
+    def partial(key, fields):
+        return {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {name: properties[key]["properties"][name] for name in fields},
+        }
+
+    shared = _shared_schema().schema["properties"]
+    return Draft7Validator(
+        {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "style": shared["style"],
+                "output": shared["output"],
+                "title": properties["title"],
+                "x": partial("x", ("label",)),
+                "y": partial("y", ("label",)),
+                "legend": partial("legend", ("show", "position", "style", "title")),
+            },
+        }
+    )
+
+
 def _validate_figure_settings(value) -> None:
     """Selected policy contains canonical presentation only; never data or claims."""
     if not isinstance(value, dict) or len(value) > 1000:
@@ -152,11 +188,22 @@ def _validate_figure_settings(value) -> None:
             r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", identity
         ):
             raise ProjectError("Selected settings require stable figure IDs.")
-        if not isinstance(settings, dict) or set(settings) - {"style", "output"}:
+        errors = sorted(_selected_schema().iter_errors(settings), key=lambda error: str(error.path))
+        if errors:
             raise ProjectError(
-                "Selected settings support canonical style and output size/DPI only."
+                "Invalid selected presentation for "
+                + identity
+                + ": "
+                + "; ".join(
+                    f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors
+                )
             )
-        _validate_shared(settings)
+    _bytes(value)
+
+
+def _merge_selected_presentation(target, settings):
+    for key, value in settings.items():
+        target[key] = value if key == "title" else {**target.get(key, {}), **value}
 
 
 def _config(path: str | Path) -> tuple[Path, dict]:
@@ -372,8 +419,7 @@ def _capture(
                 for key in ("style", "output"):
                     if key in shared:
                         spec[key] = {**spec.get(key, {}), **shared[key]}
-                    if key in selections.get(entry["id"], {}):
-                        spec[key] = {**spec.get(key, {}), **selections[entry["id"]][key]}
+                _merge_selected_presentation(spec, selections.get(entry["id"], {}))
                 if "palette_lock" in shared:
                     spec["palette_lock"] = str((paper / shared["palette_lock"]).resolve())
                 file("data", Path(spec["data"]["path"]))
@@ -950,22 +996,22 @@ def _policy(report: dict, config: dict, paper: Path, manifest: dict) -> dict:
             continue
         spec = (figure.get("report") or {}).get("spec", {})
         issues = []
-        for key in ("style", "output"):
+        selected = config.get("figure_settings", {}).get(figure["id"], {})
+        for key in _SELECTED_SECTIONS:
             settings = {
                 **config["shared"].get(key, {}),
-                **config.get("figure_settings", {}).get(figure["id"], {}).get(key, {}),
+                **selected.get(key, {}),
             }
             for name, value in settings.items():
                 if spec.get(key, {}).get(name) != value:
-                    label = (
-                        "Selected"
-                        if name
-                        in config.get("figure_settings", {}).get(figure["id"], {}).get(key, {})
-                        else "Shared"
-                    )
+                    label = "Selected" if name in selected.get(key, {}) else "Shared"
                     issues.append(
                         f"{label} {key}.{name} requires {value!r}; review the effective settings and rerun the figure."
                     )
+        if "title" in selected and spec.get("title") != selected["title"]:
+            issues.append(
+                f"Selected title requires {selected['title']!r}; review the effective settings and rerun the figure."
+            )
         if "palette_lock" in config["shared"]:
             try:
                 actual = spec.get("palette_lock")

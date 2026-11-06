@@ -19,6 +19,7 @@ from .project import (
     _finish,
     _hash,
     _inside,
+    _merge_selected_presentation,
     _native,
     _operation,
     _review_token,
@@ -100,7 +101,7 @@ def _prepare(path, ids, settings, expected_revision, reset, undo_event):
     pdf_ids = {"pdf:" + r["id"] for r in pdfs["sources"]}
     if any(i not in entries and i not in pdf_ids for i in ids):
         raise ProjectError("A selected figure is no longer available; refresh the selection.")
-    excluded, eligible = [], []
+    excluded, eligible, notes = [], [], {}
     for identity in ids:
         if identity in pdf_ids:
             excluded.append(
@@ -122,17 +123,35 @@ def _prepare(path, ids, settings, expected_revision, reset, undo_event):
                 if reset:
                     target.pop(identity, None)
                 else:
-                    row = target.setdefault(identity, {})
-                    for key, value in settings.items():
-                        row[key] = {**row.get(key, {}), **value}
+                    changes = settings.copy()
+                    spec = entries[identity]["spec"]
+                    if (
+                        "legend" in settings
+                        and isinstance(spec, dict)
+                        and (
+                            spec.get("kind") in {"heatmap", "table"}
+                            or not (spec.get("group") or spec.get("series_from_columns"))
+                        )
+                    ):
+                        notes.setdefault(identity, []).append(
+                            "This figure has no series legend. Its legend settings are unchanged."
+                        )
+                        changes.pop("legend")
+                    if "y" in changes and isinstance(spec, dict) and spec.get("repeat"):
+                        notes.setdefault(identity, []).append(
+                            "This figure's repeated metrics keep their individual Y-axis labels."
+                        )
+                        changes.pop("y")
+                    if changes:
+                        _merge_selected_presentation(target.setdefault(identity, {}), changes)
     _validate_figure_settings(target)
     proposed, effective, _ = _capture(source, config, figure_settings_override=target)
     after = {e["id"]: e for e in effective["figures"]}
     snapshots = {r["id"]: r for r in proposed["figures"]}
     rows = []
     for identity in eligible:
-        old, _, _ = _presentation(entries[identity])
-        new, errors, findings = _presentation(after[identity])
+        old, _, _ = _presentation(entries[identity], selected=True)
+        new, errors, findings = _presentation(after[identity], selected=True)
         rows.append(
             {
                 "id": identity,
@@ -141,6 +160,7 @@ def _prepare(path, ids, settings, expected_revision, reset, undo_event):
                 "changes": _differences(old or {}, new or {}),
                 "errors": snapshots[identity]["errors"] + errors,
                 "findings": findings,
+                "notes": notes.get(identity, []),
             }
         )
     updated = (

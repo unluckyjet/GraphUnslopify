@@ -1,6 +1,9 @@
 /** Reviewed selected presentation, fenced by the existing project and operation owners. */
 export function createSelectionReview({api, context, onState, onApplied, onError}) {
-  const $ = id => document.getElementById(id), fields = ["preset", "grid", "despine", "size", "dpi"], picked = new Set();
+  const $ = id => document.getElementById(id);
+  const fields = ["title", "x-label", "y-label", "legend-show", "legend-title",
+    "legend-position", "legend-style", "preset", "venue", "grid", "despine", "size", "dpi"];
+  const picked = new Set();
   let plan = null, epoch = 0, loading = false, applying = false, reviewed = "", listKey = "", historyKey = "";
   const el = (tag, text, parent) => { const n = document.createElement(tag);if (text !== undefined) n.textContent = text;parent?.append(n);return n; };
   const signature = () => { const c = context();return JSON.stringify([c.state?.revision, c.state?.inspection_revision, c.state?.history?.map(e => [e.id,e.integrity]), c.dirty, [...picked].sort(), fields.map(id => [$("selection-"+id).value,$("selection-"+id).validity.valid]), $("selection-undo-event").value]); };
@@ -10,14 +13,26 @@ export function createSelectionReview({api, context, onState, onApplied, onError
     if (notify) onState();
   }
   function settings() {
-    const value = {}, style = {}, output = {}, dpi = $("selection-dpi");
+    const value = {}, style = {}, output = {}, legend = {}, dpi = $("selection-dpi");
+    const field = id => $("selection-" + id).value.trim();
     if (!dpi.checkValidity()) throw Error("Choose a whole-number raster DPI from 72 to 1200.");
-    if ($("selection-preset").value) style.preset = $("selection-preset").value;
-    for (const key of ["grid","despine"]) if ($("selection-"+key).value) style[key] = $("selection-"+key).value === "true";
-    if ($("selection-size").value) output.size = $("selection-size").value;
+    if (field("title")) value.title = field("title");
+    for (const axis of ["x", "y"]) {
+      const label = field(axis + "-label");
+      if (label) value[axis] = { label };
+    }
+    for (const key of ["title", "position", "style"]) {
+      const setting = field("legend-" + key);
+      if (setting) legend[key] = setting;
+    }
+    if (field("legend-show")) legend.show = field("legend-show") === "true";
+    for (const key of ["preset", "venue"]) if (field(key)) style[key] = field(key);
+    for (const key of ["grid","despine"]) if (field(key)) style[key] = field(key) === "true";
+    if (field("size")) output.size = field("size");
     if (dpi.value !== "") output.dpi = Number(dpi.value);
     if (Object.keys(style).length) value.style = style;
     if (Object.keys(output).length) value.output = output;
+    if (Object.keys(legend).length) value.legend = legend;
     return value;
   }
   function update() {
@@ -58,7 +73,8 @@ export function createSelectionReview({api, context, onState, onApplied, onError
     $("selection-status").textContent = `Settings change for ${value.affected_ids.length} selected figure${value.affected_ids.length === 1 ? "" : "s"}; ${value.excluded.length} read-only sources stay unchanged. ${value.can_apply ? "Ready to save reviewed intent." : "No change to save, or selected intent needs correction."} Run paper checks afterward; this review executes no figure programs.`;
     for (const row of value.figures) {
       const box = el("article",undefined,$("selection-rows"));box.className = "shared-review-row";el("h4",row.id,box);
-      if (!row.changes.length) el("p","Effective presentation is unchanged; the explicit selected policy may still change.",box);
+      if (!row.changes.length && !row.notes?.length) el("p","Effective presentation is unchanged; the explicit selected policy may still change.",box);
+      for (const note of row.notes || []) el("p", note, box);
       for (const d of row.changes) el("p",d.path+": "+(d.before_present ? JSON.stringify(d.before) : "absent")+" → "+(d.after_present ? JSON.stringify(d.after) : "absent"),box);
       row.errors.forEach(error => { el("p",error,box).className = "review-errors"; });
       const details = el("details",undefined,box);el("summary","Resolved presentation and static findings",details);el("pre",JSON.stringify({before:row.before,after:row.after,findings:row.findings},null,2),details);

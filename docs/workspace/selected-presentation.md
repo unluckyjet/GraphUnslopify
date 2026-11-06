@@ -5,8 +5,10 @@ Install the source package; the published PyPI0.8.0 package predates this featur
 
 1. Open `graphunslopify project-preview PAPER --open` and expand **Edit selected figures**.
 2. Check the figures to change, or choose **Select JSON figures**.
-3. Choose a layout preset, grid, spines, manuscript width or raster DPI.
-   **Keep existing** leaves that setting alone; DPI must be an integer72–1200.
+3. Enter a figure title or axis label, or choose a series legend policy,
+   layout preset, venue, grid, spines, manuscript width or raster DPI.
+   Leave a text field empty or choose **Keep existing** to keep its value.
+   Raster DPI must be a whole number from 72 to 1200.
 4. Choose **Review selected changes**. Read the resolved before/after differences
    and the explicitly excluded sources, then choose **Apply reviewed changes**.
 5. Run **Regenerate changed figures** or **Audit paper** to verify current outputs.
@@ -15,6 +17,9 @@ A review validates canonical presentation intent. It executes no figure program
 and establishes no new scientific pass. Authored Python and PDFs remain unchanged;
 PDF numerical claims stay untested. A selection containing only read-only sources
 has no change to apply. A mixed selection shows exactly which JSON figures change.
+Figure-specific review notes identify designs without a series legend. Those
+figures keep their legend settings and can still receive other selected edits.
+Repeated metrics keep their individual Y-axis labels.
 
 Original JSON definitions, manifest bindings, data, claims, transforms and palette
 files remain intact. The project saves selected presentation policy in one owned
@@ -48,8 +53,10 @@ script dependencies still require execution during selective regeneration.
 ## Programmatic use
 
 Authenticated local POST `/api/selection-review` accepts `ids`, `settings` and
-`expected_revision`. `settings` is a partial canonical `style` object and/or
-`output` size/DPI; it cannot contain data, claims, file paths or output stems.
+`expected_revision`. `settings` accepts `title`, `x.label`, `y.label`, the
+legend's `show`, `title`, `position` and `style`, canonical `style`, and
+`output.size` and `output.dpi`. Axis fields, units and other scientific
+settings remain bound to their original definitions.
 Use `reset:true` instead of `settings` to remove selected overrides. PDF selection
 IDs use `pdf:SOURCE_ID` and are listed as excluded. Apply the same request to
 `/api/selection-apply` with the returned `proposal_token`. For undo, replace

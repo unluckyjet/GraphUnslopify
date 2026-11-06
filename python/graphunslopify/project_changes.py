@@ -97,18 +97,24 @@ def _target(source, config, history, shared, undo_event):
     return old["shared"], raw
 
 
-def _presentation(entry):
+def _presentation(entry, *, selected=False):
     if "spec" not in entry:
         return None, [], []
     try:
         checked = local_request("validate", entry["spec"])
         errors = [f["message"] for f in checked["findings"] if f["severity"] == "error"]
         resolved = checked["resolved"]
-        return (
-            {k: resolved[k] for k in ("style", "output", "palette_lock") if k in resolved},
-            errors,
-            checked["findings"],
-        )
+        presentation = {
+            k: resolved[k] for k in ("style", "output", "palette_lock") if k in resolved
+        }
+        if selected:
+            for key in ("title", "legend"):
+                if key in resolved:
+                    presentation[key] = resolved[key]
+            for key in ("x", "y"):
+                if key in resolved:
+                    presentation[key] = {"label": resolved[key]["label"]}
+        return presentation, errors, checked["findings"]
     except (OSError, ValueError, KeyError, TypeError, SpecError) as problem:
         return None, [str(problem)], []
 

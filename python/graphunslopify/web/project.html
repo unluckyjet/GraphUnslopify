@@ -76,7 +76,15 @@
             <fieldset id="selection-figures" aria-label="Figures for presentation changes"></fieldset>
             <p id="selection-count" class="muted" role="status">0 selected.</p>
             <fieldset id="selection-settings" aria-label="Selected presentation settings">
+              <label>Figure title<input id="selection-title" type="text" placeholder="Keep existing" /></label>
+              <label>X-axis label<input id="selection-x-label" type="text" placeholder="Keep existing" /></label>
+              <label>Y-axis label<input id="selection-y-label" type="text" placeholder="Keep existing" /></label>
+              <label>Series legend<select id="selection-legend-show"><option value="">Keep existing</option><option value="true">Show</option><option value="false">Hide</option></select></label>
+              <label>Legend title<input id="selection-legend-title" type="text" placeholder="Keep existing" /></label>
+              <label>Legend placement<select id="selection-legend-position"><option value="">Keep existing</option><option value="best">Automatic</option><option value="upper_left">Upper left</option><option value="upper_right">Upper right</option><option value="lower_left">Lower left</option><option value="lower_right">Lower right</option><option value="outside_right">Outside right</option><option value="outside_bottom">Outside bottom</option></select></label>
+              <label>Legend style<select id="selection-legend-style"><option value="">Keep existing</option><option value="box">Legend box</option><option value="direct">Direct series labels</option></select></label>
               <label>Layout preset<select id="selection-preset"><option value="">Keep existing</option><option value="paper">Paper</option><option value="paper_compact">Compact paper</option></select></label>
+              <label>Venue layout<select id="selection-venue"><option value="">Keep existing</option><option value="none">Generic</option><option value="neurips">NeurIPS</option><option value="icml">ICML</option><option value="iclr">ICLR</option><option value="nature">Nature</option><option value="ieee">IEEE</option></select></label>
               <label>Grid<select id="selection-grid"><option value="">Keep existing</option><option value="true">Show</option><option value="false">Hide</option></select></label>
               <label>Frame spines<select id="selection-despine"><option value="">Keep existing</option><option value="true">Remove upper and right</option><option value="false">Keep all</option></select></label>
               <label>Manuscript width<select id="selection-size"><option value="">Keep existing</option><option value="single_column">Single column</option><option value="double_column">Double column</option></select></label>

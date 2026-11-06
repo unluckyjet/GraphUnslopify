@@ -1,5 +1,6 @@
 """Selection ownership, actual targeted regeneration and unchanged scientific inputs."""
 
+import csv
 import json
 import shutil
 from pathlib import Path
@@ -11,6 +12,7 @@ from graphunslopify.project import (
     _capture,
     _config,
     _operation,
+    _policy,
     initialize_project,
     project_history,
     project_status,
@@ -103,11 +105,114 @@ def test_actual_selected_audit_and_undo_preserve_data_definitions_and_binding(pa
     )
 
 
+def test_selected_labels_and_legend_are_reviewed_and_rendered_without_rebinding_data(paper):
+    original = paper / "training.figure.json"
+    spec = json.loads(original.read_text())
+    spec["y"]["unit"] = "pp"
+    spec["legend"]["labels"] = [{"series": "base", "text": "Original alias"}]
+    original.write_text(json.dumps(spec))
+    config = paper / "graphunslopify-project/project.json"
+    config_bytes = config.read_bytes()
+    inputs = {p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()}
+    settings = {
+        "title": "Reviewed performance",
+        "x": {"label": "Evaluation epoch"},
+        "y": {"label": "Observed change"},
+        "legend": {"show": True, "position": "outside_right", "title": "Study groups"},
+        "output": {"size": "double_column", "dpi": 144},
+        "style": {"preset": "paper_compact", "grid": True},
+    }
+    plan = review(paper, ["training", "results-table"], settings)
+    assert plan["can_apply"] and plan["affected_ids"] == ["results-table", "training"]
+    rows = {row["id"]: row for row in plan["figures"]}
+    assert rows["results-table"]["notes"]
+    assert rows["results-table"]["before"]["legend"] == rows["results-table"]["after"]["legend"]
+    assert rows["training"]["after"]["legend"]["labels"] == spec["legend"]["labels"]
+    assert rows["training"]["after"]["x"] == {"label": "Evaluation epoch"}
+    assert config.read_bytes() == config_bytes
+    saved = apply(paper, plan)
+    result = run_project(paper, baseline=None)
+    assert result["exit_code"] == 0, result["policy_errors"]
+    audit_rows = {row["id"]: row for row in result["audit"]["figures"]}
+    output = next(item for item in audit_rows["training"]["outputs"] if item["format"] == "svg")
+    svg = (Path(result["directory"]) / "audit" / output["path"]).read_text()
+    for label in (
+        "Reviewed performance",
+        "Evaluation epoch",
+        "Observed change",
+        "Study groups",
+        "Original alias",
+    ):
+        assert label in svg
+    resolved = audit_rows["training"]["report"]["spec"]
+    assert resolved["x"]["field"] == spec["x"]["field"]
+    assert resolved["y"]["field"] == spec["y"]["field"] and resolved["y"]["unit"] == "pp"
+    assert resolved["claims"] == spec["claims"] and resolved["output"]["stem"] == "training"
+    source, saved_config = _config(paper)
+    effective = _capture(source, saved_config)[1]
+    resolved["x"]["label"] = "Unreviewed value"
+    assert any(
+        "Selected x.label" in error
+        for error in _policy(result["audit"], saved_config, paper, effective)["training"]
+    )
+    undo = review_project_selection(
+        paper, expected_revision=project_status(paper)["revision"], undo_event=saved["id"]
+    )
+    assert apply(paper, undo)["undo_of"] == saved["id"]
+    assert config.read_bytes() == config_bytes
+    assert {p.name: p.read_bytes() for p in paper.iterdir() if p.is_file()} == inputs
+
+
+def test_legend_only_review_is_inapplicable_to_a_table(paper):
+    before = inventory(paper)
+    plan = review(paper, ["results-table"], {"legend": {"show": False}})
+    assert plan["affected_ids"] == [] and not plan["can_apply"]
+    assert plan["figures"][0]["notes"] and inventory(paper) == before
+
+
+def test_repeated_figures_keep_their_own_metric_labels(paper):
+    data = paper / "results.csv"
+    with data.open(newline="") as stream:
+        reader = csv.DictReader(stream)
+        fields = [*reader.fieldnames, "second_score"]
+        records = [dict(row, second_score=2 * float(row["score"])) for row in reader]
+    with data.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(records)
+    original = paper / "training.figure.json"
+    spec = json.loads(original.read_text())
+    spec["repeat"] = {
+        "fields": ["score", "second_score"],
+        "labels": [
+            {"field": "score", "text": "Primary metric"},
+            {"field": "second_score", "text": "Secondary metric"},
+        ],
+    }
+    spec["output"]["size"] = "double_column"
+    original.write_text(json.dumps(spec))
+    plan = review(paper, settings={"title": "Review title", "y": {"label": "Common text"}})
+    assert plan["can_apply"], plan["figures"]
+    assert plan["figure_settings"]["training"] == {"title": "Review title"}
+    assert "individual Y-axis labels" in plan["figures"][0]["notes"][0]
+    apply(paper, plan)
+    result = run_project(paper, baseline=None)
+    assert result["exit_code"] == 0, result["audit"]["findings"]
+    training = next(row for row in result["audit"]["figures"] if row["id"] == "training")
+    output = next(item for item in training["outputs"] if item["format"] == "svg")
+    svg = (Path(result["directory"]) / "audit" / output["path"]).read_text()
+    assert all(label in svg for label in ("Review title", "Primary metric", "Secondary metric"))
+    assert "Common text" not in svg
+
+
 @pytest.mark.parametrize(
     "settings",
     [
         {"data": {}},
         {"claims": []},
+        {"x": {"field": "different-column"}},
+        {"y": {"unit": "ms"}},
+        {"legend": {"labels": [{"series": "base", "text": "New name"}]}},
         {"palette_lock": "x"},
         {"output": {"stem": "x"}},
         {"output": {"dpi": 0}},

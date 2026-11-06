@@ -76,10 +76,47 @@ try {
   workflows.push("a held genuine Apply reply locks other writers and audits while saving only one owned settings event");
   const selective=await audit(true);assert.equal(selective.result.exit_code,0);let rows=Object.fromEntries(selective.result.audit.figures.map((r:{id:string})=>[r.id,r]));assert.equal(rows.figure.execution.mode,"executed");assert.equal(rows.second.execution.mode,"reused");assert.equal(rows.authored.execution.mode,"executed");assert.deepEqual(rows.second.report,initial.audit.figures.find((r:{id:string})=>r.id==="second").report);assert.equal(executions(),2);
   workflows.push("actual selective audit rerenders one selected JSON figure and the authored program while preserving the untouched original report");
-  await open();await page.locator("#selection-all").click();assert.equal(await page.locator('#selection-figures input:checked').count(),2);await page.locator("#selection-dpi").fill("150");const both=await propose();assert.deepEqual(both.affected_ids,["figure","second"]);state=await save();const secondID=state.history.find((e:{action:string})=>e.action==="selection").id;
+  await open();await page.locator("#selection-all").click();assert.equal(await page.locator('#selection-figures input:checked').count(),2);
+  const labels = {title:"Reviewed experiment results", "x-label":"Measured step", "y-label":"Observed score",
+    "legend-title":"Experiment groups"};
+  const policies = {"legend-show":"true", "legend-position":"outside_right", "legend-style":"box",
+    size:"double_column", preset:"paper_compact", grid:"true"};
+  for (const [id, value] of Object.entries(labels)) await page.locator("#selection-" + id).fill(value);
+  for (const [id, value] of Object.entries(policies)) await page.locator("#selection-" + id).selectOption(value);
+  await page.locator("#selection-dpi").fill("150");
+  const both = await propose();
+  assert.deepEqual(both.affected_ids, ["figure","second"]);
+  const linePlan = both.figures.find((row: {id:string}) => row.id === "figure");
+  const tablePlan = both.figures.find((row: {id:string}) => row.id === "second");
+  assert.ok(linePlan.changes.some((change: {path:string}) => change.path === "/legend/title"));
+  assert.ok(linePlan.changes.some((change: {path:string}) => change.path === "/x/label"));
+  assert.deepEqual(tablePlan.before.legend, tablePlan.after.legend);
+  assert.match(await page.locator("#selection-rows").innerText(), /This figure has no series legend/);
+  await page.setViewportSize({width:390,height:1000});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth), true);
+  await page.locator("#selection-proposal").screenshot({path:join(evidence,"multi-label-mobile.png")});
+  await page.setViewportSize({width:1440,height:1100});
+  state=await save();const secondID=state.history.find((e:{action:string})=>e.action==="selection").id;
   const full=await audit();assert.equal(full.result.exit_code,0);rows=Object.fromEntries(full.result.audit.figures.map((r:{id:string})=>[r.id,r]));assert.equal(rows.figure.report.spec.output.dpi,150);assert.equal(rows.second.report.spec.output.dpi,150);assert.equal(executions(),3);
-  for(const id of ["figure","second"])assert.deepEqual(rows[id].report.claims,initial.audit.figures.find((r:{id:string})=>r.id===id).report.claims);
-  workflows.push("real multi-select Apply updates both canonical presentations and strict outputs while all scientific claims remain identical");
+  for (const id of ["figure","second"]) {
+    const original = initial.audit.figures.find((row: {id:string}) => row.id === id).report;
+    const current = rows[id].report;
+    assert.deepEqual(current.claims, original.claims);
+    assert.equal(current.spec.title, labels.title);
+    assert.equal(current.spec.x.label, labels["x-label"]);
+    assert.equal(current.spec.y.label, labels["y-label"]);
+    assert.deepEqual(current.spec.x, {...original.spec.x,label:labels["x-label"]});
+    assert.deepEqual(current.spec.y, {...original.spec.y,label:labels["y-label"]});
+    assert.equal(current.spec.output.size, "double_column");
+    assert.equal(current.spec.style.preset, "paper_compact");
+    assert.equal(current.spec.style.grid, true);
+  }
+  assert.equal(rows.figure.report.spec.legend.title, labels["legend-title"]);
+  assert.equal(rows.figure.report.spec.legend.position, "outside_right");
+  assert.equal(rows.second.report.spec.legend.title, undefined);
+  for (const id of Object.keys(labels)) await page.locator("#selection-" + id).fill("");
+  for (const id of Object.keys(policies)) await page.locator("#selection-" + id).selectOption("");
+  workflows.push("real multi-select Apply renders reviewed labels, legend, width and style on selected figures and preserves claims and data bindings");
   const beforeUnavailableSelection = await page.locator('#selection-figures input:checked').count();assert.equal(beforeUnavailableSelection,2);
   const intactManifest = readFileSync(manifestPath), beforeUnavailableConfig = hash(readFileSync(config)), beforeUnavailableHistory = (await api("/api/state")).history.length;
   try {

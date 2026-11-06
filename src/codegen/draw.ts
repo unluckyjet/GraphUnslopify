@@ -179,6 +179,10 @@ function emitLine(spec: FigureSpec & { kind: "line" }, out: string[], traceInter
         `${indentLevel}        zorder=${styleExpr}["zorder"] - 1,`,
         `${indentLevel}    )`,
         `${indentLevel}    inspector_interval(_gu_interval)`,
+        ...(traceIntervals ? [
+          `${indentLevel}    if OBSERVATION_CAPTURE is not None:`,
+          `${indentLevel}        OBSERVATION_CAPTURE.bind_summary_band(_gu_interval, ${source}, X_FIELD)`,
+        ] : []),
       );
     } else if (spec.uncertainty) {
       lines.push(

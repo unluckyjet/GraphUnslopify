@@ -97,6 +97,7 @@ export function createObservationExplorer({api, token, client, current, supporte
       height: packet.image.height,
       grids: packet.grids,
       intervals: packet.intervals,
+      band: packet.band,
       filters: packet.filters,
       preparation: packet.preparation,
     };
@@ -104,7 +105,8 @@ export function createObservationExplorer({api, token, client, current, supporte
       $("observation-interval-picker").hidden = false;
       intervalIndex.value = "1";
       intervalIndex.max = String(binding.intervals);
-      note.textContent = "Click a visible interval, or enter its number.";
+      note.textContent = binding.band ? "Click the band, or enter a calculated interval number."
+        : "Click a visible interval, or enter its number.";
     } else {
       $("observation-cell-picker").hidden = false;
       binding.grids.forEach((_, index) => picker.add(new Option("Panel " + (index + 1), String(index))));
@@ -154,9 +156,12 @@ export function createObservationExplorer({api, token, client, current, supporte
       const keys = Object.entries(metadata.keys || {}).map(([name, value]) => readable(name) + " " + value);
       if (keys.length) title += " · " + keys.join(", ");
     }
+    if (item.operation === "summary_band_span") title = "Band between calculated intervals";
     if (item.kind === "observation") title = "Record " + (item.record_ordinal + 1);
     node("h3", title);
-    if ("value" in item) node("p", item.value === null ? "Value unavailable" : "Value " + JSON.stringify(item.value));
+    if (item.operation === "summary_band_span") {
+      node("p", "The renderer joins the two calculated bounds. Follow the calculation links to inspect each interval.");
+    } else if ("value" in item) node("p", item.value === null ? "Value unavailable" : "Value " + JSON.stringify(item.value));
     if (item.detail_in_download) node("p", "The complete node detail is available in the graph download.");
     else if (Object.keys(metadata).length) {
       const view = node("details", "");

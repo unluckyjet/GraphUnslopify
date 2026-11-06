@@ -297,7 +297,7 @@ function emitPreamble(spec: FigureSpec, out: string[], sourceSpec = spec): void 
 
 function emitMain(
   spec: FigureSpec, out: string[], traceObservations: boolean, traceQuantities: boolean,
-  observationPng: "matrix" | "summary_interval" | null,
+  observationPng: "matrix" | "summary_interval" | "summary_band" | null,
 ): void {
   const sharedLegend = sharedSeriesLegend(spec);
   const scopedLegend = !!(spec.facet || spec.repeat) && (spec.kind === "calibration" || spec.legend.style === "direct");
@@ -589,7 +589,7 @@ function emitMain(
   emitSaveBlock(spec, out, observationPng);
 }
 
-function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: "matrix" | "summary_interval" | null): void {
+function emitSaveBlock(spec: FigureSpec, out: string[], observationPng: "matrix" | "summary_interval" | "summary_band" | null): void {
   out.push(
     "        description = disclose_panel_aliases(disclose_legend_aliases(describe_panels(blocks)))",
     '        claims_hold = not any(c["verdict"] == "fails" for c in RUN_REPORT["claims"])',
@@ -653,11 +653,12 @@ export function emitPython(spec: FigureSpec, traceObservations = false): string 
     && "aggregation" in spec && spec.aggregation !== "none";
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
   const traceIntervals = traceSummary && spec.output.formats.includes("png") && (
-    spec.kind === "forest" || (spec.kind === "line" && spec.uncertainty?.display === "bar")
+    spec.kind === "forest" || (spec.kind === "line" && Boolean(spec.uncertainty))
     || (spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty))
   );
+  const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
   const observationPng = traceMatrix && spec.output.formats.includes("png")
-    ? "matrix" : traceIntervals ? "summary_interval" : null;
+    ? "matrix" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out: string[] = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };

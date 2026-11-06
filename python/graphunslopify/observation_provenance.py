@@ -969,6 +969,16 @@ class _ObservationSelection:
         artist._graphunslopify_interval_ids = (drawn[self._interval_column].iloc[0],)
         artist._graphunslopify_interval_role = role
 
+    def bind_summary_band(self, artist, drawn, x_field):
+        """Capture the same ordered inputs and unit conversion as the filled artist."""
+        import numpy as np
+
+        x = np.asarray(artist.convert_xunits(drawn[x_field]), dtype=float)
+        low = drawn["_low"].to_numpy(dtype=float, na_value=np.nan)
+        high = drawn["_high"].to_numpy(dtype=float, na_value=np.nan)
+        artist._graphunslopify_interval_ids = tuple(drawn[self._interval_column])
+        artist._graphunslopify_band_inputs = (x, low, high)
+
     def _summary_interval(self, result, index, support, center, count, metadata, kind, bootstrap):
         low, lower_status = self._number(result["_low"].iat[index])
         high, upper_status = self._number(result["_high"].iat[index])
@@ -1133,34 +1143,54 @@ class _ObservationSelection:
         self._matrix_geometry = (capture, output)
 
     def record_summary_interval_geometry(self, capture, output):
-        self._interval_geometry = (capture, output)
+        self._interval_geometry = (capture, output, "strokes")
+
+    def record_summary_band_geometry(self, capture, output):
+        self._interval_geometry = (capture, output, "bands")
 
     def _interval_geometry_reference(self):
         if self._interval_geometry is None:
             return {}
-        (image, strokes, gaps), output = self._interval_geometry
+        (image, entries, gaps), output, kind = self._interval_geometry
         if image is None or gaps:
             return {"summary_interval_geometry_gap": gaps[0]}
-        if not strokes:
-            return {"summary_interval_geometry_gap": "No visible error bars in the final PNG"}
+        if not entries:
+            return {"summary_interval_geometry_gap": "No visible intervals in the final PNG"}
         if any(image[key] != output[key] for key in ("sha256", "bytes")):
             return {
                 "summary_interval_geometry_gap": "The PNG changed during interval geometry capture"
             }
         try:
+            if kind == "bands":
+                entries = [self._band_entry(entry) for entry in entries]
             node_id = self.ledger.calculate(
                 "summary_interval_png_geometry",
-                dict.fromkeys(stroke["node_id"] for stroke in strokes),
-                value=len(strokes),
+                dict.fromkeys(entry["node_id"] for entry in entries),
+                value=len(entries),
                 metadata={
                     "coordinates": "pixels_top_left",
                     "image": {"path": output["path"], **image},
-                    "strokes": strokes,
+                    "strokes": entries if kind == "strokes" else [],
+                    **({"bands": entries} if kind == "bands" else {}),
                 },
             )
         except ValueError as problem:
             return {"summary_interval_geometry_gap": str(problem)}
         return {"summary_interval_geometry_node_id": node_id}
+
+    def _band_entry(self, entry):
+        intervals = entry["interval_ids"]
+        span = self.ledger.calculate(
+            "summary_band_span",
+            intervals,
+            value=None,
+            metadata={
+                "endpoint_keys": [
+                    self.ledger._nodes[node]["metadata"]["keys"] for node in intervals
+                ]
+            },
+        )
+        return {**entry, "node_id": span}
 
     def _matrix_geometry_reference(self):
         if self._matrix_geometry is None:
@@ -1364,13 +1394,16 @@ def _load_observation_selection(
         geometry_node = graph._nodes.get(selection["summary_interval_geometry_node_id"], {})
         geometry = validate_summary_interval_geometry(geometry_node, graph._nodes)
         summary_root = graph._nodes.get(selection.get("summary_node_id"), {})
-        panel_inputs = {
-            node_id
-            for panel_id in summary_root.get("inputs", [])
-            for node_id in graph._nodes[panel_id]["inputs"]
-        }
-        if not set(geometry_node["inputs"]) <= panel_inputs:
-            raise ValueError("Interval PNG geometry belongs to a different summary calculation")
+        panels = [set(graph._nodes[panel]["inputs"]) for panel in summary_root.get("inputs", [])]
+        panel_inputs = set().union(*panels)
+        for identity in geometry_node["inputs"]:
+            target = graph._nodes[identity]
+            if target["operation"] == "summary_band_span":
+                valid = any(set(target["inputs"]) <= panel for panel in panels)
+            else:
+                valid = identity in panel_inputs
+            if not valid:
+                raise ValueError("Interval PNG geometry belongs to a different summary calculation")
     if geometry is not None:
         from .observation_geometry import inspect_png
 

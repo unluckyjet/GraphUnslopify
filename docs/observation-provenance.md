@@ -3,7 +3,7 @@
 A local Python ledger records which original records and calculations produced a
 quantity. Opt-in renders record reading, filtering, preparation, ordinary summaries
 and matrix cells. The local editor can pick cells in heatmaps and confusion
-matrices, and the stems and caps of intervals on aggregated line, bar, and forest figures.
+matrices, and uncertainty intervals on aggregated line, bar, and forest figures.
 Other marks and specialized calculations are tracked in
 [spec98](../pipeline/specs/98-observation-provenance.md).
 
@@ -32,13 +32,17 @@ it separate from standard exports and model-review requests.
 
 ## Inspect a summary interval
 
-Use PNG output and mean or median aggregation. On a line figure, choose
-**Error bars** as the uncertainty display. Nonstacked bar figures and forest
-figures also support interval selection. Choose **Trace observations** and
-click an interval's stem or cap. The numbered interval control selects among
-the intervals visible in the final PNG. The explanation records the actual
+Use PNG output and mean or median aggregation. Line figures support error
+bars and filled uncertainty bands. Nonstacked bar and forest figures support
+interval selection on stems and caps. Choose **Trace observations** and click
+the figure. The numbered control selects a calculated interval. The explanation records the actual
 bounds, estimator, contributing records and calculation links. A bootstrap
 interval also records its statistic, draws, confidence level and seed.
+
+Within a filled band, a click at a measured x position opens its calculated
+interval. Between measured positions, the explorer shows the two calculations
+that define the drawn span. A missing interval leaves a gap. Band picking
+requires monotone x positions within each finite run of the actual PNG.
 
 For a saved interval render, run
 `graphunslopify explain-interval figure.report.json X Y` using the PNG's own
@@ -46,7 +50,7 @@ pixel coordinates from its upper-left corner. The same operation is available
 as `graphunslopify.observation_provenance.explain_saved_interval`. The
 lookup checks the program, report, graph and exact PNG. Unavailable
 intervals have no clickable stroke. Error-bar overlap can make a pixel
-ambiguous. Filled uncertainty bands and other mark types remain in spec98.
+ambiguous. Other mark types and unsupported band placements remain in spec98.
 
 ## Trace a generated render
 

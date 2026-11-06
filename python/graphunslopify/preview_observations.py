@@ -24,7 +24,7 @@ def can_trace_observations(spec):
     if spec.get("aggregation") not in ("mean", "median") or not isinstance(uncertainty, dict):
         return False
     if kind == "line":
-        return uncertainty.get("display") == "bar"
+        return uncertainty.get("display", "band") in ("bar", "band")
     return kind == "bar" and not spec.get("stacked", False)
 
 
@@ -79,6 +79,7 @@ class PreviewObservations:
                     for grid in geometry.get("grids", ())
                 ],
                 "intervals": len(interval_ids),
+                "band": bool(geometry.get("bands")),
                 "filters": reference["node_id"],
                 "preparation": reference.get("preparation_node_id"),
             }
@@ -139,7 +140,11 @@ class PreviewObservations:
 
     @staticmethod
     def _interval_ids(geometry):
-        return tuple(dict.fromkeys(stroke["node_id"] for stroke in geometry["strokes"]))
+        identities = [stroke["node_id"] for stroke in geometry["strokes"]]
+        identities.extend(
+            identity for strip in geometry.get("bands", ()) for identity in strip["interval_ids"]
+        )
+        return tuple(dict.fromkeys(identities))
 
     @staticmethod
     def _cell_center(geometry, cell):

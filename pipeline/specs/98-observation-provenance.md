@@ -115,7 +115,10 @@ carry interval IDs through the actual sort, series selection, and category
 reindexing into the visible stems and caps. Empty categories have no stroke. The final draw records their cropped PNG geometry. The
 SDK, `explain-interval` CLI, and local editor select those interval nodes.
 A singleton has no hit geometry, and the reader rejects overlapping distinct
-intervals. Filled bands, estimates and the rest of the renderer and quantity
+intervals. Monotone filled bands bind the visible strips in the final PNG to
+the two calculated endpoints that draw them. A click between measurements
+opens those calculations. Gaps in the actual band have no selectable span.
+Nonmonotone bands, estimates and the remaining renderer and quantity
 inventory remain part of the full scope.
 
 ## Measured references and current limits

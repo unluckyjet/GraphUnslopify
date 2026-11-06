@@ -295,6 +295,19 @@ def _collect_intervals(figure, renderer, entries, gaps):
             gaps.append(str(problem))
 
 
+def _pixel_clip(raw_clip, origin, width, height):
+    if raw_clip is None:
+        return [0, 0, width, height]
+    origin_x, origin_y = origin
+    left, bottom, right, top = raw_clip
+    return [
+        max(0, left - origin_x),
+        max(0, height - top + origin_y),
+        min(width, right - origin_x),
+        min(height, height - bottom + origin_y),
+    ]
+
+
 def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
     """Capture the actual transformed strokes for visible summary error bars."""
     identity, snapshot, gaps = _save_observation_png(
@@ -315,15 +328,7 @@ def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
         if not all(finite_number(value) for point in points for value in point):
             gaps.append("An error-bar stem has nonfinite endpoints")
             continue
-        bounds = [0, 0, width, height]
-        if raw_clip is not None:
-            left, bottom, right, top = raw_clip
-            bounds = [
-                max(0, left - origin_x),
-                max(0, height - top + origin_y),
-                min(width, right - origin_x),
-                min(height, height - bottom + origin_y),
-            ]
+        bounds = _pixel_clip(raw_clip, snapshot["origin"], width, height)
         if bounds[0] >= bounds[2] or bounds[1] >= bounds[3]:
             continue
         pixels = [[x - origin_x, height - y + origin_y] for x, y in points]
@@ -351,6 +356,85 @@ def save_summary_interval_png(figure, path, *, metadata, dpi, run_id):
             }
         )
     return identity, strokes, sorted(set(gaps))
+
+
+def _band_strips(artist):
+    import numpy as np
+
+    ids = artist._graphunslopify_interval_ids
+    x, low, high = artist._graphunslopify_band_inputs
+    if x.ndim != 1 or x.shape != low.shape or low.shape != high.shape or len(x) != len(ids):
+        raise ValueError("Band inputs do not match their summary positions")
+    transform = artist.get_transform()
+    if not transform.is_separable:
+        raise ValueError("A band has a nonseparable transform")
+    clip = _interval_clip(artist)
+    valid = np.flatnonzero(np.isfinite(x) & np.isfinite(low) & np.isfinite(high))
+    runs = np.split(valid, np.flatnonzero(np.diff(valid) != 1) + 1) if len(valid) else []
+    paths = artist.get_paths()
+    if len(runs) != len(paths):
+        raise ValueError("Band paths do not match the runs of finite intervals")
+    for run, path in zip(runs, paths, strict=True):
+        lower = np.column_stack((x[run], low[run]))
+        upper = np.column_stack((x[run], high[run]))
+        expected = np.vstack((upper[:1], lower, upper[-1:], upper[::-1], upper[:1]))
+        if not np.array_equal(path.vertices, expected):
+            raise ValueError("A drawn band path differs from its interval endpoints")
+        if len(run) == 1:
+            continue
+        projected = transform.transform_path(path).vertices
+        if projected.shape != expected.shape or not np.isfinite(projected).all():
+            raise ValueError("A projected band path differs from its drawn endpoints")
+        size = len(run)
+        bottom = projected[1 : size + 1]
+        top = projected[size + 2 : 2 * size + 2][::-1]
+        if not np.array_equal(bottom[:, 0], top[:, 0]) or not ordered_edges(bottom[:, 0].tolist()):
+            raise ValueError("Band positions are not monotone in the final PNG")
+        for i, (first, second) in enumerate(pairwise(run)):
+            if bottom[i, 1] == top[i, 1] and bottom[i + 1, 1] == top[i + 1, 1]:
+                continue
+            points = [bottom[i], top[i], bottom[i + 1], top[i + 1]]
+            yield [ids[first], ids[second]], [point.tolist() for point in points], clip
+
+
+def _collect_bands(figure, _renderer, entries, gaps):
+    for artist in _visible_interval_artists(figure):
+        try:
+            for strip in _band_strips(artist):
+                if len(entries) >= MAX_INTERVAL_STROKES:
+                    gaps.append("Band geometry exceeds its strip capacity")
+                    return
+                entries.append(strip)
+        except ValueError as problem:
+            gaps.append(str(problem))
+
+
+def save_summary_band_png(figure, path, *, metadata, dpi, run_id):
+    identity, snapshot, gaps = _save_observation_png(
+        figure,
+        path,
+        metadata=metadata,
+        dpi=dpi,
+        run_id=run_id,
+        collect=_collect_bands,
+        label="summary band",
+    )
+    if not snapshot:
+        return identity, [], gaps
+    width, height = identity["width"], identity["height"]
+    origin_x, origin_y = snapshot["origin"]
+    strips = []
+    for ids, points, raw_clip in snapshot["entries"]:
+        bounds = _pixel_clip(raw_clip, snapshot["origin"], width, height)
+        left, top, right, bottom = bounds
+        pixels = [[x - origin_x, height - y + origin_y] for x, y in points]
+        xs, ys = zip(*pixels, strict=True)
+        if left >= right or top >= bottom or max(xs) <= left or min(xs) >= right:
+            continue
+        if max(ys) <= top or min(ys) >= bottom:
+            continue
+        strips.append({"interval_ids": ids, "endpoints": pixels, "clip": bounds})
+    return identity, strips, gaps
 
 
 def cell_index(edges, position):
@@ -445,12 +529,63 @@ def resolve_matrix_cell(info, nodes, x, y):
     return next(iter(matches), None)
 
 
+def _finite_interval(target):
+    value = target.get("value")
+    return target.get("operation") == "summary_interval" and (
+        isinstance(value, list) and len(value) == 2 and all(map(finite_number, value))
+    )
+
+
+def _valid_clip(clip, image):
+    if not isinstance(clip, list) or len(clip) != 4 or not all(map(finite_number, clip)):
+        return False
+    left, top, right, bottom = clip
+    return 0 <= left < right <= image["width"] and 0 <= top < bottom <= image["height"]
+
+
+def _finite_points(points, count):
+    return (
+        isinstance(points, list)
+        and len(points) == count
+        and all(
+            isinstance(point, list) and len(point) == 2 and all(map(finite_number, point))
+            for point in points
+        )
+    )
+
+
+def _validate_band_strip(strip, nodes, image):
+    if not isinstance(strip, dict) or not isinstance(strip.get("node_id"), str):
+        raise TypeError("A band strip has no calculation identity")
+    span = nodes.get(strip["node_id"], {})
+    refs, points = strip.get("interval_ids"), strip.get("endpoints")
+    if (
+        span.get("operation") != "summary_band_span"
+        or not isinstance(refs, list)
+        or len(refs) != 2
+        or not all(isinstance(identity, str) for identity in refs)
+        or refs[0] == refs[1]
+        or span["inputs"] != refs
+        or not all(_finite_interval(nodes.get(identity, {})) for identity in refs)
+        or not _finite_points(points, 4)
+        or not _valid_clip(strip.get("clip"), image)
+    ):
+        raise ValueError("Band geometry does not match two calculated intervals")
+    if points[0][0] != points[1][0] or points[2][0] != points[3][0] or points[0][0] == points[2][0]:
+        raise ValueError("Band geometry does not have distinct endpoint positions")
+    if span["metadata"].get("endpoint_keys") != [
+        nodes[identity]["metadata"]["keys"] for identity in refs
+    ]:
+        raise ValueError("Band endpoint keys do not match the interval calculations")
+
+
 def validate_summary_interval_geometry(node, nodes):
     if node.get("operation") != "summary_interval_png_geometry":
         raise ValueError("Unknown summary interval PNG geometry root")
     info = node.get("metadata", {})
     image = info.get("image", {})
     strokes = info.get("strokes")
+    bands = info.get("bands", [])
     if (
         info.get("coordinates") != "pixels_top_left"
         or not isinstance(image, dict)
@@ -458,9 +593,10 @@ def validate_summary_interval_geometry(node, nodes):
             type(image.get(key)) is int and image[key] > 0 for key in ("width", "height", "bytes")
         )
         or not isinstance(strokes, list)
-        or not 0 < len(strokes) <= MAX_INTERVAL_STROKES
+        or not isinstance(bands, list)
+        or not 0 < len(strokes) + len(bands) <= MAX_INTERVAL_STROKES
         or type(node["value"]) is not int
-        or len(strokes) != node["value"]
+        or len(strokes) + len(bands) != node["value"]
     ):
         raise ValueError("Malformed summary interval PNG geometry")
     inputs = {}
@@ -475,31 +611,41 @@ def validate_summary_interval_geometry(node, nodes):
         )
         target = nodes.get(identity, {})
         if (
-            target.get("operation") != "summary_interval"
-            or not isinstance(target.get("value"), list)
-            or len(target["value"]) != 2
-            or not all(map(finite_number, target["value"]))
+            not _finite_interval(target)
             or stroke.get("role") not in ("stem", "cap")
-            or not isinstance(endpoints, list)
-            or len(endpoints) != 2
-            or not all(
-                isinstance(point, list) and len(point) == 2 and all(map(finite_number, point))
-                for point in endpoints
-            )
+            or not _finite_points(endpoints, 2)
             or not finite_number(radius)
             or not 0 < radius <= 128
-            or not isinstance(clip, list)
-            or len(clip) != 4
-            or not all(map(finite_number, clip))
+            or not _valid_clip(clip, image)
         ):
             raise ValueError("Error-bar stroke does not match a finite interval")
-        left, top, right, bottom = clip
-        if not (0 <= left < right <= image["width"] and 0 <= top < bottom <= image["height"]):
-            raise ValueError("Error-bar clip lies outside the actual PNG")
         inputs[identity] = None
+    for strip in bands:
+        _validate_band_strip(strip, nodes, image)
+        inputs[strip["node_id"]] = None
     if node["inputs"] != list(inputs):
         raise ValueError("Error-bar strokes do not match their calculation inputs")
     return info
+
+
+def _pick_band(strip, x, y, tolerance):
+    left, top, right, bottom = strip["clip"]
+    if not (left <= x < right and top <= y < bottom):
+        return ()
+    (start, low_a), (_, high_a), (end, low_b), (_, high_b) = strip["endpoints"]
+    first, last = sorted((start, end))
+    if x < first - tolerance or x > last + tolerance:
+        return ()
+    ratio = min(1, max(0, (x - start) / (end - start)))
+    y1, y2 = sorted((low_a + ratio * (low_b - low_a), high_a + ratio * (high_b - high_a)))
+    if not y1 <= y <= y2:
+        return ()
+    endpoints = [
+        identity
+        for position, identity in zip((start, end), strip["interval_ids"], strict=True)
+        if abs(x - position) <= tolerance
+    ]
+    return endpoints or [strip["node_id"]]
 
 
 def resolve_summary_interval(info, x, y, *, tolerance=2):
@@ -524,6 +670,8 @@ def resolve_summary_interval(info, x, y, *, tolerance=2):
         distance = math.hypot(x - (x0 + fraction * dx), y - (y0 + fraction * dy))
         if distance <= stroke["radius"] + tolerance:
             matches.add(stroke["node_id"])
+    for strip in info.get("bands", ()):
+        matches.update(_pick_band(strip, x, y, tolerance))
     if len(matches) > 1:
         raise ValueError("More than one observation interval occupies that PNG position")
     return next(iter(matches), None)

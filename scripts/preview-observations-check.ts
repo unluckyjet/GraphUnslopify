@@ -157,6 +157,7 @@ export async function checkObservations(page: Page, evidence: string) {
       "same independently recomputed Iris cell via keyboard, desktop and narrow view",
       "scoped exclusions with paging and no late browser response after edit",
       "the same public 90% interval from keyboard, stems and caps on desktop and narrow view",
+      "a filled band span links both computed endpoints and an endpoint click selects its actual interval",
       "grouped horizontal bar intervals follow reindexed categories and forest caps retain their own rows",
     ],
     cell: { id: node.id, estimate: mean, contributing: expected.length, display_widths: sizes },
@@ -179,7 +180,7 @@ async function checkLineIntervals(
   ]);
   assert.ok(uploaded.ok());
   await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.startsWith("penguins.csv"));
-  await page.locator("#spec").fill(JSON.stringify({
+  const spec = {
     kind: "line",
     x: { field: "year", label: "Year" },
     y: { field: "body_mass_g", label: "Body mass (g)" },
@@ -187,7 +188,8 @@ async function checkLineIntervals(
     aggregation: "mean", marker: true,
     uncertainty: { kind: "ci", level: 0.9, display: "bar" },
     output: { stem: "public-ci", formats: ["png"], dpi: 300, size: "double_column" },
-  }));
+  };
+  await page.locator("#spec").fill(JSON.stringify(spec));
   await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
   const rendered = await (await click("trace-observations", "/api/render")).json();
   assert.equal(rendered.report.status, "passed", JSON.stringify(rendered.report.findings));
@@ -238,8 +240,61 @@ async function checkLineIntervals(
   }
   assert.notEqual(widths[0], widths[1]);
   await page.setViewportSize({ width: 1500, height: 1000 });
+  await page.locator("#spec").fill(JSON.stringify({ ...spec, uncertainty: { ...spec.uncertainty, display: "band" } }));
+  await page.waitForFunction(() => document.querySelector("#status")?.textContent === "Ready to render");
+  const band = await (await click("trace-observations", "/api/render")).json();
+  assert.equal(band.report.status, "passed", JSON.stringify(band.report.findings));
+  assert.ok(band.observations.band);
+  assert.equal(band.observations.intervals, 3);
+  const [bandDownload] = await Promise.all([
+    page.waitForEvent("download"), page.locator("#observation-graph").click(),
+  ]);
+  const bandPath = await bandDownload.path();
+  assert.ok(bandPath);
+  const bandBytes = readFileSync(bandPath);
+  const bandRef = band.report.observation_selection;
+  assert.equal(digest(bandBytes), bandRef.sha256);
+  const bandGraph = JSON.parse(bandBytes.toString());
+  assert.equal(bandGraph.source.snapshot_sha256, digest(raw));
+  const bandRoot = bandGraph.nodes.find((node: { id: string }) => node.id === bandRef.summary_interval_geometry_node_id);
+  assert.equal(bandRoot.metadata.bands.length, 2);
+  const [strip] = bandRoot.metadata.bands;
+  const bandYears = strip.interval_ids.map((identity: string) =>
+    bandGraph.nodes.find((node: { id: string }) => node.id === identity).metadata.keys.year);
+  assert.deepEqual(bandYears, ["2007", "2008"]);
+  const bandRows = raw.toString().trim().split(/\r?\n/).slice(1).flatMap((line, index) => {
+    const columns = line.split(",");
+    return columns[0] === "Adelie" && columns[6] === "male" && bandYears.includes(columns[7] ?? "") ? [index] : [];
+  });
+  const [low, high, nextLow, nextHigh] = strip.endpoints;
+  const interior: [number, number] = [(low[0] + nextLow[0]) / 2,
+    (low[1] + high[1] + nextLow[1] + nextHigh[1]) / 4];
+  const endpoint: [number, number] = [low[0], (low[1] + high[1]) / 2];
+  for (const width of [1500, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const box = await image.boundingBox();
+    assert.ok(box);
+    for (const [point, target] of [[interior, strip.node_id], [endpoint, strip.interval_ids[0]]] as const) {
+      const position: { x: number; y: number } = {
+        x: point[0] * box.width / band.observations.image.width,
+        y: point[1] * box.height / band.observations.image.height,
+      };
+      const [response] = await Promise.all([watch(query), image.click({ position })]);
+      const selected = (await response.json()).selection;
+      assert.equal(selected.node.id, target);
+      if (target === strip.node_id) {
+        assert.equal(selected.node.operation, "summary_band_span");
+        assert.equal(selected.node.value, null);
+        assert.deepEqual(selected.inputs.items.map((item: { id: string }) => item.id), strip.interval_ids);
+        assert.deepEqual(selected.contributing_records.items, bandRows);
+        await page.getByText(/The renderer joins the two calculated bounds/).waitFor();
+      }
+    }
+  }
+  await page.setViewportSize({ width: 1500, height: 1000 });
   assert.equal(digest(readFileSync(fixture)), digest(raw));
-  return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths };
+  return { year, bounds: keyboard.node.value, contributors: rows.length, display_widths: widths,
+    band: { endpoint_years: bandYears, contributors: bandRows.length, linked_calculations: 2 } };
 }
 
 async function checkSummaryChartIntervals(

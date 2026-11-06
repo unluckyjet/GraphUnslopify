@@ -20456,8 +20456,8 @@ def read_excel_table(source, *, sheet=None, identity_fields=()):
 `;
 
 // src/codegen/observation-source.ts
-var OBSERVATION_SOURCE_SHA256 = "75c5438fac671573e254a93428d7c08d44515759062350790764cf12ac71bb92";
-var OBSERVATION_GEOMETRY_SHA256 = "4cb016e8b32d5ae918312fac5444964148369a7a9acae59b8c6aed14334d668b";
+var OBSERVATION_SOURCE_SHA256 = "332517868f0ef3a1e9918cff8d1a933959516fec34fede6505d7a35c32e864b5";
+var OBSERVATION_GEOMETRY_SHA256 = "fc7f388aab979218fc9be99dd185acbb02f20feaaf2bb94360ae73fa19278703";
 
 // src/codegen/data.ts
 var OPERATORS = {
@@ -22904,7 +22904,11 @@ function emitLine(spec, out, traceIntervals) {
         `${indentLevel}        linewidth=0,`,
         `${indentLevel}        zorder=${styleExpr}["zorder"] - 1,`,
         `${indentLevel}    )`,
-        `${indentLevel}    inspector_interval(_gu_interval)`
+        `${indentLevel}    inspector_interval(_gu_interval)`,
+        ...traceIntervals ? [
+          `${indentLevel}    if OBSERVATION_CAPTURE is not None:`,
+          `${indentLevel}        OBSERVATION_CAPTURE.bind_summary_band(_gu_interval, ${source}, X_FIELD)`
+        ] : []
       );
     } else if (spec.uncertainty) {
       lines.push(
@@ -26637,8 +26641,9 @@ function emitSaveBlock(spec, out, observationPng) {
 function emitPython(spec, traceObservations = false) {
   const traceSummary = traceObservations && ["line", "bar", "forest", "table"].includes(spec.kind) && "aggregation" in spec && spec.aggregation !== "none";
   const traceMatrix = traceObservations && (spec.kind === "heatmap" || spec.kind === "confusion_matrix");
-  const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && spec.uncertainty?.display === "bar" || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
-  const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceIntervals ? "summary_interval" : null;
+  const traceIntervals = traceSummary && spec.output.formats.includes("png") && (spec.kind === "forest" || spec.kind === "line" && Boolean(spec.uncertainty) || spec.kind === "bar" && !spec.stacked && Boolean(spec.uncertainty));
+  const traceBand = traceIntervals && spec.kind === "line" && spec.uncertainty?.display === "band";
+  const observationPng = traceMatrix && spec.output.formats.includes("png") ? "matrix" : traceBand ? "summary_band" : traceIntervals ? "summary_interval" : null;
   const out = [];
   const sourceSpec = spec;
   if (spec.series_from_columns && !spec.group) spec = { ...spec, group: spec.series_from_columns.series_name };

@@ -115,11 +115,74 @@ async function run(page: Page, panel: Locator, render: Locator, prefix: string, 
     JSON.stringify(report, (key, value) => key === "data_url" ? undefined : value, 2));
   return { report, output };
 }
-async function post(page: Page, payload: unknown, authenticated = true) {
+async function post(page: Page, payload: unknown, authenticated = true, endpoint = route) {
   const token = await page.locator('meta[name="preview-token"]').getAttribute("content");
-  return page.request.post(new URL(route, page.url()).href, {
+  return page.request.post(new URL(endpoint, page.url()).href, {
     data: payload, headers: authenticated ? { "X-Preview-Token": token || "" } : {},
   });
+}
+
+async function visualComparison(page: Page, prefix: string, calibration = false) {
+  const endpoint = "/api/robustness";
+  const panel = page.locator("#robustness-workspace");
+  await panel.locator("summary").first().click();
+  await panel.getByLabel("Alternative name").fill(calibration ? "Five bins" : "Restrict visible range");
+  await panel.getByLabel("Display justification").fill("Check how the intended viewing choice affects interpretation.");
+  if (calibration) {
+    await panel.getByLabel("Calibration bins").fill("5");
+    await panel.getByLabel("Material ECE change").fill("0.025");
+    assert.equal(await panel.getByLabel("Y axis limits").isHidden(), true);
+  } else {
+    await panel.getByLabel("Y axis limits").fill("1, 5");
+    await panel.getByLabel("Material axes shift").fill("0.15");
+    assert.equal(await panel.getByLabel("Calibration bins").isHidden(), true);
+  }
+  const [reviewed] = await Promise.all([
+    page.waitForResponse(response => response.url().endsWith(endpoint)),
+    panel.getByRole("button", { name: "Review alternatives" }).click(),
+  ]);
+  assert.equal(reviewed.status(), 200, await reviewed.text());
+  const review = await reviewed.json();
+  assert.equal(review.status, "review_required");
+  const render = panel.getByRole("button", { name: "Render reviewed comparison" });
+  await render.waitFor();
+  assert.equal(await render.isDisabled(), true);
+  const request = { ...reviewed.request().postDataJSON(), mode: "render", reviewed: true, ticket: review.ticket };
+  const changedThreshold = calibration ? { ece_delta: 0.1 } : { axis_fraction: 0.1 };
+  const tampered = await post(page, { ...request, thresholds: changedThreshold }, true, endpoint);
+  assert.equal(tampered.status(), 400, await tampered.text());
+  assert.match((await tampered.json()).error, /review again/i);
+  await panel.getByRole("checkbox", { name: "I reviewed the display choices and thresholds" }).check();
+  const [rendered] = await Promise.all([page.waitForResponse(response => response.url().endsWith(endpoint)), render.click()]);
+  assert.equal(rendered.status(), 200, await rendered.text());
+  const report = await rendered.json();
+  assert.equal(report.status, "review");
+  assert.equal(report.source.sha256, review.source.sha256);
+  const alternative = report.choices[1];
+  const output = panel.getByRole("region", { name: "Visualization robustness results" });
+  if (calibration) {
+    assert.equal(alternative.visual.calibration.bins, 5);
+    assert.ok(Math.abs(alternative.comparison.calibration[0].ece_delta - 0.05428571428571427) < 1e-12);
+    await output.getByText(/ECE .*→/).waitFor();
+    assert.equal(await output.getByText(/undefined finite measurements/).count(), 0);
+  } else {
+    assert.equal(alternative.comparison.projected_centers.find((row: { series: string }) => row.series === "A").centers_lost, 2);
+    assert.deepEqual(alternative.comparison.claim_comparison.map((row: {
+      before: { verdict: string }, after: { verdict: string }, changed: boolean,
+    }) => [row.before.verdict, row.after.verdict, row.changed]), [["holds", "holds", false]]);
+    await output.getByText(/A · 2 centers lost/).waitFor();
+  }
+  for (const [index, choice] of report.choices.entries()) {
+    const src = await output.getByRole("img", { name: choice.label + " native figure" }).getAttribute("src");
+    assert.ok(src?.startsWith("data:image/png;base64,"));
+    const png = Buffer.from(src!.split(",")[1]!, "base64");
+    assert.equal(sha(png), choice.preview.sha256);
+    writeFileSync(join(evidence, prefix + "-" + index + ".png"), png);
+  }
+  const summary = JSON.stringify(report, (key, value) => key === "data_url" ? undefined : value, 2);
+  writeFileSync(join(evidence, prefix + "-report.json"), summary);
+  await output.screenshot({ path: join(evidence, prefix + "-layout.png") });
+  return { request, source: report.source.sha256, alternative: alternative.comparison };
 }
 
 const chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -182,6 +245,24 @@ try {
   await chart.unroute("**" + route);
   workflows.push("a real late native response cannot repopulate the edited figure revision");
 
+  await chart.locator("#spec").fill(original);
+  const visualEditor = await visualComparison(chart, "robustness-editor");
+  assert.equal(await chart.locator("#spec").inputValue(), original);
+  assert.equal(await chart.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  workflows.push("robustness measures clipped centers in the mobile editor and binds the author threshold");
+  const calibrationSource = Buffer.from("p,hit\n0,0\n0.19,0\n0.31,1\n0.61,0\n0.64,1\n0.81,1\n1,1\n");
+  await chart.locator("#data-file").setInputFiles({ name: "calibration.csv", mimeType: "text/csv", buffer: calibrationSource });
+  await chart.locator("#data-summary").getByText(/7/).waitFor();
+  await chart.locator("#spec").fill(JSON.stringify({
+    kind: "calibration", title: "Reliability by prediction", bins: 3, outcome: "hit",
+    x: { field: "p", label: "Mean prediction" }, y: { field: "frequency", label: "Observed fraction" },
+    data: { path: "calibration.csv", format: "csv" }, output: { dpi: 144, formats: ["png"] },
+  }));
+  await chart.locator("#robustness-workspace > summary").click();
+  const visualCalibration = await visualComparison(chart, "robustness-calibration", true);
+  assert.equal(visualCalibration.source, sha(calibrationSource));
+  workflows.push("calibration editor exposes actual ECE and observed counts with fixed probability axes");
+
   const paper = join(evidence, "paper");
   mkdirSync(paper);
   writeFileSync(join(paper, "source.csv"), raw);
@@ -203,11 +284,19 @@ try {
   await projectResult.output.screenshot({ path: join(evidence, "paper-desktop.png") });
   workflows.push("paper compares multiple alternatives against the saved project and discloses absent groups");
 
+  const visualPaper = await visualComparison(project, "robustness-paper");
+  assert.equal(readFileSync(join(paper, "figure.json"), "utf8"), original);
+  assert.deepEqual(readFileSync(join(paper, "source.csv")), raw);
+  workflows.push("paper robustness checks the saved source and retains the checked claim verdict");
+
   const changed = await review(project, panel, false);
   writeFileSync(join(paper, "source.csv"), Buffer.concat([raw, Buffer.from("2,B,4,u4\n")]));
   const refusal = await post(project, { ...changed.payload, mode: "render", reviewed: true, ticket: changed.report.ticket });
   assert.equal(refusal.status(), 400, await refusal.text());
   assert.match((await refusal.json()).error, /project inputs changed/i);
+  const visualRefusal = await post(project, visualPaper.request, true, "/api/robustness");
+  assert.equal(visualRefusal.status(), 400, await visualRefusal.text());
+  assert.match((await visualRefusal.json()).error, /project inputs changed/i);
   workflows.push("an on-disk dataset change invalidates the saved project's review");
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
@@ -218,7 +307,9 @@ try {
   writeFileSync(join(evidence, "fixture.csv"), raw);
   const proof = { status: "passed", workflows, source_sha256: sha(raw),
     single: summarized(single.report), paper: summarized(projectResult.report),
-    failed_claim: single.report.choices[1].claim_comparison[0], errors, external, writes, evidence };
+    failed_claim: single.report.choices[1].claim_comparison[0],
+    robustness: { editor: visualEditor.alternative, paper: visualPaper.alternative, calibration: visualCalibration.alternative },
+    errors, external, writes, evidence };
   writeFileSync(join(evidence, "verification.json"), JSON.stringify(proof, null, 2));
   console.log(JSON.stringify(proof));
 } finally {

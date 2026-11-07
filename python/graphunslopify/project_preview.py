@@ -90,7 +90,7 @@ class ProjectState:
             if self.closing or (self.job and self.job["phase"] == "running"):
                 raise ProjectError("Wait for the paper job or reopen the closing workspace.")
 
-    def sensitivity_preview(self, payload):
+    def sensitivity_preview(self, payload, *, visual=False):
         self.review_ready()
         identity, revision = payload.get("id"), payload.get("expected_revision")
         _review_token(revision)
@@ -119,7 +119,9 @@ class ProjectState:
         def current():
             self.review_ready()
             if project_status(self.source)["revision"] != revision:
-                raise ProjectError("Project inputs changed during sensitivity analysis; refresh.")
+                raise ProjectError(
+                    "Project inputs changed during the comparison. Refresh and review again."
+                )
 
         return self.sensitivity.compare(
             payload,
@@ -130,6 +132,7 @@ class ProjectState:
             else None,
             owner=[identity, revision],
             current=current,
+            visual=visual,
         )
 
     def cleaning_preview(self, payload):
@@ -795,8 +798,11 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
             if route == "/api/statistical-power" and length > 4096:
                 raise ProjectError("Statistical power requests must fit within 4 KiB.")
-            if route == "/api/sensitivity" and length > MAX_SENSITIVITY_REQUEST:
-                raise ProjectError("Sensitivity requests must fit within 128 KiB.")
+            if (
+                route in ("/api/sensitivity", "/api/robustness")
+                and length > MAX_SENSITIVITY_REQUEST
+            ):
+                raise ProjectError("Comparison requests must fit within 128 KiB.")
             if route == "/api/effect-sizes":
                 from .effect_sizes import MAX_EFFECT_REQUEST_BYTES
 
@@ -882,8 +888,8 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.start_inspection(payload), 202)
             elif route == "/api/cleaning-preview":
                 self.json(state.cleaning_preview(payload))
-            elif route == "/api/sensitivity":
-                self.json(state.sensitivity_preview(payload))
+            elif route in ("/api/sensitivity", "/api/robustness"):
+                self.json(state.sensitivity_preview(payload, visual=route == "/api/robustness"))
             elif route == "/api/statistical-power":
                 from .statistical_power import plan_power
 

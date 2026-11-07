@@ -1,4 +1,4 @@
-"""Bind workspace sensitivity review and rendering to the same owned inputs."""
+"""Bind workspace comparison review and rendering to the same owned inputs."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from threading import Lock
 
 from .experiment_imports import _contained_bytes
 from .sensitivity import _MAX_INPUT_BYTES, run_sensitivity, sensitivity_plan
+from .visual_robustness import robustness_plan, run_robustness
 
 MAX_REQUEST = 128 * 1024
 _MAX_PREVIEW_BYTES = 8 * 1024**2
@@ -23,7 +24,7 @@ def owned_input(path, expected, limit=_MAX_INPUT_BYTES):
     path = Path(path)
     raw = _contained_bytes(path.parent, path.name, limit=limit)
     if not raw or hashlib.sha256(raw).hexdigest() != expected:
-        raise ValueError("A selected sensitivity input changed or is unavailable")
+        raise ValueError("A selected comparison input changed or is unavailable")
     return raw
 
 
@@ -32,12 +33,22 @@ class WorkspaceSensitivity:
         self.secret = secrets.token_bytes(32)
         self.rendering = Lock()
 
-    def compare(self, payload, spec, data, palette, *, owner, current, scratch=None):
+    def compare(self, payload, spec, data, palette, *, owner, current, scratch=None, visual=False):
         mode = payload.get("mode")
         if mode not in ("review", "render"):
-            raise ValueError("Review the statistical alternatives before rendering")
+            raise ValueError("Review the alternatives before rendering")
         alternatives = payload.get("alternatives")
-        plan = sensitivity_plan(spec, alternatives)
+        options = {"thresholds": payload.get("thresholds")} if visual else {}
+        if visual:
+            plan = robustness_plan(spec, alternatives, **options)
+            compare = run_robustness
+            description = "display"
+            fields = ("kind", "x", "y", "legend", "style", "marker", "uncertainty", "bins")
+        else:
+            plan = sensitivity_plan(spec, alternatives)
+            compare = run_sensitivity
+            description = "analysis"
+            fields = ("kind", "aggregation", "filter", "uncertainty")
         snapshot = {
             "sha256": hashlib.sha256(data).hexdigest(),
             "bytes": len(data),
@@ -48,7 +59,9 @@ class WorkspaceSensitivity:
         ticket = hmac.digest(
             self.secret,
             json.dumps(
-                [owner, spec, snapshot, alternatives], sort_keys=True, allow_nan=False
+                [description, owner, spec, snapshot, alternatives, options],
+                sort_keys=True,
+                allow_nan=False,
             ).encode(),
             "sha256",
         ).hex()
@@ -58,14 +71,12 @@ class WorkspaceSensitivity:
                 "status": "review_required",
                 "ticket": ticket,
                 "source": snapshot,
+                **options,
                 "choices": [
                     {
                         "label": item["label"],
                         "justification": item["justification"],
-                        "analysis": {
-                            key: item["spec"].get(key)
-                            for key in ("kind", "aggregation", "filter", "uncertainty")
-                        },
+                        description: {key: item["spec"].get(key) for key in fields},
                     }
                     for item in plan
                 ],
@@ -81,17 +92,18 @@ class WorkspaceSensitivity:
                 "The figure, source or alternatives changed. Review again before rendering."
             )
         if not self.rendering.acquire(blocking=False):
-            raise ValueError("A sensitivity comparison is already rendering in this workspace")
+            raise ValueError("A comparison is already rendering in this workspace")
         try:
-            with TemporaryDirectory(prefix="sensitivity-", dir=scratch) as temporary:
+            with TemporaryDirectory(prefix="figure-comparison-", dir=scratch) as temporary:
                 folder = Path(temporary) / "comparison"
-                result = run_sensitivity(
+                result = compare(
                     spec,
                     alternatives,
                     data=data,
                     palette=palette,
                     destination=folder,
                     reviewed=True,
+                    **options,
                 )
                 remaining = _MAX_PREVIEW_BYTES
                 for item in result["choices"]:
@@ -108,7 +120,7 @@ class WorkspaceSensitivity:
                         len(raw) != preview["bytes"]
                         or hashlib.sha256(raw).hexdigest() != preview["sha256"]
                     ):
-                        raise ValueError("A checked sensitivity preview changed")
+                        raise ValueError("A checked comparison preview changed")
                     preview["data_url"] = "data:image/png;base64," + base64.b64encode(raw).decode()
                     remaining -= len(raw)
             current()

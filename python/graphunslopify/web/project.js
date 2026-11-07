@@ -79,14 +79,23 @@ const cleaningPreview = createCleaningPreview({
       payload: () => ({id: selected, expected_revision: record.revision}),
     } : null,
 });
-const sensitivity = createSensitivity({
-  mount: $("sensitivity-workspace"), api,
+const comparisonOptions = {
+  api,
   sourceLabel: "Use the current saved paper definition, including paper settings.",
   context: () => !running && !saving && !loadingFigure && !dirty() && !refreshFailure &&
     !state?.error && record?.source_type === "spec" && state?.revision === record.revision ? {
       key: JSON.stringify([record.revision, selected]),
       payload: () => ({id: selected, expected_revision: record.revision}),
     } : null,
+};
+const sensitivity = createSensitivity({ ...comparisonOptions, mount: $("sensitivity-workspace") });
+const robustness = createSensitivity({
+  ...comparisonOptions, mount: $("robustness-workspace"), visual: true,
+  context: () => {
+    const current = comparisonOptions.context();
+    const spec = record?.clone?.spec;
+    return current && spec ? { ...current, kind: spec.kind, interval: !!spec.uncertainty } : null;
+  },
 });
 const claimLinks = createClaimLinks($("claim-links"), {
   api,
@@ -107,6 +116,7 @@ const claimLinks = createClaimLinks($("claim-links"), {
 function lockControls() {
   cleaningPreview.update();
   sensitivity.update();
+  robustness.update();
   $("claim-links").hidden = state?.mode === "review_only";
   claimLinks.update();
   journalChecks.update();

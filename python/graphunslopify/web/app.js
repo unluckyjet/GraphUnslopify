@@ -196,18 +196,31 @@ const cleaningPreview = createCleaningPreview({
     payload: () => ({spec: readSpec(), data_id: data.id, palette_id: palette?.id}),
   } : null,
 });
-const sensitivity = createSensitivity({
-  mount: $("sensitivity-workspace"), api, flush: () => controls.flush(),
+const comparisonOptions = {
+  api, flush: () => controls.flush(),
   sourceLabel: "Use the current figure draft and selected dataset.",
   context: () => data ? {
     key: JSON.stringify([revision, data.id, palette?.id, $("spec").value]),
     payload: () => ({client, generation: revision, spec: readSpec(), data_id: data.id, palette_id: palette?.id}),
   } : null,
+};
+const sensitivity = createSensitivity({ ...comparisonOptions, mount: $("sensitivity-workspace") });
+const robustness = createSensitivity({
+  ...comparisonOptions, mount: $("robustness-workspace"), visual: true,
+  context: () => {
+    const current = comparisonOptions.context();
+    if (!current) return null;
+    try {
+      const spec = readSpec();
+      return { ...current, kind: spec.kind, interval: !!spec.uncertainty };
+    } catch { return null; }
+  },
 });
 function invalidate() {
   revision++;
   cleaningPreview.update();
   sensitivity.update();
+  robustness.update();
   reviewableRender = null; figureReviewer?.refresh();
   experimentImports?.refresh();
   sourceImports?.refresh();

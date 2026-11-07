@@ -6,6 +6,17 @@ a narrower axis range hides them, or a different bin count changes a calibration
 diagram's apparent error. Every run uses the same source data, filters,
 estimators, palette, and authored claim definitions.
 
+## Compare in the local workspaces
+
+Open **Visualization robustness tests** with a figure and dataset in the
+single editor or a current saved figure in the paper workspace. Name each
+alternative, give its display justification, and choose the settings to
+vary. Set a materiality threshold when changing axes or calibration bins.
+Review the baseline and alternatives, then confirm and render. Compare the
+actual native PNGs, quantified display changes, and any strict findings.
+Download the report to keep the comparison. The terminal workflow retains
+the generated programs, observations, and full native evidence.
+
 ## Run from the terminal
 
 Save a plan such as `display-plan.json` for a line or scatter figure.

@@ -270,7 +270,7 @@ class PreviewState:
         output["formats"] = list(dict.fromkeys([*requested, "png"]))
         return spec, data, palette
 
-    def sensitivity_preview(self, payload):
+    def sensitivity_preview(self, payload, *, visual=False):
         client, generation = payload.get("client"), payload.get("generation")
         if (
             not isinstance(client, str)
@@ -278,7 +278,7 @@ class PreviewState:
             or type(generation) is not int
             or generation < 0
         ):
-            raise ValueError("Invalid sensitivity editor revision")
+            raise ValueError("Invalid comparison editor revision")
 
         def current():
             with self.lock:
@@ -294,6 +294,7 @@ class PreviewState:
             owner=[client, generation, data["id"], palette["id"] if palette else None],
             current=current,
             scratch=self.root,
+            visual=visual,
         )
 
     def cleaning_preview(self, payload):
@@ -926,8 +927,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 raise ValueError("Observation control request exceeds 64KiB")
             if route == "/api/statistical-power" and size > 4096:
                 raise ValueError("Statistical power requests must fit within 4 KiB.")
-            if route == "/api/sensitivity" and size > MAX_SENSITIVITY_REQUEST:
-                raise ValueError("Sensitivity requests must fit within 128 KiB.")
+            if route in ("/api/sensitivity", "/api/robustness") and size > MAX_SENSITIVITY_REQUEST:
+                raise ValueError("Comparison requests must fit within 128 KiB.")
             if route == "/api/effect-sizes":
                 from .effect_sizes import MAX_EFFECT_REQUEST_BYTES
 
@@ -1052,8 +1053,12 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.json(self.server.state.render(payload))
             elif route == "/api/cleaning-preview":
                 self.json(self.server.state.cleaning_preview(payload))
-            elif route == "/api/sensitivity":
-                self.json(self.server.state.sensitivity_preview(payload))
+            elif route in ("/api/sensitivity", "/api/robustness"):
+                self.json(
+                    self.server.state.sensitivity_preview(
+                        payload, visual=route == "/api/robustness"
+                    )
+                )
             elif route == "/api/statistical-power":
                 from .statistical_power import plan_power
 

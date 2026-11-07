@@ -136,6 +136,108 @@ def request(review):
     return review.request(consent=True, consent_sha256=review.disclosure()["consent_sha256"])
 
 
+def test_role_panel_discloses_three_separate_requests_and_records_failed_role(
+    server, paper, tmp_path
+):
+    from graphunslopify.review_panel_providers import PaperReviewRoles
+
+    roles = {
+        "readability": {"legibility"},
+        "statistical_claims": {"claims", "uncertainty"},
+        "journal_formatting": {"journal_formatting"},
+    }
+    shared = DraftProvider(server.endpoint, "same-controlled-model")
+    before = inventory(paper)
+    panel = PaperReviewRoles(
+        paper, dict.fromkeys(roles, shared), figures=["training"], journal_profile="plos-one-main"
+    )
+    disclosed = panel.disclosure()
+    digests = {role: row["consent_sha256"] for role, row in disclosed.items()}
+    assert set(disclosed) == roles.keys() and len(set(digests.values())) == 3
+    for role, document in disclosed.items():
+        body = document["request"]
+        content = json.loads(body["input"][0]["content"])
+        assert set(content["deterministic_evidence"]["figures"][0]["groups"]) == roles[role]
+        assert content["deterministic_evidence"]["role"] == role
+        assert b"NEVER_SEND" not in _encoded(body)
+    journal = json.loads(disclosed["journal_formatting"]["request"]["input"][0]["content"])
+    formatting = journal["deterministic_evidence"]["figures"][0]["groups"]["journal_formatting"]
+    assert formatting["profile"]["id"] == "plos-one-main"
+    assert any(
+        check["status"] == "failed" and check["code"] == "file_format"
+        for item in formatting["exports"]
+        for check in item["report"]["checks"]
+    )
+    with pytest.raises(project.ProjectError, match="all three digests"):
+        panel.request(consent=True, consent_sha256={"readability": digests["readability"]})
+    with pytest.raises(project.ProjectError, match="all three digests"):
+        panel.request(consent=False, consent_sha256=digests)
+    assert not server.calls
+
+    def reply():
+        raw = server.calls[-1][0]
+        body = json.loads(raw)
+        context = json.loads(body["input"][0]["content"])
+        role = context["deterministic_evidence"]["role"]
+        topic = next(iter(sorted(roles[role])))
+        if role == "journal_formatting":
+            topic = "claims"
+        content = proposal()
+        content["suggestions"][0].update(topic=topic, evidence_ids=["F1.status"])
+        server.text = json.dumps(content)
+
+    server.on_request = reply
+    result = panel.request(consent=True, consent_sha256=digests)
+    assert result["status"] == "partial" and result["matches_current_evidence"]
+    assert result["shared_provider_configuration"] is True
+    assert result["role_reviews"]["readability"]["status"] == "completed"
+    assert result["role_reviews"]["statistical_claims"]["status"] == "completed"
+    assert result["role_reviews"]["journal_formatting"]["status"] == "unavailable"
+    assert result["deterministic_evidence"]["figures"][0]["recorded_outcome"] == "passed"
+    assert len(server.calls) == 3 and inventory(paper) == before
+    for role, (raw, _) in zip(roles, server.calls, strict=True):
+        assert raw == _encoded(disclosed[role]["request"])
+        assert hashlib.sha256(raw).hexdigest() == result["role_reviews"][role]["request_sha256"]
+    (tmp_path / "provider-role-proof.json").write_text(
+        json.dumps({"disclosures": disclosed, "result": result}, indent=2), encoding="utf8"
+    )
+    with pytest.raises(project.ProjectError, match="already attempted"):
+        panel.request(consent=True, consent_sha256=digests)
+
+
+def test_role_panel_refuses_changed_evidence_before_any_request(server, paper):
+    from graphunslopify.review_panel_providers import PaperReviewRoles
+
+    provider = DraftProvider(server.endpoint, "controlled-review")
+    roles = ("readability", "statistical_claims", "journal_formatting")
+    panel = PaperReviewRoles(paper, dict.fromkeys(roles, provider), figures=["training"])
+    digests = {role: row["consent_sha256"] for role, row in panel.disclosure().items()}
+    figure = paper / "training.figure.json"
+    spec = json.loads(figure.read_bytes())
+    spec["title"] = "Changed before consent"
+    figure.write_text(json.dumps(spec))
+    with pytest.raises(project.ProjectError, match="Paper evidence changed"):
+        panel.request(consent=True, consent_sha256=digests)
+    assert not server.calls
+
+
+def test_role_panel_stops_after_evidence_changes_during_the_first_request(server, paper):
+    from graphunslopify.review_panel_providers import PaperReviewRoles
+
+    provider = DraftProvider(server.endpoint, "controlled-review")
+    roles = ("readability", "statistical_claims", "journal_formatting")
+    panel = PaperReviewRoles(paper, dict.fromkeys(roles, provider), figures=["training"])
+    digests = {role: row["consent_sha256"] for role, row in panel.disclosure().items()}
+    figure = paper / "training.figure.json"
+    spec = json.loads(figure.read_bytes())
+    spec["title"] = "Changed during provider review"
+    server.on_request = lambda: figure.write_text(json.dumps(spec))
+    result = panel.request(consent=True, consent_sha256=digests)
+    assert result["status"] == "partial" and not result["matches_current_evidence"]
+    assert all(row["status"] == "unavailable" for row in result["role_reviews"].values())
+    assert len(server.calls) == 1
+
+
 def test_paper_audit_assembles_reviewed_batches_without_changing_verdicts(
     server, paper, tmp_path, capsys
 ):

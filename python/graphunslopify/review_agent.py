@@ -66,7 +66,7 @@ def _text(value, name, maximum, *, empty=False):
     return value
 
 
-def _packet(review, selected):
+def _packet(review, selected, *, groups=GROUPS):
     """Explicit disclosure projection, not a second scientific review engine."""
     figures, references, attention = [], [], []
     for index, row in enumerate(selected):
@@ -89,7 +89,7 @@ def _packet(review, selected):
         references.append(
             {"id": prefix + ".status", "figure_key": row["key"], "path": f"/figures/{index}"}
         )
-        for name in GROUPS:
+        for name in groups:
             group = copy.deepcopy(row["groups"][name])
             if name == "reproduction":
                 # Do not add local filenames, full environment inventories or raw
@@ -170,7 +170,10 @@ def _response_schema(packet):
                             "type": "string",
                             "enum": [row["key"] for row in packet["figures"]],
                         },
-                        "topic": {"type": "string", "enum": [*GROUPS, "comparison"]},
+                        "topic": {
+                            "type": "string",
+                            "enum": packet.get("topics", [*GROUPS, "comparison"]),
+                        },
                         "suggestion": text,
                         "why": text,
                         "evidence_ids": {
@@ -212,6 +215,7 @@ class FigureReviewPlan:
     """One disclosed, evidence-bound inference attempt against an actual project."""
 
     source_kind = "paper-project"
+    _instructions = INSTRUCTIONS
 
     def __init__(
         self,
@@ -249,7 +253,7 @@ class FigureReviewPlan:
         ):
             raise ValueError("Choose 1-20 distinct figure keys from the actual review collection")
         self._binding = review["evidence_revision"]
-        self._packet = _packet(review, [by_key[key] for key in self._figures])
+        self._packet = self._build_packet(review, [by_key[key] for key in self._figures])
         self._schema = _response_schema(self._packet)
         context = {
             "deterministic_evidence": self._packet,
@@ -277,7 +281,7 @@ class FigureReviewPlan:
         ]
         if provider.protocol == "chat":
             body.update(
-                messages=[{"role": "system", "content": INSTRUCTIONS}, *messages],
+                messages=[{"role": "system", "content": self._instructions}, *messages],
                 response_format=(
                     {"type": "json_schema", "json_schema": format_schema}
                     if self._structured
@@ -287,7 +291,7 @@ class FigureReviewPlan:
             )
         else:
             body.update(
-                instructions=INSTRUCTIONS,
+                instructions=self._instructions,
                 input=messages,
                 text={
                     "format": {"type": "json_schema", **format_schema}
@@ -309,6 +313,9 @@ class FigureReviewPlan:
 
     def _collect(self):
         return project_review(self._path, event_id=self._event)
+
+    def _build_packet(self, review, rows):
+        return _packet(review, rows)
 
     def _check_current(self):
         if self._collect()["evidence_revision"] != self._binding:

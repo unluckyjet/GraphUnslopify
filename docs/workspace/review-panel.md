@@ -19,3 +19,11 @@ figures. Use `--expected-revision` to bind the collection to a current saved
 review. Omit `--journal-profile` when a venue has yet to be selected. The report
 will show where a profile is required. Figure execution and any model review
 are separate actions.
+
+`graphunslopify.review_panel_providers.PaperReviewRoles` accepts a `DraftProvider`
+for each of `readability`, `statistical_claims` and `journal_formatting`. Its
+`disclosure()` shows the exact request and consent digest for each role. Review
+all three before calling `request(consent=True, consent_sha256=digests)`, where
+`digests` maps each role to its approved digest. Only the journal role receives
+technical profile measurements. The result keeps unavailable roles and local
+deterministic evidence visible and reports reused provider configurations.

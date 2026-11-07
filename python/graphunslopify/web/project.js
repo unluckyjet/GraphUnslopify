@@ -611,7 +611,10 @@ review = createScientificReview({ api, protect, audit: () => $("audit").click(),
     pendingPDF = id; activeJobKind = "inspection"; running = true; lockControls(); notice("PDF inspection started. Original data and numerical claims remain untested.");
   }),
 });
-figureReviewer = createFigureReviewer({mount: $("reviewer-tools"), token, context: () => review.reviewerContext()});
+figureReviewer = createFigureReviewer({
+  mount: $("reviewer-tools"), token, context: () => review.reviewerContext(),
+  loadIntent: () => api("/api/research-intent"),
+});
 async function save(route, body) {
   saving = true; lockControls();
   try { await api(route, body); sourceDirty = entryDirty = sharedDirty = false; await refresh({ reload: true }); await loadEvent(); notice("Saved. Audit the paper to check this version."); }

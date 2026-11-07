@@ -8,6 +8,11 @@ Open **Research intent memory** in the paper workspace to add, update or forget
 an entry. Review its previous and proposed wording before accepting. Use the
 same panel to read accepted entries and their history.
 
+In **Ask a skeptical reviewer**, open **Add accepted research wording** to
+copy selected entries into the author context. The text is editable. It
+appears in the exact request disclosure and follows the usual explicit consent
+step. A prepared request keeps the wording that was disclosed.
+
 Read the current values and revision with `graphunslopify project-intent PAPER`.
 Write the entries to add, replace or forget in a JSON file such as `changes.json`.
 

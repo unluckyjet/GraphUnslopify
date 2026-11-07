@@ -1,5 +1,5 @@
 /** One explicitly consented, evidence-bound reviewer workflow for both workspaces. */
-export function createFigureReviewer({mount, token, context}) {
+export function createFigureReviewer({mount, token, context, loadIntent}) {
   const node = (tag, text, parent) => {
     const e = document.createElement(tag);
     if (text !== undefined) e.textContent = String(text ?? "");
@@ -38,6 +38,61 @@ export function createFigureReviewer({mount, token, context}) {
   const question = field("Reviewer question", "textarea", "question", root); question.rows = 3; question.maxLength = 12000;
   question.value = "What would a skeptical reviewer criticize about these figures?";
   const authorContext = field("Author context (optional)", "textarea", "context", root); authorContext.rows = 2; authorContext.maxLength = 8000;
+  if (loadIntent) {
+    const memory = node("details", undefined, root);
+    memory.id = "reviewer-intent-memory";
+    node("summary", "Add accepted research wording", memory);
+    node("p", "Choose entries to copy into the editable author context.", memory).className = "muted";
+    const choices = node("fieldset", undefined, memory);
+    node("legend", "Accepted project wording", choices);
+    const entries = node("div", undefined, choices);
+    const add = button("Add selected wording to context", "add-intent", memory);
+    const note = node("p", "", memory);
+    note.setAttribute("role", "status");
+    let memoryRevision, loading = false;
+    const selected = () => [...entries.querySelectorAll("input:checked")];
+    const controls = () => { choices.disabled = loading; add.disabled = loading || !selected().length; };
+    const show = (state) => {
+      memoryRevision = state.revision;
+      entries.replaceChildren();
+      for (const [category, values] of Object.entries(state.entries)) {
+        for (const [name, wording] of Object.entries(values)) {
+          const label = node("label", undefined, entries); label.className = "check";
+          const input = node("input", undefined, label); input.type = "checkbox";
+          const title = category.replaceAll("_", " ");
+          input.value = `${title} · ${JSON.stringify(name)} → ${JSON.stringify(wording)}`;
+          label.append(document.createTextNode(input.value));
+        }
+      }
+      note.textContent = entries.childElementCount ? "" : "No accepted wording in this project yet.";
+    };
+    async function load(operation) {
+      if (loading) return;
+      loading = true; controls();
+      try { operation(await loadIntent()); }
+      catch (error) { note.textContent = error.message; }
+      finally { loading = false; controls(); }
+    }
+    memory.addEventListener("toggle", () => { if (memory.open) void load(show); });
+    choices.addEventListener("change", controls);
+    add.onclick = () => void load(state => {
+      if (state.revision !== memoryRevision) {
+        show(state);
+        note.textContent = "Accepted wording changed. Select entries again.";
+        return;
+      }
+      const text = [authorContext.value, "Accepted project wording", ...selected().map(input => input.value)].filter(Boolean).join("\n");
+      if (text.length > authorContext.maxLength) {
+        note.textContent = "Choose fewer entries or shorten the existing author context.";
+        return;
+      }
+      authorContext.value = text;
+      authorContext.dispatchEvent(new Event("input"));
+      for (const input of selected()) input.checked = false;
+      note.textContent = "Added to author context. Review the exact model request before sending.";
+    });
+    controls();
+  }
   const structured = checkbox("Request schema-constrained replies", "structured", settings); structured.checked = true;
   const prepare = button("Review the model request", "disclose", root);
   const status = node("p", "Nothing sent to a model.", root); status.id = "reviewer-status"; status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");

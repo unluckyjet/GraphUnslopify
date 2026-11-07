@@ -54,3 +54,9 @@ supplying its `consent_sha256`. Pass authorization separately with
 `GRAPHUNSLOPIFY_REVIEW_JOURNAL_FORMATTING_API_KEY` as needed. A partial result
 is saved and returns exit code 2. Changes to the evidence, profile or plan
 require a new disclosure.
+
+The saved result includes a per-figure synthesis. Each role supplies one
+evidence-linked recommendation for each selected figure. The synthesis
+displays different recommendations side by side, reports unavailable roles,
+and puts recorded failures and evidence gaps ahead of optional changes. Follow
+the pointers into the saved checks and role assessments for author review.

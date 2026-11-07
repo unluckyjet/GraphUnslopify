@@ -254,7 +254,7 @@ class FigureReviewPlan:
             raise ValueError("Choose 1-20 distinct figure keys from the actual review collection")
         self._binding = review["evidence_revision"]
         self._packet = self._build_packet(review, [by_key[key] for key in self._figures])
-        self._schema = _response_schema(self._packet)
+        self._schema = self._build_schema(self._packet)
         context = {
             "deterministic_evidence": self._packet,
             "author_context": self._context,
@@ -316,6 +316,9 @@ class FigureReviewPlan:
 
     def _build_packet(self, review, rows):
         return _packet(review, rows)
+
+    def _build_schema(self, packet):
+        return _response_schema(packet)
 
     def _check_current(self):
         if self._collect()["evidence_revision"] != self._binding:

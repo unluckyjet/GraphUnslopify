@@ -83,6 +83,20 @@ def proposal():
     }
 
 
+def role_proposal(topic, disposition):
+    content = proposal()
+    content["suggestions"][0].update(topic=topic, evidence_ids=["F1.status"])
+    content["figure_assessments"] = [
+        {
+            "figure_key": "training",
+            "disposition": disposition,
+            "reason": "Review the recorded status within this role.",
+            "evidence_ids": ["F1.status"],
+        }
+    ]
+    return content
+
+
 @pytest.fixture
 def server():
     class Handler(BaseHTTPRequestHandler):
@@ -182,8 +196,7 @@ def test_role_panel_discloses_three_separate_requests_and_records_failed_role(
         topic = next(iter(sorted(roles[role])))
         if role == "journal_formatting":
             topic = "claims"
-        content = proposal()
-        content["suggestions"][0].update(topic=topic, evidence_ids=["F1.status"])
+        content = role_proposal(topic, "request_change")
         server.text = json.dumps(content)
 
     server.on_request = reply
@@ -193,6 +206,8 @@ def test_role_panel_discloses_three_separate_requests_and_records_failed_role(
     assert result["role_reviews"]["readability"]["status"] == "completed"
     assert result["role_reviews"]["statistical_claims"]["status"] == "completed"
     assert result["role_reviews"]["journal_formatting"]["status"] == "unavailable"
+    assert result["synthesis"]["unavailable_roles"] == ["journal_formatting"]
+    assert not result["synthesis"]["figures"][0]["different_role_recommendations"]
     assert result["deterministic_evidence"]["figures"][0]["recorded_outcome"] == "passed"
     assert len(server.calls) == 3 and inventory(paper) == before
     for role, (raw, _) in zip(roles, server.calls, strict=True):
@@ -235,7 +250,46 @@ def test_role_panel_stops_after_evidence_changes_during_the_first_request(server
     result = panel.request(consent=True, consent_sha256=digests)
     assert result["status"] == "partial" and not result["matches_current_evidence"]
     assert all(row["status"] == "unavailable" for row in result["role_reviews"].values())
+    assert result["synthesis"]["figures"][0]["next_author_step"] == "refresh_current_evidence"
     assert len(server.calls) == 1
+
+
+def test_role_panel_rejects_duplicate_assessments_and_cross_figure_references(server, paper):
+    from graphunslopify.review_panel_providers import PaperReviewRoles
+
+    provider = DraftProvider(server.endpoint, "controlled-review")
+    roles = ("readability", "statistical_claims", "journal_formatting")
+    panel = PaperReviewRoles(
+        paper, dict.fromkeys(roles, provider), figures=["training", "results-table"]
+    )
+    digests = {role: row["consent_sha256"] for role, row in panel.disclosure().items()}
+
+    def reply():
+        body = json.loads(server.calls[-1][0])
+        role = json.loads(body["input"][0]["content"])["deterministic_evidence"]["role"]
+        topics = {
+            "readability": "legibility",
+            "statistical_claims": "claims",
+            "journal_formatting": "journal_formatting",
+        }
+        value = role_proposal(topics[role], "no_change_proposed")
+        [first] = value["figure_assessments"]
+        second = {**first, "figure_key": "results-table", "evidence_ids": ["F2.status"]}
+        if role == "readability":
+            second = first
+        elif role == "journal_formatting":
+            second["evidence_ids"] = ["F1.status"]
+        value["figure_assessments"].append(second)
+        server.text = json.dumps(value)
+
+    server.on_request = reply
+    result = panel.request(consent=True, consent_sha256=digests)
+    assert result["status"] == "partial" and len(server.calls) == 3
+    assert result["synthesis"]["unavailable_roles"] == ["readability", "journal_formatting"]
+    assert all(
+        [item["role"] for item in row["role_assessments"]] == ["statistical_claims"]
+        for row in result["synthesis"]["figures"]
+    )
 
 
 def test_role_panel_cli_saves_and_replays_only_reviewed_requests(
@@ -319,8 +373,12 @@ def test_role_panel_cli_saves_and_replays_only_reviewed_requests(
         body = json.loads(server.calls[-1][0])
         context = json.loads(body["input"][0]["content"])
         role = context["deterministic_evidence"]["role"]
-        content = proposal()
-        content["suggestions"][0].update(topic=roles[role], evidence_ids=["F1.status"])
+        disposition = {
+            "readability": "request_change",
+            "statistical_claims": "no_change_proposed",
+            "journal_formatting": "needs_evidence",
+        }[role]
+        content = role_proposal(roles[role], disposition)
         server.text = json.dumps(content)
 
     server.on_request = reply
@@ -329,6 +387,21 @@ def test_role_panel_cli_saves_and_replays_only_reviewed_requests(
     result = json.loads(result_file.read_bytes())
     assert result["matches_current_evidence"] and not result["shared_provider_configuration"]
     assert all(row["status"] == "completed" for row in result["role_reviews"].values())
+    [summary] = result["synthesis"]["figures"]
+    assert (
+        summary["different_role_recommendations"]
+        and summary["next_author_step"] == "resolve_recorded_failures"
+    )
+    assert [item["disposition"] for item in summary["role_assessments"]] == [
+        "request_change",
+        "no_change_proposed",
+        "needs_evidence",
+    ]
+    flag = next(item for item in summary["recorded_priorities"] if item["code"] == "file_format")
+    value = result
+    for part in flag["evidence_pointer"].lstrip("/").split("/"):
+        value = value[int(part)] if isinstance(value, list) else value[part]
+    assert value["status"] == "failed"
     assert len(server.calls) == 3 and inventory(paper) == original
     for role, (raw, headers) in zip(roles, server.calls, strict=True):
         assert raw == _encoded(doc["roles"][role]["request"])

@@ -24,7 +24,9 @@ export async function checkDrafts(page: Page, evidence: string) {
     calls.push(JSON.parse(Buffer.concat(chunks).toString()));
     if (mode === "hold") await new Promise<void>(done => {releaseHeld = done;});
     if (mode === "unavailable") {response.writeHead(503);response.end("PRIVATE_PROVIDER_ERROR_BODY");return;}
-    const patch = mode === "invalid" ? {x: {label: 7}} : {title: "Training progress", x: {field: "epoch", label: "Epoch"}, y: {field: "score", label: "Score", ...(mode === "units" ? {unit: "ms"} : {})}};
+    const patch = mode === "invalid" ? {x: {label: 7}} : mode === "presentation" ?
+      {legend: {position: "outside_bottom", title: "Model variants"}} :
+      {title: "Training progress", x: {field: "epoch", label: "Epoch"}, y: {field: "score", label: "Score", ...(mode === "units" ? {unit: "ms"} : {})}};
     response.setHeader("Content-Type", "application/json");
     response.end(JSON.stringify({choices: [{finish_reason: "stop", message: {role: "assistant", content: JSON.stringify({patch, assumptions: ["<img src=x onerror=unsafe()>"], questions: []})}}]}));
   });
@@ -34,6 +36,7 @@ export async function checkDrafts(page: Page, evidence: string) {
   const actualEndpoint = process.env.GRAPHUNSLOPIFY_TEST_DRAFT_ENDPOINT;
   const actualModel = process.env.GRAPHUNSLOPIFY_TEST_DRAFT_MODEL;
   assert.equal(Boolean(actualEndpoint), Boolean(actualModel), "Configure both actual test endpoint and model");
+  const actualGeneral = actualEndpoint && process.env.GRAPHUNSLOPIFY_TEST_DRAFT_PRESENTATION_ONLY !== "1";
   const workflows: string[] = [];
   const sourceCsv = Buffer.from("epoch,score\n1,51\n2,54\n3,56\n4,59\n");
   const sourceSha256 = createHash("sha256").update(sourceCsv).digest("hex");
@@ -73,7 +76,7 @@ export async function checkDrafts(page: Page, evidence: string) {
     await page.locator("#spec").fill(JSON.stringify(original, null, 2));
     await page.locator("#render").click();await verified();console.log("Model draft browser: manual figure verified");
     if (!await page.locator("#model-drafts").evaluate(el => Boolean((el as unknown as {open: boolean}).open))) await page.locator("#model-drafts > summary").click();
-    await configure(actualEndpoint || controlledEndpoint, actualModel || "controlled-provider-double");
+    await configure(actualGeneral ? actualEndpoint! : controlledEndpoint, actualGeneral ? actualModel! : "controlled-provider-double");
     const before = await spec(), beforeImage = await page.locator("#preview").getAttribute("src");
     console.log("Model draft browser: provider saved");
     const disclosure = await reviewRequest();
@@ -88,7 +91,7 @@ export async function checkDrafts(page: Page, evidence: string) {
     assert.equal(await page.locator("#status").textContent(), "Verified");
     assert.equal(await page.locator("#draft-apply").isDisabled(), true);
     assert.equal(await page.locator("#draft-proposal img").count(), 0);
-    if (!actualEndpoint) assert.ok((await page.locator("#draft-assumptions").textContent())?.includes("<img"));
+    if (!actualGeneral) assert.ok((await page.locator("#draft-assumptions").textContent())?.includes("<img"));
     const proposal = await modelResponse.json();
     writeFileSync(join(evidence,"model-received-proposal.json"),JSON.stringify(proposal,null,2)+"\n");
     writeFileSync(join(evidence,"model-disclosure.json"),JSON.stringify(disclosure,null,2)+"\n");
@@ -224,7 +227,78 @@ print(json.dumps({'source_sha256':hashlib.sha256(source).hexdigest(),'original_b
     const literal=await reviewRequest();
     assert.equal(JSON.parse(literal.request.messages[1].content).author_context.units["__proto__"],"ms");
     workflows.push("reserved source column names remain literal in declared-unit disclosure");
-    const proof={passed:true,positive_provider:actualEndpoint?"actual configured model":"controlled HTTP double; not inference",model:actualModel||"controlled-provider-double",request_sha256:disclosure.request_sha256,request_bytes:disclosure.request_bytes,strict_status:result.report.status,exports:result.report.outputs.map((x:{format:string})=>x.format),source_binding:sourceBinding,controlled_negative_cases:true,workflows};
+
+    const displayData = Buffer.from("epoch,score,model\n1,11,Base\n2,12,Base\n3,13,Base\n1,21,Variant\n2,22,Variant\n3,23,Variant\n1,15,Reference\n2,16,Reference\n3,17,Reference\n");
+    const displayDigest = createHash("sha256").update(displayData).digest("hex");
+    const displaySpec = { ...original, title: "Progress by model", group: "model", marker: true,
+      x: {field: "epoch", label: "Epoch"}, y: {field: "score", label: "Score"},
+      legend: {position: "outside_right", title: "Models"},
+      claims: [{kind: "beats_everywhere", subject: "Variant", reference: "Base"}] };
+    await page.locator("#data-file").setInputFiles({name:"presentation-model-synthetic.csv",mimeType:"text/csv",buffer:displayData});
+    await page.waitForFunction(() => document.querySelector("#data-summary")?.textContent.includes("presentation-model-synthetic.csv") && !document.querySelector("#data-summary")?.textContent.startsWith("Reading "));
+    await page.locator("#spec").fill(JSON.stringify(displaySpec, null, 2));
+    const [baselineResponse] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/render")), page.locator("#render").click()]);
+    const baseline = await baselineResponse.json(); await verified();
+    assert.equal(baseline.report.status, "passed");
+    const displayBefore = await spec();
+    await configure(actualEndpoint || controlledEndpoint, actualModel || "controlled-provider-double");
+    mode = "presentation";
+    await page.locator("#draft-scope").selectOption("presentation");
+    assert.equal(await page.locator("#draft-author-context").isHidden(), true);
+    await page.locator("#draft-prompt").fill("Make the legend clearer and preserve grayscale accessibility. Put the legend below the plot and call it Model variants.");
+    const callsBefore = calls.length;
+    const visualDisclosure = await reviewRequest();
+    assert.equal(calls.length, callsBefore);
+    assert.equal(visualDisclosure.scope, "presentation");
+    const visualIntent = JSON.parse(visualDisclosure.request.messages[1].content);
+    assert.deepEqual(Object.keys(visualIntent).sort(), ["current_intent", "response_envelope"]);
+    assert.deepEqual(visualIntent.current_intent.x, {label:"Epoch"});
+    writeFileSync(join(evidence,"presentation-disclosure.json"),JSON.stringify(visualDisclosure,null,2)+"\n");
+    const visualResponse = await send();
+    if (!visualResponse.ok()) writeFileSync(join(evidence,"presentation-rejected.json"), await visualResponse.text());
+    assert.equal(visualResponse.status(), 200, await visualResponse.text());
+    const visualProposal = await visualResponse.json();
+    assert.deepEqual(visualProposal.changes.map((change:{path:string})=>change.path).sort(), ["/legend/position", "/legend/title"]);
+    assert.equal(visualProposal.spec.legend.position, "outside_bottom");
+    assert.equal(visualProposal.spec.legend.title, "Model variants");
+    assert.equal(visualProposal.applied, false);
+    assert.equal(visualProposal.verified, false);
+    await page.locator("#draft-change-review").getByText(/outside_right → outside_bottom/).waitFor();
+    assert.equal(await page.locator("#draft-apply").isDisabled(), true);
+    assert.deepEqual(await spec(), displayBefore);
+    await page.setViewportSize({width:390,height:844});
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await page.locator("#draft-change-review").screenshot({path:join(evidence,"presentation-review-mobile.png")});
+    await page.locator("#draft-reviewed").check();
+    const [appliedResponse] = await Promise.all([page.waitForResponse(r => r.url().endsWith("/api/render")), page.locator("#draft-apply").click()]);
+    const applied = await appliedResponse.json(); await verified();
+    assert.equal(applied.report.policy.strict, true);
+    assert.equal(applied.report.data.sha256_prefix, displayDigest.slice(0,16));
+    assert.deepEqual(applied.report.data, baseline.report.data);
+    assert.deepEqual(applied.report.claims, baseline.report.claims);
+    const colourFindings = (value: {report:{findings:{code:string}[]}}) => value.report.findings.map(item=>item.code)
+      .filter(code=>["greyscale_collision", "series_indistinguishable"].includes(code));
+    assert.deepEqual(colourFindings(baseline), []);
+    assert.deepEqual(colourFindings(applied), []);
+    const png = await page.locator("#preview").getAttribute("src");
+    assert.ok(png);
+    const pngResponse = await page.request.get(new URL(png, page.url()).href);
+    assert.ok(pngResponse.ok());
+    const image = await pngResponse.body();
+    const pngSha = createHash("sha256").update(image).digest("hex");
+    assert.equal(pngSha, applied.report.outputs.find((item:{format:string})=>item.format==="png").sha256);
+    writeFileSync(join(evidence,"presentation-applied.png"), image);
+    for (const [file, value] of [["presentation-disclosure",visualDisclosure],["presentation-proposal",visualProposal],
+      ["presentation-baseline-report",baseline.report],["presentation-applied-report",applied.report]])
+      writeFileSync(join(evidence,file+".json"),JSON.stringify(value,null,2)+"\n");
+    await page.locator("#undo-controls").click();
+    assert.deepEqual(await spec(), displayBefore);
+    assert.equal(await page.locator("#bundle").isDisabled(), true);
+    workflows.push("reviewed natural-language legend edit preserves source and existing colour checks and can be undone");
+    const presentation = {provider:actualEndpoint?"actual configured model":"controlled HTTP double", request_sha256:visualDisclosure.request_sha256,
+      bytes:visualDisclosure.request_bytes, changes:visualProposal.changes, source_sha256:displayDigest, png_sha256:pngSha,
+      strict_status:applied.report.status, original_claims_retained:true, existing_colour_checks_passed:true};
+    const proof={passed:true,positive_provider:actualGeneral?"actual configured model":"controlled HTTP double; not inference",model:actualGeneral?actualModel:"controlled-provider-double",request_sha256:disclosure.request_sha256,request_bytes:disclosure.request_bytes,strict_status:result.report.status,exports:result.report.outputs.map((x:{format:string})=>x.format),source_binding:sourceBinding,controlled_negative_cases:true,workflows,presentation};
     writeFileSync(join(evidence,"model-drafts-checks.json"),JSON.stringify(proof,null,2)+"\n");
     return proof;
   } finally {releaseHeld?.();await new Promise<void>(done=>stub.close(()=>done()));}

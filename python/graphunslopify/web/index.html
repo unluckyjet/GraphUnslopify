@@ -193,7 +193,8 @@
             <button id="draft-save-provider" class="secondary">Save provider</button>
             <button id="draft-disable-provider" class="quiet">Disable model drafts</button>
           </details>
-          <label for="draft-prompt">What should this figure show?</label>
+          <label>Model request scope<select id="draft-scope"><option value="figure">Draft or edit the figure</option><option value="presentation">Edit presentation only</option></select></label>
+          <label for="draft-prompt" id="draft-prompt-label">What should this figure show?</label>
           <textarea id="draft-prompt" rows="3" maxlength="12000" placeholder="Compare test accuracy across models. Explain what context is missing before adding uncertainty."></textarea>
           <details id="draft-author-context">
             <summary>Author context · units and experimental design</summary>
@@ -217,6 +218,10 @@
           <section id="draft-proposal" hidden aria-label="Review unapplied model proposal">
             <strong>Unapplied · unverified proposal</strong>
             <p id="draft-source-choices"></p>
+            <section id="draft-change-review" hidden aria-label="Proposed presentation changes">
+              <p>Review these changes. Source mappings, filters, estimates, claims, and visual channels stay fixed.</p>
+              <ul id="draft-changes"></ul>
+            </section>
             <p>Model assumptions</p><ul id="draft-assumptions"></ul>
             <p>Model questions to review</p><ul id="draft-questions"></ul>
             <details><summary>Proposed canonical specification</summary><pre id="draft-proposal-json" class="draft-json"></pre></details>

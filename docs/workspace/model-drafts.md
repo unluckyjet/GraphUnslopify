@@ -26,6 +26,19 @@ acceptance/queue checkpoint has its own CI before work advances to83.
    Exports belong to the current rendered intent. Save wanted files before ending
    this temporary session.
 
+### Edit presentation in natural language
+
+Choose **Edit presentation only** for requests such as “Make the legend clearer
+and preserve grayscale accessibility.” Review the exact request before sending.
+This mode sends the current display wording and the allowed values for the
+current chart. It can propose a figure title, axis labels, or a boxed legend's
+position, title and literal series labels. The data, source mappings, units,
+filters, estimates, claims and existing colour and mark channels stay fixed.
+
+Review the before and after values and any questions. Applying a reviewed edit
+runs strict checks on the new figure. Those checks include the existing legend
+and colour diagnostics. The editor's Undo restores the previous intent.
+
 For a local compatible server, choose Chat Completions and use its full endpoint,
 for example `http://127.0.0.1:11434/v1/chat/completions`. For the OpenAI Responses
 protocol the endpoint is `https://api.openai.com/v1/responses`; supply a model and

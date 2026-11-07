@@ -135,6 +135,8 @@ these developer-run results establish no general human speed advantage.
 For optional [model-backed drafts](docs/workspace/model-drafts.md), configure a provider,
 review exactly which metadata and authored intent will be sent, then explicitly
 request and review a proposal. Applying it reruns strict checks and supports undo.
+Choose presentation-only editing to review changes to titles, axis wording, or
+legend placement without changing the data, estimates, or visual channels.
 Raw observations are not automatically sent; manual authoring works offline.
 These source features are newer than the published 0.8.0 package.
 

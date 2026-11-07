@@ -103,6 +103,7 @@ class PreviewDrafts:
             payload.get("author_context"),
             palette_id=palette["id"] if palette else None,
             compiler_request=self.state.local_request,
+            scope=payload.get("scope", "figure"),
         )
         with self.lock:
             self._note(client, generation)
@@ -170,6 +171,8 @@ class PreviewDrafts:
             record = self._current(payload, binding)
             if record["result"] is None:
                 raise ValueError("Generate and review a proposal first")
+            if record["result"].get("can_apply") is False:
+                raise ValueError("The proposal has no supported presentation changes to apply")
             record["consumed"] = True
             return {**copy.deepcopy(record["result"]), "requires_strict_render": True}
 

@@ -9,7 +9,7 @@ export function createDraftEditor({api, snapshot, identity, flush, apply}) {
   function buttons() {
     $("draft-disclose").disabled = busy || configBusy || configDirty || !provider?.configured || !current()?.data_id || !$("draft-prompt").value.trim();
     $("draft-send").disabled = busy || !disclosure || !$("draft-consent").checked;
-    $("draft-apply").disabled = busy || !proposal || !$("draft-reviewed").checked;
+    $("draft-apply").disabled = busy || !proposal || proposal.can_apply === false || !$("draft-reviewed").checked;
     $("draft-save-provider").disabled = configBusy;
     $("draft-disable-provider").disabled = configBusy;
   }
@@ -96,6 +96,14 @@ export function createDraftEditor({api, snapshot, identity, flush, apply}) {
     $("draft-provider-note").textContent = "Configuration changed. Save it before requesting a draft; an empty key clears authorization.";
   });
   for (const id of ["draft-prompt", "draft-design", "draft-experimental-unit"]) $(id).addEventListener("input", () => { clear(); say("Review a new request before sending."); });
+  const originalPlaceholder = $("draft-prompt").placeholder;
+  $("draft-scope").onchange = () => {
+    const presentation = $("draft-scope").value === "presentation";
+    $("draft-author-context").hidden = presentation;
+    $("draft-prompt-label").textContent = presentation ? "What should change about the presentation?" : "What should this figure show?";
+    $("draft-prompt").placeholder = presentation ? "Make the legend clearer and preserve grayscale accessibility." : originalPlaceholder;
+    clear(); say("Review a new request before sending.");
+  };
   $("draft-add-unit").onclick = () => {
     const name = $("draft-unit-column").value, unit = $("draft-unit-value").value.trim();
     if (!name || !unit) { error(Error("Choose a source column and enter its author-declared unit.")); return; }
@@ -108,7 +116,8 @@ export function createDraftEditor({api, snapshot, identity, flush, apply}) {
     clear(); const stamp = epoch; busy = true; buttons(); say("Preparing disclosure; nothing sent to the model yet.");
     try {
       const selected = snapshot();
-      const value = await api("/api/draft/disclose", {...selected, prompt: $("draft-prompt").value, author_context: context()});
+      const scope = $("draft-scope").value;
+      const value = await api("/api/draft/disclose", {...selected, scope, prompt: $("draft-prompt").value, author_context: scope === "presentation" ? {} : context()});
       if (stamp !== epoch) return;
       disclosure = value; draftId = value.draft_id;
       $("draft-request-summary").textContent = `${selected.data_name}${selected.sheet ? " · " + selected.sheet : ""} · ${selected.rows} rows. ${value.provider.model} at ${value.provider.endpoint} · ${value.request_bytes.toLocaleString()} bytes. ${value.notice}`;
@@ -127,6 +136,17 @@ export function createDraftEditor({api, snapshot, identity, flush, apply}) {
       proposal = value;
       const spec = value.spec;
       $("draft-source-choices").textContent = `Kind: ${spec.kind}. X: ${spec.x?.field || "none"}. Y: ${spec.y?.field || "none"}. Group: ${spec.group || "none"}. Title: ${spec.title || "none"}.`;
+      $("draft-change-review").hidden = !Array.isArray(value.changes);
+      $("draft-changes").replaceChildren();
+      if (Array.isArray(value.changes)) {
+        const show = setting => setting == null ? "unset" : typeof setting === "string" ? setting : JSON.stringify(setting);
+        for (const {path, before, after} of value.changes) {
+          const line = document.createElement("li");
+          line.textContent = `${path} · ${show(before)} → ${show(after)}`;
+          $("draft-changes").append(line);
+        }
+        if (!value.can_apply) $("draft-changes").textContent = "No supported presentation changes. Review the model's questions.";
+      }
       for (const [id, items] of [["draft-assumptions", value.assumptions], ["draft-questions", value.questions]]) {
         $(id).replaceChildren();
         for (const text of items.length ? items : ["None supplied by the model."]) { const li = document.createElement("li"); li.textContent = text; $(id).append(li); }
@@ -138,7 +158,7 @@ export function createDraftEditor({api, snapshot, identity, flush, apply}) {
     finally { if (stamp === epoch) { busy = false; buttons(); } }
   };
   $("draft-apply").onclick = async () => {
-    if (!proposal || !$("draft-reviewed").checked) return;
+    if (!proposal || proposal.can_apply === false || !$("draft-reviewed").checked) return;
     const stamp = epoch; busy = true; buttons();
     try {
       const accepted = await api("/api/draft/accept", {...snapshot(), draft_id: draftId, reviewed: true});

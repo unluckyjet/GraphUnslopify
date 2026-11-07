@@ -88,6 +88,95 @@ def plan(server, owned, *, context=None, protocol="responses"):
     return drafts.DraftPlan(provider, data, spec, "Call the figure Proposed title", context)
 
 
+def test_presentation_disclosure_and_only_explicit_display_changes(provider_server, owned):
+    spec, data = owned
+    spec["legend"] = {"position": "upper_right", "title": "Models"}
+    spec["group"] = "seed"
+    spec["marker"] = True
+    provider_server.reply = response({"legend": {"position": "outside_bottom"}})
+    provider = drafts.DraftProvider(provider_server.endpoint, "test-model")
+    proposal = drafts.DraftPlan(
+        provider,
+        data,
+        spec,
+        "Move the legend below the plot and preserve grayscale accessibility.",
+        scope="presentation",
+    )
+    disclosure = proposal.disclosure()
+    assert disclosure["scope"] == "presentation"
+    disclosed = json.loads(disclosure["request"]["input"][0]["content"])
+    assert set(disclosed) == {"current_intent", "response_envelope"}
+    assert disclosed["current_intent"]["x"] == {"label": "Epoch"}
+    assert disclosed["current_intent"]["legend"]["title"] == "Models"
+    patch_schema = disclosed["response_envelope"]["properties"]["patch"]
+    assert (
+        "outside_bottom" in patch_schema["properties"]["legend"]["properties"]["position"]["enum"]
+    )
+    assert "NEVER_SEND" not in json.dumps(disclosure)
+    assert provider_server.calls == []
+    result = proposal.propose(consent=True)
+    assert result["can_apply"] and not result["applied"] and not result["verified"]
+    assert result["changes"] == [
+        {"path": "/legend/position", "before": "upper_right", "after": "outside_bottom"}
+    ]
+    canonical = local_request("validate", spec)["resolved"]
+    canonical["legend"]["position"] = "outside_bottom"
+    assert result["spec"] == canonical
+    assert spec["legend"]["position"] == "upper_right"
+
+
+@pytest.mark.parametrize(
+    "patch",
+    [
+        {"x": {"field": "score"}},
+        {"filter": [{"field": "epoch", "op": "gt", "value": 1}]},
+        {"uncertainty": {"kind": "ci"}},
+        {"legend": {"show": False}},
+        {"legend": {"position": "outside_top", "items": ["a"]}},
+        {"marker": False},
+    ],
+)
+def test_presentation_scope_quarantines_unsupported_edits(provider_server, owned, patch):
+    spec, data = owned
+    provider_server.reply = response(patch)
+    proposal = drafts.DraftPlan(
+        drafts.DraftProvider(provider_server.endpoint, "test-model"),
+        data,
+        spec,
+        "Clarify this figure",
+        scope="presentation",
+    )
+    with pytest.raises(drafts.InvalidDraft, match="presentation-only") as failure:
+        proposal.propose(consent=True)
+    assert failure.value.envelope["patch"] == patch
+    assert all(problem["path"][0] == "patch" for problem in failure.value.problems)
+
+
+def test_presentation_no_op_cannot_be_applied(provider_server, tmp_path):
+    state = PreviewState(tmp_path, 1024 * 1024)
+    upload = state.upload("input.csv", b"x,y\n1,2\n2,3\n")
+    provider_server.reply = response({"legend": {"position": "best"}})
+    state.drafts.configure({"endpoint": provider_server.endpoint, "model": "test-model"})
+    payload = {
+        "client": "presenter",
+        "generation": 0,
+        "data_id": upload["id"],
+        "spec": {
+            "kind": "line",
+            "x": {"field": "x", "label": "X"},
+            "y": {"field": "y", "label": "Y"},
+        },
+        "prompt": "Review the current legend placement",
+        "scope": "presentation",
+    }
+    disclosure = state.drafts.disclose(payload)
+    payload["draft_id"] = disclosure["draft_id"]
+    result = state.drafts.propose({**payload, "consent": True})
+    assert result["changes"] == [] and result["can_apply"] is False
+    with pytest.raises(ValueError, match="no supported presentation changes"):
+        state.drafts.accept({**payload, "reviewed": True})
+
+
 def test_input_schema_defaults_all_kinds_and_compaction_preserves_nodes():
     source = local_request("input-schema")
     packed = drafts.compact_schema(source)

@@ -72,22 +72,24 @@ def _render_spec(args: argparse.Namespace) -> int:
     return 0
 
 
-def _sensitivity(args: argparse.Namespace) -> int:
+def _comparison_file(name, limit):
     from .experiment_imports import _contained_bytes
-    from .sensitivity import run_sensitivity, sensitivity_plan
 
-    def local_bytes(name, limit):
-        if not isinstance(name, str) or "://" in name:
-            raise ValueError("Sensitivity requires local figure inputs")
-        path = Path(name).resolve(strict=True)
-        data = _contained_bytes(path.parent, path.name, limit=limit)
-        if not 0 < len(data) <= limit:
-            raise ValueError("Sensitivity requires a nonempty bounded local file")
-        return data
+    if not isinstance(name, str) or "://" in name:
+        raise ValueError("Comparison requires local figure inputs")
+    path = Path(name).resolve(strict=True)
+    data = _contained_bytes(path.parent, path.name, limit=limit)
+    if not 0 < len(data) <= limit:
+        raise ValueError("Comparison requires a nonempty bounded local file")
+    return data
+
+
+def _sensitivity(args: argparse.Namespace) -> int:
+    from .sensitivity import run_sensitivity, sensitivity_plan
 
     try:
         spec = _load_spec(args.spec).spec
-        alternatives = json.loads(local_bytes(args.alternatives, 64 * 1024))
+        alternatives = json.loads(_comparison_file(args.alternatives, 64 * 1024))
         plan = sensitivity_plan(spec, alternatives)
         if not args.reviewed:
             print(
@@ -103,12 +105,57 @@ def _sensitivity(args: argparse.Namespace) -> int:
                 )
             )
             return 2
-        data = local_bytes(spec.get("data", {}).get("path"), 16 * 1024**2)
+        data = _comparison_file(spec.get("data", {}).get("path"), 16 * 1024**2)
         palette_name = spec.get("palette_lock")
-        palette = local_bytes(palette_name, 1024**2) if palette_name else None
+        palette = _comparison_file(palette_name, 1024**2) if palette_name else None
         result = run_sensitivity(
             spec,
             alternatives,
+            data=data,
+            palette=palette,
+            destination=args.out_dir,
+            reviewed=True,
+            timeout=args.timeout,
+        )
+    except (OSError, SpecError, TypeError, ValueError) as problem:
+        print(json.dumps({"status": "failed", "error": str(problem)}))
+        return 2
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+    return result["exit_code"]
+
+
+def _robustness(args: argparse.Namespace) -> int:
+    from .visual_robustness import robustness_plan, run_robustness
+
+    try:
+        spec = _load_spec(args.spec).spec
+        requested = json.loads(_comparison_file(args.plan, 64 * 1024))
+        if not isinstance(requested, dict) or set(requested) != {"alternatives", "thresholds"}:
+            raise ValueError("The plan needs alternatives and thresholds")
+        alternatives, thresholds = requested["alternatives"], requested["thresholds"]
+        plan = robustness_plan(spec, alternatives, thresholds)
+        if not args.reviewed:
+            print(
+                json.dumps(
+                    {
+                        "status": "review_required",
+                        "thresholds": thresholds,
+                        "choices": [
+                            {key: value for key, value in item.items() if key != "spec"}
+                            for item in plan
+                        ],
+                        "next": "Confirm the alternatives and materiality thresholds with --reviewed.",
+                    }
+                )
+            )
+            return 2
+        data = _comparison_file(spec["data"].get("path"), 16 * 1024**2)
+        palette_name = spec.get("palette_lock")
+        palette = _comparison_file(palette_name, 1024**2) if palette_name else None
+        result = run_robustness(
+            spec,
+            alternatives,
+            thresholds,
             data=data,
             palette=palette,
             destination=args.out_dir,
@@ -1021,6 +1068,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--timeout", type=float, default=60, help="per-figure timeout in seconds"
     )
     sensitivity.set_defaults(handler=_sensitivity)
+
+    robustness = commands.add_parser(
+        "robustness", help="measure how display choices change checked native figures"
+    )
+    robustness.add_argument("spec", help="baseline FigureSpec JSON file")
+    robustness.add_argument(
+        "--plan", required=True, help="JSON alternatives and materiality thresholds"
+    )
+    robustness.add_argument("--out-dir", required=True, help="new robustness evidence directory")
+    robustness.add_argument(
+        "--reviewed", action="store_true", help="confirm the choices and thresholds"
+    )
+    robustness.add_argument(
+        "--timeout", type=float, default=60, help="per-figure timeout in seconds"
+    )
+    robustness.set_defaults(handler=_robustness)
 
     bundle = commands.add_parser("bundle", help="archive a figure with its actual source runtime")
     bundle.add_argument("spec", help="FigureSpec JSON file")

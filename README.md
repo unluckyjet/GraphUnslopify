@@ -760,6 +760,7 @@ The [statistical power assistant](docs/workspace/statistical-power.md) plans pow
 The [effect size explorer](docs/workspace/effect-size-explorer.md) compares observed differences and confidence intervals and traces them to the original CSV records.
 Run [sensitivity analysis](docs/workspace/sensitivity-analysis.md) to compare justified statistical alternatives, native figure previews, and changes in existing claim verdicts.
 [Figure claim links](docs/workspace/figure-claim-links.md) connect manuscript excerpts or captions to current deterministic figure checks.
+Use [visualization robustness tests](docs/workspace/visual-robustness.md) to check how axis scales, calibration bins, and display choices affect the native figure.
 
 The [data preparation preview](docs/workspace/data-preparation.md) shows
 missing values, type conversions and excluded records before rendering.

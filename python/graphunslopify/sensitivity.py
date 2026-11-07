@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import subprocess
+import sys
 from pathlib import Path
 
 from .audit import AuditError, _outputs, _run, _validate_report
@@ -208,7 +209,7 @@ def _compare_claims(baseline, alternative):
     ]
 
 
-def _render(variant, output, folder, source, source_sha, palette, timeout):
+def _render(variant, output, folder, source, source_sha, palette, timeout, *, visual=False):
     folder.mkdir()
     spec = copy.deepcopy(variant["spec"])
     spec["data"]["path"] = "../" + source.name
@@ -226,16 +227,21 @@ def _render(variant, output, folder, source, source_sha, palette, timeout):
     result = {key: value for key, value in variant.items() if key != "spec"}
     result.update(status="failed", findings=[], claims=[], errors=[], estimates={}, preview=None)
     try:
-        translation = Figure(spec).translate(api="local", trace_observations=True)
+        translation = Figure(spec).translate(api="local", trace_observations=not visual)
         result["findings"] = translation["findings"]
         if not translation["ok"]:
             raise ValueError("Static figure checks refused this choice")
         script = folder / "figure.py"
         code = translation["code"].encode("utf8")
         script.write_bytes(code)
+        command = (
+            [sys.executable, "-m", "graphunslopify.robustness_render", str(script)]
+            if visual
+            else native_command(script, translation["filename"])
+        )
         completed = _run(
             [
-                *native_command(script, translation["filename"]),
+                *command,
                 "--strict",
                 "--json",
                 "--report",
@@ -261,7 +267,26 @@ def _render(variant, output, folder, source, source_sha, palette, timeout):
         if report["outputs"]:
             (png,) = _outputs(report, folder, output)
             result["preview"] = png
-        result["estimates"] = _measurements(folder, report, _digest(code), source_sha)
+        if visual:
+            witness_path = folder / "robustness-observation.json"
+            if witness_path.stat().st_size > 8 * 1024**2:
+                raise ValueError("The renderer's robustness evidence exceeds 8 MiB")
+            witness = json.loads(witness_path.read_bytes())
+            if (
+                not result["preview"]
+                or witness.get("png_sha256") != result["preview"]["sha256"]
+                or witness.get("program_sha256") != _digest(code)
+            ):
+                raise ValueError(
+                    "The visual observation does not match the native figure and program"
+                )
+            if witness.get("available") is not True:
+                raise ValueError(
+                    witness.get("error", "No supported visual observation was recorded")
+                )
+            result["visual"] = witness
+        else:
+            result["estimates"] = _measurements(folder, report, _digest(code), source_sha)
         result["status"] = (
             "checked"
             if completed.returncode == 0 and report["status"] == "passed"
@@ -277,11 +302,7 @@ def _render(variant, output, folder, source, source_sha, palette, timeout):
     return result
 
 
-def run_sensitivity(spec, alternatives, *, data, destination, reviewed, palette=None, timeout=60):
-    """Run each choice through the native renderer and keep its evidence in a new folder."""
-    plan = sensitivity_plan(spec, alternatives)
-    if reviewed is not True:
-        raise ValueError("Explicitly review the statistical assumptions and justified alternatives")
+def _run_variants(spec, plan, *, data, destination, palette, timeout, visual=False):
     if type(data) is not bytes or not 0 < len(data) <= _MAX_INPUT_BYTES:
         raise ValueError("Select a nonempty data snapshot up to 16 MiB")
     if type(timeout) not in (int, float) or not 0 < timeout <= 120:
@@ -312,42 +333,60 @@ def run_sensitivity(spec, alternatives, *, data, destination, reviewed, palette=
                 source_sha,
                 palette_path,
                 timeout,
+                visual=visual,
             )
             for index, variant in enumerate(plan)
         ]
-        original = variants[0]
-        for choice in variants[1:]:
-            choice["comparison"] = (
-                _compare(original["estimates"], choice["estimates"])
-                if original["estimates"] and choice["estimates"]
-                else None
-            )
-            choice["claim_comparison"] = (
-                _compare_claims(original["claims"], choice["claims"])
-                if "runtime_status" in original and "runtime_status" in choice
-                else None
-            )
-        for choice in variants:
-            choice["estimates"] = list(choice["estimates"].values())
-        status = "checked" if all(item["status"] == "checked" for item in variants) else "partial"
-        report = {
-            "schema_version": 1,
-            "kind": "graphunslopify.sensitivity",
-            "status": status,
-            "exit_code": 0 if status == "checked" else 2,
-            "source": {
+        if _digest(source.read_bytes()) != source_sha:
+            raise ValueError("The input snapshot changed during comparison")
+        return (
+            output,
+            {
                 "sha256": source_sha,
                 "bytes": len(data),
                 "format": data_format,
                 "sheet": spec["data"].get("sheet"),
                 "palette_sha256": _digest(palette) if palette_path is not None else None,
             },
-            "choices": variants,
-            "scope": "Author-justified alternatives, unchanged data snapshot, and descriptive differences between checked computations. No joint inference or selection of a preferred result.",
-        }
-        (output / "sensitivity.json").write_text(_identity(report) + "\n", encoding="utf8")
-        return report
+            variants,
+        )
     finally:
         source.unlink(missing_ok=True)
         if palette_path is not None:
             palette_path.unlink(missing_ok=True)
+
+
+def run_sensitivity(spec, alternatives, *, data, destination, reviewed, palette=None, timeout=60):
+    """Run each choice through the native renderer and keep its evidence in a new folder."""
+    plan = sensitivity_plan(spec, alternatives)
+    if reviewed is not True:
+        raise ValueError("Explicitly review the statistical assumptions and justified alternatives")
+    output, snapshot, variants = _run_variants(
+        spec, plan, data=data, destination=destination, palette=palette, timeout=timeout
+    )
+    original = variants[0]
+    for choice in variants[1:]:
+        choice["comparison"] = (
+            _compare(original["estimates"], choice["estimates"])
+            if original["estimates"] and choice["estimates"]
+            else None
+        )
+        choice["claim_comparison"] = (
+            _compare_claims(original["claims"], choice["claims"])
+            if "runtime_status" in original and "runtime_status" in choice
+            else None
+        )
+    for choice in variants:
+        choice["estimates"] = list(choice["estimates"].values())
+    status = "checked" if all(item["status"] == "checked" for item in variants) else "partial"
+    report = {
+        "schema_version": 1,
+        "kind": "graphunslopify.sensitivity",
+        "status": status,
+        "exit_code": 0 if status == "checked" else 2,
+        "source": snapshot,
+        "choices": variants,
+        "scope": "Author-justified alternatives, unchanged data snapshot, and descriptive differences between checked computations. No joint inference or selection of a preferred result.",
+    }
+    (output / "sensitivity.json").write_text(_identity(report) + "\n", encoding="utf8")
+    return report

@@ -4,6 +4,10 @@ Keep accepted wording and presentation conventions with an owned paper project.
 Each project has its own memory. Changing a preferred unit label leaves the
 figure's unit, quantities, data and saved audit unchanged.
 
+Open **Research intent memory** in the paper workspace to add, update or forget
+an entry. Review its previous and proposed wording before accepting. Use the
+same panel to read accepted entries and their history.
+
 Read the current values and revision with `graphunslopify project-intent PAPER`.
 Write the entries to add, replace or forget in a JSON file such as `changes.json`.
 

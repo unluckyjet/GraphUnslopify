@@ -114,6 +114,27 @@ def post(server, path, payload, expected=200):
     return json.loads(raw)
 
 
+def test_research_intent_http_uses_local_auth_and_exact_review(editor):
+    route = "/api/research-intent"
+    assert request(editor, route, token=False)[0] == 403
+    before = get(editor, "/api/review")
+    revision = get(editor, route)["revision"]
+    change = {"expected_revision": revision, "changes": {"units": {"latency": "ms"}}}
+    assert request(editor, route + "/review", change, token=False)[0] == 403
+    assert (
+        request(editor, route + "/review", change, headers={"Origin": "https://other.invalid"})[0]
+        == 403
+    )
+    reviewed = post(editor, route + "/review", change)
+    wrong = {**change, "review_sha256": "0" * 64}
+    assert "exact" in post(editor, route + "/accept", wrong, expected=400)["error"]
+    accept = {**change, "review_sha256": reviewed["review_sha256"]}
+    assert request(editor, route + "/accept", accept, token=False)[0] == 403
+    assert post(editor, route + "/accept", accept)["entries"]["units"] == {"latency": "ms"}
+    assert "Refresh" in post(editor, route + "/accept", accept, expected=400)["error"]
+    assert get(editor, "/api/review") == before
+
+
 def element_payload(server):
     state = get(server, "/api/state")
     event = next(item for item in state["history"] if item["action"] == "run")

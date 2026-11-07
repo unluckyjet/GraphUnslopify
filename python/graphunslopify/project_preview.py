@@ -636,6 +636,7 @@ class ProjectHandler(PreviewHandler):
             "/project-selection.js": "project-selection.js",
             "/project-comments.js": "project-comments.js",
             "/project-claim-links.js": "project-claim-links.js",
+            "/project-intent.js": "project-intent.js",
             "/project-presentation.js": "project-presentation.js",
             "/reuse-intent.js": "reuse-intent.js",
             "/cleaning-preview.js": "cleaning-preview.js",
@@ -674,6 +675,10 @@ class ProjectHandler(PreviewHandler):
             value = lambda key: query.get(key, [""])[0]
             if route == "/api/state":
                 self.json(state.snapshot())
+            elif route == "/api/research-intent":
+                from .project_intent import project_intent
+
+                self.json(project_intent(state.source))
             elif route == "/api/reuse/gallery":
                 self.send_template_gallery()
             elif route == "/api/info":
@@ -794,6 +799,8 @@ class ProjectHandler(PreviewHandler):
                 raise ProjectError("Reviewer controls must fit within 64 KiB.")
             if route == "/api/claim-links" and length > 16384:
                 raise ProjectError("Claim link requests must fit within 16 KiB.")
+            if route.startswith("/api/research-intent/") and length > 262144:
+                raise ProjectError("Research intent requests must fit within 256 KiB.")
             if route == "/api/figure-comments" and length > 16384:
                 raise ProjectError("Figure comment requests must fit within 16 KiB.")
             if route == "/api/statistical-power" and length > 4096:
@@ -838,6 +845,19 @@ class ProjectHandler(PreviewHandler):
                 self.json(state.journal_check(payload))
             elif route == "/api/element-map":
                 self.json(state.element_map(payload))
+            elif route in ("/api/research-intent/review", "/api/research-intent/accept"):
+                from .project_intent import accept_project_intent, review_project_intent
+
+                accepting = route.endswith("/accept")
+                fields = {"changes", "expected_revision"}
+                if accepting:
+                    fields.add("review_sha256")
+                if payload.keys() != fields:
+                    raise ProjectError(
+                        "Supply the exact changes, current revision and acceptance digest when required."
+                    )
+                operation = accept_project_intent if accepting else review_project_intent
+                self.json(operation(state.source, **payload))
             elif route == "/api/claim-links":
                 from .project_claim_links import (
                     remove_claim_link,

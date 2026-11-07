@@ -69,6 +69,30 @@
             </section>
           </details>
         </section>
+        <section class="card">
+          <details id="research-intent"><summary>Research intent memory</summary>
+            <p class="muted">Save preferred wording for this project. These entries guide authoring and keep figure definitions and audit results separate.</p>
+            <p id="intent-status" role="status">Open this panel to load accepted entries.</p>
+            <button id="intent-refresh" class="quiet" type="button">Refresh memory</button>
+            <div id="intent-current" aria-label="Accepted research intent"></div>
+            <form id="intent-form">
+              <fieldset id="intent-fields" disabled>
+                <legend>Propose a wording change</legend>
+                <label>Category<select id="intent-category"><option value="terminology">Terminology</option><option value="model_names">Model names</option><option value="units">Units</option><option value="figure_conventions">Figure conventions</option></select></label>
+                <label>Name<input id="intent-name" maxlength="100" required /></label>
+                <label>Preferred wording<input id="intent-value" maxlength="300" required /></label>
+                <label class="check"><input id="intent-forget" type="checkbox" /> Forget this entry</label>
+                <button id="intent-review" class="secondary" type="submit">Review memory change</button>
+              </fieldset>
+            </form>
+            <section id="intent-proposal" class="shared-review" aria-labelledby="intent-proposal-title" hidden>
+              <h3 id="intent-proposal-title">Review memory change</h3>
+              <ul id="intent-diff"></ul>
+              <div class="actions"><button id="intent-accept" type="button" disabled>Accept memory change</button><button id="intent-cancel" class="quiet" type="button">Close review</button></div>
+            </section>
+            <details><summary>Accepted memory history</summary><ol id="intent-history"></ol><button id="intent-older" class="quiet" type="button" hidden>Show older changes</button></details>
+          </details>
+        </section>
         <section class="card selection-card">
           <details id="selection-panel"><summary>Edit selected figures</summary>
             <p class="muted">Choose figures, propose presentation changes, then review before saving. Selected settings override paper defaults. Original definitions, data and claims stay separate.</p>

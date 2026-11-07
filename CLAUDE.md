@@ -21,6 +21,10 @@ to the paper or policy behind it. `docs/future.md` parks work that is not
 scheduled. `pipeline/` is the standing queue of audited improvements, and
 `pipeline/cycle.md` is what one pass through it does.
 
+Local verification and CI use Ruff 0.17.3. Install that release with
+`python -m pip install ruff==0.17.3` before linting; upgrade it in both places
+when validating a toolchain change.
+
 Before pushing, run the seven checks:
 
     npm run typecheck

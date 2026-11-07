@@ -611,6 +611,15 @@ def _project(args: argparse.Namespace) -> int:
             from .project_review import project_review
 
             result = project_review(args.path, event_id=args.event)
+        elif args.command == "project-review-panel":
+            from .review_panel import paper_review_panel
+
+            result = paper_review_panel(
+                args.path,
+                figures=args.figure,
+                journal_profile=args.journal_profile,
+                expected_revision=args.expected_revision,
+            )
         elif args.command == "project-audit":
             from .paper_audit import audit_paper
 
@@ -1383,6 +1392,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-review-intent", "review exact proposed changes to project memory"),
         ("project-accept-intent", "accept a reviewed change to project memory"),
         ("project-review", "read grouped scientific evidence without executing figures"),
+        ("project-review-panel", "assemble readability, statistical and journal review evidence"),
         (
             "project-audit",
             "strictly audit all paper figures and export prioritized review evidence",
@@ -1402,6 +1412,14 @@ def build_parser() -> argparse.ArgumentParser:
         project = commands.add_parser(name, help=help_text)
         project.add_argument("path", nargs="?", default=".")
         project.set_defaults(handler=_project)
+        if name == "project-review-panel":
+            project.add_argument("--journal-profile", help="technical journal profile ID")
+            project.add_argument(
+                "--figure", action="append", help="current figure key; repeat to select several"
+            )
+            project.add_argument(
+                "--expected-revision", help="current project-review evidence revision"
+            )
         if name in ("project-review-intent", "project-accept-intent"):
             project.add_argument("--changes", required=True, help="JSON patch of wording changes")
             project.add_argument(

@@ -78,6 +78,97 @@ def packet(root, event=None, token=None):
     return z, json.loads(z.read("review.json")), review
 
 
+def test_review_panel_checks_real_native_and_pdf_bytes_in_separate_roles(
+    paper, monkeypatch, capsys
+):
+    root, _, _, _ = paper
+    review = reviews.project_review(root)
+    before = inventory(root)
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("The deterministic panel must not run figure programs")
+
+    monkeypatch.setattr(auditing, "_run", forbidden)
+    assert (
+        main(
+            [
+                "project-review-panel",
+                str(root),
+                "--journal-profile",
+                "plos-one-main",
+                "--expected-revision",
+                review["evidence_revision"],
+            ]
+        )
+        == 0
+    )
+    panel = json.loads(capsys.readouterr().out)
+    assert inventory(root) == before
+    assert panel["model_review"] == "not_requested"
+    assert panel["journal_profile"]["id"] == "plos-one-main"
+    assert panel["matches_current_native_revision"]
+    assert [row["figure_key"] for row in panel["figures"]] == [
+        "training",
+        "results-table",
+        "pdf:foreign",
+    ]
+    line, _, pdf = panel["figures"]
+    assert line["statistical_claims"]["claims"]["items"][0]["verdict"] == "holds"
+    assert line["readability"] == review["figures"][0]["groups"]["legibility"]
+    exports = line["journal_formatting"]["exports"]
+    assert {Path(row["name"]).suffix for row in exports} == {".png", ".svg", ".pdf"}
+    png = next(row for row in exports if row["name"].endswith(".png"))
+    assert any(
+        row["code"] == "file_format" and row["status"] == "failed"
+        for row in png["report"]["checks"]
+    )
+    assert pdf["statistical_claims"]["claims"]["state"] == "untested"
+    assert pdf["readability"]["state"] == "visual_only"
+    [measured] = pdf["journal_formatting"]["exports"]
+    assert (
+        measured["sha256"]
+        == hashlib.sha256((root / "private original.pdf").read_bytes()).hexdigest()
+    )
+    assert all("path" not in result for result in exports)
+
+
+def test_review_panel_keeps_changed_pdf_and_unselected_profile_explicit(paper):
+    from graphunslopify.review_panel import paper_review_panel
+
+    root, _, _, _ = paper
+    first = paper_review_panel(root, figures=["pdf:foreign"])
+    assert first["figures"][0]["journal_formatting"]["state"] == "profile_required"
+    source = root / "private original.pdf"
+    source.write_bytes(source.read_bytes() + b"\n% changed source\n")
+    with pytest.raises(model.ProjectError, match="Paper evidence changed"):
+        paper_review_panel(root, expected_revision=first["evidence_revision"])
+    current = paper_review_panel(root, figures=["pdf:foreign"], journal_profile="plos-one-main")
+    [pdf] = current["figures"]
+    assert pdf["journal_formatting"] == {"state": "evidence_unavailable", "exports": []}
+    assert pdf["statistical_claims"]["claims"]["state"] == "untested"
+    with pytest.raises(model.ProjectError, match="distinct current figure keys"):
+        paper_review_panel(root, figures=["pdf:foreign", "pdf:foreign"])
+    with pytest.raises(model.ProjectError, match="supported journal profile"):
+        paper_review_panel(root, journal_profile="unspecified-policy")
+
+
+def test_review_panel_preserves_failed_native_claim_when_journal_checks_are_available(paper):
+    from graphunslopify.review_panel import paper_review_panel
+
+    root, _, _, _ = paper
+    file = root / "training.figure.json"
+    spec = load(file)
+    spec["claims"][0].update(subject="base", reference="ours")
+    save(file, spec)
+    assert model.run_project(root, baseline=None)["exit_code"] == 2
+    panel = paper_review_panel(root, figures=["training"], journal_profile="nature-final-graphs")
+    [figure] = panel["figures"]
+    assert panel["matches_current_native_revision"]
+    assert figure["recorded_outcome"] == "failed"
+    assert figure["statistical_claims"]["claims"]["items"][0]["verdict"] == "fails"
+    assert figure["journal_formatting"]["state"] == "recorded"
+
+
 def test_actual_mixed_packet_preserves_files_groups_parent_counts_and_original_executions(
     paper, monkeypatch
 ):

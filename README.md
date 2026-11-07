@@ -576,6 +576,8 @@ one Markdown summary plus a machine-readable report, continuing after individual
 For an initialized paper workspace, [export a prioritized audit report](docs/workspace/paper-audit.md)
 with `graphunslopify project-audit ./paper --output review.zip`. It keeps recorded failures,
 PDF evidence gaps, and any separately reviewed model suggestions visible in one packet.
+The [review panel](docs/workspace/review-panel.md) groups readability, statistical claims and
+journal checks separately when you need to see what each kind of evidence supports.
 
 Keep [accepted research wording and conventions](docs/workspace/research-intent.md) in the
 paper project. Review additions, updates and removals before saving them to the local history.

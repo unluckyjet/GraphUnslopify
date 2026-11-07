@@ -47,6 +47,28 @@ def copy(checked, tmp_path):
     return root / "graphunslopify-project/project.json"
 
 
+def test_research_intent_acceptance_preserves_the_current_native_audit(copy):
+    from graphunslopify.project_intent import (
+        accept_project_intent,
+        project_intent,
+        review_project_intent,
+    )
+    from graphunslopify.project_review import project_review
+
+    before = project_review(copy)
+    config = copy.read_bytes()
+    changes = {"units": {"score": "percent"}, "figure_conventions": {"palette": "grayscale"}}
+    revision = project_intent(copy)["revision"]
+    plan = review_project_intent(copy, changes, expected_revision=revision)
+    accept_project_intent(
+        copy, changes, expected_revision=revision, review_sha256=plan["review_sha256"]
+    )
+
+    assert project_intent(copy)["entries"]["units"] == {"score": "percent"}
+    assert project_review(copy) == before
+    assert copy.read_bytes() == config
+
+
 def test_exclusive_initialization_preserves_all_originals_and_no_data_is_snapshotted(tmp_path):
     root = tmp_path / "paper"
     shutil.copytree(ROOT / "examples/paper", root)

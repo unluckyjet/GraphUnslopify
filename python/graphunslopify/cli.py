@@ -584,6 +584,29 @@ def _project(args: argparse.Namespace) -> int:
             result = project_status(args.path)
         elif args.command == "project-history":
             result = project_history(args.path)
+        elif args.command == "project-intent":
+            from .project_intent import project_intent
+
+            result = project_intent(args.path)
+        elif args.command in ("project-review-intent", "project-accept-intent"):
+            from .experiment_imports import _contained_bytes
+            from .project_intent import accept_project_intent, review_project_intent
+
+            proposal = Path(args.changes).expanduser().absolute()
+            raw = _contained_bytes(proposal.parent, proposal.name, limit=256 * 1024)
+            if len(raw) > 256 * 1024:
+                raise ValueError("Research intent changes must fit within 256 KiB.")
+            changes = json.loads(raw)
+            result = (
+                review_project_intent(args.path, changes, expected_revision=args.expected_revision)
+                if args.command == "project-review-intent"
+                else accept_project_intent(
+                    args.path,
+                    changes,
+                    expected_revision=args.expected_revision,
+                    review_sha256=args.review_sha256,
+                )
+            )
         elif args.command == "project-review":
             from .project_review import project_review
 
@@ -1356,6 +1379,9 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-init", "initialize durable paper figure management beside its manifest"),
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
+        ("project-intent", "read accepted terminology, model names, units and figure conventions"),
+        ("project-review-intent", "review exact proposed changes to project memory"),
+        ("project-accept-intent", "accept a reviewed change to project memory"),
         ("project-review", "read grouped scientific evidence without executing figures"),
         (
             "project-audit",
@@ -1376,6 +1402,15 @@ def build_parser() -> argparse.ArgumentParser:
         project = commands.add_parser(name, help=help_text)
         project.add_argument("path", nargs="?", default=".")
         project.set_defaults(handler=_project)
+        if name in ("project-review-intent", "project-accept-intent"):
+            project.add_argument("--changes", required=True, help="JSON patch of wording changes")
+            project.add_argument(
+                "--expected-revision", required=True, help="project-intent revision"
+            )
+        if name == "project-accept-intent":
+            project.add_argument(
+                "--review-sha256", required=True, help="exact reviewed change digest"
+            )
         if name == "project-init":
             project.add_argument("--folder", default="graphunslopify-project")
             project.add_argument(

@@ -128,10 +128,65 @@ def _scorecard_html(value):
     )
 
 
+def _audit_html(report):
+    audit = report.get("paper_audit")
+    if audit is None:
+        return ""
+    positions = {row["key"]: index for index, row in enumerate(report["figures"])}
+    names = {row["key"]: row["name"] for row in audit["figures"]}
+    items = "".join(
+        f"<li><strong>{html.escape(issue['priority'].replace('_', ' '))}</strong> · "
+        f'<a href="#figure-{positions[issue["figure"]]}">{html.escape(names[issue["figure"]])}</a> '
+        f"· {html.escape(issue['message'])}</li>"
+        for issue in audit["issues"]
+    )
+    counts = audit["counts"]
+    return (
+        '<section aria-labelledby="paper-audit-title"><h2 id="paper-audit-title">Paper audit priorities</h2>'
+        f"<p>{audit['figure_count']} figures reviewed · {counts['error']} recorded errors · "
+        f"{counts['evidence_gap']} evidence gaps · {counts['warning']} warnings.</p>"
+        '<p><a href="reports/paper-audit.json">Paper audit JSON and evidence references</a></p>'
+        + (f"<ol>{items}</ol>" if items else "<p>No review priorities were recorded.</p>")
+        + "</section>"
+    )
+
+
+def _qualitative_html(batches):
+    if not batches:
+        return ""
+    groups = []
+    for number, batch in enumerate(batches, start=1):
+        details = batch.get("review", {}).get("qualitative", {}).get("content")
+        if details is None:
+            groups.append(f"<p>Batch {number} unavailable · {html.escape(batch['error'])}</p>")
+            continue
+        suggestions = "".join(
+            f"<li><strong>{html.escape(item['figure_key'])}</strong> · "
+            f"{html.escape(item['suggestion'])} · {html.escape(item['why'])} "
+            f"({html.escape(', '.join(item['evidence_ids']))})</li>"
+            for item in details["suggestions"]
+        )
+        questions = "".join(f"<li>{html.escape(item)}</li>" for item in details["author_questions"])
+        groups.append(
+            f"<h3>Batch {number}</h3><p>{html.escape(details['summary'])}</p><ul>{suggestions}</ul>"
+            + (f"<p>Questions for the author</p><ul>{questions}</ul>" if questions else "")
+        )
+    return (
+        '<section aria-labelledby="paper-qualitative-title"><h2 id="paper-qualitative-title">'
+        "Unverified model suggestions</h2><p>Review the wording and evidence references. "
+        "The recorded audit verdicts remain separate.</p>"
+        '<p><a href="reports/qualitative-review.json">Batch evidence and references</a></p>'
+        + "".join(groups)
+        + "</section>"
+    )
+
+
 def _index(report):
     escape = lambda value: html.escape(str(value), quote=True)
+    audit = report.get("paper_audit")
+    audit_figures = {row["key"]: row for row in audit["figures"]} if audit else {}
     rows = []
-    for figure in report["figures"]:
+    for number, figure in enumerate(report["figures"]):
         assets = [item for item in report["assets"] if item.get("figure") == figure["key"]]
         links = []
         for item in assets:
@@ -150,11 +205,19 @@ def _index(report):
             None,
         )
         preview = f'<img src="{escape(image)}" alt="Saved {escape(figure["id"])}">' if image else ""
+        anchor = f' id="figure-{number}"' if audit else ""
+        audit_row = audit_figures.get(figure["key"])
+        evidence = (
+            f"<p>Paper audit evidence: {escape(audit_row['evidence_state']).replace('_', ' ')}.</p>"
+            if audit_row
+            else ""
+        )
         rows.append(
-            f"<section><h2>{escape(figure.get('display_name', figure['id']))}</h2>"
+            f"<section{anchor}><h2>{escape(figure.get('display_name', figure['id']))}</h2>"
             f"<p>{escape(figure['scope'])} · {escape(figure['state']).replace('_', ' ')}</p>{preview}"
             f"<p>Recorded outcome: {escape(figure.get('execution_status', 'unavailable'))}.</p>"
-            '<div class="links">'
+            + evidence
+            + '<div class="links">'
             + "".join(links)
             + "</div>"
             + _group_html(figure.get("groups"))
@@ -169,6 +232,17 @@ def _index(report):
         if native
         else "No intact native paper audit in this selection."
     )
+    execution = (
+        "This is saved evidence, not a new execution or continuing scientific acceptance. "
+        "PDF numerical claims and original data remain untested."
+    )
+    if audit:
+        basis = (
+            "This report ran the native figures with strict checks."
+            if audit["execution"] == "fresh_native_audit"
+            else "This report uses saved evidence."
+        )
+        execution = basis + " PDF numerical claims remain untested."
     return (
         '<!doctype html><html lang="en"><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -183,8 +257,7 @@ def _index(report):
         ".groups article{padding:12px;background:#f2f6f8;border-radius:8px}</style>"
         f"<header><p>GRAPHUNSLOPIFY · SAVED REVIEW PACKET</p><h1>{escape(report['project_name'])} — figure review</h1>"
         f"<p>{status}</p><p>{escape(report['created_at'])}</p>"
-        "<p>This is saved evidence, not a new execution or continuing scientific acceptance. "
-        "PDF numerical claims and original data remain untested.</p>"
+        f"<p>{execution}</p>"
         "<p>Raw datasets, original PDFs and source programs are excluded. "
         "The recorded reports contain results, labels and source metadata.</p>"
         '<p><a download href="review.json">Full review JSON</a> · '
@@ -200,12 +273,16 @@ def _index(report):
         + "<details><summary>Whole-paper checks and policy</summary><pre>"
         + escape(json.dumps(native, indent=2, ensure_ascii=False))
         + "</pre></details></header>"
+        + _audit_html(report)
+        + _qualitative_html(report.get("qualitative_reviews"))
         + "".join(rows)
         + "</html>"
     ).encode("utf8")
 
 
-def create_review_packet(path=".", *, expected_revision, event_id=None):
+def create_review_packet(
+    path=".", *, expected_revision, event_id=None, paper_audit=False, run_event=None, qualitative=()
+):
     """Collect explicit saved files for the reviewed revision, including failed/partial scope."""
     _review_token(expected_revision)
     source, _ = _config(path)
@@ -379,6 +456,14 @@ def create_review_packet(path=".", *, expected_revision, event_id=None):
             "assets": packet.assets,
             "scope": "Read-only saved native and source-free visual evidence. Integrity hashes do not authenticate authorship. Export success is not scientific acceptance or a new reproduction.",
         }
+        if paper_audit:
+            from .paper_audit import summarize_paper
+
+            report["paper_audit"] = summarize_paper(review, run_event=run_event)
+            packet.add("reports/paper-audit.json", _bytes(report["paper_audit"]))
+            if qualitative:
+                report["qualitative_reviews"] = qualitative
+                packet.add("reports/qualitative-review.json", _bytes(qualitative))
         packet.add(
             "reports/scorecard.json",
             _bytes(

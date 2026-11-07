@@ -13,6 +13,7 @@ from graphunslopify import audit as auditing
 from graphunslopify import project as model
 from graphunslopify import project_export as packets
 from graphunslopify import project_review as reviews
+from graphunslopify.cli import main
 from graphunslopify.project_inspections import inspect_project_pdf, project_inspections
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -295,3 +296,65 @@ def test_actual_failed_claim_and_scientific_exit_remain_failed_in_packet(paper):
     assert any(c["verdict"] == "fails" for c in row["groups"]["claims"]["items"])
     assert json.loads(z.read("reports/native-audit.json"))["exit_code"] == 2
     assert "Recorded outcome: failed" in z.read("index.html").decode()
+
+
+def test_paper_audit_runs_all_native_figures_and_flags_pdf_evidence(paper, tmp_path, capsys):
+    root, _, previous, _ = paper
+    file = root / "training.figure.json"
+    spec = load(file)
+    spec["claims"][0].update(subject="base", reference="ours")
+    save(file, spec)
+    original = file.read_bytes()
+    destination = tmp_path / "review.zip"
+    assert main(["project-audit", str(root), "--output", str(destination)]) == 2
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "failed" and output["execution"] == "fresh_native_audit"
+    assert output["native_audit_event"] != previous["id"] and output["native_exit_code"] == 2
+    assert output["figure_count"] == 3 and file.read_bytes() == original
+    assert hashlib.sha256(destination.read_bytes()).hexdigest() == output["sha256"]
+    with zipfile.ZipFile(destination) as z:
+        report = json.loads(z.read("review.json"))
+        audit = json.loads(z.read("reports/paper-audit.json"))
+        assert report["paper_audit"] == audit
+        assert report["review"]["native_run"]["execution_counts"]["executed"] == 2
+        assert [(row["evidence_state"], row["recorded_outcome"]) for row in audit["figures"]] == [
+            ("current_audit_run", "failed"),
+            ("current_audit_run", "passed"),
+            ("saved_visual_evidence", "incomplete"),
+        ]
+        failed = next(item for item in audit["issues"] if item["code"] == "recorded_claim_failed")
+        assert failed["figure"] == "native:training" and failed["priority"] == "error"
+        gap = next(item for item in audit["issues"] if item["code"] == "pdf_claims_untested")
+        assert gap["figure"] == "pdf:foreign" and gap["priority"] == "evidence_gap"
+        for item in (failed, gap):
+            value = report
+            for key in item["evidence_pointer"].strip("/").split("/"):
+                value = value[int(key)] if isinstance(value, list) else value[key]
+            assert value.get("verdict", value.get("state")) in ("fails", "untested")
+        assert audit["issues"].index(failed) < audit["issues"].index(gap)
+        html = z.read("index.html").decode()
+        assert "Paper audit priorities" in html and "#figure-" in html
+        assert "This report ran the native figures with strict checks." in html
+        assert html.count("Paper audit evidence: current audit run.") == 2
+        assert "<script>foreign" not in html
+
+
+def test_saved_paper_audit_discloses_stale_inputs_without_execution(paper, tmp_path, monkeypatch):
+    from graphunslopify.paper_audit import audit_paper
+
+    root, _, previous, _ = paper
+    file = root / "training.figure.json"
+    save(file, {**load(file), "title": "Changed after the previous run"})
+    before = inventory(root)
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Saved evidence must not execute a figure")
+
+    monkeypatch.setattr(auditing, "_run", forbidden)
+    result = audit_paper(root, tmp_path / "review.zip", saved_evidence=True)
+    assert result["status"] == "incomplete" and result["exit_code"] == 2
+    assert result["execution"] == "saved_evidence"
+    assert result["native_audit_event"] == previous["id"]
+    assert any(item["code"] == "native_evidence_unavailable" for item in result["issues"])
+    assert not any(row["evidence_state"] == "current_audit_run" for row in result["figures"])
+    assert inventory(root) == before

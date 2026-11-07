@@ -573,6 +573,10 @@ A manifest connects figure specs or compatible generated programs to local data,
 and optional published artifacts. The audit regenerates entries, runs strict checks and produces
 one Markdown summary plus a machine-readable report, continuing after individual failures.
 
+For an initialized paper workspace, [export a prioritized audit report](docs/workspace/paper-audit.md)
+with `graphunslopify project-audit ./paper --output review.zip`. It keeps recorded failures,
+PDF evidence gaps, and any separately reviewed model suggestions visible in one packet.
+
 Try it on the demo:
 
 ```sh

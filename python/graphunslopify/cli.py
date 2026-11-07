@@ -588,6 +588,23 @@ def _project(args: argparse.Namespace) -> int:
             from .project_review import project_review
 
             result = project_review(args.path, event_id=args.event)
+        elif args.command == "project-audit":
+            from .paper_audit import audit_paper
+
+            if len(args.review_plan) != len(args.consent_sha256) or (
+                args.consent and not args.review_plan
+            ):
+                raise ValueError("Supply one consent digest per reviewed model request.")
+            result = audit_paper(
+                args.path,
+                args.output,
+                saved_evidence=args.saved_evidence,
+                expected_revision=args.expected_revision,
+                timeout=args.timeout,
+                reviewed_requests=list(zip(args.review_plan, args.consent_sha256, strict=True)),
+                consent=args.consent,
+                api_key=os.environ.get("GRAPHUNSLOPIFY_DRAFT_API_KEY", ""),
+            )
         elif args.command == "project-scorecard":
             from .project_scorecard import project_scorecard
 
@@ -1340,6 +1357,10 @@ def build_parser() -> argparse.ArgumentParser:
         ("project-status", "inspect every figure's last result and declared input freshness"),
         ("project-history", "verify saved project run and settings history"),
         ("project-review", "read grouped scientific evidence without executing figures"),
+        (
+            "project-audit",
+            "strictly audit all paper figures and export prioritized review evidence",
+        ),
         ("project-scorecard", "report available and missing reproduction evidence by component"),
         ("project-export", "save figure files and an auditable review packet without re-execution"),
         ("project-inspections", "read saved source-free PDF visual evidence and freshness"),
@@ -1388,6 +1409,34 @@ def build_parser() -> argparse.ArgumentParser:
             project.add_argument(
                 "--expected-revision",
                 help="evidence_revision from project-review; omitted selects current saved evidence",
+            )
+        if name == "project-audit":
+            project.add_argument("--output", required=True, help="new paper audit ZIP destination")
+            project.add_argument(
+                "--saved-evidence",
+                action="store_true",
+                help="use current saved evidence without executing figures",
+            )
+            project.add_argument("--expected-revision", help="current project-status revision")
+            project.add_argument(
+                "--timeout", type=float, default=120, help="native figure timeout in seconds"
+            )
+            project.add_argument(
+                "--review-plan",
+                action="append",
+                default=[],
+                help="reviewed request document for current saved evidence",
+            )
+            project.add_argument(
+                "--consent-sha256",
+                action="append",
+                default=[],
+                help="exact consent digest for each request, in the same order",
+            )
+            project.add_argument(
+                "--consent",
+                action="store_true",
+                help="authorize sending all reviewed requests to their configured providers",
             )
         if name == "project-inspect-pdf":
             project.add_argument("--pdf", required=True)

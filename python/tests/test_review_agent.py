@@ -8,6 +8,7 @@ import hashlib
 import json
 import shutil
 import threading
+import zipfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -133,6 +134,80 @@ def plan(server, paper, **kwargs):
 
 def request(review):
     return review.request(consent=True, consent_sha256=review.disclosure()["consent_sha256"])
+
+
+def test_paper_audit_assembles_reviewed_batches_without_changing_verdicts(
+    server, paper, tmp_path, capsys
+):
+    files, digests = [], []
+    for key in ("training", "results-table"):
+        review = plan(server, paper, figures=[key])
+        file = tmp_path / (key + ".json")
+        write_document(review_document(review), file)
+        files.append(file)
+        digests.append(review.disclosure()["consent_sha256"])
+
+    refuse_second = False
+
+    def respond_to_current_batch():
+        raw, _ = server.calls[-1]
+        body = json.loads(raw)
+        context = json.loads(body["input"][0]["content"])
+        key = context["deterministic_evidence"]["figures"][0]["key"]
+        if refuse_second and key == "results-table":
+            server.text = "unusable provider response"
+            return
+        reply = proposal()
+        reply["suggestions"][0].update(
+            figure_key=key, suggestion="<script>review suggestion</script>"
+        )
+        server.text = json.dumps(reply)
+
+    server.on_request = respond_to_current_batch
+    before = inventory(paper)
+    output = tmp_path / "review.zip"
+    command = ["project-audit", str(paper), "--saved-evidence", "--output", str(output)]
+    options = [
+        token
+        for file, digest in zip(files, digests, strict=True)
+        for token in ("--review-plan", str(file), "--consent-sha256", digest)
+    ]
+    assert main([*command, *options]) == 2
+    assert "consent" in capsys.readouterr().out and not server.calls and not output.exists()
+    assert main([*command, *options[:4], "--consent"]) == 2
+    assert "every current figure" in capsys.readouterr().out and not server.calls
+    assert main([*command, *options, "--consent"]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["status"] == "checked" and result["qualitative_status"] == "completed"
+    assert len(server.calls) == 2 and inventory(paper) == before
+    with zipfile.ZipFile(output) as z:
+        report = json.loads(z.read("review.json"))
+        qualitative = json.loads(z.read("reports/qualitative-review.json"))
+        assert report["paper_audit"]["status"] == "checked"
+        assert [row["figures"] for row in qualitative] == [["training"], ["results-table"]]
+        assert all(row["status"] == "completed" for row in qualitative)
+        assert all(
+            row["review"]["qualitative"]["citations_validate_references_only"]
+            for row in qualitative
+        )
+        assert report["review"] == project_review(paper)
+        index = z.read("index.html").decode()
+        assert "Unverified model suggestions" in index
+        assert (
+            "<script>review suggestion" not in index and "&lt;script&gt;review suggestion" in index
+        )
+    refuse_second = True
+    partial = tmp_path / "partial.zip"
+    assert main([*command[:-1], str(partial), *options, "--consent"]) == 2
+    result = json.loads(capsys.readouterr().out)
+    assert result["status"] == "checked" and result["qualitative_status"] == "partial"
+    assert len(server.calls) == 4 and inventory(paper) == before
+    with zipfile.ZipFile(partial) as z:
+        report = json.loads(z.read("review.json"))
+        qualitative = report["qualitative_reviews"]
+        assert report["paper_audit"]["status"] == "checked"
+        assert [row["status"] for row in qualitative] == ["completed", "unavailable"]
+        assert "unusable provider response" not in z.read("index.html").decode()
 
 
 @pytest.mark.parametrize("protocol", ["responses", "chat"])

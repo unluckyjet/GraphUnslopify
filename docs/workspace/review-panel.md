@@ -27,3 +27,30 @@ all three before calling `request(consent=True, consent_sha256=digests)`, where
 `digests` maps each role to its approved digest. Only the journal role receives
 technical profile measurements. The result keeps unavailable roles and local
 deterministic evidence visible and reports reused provider configurations.
+
+For a saved CLI review, provide a JSON file with public settings for all three
+roles. Each role accepts `endpoint`, `model` and optional `protocol` (`responses`
+or `chat`). Role providers can use different models or share one configuration.
+
+```json
+{
+  "readability": {"endpoint": "http://127.0.0.1:8000/v1/responses", "model": "local-model"},
+  "statistical_claims": {"endpoint": "http://127.0.0.1:8000/v1/responses", "model": "local-model"},
+  "journal_formatting": {"endpoint": "http://127.0.0.1:8000/v1/responses", "model": "local-model"}
+}
+```
+
+```sh
+graphunslopify project-review-panel-plan ./paper --providers providers.json \
+  --figure training --journal-profile nature-final-graphs --out review-plan.json
+graphunslopify project-review-panel-send ./paper --plan review-plan.json \
+  --consent --consent-sha256 "$APPROVED_PLAN_DIGEST" --out review-result.json
+```
+
+Open the saved plan to inspect the three requests and destinations before
+supplying its `consent_sha256`. Pass authorization separately with
+`GRAPHUNSLOPIFY_REVIEW_READABILITY_API_KEY`,
+`GRAPHUNSLOPIFY_REVIEW_STATISTICAL_CLAIMS_API_KEY` and
+`GRAPHUNSLOPIFY_REVIEW_JOURNAL_FORMATTING_API_KEY` as needed. A partial result
+is saved and returns exit code 2. Changes to the evidence, profile or plan
+require a new disclosure.

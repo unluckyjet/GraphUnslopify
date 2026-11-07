@@ -915,6 +915,70 @@ def _review_agent(args: argparse.Namespace) -> int:
         return 2
 
 
+def _review_panel_roles(args: argparse.Namespace) -> int:
+    from .drafts import _strict_json
+    from .experiment_imports import _contained_bytes
+    from .review_panel_providers import (
+        MAX_ROLE_PLAN_BYTES,
+        ROLE_NAMES,
+        PaperReviewRoles,
+        restore_role_plan,
+        role_providers,
+    )
+
+    def read(path, limit):
+        source = Path(path).expanduser().resolve(strict=True)
+        raw = _contained_bytes(source.parent, source.name, limit=limit)
+        if len(raw) > limit:
+            raise ValueError("The review file exceeds its size limit.")
+        return _strict_json(raw.decode("utf-8"))
+
+    try:
+        destination = Path(args.out).expanduser()
+        if destination.exists() or destination.is_symlink() or not destination.parent.is_dir():
+            raise ValueError("Choose a new output in an existing directory.")
+        if args.command == "project-review-panel-plan":
+            providers = role_providers(read(args.providers, 16 * 1024))
+            result = PaperReviewRoles(
+                args.path, providers, figures=args.figure, journal_profile=args.journal_profile
+            ).document()
+            payload = (
+                json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
+            ).encode("utf-8")
+            if len(payload) > MAX_ROLE_PLAN_BYTES:
+                raise ValueError("The saved role plan exceeds 12 MiB. Select fewer figures.")
+            with destination.open("xb") as stream:
+                stream.write(payload)
+            summary = {"status": "disclosed", "consent_sha256": result["consent_sha256"]}
+        else:
+            if not args.consent:
+                raise ValueError("Review every role request and explicitly consent before sending.")
+            document = read(args.plan, MAX_ROLE_PLAN_BYTES)
+            plan = restore_role_plan(
+                args.path,
+                document,
+                consent_sha256=args.consent_sha256,
+                api_keys={
+                    role: os.environ.get(f"GRAPHUNSLOPIFY_REVIEW_{role.upper()}_API_KEY", "")
+                    for role in ROLE_NAMES
+                },
+            )
+            digests = {role: row["consent_sha256"] for role, row in document["roles"].items()}
+            with destination.open("x", encoding="utf-8") as stream:
+                result = plan.request(consent=True, consent_sha256=digests)
+                json.dump(result, stream, indent=2, ensure_ascii=False, allow_nan=False)
+                stream.write("\n")
+            summary = {
+                "status": result["status"],
+                "roles": {role: row["status"] for role, row in result["role_reviews"].items()},
+            }
+        print(json.dumps({**summary, "output": str(destination)}))
+        return 2 if summary["status"] == "partial" else 0
+    except (OSError, ValueError, TypeError) as problem:
+        print(json.dumps({"error": str(problem), "exit_code": 2}))
+        return 2
+
+
 def _autopilot(args: argparse.Namespace) -> int:
     import io
 
@@ -1276,6 +1340,33 @@ def build_parser() -> argparse.ArgumentParser:
     reviewed.add_argument("--consent-sha256", help="destination/request digest in the disclosure")
     reviewed.add_argument("--out", required=True, help="new JSON result file")
     reviewed.set_defaults(handler=_review_agent)
+
+    panel_plan = commands.add_parser(
+        "project-review-panel-plan", help="save the three exact reviewer role requests for approval"
+    )
+    panel_plan.add_argument("path", nargs="?", default=".")
+    panel_plan.add_argument(
+        "--providers", required=True, help="JSON file with public provider settings for each role"
+    )
+    panel_plan.add_argument("--journal-profile", help="technical journal profile ID")
+    panel_plan.add_argument(
+        "--figure", action="append", help="current figure key; repeat to select several"
+    )
+    panel_plan.add_argument("--out", required=True)
+    panel_plan.set_defaults(handler=_review_panel_roles)
+
+    panel_send = commands.add_parser(
+        "project-review-panel-send",
+        help="send the exact approved role plan against current evidence",
+    )
+    panel_send.add_argument("path", nargs="?", default=".")
+    panel_send.add_argument("--plan", required=True, help="saved role plan JSON")
+    panel_send.add_argument("--consent", action="store_true")
+    panel_send.add_argument(
+        "--consent-sha256", required=True, help="approval digest from the saved plan"
+    )
+    panel_send.add_argument("--out", required=True)
+    panel_send.set_defaults(handler=_review_panel_roles)
 
     propose = commands.add_parser(
         "autopilot-propose", help="review three data/question proposals without rendering"

@@ -238,6 +238,106 @@ def test_role_panel_stops_after_evidence_changes_during_the_first_request(server
     assert len(server.calls) == 1
 
 
+def test_role_panel_cli_saves_and_replays_only_reviewed_requests(
+    server, paper, tmp_path, capsys, monkeypatch
+):
+    roles = {
+        "readability": "legibility",
+        "statistical_claims": "claims",
+        "journal_formatting": "journal_formatting",
+    }
+    provider_file = tmp_path / "providers.json"
+    provider_file.write_text(
+        json.dumps(
+            {role: {"endpoint": server.endpoint, "model": "controlled-" + role} for role in roles}
+        ),
+        encoding="utf8",
+    )
+    plan_file = tmp_path / "plan.json"
+    result_file = tmp_path / "result.json"
+    original = inventory(paper)
+    assert (
+        main(
+            [
+                "project-review-panel-plan",
+                str(paper),
+                "--providers",
+                str(provider_file),
+                "--figure",
+                "training",
+                "--journal-profile",
+                "plos-one-main",
+                "--out",
+                str(plan_file),
+            ]
+        )
+        == 0
+    )
+    notice = json.loads(capsys.readouterr().out)
+    doc = json.loads(plan_file.read_bytes())
+    assert notice["consent_sha256"] == doc["consent_sha256"]
+    assert doc["selection"] == {"figures": ["training"], "journal_profile": "plos-one-main"}
+    assert not server.calls
+    args = [
+        "project-review-panel-send",
+        str(paper),
+        "--plan",
+        str(plan_file),
+        "--out",
+        str(result_file),
+    ]
+    assert main([*args, "--consent-sha256", doc["consent_sha256"]]) == 2
+    assert "explicitly consent" in capsys.readouterr().out
+    assert main([*args, "--consent", "--consent-sha256", "0" * 64]) == 2
+    assert "approval digest" in capsys.readouterr().out
+
+    changed = copy.deepcopy(doc)
+    changed["roles"]["readability"]["request"]["model"] = "changed-after-disclosure"
+    changed["consent_sha256"] = _digest(
+        {key: value for key, value in changed.items() if key != "consent_sha256"}
+    )
+    plan_file.write_text(json.dumps(changed), encoding="utf8")
+    assert main([*args, "--consent", "--consent-sha256", changed["consent_sha256"]]) == 2
+    assert "role requests changed" in capsys.readouterr().out
+    plan_file.write_text(json.dumps(doc), encoding="utf8")
+
+    figure = paper / "training.figure.json"
+    figure_bytes = figure.read_bytes()
+    figure.write_text(
+        json.dumps({**json.loads(figure_bytes), "title": "Changed before replay"}), encoding="utf8"
+    )
+    approved = [*args, "--consent", "--consent-sha256", doc["consent_sha256"]]
+    assert main(approved) == 2
+    assert "role requests changed" in capsys.readouterr().out
+    assert not server.calls and not result_file.exists()
+    figure.write_bytes(figure_bytes)
+
+    for role in roles:
+        monkeypatch.setenv(f"GRAPHUNSLOPIFY_REVIEW_{role.upper()}_API_KEY", "TEST_KEY_" + role)
+
+    def reply():
+        body = json.loads(server.calls[-1][0])
+        context = json.loads(body["input"][0]["content"])
+        role = context["deterministic_evidence"]["role"]
+        content = proposal()
+        content["suggestions"][0].update(topic=roles[role], evidence_ids=["F1.status"])
+        server.text = json.dumps(content)
+
+    server.on_request = reply
+    assert main(approved) == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "completed"
+    result = json.loads(result_file.read_bytes())
+    assert result["matches_current_evidence"] and not result["shared_provider_configuration"]
+    assert all(row["status"] == "completed" for row in result["role_reviews"].values())
+    assert len(server.calls) == 3 and inventory(paper) == original
+    for role, (raw, headers) in zip(roles, server.calls, strict=True):
+        assert raw == _encoded(doc["roles"][role]["request"])
+        assert headers["Authorization"] == "Bearer TEST_KEY_" + role
+    assert all(b"TEST_KEY_" not in path.read_bytes() for path in (plan_file, result_file))
+    assert main(approved) == 2
+    assert "new output" in capsys.readouterr().out and len(server.calls) == 3
+
+
 def test_paper_audit_assembles_reviewed_batches_without_changing_verdicts(
     server, paper, tmp_path, capsys
 ):
